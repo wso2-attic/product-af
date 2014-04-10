@@ -1,0 +1,35 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log=new Log();
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var modPermission = jagg.module("permission");
+
+    if (action == "getAPIsOfApp"){
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var appowner = request.getParameter("appowner");
+        var response = {};
+        
+        //TODO : Need to add permission
+        try{
+            var result = mod.getAPIsOfUserApp(applicationKey, appowner);
+            if (result != null) {
+                print(result);
+            } else {
+                throw "No APIs found for appKey "+ applicationKey;
+            }
+        } catch(e) {
+            throw "Error while getting the list of APIs for appKey "+ applicationKey ;
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

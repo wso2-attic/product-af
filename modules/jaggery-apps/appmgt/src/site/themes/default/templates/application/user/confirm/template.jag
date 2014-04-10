@@ -1,0 +1,34 @@
+<% jagg.template("user/confirm", function(inputs, outputs, jagg) { %>
+ 
+<%
+	var userMod = jagg.module("user");
+
+	var confirm = request.getParameter("confirmation");
+	var confirmationObject = userMod.getUserConfirmationObject(confirm);
+
+	if(confirmationObject != null){
+		if(userMod.invokeUserActivationProcess(confirmationObject.admin, confirmationObject.email, confirmationObject.confirmationKey)){
+
+%>
+	        <div style="margin:20px"/>
+		<div style="margin:40px">You have successfully validated your email address and the contact information associated with your WSO2
+	        Cloud Services account is updated. Click <a href="index.jag">here</a> to access WSO2 Appfactory Application Manager.
+	        </div>
+<%
+   		}else{
+%>
+    	<div style="margin:20px">Your activation request is failed</div>
+<%
+		}
+	}else{
+%>
+	    You have already click the link that post to you to validate your email address or
+	           we were unable to validate your email address. If there are any issues, please report
+	           them on <a href="http://www.wso2.com/cloud/services/support">http://www.wso2.com/cloud/services/support</a>.
+<%
+	}
+%>
+
+
+        
+<% }); %>

@@ -1,0 +1,12 @@
+
+
+
+<%
+jagg.initializer("resources/database/users/list", {
+
+    preInitialize:function () {
+
+    }
+});
+%>
+

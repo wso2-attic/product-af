@@ -1,0 +1,222 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/logdownload/logdownload.jag");
+
+
+var modManager = jagg.module("manager");
+
+var downloadLogFile = function (applicationKey, stage, version, date) {
+    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
+
+    var appName = "" ;
+
+    if(version == "trunk"){
+        appName = applicationKey + "-default-SNAPSHOT";
+    }else{
+        appName = applicationKey + "-" + version;
+    }
+
+    if(date == null || date == ""){
+        date = constructCurrentDate();
+        downloadDailyLogs(appName, stage);
+    }else{
+        var currentDate = constructCurrentDate();
+        if(currentDate == date){
+            downloadDailyLogs(appName, stage);
+        }else if(compareDates(currentDate,date)){
+            var fileName= date  +'.log';
+            downloadArchivedLogFile(appName, stage, fileName);
+        }else{
+            log.debug("Given date is greater than the current date");
+            return "";
+        }
+    }
+    return "";
+
+};
+
+var  compareDates = function(current, original){
+    var currentDateSegments = current.replace(/_/g,'/');
+    var originalDateSegments = original.replace(/_/g, '/');
+
+    return new Date(currentDateSegments).getTime() > new Date(originalDateSegments).getTime();
+
+};
+
+var constructCurrentDate = function(){
+    var d = new Date();
+    var date;
+
+    var curr_date = ("0" + d.getDate()).slice(-2)
+    var curr_month = ("0" + (d.getMonth() + 1)).slice(-2); //Months are zero based
+    var curr_year = d.getFullYear();
+
+    date = curr_year + "_" + curr_month + "_" + curr_date;
+    return date;
+};
+
+var downloadDailyLogs = function (appName, stage){
+    log.info("Downloading daily logs");
+
+    var ws = require("ws");
+    var applicationMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getPaginatedApplicationLogEvents";
+
+    var tenantDomain = modManager.getTenantDomain();
+
+    var payload ='<xsd:getPaginatedApplicationLogEvents xmlns:xsd="http://org.apache.axis2/xsd">' +
+            '<xsd:pageNumber>0</xsd:pageNumber>' +
+            '<xsd:type></xsd:type>' +
+            '<xsd:keyword></xsd:keyword>' +
+            '<xsd:applicationName>' + appName + '</xsd:applicationName>' +
+            '<xsd:domain>'+ tenantDomain +'</xsd:domain>' +
+            '<xsd:serverKey></xsd:serverKey>' +
+            '</xsd:getPaginatedApplicationLogEvents>';
+    var cloudEndpoint= getProperty('ApplicationDeployment.DeploymentStage.'+stage+'.LogServerURL');
+    options["HTTPHeaders"] =
+            [{
+                name : "Cookie", value :modManager.getBackendCookie(cloudEndpoint)
+            }];
+
+    try {
+        var logViewerEndpoint = cloudEndpoint + "LogViewer";
+        applicationMgtService.open(options, logViewerEndpoint, false);
+
+        applicationMgtService.send(payload);
+        result = applicationMgtService.responseE4X;
+        var allEvents=result.*::["return"];
+        var logEvents = allEvents.*::["logInfo"];
+
+        //message is comming in reverse order
+        for(var i=logEvents.length()-1;i>=0;i--){
+            var logEvent="";
+            var entry=logEvents[i];
+            var serverName=entry.*::serverName;
+            var logTime=entry.*::logTime;
+            var logger=entry.*::logger;
+            var message=entry.*::message;
+            var priority=entry.*::priority;
+            var stacktrace=entry.*::stacktrace;
+            //recreate log line
+
+            if(serverName.length() == 0){
+                continue;
+            }
+            logEvent= "\n" +"["+serverName+"]"+"["+logTime+"]"+"["+logger+"]"+message+"\n"+stacktrace;
+            //print it
+            print(logEvent);
+        }
+        log.info("Log download from "+ stage + " server is successful");
+        //return empty string othervice the returned value is appended to log file
+        return "";
+    } catch (e) {
+        log.error('Error occured while downloading the logs');
+        throw "Error while retrieving logs in "+stage+" "+e.toString();
+    }
+};
+
+var downloadArchivedLogFile = function (applicationKey, stage, logFileName) {
+    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
+
+    log.info("Downloading archived logs");
+
+    var ws = require("ws");
+    var applicationMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:downloadArchivedApplicationLogFiles";
+
+    var tenantDomain = modManager.getTenantDomain();
+
+    var decoder = Packages.org.apache.commons.codec.binary.Base64;
+
+    var string = Packages.java.lang.String;
+    var payload ='<xsd:downloadArchivedApplicationLogFiles xmlns:xsd="http://org.apache.axis2/xsd">'
+                      + '<xsd:logFile>' + logFileName + '</xsd:logFile>'
+                      + '<xsd:domain>' + tenantDomain + '</xsd:domain>'
+                      + '<xsd:serverKey></xsd:serverKey>'
+                      + '<xsd:applicationName>' + applicationKey + '</xsd:applicationName>'
+                  + '</xsd:downloadArchivedApplicationLogFiles>';
+    var cloudEndpoint= getProperty('ApplicationDeployment.DeploymentStage.'+stage+'.LogServerURL');
+    options["HTTPHeaders"] =
+    [{
+    	name : "Cookie", value :modManager.getBackendCookie(cloudEndpoint)
+    }];
+    try {
+        var logViewerEndpoint = cloudEndpoint + "LogViewer";
+        applicationMgtService.open(options, logViewerEndpoint, false);
+
+        applicationMgtService.send(payload);
+        result = applicationMgtService.responseE4X;
+
+        if(result != undefined){
+
+            var allEvents=result.*::["return"];
+            var content = decoder.decodeBase64(allEvents);
+
+            var contentString = new string(content);
+
+            print(contentString)
+            log.info("Log download from "+ stage + " server is successful");
+            //return empty string othervice the returned value is appended to log file
+        }
+        return "";
+    } catch (e) {
+        log.error('Error occured while downloading the logs');
+        throw "Error while retrieving logs in "+stage+" "+e.toString();
+    }
+};
+
+//This action returns a json Object as {"stage":"Development" , "versions" : ["trunk", "1.0.0"]}
+var getVersionsOfApplicationInStages = function(userName,applicationKey ){
+    var modApplication = jagg.module("application");
+    var applicationResult = parse(modApplication.getAppVersionsInStages(applicationKey, userName));
+    var appVersions = Array();
+    var versions = applicationResult[0].versions;
+
+    for(var j=0 ; j < versions.length ; j++){
+        var versionObj = versions[j];
+        var stage = versionObj.stage;
+
+        if(appVersions.length == 0){
+            appVersions = appVersions.concat({ stage : stage , versions : Array()})
+        }
+        for(var appVersion in appVersions){
+            if(appVersion == "stage" ){
+                continue;
+            }
+
+            var tempAppVersion = null;
+            if(appVersions.stage == stage){
+                tempAppVersion = appVersions.versions;
+            }else{
+                tempAppVersion = Array();
+            }
+            appVersions = {stage : stage , versions : tempAppVersion.concat(versionObj.version)};
+        }
+    }
+    return {allAppVersions : appVersions};
+
+
+/*    // var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    var hasVisibilityPermissions = outputs.hasVisibilityPermissions;
+
+    for (var i = 0; i < stages.length; i++) {
+        var stage = stages[i];
+
+        if (hasVisibilityPermissions[stage]) {
+
+            //we take all versions in this stage and show them in a dropdown
+
+
+    }//End of if statement
+    }//End of loop
+*/
+}
+
+%>

@@ -1,0 +1,489 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+jagg.template("index", function(inputs, outputs, jagg) { %>
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html" charset="utf-8">
+var parsedAppArray = [];
+var filterArray = [];
+var applicationsInProgress = new Array();
+var timer;
+var noOfRequest = 0;
+var isAllAppCreated = true;
+//var hasTriedOnce = false;
+
+
+function createTable() {
+    addTableColumnHeaders();
+    isAllAppCreated = true;
+    for (var index = 0; index < parsedAppArray.length; index++) {
+        var application = parsedAppArray[index];
+        addTableRow(application);
+    }
+
+    //load appicons
+    for (var index = 0; index < parsedAppArray.length; index++) {
+        var application = parsedAppArray[index];
+        console.log(application);
+        loadAppIcon(application.key);
+    }
+
+    // If there are any Apps which are in pending state
+    if (!isAllAppCreated) {
+    	reloadAppsInPendingState();
+    }
+}
+
+function addTableColumnHeaders() {
+    $("#item_list").html("");
+	var columnHeaderLi = '<li class="item item_header">' +
+    '<div class="th_name col">Application</div>' +
+    '<div class="th_type col">Type</div>' +
+    '<div class="th_branches col">Branches</div>' +
+    '</li>';
+	$("#item_list").append(columnHeaderLi);
+}
+
+function handlePendingApps(application){
+	 var app = getApplicationObj(application.key);
+	 if (app == null) {
+	     applicationsInProgress.push(application);
+	 	jagg.message({
+		    content: 'Application '+ application.name +' creation is In-Progress...',
+		    type: 'success',
+		    id:'inProgress'
+		});
+		hideNotification();
+	 }
+}
+
+function addTableRow(application) {
+    if (application.isPending) {
+        isAllAppCreated = false;
+        handlePendingApps(application);
+        return;
+    }
+
+    // This logic is specific to filter
+    var displayName = "";
+    if (application.highlightedName === undefined || application.highlightedName === "") {
+        displayName = application.name;
+    } else {
+        displayName = application.highlightedName;
+        displayName = displayName.replace("^", "<b style=\"background-color:yellow;\">").replace("~", "</b>");
+        application.highlightedName = "";
+    }
+    var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key;
+
+    var theLi = '<li id="'+application.key+'"class="item">' + '<div class="app_name col truncate">';
+
+    // If any of the branches are in production add the green icon
+    if (application.inProduction == true) {
+        theLi += '<img alt="Green tag" class="green_tag" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("assets/img/green_tag.png"))%>">';
+    }
+    theLi += '<a href="' + url + '" title="' + application.name + '"><img id="' + application.key + '_icon" height="50px" width="40px" alt="icon" src="#"></a>';
+    theLi += '<h2><a href="' + url + '" title="' + application.name + '">' + displayName + '</a></h2></div>';
+    theLi += '<div class="app_type col">' + application.typeDisplayName+ '</div>';
+    if (application.branches > 1) {
+        theLi += '<div class="app_branches col"><h3>' + application.branchCount + ' Branches</h3></div>';
+    } else {
+        theLi += '<div class="app_branches col"><h3>' + application.branchCount + ' Branch</h3></div>';
+    }
+    theLi += '</li>';
+    $("#item_list").append(theLi);
+}
+
+function removeTableRow(appKey){
+	var theLi = $('#'+appKey);
+    theLi.empty();
+}
+
+function reloadAppsInPendingState(){
+     /*
+		 * After App creation form submitted, App Creation verification process
+		 * request is polled back-end in following time order. First request is
+		 * send 15Sec after app created If app creation process hasn't completed
+		 * poll request in every 5Sec (12times) If Creation hasn't succeeded
+		 * after 135 Sec, display Error message as "Error Application Creation"
+		 * and stop calling further
+	 */
+
+    if (noOfRequest == 0) {
+        noOfRequest++;
+        setPendingAppRefreshTimeOut(15000);
+    } else if (noOfRequest <= 12) {
+        noOfRequest++;
+        setPendingAppRefreshTimeOut(5000);
+    } else if (noOfRequest == 13) { // if still application creation process
+									// happens in back-end
+   
+    	jagg.message({
+            content: 'Application creation was not successful. Please retry later',
+            type: 'error',
+            id:'unsuccess'
+        });
+	   
+    	removeFailedPendingAppsFromSession(getPendingAppKeys());
+        setPageRefreshTimeOut(60000);
+    }
+}
+
+function getApplicationObj(applicationKey) {
+    var application;
+    for (var i = 0; i < applicationsInProgress.length; i++) {
+        application = applicationsInProgress[i];
+        if (application.key == applicationKey) {
+            return application;
+        }
+    }
+    return null;
+}
+
+function removeFailedPendingAppsFromSession(appKeys) {
+    jagg.post("../blocks/application/update/ajax/update.jag", {
+            action: "removeFailedPendingApps",
+            pendingAppKeys: appKeys
+        },
+
+        function (result) {
+        	removeFailedPendingApps();
+           // alert('Successfully removed timeout pending applications from
+			// session');
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+           // alert('Error occured while removing timeout pending applications
+			// from session');
+        });
+}
+
+function loadAppIcon(appKey) {
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "isAppIconAvailable",
+            applicationKey: appKey
+        },
+
+        function (result) {
+         if(result == 101){
+        	 $("#"+appKey+"_icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+         }else{
+             <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+               var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=";
+             %>
+             var url='<%=iconUrl%>'+appKey;
+             $("#"+appKey+"_icon").attr('src',url);
+         }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
+
+function createDefaultApplication() {
+	var appName = 'My First App';
+	var userName = '<%=session.get("LOGGED_IN_USER")%>';
+	var appDescription = 'This is my first application';
+	var appType = '<%=getProperties("ApplicationType")[0]%>';
+	var repoType = '<%=getProperties("RepositoryProviderConfig")[0]%>';
+	var userName = userName.replace('@','_').replace('.','_');
+	appKey = userName + 'DefaultApp';
+
+	jagg.post("../blocks/application/add/ajax/add.jag", {
+	        action: "createNewApplication",
+	        applicationName : appName,
+	        applicationKey : appKey,
+	        applicationDescription : appDescription,
+	        applicationType : appType,
+	        userName : '<%=session.get("LOGGED_IN_USER")%>',
+	        repositoryType : repoType
+	    },
+
+	    function (result) {
+	    	populateAppOverview();
+	    },
+
+	    function (jqXHR, textStatus, errorThrown) {
+	    	jagg.message({
+	            content: 'Error occured while creating default application',
+	            type: 'error',
+	            id:'uniqueId8'
+	        });
+	    });
+}
+
+
+function populateCreationCompletedApps() {
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "creationCompletedApps",
+            userName: '<%=userName%>'
+        },
+
+        function (result) {
+            var completedAppArray = jQuery.parseJSON(result);
+            for (var i = 0; i < completedAppArray.length; i++) {
+            	var application = completedAppArray[i];
+            	applicationsInProgress.pop(application);
+            	addTableRow(application);
+            	// updateTableRow(application);
+            	loadAppIcon(application.key);
+            	
+            	jagg.message({
+        	        content: 'Application '+ application.name +' creation completed',
+        	        type: 'success',
+        	        id:'inProgress'
+            	});
+            	hideNotification();
+            }
+
+            if(applicationsInProgress.length > 0){
+            	reloadAppsInPendingState();
+            }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        	 if(applicationsInProgress.length > 0){
+             	reloadAppsInPendingState();
+             }
+        });
+}
+
+function init(){
+	createTable();
+
+    // Load icons
+
+}
+
+function populateAppOverview() {
+    $('#item_list').parent().append($('<span class="icon-spinner icon-spin icon-large spin-large" id="main-spinner"></span>'));
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "getAllApps",
+            userName: '<%=userName%>'
+        },
+
+        function (result) {
+            parsedAppArray = jQuery.parseJSON(result);
+//            if (parsedAppArray.length == 0 && hasTriedOnce == false) {
+//    	    	hasTriedOnce = true;
+//                createDefaultApplication();
+//            }
+            parsedAppArray.sort(NameComparator);
+            init();
+            $('#main-spinner').remove();
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+            $('#main-spinner').remove();
+            jagg.message({
+                    content: 'Error occured while loading user application list',
+                    type: 'error',
+                    id:'uniqueId1'
+                });
+        });
+}
+
+function checkFirstLogin() {
+    jagg.post("../blocks/tenant/users/get/ajax/get.jag", {
+                action: "isFirstLogin"
+            },
+
+            function (result) {
+                var isFirstLogin = jQuery.parseJSON(result);
+                if(isFirstLogin==true){
+                    window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/password-change.jag")%>");
+                }
+            },
+
+            function (jqXHR, textStatus, errorThrown) {
+
+            });
+}
+$(document).ready(function () {
+    checkFirstLogin();
+	populateAppOverview();
+
+    /* filtering the application array */
+    $("#search").bind("keyup", function () {
+        if ($(this).val() === null || $(this).val() === undefined || $(this).val().length === 0) {
+        	init();
+        } else {
+            var finder = $(this).val();
+            var typingPattern = new RegExp($(this).val().replace(/^\s+|\s+$/g, ''), "gi");
+            addTableColumnHeaders();
+            jQuery.grep(parsedAppArray, function (element, index) {
+                if (element.name.match(typingPattern) != null) {
+                    var matcher = element.name.match(typingPattern);
+
+                    if (finder.length > 2) {
+                        var pre = element.name.substr(0, element.name.indexOf(matcher));
+                        var highlight = element.name.substr(element.name.indexOf(matcher), (finder.length));
+                        var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
+
+                        element.highlightedName = pre + "^" + highlight + "~" + rest;
+
+                    }
+
+                    addTableRow(element);
+                    loadAppIcon(element.key);
+                }
+            });
+            // enf of "jQuery.grep.."
+
+            if ($("#item_list").children().length == 0) {
+                $("#item_list").append($('<div>"No matches found!"</div>'));
+            }
+
+
+        }
+    });
+});
+
+/** ***********************Utility Methods********************************** */
+function removeFailedPendingApps(){
+	for (var i = 0; i < applicationsInProgress.length; i++) {
+		removeTableRow(applicationsInProgress[i].key);
+	}
+}
+
+function getPendingAppKeys(){
+	var appkeys = "";
+	 for (var i = 0; i < applicationsInProgress.length; i++) {
+	        var application = applicationsInProgress[i];
+	        appkeys += application.key + " ";
+	    }
+    return appkeys;
+}
+
+function NameComparator(a, b) {
+    return a.name.localeCompare(b.name);
+}
+
+function setPendingAppRefreshTimeOut(intervalTime) {
+	// If timer is not null then clear existing timer
+    if (timer != null)
+        clearTimeout(timer);
+
+    // create new timer with given time interval
+    timer = setTimeout(function () {
+    	populateCreationCompletedApps();
+    }, intervalTime);
+}
+
+function setPageRefreshTimeOut(intervalTime) {
+	// If timer is not null then clear existing timer
+    if (timer != null)
+        clearTimeout(timer);
+
+    // create new timer with given time interval
+    timer = setTimeout(function () {
+    	populateAppOverview();
+    }, intervalTime);
+}
+
+function hideNotification() {
+  // create new timer with given time interval
+    setTimeout(function () {jagg.removeMessage('inProgress')}, 5000);
+}
+
+</script>
+ <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+ <div class="container">
+                	<article class="main">
+                	    <% jagg.includeBlock("page/messages", null); %>
+                        <header class="separator">
+                        	<div class="content">
+                                <% if (outputs.hasAppCreationPermission) { %>
+                                <a class="btn main left margin_15" href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>'">Add New Application</a>
+                                <% } %>
+								<ul class="screen_option right">
+                                    <li class="screen_option_item">
+                                        <ul class="viewswitcher">
+                                            <li><a class="icon-th block_view active" href="#"></a></li>
+                                            <li><a class="icon-th-list table_view" href="#"></a></li>
+                                        </ul>
+                                    </li>
+									<li class="screen_option_item">
+
+									<!--// TODO: post 1.0-->
+									<!--form class=" left fw_250 form-container filter_form">
+											<div class="input_row">
+												 <div class="select2-container select_list error" id="s2id_application_type" style="width: 248px;"><a tabindex="-1" class="select2-choice" onclick="return false;" href="javascript:void(0)">   <span>Show last accessed first</span><abbr class="select2-search-choice-close"></abbr>   <div><b></b></div></a><input type="text" class="select2-focusser select2-offscreen" id="s2id_autogen1" tabindex="0"><div class="select2-drop select2-display-none">   <div class="select2-search select2-search-hidden select2-offscreen">       <input type="text" class="select2-input" spellcheck="false" autocapitilize="off" autocorrect="off" autocomplete="off">   </div>   <ul class="select2-results">   </ul></div></div><select class="select_list select2-offscreen" id="application_type" tabindex="-1">
+													<option>Show last accessed first</option>
+													<option>Show last accessed first</option>
+													<option>Show last accessed first</option>
+												</select>
+											</div>
+									</form-->
+									</li>
+                                    <li class="screen_option_item">
+                                    <form class="left fw_250 form-container search_form">
+                                            <div class="input_row">
+                                                <label class="hide" for="filter_apps">Filter Apps</label>
+                                                <input type="text" value="" name="Filter Apps" placeholder="Filter Apps" class="fw_250" id="search"><span class="icon-search"></span>
+                                            </div>
+                                    </form>
+                                    </li>
+								</ul>
+                            </div>
+                        </header>
+                        <section class="content push_top_40">
+                            <ul class="box_items" id="item_list"></ul>
+                            <div class="pagination" id="app-list-footer">
+                                <ul></ul>
+                            </div>
+                                <span id="eventbody"></span>
+                        <div class="clearfix"></div>
+                        </section>
+                        <div class="clearfix"></div>
+                      </article>
+
+                      <!-- div class="container-fluid space-killer">
+                                <%   if(outputs.hasViewTasksPermission || outputs.hasCEODashboardPermission){  %>
+                                <div class="row-fluid">
+                                    <%   if(outputs.hasCEODashboardPermission){  %>
+                                    <div class="span6 special-link-box1">
+                                        <div class="container-fluid space-killer">
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <a  onclick="location.href='https://appfactorypreview.wso2.com/dashboard'">Dashboard</a>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="span2">
+                                                    <a  onclick="location.href='https://appfactorypreview.wso2.com/dashboard'"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dashboard.png'))%>"  /></a>
+                                                </div>
+                                                <div class="span10">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eros purus, sodales non porttitor quis, hendrerit id
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                    <%   if(outputs.hasViewTasksPermission){  %>
+                                    <div class="span6 special-link-box2">
+                                        <div class="container-fluid space-killer">
+                                            <div class="row-fluid">
+                                                <div class="span12">
+                                                    <a  onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/mytasks.jag")%>'">Tasks</a>
+                                                    <a  onclick="location.href='#'">Tasks</a>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="span2">
+                                                    <a  onclick="location.href='#'"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/tasks.png'))%>"  /></a>
+                                                    <a  onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/mytasks.jag")%>'"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/tasks.png'))%>"  /></a>
+
+                                                    </div>
+                                                <div class="span10">
+                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eros purus, sodales non porttitor quis, hendrerit id
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                </div>
+                                <% } %>
+                            </div -->
+            </div>
+<% }); %>

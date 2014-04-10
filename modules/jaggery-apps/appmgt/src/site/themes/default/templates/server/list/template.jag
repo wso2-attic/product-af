@@ -1,0 +1,270 @@
+<% jagg.template("server/list", function(inputs, outputs, jagg) { %>
+
+ 	<%
+        var applicationName = request.getParameter("applicationName");
+        var applicationKey = request.getParameter("applicationKey");
+        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    %>
+         <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))
+    %>" rel="stylesheet" type="text/css">
+             <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))
+    %>"></script>
+
+ <script type="text/javascript">
+    var allVersions;
+
+
+    $(document).ready(function(){
+
+        $('.datepicker').each(function() {
+            $(this).datepick({dateFormat: 'yyyy_mm_dd'});
+        });
+
+        var archivedLogDownloadForm = $("#archivedLogDownloadForm");
+        $(archivedLogDownloadForm).ajaxForm({
+            error: function (jqXHR, textStatus, errorThrown) {
+                jagg.message({
+                    content:'Error while displaying logs',
+                    type:'error'
+                });
+            }
+        });
+
+        var logDownloadForm = $("#logDownloadForm");
+        $(logDownloadForm).ajaxForm({
+           success: function (data) {
+                jagg.message({
+                    content:'Error while displaying logs',
+                    type:'error'
+                });
+            }
+        });
+
+        getAllVersionsInStage();
+    });
+
+    function VersionComparator(a,b) {
+        return b.version.localeCompare(a.version);
+    }
+
+    function getAllVersionsInStage(){
+        jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
+        action:"getAppVersionsInStages",
+        userName:$("#userName").attr('value'),
+        applicationKey:'<%=applicationKey%>'
+        },function (result) {
+            var parsedObj = jQuery.parseJSON(result);
+            allVersions = parsedObj.allAppVersions;
+
+            var selectedStage = prepareLogDownloadUIStages();
+
+            prepareLogDownloadUIVersions(selectedStage);
+
+        });
+    }
+
+    function localComparator(a,b) {
+        return a.localeCompare(b);
+    }
+
+    function prepareLogDownloadUIStages(){
+        var allStages = Array();
+        var retString = "";
+        var selectedStage;
+
+        for(var version in allVersions) {
+            if(version == "stage" ){
+                allStages = allStages.concat(allVersions.stage);
+            }
+        }
+
+        allStages.sort(localComparator);
+
+        for (var i = 0; i < allStages.length; i++) {
+            var stage = allStages[i];
+            if (i == 0) {
+                retString = retString + '<option selected value="' + stage + '">' + stage + '</option>';
+                selectedStage = stage;
+            } else {
+                retString = retString + '<option value="' + stage + '">' + stage + '</option>';
+            }
+        }
+
+        $('#download_logs_list_stages').append(
+            $('<select id="download_logs_stage" onchange="valueChanged()">' +
+                    retString +
+                '</select>'
+              ));
+
+        return selectedStage;
+
+    }
+
+    function prepareLogDownloadUIVersions(selectedStage){
+        var retString = "";
+
+        var versions = getVersionsOfSelectedStage(selectedStage);
+        if(versions instanceof Array){
+            versions.sort(localComparator);
+            for (var i = 0; i < versions.length; i++) {
+                var version = versions[i];
+                if (version == "trunk") {
+                    retString = retString + '<option selected value="' + version + '">' + "Trunk" + '</option>';
+                } else {
+                    retString = retString + '<option value="' + version + '">' + version + '</option>';
+                }
+            }
+        }else{
+            retString = retString + '<option value="' + versions[0] +'">' + versions[0] + '</option>';
+        }
+
+        $('#download_logs_list_versions').append(
+            $('<select id="app_version_of_stage" >' +
+                    retString +
+                '</select>'));
+
+    }
+
+    function getVersionsOfSelectedStage(stageName){
+        if(allVersions instanceof Array){
+            for (var i = 0; i < allVersions.length; i++) {
+                var versionInfo = allVersions[i];
+                if(versionInfo.stage == stageName){
+                    return versionInfo.versions;
+                }
+            }
+        }else{
+            if(allVersions.stage == stageName){
+                return allVersions.versions;
+            }
+        }
+        return null;
+    }
+
+    function valueChanged(){
+        var selectedStage = document.getElementById("download_logs_list_stages_select").value;
+        prepareLogDownloadUIVersions(selectedStage);
+    }
+
+    function viewLogsSubmitAction(){
+        var applicationStage = document.getElementById("download_logs_stage").value;
+        var applicationVersion = document.getElementById("app_version_of_stage").value;
+        var selectedDate = document.getElementById("date_of_stage").value;
+
+        $("#download_logs_content").empty();
+
+        jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
+        action:"downloadLogFile",
+        applicationKey:'<%=applicationKey%>',
+        applicationStage:applicationStage,
+        applicationVersion:applicationVersion,
+        date:selectedDate,
+        downloadFile:"false"
+        },function (result) {
+
+            try {
+                var resultJson = jQuery.parseJSON(result);
+            } catch (e) {
+                $("#download_logs_content").append(result);
+            }
+            if(resultJson.error == true){
+                jagg.message({
+                    content:'Error while displaying logs',
+                    type:'error'
+                });
+            }
+        });
+    }
+
+    function downloadLogs(){
+        var applicationStage = document.getElementById("download_logs_stage").value;
+        var applicationVersion = document.getElementById("app_version_of_stage").value;
+        var selectedDate = document.getElementById("date_of_stage").value;
+
+        document.getElementById("download_application_stage").value = applicationStage;
+        document.getElementById("download_application_version").value = applicationVersion;
+        document.getElementById("download_date").value = selectedDate ;
+
+        document.getElementById("logDownloadForm").submit();
+    }
+
+     </script>
+
+    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<div class="container">
+    <article class="main" id="server_logs">
+	<%
+        jagg.includeBlock("page/messages", null);
+    %>
+        <header class="separator">
+            <div class="content">
+                <h1>Server logs</h1>
+            </div>
+        </header>
+        <section class="separator">
+            <div class="content well">
+                <h2 class="big">Archived Logs</h2>
+                <form onsubmit="viewLogsSubmitAction()" id="archivedLogDownloadForm" name="archivedLogDownloadForm">
+                    <ul class="list_table push_top_20" >
+                        <li class="list_row_item first_list_row_item">
+                            <ul class="list_row first_list_row">
+                                <li class="list_col first_list_col server_environment_col">
+                                    <h2 class="list_col_heading">Environment</h2>
+                                </li>
+                                <li class="list_col server_download_col">
+                                    <h2 class="list_col_heading">&nbsp;</h2>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <input type="hidden" name="action" value="downloadLogFile">
+                        <input type="hidden" name="applicationKey" value='<%=applicationKey%>'>
+
+                        <li id="download_logs_list_content" class="list_row_item first_list_row_item">
+                            <ul class="list_row first_list_row" id="list_content_stage">
+                                <div class="af_container" style="margin:12px">
+                                    <div class="af_row">
+                                        <div id="download_logs_list_stages" class="col-2">
+                                        </div>
+                                        <div id="download_logs_list_versions" class="col-2">
+                                        </div>
+                                        <div class="col-4">
+                                            <input id="date_of_stage" type="text" class="small push_right_10 datepicker" placeholder="Date" />
+                                        </div>
+                                        <div class="col-1">
+                                            <button type="submit" name="stage">View</button>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="icon_link icon-download-alt"  name="download_file" onclick="downloadLogs()" type="button">Download</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ul>
+                        </li>
+                        <li>
+                            <div class="af_container" style="...">
+                                <div class="af_row">
+                                    <div class="col-12">
+                                        <pre id="download_logs_content"  style="height: 600px ;overflow-y: auto;">
+
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </form>
+                <form action="../blocks/logdownload/ajax/logdownload.jag" id="logDownloadForm" name="logDownloadForm" style="display: none">
+                    <input type="hidden" name="action" value="downloadLogFile">
+                    <input type="hidden" name="applicationKey" value="<%=applicationKey%>">
+                    <input type="hidden" id="download_application_stage" name="applicationStage" value="">
+                    <input type="hidden" id="download_application_version" name="applicationVersion" value="">
+                    <input type="hidden" id="download_date" name="date" value="">
+                    <input type="hidden" name="downloadFile" value="true">
+                </form>
+            </div>
+        </section>
+    <div class="clearfix"></div>
+    </article>
+</div><!-- /container -->
+<% }); %>

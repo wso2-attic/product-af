@@ -1,0 +1,23 @@
+<%
+jagg.module("build", {
+    
+    getBuildInfoByApplicationId:function () {
+        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getBuildInfoByApplicationId.apply(this, arguments);
+    },
+	getTagNamesOfPersistedArtifacts:function () {
+        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getTagNamesOfPersistedArtifacts.apply(this, arguments);
+    },
+    deployTaggedArtifact:function () {
+        return jagg.require(jagg.getModulesDir() + "build/add/add.jag").deployTaggedArtifact.apply(this, arguments);
+    },
+	deployArtifact:function () {
+        return jagg.require(jagg.getModulesDir() + "build/add/add.jag").deployArtifact.apply(this, arguments);
+    },
+    getJenkinsBuilds:function () {
+		return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getJenkinsBuilds.apply(this, arguments);
+	},
+    getAllJenkinsBuildsStats:function(){
+        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getAllJenkinsBuildsStats.apply(this, arguments);
+    }
+});
+%>

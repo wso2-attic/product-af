@@ -1,0 +1,123 @@
+<section class="separator">
+    <div class="content well">
+
+        <ul class="list_table highlight issue_table" >
+            <li class="list_row_item first_list_row_item">
+                <ul class="list_row first_list_row">
+                    <li class="list_col issue_key">
+                        <h2 class="list_col_heading">KEY</h2>
+                    </li>
+                    <li class="list_col issue_project">
+                        <h2 class="list_col_heading">Project</h2>
+                    </li>
+                    <li class="list_col issue_summary">
+                        <h2 class="list_col_heading">Summary</h2>
+                    </li>
+                    <li class="list_col issue_type">
+                        <h2 class="list_col_heading">Type</h2>
+                    </li>
+                    <li class="list_col issue_priority">
+                        <h2 class="list_col_heading">Priority</h2>
+                    </li>
+                    <li class="list_col issue_reporter">
+                        <h2 class="list_col_heading">Reporter</h2>
+                    </li>
+                    <li class="list_col issue_status">
+                        <h2 class="list_col_heading">Status</h2>
+                    </li>
+                    <li class="list_col issue_assignee">
+                        <h2 class="list_col_heading">Assignee</h2>
+                    </li>
+
+                    <li class="list_col issue_version">
+                        <h2 class="list_col_heading">Version</h2>
+                    </li>
+
+                    <li class="list_col issue_severity">
+                        <h2 class="list_col_heading">Severity</h2>
+                    </li>
+
+                    <li class="list_col issue_edit">
+                        <h2 class="list_col_heading">Edit</h2>
+                    </li>
+                    <li class="list_col issue_comment">
+                        <h2 class="list_col_heading">Comment</h2>
+                    </li>
+                </ul>
+                {{#each data}}
+                <ul class="list_row ">
+                    <li class="list_col issue_key">
+                        <div class="list_col_content">
+                            <a href="{{url "/issue/get"}}?issuePkey={{issuePkey}}" >{{issuePkey}}</a>
+                        </div>
+                    </li>
+                    <li class="list_col issue_project">
+                        <div class="list_col_content">
+                            {{projectName}}
+                        </div>
+                    </li>
+                    <li class="list_col issue_summary">
+                        <div class="list_col_content truncate issue_summary">
+                            {{summary}}
+                        </div>
+                    </li>
+                    <li class="list_col issue_type">
+                        <div class="list_col_content">
+                            {{issueType}}
+                        </div>
+                    </li>
+                    <li class="list_col issue_priority">
+                        <div class="list_col_content">
+                            {{priority}}
+                        </div>
+                    </li>
+                    <li class="list_col issue_reporter">
+                        <div class="list_col_content">
+                            {{owner}}
+                        </div>
+                    </li>
+                     <li class="list_col issue_status">
+                        <div class="list_col_content">
+                            {{status}}
+                        </div>
+                    </li>
+
+
+                    <li class="list_col issue_assignee">
+                        <div class="list_col_content">
+                            {{assignee}}
+                        </div>
+                    </li>
+
+                    <li class="list_col issue_version">
+                        <div class="list_col_content">
+                            {{version}}
+                        </div>
+                    </li>
+
+                    <li class="list_col issue_severity">
+                        <div class="list_col_content">
+                            {{severity}}
+                        </div>
+                    </li>
+
+                    <li class="list_col issue_edit">
+                            <a style="margin:0 5px" class="icon-pencil" href="{{url "/issue/edit"}}?issuePkey={{issuePkey}}&projectKey={{projectKey}}" ></a>
+                    </li>
+                    <li class="list_col issue_comment">
+                        <div class="list_col_content">
+                             <a class="icon-comment" href="{{url "/issue/get"}}?issuePkey={{issuePkey}}" ></a>
+                        </div>
+                    </li>
+
+                </ul>
+                {{/each}}
+
+        </ul>
+    </div>
+</section>
+
+
+
+
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs title="App Factory — Users" />
+    <UserPref name="mock" display_name="Enable mock" default_value="true" />
+    <Content type="html">
+     <![CDATA[
+       <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css"></link>
+       <link rel="stylesheet" type="text/css" href="../../css/dashboard-gadgets/styles.css"></link>
+
+       <div id="usersGadgetList" class="categorized-list"></div>
+       <script type="text/javascript">
+        var prefs = new gadgets.Prefs();
+        var users={};
+        if(prefs.getString("mock")!=="true"){
+            users={};
+        }else{
+            users={"developers":{"displayName":"Developers","dataList":[{"name":"chathurak@wso2.com"},{"name":"harshat@wso2.com"},{"name":"janakar@wso2.com"}]},"devOps":{"displayName":"Developer Ops","dataList":[{"name":"sanjaya@wso2.com"},{"name":"manula@wso2.com"}]},"testers":{"displayName":"Testers","dataList":[{"name":"evanthika@wso2.com"},{"name":"chamara@wso2.com"}]},"appOwner":{"displayName":"Application owner","dataList":[{"name":"janakar@wso2.com"}]}};
+        }
+        var html = '<table class="table"><thead><tr>';
+        for (var categoryKey in users) {
+            var category = users[categoryKey];
+            var icon = categoryKey + "-icon";
+            html += '<th><i class="' + icon + '"></i> ' + category.displayName + '</th>';
+
+        }
+        html += '</tr></thead><tbody>';
+        for (var categoryKey in users) {
+            html += '<tr>';
+            var category = users[categoryKey];
+            for (var index in category.dataList) {
+                var user = category.dataList[index];
+                html += '<td>' + user.name + '</td>';
+            }
+            html += '</tr>';
+        }
+        html += '</tbody></table>'
+        document.getElementById('usersGadgetList').innerHTML = html;
+      </script>
+     ]]>
+    </Content>
+</Module>

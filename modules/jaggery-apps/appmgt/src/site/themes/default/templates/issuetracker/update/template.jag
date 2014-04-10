@@ -1,0 +1,180 @@
+<% jagg.template("issuetracker/update", function(inputs, outputs, jagg) { %>
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+%>
+<script type="text/javascript">
+	function updateIssue() {
+	var issue={};
+	issue.key=$("#key").attr('value');
+	issue.type=$('#issueType').children("option:selected").text();
+    issue.summary=$("#summary").attr('value');
+    issue.description=$("#description").attr('value');
+    issue.status=$('#issueStatus').children("option:selected").text();
+    issue.assignee=$('#assignee').children("option:selected").text();
+		  jagg.post("../blocks/issuetracker/update/ajax/update.jag", {
+	    		action:"updateIssue",
+	    		issue:JSON.stringify(issue),
+	    		applicationKey:$("#applicationKey").attr('value'),
+	      },
+	      function (result) {
+
+	      	  if(result != undefined){
+
+                    jagg.message({content:'Issue is updated successfully',type:'info' });
+              }
+
+
+	      },
+	      function (jqXHR, textStatus, errorThrown) {
+              jagg.message({content:'Error occurred while updating issue',type:'error' });
+	    });
+     }
+     function createIssue() {
+     	var issue={};
+     	//issue.key=$("#key").attr('value');
+     	issue.type=$('#issueType').children("option:selected").text();
+         issue.summary=$("#summary").attr('value');
+         issue.description=$("#description").attr('value');
+         issue.status=$('#issueStatus').children("option:selected").text();
+         issue.assignee=$('#assignee').children("option:selected").text();
+     		  jagg.post("../blocks/issuetracker/create/ajax/create.jag", {
+     	    		action:"createIssue",
+     	    		issue:JSON.stringify(issue),
+     	    		applicationKey:$("#applicationKey").attr('value'),
+     	      },
+     	      function (result) {
+
+     	      	  if(result != undefined){
+
+                         jagg.message({content:'Issue is created successfully',type:'info' });
+                   }
+
+
+     	      },
+     	      function (jqXHR, textStatus, errorThrown) {
+                   jagg.message({content:'Error occurred while creating issue',type:'error' });
+     	    });
+          }
+</script>
+
+
+    <!--START  content section-->
+    <div class="container content-container wrapper">
+
+        <div class="row">
+
+            <div class="span12 content-section shadow-up tab-content">
+                <div class="content-data">
+                    <div class="container-fluid">
+                        <div class="row-fluid">
+                         <%
+                                                  var issue;
+                                                  var issueTypes=outputs.issueTypes;
+                                                  var action=outputs.action;
+                                                  if(action=='create'){
+                                                   issue={};
+                                                   issue.key='KEY';
+                                                   issue.type='TYPE';
+                                                   issue.description='Detail about the issue' ;
+                                                   issue.summary='short description';
+                                                   issue.assignee='USER';
+                                                   issue.status='NEW';
+                         %> <h3>Report</h3> <%
+                                                  }else{
+                                                   issue=outputs.issue;
+                         %>  <h3>Update</h3>  <%
+                                                  }
+
+                                                  var applicationKey=outputs.applicationKey;
+                         %>
+
+                         <form>
+
+                         <label>Issue Type</label>
+                         <select id="issueType">
+                         <%
+
+                         for(var i=0;i<issueTypes.length;i++){
+                         var issueType=issueTypes[i];
+                         if(issueType==issue.type){
+                         %>
+                           <option selected="selected" value='<%=issueType%>'><%=issueType%></option>
+                          <%
+                          }else{
+                          %>
+                           <option value='<%=issueType%>'><%=issueType%></option>
+                          <%
+                          }
+                          }
+                          %>
+                         </select>
+                         <input type="hidden" id="applicationKey" value=<%=applicationKey%> />
+                         <input type="hidden" id="key" value=<%=issue.key%> />
+                         <br/>
+                          <label>Summary</label>
+                          <input type="text" id="summary" value="<%=issue.summary%>"
+                          <br/>
+                           <label>Description</label>
+                           <textarea id="description"><%=issue.description%> </textarea>
+                            <label>Issue Status</label>
+                                                    <select id="issueStatus">
+                                                    <%
+                                                     var issueStatuses=outputs.issueStatuses;
+                                                    for(var i=0;i<issueStatuses.length;i++){
+                                                    var issueStatus=issueStatuses[i];
+                                                    if(issueStatus==issue.status){
+                                                    %>
+                                                      <option selected="selected" value='<%=issueStatus%>'><%=issueStatus%></option>
+                                                     <%
+                                                     }else{
+                                                     %>
+                                                      <option value='<%=issueStatus%>'><%=issueStatus%></option>
+                                                     <%
+                                                     }
+                                                     }
+                                                     %>
+                                                    </select>
+                              <label>Assignee</label>
+                                                                                <select id="assignee">
+                                                                                <%
+                                                                                 var assignees=outputs.assignees;
+                                                                                for(var i=0;i<assignees.length;i++){
+                                                                                var assignee=assignees[i];
+                                                                                if(assignee==issue.assignee){
+                                                                                %>
+                                                                                  <option selected="selected" value='<%=assignee%>'><%=assignee%></option>
+                                                                                 <%
+                                                                                 }else{
+                                                                                 %>
+                                                                                  <option value='<%=assignee%>'><%=assignee%></option>
+                                                                                 <%
+                                                                                 }
+                                                                                 }
+                                                                                 %>
+                                                                                </select>
+                                                                                <br/>
+                           <%
+                           if(action=='create'){
+                           %>
+                             <input class="btn" type="button" value="Create" onclick="createIssue()">
+                            <%
+                           }else{
+                           %>
+                           <input class="btn" type="button" value="Update" onclick="updateIssue()">
+                           <%
+                           }
+                           %>
+                         </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="push"></div>
+    </div>
+    <div class="clearfix"></div>
+
+        
+<% }); %>

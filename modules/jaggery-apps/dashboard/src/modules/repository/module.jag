@@ -1,0 +1,8 @@
+<%
+jagg.module("repository", {
+	
+    getPopularRepositoriesBySize:function () {
+        return jagg.require(jagg.getModulesDir() + "repository/get/list.jag").getPopularRepositoriesBySize.apply(this, arguments);
+    }
+});
+%>

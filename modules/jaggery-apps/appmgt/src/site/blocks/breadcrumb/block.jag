@@ -1,0 +1,7 @@
+<%
+jagg.block("breadcrumb", {
+    initialize:function (data) {
+
+    }
+});
+%>

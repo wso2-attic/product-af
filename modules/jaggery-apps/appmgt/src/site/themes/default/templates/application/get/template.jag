@@ -1,0 +1,851 @@
+<% include("/jagg/constants.jag"); %>
+<% jagg.template("application/get", function(inputs, outputs, jagg) { %>
+
+<%
+    var log = new Log();
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var hasConfigureAPIManagerPermission= outputs.hasConfigureAPIManagerPermission;
+    var stagesMap = outputs.stagesMap ;
+    %>
+<script type="text/javascript" charset="utf-8">
+	
+    //this is for zeroclipboard pluging
+    var _defaults = {
+      moviePath:         "<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
+      trustedDomains:    undefined,                  // Domains that we should trust (single string or array of strings)
+      hoverClass:        "zeroclipboard-is-hover",   // The class used to hover over the object
+      activeClass:       "zeroclipboard-is-active",  // The class used to set object active
+      allowScriptAccess: "sameDomain",               // SWF outbound scripting policy
+      useNoCache:        true,                       // Include a nocache query parameter on requests for the SWF
+      amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
+    };
+    ZeroClipboard.setDefaults(_defaults);
+
+    var processIndicatorHTML='<img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/processing.gif"))%>" id="processIndicator" style="width:22px;height:22px;"/>';
+    var issuesSummaryJSON = {};
+    var descriptionInfo="";//declared to hold the application description
+    var loggedinUser='';
+    var appownerName='';
+    var allResourceCount = [];
+    var appInfo;//
+    var deploymentPermission  = JSON.parse('<%=stringify(stagesMap)%>') ;
+//[cdata[
+$(document).ready(function(){
+
+    loadApplicationInfo();
+  //loadAppUsersWithRoles();
+    loadDatasourceInfo();
+    
+    //TODO: there is an exception that should correct in application overview page reading apis. this 'loadAPIsInfo' action is not here anymore, punnadi is checking this.
+    //loadAPIsInfo();
+    
+    
+    loadDependanciesInfo();
+    loadRssDatabasesInfo();
+    createCurrentStatus();
+    loggedinUser=$('#userName').val();
+    if(loggedinUser!=appownerName){
+        $('#editFieldNotification').html('');
+    }else{
+        $('#description').each(function(){
+            $(this).qtip(
+               {
+                   content: {
+                               text: $(this).attr('data-value')
+                            },
+                   show: {
+                       when: 'click',
+                       solo: true // Only show one tooltip at a time
+                   },
+                   hide: 'unfocus',
+                   style: {
+                                  classes: 'popup_status_box tooltip',
+                                  widget: false,
+                                  def: false
+                              }
+               });
+        });
+    }
+
+    $('#repositories_and_builds_list_content').css('height','70px');
+    $('#commentsAnchor').click(function(){
+	   $('html, body').animate({
+	       scrollTop: $( $(this).attr('href') ).offset().top
+	   }, 500);
+	   return false;
+	});
+
+    $('#appDescriptionEditBtn').click(
+		function(){
+	        $('#description').hide();
+	        $('#appDescriptionEdit').show();
+		}
+	);
+	$('#description').click(
+		function(){
+
+            if(loggedinUser===appownerName){
+                $('#description').hide();
+                $('#appDescriptionEdit_textarea').val(descriptionInfo); //descriptionInfo is an global variable that holds the application description
+                $('#appDescriptionEdit').show();
+
+            }
+		}
+	);
+
+
+	$('#appDescriptionSaveBtn').click(
+    	function(){
+        	$('#description').show();
+        	$('#appDescriptionEdit').hide();
+    	}
+	);
+
+	$('#appDescriptionCancelBtn').click(
+    	function(){
+        	$('#description').show();
+        	$('#appDescriptionEdit').hide();
+    	}
+	);
+	/*var desc  = $('#description');
+	if(desc.html() == ""){
+		desc.html("<span class='editFieldNotification'>Click here to edit description</span>");
+	} */
+
+
+
+});
+
+
+
+function toErrorHtml(message){
+    var html="<span style=\"color:#D16666\">"+message+"</span>";
+    return html;
+}
+
+function toInfoHtml(message){
+    var html="<span style=\"color:#363636\">"+message+"</span>";
+    return html;
+}
+
+
+function updateCalculatedETAValue(appKey,stage, version){
+	var endDate ="" ;
+	jagg.post("../blocks/eta/calculate/ajax/get.jag", {
+        action:"calculate",
+        applicationKey:'<%= applicationKey %>',
+        version:version,
+        stage:stage
+
+    },function (result) {
+
+    	var parsedObject = jQuery.parseJSON(result);
+    	var v= version.replace(/\./g, '_') ;
+    	$("#eta_"+appKey+"_"+v).text("");
+    	if(!result.error && parsedObject.eta.endDate.length != 0){
+    		$("#eta_"+appKey+"_"+v).text(parsedObject.eta.endDate);
+    	}
+    },function (jqXHR, textStatus, errorThrown) {
+        //jagg.message({content:'Could not launch the application',type:'error' });
+    	//alert('Could not launch the application');
+    });
+}
+
+
+
+function copyNewDependenciesAndDeployArtifact(applicationKey, version, stage, deployAction){
+
+    jagg.post("../blocks/build/add/ajax/add.jag", {
+                action: "copyNewDependenciesAndDeployArtifact",
+                applicationKey: applicationKey,
+                deployAction:deployAction,
+                stage:stage,
+                tagName:"",
+                version:version
+            }, function (result) {
+                drawVersionsList();
+                jagg.message({
+                    content: "Deployment has been submitted successfully - Refresh the page in few seconds.",
+                    type: 'success',
+                    id:'message_id_success'
+                });
+                hideNotification();
+            },
+
+            function (jqXHR, textStatus, errorThrown) {
+            	alert(errorThrown);
+                jagg.message({
+                    content: "Error occurred while deploying the artifact.",
+                    type: 'error',
+                    id:'message_id'
+                });
+
+            });
+};
+
+
+function launchApp(applicationKey, version,stage,state,type){
+
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+                action: "getMetaDataForAppVersion",
+                applicationKey: applicationKey,
+                version: version,
+                stage: stage,
+                state: state,
+                type: type
+            }, function (result) {
+                //drawVersionsList();
+                var resJSON;
+                var msg = "";
+                resJSON = jQuery.parseJSON(result);
+                var URL="";
+                if(type==='bpel' || type==='dbs'){         // if app type is either 'bpel' or 'dbs' then take only accessURLMD
+                   URL = resJSON.accessURLMD;
+                }else if(type ==='jaxws'){
+                    URL=resJSON.baseURLMD + resJSON.accessURLMD +"services" ;
+                }
+
+                else	// for other types append baseURLMD and accessURLMD
+                    URL=resJSON.baseURLMD + resJSON.accessURLMD;
+                if(URL===""){
+                    jagg.message({
+                        content: "Application is not deployed yet.!",
+                        type: 'error'
+                    });
+
+                }
+                window.open(URL, '_blank')
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                jagg.message({
+                    content: "Error occured while launching the artifact.!",
+                    type: 'error'
+                });
+
+            });
+
+}
+
+function issuesSummary(appKey){
+
+    jagg.syncPost("../blocks/issuetracker/list/ajax/list.jag", {
+    	action:"getIssuesSummary",
+    	applicationKey:appKey
+    },function (result) {
+    	issuesSummaryJSON = result ;
+    },function (jqXHR, textStatus, errorThrown) {
+	    $("#trackerStatus").text("Error occured while retrieving Issue Tracker information!");
+	    $(".issuetracker").hide();
+    });
+}
+
+function getIssueSummaryForVersion(version){
+    if(issuesSummaryJSON[version]===undefined){
+        return {'VULNERABILITY':'0','NEW_FEATURE':'0','BUG':'0'};
+    }
+    return issuesSummaryJSON[version];
+}
+
+function getTotalIssueCountForVersion(version){
+    var issueSummery = getIssueSummaryForVersion(version);
+    var total = 0;
+
+    for (var key in issueSummery) {
+        if (issueSummery.hasOwnProperty(key) && key != 'appKey' && key != 'version') {
+            total = total + Number(issueSummery[key]);
+        }
+    }
+    return total;
+}
+
+function formatCount(count){
+    if(count===undefined){
+        return 0;
+    }
+    return count;
+}
+
+function loadApplicationInfo(){
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+	    action:"getAppInfo",
+	    applicationKey:'<%=applicationKey%>'
+	},function (result) {
+	    var parsedArray = jQuery.parseJSON(result);
+	    $('#apptype').html(parsedArray.typeDisplayName);
+	    $('#repotype').html(parsedArray.repositoryTypeDisplayName);
+        appInfo=parsedArray;
+        appownerName=parsedArray.owner;
+        $('#appowner').html("<p title='"+appownerName+"'>"+appownerName+"</p>");
+	    if(parsedArray.description!="null" && parsedArray.description!=""){
+            descriptionInfo=parsedArray.description;
+	    	$('#description').html(descriptionInfo);
+	    }else{
+		  $('#description').html("<span class='editFieldNotification'></span>");
+	    }
+
+	    if(parsedArray.description!="null"){
+	    	$('#appDescriptionEdit_textarea').val(parsedArray.description);
+	    }
+        loadAppUsersWithRoles();
+	},function (jqXHR, textStatus, errorThrown) {
+	    //jagg.message({content:'Could not load Application information',type:'error' });
+        jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+	});
+}
+function loadRssDatabasesInfo(){
+    var resourceCount=0;
+    $("div#databases>table>tbody").html("");
+    $("div#databases>span.info").html(processIndicatorHTML);
+    $("div#databases>table").hide();
+    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+        action:"getDatabases",
+        applicationKey:$("#applicationKey").attr('value')
+    },function (result) {
+        $("div#databases>span.info").html("");
+        $("div#databases>table>tbody").html("");
+        var datapplicationabases=[];
+        if (result != undefined) {
+            databases = jQuery.parseJSON(result);
+
+            if(databases.length>0){
+                for (var index in databases) {
+                    var database=databases[index];
+
+                    var tableRow="<tr><td>"+database.name+"</td>\
+                                <td>"+database.rssInstanceName+"</td>\
+                                <td>"+database.url+"</td></tr>";
+                    $("div#databases>table>tbody").append(tableRow);
+                }
+                $("div#databases>table").fadeIn();
+
+            }else{
+                $("div#datasources").hide();
+                $("div#databases>span.info").html(toInfoHtml("No Databases found!"));
+            }
+        }
+        resourceCount=databases.length;
+        $("#dbCount").text(resourceCount);
+        allResourceCount.push({type:'#dbCount',count: resourceCount});
+        detectResourceExistance();
+    },function (jqXHR, textStatus, errorThrown) {
+        allResourceCount.push({type:'#dbCount',count: 0});
+        detectResourceExistance();
+        $("div#databases>span.info").html(toErrorHtml("Error occurred while loading Databases information!"));
+    });
+
+}
+
+function loadDatasourceInfo(){
+    var resourceCount=0;
+    $("div#datasources>table>tbody").html("");
+    $("div#datasources>span.info").html(processIndicatorHTML);
+    $("div#datasources>table").hide();
+    jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
+    	action:"getDatasources",
+    	applicationKey:'<%=applicationKey%>'
+    },function(result) {
+        $("div#datasources>span.info").html("");
+        var dbCount=0;
+        if(result!=undefined){
+            var stages = jQuery.parseJSON(result);
+            for(var stage in stages){
+                var stageValues=stages[stage];
+                if(stageValues instanceof Array && stageValues.length>0){
+		    resourceCount = stageValues.length; // since datasources are created in stages anyway	
+                    for(var index in stageValues){
+                        var dataSource=stageValues[index];
+                        var tableRow="<tr><td>"+dataSource.name+"</td>\
+                                <td>"+dataSource.description+"</td>\
+                                <td>"+stage+"</td></tr>";
+                        $("div#datasources>table>tbody").append(tableRow);
+                    }
+                }
+            }
+            if(resourceCount>0){
+                $("div#datasources").show();
+                $("div#datasources>table").fadeIn();
+            }else{
+                $("div#datasources>span.info").html(toInfoHtml("No Datasources found!"));
+            }
+        }else{
+            $("div#datasources>span.info").html(toInfoHtml("No Datasources found!"));
+        }
+        $("#dsCount").text(resourceCount);
+        allResourceCount.push({type:'#dsCount',count: resourceCount});
+        detectResourceExistance();
+    },function (jqXHR, textStatus, errorThrown) {
+        allResourceCount.push({type:'#dsCount',count: 0});
+        detectResourceExistance();
+        $("div#datasources>span.info").html(toErrorHtml("Error occurred while loading Datasources information!"));
+    });
+}
+
+function loadAPIsInfo(){
+    var resourceCount=0;
+    $("div#api>table>tbody").html("");
+    $("div#api>span.info").html(processIndicatorHTML);
+    $("div#api>table").hide();
+    jagg.post("../blocks/resources/apis/get/ajax/get.jag", {
+    	action:"getApplicationAPI",
+      	applicationKey:'<%=applicationKey%>'
+  	},function (result) {
+  	    $("div#api>span.info").html("");
+        var APIs=[];
+  	    if(result!=undefined){
+  	        var apiInfoJson =jQuery.parseJSON(result);
+      	    var APIs =apiInfoJson.apiInfo;
+      	    if(APIs.length>0){
+                for (var index in APIs) {
+                    var API=APIs[index];
+                    var tableRow="<tr><td>"+API.name+"</td>\
+                                <td>"+API.version+"</td>\
+                                <td>"+API.provider+"</td></tr>";
+                        $("div#api>table>tbody").append(tableRow);
+                }
+                $("div#api").show();
+                $("div#api>table").fadeIn();
+            }else{
+                $("div#api>span.info").html(toInfoHtml("No APIs found!"));
+            }
+      	}
+      	resourceCount=APIs.length;
+      	$("#apiCount").text(resourceCount);
+      	allResourceCount.push({type:'#apiCount',count: resourceCount});
+      	detectResourceExistance();
+  	},function (jqXHR, textStatus, errorThrown) {
+  	    allResourceCount.push({type:'#apiCount',count: 0});
+     	detectResourceExistance();
+        $("div#api>span.info").html(toErrorHtml("Error occurred while loading APIs information!"));
+  	});
+
+}
+
+function loadDependanciesInfo(){
+    var resourceCount=0;
+    $("div#properties>table>tbody").html("");
+    $("div#properties>span.info").html(processIndicatorHTML);
+    $("div#properties>table").hide();
+    jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
+      action:"getAllDependencies",
+      applicationKey:'<%=applicationKey%>'
+    },function (result) {
+        $("div#properties>span.info").html("");
+        if(result!=undefined){
+            var parsedResult = jQuery.parseJSON(result);
+            for(var stageKey in parsedResult){
+                var dependencyArray=parsedResult[stageKey];
+		resourceCount = dependencyArray.length; // since dependencies are created in all stages
+                if(dependencyArray.length>0){
+                    for(var index in dependencyArray){
+                        var property=dependencyArray[index];
+                        var tableRow="<tr><td>"+property.name+"</td>\
+                                <td>"+property.value+"</td>\
+                                <td>"+property.description+"</td>\
+                                <td>"+stageKey+"</td></tr>";
+                        $("div#properties>table>tbody").append(tableRow);
+                    }
+                }
+            }
+            if(resourceCount>0){
+                $("div#properties").show();
+                $("div#properties>table").fadeIn();
+            }else{
+                $("div#properties>span.info").html(toInfoHtml("No endpoints found!"));
+            }
+        }else{
+            $("div#properties>span.info").html(toInfoHtml("No endpoints found!"));
+        }
+        $("#propCount").text(resourceCount);
+        allResourceCount.push({type:'#propCount',count: resourceCount});
+        detectResourceExistance();
+    },function (jqXHR, textStatus, errorThrown) {
+        allResourceCount.push({type:'#propCount',count: 0});
+        detectResourceExistance();
+        $("div#properties>span.info").html(toErrorHtml("Error occurred while loading endpoints information!"));
+    });
+
+}
+
+function detectResourceExistance(){
+    var noResources = true;
+    for (var i=0;i<allResourceCount.length;i++)
+    {
+      if (allResourceCount[i].count > 0){
+        noResources = false;
+        break;
+      }
+    }
+    if ( noResources==true){
+        $("#resourceCountList").removeClass("blueFont");
+        $("#resourceCountList").html('<li style="width:370px"><a href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Create Resources</a></li>');
+    }else{
+        $("#resourceCountList").html('<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="dsCount">0</span> Datasources</a></li>'+
+                '<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="dbCount">0</span>  Databases</a></li>'+
+                '<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="apiCount">0</span> APIs</a></li>'+
+                '<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="propCount">0</span> Properties</a></li>');
+        for(var i in allResourceCount){
+            var tmpObj=allResourceCount[i];
+            $(tmpObj.type).text(tmpObj.count);
+        }
+    }
+}
+
+
+function VersionComparator(a,b) {
+    return b.version.localeCompare(a.version);
+}
+function createCurrentStatus(){
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+		action:"getAppVersionsInStages",
+		userName:$("#userName").attr('value'),
+		applicationKey:'<%=applicationKey%>'
+	},function (result) {
+		$('#repositories_and_builds_list_content').css('height','auto');
+	    $('#repositories_and_builds_list_content span.icon-spinner').remove();
+
+		var parsedArray = jQuery.parseJSON(result);
+
+		var versions = Array();
+		for (var i = 0; i < parsedArray.length; i++) {
+			var application = parsedArray[i];
+			versions = versions.concat(application.versions);
+		}
+		versions.sort(VersionComparator);
+
+
+
+		issuesSummary("<%=applicationKey%>");
+
+        $('#repositories_and_builds_list_content').append(
+            $('<ul class="row in">'+
+                  '<li class="col last_version">'+
+                     ' <h2 style="border-bottom: none">Version</h2>'+
+                   '</li>'+
+                   '<li class="col last_life_cycle_state">'+
+                   ' <h2 style="border-bottom: none">LifeCycle State</h2>'+
+                   '</li>'+
+                  '<li class="col last_dep">'+
+                      '<h2  style="border-bottom: none">' + 'Completion Date' +
+                      '</h2>'+
+                   '</li>'+
+                   '<li class="col last_build">'+
+                   '<h2  style="border-bottom: none">Build Status</h2>'+
+                   '</li>'+
+                  '<li class="col dep_issues">'+
+                      '<h2  style="border-bottom: none">Issues</h2>'+
+                   '</li>'+
+              '</ul>'));
+
+        //Create the tool tip for ETA Header
+        $('#repositories_and_builds_list_content .js_deta_tooltip').each(function(){
+                $(this).qtip(
+                   {
+                       content: {
+                                   attr: 'data-tooltip'
+                                },
+                       show: {
+                           when: 'click',
+                           solo: true // Only show one tooltip at a time
+                       },
+                       hide: 'unfocus',
+                       style: {
+                                      classes: 'popup_status_box tooltip',
+                                      widget: false,
+                                      def: false
+                                  }
+                   });
+        });
+
+
+		for (var j = 0; j < versions.length; j++) {
+			var versionInfo = versions[j];
+            var lasbuildinfo=versionInfo.lastBuildResult;
+            var buildSplitted=lasbuildinfo.split(' ');
+            var builResultStatus=buildSplitted[2];
+			var buildStatus='';
+			var success=new RegExp("\\bsuccess");
+			if(success.test(builResultStatus)){
+				buildStatus='<span class="status success "><strong>'+builResultStatus+'</strong></span>';
+			}else if(lasbuildinfo.length>0){
+                buildStatus='<span class="status failed "><strong>'+builResultStatus+'</strong></span>';
+            }
+
+
+			var repoCloneURL = versionInfo.repoURL;
+			var repoBrowseURL = repoCloneURL;
+			if( application.repositoryType == "git") {
+				repoBrowseURL = repoCloneURL.replace("/git/", "/summary/?r=");
+			}
+			var v = versionInfo.version.replace(/\./g, '_') ;
+			var issueSummaryObj =  getIssueSummaryForVersion(versionInfo.version);
+			var totalIssueCount = getTotalIssueCountForVersion(versionInfo.version);
+			updateCalculatedETAValue('<%=applicationKey%>',versionInfo.stage,versionInfo.version);
+			
+            var launchHide="";
+            if(versionInfo.stage==="Retired"){
+              launchHide="hidden";
+            }
+            
+            var deploymentHidden = "" ;
+            if(!deploymentPermission[versionInfo.stage]){
+            	deploymentHidden = "display:none" ;
+            }
+
+            var ul = $('<ul class="row js_accordion">'+
+                        '<li class="col last_version">'+
+                            '<p class="version">'+
+                                '<a class="icon-chevron-right collapse_indicator"></a>'+
+                                '<strong class="version_number overview_version">'+versionInfo.version+'</strong>'+
+                            '</p>'+
+                            '<p class="tag_link collapse">' +
+
+                            '<% if (outputs.hasRepoReadWritePermission) { %> <span style="margin-left: 1.5em;" >Copy URL</span> <a id ="copy' + j +  '" class="icon_link escape-event" title="Copy URL" style="cursor:default; margin-right:15px;" data-clipboard-text="'+repoCloneURL+'"> <span class="icon-copy"></span></a><% } %>'+
+                             ' <span>Browse URL</span> <a href="'+repoBrowseURL+'" class="icon_link escape-event" target="_blank" title="Git browse URL"><span class="icon-globe " ></span></a></p>'+
+                         '</li>'+
+                         '<li class="col last_life_cycle_state">'+
+                         '<p class="life_cycle_state quiet tag ">'+versionInfo.stage+'</p>'+
+                         '</li>'+
+                        '<li class="col last_dep">'+
+                            '<p class="quiet"><time  id="eta_<%=applicationKey%>_'+v+'"></time></p>'+
+                         '</li>'+
+                         '<li class="col last_build">'+
+                         '<p class="build_status">'+buildStatus+'</p>'+
+                         '</li>'+
+                        '<li class="col dep_issues">'+
+                            '<p class="quiet">'+ totalIssueCount +' Total' +
+                            '  <a '+ deploymentHidden +' href="#" onclick="copyNewDependenciesAndDeployArtifact(\'<%=applicationKey%>\',\''+versionInfo.version+'\',\''+versionInfo.stage+'\',\'deploy\');" class="btn main small push_right_10 escape-event" style="margin-left:40px;' + deploymentHidden + '">Deploy</a></p>'+
+                            '  <a href="#" onclick="launchApp(\'<%=applicationKey%>\',\''+versionInfo.version+'\',\''+versionInfo.stage+'\',\'started\',\'' + application.type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:40px;">Test</a></p>'+
+                            '<div class="left collapse">'+
+                                '<ul class="list small push_bottom blueFont">'+
+                                    '<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="escape-event">'+formatCount(issueSummaryObj.BUG) +' Bugs</a></li>'+
+                                    '<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="escape-event">'+formatCount(issueSummaryObj.NEW_FEATURE)+' Features</a></li>'+
+                                    '<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="escape-event">'+formatCount(issueSummaryObj.VULNERABILITY)+' Vulnerability</a></li>'+
+                                '</ul>'+
+                            '</div>'+
+                            '<div class="clearfix"></div>'+
+                         '</li>'+
+                    '</ul>');
+
+                console.info('registering events');
+            	ul.click(function(event){
+                    if($('.collapse_indicator',this).hasClass('icon-chevron-right')){
+                        $('.collapse_indicator',this).removeClass('icon-chevron-right');
+                        $('.collapse_indicator',this).addClass('icon-chevron-down');
+                    }else{
+                        $('.collapse_indicator',this).removeClass('icon-chevron-down');
+                        $('.collapse_indicator',this).addClass('icon-chevron-right');
+                    }
+                    $('.collapse',this).toggle();
+
+            	});
+                $('a.escape-event',ul).click(function(e){
+                    e.stopPropagation();
+                });
+
+            $('#repositories_and_builds_list_content').append(ul);
+            $('#repositories_and_builds_list_content').append('<div class="clearfix"></div>');
+
+            var clip = new ZeroClipboard($('#copy'+j));
+
+            clip.on( 'load', function(client) {
+                //alert( "movie is loaded" );
+            });
+
+            clip.on( 'complete', function(client, args) {
+               // alert("Copied text to clipboard: " + args.text );
+            } );
+            clip.on( 'mousedown', function(client) {
+
+            } );
+
+
+		}
+    },function (jqXHR, textStatus, errorThrown) {
+	});
+}
+
+function loadAppUsersWithRoles(){
+
+        var dom="";
+
+//        for(var roleKey in roles){
+//          if (roles.hasOwnProperty(roleKey)) {
+//            if(roleKey != "appowner"){
+//                $('#userCountList').append($('<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">'+roles[roleKey].users.length/2+" "+roles[roleKey].displayName+'</a></li>'));
+//            }else{
+
+
+    $('#userCountList').html($('<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">'+appInfo.users.length+' Members</a></li>'));
+    	    	if((loggedinUser == appownerName)&&(descriptionInfo.length==0)){
+    	    		$('#description').html("<span class=''>Click here to edit description</span>");
+    	    		$('#description').attr('title','Click here to edit the description');
+    	    		$('#description').attr('class','property-value quiet');
+    	    		$('#description').attr('style','min-height:3.0em;');
+    	    	}
+//            }
+//          }
+//        }
+
+        if ($("#userCountList li").length == 0){
+            $("#userCountList").append('<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user-invite.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Add Team Members</a></li>');
+        }
+
+}
+
+
+function updateDescription() {
+    var newDescription = $('#appDescriptionEdit_textarea').val();
+    $("#appDescriptionView").show();
+    $('#description').show();
+    $("#appDescriptionEdit").hide();
+    jagg.post("../blocks/application/update/ajax/update.jag", {
+        action:"updateDescription",
+        applicationKey:'<%=applicationKey%>',
+        newDescription:newDescription
+    },function (result) {
+    	descriptionInfo = newDescription ;
+    	$('#description').html(newDescription);
+    },function (jqXHR, textStatus, errorThrown) {
+        //jagg.message({content:'Error occured while updating description!',type:'error' });
+        jagg.message({content:'Error occured while updating description!',type:'error',id:'myuniqeid' });
+    });
+
+}
+
+
+
+//]]
+</script>
+
+<input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+<input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
+
+
+<div class="container overview-page">
+				<article class="main">
+                    <% jagg.includeBlock("page/messages", null); %>
+					<section class="separator separator-bottom border-remover" style="padding-bottom: 12px">
+						<div class="content clear well">
+								<div class="left fw_430">
+									<div class="left fw_215">
+										<h2>Application Type</h2>
+										<p id="apptype"></p>
+									</div>
+				 					<div class="left fw_215">
+
+                                         <div id="appDescriptionView" class="property">
+                                             <h2>Description</h2>
+                                             <p id="description" class="property-value quiet" style="min-height:3.0em;"
+                                                data-value="Click here to edit the description"></p>
+                                         </div>
+                                         <div id="appDescriptionEdit" class="property-value"
+                                              style="display:none;overflow: hidden;">
+                                             <form class="form-container">
+                                                 <div class="input_row">
+                                                     <textarea class="full" style="width:100%" id="appDescriptionEdit_textarea" maxlength="1000"></textarea>
+                                                 </div>
+                                                 <div class="row-fluid">
+                                                    <div class="span6">
+                                                         <input type="button" data-version="trunk" class="btn main small" value="Save" onclick="updateDescription()">
+                                                           <span class="submit_note"> <a href="#" class="cancel" id="appDescriptionCancelBtn">Cancel</a></span>
+                                                    </div>
+                                                 </div>
+                                             </form>
+                                         </div>
+
+									</div>
+									<div class="clearfix"></div>
+								</div>
+								<div class="push_left_430">
+
+								</div>
+							<div class="clearfix"></div>
+						</div>
+					</section>
+					<section class="separator separator-bottom">
+						<div class="content clear well">
+								<div class="left fw_430">
+									<div class="left fw_215">
+										<h2>Application Key</h2>
+										<p><%=applicationKey%></p>
+									</div>
+									<div class="left fw_215">
+										<h2>Repository Type</h2>
+										<p id="repotype" ></p>
+  									</div>
+									<div class="clearfix"></div>
+								</div>
+								<div class="push_left_430">
+									<h2>Owner</h2>
+									<p id="appowner"></p>
+								</div>
+							<div class="clearfix"></div>
+						</div>
+ 					</section>
+
+
+					<section id="repositories_and_builds_list"  class="separator current_status separator-bottom" >
+                      <div class="content clear  well" id="repositories_and_builds_list_content">
+					  			<h2 class="no_margin_top">Current Status</h2>
+                                <span class="icon-spinner icon-spin icon-large"></span>
+ 					  </div>
+  					</section>
+
+					<section class="separator clear">
+                      <div class="content well">
+						  <div class="left users_cal fw_430">
+						  	<h2>Team</h2>
+							<ul class="list big push_bottom blueFont" id="userCountList">
+							</ul>
+						  </div>
+						  <div class="left resources_cal">
+						  	<h2>Resources</h2>
+							<ul id="resourceCountList" class="list big push_bottom blueFont">
+								<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="dsCount">0</span> Datasources</a></li>
+								<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="dbCount">0</span>  Databases</a></li>
+								<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="apiCount">0</span> APIs</a></li>
+								<li><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><span id="propCount">0</span> Properties</a></li>
+							</ul>
+						  </div>
+					  <div class="clearfix"></div>
+					</section>
+
+				<div class="clearfix"></div>
+				</article>
+    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+				<!-- Todo - post 1.0 -->
+				 <% //jagg.includeBlock("comment/comment-add", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
+                 <% //jagg.includeBlock("comment/comment-list", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
+            </div><!-- /container -->
+        <script type="text/javascript">
+            $(document).ready(function(){
+                loadApplicationInfo();
+                loggedinUser=$('#userName').val();
+                if(loggedinUser==appownerName){
+                        $('#description').qtip(
+                           {
+                               content: {
+                                           text: $(this).attr('data-value')
+                                        },
+                               show: {
+                                   when: 'click',
+                                   solo: true // Only show one tooltip at a time
+                               },
+                               hide: 'unfocus',
+                               style: {
+                                              classes: 'popup_status_box tooltip',
+                                              widget: false,
+                                              def: false
+                                          }
+                           });
+                }
+             });
+
+        </script>
+
+
+<% }); %>
+

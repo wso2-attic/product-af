@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="appfactory">
+    <fileSets>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>.</directory>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory />
+            <includes>
+                <include>.project</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>src</directory>
+            <includes>
+                <include>main/dataservice/CustomerDS.dbs</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</archetype-descriptor>
+

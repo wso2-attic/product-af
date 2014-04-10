@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<AppFactory xmlns="http://www.wso2.org/appfactory/">
+
+    <AdminUserName>admin@admin.com</AdminUserName>
+    <AdminPassword>admin</AdminPassword>
+    <!--Application creation delay in queue  -->
+    <ApplicationCreatorDelay>10000</ApplicationCreatorDelay>
+    <EmailSend>true</EmailSend>
+    <RegistrationLink>../appmgt/site/pages/register.jag</RegistrationLink>
+    <!--To Register in WSO2 Oxygen Tank
+    <RegistrationLink>http://wso2.org/user/register</RegistrationLink-->
+
+<!--
+/permission/admin/appfactory/develop
+
+/permission/admin/appfactory/deploy
+
+/permission/admin/appfactory/manage
+
+/permission/admin/appfactory/deploy/{stage}
+-->
+    <ApplicationRoles>
+        <Role name="developer">
+            <Permission>/permission/admin/login,/permission/admin/appfactory/develop,/permission/admin/appfactory/deploy/Development,/permission/admin/appfactory/repository/readwrite,/permission/admin/appfactory/configuration/db,/permission/admin/appfactory/configuration/apimanager,/permission/admin/appfactory/build,/permission/admin/appfactory/deploy/development,/permission/admin/appfactory/repository/view,/permission/admin/appfactory/stage/development</Permission>
+        </Role>
+        <Role name="devOps">
+             <Permission>/permission/admin/login,/permission/admin/appfactory/deploy,/permission/admin/appfactory/build,/permission/admin/appfactory/deploy/development,/permission/admin/appfactory/deploy/testing,/permission/admin/appfactory/deploy/production,/permission/admin/appfactory/stage/staging,/permission/admin/appfactory/stage/production</Permission>
+        </Role>
+        <Role name="qa">
+             <Permission>/permission/admin/login,/permission/admin/appfactory/governance/promote,/permission/admin/appfactory/governance/demote,/permission/admin/appfactory/governance/retire,/permission/admin/appfactory/stage/testing</Permission>
+        </Role>
+        <Role name="appOwner">
+             <Permission>/permission/admin/login,/permission/admin/appfactory/manage,/permission/admin/appfactory/repository/readwrite,/permission/admin/appfactory/usermgt/invite,/permission/admin/appfactory/configuration/db,/permission/admin/appfactory/configuration/apimanager,/permission/admin/appfactory/build,/permission/admin/appfactory/deploy/development,/permission/admin/appfactory/deploy/testing,/permission/admin/appfactory/deploy/production,/permission/admin/appfactory/governance/promote,/permission/admin/appfactory/governance/demote,/permission/admin/appfactory/governance/retire,/permission/admin/appfactory/repository/branch,/permission/admin/appfactory/stage/development,/permission/admin/appfactory/stage/testing,/permission/admin/appfactory/stage/production,/permission/admin/appfactory/stage/staging,/permission/admin/appfactory/deploy</Permission>
+        </Role>
+    </ApplicationRoles>
+
+    <TenantRoles>
+        <DefaultUserRole name="appFactoryUsers">
+            <Permission>/permission/admin/appfactory/application/create,/permission/admin/login,/permission/admin/manage/api/subscribe,/permission/admin/manage/api/create,/permission/admin/manage/api/publish</Permission>
+        </DefaultUserRole>
+        <Role name="admin">
+            <Permission>CreateApplication/CreateApplication:invoke-service</Permission>
+        </Role>
+        <Role name="cxo">
+             <Permission>/permission/admin/login,/permission/admin/appfactory/manage,/permission/admin/appfactory/repository/readwrite,/permission/admin/appfactory/usermgt/invite,/permission/admin/appfactory/configuration/db,/permission/admin/appfactory/configuration/apimanager,/permission/admin/appfactory/build,/permission/admin/appfactory/deploy/development,/permission/admin/appfactory/deploy/testing,/permission/admin/appfactory/deploy/production,/permission/admin/appfactory/governance/promote,/permission/admin/appfactory/governance/demote,/permission/admin/appfactory/governance/retire,/permission/admin/appfactory/repository/branch,/permission/admin/appfactory/stage/development,/permission/admin/appfactory/stage/testing,/permission/admin/appfactory/stage/production,/permission/admin/appfactory/deploy,/permission/admin/appfactory/ceo/dashboard</Permission>
+        </Role>
+       <!-- <Role name="projectManager">
+            <Permission>/permission/admin/appfactory/application/create,/permission/admin/login,/permission/admin/appfactory/manage,/permission/admin/appfactory/repository/readwrite,/permission/admin/appfactory/usermgt/invite,/permission/admin/appfactory/configuration/db,/permission/admin/appfactory/configuration/apimanager,/permission/admin/appfactory/build,/permission/admin/appfactory/deploy/development,/permission/admin/appfactory/deploy/testing,/permission/admin/appfactory/deploy/production,/permission/admin/appfactory/governance/promote,/permission/admin/appfactory/governance/demote,/permission/admin/appfactory/governance/retire,/permission/admin/appfactory/repository/branch,/permission/admin/appfactory/stage/development,/permission/admin/appfactory/stage/testing,/permission/admin/appfactory/stage/production,/permission/admin/appfactory/deploy,/permission/admin/appfactory/ceo/dashboard</Permission>
+        </Role>-->
+    </TenantRoles>
+
+    <!--SSO relying party configuration.-->
+    <SSORelyingParty>
+        <Name>WSO2 AppFactory Application Management</Name>
+        <IdentityProviderURL>https://appfactory.example.com:9443/samlsso</IdentityProviderURL>
+        <KeyStorePassword>wso2carbon</KeyStorePassword>
+        <IdentityKeyAlias>wso2carbon</IdentityKeyAlias>
+        <KeyStoreName>${carbon.home}/repository/resources/security/wso2carbon.jks</KeyStoreName>
+    </SSORelyingParty>
+
+    <!-- Server URLs -->
+    <ServerUrls>
+	<AppFactory>https://localhost:9443/services/</AppFactory>
+	<BPS>https://localhost:9443/services/</BPS>
+	<Greg>https://localhost:9443/services/</Greg>
+    </ServerUrls>
+
+    <ApiManager>
+        <server>
+            <url>http://appfactory.example.com:9769</url>
+        </server>
+        <store>
+            <url>http://appfactory.example.com:9769/store</url>
+        </store>
+        <service>
+            <name>APIManagerIntegrationService</name>
+            <namespace>http://integration.apiManager.appfactory.carbon.wso2.org</namespace>
+        </service>
+
+    </ApiManager>
+
+    <!-- BAM integration related configurations -->
+    <BAM>
+        <EnableStatPublishing>false</EnableStatPublishing>
+
+        <!--
+            Server URL of the remote BAM server used to collect statistics. Must
+            be specified in protocol://hostname:port format. Can specify multiple URLs by 
+            comma separated list 
+            i.e: tcp://localhost:7613,tcp://localhost:7614
+        -->
+        <BAMServerURL>tcp://bam.milestones.appfactory.wso2.com:7614</BAMServerURL>
+
+        <!--
+            Administrator username to login to the remote BAM server.
+        -->
+        <BAMUserName>admin</BAMUserName>
+
+        <!--
+            Administrator password to login to the remote BAM server.
+        -->
+        <BAMPassword>admin</BAMPassword>
+
+        <DashboardServer>
+                <Url>https://ues.milestones.appfactory.wso2.com:9454</Url>
+        </DashboardServer>
+        <Dashboards>
+                <PlatformAdminDashboard>
+                        <Path>/PlatformDashboard</Path>
+                </PlatformAdminDashboard>
+                <TenantAdminDashboard>
+                        <Path>/CXODashboard</Path>
+                </TenantAdminDashboard>
+                <TenantUserDashboard>
+                        <Path>/UserDashboard</Path>
+                </TenantUserDashboard>
+        </Dashboards>
+
+    </BAM>
+
+
+    <!--Application repository related configurations-->
+
+    <RepositoryProviderConfig name="svn" enabled="true">
+        <Property name="Class">
+            org.wso2.carbon.appfactory.svn.repository.provider.SCMManagerBasedSVNRepositoryProvider
+        </Property>
+        <Property name="BaseURL">http://localhost:9763/scm-webapp-1.14</Property>
+        <Property name="SCMServerAdminUserName">scmadmin</Property>
+        <Property name="SCMServerAdminPassword">scmadmin</Property>
+        <Property name="ReadWritePermission">/permission/admin/appfactory/repository/readwrite</Property>
+    </RepositoryProviderConfig>
+    <RepositoryProviderConfig name="git" enabled="true">
+        <Property name="Class">
+            org.wso2.carbon.appfactory.git.repository.provider.SCMManagerBasedGITRepositoryProvider
+        </Property>
+        <Property name="BaseURL">http://localhost:9763/scm-webapp-1.14</Property>
+        <Property name="SCMServerAdminUserName">scmadmin</Property>
+        <Property name="SCMServerAdminPassword">scmadmin</Property>
+        <Property name="ReadWritePermission">/permission/admin/appfactory/repository/readwrite</Property>
+    </RepositoryProviderConfig>
+   <!-- <RepositoryProviderConfig name="git" enabled="true">
+        <Property name="Class">
+            org.wso2.carbon.appfactory.git.repository.provider.GITBlitBasedGITRepositoryProvider
+        </Property>
+        <Property name="BaseURL">https://localhost:8443/</Property>
+        <Property name="GitblitAdminUserName">admin</Property>
+        <Property name="GitblitAdminPassword">admin</Property>
+        <Property name="ReadWritePermission">/permission/admin/appfactory/repository/readwrite</Property>
+    </RepositoryProviderConfig>-->
+   <!--
+   <RepositoryProviderConfig name="svn" enabled="true">
+        <Property name="Class">
+            org.wso2.carbon.appfactory.webdavsvn.svn.repository.provider.Apache2WebDAVSVNRepositoryProvider
+        </Property>
+        <Property name="BaseURL">https://appfactory.example.com</Property>
+        <Property name=" BackendURL">http://localhost</Property>
+        <Property name="SCMServerAdminUserName">admin</Property>
+        <Property name="SCMServerAdminPassword">admin</Property>
+        <Property name="ReadWritePermission">/permission/admin/appfactory/repository/readwrite</Property>
+    </RepositoryProviderConfig>
+    -->
+
+
+    <!--This element defines the set of staging servers, where the application applications are deployed. -->
+    <ApplicationDeployment>
+
+        <DeploymentStage name="Development">
+            <Class>org.wso2.carbon.appfactory.jenkins.deploy.Carbon4Deployer</Class>
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <AutomaticDeployment enabled="true">
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+             <DeploymentArtifact>
+                 <TriggerBuild>
+                     <ArtifactStoragePolicy>Tagged</ArtifactStoragePolicy> 
+					<!-- Latest, Tagged artifact will be deployed -->
+                 </TriggerBuild>
+             </DeploymentArtifact>
+             <Promote>
+                 <DeploymentPolicy>Tagged</DeploymentPolicy>
+                 <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
+             </Promote>
+            <CreateArtifact>Always</CreateArtifact>
+            <ProcessEndPoint>https://appfactorypreview.wso2.com:9443/services/DeployToStage</ProcessEndPoint>
+            <DeploymentServerURL>https://appserver.dev.appfactorypreview.wso2.com:9445/services/</DeploymentServerURL>
+            <!--GitDeploymentRepoURL>https://appfactorypreview.wso2.com:8082/svn/dev/{0}/deployment</GitDeploymentRepoURL-->
+            <MountPoint>dev</MountPoint>
+            <BaseAccessUrl>http://appserver.dev.appfactorypreview.wso2.com/</BaseAccessUrl>
+        </DeploymentStage>
+
+        <DeploymentStage name="Testing">
+            <Class>
+                <Name>org.wso2.carbon.appfactory.jenkins.deploy.Carbon4Deployer</Name>
+            </Class>
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <AutomaticDeployment enabled="false">
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+            <DeploymentArtifact>
+                <TriggerBuild>
+                    <ArtifactStoragePolicy>Tagged</ArtifactStoragePolicy> <!-- Latest, Marked-->
+                </TriggerBuild>
+            </DeploymentArtifact>
+            <Promote>
+                <DeploymentPolicy>Promoted</DeploymentPolicy>
+                <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
+            </Promote>
+            <CreateArtifact>UserInput</CreateArtifact>
+            <ProcessEndPoint>https://appfactorypreview.wso2.com:9443/services/DeployToStage</ProcessEndPoint>
+            <DeploymentServerURL>https://appserver.test.appfactorypreview.wso2.com:9447/services/</DeploymentServerURL>
+            <MountPoint>test</MountPoint>
+            <BaseAccessUrl>http://appserver.test.appfactorypreview.wso2.com/</BaseAccessUrl>
+        </DeploymentStage>
+
+
+        <!--Removing the staging state-->
+<!--
+        <DeploymentStage name="Staging">
+            <Class><Name>org.wso2.carbon.appfactory.jenkins.deploy.Carbon4Deployer</Name></Class>
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <AutomaticDeployment enabled="false">
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+            <DeploymentArtifact>
+                <TriggerBuild>
+                    <ArtifactStoragePolicy>Tagged</ArtifactStoragePolicy> &lt;!&ndash; Latest, Marked&ndash;&gt;
+                </TriggerBuild>
+            </DeploymentArtifact>
+            <Promote>
+                <DeploymentPolicy>Promoted</DeploymentPolicy>
+                &lt;!&ndash; Tagged/Promoted artifact will be deployed to the promoted stage&ndash;&gt;
+            </Promote>
+            <CreateArtifact>UserInput</CreateArtifact>
+            <ProcessEndPoint>https://appfactorypreview.wso2.com:9443/services/DeployToStage</ProcessEndPoint>
+            <DeploymentServerURL>https://appserver.test.appfactorypreview.wso2.com:9450/services/</DeploymentServerURL>
+            <MountPoint>staging</MountPoint>
+            <BaseAccessUrl>http://appserver.staging.appfactorypreview.wso2.com/</BaseAccessUrl>
+        </DeploymentStage>
+-->
+
+        <DeploymentStage name="Production">
+            <Class>
+                <Name>org.wso2.carbon.appfactory.jenkins.deploy.Carbon4Deployer</Name>
+            </Class>
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <AutomaticDeployment enabled="false">
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+            <DeploymentArtifact>
+                <PersistedArtifacts>Tagged</PersistedArtifacts>
+            </DeploymentArtifact>
+            <CreateArtifact>Never</CreateArtifact>
+            <ProcessEndPoint>https://appfactorypreview.wso2.com:9443/services/DeployToStage</ProcessEndPoint>
+            <DeploymentServerURL>https://appserver.prod.appfactorypreview.wso2.com:9448/services/</DeploymentServerURL>
+            <MountPoint>prod</MountPoint>
+            <BaseAccessUrl>http://appserver.prod.appfactorypreview.wso2.com/</BaseAccessUrl>
+            <Semantic>Production</Semantic>
+        </DeploymentStage>
+        <BaseAccessUrl>http://appserver.dev.appfactorypreview.wso2.com/</BaseAccessUrl>
+    </ApplicationDeployment>
+
+    <!-- API-Token should be set according to the running instance of Jenkins-->
+    <!--ContinuousIntegrationProvider name="jenkins" enabled="true">
+	<Property name="BaseURL">http://localhost:8080</Property>
+        <Property name="Authenticate">true</Property>
+        <Property name="Maven3ConfigName">m3</Property>
+        <Property name="DefaultGlobalRoles">readonly</Property>
+        <Property name="ProjectRolePermissions">hudson.model.Item.Configure,hudson.model.Item.Build,hudson.model.Item.Workspace</Property>
+        <Property name="ListenerPriority">50</Property>
+    </ContinuousIntegrationProvider-->
+ 
+    <!-- This element defines the maven archetype properties that is used to generate the project structure-->
+    <MavenArchetype name="CApp">
+        <Properties>
+            -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.archetype -DarchetypeArtifactId=af-archetype -DarchetypeVersion=1.0.0 -DgroupId=org.wso2.af -Dversion=1.0.1 -DinteractiveMode=false -DarchetypeCatalog=local
+        </Properties>
+    </MavenArchetype>
+    <MavenArchetype name="WebApp">
+        <Properties>
+            -DgroupId=org.wso2.af -DarchetypeArtifactId=maven-archetype-webapp -Dversion=SNAPSHOT -DinteractiveMode=false
+        </Properties>
+    </MavenArchetype>
+   <!-- Issue tracker connector configs-->
+    <IssueTrackerConnector name="redmine">
+        <Property name="Url">http://localhost:3000</Property>
+        <Property name="AdminUsername">admin</Property>
+        <Property name="AdminPassword">admin</Property>
+        <Property name="DefaultRole">Developer</Property>
+        <Property name="AuthenticatorId">1</Property>
+        <!-- Bigger number will result in higher priority -->
+        <Property name="ListenerPriority">40</Property>
+
+        <RoleMap>
+            <Role name="appOwner">
+                <RedmineRole>Manager</RedmineRole>
+            </Role>
+            <Role name="developer">
+                <RedmineRole>Developer</RedmineRole>
+            </Role>
+            <Role name="qa">
+                <RedmineRole>Reporter</RedmineRole>
+            </Role>
+            <Role name="devOps">
+                <RedmineRole>Reporter</RedmineRole>
+            </Role>
+        </RoleMap>
+
+    </IssueTrackerConnector>
+
+  <!-- Define services to be linked as other services -->
+  <OtherServices>
+    <Service name="ViewVC">
+      <Link>http://www.viewvc.org/</Link>
+      <Description>Browse the repository, view files, display diffs between versions.</Description>
+      <Title>ViewVC</Title>
+    </Service>
+    <Service name="Forums">
+      <Link>http://www.forums.com/</Link>
+      <Description>Let the app users hold conversations in the form of posted messages.</Description>
+      <Title>Forums</Title>
+    </Service>
+    <ShowOtherServicesTab>true</ShowOtherServicesTab>
+  </OtherServices>
+
+</AppFactory>

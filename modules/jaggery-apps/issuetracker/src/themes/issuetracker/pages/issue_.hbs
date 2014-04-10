@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+	<!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>{{include title}}</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+             <link href="{{url "/themes/issuetracker/css/font-awesome.min.css"}}" rel="stylesheet">
+
+            		<!--[if IE 7]>
+            		<link href="{{url "/themes/issuetracker/css/font-awesome-ie7.min.css"}}" rel="stylesheet">
+            		<![endif]-->
+
+				<link href="{{url "/themes/issuetracker/css/normalize.min.css"}}" rel="stylesheet">
+				<link href="{{url "/themes/issuetracker/css/main.css"}}" rel="stylesheet">
+				<link href="{{url "/themes/issuetracker/css/custom.css"}}" rel="stylesheet">
+
+		<style>
+            .search_form_cont {
+                float: none;
+                overflow: hidden;
+            }
+            .search_form > li:first-child {
+                margin: 14px 0;
+            }
+            .issue_id {
+                width: 50px;
+                padding: 2px;
+            }
+            .issue_type {
+                width: 50px;
+                padding: 2px;
+            }
+            .issue_project {
+                width: 100px;
+                padding: 2px;
+            }
+            .issue_status {
+                width: 100px;
+                padding: 2px;
+            }
+            .issue_priority {
+                width: 100px;
+                padding: 2px;
+            }
+            .issue_milestone {
+                width: 110px;
+                padding: 2px;
+            }
+
+            .issue_key{
+                width: 50px;
+                padding: 2px;
+            }
+            .issue_summary{
+                width: 200px;
+                padding: 2px;
+            }
+
+            .issue_assignee{
+                width: 100px;
+                padding: 2px;
+            }
+
+            .issue_version{
+                width: 100px;
+                padding: 2px;
+            }
+
+            .issue_severity{
+                width: 100px;
+                padding: 2px;
+            }
+
+            .issue_edit{
+                width: 50px;
+                padding: 2px;
+            }
+
+            .issue_comment{
+                width: 50px;
+                padding: 2px;
+            }
+
+            .issue_reporter{
+                width: 100px;
+                padding: 2px;
+            }
+
+
+
+            .issue_table .list_col_content {
+                font-size: 13px;
+            }
+            .issue_pagination ul li a {
+                text-decoration: none;
+                font-size: 14px;
+            }
+            .issue_pagination ul li {
+                display: inline;
+            }
+
+                           a {
+                               text-decoration: none;
+                           }
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000000;
+}
+.modal-backdrop.fade {
+  opacity: 0;
+}
+.modal-backdrop,
+.modal-backdrop.fade.in {
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1050;
+  width: 560px;
+  margin: -250px 0 0 -280px;
+  background-color: #ffffff;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  *border: 1px solid #999;
+  /* IE6-7 */
+
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding-box;
+  background-clip: padding-box;
+  outline: none;
+}
+.modal.fade {
+  -webkit-transition: opacity .3s linear, top .3s ease-out;
+  -moz-transition: opacity .3s linear, top .3s ease-out;
+  -o-transition: opacity .3s linear, top .3s ease-out;
+  transition: opacity .3s linear, top .3s ease-out;
+  top: -25%;
+}
+.modal.fade.in {
+  top: 50%;
+}
+.modal-header {
+  padding: 9px 15px;
+  border-bottom: 1px solid #eee;
+}
+.modal-header .close {
+  margin-top: 2px;
+}
+.modal-header h3 {
+  margin: 0;
+  line-height: 30px;
+}
+.modal-body {
+  overflow-y: auto;
+  max-height: 400px;
+  padding: 15px;
+}
+.modal-form {
+  margin-bottom: 0;
+}
+.modal-footer {
+  padding: 14px 15px 15px;
+  margin-bottom: 0;
+  text-align: right;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+  -webkit-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 0 0 6px 6px;
+  border-radius: 0 0 6px 6px;
+  -webkit-box-shadow: inset 0 1px 0 #ffffff;
+  -moz-box-shadow: inset 0 1px 0 #ffffff;
+  box-shadow: inset 0 1px 0 #ffffff;
+  *zoom: 1;
+}
+.modal-footer:before,
+.modal-footer:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.modal-footer:after {
+  clear: both;
+}
+.modal-footer .btn + .btn {
+  margin-left: 5px;
+  margin-bottom: 0;
+}
+.modal-footer .btn-group .btn + .btn {
+  margin-left: -1px;
+}
+.modal-footer .btn-block + .btn-block {
+  margin-left: 0;
+}
+.hide {
+    display: none;
+}
+
+.fade {
+    opacity: 0;
+    -webkit-transition: opacity 0.15s linear;
+    -moz-transition: opacity 0.15s linear;
+    -o-transition: opacity 0.15s linear;
+    transition: opacity 0.15s linear;
+}
+.fade.in {
+    opacity: 1;
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 20px;
+  color: #000000;
+  text-shadow: 0 1px 0 #ffffff;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+}
+.close:hover {
+  color: #000000;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.4;
+  filter: alpha(opacity=40);
+}
+button.close {
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+}
+
+  .modal-header .close {
+    padding: 10px;
+    margin: -10px;
+  }
+
+  .alert .close {
+    position: relative;
+    top: -2px;
+    right: -21px;
+    line-height: 20px;
+  }
+
+
+		</style>
+	</head>
+	<body id = "home">
+		<!--[if lt IE 7]>
+		<p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+		<![endif]-->
+
+        {{include header}}
+		<div class="wrapper">
+			<nav class="main_menu">
+
+			</nav>
+
+			<div class="container">
+				<article class="main">
+				<div id="undefined-sticky-wrapper" class="sticky-wrapper" style="height: 0px;"><div class="message_box">
+                        <div class="message warning_message" style="display:none;">
+                            <div class="content">
+                                <div class="left"></div>
+                                <a href="#" class="close_message right icon-remove-sign js_close_message"></a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+					<header class="separator">
+						<div class="content">
+							<div class="left">
+								<h1 class="inline_box">Issues</h1><a href="/issuetracker/issue/add" class="btn main head push_left_40">New Issue</a>
+							</div>
+							<ul class="screen_option right search_form_cont">
+								<form class="right form-container search_form" action="/issuetracker/issue/search" method="post">
+									<li class="screen_option_item">
+										<span>Search</span>
+										<select id="select_search" class="select_list_custom half big" name="searchType">
+											<option value="1">&nbsp;By Project Name</option>
+											<option value="2">&nbsp;By Reporter</option>
+											<option value="3">&nbsp;By Assignee</option>
+											<option value="4" selected="selected">&nbsp;All issues</option>
+										</select>
+
+									</li>
+
+									<li class="screen_option_item">
+										<div class="input_row">
+											<span>for </span>
+											<label for="search_members" class="hide" >Search</label>
+											<input id="search_members" type="text" class="fw_250" name="searchValue" value="{{value}}"  />
+											<input class="btn main"  type="submit" id="searchId" value="Search" />
+										</div>
+
+									</li>
+								</form>
+							</ul>
+						</div>
+					</header>
+					 {{include body}}
+
+					<div class="clearfix"></div>
+				</article>
+			</div><!-- /container -->
+		</div><!-- /container -->
+		<footer></footer>
+<link href="{{url "/themes/issuetracker/js/select2/select2.css"}}" rel="stylesheet">
+<script src="{{url "/themes/issuetracker/js/jquery-1.8.3.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/select2/select2.js"}}"></script>
+
+<script src="{{url "/themes/issuetracker/js/issue.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/jagg.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/bootstrap.min.js"}}"></script>
+<script type="text/javascript">
+     $("#select_search").select2();
+</script>
+{{js .}}
+
+	</body>
+</html>

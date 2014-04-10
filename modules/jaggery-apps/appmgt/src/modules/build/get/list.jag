@@ -1,0 +1,242 @@
+<% include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/build/get/list.jag");
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var appfactory = require('appFactory');
+var multitenancy = carbon.multitenancy;
+
+var getBuildInfoByApplicationId = function(applicationId) {
+    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_BUILD);
+    var statistics, tenantDomain=modManager.getTenantDomain();
+ 	var context=multitenancy.getPrivilegedCarbonContext();
+ 	var tenantManager= multitenancy.getTenantManager();
+ 	try{
+ 		context.startTenantFlow();
+ 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+ 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+ 		statistics = server.osgiService('org.wso2.carbon.appfactory.core.build.ContinuousIntegrationStatisticsService').getApplicationStatistics(applicationId,[[]]);
+ 	}finally{
+ 		context.endTenantFlow();
+ 	}
+ 	var elementsArray = new Array();
+
+	for (var data in statistics) {
+		var staticstic = statistics[data];
+		var innerElement = {};
+		innerElement.name = staticstic.name;
+		innerElement.value = staticstic.value;
+		elementsArray.push(innerElement);
+	}
+	return elementsArray;
+    };
+
+
+/*var getBuildInfoByApplicationId = function(applicationId) {
+    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_BUILD);
+        var ws = require("ws");
+        var buildService = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.action = "urn:getApplicationStatistics";
+        options["HTTPHeaders"] = [{
+        	name: "Cookie",
+        	value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }];
+        var payload = '<p:getApplicationStatistics xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:applicationId>' + applicationId + '</p:applicationId></p:getApplicationStatistics>';
+        var result;
+
+        try {
+        	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
+        	buildService.open(options,endPoint, false);
+        	buildService.send(payload);
+        	result = buildService.responseE4X;
+        	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
+        	var ax225 = new Namespace("http://dto.core.appfactory.carbon.wso2.org/xsd");
+        	result = result.ns::["return"];
+
+        	var elementsArray = new Array();
+
+        	for (var buildData in result) {
+        		var buildInfo = result[buildData];
+        		var name = buildInfo.ax225::["name"].text();
+        		var value = buildInfo.ax225::["value"].text();
+
+        		var innerElement = {};
+        		innerElement.name = name;
+        		innerElement.value = value;
+
+        		elementsArray.push(innerElement);
+        	}
+
+        	return elementsArray;
+        } catch (e) {
+        	log.error("Error while getting build information \n" + e.message);
+        	throw "Error while getting build information";
+        }
+
+        return arrApplications;
+    };*/
+
+var getTagNamesOfPersistedArtifacts = function(applicationId, version) {
+    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_BUILD);
+        var ws = require("ws");
+        var getTagNames = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.action = "urn:getTagNamesOfPersistedArtifacts";
+        options["HTTPHeaders"] = [{
+        	name: "Cookie",
+        	value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }];
+        var payload = '<p:getTagNamesOfPersistedArtifacts xmlns:p="http://deploy.core.appfactory.carbon.wso2.org"><p:applicationId>' + applicationId + '</p:applicationId><p:version>' + version + '</p:version></p:getTagNamesOfPersistedArtifacts>';
+        var result;
+
+        try {
+        	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationDeployer";
+        	getTagNames.open(options,endPoint, false);
+        	getTagNames.send(payload);
+        	result = getTagNames.responseE4X;
+        	var ns = new Namespace("http://deploy.core.appfactory.carbon.wso2.org");
+        	result = result.ns::["return"].text();
+        	for (var userIndex in result) {
+        		var user = result[userIndex];
+        	}
+        	return result;
+        } catch (e) {
+        	log.error("Error while tag names of persisted artifacts : " + e.message);
+        	throw "Error while tag names of persisted artifacts";
+        }
+        return arrApplications;
+    }
+
+    //provides builds history information to draw a Dojo chart.
+var getJenkinsBuilds = function(applicationKey) {
+        jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_BUILD);
+        var returnObject = {};
+        var webServiceResponse, webServiceResponseText, webServiceResponseObject;
+        var jobName = applicationKey + "-trunk-default";
+        var treeStructure = "builds[number,duration,result]";
+        var ws = require("ws");
+        var buildService = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.action = "urn:getJsonTree";
+        options["HTTPHeaders"] = [{
+        	name: "Cookie",
+        	value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }];
+        var payload = '<p:getJsonTree xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:jobName>' + jobName + '</p:jobName><p:treeStructure>' + treeStructure + '</p:treeStructure></p:getJsonTree>';
+
+        try {
+        	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
+        	buildService.open(options,endPoint, false);
+        	buildService.send(payload);
+        	webServiceResponse = buildService.responseE4X;
+        	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
+        	webServiceResponseText = webServiceResponse.ns::["return"].text();
+        } catch (e) {
+        	log.error("Error while getting builds information : " + e.message);
+        	throw "Error while while getting builds information";
+        }
+
+        if (webServiceResponseText != null && webServiceResponseText.length != 0) {
+            try {
+                webServiceResponseObject = parse(webServiceResponseText.toString());
+                var builds = webServiceResponseObject.builds;
+                var count = builds.length - 1;
+                var buildsArray = new Array();
+                for (var i = builds.length - 1; i > -1; i--) {
+                    var build = builds[i];
+                    var height = build.duration;
+                    var object = {};
+                    object.data = Math.round(parseInt(build.duration / 1000));
+                    object.value = build.number;
+                    if (build.result == "SUCCESS") {
+                        object.color = "green";
+                        object.text = build.number + " (S)";
+                    } else if (build.result == "FAILURE") {
+                        object.color = "red";
+                        object.text = build.number + " (F)";
+                    } else if (build.result == "ABORTED") {
+                        object.color = "red";
+                        object.text = build.number + " (A)";
+                    }
+                    buildsArray.push(object);
+                }
+                returnObject.labels = buildsArray;
+            } catch (ex) {
+                print("Error while generating builds chart information : " + ex.message);
+                throw "Error while generatiing builds chart information";
+            }
+        }
+        return returnObject;
+    };
+
+var getAllJenkinsBuildsStats = function(applicationKey) {
+        jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_BUILD);
+        var returnObject = [];
+        var webServiceResponse, webServiceResponseText, webServiceResponseObject;
+        var treeStructure = "jobs[name,builds[number,id,timestamp,result,duration]]";
+        var ws = require("ws");
+        var buildService = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.2;
+        options.action = "urn:getJsonTree";
+        options["HTTPHeaders"] = [{
+        	name: "Cookie",
+        	value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }];
+        var payload = '<p:getJsonTree xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:jobName>all</p:jobName><p:treeStructure>' + treeStructure + '</p:treeStructure></p:getJsonTree>';
+
+        try {
+        	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
+        	buildService.open(options,endPoint, false);
+        	buildService.send(payload);
+        	webServiceResponse = buildService.responseE4X;
+        	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
+        	webServiceResponseText = webServiceResponse.ns::["return"].text();
+        	log.info("webServiceResponseText > "+webServiceResponseText);
+        } catch (e) {
+        	log.error("Error while getting builds information : " + e.message);
+        	throw "Error while while getting builds information";
+        }
+
+        if (webServiceResponseText != null && webServiceResponseText.length != 0) {
+            try {
+                webServiceResponseObject = parse(webServiceResponseText.toString());
+                var success = 0;
+                var failure = 0;
+                var aborted = 0;
+                log.info(webServiceResponseObject);
+                for (var index in webServiceResponseObject.jobs) {
+                    var job = webServiceResponseObject.jobs[index];
+                    for (var bIndex in job.builds) {
+                        var build = job.builds[bIndex];
+                        //console.log(build.result);
+                        if ("SUCCESS" === build.result) {
+                            success += 1;
+                        } else if ("FAILURE" === build.result) {
+                            failure += 1;
+                        } else if ("ABORTED" === build.result) {
+                            aborted += 1;
+                        }
+                    }
+                }
+                var successArray=['success', success];
+                var failureArray=['failure', failure];
+                var abortedArray=['aborted', aborted];
+
+                returnObject = [successArray,failureArray,abortedArray];
+                
+            } catch (ex) {
+                print("Error while generating builds chart information : " + ex.message);
+                throw "Error while generatiing builds chart information";
+            }
+        }
+        return returnObject;
+    } %>

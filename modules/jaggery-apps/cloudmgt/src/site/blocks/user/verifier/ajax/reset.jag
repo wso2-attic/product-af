@@ -1,0 +1,36 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var file = new File("/site/conf/cloud-mgt.xml");
+var log = new Log();
+(function () {
+var mod, obj, result,
+action = request.getParameter("action"),
+mod = jagg.module("user/reset"),
+site = require("/site/conf/site.json");
+
+if (action == "confirmUser") {
+    var confirm = request.getParameter("confirm");
+    try {
+        var result = mod.confirmUser(confirm);
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while confirming user ";
+        }
+    } catch(e) {
+         var message = e.toString();
+        if(message.indexOf("Email verification failed") !== -1){
+            response.status = 500;
+            print("You have already click the link that post to you to configure your administrator account or it must have been expired.");
+        } else {
+             throw "Error while confirming user "+e.message;
+        }
+       
+    }
+}  else {
+    throw new Error("No action specified");
+}
+
+}());
+%>

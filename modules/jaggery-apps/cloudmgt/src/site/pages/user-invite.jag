@@ -1,0 +1,52 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+ var applicationKey = request.getParameter('applicationKey');
+ var applicationName = request.getParameter('applicationName');
+(function () {
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/user.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"Register Confirmation",
+                        "middle":[
+                            {
+                            	"name":"user/invite",
+                            "inputs":{
+                                "applicationKey":applicationKey
+                            }
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                            	"name":"breadcrumb",
+                                "inputs":{
+                                    "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"User Administration"
+                                }
+                            }
+                        ],
+                        "tablinks":[
+                            {
+                            	"name":"tablinks",
+                                "inputs":{
+                                     "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"User Administration"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

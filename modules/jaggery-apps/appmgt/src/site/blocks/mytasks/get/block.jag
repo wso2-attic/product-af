@@ -1,0 +1,25 @@
+<%
+jagg.block("mytasks/get", {
+    initialize:function (data) {
+
+    },
+   getOutputs:function (inputs) {
+
+       var myTaskIDs, claimableTaskIDs, allTaskIDs;
+       var myTaskCategory = 'ASSIGNED_TO_ME';
+       var claimableTaskCategory = 'CLAIMABLE';
+       var allTaskCategory = 'ALL_TASKS';
+
+       myTaskIDs = jagg.module("mytasks").getTaskId(myTaskCategory);
+       claimableTaskIDs = jagg.module("mytasks").getTaskId(claimableTaskCategory);
+       allTaskIDs = jagg.module("mytasks").getTaskId(allTaskCategory);
+      
+       return {
+         "myTaskIDs": myTaskIDs,
+         "claimableTaskIDs": claimableTaskIDs,         
+         "allTaskIDs": allTaskIDs
+       };
+   }
+
+});
+%>

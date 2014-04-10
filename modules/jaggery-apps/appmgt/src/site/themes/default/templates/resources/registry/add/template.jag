@@ -1,0 +1,454 @@
+<% jagg.template("resources/registry/add", function(inputs, outputs, jagg) { %>
+
+<%
+include("/jagg/constants.jag");
+
+var log = new Log();
+var applicationKey = request.getParameter("applicationKey");
+var applicationName = request.getParameter("applicationName");
+var currentStage = request.getParameter("stage");
+var resourceName = request.getParameter("resourceName");
+var isEdit = request.getParameter("isEdit");
+var pagePath = request.getParameter("pagePath");
+var redirectURL = "resources.jag?applicationName="+ applicationName +"&applicationKey="+ applicationKey;
+if(pagePath != null && pagePath.equals("configureenvironment")){
+    redirectURL = "configureenvironment.jag?applicationName=" + applicationName + "&applicationKey=" + applicationKey;
+}
+
+//var hasConfigureResourcePermissions=outputs.hasConfigureResourcePermissions;
+//var dependencies=outputs.dependencies;
+
+var headerMsg = "Add New Property";
+var buttonValue = "Add Property";
+
+// TODO: This can be removed
+var url = "#";
+
+var propertyName = "";
+var propertyType = "";
+var propertyDescription = "";
+var propertyValue = "";
+var modResources = jagg.module("resources");
+var modPermission = jagg.module("permission");
+var stagePermission=[];
+
+var stages = getProperties('ApplicationDeployment.DeploymentStage');
+
+var devStage;
+
+if(stages.length > 0){
+    devStage = stages[0];
+}
+
+for(var stage in stages){
+    if(modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +stages[stage])){
+        stagePermission.push(stages[stage]);
+    }
+
+}
+
+stages=stagePermission;
+if(isEdit != null && isEdit == "true"){
+    headerMsg = resourceName;
+    buttonValue = "Save";
+    var resource = modResources.getDetailedPropertyValueInStage(resourceName, applicationKey, currentStage);
+    if(resource){
+	    propertyName = resource.name;
+	    propertyType  = resource.mediaType;
+	    propertyDescription  = resource.description;
+	    propertyValue = resource.value;
+    }
+}
+
+%>
+<script type="text/javascript">
+//[cdata[
+
+var validate = true;
+
+function createResource() {
+	var mediaType='';
+	if($("#property_type").attr('value') == "Endpoint"){
+		mediaType = "application/vnd.wso2.endpoint";
+	}	
+	$("#rssInstance").val($("#rssInstances").val());
+
+    $('#create_button').attr('disabled','disabled').attr('prev-val',$('#create_button').val()).val('Creating..');
+    jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
+        action: "createResource",
+        applicationKey: '<%=applicationKey%>',
+        resourceName: $("#property_name").attr('value'),
+        resourceDescription: $("#property_description").attr('value'),
+        contentValue: $("#property_value").attr('value'),
+        stage: $("#rssInstance").val(),
+        resourceMediaType: mediaType
+    },
+    function (result) {
+      clearForm();
+        $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+      /*TODO
+		 * jagg.message({
+          content: "Property successfully added",
+          type: 'info' });*/
+    },
+    function (jqXHR, textStatus, errorThrown) {
+    	// alert(jqXHR);
+        $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+    });
+}
+
+
+
+function drawRSSInstances(){
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+                action:"getRSSinstances",
+                applicationKey:"<%=applicationKey%>"
+            }, function (result) {
+		//alert(result);
+                if(result != undefined){
+                    var parsedArray = jQuery.parseJSON(result);
+                    for(var i = 0; i < parsedArray.length; i++) {
+                        var name = parsedArray[i].name;
+
+                        var row='<option>'+name+'</option>';
+                        $("#rssInstances").append(row);
+                        $("#rssInstances").select2({
+                           formatResult: selectBoxOptionFormat,
+                           minimumResultsForSearch: -1,
+                           containerCssClass : "error" });
+                    }
+                    if(parsedArray.length == 0){
+                        $('#rssInstances').html('<div class="row-fluid"><div class="span12"><div class="alert alert-info">No rssInstances created yet</div></div></div>');
+                    }
+                }
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                $('#rssInstances').html('<div class="row-fluid"><div class="span12"><div class="alert alert-error">Error occurred while reading rssInstances</div></div></div>');
+            });
+    }
+
+
+function updateResource() {
+
+    var mediaType='';
+    if($("#property_type").attr('value') == "Endpoint"){
+        mediaType = "application/vnd.wso2.endpoint";
+    }
+    $('#create_button').attr('disabled','disabled').attr('prev-val',$('#create_button').val()).val('Creating..');
+    jagg.post("../blocks/resources/registry/edit/ajax/edit.jag", {
+                action: "updateResource",
+                applicationKey: '<%=applicationKey%>',
+                resourceName: $("#property_name").attr('value'),
+                contentValue: $("#property_value").attr('value'),
+                resourceMediaType: mediaType,
+                deploymentStage: '<%=currentStage%>',
+                description:$("#property_description").attr('value')
+            },
+            function (result) {
+            	
+                clearForm();
+                /*TODO
+                 * jagg.message({
+                 content: "Property successfully added",
+                 type: 'info' });*/
+                $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+                
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                // alert(jqXHR);
+                $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+
+            });
+    
+}
+
+function updateDescription(description){
+  jagg.post("../blocks/resources/registry/edit/ajax/edit.jag", {
+      action: "updateDescription",
+      applicationKey: '<%=applicationKey%>',
+      resourceDescription: description,
+      deploymentStage: '<%=currentStage%>',
+      resourceName: $("#property_name").attr('value'),
+  });
+}
+
+function deleteResource() {
+    jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
+                action: "deleteResource",
+                applicationKey: '<%=applicationKey%>',
+                resourceName: $("#property_name").attr('value'),
+            },
+            function (result) {
+                window.location.replace("<%=redirectURL%>");
+            },
+            function (jqXHR, textStatus, errorThrown) {
+            	jagg.message({type:'error', id:'validation', content: "Error occured while deleting the resource."});
+            });
+}
+
+function updateUIForStage() {
+    jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
+                action: "getResource",
+                applicationKey: '<%=applicationKey%>',
+                stage: $("#stage").attr('value'),
+                resourceName: $("#property_name").attr('value'),
+            },
+            function (result) {
+                var stage = jQuery.parseJSON(result);
+                $("#property_description").val('<%= propertyDescription %>');
+                $("#property_value").val(stage.value);
+                if(stage.mediaType == 'application/vnd.wso2.endpoint'){
+                    $("#property_type").val('Endpoint');
+                } else{
+                    $("#property_type").val('Registry');
+                }
+
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                // alert(jqXHR);
+            });
+}
+
+
+function clearForm(){
+	$("#property_name").val("");
+	$("#property_description").val("");
+	$("#property_value").val("");
+}
+
+function validateMandatoryInputs(){
+	var mediaType = $("#property_type").val();
+	var propName = $("#property_name").val();
+	var propValue = $("#property_value").val();
+	
+	validate = true;
+	var errorMsg = ""; 
+	if(propName == '' || propName.length == 0){
+		validate = false;
+		errorMsg += 'Invalid resource name - Enter a resource name which is not empty';
+	}
+
+	if(mediaType == ''){
+		validate = false;
+		errorMsg += '<br />Select a property type';
+	}
+
+    if(propValue == '' || propValue.length == 0){
+        validate = false;
+        errorMsg += '<br />Invalid resource value - Enter a resource value which is not empty';
+    }
+    
+    if(!validate){
+    	jagg.message({type:'error', id:'validation', content: errorMsg});
+    }
+    return validate;
+}
+
+
+function environmentSelected(value) {
+    $("#rssInstance").val(value);
+}
+
+$(document).ready(function() {
+	
+    if('<%=isEdit%>'== 'true'){
+        $("#delete-div").show();
+        $("#stage").val('<%=devStage%>');
+
+        if('<%=propertyType%>'== 'application/vnd.wso2.endpoint'){
+            $("#property_type").val('Endpoint');
+        } else{
+            $("#property_type").val('Registry');
+        }
+    } else {
+    	drawRSSInstances();
+        $("#delete_button_div").hide();
+
+    }
+
+	var createPropForm 	= $("#createProp");
+
+	$(createPropForm).ajaxForm({
+		beforeSubmit: function() { //brfore sending form
+			validateMandatoryInputs();
+
+            if(validate){
+                if('<%=isEdit%>'== 'true'){
+                    updateResource();
+
+                }else{
+                    createResource();
+                }
+            } else{
+                return false;
+            }
+
+		},
+        complete: function(result) { // on complete
+            var statusTxt = result.statusText;
+            if(statusTxt == "OK"){
+                setTimeout("pageReload('<%=redirectURL%>')",1500);
+            }
+        }
+
+    });
+    $('#deleteResBtn').click(function(){
+            jagg.popMessage({type:'confirm',title:'Delete Value',content:'Are you sure you want to delete value <%=resourceName%>?',cancelCallback:function(){deleteResource()}});
+    });
+});
+
+function pageReload(redirectURL){
+	 window.location.replace(redirectURL);
+}
+//]]
+</script>
+
+
+            <div class="container">
+				<article class="main">
+				       
+                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %></div>
+                        	<div class="content">
+                                <h1>Resources</h1>
+                             </div>
+                        </header>
+                        <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
+                        <section class="separator">
+                            <div class="page_nav">
+                                <div class="content clear">
+                                    <ol class="breadcrumb left">
+                                        <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">Endpoint & Registry</a></li>
+                                        <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
+                                    </ol>
+                                    <%
+                                      	if(modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +currentStage)){
+                                      %>
+                                    <div class="right btn_group" id="delete_button_div">
+                                        <ul class="inline_box inline_list btn_group_list">
+                                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Value</a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <%
+                                    }
+                                    %>
+                                </div>
+                            </div>
+                            <div class="content clear well">
+                            	<div class="form-container">
+
+                                    <form action="#" id="createProp" method="post" class="hold right_label">
+                                      <fieldset>
+                                            <div class="input_row">
+                                            	<%
+                                            		var disableStr = "";
+                                            		if(isEdit == "true"){
+                                            			disableStr = "disabled='disabled'";
+                                            	%>
+                                            			<!-- label for="property_name" ><strong>Name</strong> <em>*</em></label -->
+                                            			<input id="property_name" type="hidden" name="property_name" value="<%=propertyName%>" class="half" />
+                                            			
+                                            			<label for="property_type" ><strong>Type</strong> <em>*</em></label>
+                                            			<input id="property_type" type="text" name="property_type" value="<%=propertyType%>" class="half" disabled="disabled"/>
+                                            	<%
+                                            		}else{
+                                            	%>
+                                                		<label for="property_name" ><strong>Name</strong> <em>*</em></label>
+                                                		<input id="property_name" type="text" name="property_name" value="<%=propertyName%>" class="half" required/>
+                                                		<div class="input_row">
+        	                                            	<label for="property_type" ><strong>Type</strong> <em>*</em></label>
+	        	                                            <select class="select_list half big" id="property_type" name="property_type">
+	        	                                                <option disabled="disabled" selected value=''>Select Property Type</option>
+	        	                                                <option value="Registry">Registry</option>
+	        	                                                <option value="Endpoint">Endpoint</option>
+	        	                                            </select>
+        	                                            </div>
+        	                                            <div class="input_row">
+        	                                            	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
+                                                    		<select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
+                                                    		<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
+        	                                        	</div>
+                                                
+                                                <% } %>
+                                            </div>
+                                            
+	                                        <div class="input_row">
+	                                            <label for="property_description">Description</label>
+	                                            <textarea name="property_description" id="property_description" rows="5"   class="full"/><%=propertyDescription%></textarea>
+	                                        </div>
+
+                                          <%
+                                            if(isEdit == "true"){
+
+                                          %>
+                                          <hr/>
+                                          <div>
+                                              <label for="stage"><strong>Stage</strong></label>
+                                              <label><%=currentStage%></label>
+                                              <!--select class="select_list half big" id="stage" name="stage"
+                                                      onchange="updateUIForStage()">
+                                                 <option disabled="disabled" selected value=''>Select Stage</option>
+                                                  <%
+
+                                                    for (var i = 0; i < stages.length; i++) {
+                                                    var stage = stages[i];
+                                                    var permissionToStage = false;
+
+                                                    permissionToStage = jagg.module("permission").isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE+stage);
+
+                                                    if(permissionToStage){
+
+                                                    %>
+                                                        <option value=<%=stage%>><%=stage%></option>
+                                                        <script>
+                                                        	permittableStages.push('<%=stage%>');
+                                                        </script>
+                                                    <%
+                                                      }
+                                                    }
+                                                    %>
+                                              </select-->
+                                          </div>
+
+                                          <%
+                                            }
+
+                                          %>
+
+                                            
+                                            <div class="input_row">
+                                                <label for="property_value"><strong>Value</strong> <em>*</em></label>
+                                                <textarea name="property_value" id="property_value" rows="2" class="full" required><%=propertyValue%></textarea>
+                                            </div>
+
+                                      </fieldset>
+                                      	   <div class="buttonrow">  
+	                                      <%
+	                                      	if(isEdit != null && isEdit == "true" && modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +currentStage)){
+	                                      %> 
+	                                        
+	                                        <!--input type="button" name="submit" value="Create Property" class="btn main" onclick="createResource();"/-->
+	                                        <input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
+
+	                                        <%
+	                                        }else if(!isEdit){
+	                                        %>
+	                                        	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
+	                                        
+	                                        <%
+	                                        }
+	                                        %>
+                                        	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">Cancel</a>
+										</div>
+                                     </form>
+
+								</div>
+                            </div>
+                        </section>
+                        <div class="clearfix"></div>
+                 </article>
+            </div>
+
+<% }); %>
+

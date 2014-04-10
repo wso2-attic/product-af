@@ -1,0 +1,19 @@
+<%
+include("/jagg/jagg.jag");
+var log = new Log("jagg/util.jag");
+
+var getAllowedStages= function getAllowedStages(allStages,permissionPrefix,applicationKey){
+var stages=[];
+        for (var i = 0; i < allStages.length ; i++) {
+            if (jagg.module("permission").isUserAccessGranted(applicationKey,
+                permissionPrefix+allStages[i])){
+                stages.push(allStages[i]);
+
+                } else {
+                    log.info("user do not have permission for stage "+allStages[i]+" hence skipping")
+                    continue;
+                }
+                }
+                return stages;
+}
+%>

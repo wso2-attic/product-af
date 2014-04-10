@@ -1,0 +1,8 @@
+<%
+jagg.initializer("user/reset", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

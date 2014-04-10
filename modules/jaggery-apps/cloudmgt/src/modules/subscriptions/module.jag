@@ -1,0 +1,6 @@
+<%
+jagg.module("subscriptions", {
+
+   
+});
+%>

@@ -1,0 +1,57 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+ var applicationKey=request.getParameter("applicationKey");
+ var applicationName=request.getParameter("applicationName");
+ var issueKey=request.getParameter("issueKey");
+ var action=request.getParameter("action");
+(function () {
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/issue.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"WSO2 App Factory",
+                        "middle":[
+                            {
+                                "name":"issuetracker/update",
+                                "inputs":
+                                {
+                                "applicationKey":applicationKey ,
+                                "issueKey":issueKey,
+                                "action":action
+                                }
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                            	"name":"breadcrumb",
+                                "inputs":{
+                                    "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"Track Issues"
+                                }
+                            }
+                        ],
+                        "tablinks":[
+                            {
+                            	"name":"tablinks",
+                                "inputs":{
+                                     "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"Track Issues"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

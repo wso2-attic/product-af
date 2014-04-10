@@ -1,0 +1,367 @@
+<% jagg.template("resources/database/list", function (inputs, outputs, jagg) { %>
+<%
+var applicationName = request.getParameter("applicationName");
+var applicationKey = request.getParameter("applicationKey");
+var isDefaultMode = request.getParameter("isDefaultMode");
+%>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+	drawDatabasesTable();
+
+});
+
+var inheriteddatabaseName, inheritedrssInstanceName, inheritedusername;
+
+var _defaults = {
+	    moviePath:         "<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
+	    trustedDomains:    undefined,                  // Domains that we should trust (single string or array of strings)
+	    hoverClass:        "zeroclipboard-is-hover",   // The class used to hover over the object
+	    activeClass:       "zeroclipboard-is-active",  // The class used to set object active
+	    allowScriptAccess: "sameDomain",               // SWF outbound scripting policy
+	    useNoCache:        true,                       // Include a nocache query parameter on requests for the SWF
+	    amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
+
+	 };
+
+
+
+function drawDatabasesTable() {
+
+    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+        action: "getDbUserTemplateInfoForStages",
+        applicationKey: $("#applicationKey").val()
+    }, function (result) {
+			    if (result !== undefined) {
+
+                    var parsedArray = jQuery.parseJSON(result);
+					
+                    if (parsedArray.length > 0) {
+
+                        var domRSStbl = "";
+                        var domRSSUsrtbl = "";
+                        var domRSStemptbl = "";
+                        var zeroDB =true;
+                        var zeroDBUsr =true;
+                        var zeroDBTmp =true;
+                        var dbcount = 0;
+                        for (var index in parsedArray) {
+                            var instance = parsedArray[index];
+
+                            var dbsli = '';
+                            if (instance.dbs != null) {
+                                for (var i = 0; i < instance.dbs.length; i++) {
+                                    var db = instance.dbs[i];
+                                    var dbsUrl = '<%=jagg.getAbsoluteUrl("/site/pages/editdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dbName=' + db.dbName + '&environment=' + instance.stage;
+                                    dbsli += '<li><a href="' + dbsUrl + '" style="margin-right:10px;">' + db.dbName + '</a> <a id="copy'+(dbcount + i)+'" class="icon_link copy_link" title="Copy DB URL " data-clipboard-text="'+db.url+'"><span class="icon-copy"></span></a></li>';                                   
+                                }
+                                if(instance.dbs.length > 0 ){
+                                	zeroDB = false;
+                                }
+                            	dbcount += instance.dbs.length;
+                            }
+                            var usersli = '';
+                            if (instance.users != null) {
+                                for (var i = 0; i < instance.users.length; i++) {
+                                    var username = instance.users[i].name;
+                                    var dbUserUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&user=' + username + '&environment=' + instance.stage;
+                                    usersli += '<li><a href="' + dbUserUrl + '">' + username + '</a></li>';
+                                }
+                                if(instance.users.length > 0 ){
+                                	zeroDBUsr = false;
+                                }
+                            }
+
+                            var templateli = '';
+                            if (instance.templates != null) {
+                                for (var i = 0; i < instance.templates.length; i++) {
+                                    var template = instance.templates[i].name;
+                                    var templateUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&templateName=' + template;
+                                    templateli += '<li><a href="' + templateUrl + '">' + template + '</a></li>';
+                                }
+                                if(instance.templates.length > 0 ){
+                                	zeroDBTmp = false;
+                                }
+                            }
+
+                    domRSStbl += '<li class="list_row_item  ">'+
+                            '<ul class="list_row  ">'+
+                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
+                                    '<div class="list_col_content">'+
+                                        '<i class="tag">'+instance.stage+'</i>'+
+                                    '</div>'+
+                                '</li>'+
+                                '<li class="list_col resources_databases_col">'+
+                                    '<div class="list_col_content">'+
+                                        '<ul class="list">'+
+                                            dbsli +
+                                        '</ul>'+
+                                    '</div>'+
+                                '</li>'+
+                                /*'<li class="list_col last_list_col resources_db_users_col">'+
+                                    '<div class="list_col_content">'+
+                                        '<ul class="list">'+
+                                            usersli+
+                                         '</ul>'+
+                                    '</div>'+
+                                '</li>'+
+                                '<li class="list_col last_list_col resources_db_permission_col">'+
+                                    '<div class="list_col_content">'+
+                                        '<ul class="list">'+
+                                           templateli+
+                                         '</ul>'+
+                                    '</div>'+
+                                '</li>'+*/
+                            '</ul>'+
+                       '</li>';
+                    
+                    domRSSUsrtbl += '<li class="list_row_item  ">'+
+                    	'<ul class="list_row  ">'+
+                    		'<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
+                    			'<div class="list_col_content">'+
+                    				'<i class="tag">'+instance.stage+'</i>'+
+                    			'</div>'+
+                    		'</li>'+
+                    		'<li class="list_col last_list_col resources_db_users_col">'+
+                    			'<div class="list_col_content">'+
+                    				'<ul class="list">'+
+                    					usersli+
+                    				'</ul>'+
+                    			'</div>'+
+                    		'</li>'+
+                    	'</ul>'+
+                    '</li>';
+                    
+                    domRSStemptbl += '<li class="list_row_item  ">'+
+	                	'<ul class="list_row  ">'+
+	                		'<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
+	                			'<div class="list_col_content">'+
+	                				'<i class="tag">'+instance.stage+'</i>'+
+	                			'</div>'+
+	                		'</li>'+
+	                		'<li class="list_col last_list_col resources_db_permission_col">'+
+	                			'<div class="list_col_content">'+
+	                				'<ul class="list">'+
+	                					templateli+
+	                				'</ul>'+
+	                			'</div>'+
+	                		'</li>'+
+	                	'</ul>'+
+	                '</li>';
+
+
+                }
+                if(!zeroDB){
+                    $('#dbSection').html('<li class="list_row_item first_list_row_item">'+
+                                                            '<ul class="list_row first_list_row">'+
+                                                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
+                                                                    '<h2 class="list_col_heading">Environment</h2>'+
+                                                                '</li>'+
+                                                                '<li class="list_col resources_databases_col">'+
+                                                                    '<h2 class="list_col_heading">Databases</h2>'+
+                                                                '</li>'+
+                                                                /*'<li class="list_col last_list_col resources_db_users_col">'+
+                                                                    '<h2 class="list_col_heading">DB Users</h2>'+
+                                                                '</li>'+
+                                                                '<li class="list_col last_list_col resources_db_permission_col">'+
+                                                                    '<h2 class="list_col_heading">DB Permission Templates</h2>'+
+                                                                '</li>'+*/
+                                                            '</ul>'+
+                                                       '</li>');
+                    $("#dbSection").html($("#dbSection").html()+domRSStbl);
+
+                    for (var i = 0; i < dbcount; i++) {
+	                    ZeroClipboard.setDefaults(_defaults);
+	                    var clip = new ZeroClipboard($('#copy'+i));
+	
+	                    clip.on( 'load', function(client) {
+	                        //alert( "movie is loaded" );
+	                    });
+	
+	                    clip.on( 'complete', function(client, args) {
+	                        //alert("Copied text to clipboard: " + args.text );
+	                    } );
+	                    clip.on( 'mousedown', function(client) {
+	
+	                    } );
+                    }
+                    /*$('div.db_url').each(function(){
+                        if($(this).html().length > 24){
+                            $(this).qtip(
+                               {
+                                   content: {
+                                               text: $(this).attr('data-url')
+                                            },
+                                   show: {
+                                       when: 'click',
+                                       solo: true // Only show one tooltip at a time
+                                   },
+                                   hide: 'unfocus',
+                                   style: {
+                                                  classes: 'popup_status_box tooltip',
+                                                  widget: false,
+                                                  def: false
+                                              }
+                               });
+                        }
+                    });*/
+                }else{
+                    $("#dbSection").html('<div class="noData-message">Databases have not been created yet.</div>');
+                }
+                
+                if(!zeroDBUsr){
+                    $('#dbUsrSection').html('<li class="list_row_item first_list_row_item">'+
+                            '<ul class="list_row first_list_row">'+
+                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
+                                    '<h2 class="list_col_heading">Environment</h2>'+
+                                '</li>'+
+                                '<li class="list_col last_list_col resources_db_users_col">'+
+                                    '<h2 class="list_col_heading">DB Users</h2>'+
+                                '</li>'+
+                            '</ul>'+
+                       '</li>');
+                    $("#dbUsrSection").html($("#dbUsrSection").html()+domRSSUsrtbl);
+                }else{
+                    $("#dbUsrSection").html('<div class="noData-message">DB users have not been created yet.</div>');
+                }
+                
+                if(!zeroDBTmp){
+                    $('#dbTempSection').html('<li class="list_row_item first_list_row_item">'+
+                            '<ul class="list_row first_list_row">'+
+                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
+                                    '<h2 class="list_col_heading">Environment</h2>'+
+                                '</li>'+
+                                '<li class="list_col last_list_col resources_db_permission_col">'+
+                                    '<h2 class="list_col_heading">DB Permission Templates</h2>'+
+                                '</li>'+
+                            '</ul>'+
+                       '</li>');
+                    $("#dbTempSection").html($("#dbTempSection").html()+domRSStemptbl);
+                }else{
+                    $("#dbTempSection").html('<div class="noData-message">DB Templates have not been created yet.</div>');
+                }
+		
+            } else {
+                $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
+                $("#dbTable").hide();
+
+            }
+	    hideSpin();
+        } else {
+            $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
+            $("#dbTable").hide();
+        }
+
+    },
+
+    function (jqXHR, textStatus, errorThrown) {
+    	jagg.message({content:'Error occurred while reading databases databaseusers and templates',type:'warning', id:'databaseoverwiew' });
+        hideSpin();
+    });
+
+}
+
+
+
+function hideSpin(){
+	$('div#configlist> span.icon-spinner').remove();
+}
+
+function dropDatabase(name,rssInstanceName){
+
+	jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
+		action:"dropDatabase",
+		applicationKey:$("#applicationKey").attr('value'),
+		databaseName:name,
+		rssInstanceName:rssInstanceName
+
+	},  function (result) {
+		document.location.reload(true);
+		// jagg.message({content:'Database has been created',type:'info' });
+	},
+	function (jqXHR, textStatus, errorThrown) {
+
+	});
+}
+
+$(document).ready(function(){
+    $('#js_extra_fieldset_on').click(function(){
+        $(this).next().toggle('fast');
+    });
+    $('.js_extra_fields_on').on("click", function(event){
+		var $el = $(this);
+		$(this).toggleClass("active");
+		$(this).next(".extra_fields_box").slideToggle(250, function() {
+			if( $el.prev().is(':disabled') == false) {
+				 $el.prev().attr("disabled", "disabled");
+			} else {
+				 $el.prev().removeAttr('disabled');
+			}
+	    });
+	 	event.preventDefault();
+	});
+});
+</script>
+<input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+   <div class="container">
+				<article class="main">
+				
+                        <header>
+                        <div><% jagg.includeBlock("page/messages", null); %></div>
+                        	<div class="content">
+                                <h1>Resources</h1>
+                             </div>
+                        </header>
+                        <% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
+                        <section class="separator">
+                            <div class="page_nav">
+                                <div class="content clear">
+                                    <ol class="breadcrumb left">
+                                            <li class="breadcrumb_item"><h2>Database Configurations</h2></li>
+                                    </ol>
+                                    <div class="right btn_group">
+                                        <span class="left btn_group_label">Create New</span>
+                                        <ul class="inline_box inline_list btn_group_list">
+                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn main btn_group_first">Database</a></li>
+                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true" class="btn main">DB User</a></li>
+                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn main btn_group_last">DB Template</a></li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                     </div>
+                                     
+                                </div>
+                            </div>
+                          </section>
+                          <section class="separator">                            
+                            <div class="content clear well">
+                            	<h2 class="big">Databases</h2>
+	                            <ul class="list_table push_top_20" id="dbSection" >
+
+		                         </ul>
+                            </div>
+                          </section>
+                          <section class="separator">                          	
+                            <div class="content clear well">
+                            	<h2 class="big">Database Users</h2>
+	                            <ul class="list_table push_top_20" id="dbUsrSection" >
+	
+	                            </ul>
+                            </div>
+                          </section>
+                          <section class="separator">                          	
+                            <div class="content clear well">
+                            	<h2 class="big">Database Templates</h2>
+	                            <ul class="list_table push_top_20" id="dbTempSection" >
+	
+	                            </ul>
+                            </div>
+                        </section>
+                        <div class="clearfix"></div>
+                 </article>
+            </div><!-- /container -->
+
+    <%
+}); %>
+
+

@@ -1,0 +1,48 @@
+<%
+jagg.module("user", {
+
+	login:function () {
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").login.apply(this, arguments);
+	},
+	logout:function () {
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").logout.apply(this, arguments);
+	},
+	createUser:function () {
+		return jagg.require(jagg.getModulesDir() + "user/add/add.jag").createUser.apply(this, arguments);
+	},
+	validateUser:function () {
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").validateUser.apply(this, arguments);
+	},
+	getUserConfirmationObject:function () {
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getUserConfirmationObject.apply(this, arguments);
+	},
+	getConfirmationObject:function () {
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getConfirmationObject.apply(this, arguments);
+	},
+	invokeUserActivationProcess:function () {
+		return jagg.require(jagg.getModulesDir() + "user/add/add.jag").invokeUserActivationProcess.apply(this, arguments);
+	},
+	pushGitHubUserName:function(){
+		return jagg.require(jagg.getModulesDir() + "user/add/add.jag").pushGitHubUserName.apply(this, arguments);
+	},
+	getAllUsersHavingName:function (){
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getAllUsersHavingName.apply(this, arguments);
+	},
+	getAllRolesOfUser:function (){
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getAllRolesOfUser.apply(this, arguments);
+	},
+	getUserInfoBean:function (){
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getUserInfoBean.apply(this, arguments);
+	},
+	getAllUsersHavingName:function (){
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getAllUsersHavingName.apply(this, arguments);
+	},
+	getAllRolesOfUser:function (){
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getAllRolesOfUser.apply(this, arguments);
+	},
+	getUserInfoBean:function (){
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getUserInfoBean.apply(this, arguments);
+	}
+
+});
+%>

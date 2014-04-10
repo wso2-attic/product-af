@@ -1,0 +1,101 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log("module/bam/add/add.jag");
+
+var modManager = jagg.module("manager");
+
+var bamUtils = require("../../../site/themes/default/js/bamUtil.js");
+var agent = require("../../../site/themes/default/js/agent.js");/js/dataPublisher.j
+var publisher = require("../../../site/themes/defaults");
+var asyncDataPublisherAgent = require("../../../site/themes/default/js/asyncDataPublisher.js");
+var url = getProperty(BAM_THRIFT_TCP_URL);
+var username = getProperty(BAM_ADMIN_USERNAME);
+var password = getProperty(BAM_ADMIN_PASSWORD);
+var asyncDataPublisher =  asyncDataPublisherAgent. createAsyncDatapublisher(url, username, password );
+
+
+var Event = Packages.org.wso2.carbon.databridge.commons.Event;
+
+var optionalHeaders = {
+        	"Content-Type": "application/json",
+    	"Authorization": "Basic YWRtaW46YWRtaW4="};
+
+var createStreamApplicationCreation = function(applicationKey){
+	//REST API stream creation URL
+  // var createStreamDefnURL = 'https://localhost:9446/datareceiver/1.0.0/streams';
+
+    var streamName = "APP_CREATION_INFO";
+    var version =  "1.0.0";
+
+    var streamId = streamName+":"+version;
+
+     var streamDefn = stringify( {
+     	  "name":"APP_CREATION_INFO",
+     	  "version": "1.0.0",
+     	  "nickName": "Application Creation Information",
+     	  "description": "This stream will store app creation data to BAM",
+     	  "payloadData":[
+     	  {
+     	    "name":"applicationName",
+     	    "type":"string"
+     	  },
+     	  {
+            "name":"applicationKey",
+            "type":"string"
+          },
+     	  {
+     	    "name":"timeStamp",
+     	    "type":"double"
+     	  },
+     	  {
+     	    "name":"user",
+     	    "type":"string"
+     	  },
+     	  {
+     	    "name":"appType",
+     	    "type":"string"
+     	  },
+     	  {
+     	    "name":"repoType",
+     	    "type":"string"
+     	  }
+     	 ],
+     	});
+
+         //var result = publisher.defineStream(streamDefn);
+
+            log.error(BAM_THRIFT_TCP_URL);
+         asyncDataPublisher.addStreamDefinition(streamDefn, streamName, version);
+          return  streamId;
+//create stream using REST API
+    //var result = bamUtils.createStream(createStreamDefnURL,streamDefn, optionalHeaders);
+
+};
+
+    var publishApplicationCreationEvent = function(streamId, applicationName , applicationKey, timestamp, applicationType, repositoryType, userName){
+	//used for publishing via REST
+   // var publishEventURL = 'https://localhost:9446/datareceiver/1.0.0/stream/APP_CREATION_INFO_STREAM/1.0.0/';
+
+
+        var metaDataArray = [];
+        var correlationDataArray = [];
+        var payloadDataArray = new Array(applicationName , applicationKey, timestamp, userName, applicationType, repositoryType);
+
+        var event = new Event(streamId, timestamp, metaDataArray,
+                correlationDataArray, payloadDataArray);
+
+       // publisher.publish(streamId, metaDataArray,
+               // correlationDataArray, payloadDataArray);
+
+        asyncDataPublisher.publish(event);
+	//Publish data to BAM using the REST API
+   // var result = bamUtils.publishEvent(publishEventURL,event, optionalHeaders);
+
+    };
+
+
+%>

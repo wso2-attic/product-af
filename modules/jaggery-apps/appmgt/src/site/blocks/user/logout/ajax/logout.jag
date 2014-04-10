@@ -1,0 +1,38 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log=new Log();
+
+(function () {
+
+    var mod,result;
+        action = request.getParameter("action");
+	if (action === "logout") {
+		mod = jagg.module("user");
+		try {
+           	 result=mod.logout();
+           	 var parsedJSON = eval('('+result+')');
+           	 var errorStatus=parsedJSON.error;
+           	 print('\nerrorStatus:'+errorStatus);
+           	 if(errorStatus === "false"){
+		  	print('\nLogout succesfully inside json parse');
+			return true;
+           	 }
+             	else{
+			print('Already logged out');
+			return false;
+             }
+
+		} catch (e) {
+            log.error("Error while logout user" + e.message);
+            throw "Error while logout user";
+        }
+    } else {
+        print('Error. Wrong Action');
+    }
+
+}());
+
+%>
+

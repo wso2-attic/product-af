@@ -1,0 +1,282 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/user/get/list.jag');
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var appfactory = require('appFactory');
+var multitenancy = carbon.multitenancy;
+
+function login(userName, password){
+	var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+	if (userName.indexOf("@") != -1) {
+		tenantDomain = userName.substring(userName.lastIndexOf('@') + 1);
+	} else {	// else assume super tenant
+		tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+	}
+	log.info("user logs in module called for user " + userName);
+	var ws = require('ws');
+	var finalResult={
+	};
+	var context=multitenancy.getPrivilegedCarbonContext();
+ 	var tenantManager= multitenancy.getTenantManager();
+ 	try{
+ 		//Start tenant flow
+ 		context.startTenantFlow();
+ 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+ 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+		context.getThreadLocalCarbonContext().setUsername(userName);
+		
+		//Get STS token
+		var stsUtil = Packages.org.wso2.carbon.appfactory.utilities.sts.STSUtil;
+		var response = stsUtil.getEncodedTokenFromSTS(session.getId(),userName,password);
+		var token = response;
+		
+		//Store token in session
+		session.put(SAML_ASSERTION_TOKEN_SESSION_KEY, stringify(token));
+		jagg.setUser(userName);
+		
+		//build final result
+		finalResult.error="false";
+		finalResult.message="User successfully logged in";
+		finalResult.username=userName;
+		return stringify(finalResult);
+	} catch(e){
+		log.error(e);
+		log.error("Error while authenticating user: "+userName);
+		finalResult.error="true";
+		finalResult.message="Internal Error Occured";
+		return stringify(finalResult);
+	} finally{
+ 		context.endTenantFlow();
+ 	}
+
+}
+
+function logout(){
+    var log = new Log();
+    var username = jagg.getUser();
+    var finalResult={};
+
+    if(username!=null){
+        jagg.setUser(null)
+         print(" error:false message:'User successfully logged out username:"+username);
+	finalResult.error="false";
+	finalResult.message="User successfully logged out";
+       // print('error:false message:User successfully logged out');
+	 return stringify(finalResult);
+    }
+	finalResult.error="true";
+	finalResult.message="User already logged out";
+        print('error:true message:already logged out');
+	 return stringify(finalResult);
+
+}
+
+function validateUser(userName){
+	var log = new Log();
+    var ws = require('ws');
+
+    var version = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.useWSA = 1.0;
+    options.action = "urn:doesUserExist";
+    options["HTTPHeaders"] =[{
+    	name:
+    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+    }];
+    var payload = '<p:doesUserExist xmlns:p="http://services.registration.user.appfactory.carbon.wso2.org"><p:userName>'+userName+'</p:userName></p:doesUserExist>';
+    var result;
+    var endPoint = getProperty(APPFACTORY_SERVER_URL) + "UserRegistrationService";
+
+    try {
+    	version.open(options,endPoint, false);
+    	version.send(payload);
+    	result = version.responseE4X;
+    	var ns=new Namespace("http://services.registration.user.appfactory.carbon.wso2.org");
+
+    	result = result.ns::["return"].text();
+
+    } catch (e) {
+    	log.error("Error when validating"+e.toString());
+    	return e.toString();
+    }
+
+    return result;
+}
+
+
+function getUserConfirmationObject(secreteKey) {
+    try {
+        var result = getConfirmationObject(secreteKey);
+        var ax2342=new Namespace("http://util.verification.email.carbon.wso2.org/xsd");
+        var ns=new Namespace("http://services.verification.email.carbon.wso2.org");
+        var data=new XML(result.ns::["return"].ax2342::data+"");
+
+        var confirmationObject=new Array();
+        confirmationObject.admin=(data.admin.text());
+        confirmationObject.email=data.email.text();
+        confirmationObject.confirmationKey=data.confirmationKey.text();
+        return confirmationObject;
+    } catch(e) {
+        throw "Error while getting confirmation object";
+    }
+}
+
+/*This method returns the users that contains the given part of text*/
+function getAllUsersHavingName(userName) {
+	if(getProperty(USER_SEARCH_STATUS) === "false"){
+		return;
+	}
+    jagg.module("permission").checkUserAuthenticated();
+	var ws = require("ws");
+    var userAdmin = new ws.WSRequest();
+    var options = new Array();
+    
+    options.useSOAP = 1.1;
+    options.action = "urn:listUsers";
+    options["HTTPHeaders"] =[{
+    	name:
+    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+    }];
+ 
+    var payload = '<mgt:listUsers xmlns:mgt="http://mgt.user.carbon.wso2.org"><mgt:filter>' + userName + '</mgt:filter></mgt:listUsers>';
+    var result;
+     
+   
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "UserAdmin";     
+    	userAdmin.open(options,endPoint, false);
+    	userAdmin.send(payload);
+    	result = userAdmin.responseE4X;
+    	var ns=new Namespace("http://mgt.user.carbon.wso2.org");
+    	var elements = result.ns::["return"];
+    	var elementsArray = new Array();
+    	for(var i=0;i<elements.length();i++){
+    		elementsArray.push(elements[i].text());
+    	}
+    	var userNames={};
+    	userNames.usernames=elementsArray;
+    	return userNames; 
+    } catch (e) {
+    	log.error("Error while getting application of user" + e.message);
+    	throw "Error while getting application of user";
+    }
+}
+
+/*This method returns the roles for given user*/
+function getAllRolesOfUser(userName) {
+
+    jagg.module("permission").checkUserAuthenticated();
+	var ws = require("ws");
+    var userAdmin = new ws.WSRequest();
+    var options = new Array();
+
+    options.useSOAP = 1.1;
+    options.action = "urn:getRolesOfUser";
+    options["HTTPHeaders"] =[{
+    	name:
+    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+    }];
+
+    var payload = '<mgt:getRolesOfUser xmlns:mgt="http://mgt.user.carbon.wso2.org"><mgt:userName>' + userName +'</mgt:userName></mgt:getRolesOfUser>';
+    var result;
+
+
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "UserAdmin";
+    	userAdmin.open(options,endPoint, false);
+    	userAdmin.send(payload);
+    	result = userAdmin.responseE4X;
+    	var ns=new Namespace("http://mgt.user.carbon.wso2.org");
+    	var elements = result.*::["return"];
+    	var elementsArray = new Array();
+    	for(var i=0;i<elements.length();i++){
+    		var userRole = {};
+    		var roleName = elements[i].*::itemName;
+    		var isSelected = elements[i].*::selected;
+
+    		userRole.roleName = roleName.text();
+    		userRole.isSelected = isSelected.text();
+
+    		elementsArray.push(userRole);
+    	}
+
+    	var userRoles={};
+    	userRoles.userRoles=elementsArray;
+    	return userRoles;
+    } catch (e) {
+    	log.error("Error while getting roles of user" + e.message);
+    	throw "Error while getting roles of user";
+    }
+}
+
+
+function getConfirmationObject(secreteKey) {
+    var ws = require("ws");
+    var emailVerificationService = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.2;
+    options.action = "urn:confirmUser";
+    options["HTTPHeaders"] =[{
+    	name:
+    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+    }];
+
+    var payload = <ser:confirmUser xmlns:ser="http://services.verification.email.carbon.wso2.org"></ser:confirmUser>;
+    var ser = new Namespace("http://services.verification.email.carbon.wso2.org");
+    payload.ser::secretKey = secreteKey;
+    var result;
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "EmailVerificationService";
+    	emailVerificationService.open(options,endPoint, false);
+    	emailVerificationService.send(payload);
+    	result = emailVerificationService.responseE4X;
+    	if (log.isDebugEnabled()) {
+    		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+    	}
+    	return result;
+    } catch (e) {
+    	log.error("Email varification failed \n" + e.message);
+    	throw "Email varification failed";
+    }
+}
+
+function getUserInfoBean(userName) {
+   	var ws = require("ws");
+    var userAdmin = new ws.WSRequest();
+    var options = new Array();
+
+    options.useSOAP = 1.1;
+    options.action = "urn:getUserInfoBean";
+    var cookie=modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL));
+    options["HTTPHeaders"] =[{
+    	name:"Cookie", value:cookie
+    }];
+    var payload='<ser:getUserInfoBean xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org"><ser:userName>'+userName+'</ser:userName></ser:getUserInfoBean>';
+    var result;
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+    	userAdmin.open(options,endPoint, false);
+    	userAdmin.send(payload);
+    	result = userAdmin.responseE4X;
+    	var responseUsers = result.*::["return"];
+    	var ruserName = responseUsers.*::userName;
+        var ruserDisplayName=responseUsers.*::displayName;
+        var Resuser={};
+        Resuser.userName=ruserName.text();
+        Resuser.displayName=ruserDisplayName.text();
+        return Resuser;
+
+    } catch (e) {
+    	log.error("Error while getting application of user" + e.message);
+    	throw "Error while getting application of user";
+    }
+}
+
+%>

@@ -1,0 +1,1224 @@
+<%
+
+var config = require('/config.json');
+
+var userModule=require('/modules/user.js');
+var user = userModule.current();
+if (!user) {
+    response.sendRedirect('/CXODashboard/login');
+}
+else{
+ // Check authorization
+ if(!userModule.userHasRole(user, "admin") & !userModule.userHasRole(user, "cxo")) {
+	response.sendRedirect('/CXODashboard/login');
+ }
+
+}
+
+var httpUrl = config.server.http;
+
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>My Dashboard | User Engagement Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <!-- END imports needed for gadget rendering -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/font-awesome-ie7.min.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" type="text/css" href="css/navigation.css"/>
+    <link rel="stylesheet" type="text/css" href="css/jquery.gridster.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/portal-dashboard-designer.css"/>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="shortcut icon" href="/portal/themes/portal/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144"
+          href="img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114"
+          href="img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72"
+          href="img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
+
+    
+</head>
+
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+
+	<div class="navbar-inner">
+
+		<div class="container-fluid">
+
+			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+			
+			<a class="brand" href="#"></a>
+			
+
+			
+
+			<div class="nav-collapse collapse">
+				<ul class="nav pull-right">
+
+					<li class="nav-separator">
+
+						<a href="/store?user=<%=session.get('LOGGED_IN_USER')%>" target="_blank"><i class="icon-shopping-cart"></i> Store</a>
+
+					</li>
+
+					
+					<li>
+
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user"></i> <%= session.get("LOGGED_IN_USER") %> <b class="caret"></b></a>
+						<ul class="dropdown-menu dropdown-account" role="menu" aria-labelledby="dLabel">
+							<li><!--Adding global time slider -->
+<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    height: 52px;
+    left: 15px;
+    position: absolute;
+    right: 0;
+    top: 233px;" data-sizey="1" data-sizex="6"
+    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+"7" data-prefs="{}" data-title="">
+<div class="grid_header">
+    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+</div>
+<div class="gadget-pref-cont">
+
+</div>
+
+<div class="add-gadget-item">
+
+</div>
+</li>
+<!--End of the global time slider -->
+
+								
+								<a href="/CXODashboard/logout.jag"><i class="icon-signout"></i> Sign out</a>
+								
+
+							</li>
+
+						</ul>
+
+					</li>
+					
+				</ul>
+			</div>
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+	
+	<div class="navbar-inner sub-navbar-designer">
+
+		<div class="container-fluid">
+
+			<a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+
+			<div class="row-fluid">
+
+				<div class="span5">
+					<input id="inp-designer-title" type="text" value="Dashboard">
+				</div>
+				<div class="span7">
+					<div class="nav-collapse collapse">
+						<ul class="nav pull-right">
+
+							<li class="dropdown">
+								<a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="icon-plus"></i> Add Block <b class="caret"></b></a>
+								<ul class="dropdown-menu dropdown-share">
+									<form>
+										<li>
+											<h4>Define gadget size in grid</h4>
+
+										</li>
+										<li>
+
+											<div id="dummy-gadget-wrapper">
+												<div id="dummy-gadget-container" class="ui-widget-content">
+													<div id="dummy-gadget"  class="ui-widget-content">
+														<div id="dummy-size">
+															1x1
+														</div>
+													</div>
+												</div>
+											</div>
+										</li>
+
+										<li>
+											<button id="btn-add-dummy-gadget" class="btn btn-primary">
+												Add Empty Block
+											</button>
+										</li>
+									</form>
+								</ul>
+
+							</li>
+
+							<li id="btn-save">
+								<a href="#"><i class="icon-save"></i> Save</a>
+							</li>
+							<li>
+								<a id="btn-exit-editor" href="#"><i class="icon-signout"></i> Exit Editor</a>
+							</li>
+
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+	
+
+
+
+	<div class="navbar-inner sub-navbar-designer-view">
+
+		<div class="container-fluid">
+
+			<a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+
+			<div class="row-fluid">
+
+				<div class="span5">
+					
+				</div>
+				<div class="span7">
+					<div class="nav-collapse collapse">
+						<ul class="nav pull-right">
+
+							<li class="li-edit-dashboard">
+								<a href="#" id="btn-exit-view" data-toggle="dropdown" class="dropdown-toggle float-left-link"><i class="icon-magic"></i> Personalize</a>
+								
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+
+	
+</div>
+
+
+<div class="container-fluid">
+    
+    <div class="row-fluid">
+
+        <div class="span12">
+
+<div id="dashboardName"><i class="icon-th-large"></i> <span></span></div>
+<div class="dashboardDesc">
+    <p>The WSO2 App Factory dashboard provides an at-a-glance view of your application portfolio health, team productivity, and organizational efficiency.  The dashboard helps answer common questions; How can I quantify time to value and project agility?  Is my team properly allocated? Who is using WSO2 App Factory to improve DevOps velocity and quality? How efficient is my application portfolio? </p>
+</div>
+<div class="bs-docs-example" style="margin-top:60px;position:relative">
+            <ul id="myTab" class="nav nav-tabs" style="position:fixed;z-index:9999;width: 100%;top: 114px; ">
+              <li class="active"><a href="#appPortfolio" data-toggle="tab">Application Portfolio</a></li>
+              <li><a href="#devOpsQuality" data-toggle="tab">Quality</a></li>
+              <li><a href="#devOpsVelocity" data-toggle="tab">Velocity</a></li>
+              <li><a href="#organizationalEfficiency" data-toggle="tab">Organizational Efficiency</a></li>
+            </ul>
+            
+<div class="header-bg">
+</div>
+<div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" id="appPortfolio">
+        <div id="gridster-cont" class="container-fluid">
+	
+	<div class="layouts_grid" id="layouts_grid">
+		<input type="hidden" id="inp-layout" value="grid">
+		<ul style="margin-top: 58px;">
+		
+            
+            <div class="dash-intro">
+                <p>This section illustrates how projects are moving through the portfolio pipeline and who owns the projects.</p>
+            </div>
+
+
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
+                data-url="" data-wid="1" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+
+        		</div>
+
+
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+
+            </li>
+
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
+                data-url="" data-wid="3" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+
+        		</div>
+
+
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+
+            </li>
+
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="5" data-row="1"
+                data-url="" data-wid="3" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+
+        		</div>
+
+
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+
+            </li>
+
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="6" data-row="1"
+                data-url="" data-wid="4" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+
+        		</div>
+
+
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+
+            </li>
+
+
+            <!------------------------------------------------------>
+
+
+
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="6" data-row="3"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-apps-by-stage/tenantadmin-numberof-apps-by-stage.xml" %> data-wid="6" data-prefs="{}" data-title="Application Versions per Lifecycle Stage">
+            <div class="grid_header">
+                <h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="1" data-row="2"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-apps-by-created-user/tenantadmin-numberof-apps-by-created-user.xml" %> data-wid="5" data-prefs="{}" data-title="Applications per Application Owner">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+            </li>
+
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="1" data-row="2"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-apps-by-type/tenantadmin-numberof-apps-by-type.xml" %>  data-wid="7" data-prefs="{}" data-title="Applications by Type">
+            <div class="grid_header">
+                <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+
+	    <!------------------------------------------------------>
+
+<!--Adding global time slider -->
+<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    height: 52px;
+    left: 15px;
+    position: absolute;
+    right: 0;
+    top: 233px;" data-sizey="1" data-sizex="6"
+    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+"7" data-prefs="{}" data-title="">
+<div class="grid_header">
+    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+</div>
+<div class="gadget-pref-cont">
+
+</div>
+
+<div class="add-gadget-item">
+
+</div>
+</li>
+<!--End of the global time slider -->
+
+
+</ul>
+</div>
+
+</div>
+<!-- /container -->
+</div>
+
+<div class="tab-pane fade" id="devOpsQuality">
+              
+<div id="gridster-cont2" class="container-fluid">
+	<div class="layouts_grid" id="layouts_grid">
+		<input type="hidden" id="inp-layout" value="grid">
+		<ul style="margin-top: 58px;">
+			<div id="grid-guides"></div>
+
+            <div class="dash-intro">
+                <p>Gauge the quality of your DevOps activities and applications.</p>
+            </div>
+			
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
+                data-url="" data-wid="1" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
+                data-url="" data-wid="3" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="5" data-row="1"
+                data-url="" data-wid="3" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="6" data-row="1"
+                data-url="" data-wid="4" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+
+
+            <!------------------------------------------------------>
+
+            <li class="layout_block " data-sizey="2" data-sizex="6" data-col="4" data-row="3"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-builds-per-app-multi-bar/tenantadmin-numberof-builds-per-app-multi-bar.xml" %> data-wid="7" data-prefs="{}" data-title="Build State per Application">
+            <div class="grid_header">
+                <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+            <li class="layout_block " data-sizey="2" data-sizex="2" data-col="5" data-row="2"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-issues-by-stage/tenantadmin-numberof-issues-by-stage.xml" %> data-wid="7" data-prefs="{}" data-title="Issues by Stage">
+            <div class="grid_header">
+                <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+            <li class="layout_block " data-sizey="2" data-sizex="4" data-col="5" data-row="3"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-issues-per-app-version/tenantadmin-issues-per-app-version.xml" %> data-wid="7" data-prefs="{}" data-title="Issues per Application Version">
+            <div class="grid_header">
+                <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+	    <!------------------------------------------------------>
+
+		<!--Adding global time slider -->
+	<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    	height: 52px;
+    	left: 15px;
+    	position: absolute;
+    	right: 0;
+    	top: 233px;" data-sizey="1" data-sizex="6"
+    	data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+		"7" data-prefs="{}" data-title="">
+	<div class="grid_header">
+    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+	</div>
+	<div class="gadget-pref-cont">
+
+	</div>
+
+	<div class="add-gadget-item">
+
+	</div>
+	</li>
+<!--End of the global time slider -->	
+		</ul>
+	</div>
+
+</div>
+<!-- /container -->
+</div>
+
+
+<div class="tab-pane fade" id="devOpsVelocity">
+              
+<div id="gridster-cont2" class="container-fluid">
+	<div class="layouts_grid" id="layouts_grid">
+		<input type="hidden" id="inp-layout" value="grid">
+		<ul style="margin-top: 58px;">
+			<div id="grid-guides"></div>
+
+            <div class="dash-intro">
+                <p>Gauge the speed at which your factory is running.</p>
+            </div>
+			
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
+                data-url="" data-wid="1" data-prefs="{}" data-title="">
+                <div class="grid_header">
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
+                data-url="" data-wid="3" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="5" data-row="1"
+                data-url="" data-wid="3" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="6" data-row="1"
+                data-url="" data-wid="4" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+
+
+            <!------------------------------------------------------>
+
+	        <li class="layout_block " data-sizey="2" data-sizex="3" data-col="6" data-row="3"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-commits-per-app/tenantadmin-numberof-commits-per-app.xml" %> data-wid="7" data-prefs="{}" data-title="Commits per Application">
+            <div class="grid_header">
+                <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="6" data-row="3"
+                data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-builds-per-app/tenantadmin-numberof-builds-per-app.xml" %> data-wid="7" data-prefs="{}" data-title="Builds per Application">
+            <div class="grid_header">
+                <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+            </div>
+            <div class="gadget-pref-cont">
+
+            </div>
+
+
+            <div class="add-gadget-item">
+
+            </div>
+            </li>
+
+	    <!------------------------------------------------------>
+
+		<!--Adding global time slider -->
+                <li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    				height: 52px;
+    				left: 15px;
+    				position: absolute;
+    				right: 0;
+    				top: 233px;" data-sizey="1" data-sizex="6"
+                    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+                	"7" data-prefs="{}" data-title="">
+                <div class="grid_header">
+                    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+                </div>
+                <div class="gadget-pref-cont">
+
+                </div>
+
+                <div class="add-gadget-item">
+
+                </div>
+                </li>
+                <!--End of the global time slider -->	
+		</ul>
+	</div>
+
+</div>
+<!-- /container -->
+</div>
+
+        <div class="tab-pane fade" id="organizationalEfficiency">
+
+            <div id="gridster-cont2" class="container-fluid">
+                <div class="layouts_grid" id="layouts_grid">
+                    <input type="hidden" id="inp-layout" value="grid">
+                    <ul style="margin-top: 58px;">
+                        <div id="grid-guides"></div>
+
+                        <div class="dash-intro">
+                            <p>Gauge if you have the right balance of team members across your portfolio</p>
+                        </div>
+
+                        <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
+                            data-url="" data-wid="1" data-prefs="{}" data-title="">
+                            <div class="grid_header">
+                                <h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+                            </div>
+                            <div class="gadget-pref-cont">
+
+                            </div>
+
+
+                            <div class="designer-placeholder">
+
+                            </div>
+
+                            <button class="btn btn-add-gadget">Add Gadget</button>
+
+                        </li>
+
+                        <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
+                            data-url="" data-wid="3" data-prefs="{}" data-title="">
+                            <div class="grid_header">
+                                <h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+                            </div>
+                            <div class="gadget-pref-cont">
+
+                            </div>
+
+
+                            <div class="designer-placeholder">
+
+                            </div>
+
+                            <button class="btn btn-add-gadget">Add Gadget</button>
+
+                        </li>
+
+                        <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="5" data-row="1"
+                            data-url="" data-wid="3" data-prefs="{}" data-title="">
+                            <div class="grid_header">
+                                <h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+                            </div>
+                            <div class="gadget-pref-cont">
+
+                            </div>
+
+
+                            <div class="designer-placeholder">
+
+                            </div>
+
+                            <button class="btn btn-add-gadget">Add Gadget</button>
+
+                        </li>
+
+                        <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="6" data-row="1"
+                            data-url="" data-wid="4" data-prefs="{}" data-title="">
+                            <div class="grid_header">
+                                <h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+                            </div>
+                            <div class="gadget-pref-cont">
+
+                            </div>
+
+
+                            <div class="designer-placeholder">
+
+                            </div>
+
+                            <button class="btn btn-add-gadget">Add Gadget</button>
+
+                        </li>
+
+
+                        <!------------------------------------------------------>
+
+                        <li class="layout_block " data-sizey="2" data-sizex="6" data-col="5" data-row="2"
+                            data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-apps-by-user/tenantadmin-numberof-apps-by-user.xml" %> data-wid="7" data-prefs="{}" data-title="Applications per Team Member">
+                        <div class="grid_header">
+                            <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+                        </div>
+                        <div class="gadget-pref-cont">
+
+                        </div>
+
+
+                        <div class="add-gadget-item">
+
+                        </div>
+                        </li>
+
+                        <li class="layout_block " data-sizey="2" data-sizex="6" data-col="5" data-row="2"
+                            data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-users-per-app/tenantadmin-numberof-users-per-app.xml" %> data-wid="7" data-prefs="{}" data-title="Team Members per Application">
+                        <div class="grid_header">
+                            <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+                        </div>
+                        <div class="gadget-pref-cont">
+
+                        </div>
+
+
+                        <div class="add-gadget-item">
+
+                        </div>
+
+
+                        </li>
+
+                        <li class="layout_block " data-sizey="2" data-sizex="3" data-col="5" data-row="2"
+                            data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-app-creation-over-time/tenantadmin-app-creation-over-time.xml" %> data-wid="7" data-prefs="{}" data-title="Application Creation Over Time">
+                        <div class="grid_header">
+                            <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+                        </div>
+                        <div class="gadget-pref-cont">
+
+                        </div>
+
+
+                        <div class="add-gadget-item">
+
+                        </div>
+
+
+                        </li>
+
+                        <li class="layout_block " data-sizey="2" data-sizex="3" data-col="5" data-row="2"
+                            data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-user-registration-over-time/tenantadmin-user-registration-over-time.xml" %> data-wid="7" data-prefs="{}" data-title="User Registration Over Time">
+                        <div class="grid_header">
+                            <h3></h3>
+                        <span class="grid_header_controls">
+                                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+                        </div>
+                        <div class="gadget-pref-cont">
+
+                        </div>
+
+
+                        <div class="add-gadget-item">
+
+                        </div>
+
+
+                        </li>
+
+
+                        <!------------------------------------------------------>
+
+					<!--Adding global time slider -->
+						<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    						height: 52px;
+    						left: 15px;
+    						position: absolute;
+    						right: 0;
+    						top: 233px;" data-sizey="1" data-sizex="6"
+    						data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+							"7" data-prefs="{}" data-title="">
+						<div class="grid_header">
+    						<h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+						</div>
+						<div class="gadget-pref-cont">
+
+						</div>
+
+						<div class="add-gadget-item">
+
+						</div>
+						</li>
+				<!--End of the global time slider -->
+
+                    </ul>
+                </div>
+
+            </div>
+            <!-- /container -->
+        </div>
+
+</div>
+</div>
+
+
+<input type="hidden" value="design" id="inp-view-mode" />
+<input type="hidden" value="CXODashboard" id="inp-dashboard" />
+<iframe style="display: none;height: 0;width: 0;" src="http://localhost:9774/store/hidden-logger.jag?user=<%=session.get('LOGGED_IN_USER')%>"></iframe>
+
+
+
+
+
+
+
+
+
+<!-- Modal -->
+<div id="modal-add-gadget" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="publishModalLabel" aria-hidden="true">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+		<i class="icon-remove"></i>
+	</button>
+	<div id="store-gadget-div"></div>
+
+</div>
+
+
+
+        </div>
+
+    </div>
+
+</div>
+
+<script id="widget-template" type="text/x-handlebars-template">
+	<li class="layout_block">
+		<div class="grid_header">
+            <input class="gadget-title-txt">
+            <span class="grid_header_controls">
+                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            </span>
+        </div>
+        <div class="gadget-pref-cont">
+        	
+        </div>
+		<div class="designer-placeholder">
+	
+		</div>
+		<div class="add-gadget-item">
+	
+		</div>
+		<button class="btn btn-add-gadget">Add Gadget</button>
+
+	</li>
+</script>
+
+<script id="widget-template2" type="text/x-handlebars-template">
+	<li class="layout_block" data-wid="{{wid}}" data-url="{{url}}" data-prefs="{{prefs}}">
+		<div class="grid_header">
+            <input class="gadget-title-txt">
+            <span class="grid_header_controls">
+                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            </span>
+        </div>
+        <div class="gadget-pref-cont">
+        	
+        </div>
+		<div class="add-gadget-item">
+	
+		</div>
+
+	</li>
+</script>
+
+<script id="widget-template-blank2" type="text/x-handlebars-template">
+	<li class="layout_block" data-url="{{url}}" data-row="{{y}}" data-col="{{x}}" data-sizex="{{width}}" data-sizey="{{height}}" data-wid="{{wid}}" data-prefs="{{prefs}}">
+		<div class="grid_header">
+            <input class="gadget-title-txt">
+            <span class="grid_header_controls">
+                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            </span>
+        </div>
+        <div class="gadget-pref-cont">
+        	
+        </div>
+		<div class="add-gadget-item">
+	
+		</div>
+	</li>
+</script>
+
+<!-- /container -->
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="js/jquery-1.8.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/jquery-ui-1.10.1.custom.min.js"></script>
+<script src="js/jquery.gridster.with-extras.min.js"></script>
+<script src="js/handlebars.js"></script>
+<script src="js/shindig.js"></script>
+<script src="js/UESContainer.js"></script>
+<script src="js/portal-dashboard-designer.js"></script>
+<script>
+    UESContainer.renderGadget('store-gadget-div', "http://localhost:9774/portal/gadgets/show-assets/show-assets.xml");
+</script>
+
+</body>
+</html>
+

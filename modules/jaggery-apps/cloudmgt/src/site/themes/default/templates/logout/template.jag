@@ -1,0 +1,42 @@
+<% jagg.template("logout", function(inputs, outputs, jagg) { %>
+ 
+<%
+
+        var file = new File("/site/conf/cloud-mgt.xml");
+file.open("r");
+var data = file.readAll();
+var doc= new XML(data);
+var SSO_NAME = doc.SSORelyingParty.Name.toString();
+var SSO_PROVIDER = doc.SSORelyingParty.IdentityProviderURL.toString();
+var SSO_KEYSTORE_PASSWORD = doc.SSORelyingParty.KeyStorePassword.toString();
+var SSO_KEY_ALIAS = doc.SSORelyingParty.IdentityKeyAlias.toString();
+var SSO_KEYSTORE_NAME = doc.SSORelyingParty.KeyStoreName.toString();
+file.close();
+if (session.get("LOGGED_IN_USER") != null ){
+	var security =require("sso");
+	var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+	var samlLogoutRequest = ssoRelyingParty.getSAMLLogoutRequest(session.get("LOGGED_IN_USER"), session.getId());
+	var encodedRequest = ssoRelyingParty.encode(samlLogoutRequest);
+	var relayState = ssoRelyingParty.getUUID();
+	var idpURL = SSO_PROVIDER;
+
+%>
+
+<div>
+   <p>You are now redirected to Stratos Identity. If the
+   redirection fails, please click the post button.</p>
+
+    <form method="post" action="<%=idpURL%>">
+    <p>
+        <input type="hidden" name="SAMLRequest"
+              value="<%= encodedRequest %>"/>
+        <input type="hidden" name="RelayState" value="<%=relayState%>"/>
+        <button type="submit">POST</button>
+    </p>
+    </form>
+</div>
+<script type = "text/javascript" >
+       document.forms[0].submit();
+</script>
+ 
+<% }}); %>

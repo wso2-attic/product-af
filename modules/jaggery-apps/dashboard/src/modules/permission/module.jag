@@ -1,0 +1,24 @@
+<%
+
+jagg.module("permission", {
+
+    checkUserAuthenticated:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").checkUserAuthenticated.apply(this, arguments);
+    },
+    checkSystemAdminPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").checkSystemAdminPermission.apply(this, arguments);
+    },
+    checkUserActionPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").checkUserActionPermission.apply(this, arguments);
+    },
+    isUserAccessGranted:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").isUserAccessGranted.apply(this, arguments);
+    },
+    isUserAccessGrantedForPlatform:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").isUserAccessGrantedForPlatform.apply(this, arguments);
+    },
+    hasPermissionToStage:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").hasPermissionToStage.apply(this, arguments);
+    }
+});
+%>

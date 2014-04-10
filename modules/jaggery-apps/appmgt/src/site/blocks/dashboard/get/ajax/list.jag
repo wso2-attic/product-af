@@ -1,0 +1,39 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+   if (action == "appsperuser") {
+   		mod = jagg.module("dashboard");
+
+        print(mod.getApplicationsOfUser());
+   } else if (action == "versionslifecycle") {
+   		mod = jagg.module("dashboard");
+
+        print(mod.getVersionsInLifecycle());
+   } else if (action == "appswithversions") {
+   		mod = jagg.module("dashboard");
+
+        print(mod.getApplicationsWithVersions());
+   } else if (action == "listofapps") {
+   		mod = jagg.module("dashboard");
+
+        print(mod.getAllApplications());
+   } else if (action == "listappswithdetails") {
+   		mod = jagg.module("dashboard");
+
+        print(mod.listAppsWithDetails());
+   }else if (action == "buildinfo") {
+   		mod = jagg.module("dashboard");
+
+        print(mod.getBuildInfo());
+   }else {
+       throw new Error("No action specified");
+   }
+
+}());
+%>

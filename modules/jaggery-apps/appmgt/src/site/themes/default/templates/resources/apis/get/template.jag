@@ -1,0 +1,459 @@
+<% jagg.template("resources/apis/get", function(inputs, outputs, jagg) { %>
+<%
+var log = new Log();   
+var applicationName = request.getParameter("applicationName");
+var applicationKey = request.getParameter("applicationKey");
+var apiManagerStoreUrl = getProperty(API_MANAGER_STORE_URL);
+var apiManagerServerUrl = getProperty(API_MANAGER_SERVER_URL);
+var modApiManager = jagg.module("resources");
+%>
+
+<input type="hidden" value="<%=applicationKey%>" name="applicationKey" id="applicationKey" />
+<input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<!-- adding script elements here -->
+<script type="text/javascript">
+    var keyMappins={};
+    
+	function loadKeyNameMappings(){
+		keyMappins['sandboxKey']="Sandbox Access Token";
+		keyMappins['sandboxConsumerKey']="Sandbox Consumer Key";
+		keyMappins['sandboxConsumerSecret']="Sandbox Consumer Secret";
+		keyMappins['prodKey']="Production Access Token";
+		keyMappins['prodConsumerKey']="Production Consumer Key";
+		keyMappins['prodConsumerSecret']="Production Consumer Secret";
+	}
+	
+	function addApi(applicationKey) {
+        jagg.post("../blocks/resources/apis/add/ajax/add.jag", {
+            action:"createApplication",
+            applicationKey:applicationKey,
+            username:$("#userName").val()
+        });
+    }
+
+    function saveAndRetrieve(isSyncNeeded){
+    	jagg.post("../blocks/resources/apis/key/ajax/key.jag", {
+    		action:"getSavedKeys",
+    		applicationKey:$("#applicationKey").val(),
+    		isSync: isSyncNeeded,
+    		userName:$("#userName").val()
+    	},
+    	function (result) {
+      		if(result == 0){
+    			$("#keySection").hide();
+        		jagg.message({
+                    content: 'Keys yet are not generated for this subscription. Application Owner should generate keys from API Manager',
+                    type: 'warning',
+                    id:'uniqueId1'
+                });
+    			return;
+    		}
+    		var parsedResult = jQuery.parseJSON(result); 		
+    		
+    		var keyValuesExists = true;
+    		for(var keyName in parsedResult){
+    			if(parsedResult[keyName] == null){
+    				keyValuesExists = false;
+    				break;
+    			}
+    		}
+
+    		if(keyValuesExists){
+    			$("#keySection").show(); 
+    	    	$("#keySection").html('<span class="icon-spinner icon-spin icon-large"></span>');
+        		var keyTableBodyHTML = '<li class="list_row_item first_list_row_item">'
+                    +'<ul class="list_row first_list_row">'
+                        +'<li class="list_col first_list_col resources_apikey_col">'
+                           +'<h2 class="list_col_heading">Key</h2>'
+                        +'</li>'
+                        +'<li class="list_col resources_apivalue_col">'
+                            +'<h2 class="list_col_heading">Value</h2>'
+                       +'</li>'
+                   + '</ul>'
+                + '</li>';
+            		$("#keySection").empty();
+            		$("#keySection").append(keyTableBodyHTML);  
+
+            		for(var keyName in parsedResult){
+        				keyTableBodyHTML +='<li class="list_row_item  ">'+
+        				                 '<ul class="list_row  ">'+
+        				                     '<li class="list_col first_list_col resources_apikey_col">'+
+        				                         '<div class="list_col_content">'+
+        				                             '<span class="prime">' + keyMappins[keyName] + '</span>'+
+        				                         '</div>'+
+        				                     '</li>'+
+        				                     ' <li class="list_col resources_apivalue_col">'+
+        				                         '<div class="list_col_content">'+
+        				                             '<span class="prime">' + parsedResult[keyName] + '</span>'+
+        				                         '</div>'+
+        				                     '</li>'+
+        				                 '</ul>'+
+        				               '</li>';		
+        	    	}    		
+        			$("#keySection").append(keyTableBodyHTML);  
+    		}else{
+    	 		$("#keySection").html("<div class='noData-message'>Keys yet are not generated for current API subscription. Please contact the application owner.</div>");
+    		}
+    	},
+    	function (jqXHR, textStatus, errorThrown) {  
+    		$("#keySection").hide();
+    		jagg.message({
+                content: 'Error occurred while retriving Keys',
+                type: 'error',
+                id:'uniqueId1'
+            });
+    	});
+    }
+
+    function isAppOwner() {
+        jagg.post("../blocks/application/get/ajax/list.jag", {
+                    action:"getAppOwner",
+                    applicationKey:$("#applicationKey").val()
+             
+                },
+                function (appowner) {
+                	var loggedInuser = $("#userName").val();
+                    if(appowner == loggedInuser){
+    		          	var url = '<%=apiManagerStoreUrl%>' + "/?tenant=" + loggedInuser.substring(loggedInuser.lastIndexOf('@') + 1);
+    		          	var $elm = $('<a class="btn main" href="'+ url +'" target="_blank">Subscribe to Internal APIs</a>').click(function(){addApi('<%=applicationKey%>')});
+                        $('#btnItem').append($elm);
+                        $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys()" disabled="true">Sync Keys</button>');
+                        // drawAPIsTable();
+                    }else{
+                    	$('#renewbtnContainer').append('<div class="main push_top_20 push_bottom_40"></div>');
+                    }
+                    getAPIsOfAppOwnerApp(appowner);
+
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    // add the error label in the grid
+
+                });
+    }
+    
+    function getAPIsOfAppOwnerApp(appowner) {
+    	jagg.post("../blocks/resources/apis/get/ajax/get.jag", {
+            action:"getAPIsOfApp",
+            applicationKey:$("#applicationKey").val(),
+            appowner:appowner
+        },
+        function (result) {
+        	parsedResult=jQuery.parseJSON(result);
+        	if(parsedResult.length == 0){
+        		$("#apiSection").html("<div class='noData-message'>APIs have not been subscribed yet.</div>");
+        	}
+        	else{
+        		$("#renewApiBtn").removeAttr("disabled"); 
+	            var tableBodyHTML = '<li class="list_row_item first_list_row_item">'
+	            						+'<ul class="list_row first_list_row">'
+	            							+'<li class="list_col col-3">'
+	            								+'<h2 class="list_col_heading">Name & Version</h2>'   
+	            							+'</li>'
+							                +'<li class="list_col col-3">'
+							                	+'<h2 class="list_col_heading">Description</h2>'   
+							                +'</li>'
+							                +'<li class="list_col col-3">'
+						                	+'<h2 class="list_col_heading">Endpoints</h2>'   
+						                    +'</li>'
+							                +'<li class="list_col col-3">'
+							                	+'<h2 class="list_col_heading">Provider</h2>'    
+							                +'</li>'
+							              +'</ul>'
+	                                 +'</li>';
+	            
+	        	
+	            
+	        	for(var i=0; i < parsedResult.length;i++){
+	        		var API = parsedResult[i];
+	                	var endpointUrl = ' <%=apiManagerStoreUrl%>'+'/'+API.name+'/'+API.version;
+	            		 tableBodyHTML +='<li class="list_row_item  ">'+
+	                     '<ul class="list_row  ">'+
+	                         '<li class="list_col col-3">'+
+	                             '<div class="list_col_content">'+
+	                                 '<ul class="list">'+
+	                                     '<li><a href="#">' + API.name + '</a></li>'+
+	                                     '<li class="small">' + API.version + '</li>'+
+	                                 '</ul>'+
+	                             '</div>'+
+	                         '</li>'+
+	                         '<li class="list_col col-3">'+
+	                         	'<div class="list_col_content">'+ API.description + '</div>'+
+	                         '</li>'+
+	                         '<li class="list_col col-3">'+
+	                             '<div class="list_col_content css_trim"  title="'+ endpointUrl + '">'+ endpointUrl + '</div>'+
+	                         '</li>'+
+	                         '<li class="list_col col-3">'+
+	                             '<div class="list_col_content">'+
+	                                 '<span class="prime">' + API.provider + '</span>'+
+	                             '</div>'+
+	                         '</li>'+
+	                     '</ul>'+
+	                '</li>';
+	        	}
+	        	
+	        	$("#apiSection").html($("#apiSection").html()+tableBodyHTML);
+	        	if($("#userName").val() == appowner){
+	        		keysAvailableInRegistry();
+	        	}else{
+	        		saveAndRetrieve(false);
+	        	}
+	        	
+        	}
+        },
+        function (jqXHR, textStatus, errorThrown) {
+        	jagg.message({
+                content: 'Error occurred while reading API information',
+                type: 'error',
+                id:'uniqueId1'
+            });
+        });
+    }
+   
+    function syncKeys(){
+	jagg.removeMessage('uniqueId1');
+    	saveAndRetrieve(true);
+    }
+
+// ////////////// External api
+    
+    function prepareDataModel(resultJson){
+    	var tableModel = {};
+		var j = 0;
+		for(var apiName in resultJson){
+			var tableRowModel = {};
+			tableRowModel['name'] = apiName;
+			var details = resultJson[apiName];
+		    var stages = {};
+			for (var i = 0; i < details.length; i++) {
+				var envDetail = details[i];
+				var stageModel = {};
+				for(var envName in envDetail){
+					var apiData = envDetail[envName];
+					for (var k = 0; k < apiData.length; k++) {
+						var data = apiData[k];
+						if(data.name == 'authentication'){
+							tableRowModel[data.name] = data.value;
+						}else{
+							stageModel[data.name] = data.value;
+						}
+						
+					}
+					stages[envName]	= stageModel;
+				}	
+			}
+			 tableRowModel['stages']= stages;
+			 tableModel[j++] = tableRowModel;
+		}
+		return tableModel;
+    }
+
+    function loadExternalAPIs(apiName, apiVersion, apiProvider) {
+        jagg.post("../blocks/resources/externalapi/get/ajax/list.jag", {
+            action:"getExternalAPIs",
+            applicationKey:$("#applicationKey").val()
+        },
+        function (result) {
+			var apiIndex;
+			var resultJson = JSON.parse(result);
+			if(resultJson.length == 0){
+        		$("#externalapi").html("<div class='noData-message'>External APIs have not been created yet.</div>");
+        	}
+			else
+			{
+				var tableModel = prepareDataModel(resultJson);
+				
+				var tableBodyHTML = "";
+				var url = "#";
+				var count = 0;
+				for (var index in tableModel) {
+					tableBodyHTML += '<div class="list_col_content">';
+				    var row = tableModel[index];
+
+				    url = "<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager&isEdit=true&resourceName=" + row.name;
+				    count = 0;
+				    for (var stageName in row.stages) {
+				        var stageValues = row.stages[stageName];
+				        
+				        if (count++ == 0) {
+				            tableBodyHTML += '<li class="list_row_item first_list_row_item">' + '<ul class="list_row first_list_row">' 
+				            				+ '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
+				            				+ '<li><a href="' + url + '">' + row.name + '</a></li>' + '</ul> </div></li>';
+
+				            tableBodyHTML += '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
+				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>';
+
+				            tableBodyHTML += '<li class="col-6">';
+				        }
+				        tableBodyHTML += '<div class="list_col_content"><dl class="list">';
+				        tableBodyHTML += '<dt><i class="tag" style="margin-left:0px">' + stageName + '</i></dt>';
+
+				        for (var propName in stageValues) {
+				            var propVal = stageValues[propName];
+                            if(propName == 'url'){
+                            	tableBodyHTML += '<dd style="padding-left:6px;font-size: 0.857142857em;">' + propName + ': ' + propVal + '</dd>';
+                            	tableBodyHTML += '<i class="fa fa-pencil-square-o"></i>';
+                            }
+				        }
+				        tableBodyHTML += '</dl></div>';
+				    }
+				    tableBodyHTML += '</div>';
+				}
+				
+				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
+	            			'<ul class="list_row first_list_row">' +
+	            			'<li class="col-3">' +
+	            			'<h2 class="list_col_heading">Name</h2>' +
+	            			'</li>' +
+	            			'<li class="col-3">' +
+	            			'<h2 class="list_col_heading">Authentication</h2>'+
+	            			'</li>' +
+	            			'<li class="col-6">' +
+	            			'<h2 class="list_col_heading">Values</h2>'+
+	            			'</li>' +
+	            			'</ul>' +
+	            			'</li>';
+				$("#externalapi").html(initTableTxt + $("#externalapi").html()+ tableBodyHTML);
+        	}
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            // add the error label in the grid
+        });
+    }   
+    function showHideTabs(linkTab){
+        $('li',$(linkTab).parent()).removeClass('active');
+        $(linkTab).addClass('active');
+        var tabData =  $(linkTab).attr('data-value');
+        var $parentTab = $(linkTab).parent().parent();
+        $('.tab-data' ,$parentTab).hide();
+        $('.tab-data' ,$parentTab).each(function(){
+            if($(this).attr('data-value') == tabData){
+                $(this).show();
+            }
+        });
+    }
+    $(document).ready(function(){
+    	loadKeyNameMappings();
+    	loadExternalAPIs();
+    	isAppOwner();
+    });
+    
+    function showKeysByRole(parsedResult){
+   	 var keyTableBodyHTML = "";
+       	 for(var i=0; i < parsedResult.length;i++){
+   			var valuePair = parsedResult[i];
+   			var name = valuePair.name;
+   			var value = valuePair.value;
+   			if(!value){
+   	   			continue;
+   			}
+            keyTableBodyHTML +='<li class="list_row_item  ">'+
+   	               '<ul class="list_row  ">'+
+   	                   '<li class="list_col first_list_col resources_apikey_col">'+
+   	                       '<div class="list_col_content">'+
+   	                           '<span class="prime">' + keyMappins[name] + '</span>'+
+   	                       '</div>'+
+   	                   '</li>'+
+   	                   ' <li class="list_col resources_apivalue_col">'+
+   	                       '<div class="list_col_content">'+
+   	                           '<span class="prime">' + value + '</span>'+
+   	                       '</div>'+
+   	                   '</li>'+
+   	               '</ul>'+
+   	             '</li>';
+
+       	 }
+            $("#keySection").append(keyTableBodyHTML);	 
+    }
+    
+    function keysAvailableInRegistry() {
+        jagg.post("../blocks/resources/apis/key/ajax/key.jag", {
+            action:"keysExistsInAllStages",
+            applicationKey:$("#applicationKey").val(),
+            userName:$("#userName").val()
+        },
+        function (result) {
+    		if(result == 'true'){
+    			saveAndRetrieve(false);
+    		}
+        },
+        function (jqXHR, textStatus, errorThrown) {
+        	$("#keySection").hide(); 
+        	jagg.message({
+                content: 'Error occurred while checking the existance of Keys in registries',
+                type: 'error',
+                id:'uniqueId1'
+            });
+        });
+    }
+    
+</script>
+
+<style type="text/css">
+    .span9 label{
+     font-size:12px;
+    }
+</style>
+
+<div class="container">
+<article class="main">
+   <header>
+      <div> <% jagg.includeBlock("page/messages", null); %></div>
+      <div class="content">
+         <h1>Resources</h1>
+      </div>
+   </header>
+   <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
+   <section class="separator">
+      <div class="page_nav">
+         <div class="content clear">
+            <ol class="breadcrumb left">
+               <li class="breadcrumb_item">
+                  <h2>Internal APIs</h2>
+               </li>
+            </ol>
+            <div class="right btn_list_box">
+               <ul class="inline_box inline_list btn_list" id="gotoApiManagerbtnContainer">
+                  <li class="inline_item" id="btnItem"></li>
+               </ul>
+               <div class="clearfix"></div>
+            </div>
+         </div>
+      </div>
+      <div class="content clear well">
+         <h2 class="mini no_margin">Saved Keys</h2>
+         <ul class="list_table push_top_20" id="keySection">
+         </ul>
+         <div id="renewbtnContainer"></div>
+         <h2 class="mini">Subscribed APIs</h2>
+         <ul class="list_table push_top_20" id="apiSection">
+         </ul>
+      </div>
+      <div class="page_nav">
+         <div class="content clear">
+            <ol class="breadcrumb left">
+               <li class="breadcrumb_item">
+                  <h2>External APIs</h2>
+               </li>
+            </ol>
+            <% if(outputs.hasCreateResourcePermissions){ %>
+            <div class="right btn_list_box">
+               <ul class="inline_box inline_list btn_list" id="gotoApiManagerbtnContainer">
+                  <li class="inline_item" id="btnItem"><a class="btn main" href="../pages/externalapi.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager">Subscribe to External APIs</a></li>
+               </ul>
+               <div class="clearfix"></div>
+            </div>
+            <%}%>
+         </div>
+      </div>
+      <div class="content clear well">
+         <div id="renewbtnContainer"></div>
+         <h2 class="mini">Subscribed APIs</h2>
+         <ul class="list_table push_top_20" id="externalapi">
+         </ul>
+      </div>
+   </section>
+</article>
+</div>
+
+
+<% }); %>

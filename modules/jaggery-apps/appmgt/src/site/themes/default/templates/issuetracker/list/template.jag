@@ -1,0 +1,189 @@
+<% jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+%>
+<script type="text/javascript">
+//[cdata[
+        var issuesSummaryJSON = {};
+    $(document).ready(function(){
+        issuesSummary("<%=applicationKey%>");
+        createCurrentStatus();
+        });
+        
+        function reportIssue() {
+        window.open('<%=outputs.newIssueUrl%>', '_blank');
+    }
+
+//]]
+
+    function issuesSummary(appKey){
+
+        jagg.syncPost("../blocks/issuetracker/list/ajax/list.jag", {
+                action:"getIssuesSummary",
+                applicationKey:appKey
+        },function (result) {
+                issuesSummaryJSON = result ;
+        },function (jqXHR, textStatus, errorThrown) {
+            $("#trackerStatus").text("Error occurred while retrieving Issue Tracker information!");
+            $(".issuetracker").hide();
+        });
+    }
+    function getIssueSummaryForVersion(version){
+        return issuesSummaryJSON[version] ;
+    }
+
+
+    function VersionComparator(a,b) {
+        return b.version.localeCompare(a.version);
+    }
+
+    function createCurrentStatus(){
+        jagg.post("../blocks/application/get/ajax/list.jag", {
+            action:"getAppVersionsInStages",
+            userName:$("#userName").attr('value'),
+            applicationKey:'<%=applicationKey%>'
+        },function (result) {
+
+            var parsedArray = jQuery.parseJSON(result);
+
+            var versions = Array();
+            for (var i = 0; i < parsedArray.length; i++) {
+                var application = parsedArray[i];
+                versions = versions.concat(application.versions);
+            }
+
+            versions.sort(VersionComparator);
+
+//            issuesSummary("<%=applicationKey%>");
+            var isIssuesAvailable = false;
+
+            for (var j = 0; j < versions.length; j++) {
+                var versionInfo = versions[j];
+                var lasbuildinfo=versionInfo.lastBuildResult;
+                var buildSplitted=lasbuildinfo.split(' ');
+                var builResultStatus=buildSplitted[2];
+                var buildStatus='';
+                var success=new RegExp("\\bsuccess");
+                if(success.test(builResultStatus)){
+                    buildStatus='<span class="status success "><strong>'+builResultStatus+'</strong></span>';
+                }else if(lasbuildinfo.length>0){
+                    buildStatus='<span class="status failed "><strong>'+builResultStatus+'</strong></span>';
+                }
+
+                var repoCloneURL = versionInfo.repoURL;
+                var repoBrowseURL = repoCloneURL;
+                if( application.repositoryType == "git") {
+                    repoBrowseURL = repoCloneURL.replace("/git/", "/summary/");
+                }
+
+                var v = versionInfo.version.replace(/\./g, '_') ;
+                var issueSummaryObj =  getIssueSummaryForVersion(versionInfo.version);
+                if(issueSummaryObj==null){
+                    continue;
+                }
+
+                isIssuesAvailable = true;
+                var bugObj = issueSummaryObj.BUG ;
+                var featureObj = issueSummaryObj.NEW_FEATURE ;
+                var supportObj = issueSummaryObj.VULNERABILITY ;
+
+                addRecord('<strong class="push_right_10">' + versionInfo.version+'</strong>','<i class="tag">' +
+                 versionInfo.stage + '</i>',bugObj,featureObj,supportObj);
+
+            }
+           /*
+            var issueSummaryObjNA =  getIssueSummaryForVersion("NA");
+            if (issueSummaryObjNA){
+                isIssuesAvailable = true;
+                var bugObjNA = issueSummaryObjNA.issueSummaryInStatusForBug ;
+                var featureObjNA = issueSummaryObjNA.issueSummaryInStatusForFeature ;
+                var supportObjNA = issueSummaryObjNA.issueSummaryInStatusForSupport ;
+
+                addRecord(('<strong class="push_right_10">None</strong>'),bugObjNA.totalCount,featureObjNA.totalCount,supportObjNA.totalCount);
+            }
+            */
+            if(!isIssuesAvailable){
+                $("#issueTrackerMainHeader").html('<div class="noData-message">Issues have not been reported yet.</div>') ;
+            }
+
+            $("#issues_spinner").empty();
+            $("#item_list_container").removeClass("hide").addClass("separator");
+
+        },function (jqXHR, textStatus, errorThrown) {
+
+        });
+    }
+
+    function addRecord(title,stage,bug,feature,support){
+        if(bug=="0" && feature=="0" && support=="0"){
+            return ;
+        }
+        if(title.indexOf('None')>0){
+            stage="None";
+        }
+
+        if(bug===undefined){
+            bug=0;
+        }
+        if(feature===undefined){
+            feature=0;
+        }
+        if(support===undefined){
+            support=0;
+        }
+        $('#item_list').append(
+            $('<li class="item">'+
+                '<div class="list_col_content col">'+title+'</div>'+
+                '<div class="col" style="padding-top:7px">'+stage+'</div>'+
+                '<div class="app_type col">'+bug+'</div>'+
+                '<div class="app_type col">'+feature+'</div>'+
+                '<div class="app_type col">'+support+'</div>'+
+            '</li>')
+        );
+    }
+
+</script>
+
+    <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+    <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+
+            <div class="container">
+                        <article class="main">
+                        <% jagg.includeBlock("page/messages", null); %>
+                        <header class="separator">
+                                <div class="content">
+                                <h1 class="left" style="margin-right:20px;" >Issues</h1>
+                                     <div class="row-fluid">
+<div align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
+<a href="<%=outputs.newIssueUrl%>" style="text-decoration: none" target="_blank">Track Issues</a>
+<a href="<%=outputs.newIssueUrl%>" class="icon_link" target="_blank">
+<span class="icon-globe "></span>
+</a></div>
+                                </div>
+                            </div>
+                        </header>
+<section class="separator">
+          <section id="item_list_container" class="hide">
+                                                <div class="content clear well" id="issueTrackerMainHeader">
+                                    <ul id="item_list" class="table_items">
+                                        <li class="item item_header">
+                                            <div class="list_col_heading col">Target Version</div>
+                                            <div class="list_col_heading col">Lifecycle State</div>
+                                            <div class="list_col_heading col">Bug</div>
+                                            <div class="list_col_heading col">Feature</div>
+                                            <div class="list_col_heading col">Vulnerability</div>
+                                        </li>
+                                    </ul>
+                                                </div>
+                        </section>
+                                                <div id="issues_spinner" class="content push_top_40 issueTracker-fix">
+                                                        <span class="icon-spinner icon-spin icon-large spin-large"></span>
+                                                </div>
+  </section>
+                        <div class="clearfix"></div>
+                      </article>
+            </div><!-- /container -->
+
+<% }); %>                                                                                       
+

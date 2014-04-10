@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="UserApproval" targetNamespace="http://www.example.com/claims/"
+	xmlns:tns="http://www.example.com/claims/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tschema="http://www.example.com/claims/schema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype">
+	<wsdl:documentation>
+		WS-HumanTask 1.1 - WS-HumanTask Task Interface Definition
+	</wsdl:documentation>
+	<wsdl:types>
+		<xsd:schema targetNamespace="http://www.example.com/claims/schema"
+			xmlns:tns="http://www.example.com/claims/schema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			elementFormDefault="qualified">
+			<xsd:element name="UserApprovalData" type="tns:UserApprovalDataType" />
+			<xsd:complexType name="UserApprovalDataType">
+				<xsd:sequence>
+					<xsd:element name="userName" type="xsd:string" />
+					<xsd:element name="firstName" type="xsd:string" />
+					<xsd:element name="lastName" type="xsd:string" />
+					<xsd:element name="email" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="UserApprovalResponse" type="tns:UserApprovalResponseType"></xsd:element>
+			<xsd:complexType name="UserApprovalResponseType">
+				<xsd:sequence>
+					<xsd:element name="approved" type="xsd:boolean"></xsd:element>
+				</xsd:sequence>
+			</xsd:complexType>
+		</xsd:schema>
+	</wsdl:types>
+
+	<wsdl:message name="UserApprovalRequest">
+		<wsdl:part name="UserApprovalRequest" element="tschema:UserApprovalData" />
+	</wsdl:message>
+
+	<wsdl:message name="UserApprovalResponse">
+		<wsdl:part name="UserApprovalResponse" element="tschema:UserApprovalResponse" />
+	</wsdl:message>
+
+	<wsdl:message name="UserApprovalNotificationRequest">
+		<wsdl:part name="UserApprovalNotificationRequest" element="tschema:UserApprovalNotificationData" />
+	</wsdl:message>
+
+	<wsdl:portType name="UserHandlingPT">
+		<wsdl:operation name="approve">
+			<wsdl:input message="tns:UserApprovalRequest" />
+		</wsdl:operation>
+
+		<wsdl:operation name="escalate">
+			<wsdl:input message="tns:UserApprovalRequest" />
+		</wsdl:operation>
+	</wsdl:portType>
+
+	<wsdl:portType name="UserHandlingCallbackPT">
+		<wsdl:operation name="approvalResponse">
+			<wsdl:input message="tns:UserApprovalResponse" />
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="UserApprovalBinding" type="tns:UserHandlingPT">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="approve">
+			<soap:operation soapAction="urn:approve" style="document" />
+			<wsdl:input>
+				<soap:body use="literal" namespace="http://www.example.com/claims/" />
+			</wsdl:input>
+		</wsdl:operation>
+		<wsdl:operation name="escalate">
+			<soap:operation soapAction="urn:escalate" style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="UserApprovalBindingCB" type="tns:UserHandlingCallbackPT">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="approvalResponse">
+			<soap:operation soapAction="urn:approvalResponse"
+				style="document" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+
+	<wsdl:service name="UserApprovalService">
+		<wsdl:port name="UserApprovalPort" binding="tns:UserApprovalBinding">
+			<soap:address location="http://localhost:9763/services/UserApprovalService" />
+		</wsdl:port>
+	</wsdl:service>
+	<wsdl:service name="UserApprovalServiceCB">
+		<wsdl:port name="UserApprovalPortCB" binding="tns:UserApprovalBindingCB">
+			<soap:address location="http://localhost:9763/services/UserApprovalServiceCB" />
+		</wsdl:port>
+
+	</wsdl:service>
+
+</wsdl:definitions>

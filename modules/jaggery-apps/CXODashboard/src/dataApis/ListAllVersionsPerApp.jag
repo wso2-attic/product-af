@@ -1,0 +1,39 @@
+<%
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+function getData(){
+	if (isUserLoggedIn) {
+
+		var appKey = request.getParameter("appKey");
+		var query = "SELECT DISTINCT APPLICATION_VERSION FROM LATEST_APP_VERSIONS WHERE TENANT_ID=" + tenantID +" AND APPLICATION_KEY='" + appKey + "';";
+		var dbResult = dbConfig.queryDb(query);
+		return createJSON(dbResult);
+	}
+}
+
+	function createJSON(result) {
+            var len = result.length;
+
+		var data = [];
+		var objtemp = {};
+
+            for (var i = 0; i < len; i++) {
+                var obj = result[i];
+		if(obj == null || obj.length<2){
+			return null;		
+		}		
+		var version= obj["APPLICATION_VERSION"];
+		
+		objtemp[i] = version;
+            }
+
+	data.push(objtemp);
+    	return data;
+	}
+	print(getData());
+%>

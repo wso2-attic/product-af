@@ -1,0 +1,664 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<assembly>
+    <!--<id>bin</id>-->
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>target/wso2carbon-core-${carbon.kernel.version}</directory>
+            <outputDirectory>wso2appfactory-${pom.version}</outputDirectory>
+            <excludes>
+                <exclude>**/*.sh</exclude>
+                <exclude>**/wso2server.bat</exclude>
+                <exclude>**/services/sample01.aar</exclude>
+                <exclude>**/services/echo/**</exclude>
+                <exclude>**/repository/services/version/**</exclude>
+                <exclude>**/pom.xml</exclude>
+                <exclude>**/version.txt</exclude>
+                <exclude>**/README*</exclude>
+                <exclude>**/carbon.xml</exclude>
+                <exclude>**/axis2/axis2.xml</exclude>
+                <exclude>**/dbscripts/**</exclude>
+                <exclude>**/INSTALL.txt</exclude>
+                <exclude>**/README.txt</exclude>
+                <exclude>**/LICENSE.txt</exclude>
+                <exclude>**/release-notes.html</exclude>
+                <exclude>**/log4j.properties</exclude>
+                <exclude>**/user-mgt.xml</exclude>
+                <exclude>**/conf/security/cipher-text.properties</exclude>
+                <exclude>**/conf/security/cipher-tool.properties</exclude>
+                <exclude>**/repository/resources/security/client-truststore.jks</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>target/wso2carbon-core-${carbon.kernel.version}</directory>
+            <outputDirectory>wso2appfactory-${pom.version}</outputDirectory>
+            <excludes>
+                <exclude>**/wso2server.bat</exclude>
+            </excludes>
+            <includes>
+                <include>**/*.sh</include>
+            </includes>
+            <fileMode>755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/advanced/
+            </directory>
+            <outputDirectory>
+                wso2appfactory-${pom.version}/repository/conf/advanced
+            </outputDirectory>
+            <includes>
+                <include>**/qpid-config.xml</include>
+                <include>**/qpid-jmxremote.access</include>
+                <include>**/qpid-virtualhosts.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/dbscripts/identity/
+            </directory>
+            <outputDirectory>
+                wso2appfactory-${pom.version}/dbscripts/identity/
+            </outputDirectory>
+            <includes>
+                <include>**/*.sql</include>
+            </includes>
+        </fileSet>
+        <!--copying registry dbscripts-->
+        <fileSet>
+            <directory>target/wso2carbon-core-${carbon.kernel.version}/dbscripts</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/dbscripts</outputDirectory>
+        </fileSet>
+
+        <!--  copying samples -->
+        <fileSet>
+            <directory>../../samples</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/samples</outputDirectory>
+            <excludes>
+                <exclude>**/**.sh</exclude>
+            </excludes>
+        </fileSet>
+
+        <!-- copy documentation -->
+        <!--<fileSet>
+            <directory>target/site</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/docs</outputDirectory>
+            <fileMode>755</fileMode>
+        </fileSet>-->
+
+        <!-- ODE Database Derby + H2 -->
+        <fileSet>
+            <directory>target/database</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/database</outputDirectory>
+        </fileSet>
+
+        <!--copying appfactory dbscripts-->
+        <fileSet>
+            <directory>resources/bpel/sql</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/dbscripts/bps</outputDirectory>
+            <!--excludes>
+                <exclude>**/ht/**</exclude>
+            </excludes-->
+        </fileSet>
+
+        <!-- copy p2 related files -->
+        <!--fileSet>
+            <directory>../features/p2-profile-generation/target/wso2carbon-core-${carbon.version}/repository/components/p2</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/webapps/ROOT/WEB-INF/eclipse/provisioning/p2</outputDirectory>
+            <includes>
+                <include>**/*.profile</include>
+            </includes>
+        </fileSet-->
+
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/
+            </directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <includes>
+                <include>**/krb5.conf</include>
+                <include>**/jaas.conf</include>
+                <include>**/zoo.cfg</include>
+                <include>**/tasks-config.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/multitenancy/
+            </directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/multitenancy</outputDirectory>
+            <includes>
+                <include>**/cloud-services-desc.xml</include>
+                <include>**/eula.xml</include>
+                <include>**/multitenancy-packages.xml</include>
+                <include>**/stratos.xml</include>
+                <include>**/usage-throttling-agent-config.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>resources/jaggery-modules</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/modules</outputDirectory>
+            <includes>
+                <include>**/**.xml</include>
+                <include>**/**.js</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/resources/jaggery-modules
+            </directory>
+            <outputDirectory>wso2appfactory-${pom.version}/modules</outputDirectory>
+            <includes>
+                <include>**/**.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/modules
+            </directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/modules
+            </outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/site/blocks
+            </directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/site/blocks
+            </outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/site/themes/default/templates
+            </directory>
+            <outputDirectory>
+                wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/site/themes/default/templates
+            </outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/modules</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/modules</outputDirectory>
+        </fileSet>
+
+
+        <!-- Coping BPEL artifacts related endpoint reference files -->
+        <fileSet>
+            <directory>resources/appfactory</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory</outputDirectory>
+        </fileSet>
+
+        <!-- Coping RXTs to to the distribution -->
+        <fileSet>
+            <directory>resources/rxts</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/rxts</outputDirectory>
+            <includes>
+                <include>**/**.rxt</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>resources/rxts</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/resources/rxts</outputDirectory>
+            <includes>
+                <include>**/**.rxt</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- Coping default lifcycles to the distribution -->
+        <fileSet>
+            <directory>resources/lifecycles</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/lifecycles</outputDirectory>
+            <includes>
+                <include>**/**.xml</include>
+            </includes>
+
+        </fileSet>
+        <fileSet>
+            <directory>resources/lifecycles</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/resources/lifecycles</outputDirectory>
+            <includes>
+                <include>**/**.xml</include>
+            </includes>
+
+        </fileSet>
+
+        <!-- Coping Security configuration -->
+        <fileSet>
+            <directory>resources/security</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/security</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>target/shindig</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/webapps/shindig
+            </outputDirectory>
+            <includes>
+                <include>**/**</include>
+            </includes>
+        </fileSet>
+        <!-- copying jaggery apps -->
+        <fileSet>
+            <directory>../../jaggery-apps/appmgt/src/</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/
+            </outputDirectory>
+            <includes>
+                <include>**/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../jaggery-apps/cloudmgt/src/</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/cloudmgt/
+            </outputDirectory>
+            <includes>
+                <include>**/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../jaggery-apps/dashboard/src/</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/dashboard/
+            </outputDirectory>
+            <includes>
+                <include>**/**</include>
+            </includes>
+        </fileSet>
+	<fileSet>
+             <directory>../../jaggery-apps/CXODashboard/src/</directory>
+             <outputDirectory>wso2appfactory-${pom.version}/resources/dashboards/CXODashboard</outputDirectory>
+             <includes>
+                 <include>**/**</include>
+             </includes>
+         </fileSet>
+
+        <!--copying runtimes-->
+        <fileSet>
+            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.version}/lib/runtimes</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/lib/runtimes/</outputDirectory>
+            <includes>
+                <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0001</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
+            <includes>
+                <include>**/patch0001/*.*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0002</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
+            <includes>
+                <include>**/patch0002/*.*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0003</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
+            <includes>
+                <include>**/patch0003/*.*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0004</directory>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
+            <includes>
+                <include>**/patch0004/*.*</include>
+            </includes>
+        </fileSet>
+        <!-- Copying CXODashboard gadgets-->
+     	<fileSet>
+             <directory>../../distribution/product/resources/gadgets</directory>
+             <outputDirectory>${pom.artifactId}-${pom.version}/resources/gadgets</outputDirectory>
+             <includes>
+             <include>*/**</include>
+             </includes>
+         </fileSet>
+
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/lib</outputDirectory>
+            <includes>
+                <include>bouncycastle:bcprov-jdk15:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/client/modules</outputDirectory>
+            <includes>
+                <include>org.apache.rampart:rampart:mar</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <outputDirectory>wso2appfactory-${pom.version}/lib/endorsed</outputDirectory>
+            <includes>
+                <include>javax.el:el-api:jar</include>
+            </includes>
+        </dependencySet>
+
+        <!-- Adding the maven arche types to the distribution -->
+        <dependencySet>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/archetypes/</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon.appfactory.maven.archetype:af-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.webapparchetype:webapp-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.jaxrsarchetype:jaxrs-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.jaxwsarchetype:jaxws-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.jaggeryarchetype:jaggery-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.dbsarchetype:dbs-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.bpelarchetype:bpel-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.esbarchetype:esb-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.phparchetype:php-archetype:jar</include>
+                <include>org.wso2.carbon.appfactory.maven.archetype:maven-archetype-webapp:jar</include>
+            </includes>
+        </dependencySet>
+        
+        <!-- Adding Jenkins related plugins to Appfactory distribution -->
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/jenkins</outputDirectory>
+            <includes>
+                <include>org.jenkins.wso2.appfactory:appfactory-authentication-plugin:hpi</include>
+                <include>org.wso2.carbon.appfactory.jenkins:appfactory-plugin:hpi</include>
+                <include>org.wso2.appfactory:dynamic-slave:hpi</include>
+            </includes>
+        </dependencySet>
+        
+        <!-- Adding git blit related plugins to Appfactory distribution -->
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/gitblit</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:appfactory.gitblit.plugin:jar</include>
+            </includes>
+        </dependencySet>
+        
+        <!-- Adding extensions to Appfactory distribution -->
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/extensions/</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.appfactory.ext:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.appfactory.stratos.listners:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.appfactory.jenkinsext:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.appfactory.application.deployer.stub:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.appfactory.jenkins.build.stub:jar</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/jaggery-apps/</outputDirectory>
+            <includes>
+                <include>org.wso2.cloud.mgt:cloudmgt:zip</include>
+            </includes>
+        </dependencySet>
+
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/webapps/</outputDirectory>
+            <includes>
+                <include>org.wso2.appfactory:org.wso2.carbon.issue.tracker:war</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/dashboards/</outputDirectory>
+            <includes>
+                <include>org.wso2.appfactory:CXODashboard:zip</include>
+            </includes>
+        </dependencySet>
+
+    </dependencySets>
+
+    <files>
+        <!-- Adding the BPEL files to the distribution -->
+        <file>
+            <source>../../bpels/CreateArtifact/target/CreateArtifact.zip</source>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/bpels</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../bpels/DeployArtifact/target/DeployArtifact.zip</source>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/bpels</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../bpels/ApplicationCreation/target/ApplicationCreation.zip</source>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/bpels</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../bpels/GovernanceBPEL/target/GovernanceBPEL.zip</source>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/bpels</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../bpels/CreateTenant/target/CreateTenant.zip</source>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/bpels</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+
+
+        <!--Deploy SCM manager webapp -->
+
+        <file>
+            <source>../../../INSTALL.txt</source>
+            <outputDirectory>wso2appfactory-${pom.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../../README.txt</source>
+            <outputDirectory>wso2appfactory-${pom.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>../../../LICENSE.txt</source>
+            <outputDirectory>wso2appfactory-${pom.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/repository/conf/axis2/axis2.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/axis2/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/repository/conf/README</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/bin/wso2server.bat</source>
+            <outputDirectory>wso2appfactory-${pom.version}/bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>744</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/identity.xml
+            </source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>744</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/email/confirmation-email-config.xml
+            </source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/email/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>744</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/appfactory/sts-policy-ut.xml
+            </source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>744</fileMode>
+        </file>
+
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/security/saml2.federation.properties
+            </source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/security</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/webapp-classloading.xml
+            </source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/conf/tomcat</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/webapp-classloading-environments.xml
+            </source>
+            <outputDirectory>${pom.artifactId}-${pom.version}/repository/conf/tomcat</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/context.xml
+            </source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/tomcat</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/bpel/conf/bps.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/bpel/conf/datasources.properties</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/bpel/conf/log4j.properties</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+
+        <file>
+            <source>resources/bpel/conf/ht/humantask.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/bpel-policy.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+
+        <file>
+            <source>resources/bpel/conf/attach-mgt-conf.properties</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/appfactory.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/sso-idp-config.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>resources/embedded-ldap.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/data/is-default-schema.zip
+            </source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/data</outputDirectory>
+        </file>
+        <file>
+            <source>resources/user-mgt.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+        </file>
+        <file>
+            <source>resources/carbon.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+        </file>
+        <file>
+            <source>resources/event-broker.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/bin/README.txt</source>
+            <outputDirectory>wso2appfactory-${pom.version}/bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.kernel.version}/bin/version.txt</source>
+            <outputDirectory>wso2appfactory-${pom.version}/bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <!-- Adding the RXT.XSD files to the distribution-->
+        <file>
+            <source>resources/rxt.xsd</source>
+            <outputDirectory>wso2appfactory-${pom.version}/resources/schemas/</outputDirectory>
+        </file>
+        <file>
+            <source>resources/rxt.xsd</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/resources/</outputDirectory>
+        </file>
+        <file>
+            <source>resources/client-truststore.jks</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/resources/security/</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+        <!-- copying the AF BAM toolbox -->
+	<file>
+             <source>../../statistics/target/AF_Analytics.tbox </source>
+             <outputDirectory>wso2appfactory-${pom.version}/resources/toolboxes</outputDirectory>
+        </file>
+    </files>
+
+</assembly>

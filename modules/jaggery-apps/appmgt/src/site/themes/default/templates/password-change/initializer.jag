@@ -1,0 +1,8 @@
+<%
+jagg.initializer("password-change", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

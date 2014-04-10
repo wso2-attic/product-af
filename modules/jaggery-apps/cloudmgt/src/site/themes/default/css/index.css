@@ -1,0 +1,74 @@
+body#home{
+    background: #333333 url(../img-dev/background.png) repeat-x left 100px;
+}
+.api_cloud{
+    background: transparent url(../img-dev/api-cloud.png) no-repeat left top;
+    width: 243px;
+    height: 174px;
+    display: inline-block;
+}
+.app_cloud{
+    background: transparent url(../img-dev/app-cloud.png) no-repeat left top;
+    width: 243px;
+    height: 174px;
+    display: inline-block;
+}
+.integration_cloud{
+    background: transparent url(../img-dev/integration-cloud.png) no-repeat left top;
+    width: 243px;
+    height: 174px;
+    display: inline-block;
+}
+
+.api_cloud_disabled{
+    background: transparent url(../img-dev/api-cloud-disabled.png) no-repeat left top;
+    width: 243px;
+    height: 174px;
+    display: inline-block;
+}
+.app_cloud_disabled{
+    background: transparent url(../img-dev/app-cloud-disabled.png) no-repeat left top;
+    width: 243px;
+    height: 174px;
+    display: inline-block;
+}
+.integration_cloud_disabled{
+    background: transparent url(../img-dev/integration-cloud-disabled.png) no-repeat left top;
+    width: 243px;
+    height: 174px;
+    display: inline-block;
+}
+.wso2-cloud-logo{
+    background: transparent url(../assets/img/wso2-cloud-logo-2.png) no-repeat left top;
+    width: 402px;
+    height: 116px;
+    display: inline-block;
+}
+a{cursor: pointer}
+.start{
+    width:900px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    margin-top:20px;
+}
+.logo-column{
+    text-align: center;
+}
+header{
+	display:none;
+}
+.help-text-column{
+    padding:30px 0 15px 0;
+    text-align: center;
+    color:#006086;
+    font-weight: bold;
+}
+.main-link-container div.col-4{
+    text-align: center;
+}
+.sign-out-column{
+    padding-right: 29px;
+    padding-top:16px;
+    text-align: right;
+}

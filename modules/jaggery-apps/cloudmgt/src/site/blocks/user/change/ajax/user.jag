@@ -1,0 +1,46 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var file = new File("/site/conf/cloud-mgt.xml");
+var log = new Log();
+(function () {
+var mod, obj, result,
+action = request.getParameter("action"),
+mod = jagg.module("user/change"),
+site = require("/site/conf/site.json");
+
+if (action == "changePassword") {
+    var oldPassword = request.getParameter("oldPassword");
+    var newPassword = request.getParameter("password");
+    try {
+        var result = mod.changePassword(oldPassword, newPassword);
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while changing the password ";
+        }
+    } catch(e) {
+        throw "Error while changing the password "+e.message;
+    }
+} else if (action == "updatePasswordWithUserInput") {
+    var username = request.getParameter("username");
+    var newPassword = request.getParameter("password");
+    var userAnswer = request.getParameter("userAnswer");
+    var secretKey = request.getParameter("secretKey");
+     var confirmationKey = request.getParameter("confirmationKey");
+    try {
+        var result = mod.updatePasswordWithUserInput(username, newPassword,userAnswer,secretKey,confirmationKey);
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while resetting the password ";
+        }
+    } catch(e) {
+        throw "Error while changing the password "+e.message;
+    }
+} else {
+    throw new Error("No action specified");
+}
+
+}());
+%>

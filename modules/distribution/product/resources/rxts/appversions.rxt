@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<artifactType type="application/vnd.wso2-appversion+xml" shortName="appversion" singularLabel="appversion"
+             pluralLabel="appversion" hasNamespace="false" iconSet="7">
+   <storagePath>/repository/applications/@{appversion_key}/@{appversion_version}</storagePath>
+   <nameAttribute>appversion_key</nameAttribute>
+   <ui>
+       <list>
+           
+           <column name="Key">
+               <data type="path" value="appversion_key" href="@{storagePath}"/>
+           </column>
+           <column name="Version">
+               <data type="path" value="appversion_version" href="@{storagePath}"/>
+           </column>
+	   <column name="LastDeployedId">
+               <data type="path" value="appversion_lastdeployedid" href="@{storagePath}"/>
+           </column>
+           
+       </list>
+   </ui>
+   <content>
+       <table name="appversion">
+
+           <field type="text" required="true">
+               <name>Key</name>
+           </field>
+           <field type="text" required="true">
+               <name>Version</name>
+           </field> 
+	   <field type="text" required="true">
+               <name>LastDeployedId</name>
+           </field> 
+           <field type="text" required="true">
+               <name>AutoDeployment</name>
+           </field>
+
+       </table>
+
+       <table name="Service Lifecycle">
+           <field type="options">
+               <name label="Lifecycle Name">Lifecycle Name</name>
+               <values class="org.wso2.carbon.governance.generic.ui.utils.LifecycleListPopulator">
+               </values>
+           </field>
+   </table>
+   </content>
+
+</artifactType>

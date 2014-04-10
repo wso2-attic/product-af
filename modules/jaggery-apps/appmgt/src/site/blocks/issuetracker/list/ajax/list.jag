@@ -1,0 +1,49 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var modPermission = jagg.module("permission");
+
+ 	if (action === "getIssuesSummary") {
+    	mod = jagg.module("issuetracker");
+        var response = {};
+        var appKey=request.getParameter("applicationKey");
+        if (modPermission.isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_MEMBER)){
+            try {
+                print(mod.getIssuesSummary(appKey));
+            } catch(e) {
+                throw "Error while retrieving issue summary information of application" + e;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get the issue summary";
+            print(response);
+        }
+    }else if (action === "getOpenIssues") {
+        mod = jagg.module("issuetracker");
+        var appKey=request.getParameter("applicationKey");
+        var response = {};
+        if (modPermission.isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_MEMBER)){
+            var applicationVersion=request.getParameter("applicationVersion");
+            try {
+                print(mod.getOpenIssues(appKey,applicationVersion));
+            } catch(e) {
+                throw "Error while retrieving issues of application";
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get the open issues";
+            print(response);
+        }
+
+    }else {
+	    throw new Error("No action specified");
+    }
+}());
+%>
+

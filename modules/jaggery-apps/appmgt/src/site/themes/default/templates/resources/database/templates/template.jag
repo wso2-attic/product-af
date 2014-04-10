@@ -1,0 +1,436 @@
+<% jagg.template("resources/database/templates", function(inputs, outputs, jagg) { %>
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var name = request.getParameter("templateName");
+    var templateName = "";
+    var environment = "";
+
+    if ( name != undefined ) {
+    	templateName = name.substring(0, name.lastIndexOf('@'));
+    	environment = name.substring(name.lastIndexOf('@') + 1, name.length);
+    }
+    
+    var isEdit = request.getParameter("isEdit");
+    if (isEdit == undefined ) {
+    	isEdit = false;
+    } 
+    
+    
+%>
+<script type="text/javascript">
+var rssEnvs = "";
+var isAllChecked = true;
+$(document).ready(function(){
+	populateRSSEnvs();
+	var isEdit = <%=isEdit%>;
+    if (isEdit == true) {
+		editTemplate();
+	} else {
+
+	}
+	
+	$('input[type="checkbox"]').click(function(){
+		if($('#checkArray :checkbox:checked').length == $('input[name="permission[]"]').length){
+			$('#selectAll').prop('checked', true);
+		} else {
+			$('#selectAll').prop('checked', false);
+		}
+	});
+
+    $('#btn_drop_template').click(function(){
+        jagg.popMessage({type:'confirm',title:'Delete Permission Template',content:'Are you sure you want to delete the tempalte <%=name%> ?', okCallback:function(){dropTemplate();}, cancelCallback:function(){}});
+        //dropTemplate()
+    });
+
+});
+
+
+
+// on load stuff
+
+function editTemplate(){
+  jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
+                                action:"getDetailedTemplate",
+                                applicationKey:"<%=applicationKey%>",
+                                templateName:"<%=templateName%>",
+                                environment:"<%=environment%>"
+    }, function (result) { 
+    	if(result != undefined){
+            var parsedArray = jQuery.parseJSON(result);
+            document.getElementById("selectPriv").checked = setValue(parsedArray[0].selectPriv);
+            document.getElementById("insertPriv").checked = setValue(parsedArray[0].insertPriv);
+            document.getElementById("updatePriv").checked = setValue(parsedArray[0].updatePriv);
+            document.getElementById("deletePriv").checked = setValue(parsedArray[0].deletePriv);
+            document.getElementById("createPriv").checked = setValue(parsedArray[0].createPriv);
+            document.getElementById("dropPriv").checked = setValue(parsedArray[0].dropPriv);
+            document.getElementById("grantPriv").checked = setValue(parsedArray[0].grantPriv);
+            document.getElementById("referencesPriv").checked = setValue(parsedArray[0].referencesPriv);
+            document.getElementById("indexPriv").checked = setValue(parsedArray[0].indexPriv);
+            document.getElementById("alterPriv").checked = setValue(parsedArray[0].alterPriv);
+            document.getElementById("createTmpTablePriv").checked = setValue(parsedArray[0].createTmpTablePriv);
+            document.getElementById("lockTablesPriv").checked = setValue(parsedArray[0].lockTablesPriv);
+            document.getElementById("createViewPriv").checked = setValue(parsedArray[0].createViewPriv);
+            document.getElementById("showViewPriv").checked = setValue(parsedArray[0].showViewPriv);
+            document.getElementById("createRoutinePriv").checked = setValue(parsedArray[0].createRoutinePriv);
+            document.getElementById("alterRoutinePriv").checked = setValue(parsedArray[0].alterRoutinePriv);
+            document.getElementById("executePriv").checked = setValue(parsedArray[0].executePriv);
+            document.getElementById("eventPriv").checked = setValue(parsedArray[0].eventPriv);
+            document.getElementById("triggerPriv").checked = setValue(parsedArray[0].triggerPriv);
+    	}
+    	
+    	if(isAllChecked){
+    		$('#selectAll').prop('checked', true);
+    	} else {
+    		$('#selectAll').prop('checked', false);
+    	}
+    	
+    	
+    }, function (jqXHR, textStatus, errorThrown) { 
+    	jagg.message({content:'Get detailed tempated',type:'error', id:'templatecreation', id:'templatecreation' }); 
+    });
+}
+
+
+  function populateRSSEnvs() {
+	
+	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+        action:"getRSSinstances",
+        applicationKey:$("#applicationKey").attr('value')
+       }, function (result) {
+           if(result != undefined){
+               var parsedArray = jQuery.parseJSON(result);
+               for(var i = 0; i < parsedArray.length; i++) {
+                   var name = parsedArray[i].name;
+                   var row='<option>'+name+'</option>';
+                   rssEnvs = rssEnvs.concat(row);
+               }
+               $("#rssInstances").append(rssEnvs);
+               
+               $("#rssInstances").select2({
+                   formatResult: selectBoxOptionFormat,
+                   minimumResultsForSearch: -1,
+                   containerCssClass : "error"
+               });
+
+           }
+       }, function (jqXHR, textStatus, errorThrown) {
+           jagg.message({content:'Error occurred while reading rssInstances',type:'error', id:'templatecreation' });
+       });
+
+}
+
+
+/////////////////////////////////////// utilities ///////////////////////////////////////////
+
+function selectAllOptions() {
+    var selectAll = document.getElementById('selectAll');
+    var c = new Array();
+    c = document.getElementsByTagName('input');
+    if (selectAll.checked) {
+        for (var i = 0; i < c.length; i++) {
+            if (c[i].type == 'checkbox') {
+                c[i].checked = true;
+            }
+        }
+    } else {
+        for (var j = 0; j < c.length; j++) {
+            if (c[j].type == 'checkbox') {
+                c[j].checked = false;
+            }
+        }
+    }
+}
+
+function validateTemplate(){
+	jagg.removeMessage('templatecreation');
+	var templateName = $("#templateName").val();
+	var validation = false;
+	if(templateName == ""){
+		jagg.message({content:'Invalid template name',type:'error', id:'templatecreation' });
+	} else{
+		validation = true;
+	}
+	 var patterForValidChars =/^[^~!@#$;%^*()+={}\\|\\\\<>,\'\"]{1,30}$/gi;
+        if(!patterForValidChars.test(templateName)){
+        jagg.message({content:'Template name can not contain one of (~!@#$;%^*()+={}\\|\\\\<>,\'\")',type:'error',
+        id:'templatecreation' });
+        validation=false;
+        }
+	if($('#checkArray :checkbox:checked').length == 0){
+		validation = false;
+		jagg.message({content:'Please select at least one Permission to proceed!',type:'error', id:'templatecreation'  });
+	} 
+		
+	return validation;
+}
+
+function setValue(value){
+   if(value =='Y'){
+       return "checked";
+   }else{
+   		isAllChecked = false;
+        return false;
+   }
+}
+
+
+//////////////////////////////////////////// Actions ////////////////////////////////////////////
+function dropTemplate() {
+
+	    $('span#deleteSpin').show();
+	    jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
+	    action:"dropTemplate",
+	    applicationKey:"<%=applicationKey%>",
+	    templateName:"<%=templateName%>",
+	    environment:"<%=environment%>"
+	    }, function (result) {
+	    	callPreviousPage();
+	    }, function (jqXHR, textStatus, errorThrown) {
+	    	$('span#deleteSpin').hide();
+	    	jagg.message({content:'Error occurred while deleting templates',type:'error', id:'templatecreation' });
+	    });
+
+}
+
+
+function editDbTemplate(btn){
+
+ var alterPriv=(document.getElementById("alterPriv"));
+ var alterRoutinePriv=(document.getElementById("alterRoutinePriv"));
+ var createPriv=(document.getElementById("createPriv"));
+ var createRoutinePriv=(document.getElementById("createRoutinePriv"));
+ var createTmpTablePriv=(document.getElementById("createTmpTablePriv"));
+ var createViewPriv=(document.getElementById("createViewPriv"));
+ var deletePriv=(document.getElementById("deletePriv"));
+ var dropPriv=(document.getElementById("dropPriv"));
+ var eventPriv=(document.getElementById("eventPriv"));
+ var executePriv=(document.getElementById("executePriv"));
+ var grantPriv=(document.getElementById("grantPriv"));
+ var indexPriv=(document.getElementById("indexPriv"));
+ var insertPriv=(document.getElementById("insertPriv"));
+ var lockTablesPriv=(document.getElementById("lockTablesPriv"));
+ var referencesPriv=(document.getElementById("referencesPriv"));
+ var selectPriv=(document.getElementById("selectPriv"));
+ var showViewPriv=(document.getElementById("showViewPriv"));
+ var triggerPriv=(document.getElementById("triggerPriv"));
+ var updatePriv=(document.getElementById("updatePriv"));
+ $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+  jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
+                                action:"editDbTemplate",
+                                applicationKey:"<%=applicationKey%>",
+                                templateName:"<%=templateName%>",
+                                environment:"<%=environment%>",
+                                alterPriv:alterPriv.checked,
+                                alterRoutinePriv:alterRoutinePriv.checked,
+                                createPriv:createPriv.checked,
+                                createRoutinePriv:createRoutinePriv.checked,
+                                createTmpTablePriv:createTmpTablePriv.checked,
+                                createViewPriv:createViewPriv.checked,
+                                deletePriv:deletePriv.checked,
+                                dropPriv:dropPriv.checked,
+                                eventPriv:eventPriv.checked,
+                                executePriv:executePriv.checked,
+                                grantPriv:grantPriv.checked,
+                                indexPriv:indexPriv.checked,
+                                insertPriv:insertPriv.checked,
+                                lockTablesPriv:lockTablesPriv.checked,
+                                referencesPriv:referencesPriv.checked,
+                                selectPriv:selectPriv.checked,
+                                showViewPriv:showViewPriv.checked,
+                                triggerPriv:triggerPriv.checked,
+                                updatePriv:updatePriv.checked,
+  }, function (result) {
+      callPreviousPage();
+      $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+  }, function (jqXHR, textStatus, errorThrown) {
+      jagg.message({content: 'Error occurred while editing roles', type: 'error', id: 'templatecreation' });
+      $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+  });
+
+
+}
+
+
+function createTemplate(btn){
+ var alterPriv=(document.getElementById("alterPriv"));
+ var alterRoutinePriv=(document.getElementById("alterRoutinePriv"));
+ var createPriv=(document.getElementById("createPriv"));
+ var createRoutinePriv=(document.getElementById("createRoutinePriv"));
+ var createTmpTablePriv=(document.getElementById("createTmpTablePriv"));
+ var createViewPriv=(document.getElementById("createViewPriv"));
+ var deletePriv=(document.getElementById("deletePriv"));
+ var dropPriv=(document.getElementById("dropPriv"));
+ var eventPriv=(document.getElementById("eventPriv"));
+ var executePriv=(document.getElementById("executePriv"));
+ var grantPriv=(document.getElementById("grantPriv"));
+ var indexPriv=(document.getElementById("indexPriv"));
+ var insertPriv=(document.getElementById("insertPriv"));
+ var lockTablesPriv=(document.getElementById("lockTablesPriv"));
+ var referencesPriv=(document.getElementById("referencesPriv"));
+ var selectPriv=(document.getElementById("selectPriv"));
+ var showViewPriv=(document.getElementById("showViewPriv"));
+ var triggerPriv=(document.getElementById("triggerPriv"));
+ var updatePriv=(document.getElementById("updatePriv"));
+ $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+ jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
+                                action:"createTemplate",
+                                applicationKey:$("#applicationKey").attr('value'),
+                                templateName:$("#templateName").attr('value'),
+                                environment:$('#rssInstances').val(),
+                                alterPriv:alterPriv.checked,
+                                alterRoutinePriv:alterRoutinePriv.checked,
+                                createPriv:createPriv.checked,
+                                createRoutinePriv:createRoutinePriv.checked,
+                                createTmpTablePriv:createTmpTablePriv.checked,
+                                createViewPriv:createViewPriv.checked,
+                                deletePriv:deletePriv.checked,
+                                dropPriv:dropPriv.checked,
+                                eventPriv:eventPriv.checked,
+                                executePriv:executePriv.checked,
+                                grantPriv:grantPriv.checked,
+                                indexPriv:indexPriv.checked,
+                                insertPriv:insertPriv.checked,
+                                lockTablesPriv:lockTablesPriv.checked,
+                                referencesPriv:referencesPriv.checked,
+                                selectPriv:selectPriv.checked,
+                                showViewPriv:showViewPriv.checked,
+                                triggerPriv:triggerPriv.checked,
+                                updatePriv:updatePriv.checked,
+
+            }
+            ,function (result) {
+            	var result = $.trim(result);
+            	
+		if(result=='success'){
+			callPreviousPage();
+		} else if(result.indexOf('exists') > -1) {	// check whether user is already exists based on identifying key word call 'exists'
+			jagg.message({content:'Template Name already exists!', type:'error', id:'templatecreation' });
+		} else {
+			jagg.message({content:'Error occurred while creating template!', type:'error', id:'templatecreation' });
+		}
+        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+		
+	},function (jqXHR, textStatus, errorThrown) {
+		    jagg.message({content:'Error occurred while creating role',type:'error', id:'templatecreation' });
+            $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+	});
+}
+
+
+function callPreviousPage(){
+	var oldURL = document.referrer;
+	window.location.replace(oldURL);			
+}
+
+</script>
+
+
+  <div class="container">
+				<article class="main">
+				
+                            <header>
+                            <div><% jagg.includeBlock("page/messages", null); %></div>
+                        	<div class="content">
+                                <h1>Resources</h1>
+                             </div>
+                        </header>
+                        <% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
+
+                        <section class="separator">
+                            <div class="page_nav">
+                                <div class="content clear">
+                                    <ol class="breadcrumb left"> 
+                                            <li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
+                                            <li class="breadcrumb_item">
+                                            <% if(isEdit){ %>
+                                                <h2><%=name%></h2>
+                                            <% } else {%>
+                                                <h2>Create New DB Permission Template</h2>
+                                            <% } %>
+                                            </li>
+                                    </ol>
+                                    <% if(isEdit){ %>
+                                    <div class="right btn_list_box" >
+                                        <ul class="inline_box inline_list btn_list">
+                                            <li class="inline_item">
+												<span id="deleteSpin" class="icon-spinner icon-spin icon-large" style="margin-right: 10px; display:none;"></span>
+                                                <a id="btn_drop_template" href="#" class="btn main">Delete Template</a>
+						
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                     </div>
+                                     <% } %>
+                                 </div>
+                            </div>
+
+
+                            <div class="content clear well">
+                            	<div class="form-container">
+
+                                    <form action="#" method="post" class="hold right_label">
+                                      <fieldset>
+                                            <% if(isEdit == false){ %>
+                                                <div class="input_row">
+                                                    <label for="new_db_username"><strong>Template Name</strong> <em>*</em></label>
+                                                    <input type="text" name="templateName" id="templateName" class="half" maxlength="10"/>
+                                                </div>
+                                                <div class="input_row">
+                                                    <label for="new_db_username"><strong>Environment</strong> <em>*</em></label>
+													<select id='rssInstances' class="select_list half big" name="db_environment"></select>
+                                                </div>
+                                            <% } %>
+                                            <div class="controlset">
+						
+                                                <div class="input_row">
+                                                   <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions</label></h2>
+													<fieldset id="checkArray">
+                                                    <label><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />                   
+                                                    <label><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='updatePriv' checked="checked" /> UPDATE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='deletePriv' checked="checked" /> DELETE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='createPriv' checked="checked" /> CREATE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='dropPriv' checked="checked" /> DROP</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='grantPriv' checked="checked" /> GRANT</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='referencesPriv' checked="checked" /> REFERENCES</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='indexPriv' checked="checked" /> INDEX</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='alterPriv' checked="checked" /> ALTER</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='createTmpTablePriv' checked="checked" /> CREATE_TEMP_TABLE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='lockTablesPriv' checked="checked" /> LOCK_TABLES</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='createViewPriv' checked="checked" /> CREATE_VIEW</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='showViewPriv' checked="checked" /> SHOW_VIEW</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='createRoutinePriv' checked="checked" /> CREATE_ROUTINE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='alterRoutinePriv' checked="checked" /> ALTER_ROUTINE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='executePriv' checked="checked" /> EXECUTE</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='eventPriv' checked="checked" /> EVENT</label></br>
+                                                    <label><input type="checkbox" name="permission[]" id='triggerPriv' checked="checked" /> TRIGGER</label></br>
+													</fieldset>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                        <input type="hidden" id='applicationKey'
+                                            value='<%=request.getParameter("applicationKey")%>'/>
+                                        <% if(isEdit){ %>
+                                        <div class="buttonrow">
+                                            <input type='button' name='Submit' value='Save Changes' onclick="editDbTemplate(this)" class='btn main'/>
+                                            <a href="#" onclick="return callPreviousPage();">Cancel</a>
+                                        </div>
+                                        <% } else { %>
+                                        <div class="buttonrow">
+                                            <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate(this);}" class='btn main'/>
+                                           
+					   						<a href="#" onclick="return callPreviousPage();">Cancel</a>
+                                        </div>
+                                        <% } %>
+					 
+                                     </form>
+
+								</div>
+                            </div>
+                        </section>
+                        <div class="clearfix"></div>
+                 </article>
+            </div><!-- /container -->
+
+<% }); %>

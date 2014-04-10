@@ -1,0 +1,52 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log();
+var modManager = jagg.module("manager");
+
+var LINES_OF_CODE_REPOSITORY_RESULT_SIZE = 10;
+
+var topRepositoriesByLinesOfCode = function () {
+
+    try {
+    	var postBody = {};
+    	postBody["SONAR_USERNAME"] = SONAR_PASSWORD;
+    	
+    	var authFeed = post(SONAR_URL + 'authentication/validate', postBody, "json");
+    	//TODO handle successful login
+			
+		var responseFeed = get(SONAR_URL + "resources?metrics=ncloc&limit=" + 
+			LINES_OF_CODE_REPOSITORY_RESULT_SIZE, null, "json");
+			
+		var responseJSON = responseFeed.data;
+		
+		var elementArray = new Array();
+		for(var repository in responseJSON) {
+			var repositoryContent = responseJSON[repository];
+			
+			var innerElement = {};
+        	innerElement.name = repositoryContent.name;
+        	
+        	if(repositoryContent.msr != null) {
+	        	for(var msr in repositoryContent.msr) {
+	        	    var msrElement = repositoryContent.msr[msr];
+	        		
+	        		if(msrElement.key == 'ncloc') {
+	        			innerElement.linesOfCode = msrElement.val;
+	        		}
+	        	}
+        	}else {
+        		innerElement.linesOfCode = 0;
+        	}
+        	
+			elementArray.push(innerElement);
+		}
+ 		
+ 		return elementArray;
+    } catch (e) {
+        throw "Error while getting top repositories";
+    }
+}
+%>

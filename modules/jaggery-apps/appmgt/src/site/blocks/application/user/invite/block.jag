@@ -1,0 +1,24 @@
+<%
+        include('/jagg/constants.jag');
+jagg.block("application/user/invite", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {
+       var hasInviteUserPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_USER_INVITE);
+       var isOTTenant= session.get("TENANT_INFO").isOTTenant;
+              return {
+            "hasInviteUserPermission":hasInviteUserPermission,
+            "isOTTenant":isOTTenant
+       };
+    }
+
+
+});
+%>

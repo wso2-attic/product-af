@@ -1,0 +1,12 @@
+<module name="appFactory" expose="true" xmlns="http://wso2.org/projects/jaggery/module.xml">
+		<hostObject>
+			<className>org.wso2.carbon.appfactory.hostobjects.configuration.AppFactoryConfigurationReader</className>
+			<name>AppFactoryConfigurationReader</name>
+		</hostObject>
+                <script>
+                        <name>multitenancy</name>
+                        <path>scripts/tenant-util.js</path>
+                </script>
+</module>
+
+

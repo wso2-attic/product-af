@@ -1,0 +1,43 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log=new Log();
+
+(function () {
+    var action = request.getParameter("action");
+
+   	if (action == "getDatasources") {
+
+	    var applicationKey = request.getParameter("applicationKey");
+       	var permissionModule = jagg.module("permission");
+       	var datasourceModule = jagg.module("datasource");
+       	var applicationModule = jagg.module("application");
+       	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+       	var hasDbConfigurePermissions = {};
+       	var dataSourceCount = 0;
+       	
+       	var allApplications = applicationModule.getAllCreatedApplications();
+       	
+       	for (var i = 0; i < allApplications.length; i++) {
+	       	for (var j = 0; j < deploymentStages.length; j++) {
+	       		/**
+	        	var hasDBPermissionToStage= permissionModule.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURATION_DB_FOR_STAGE +deploymentStages[i]);
+	           	hasDbConfigurePermissions[deploymentStages[i]] =  hasDBPermissionToStage;
+	           	
+	           	if(hasDBPermissionToStage){*/
+	            	dataSourceCount = dataSourceCount + datasourceModule.datasourceCount(allApplications[i], deploymentStages[j]);
+	           	//}
+	       	}	
+       	}
+		
+		var reuslt = {};
+		reuslt.dataSourceCount = dataSourceCount;
+		print(reuslt);
+   	}else {
+       	throw new Error("No action specified");
+   	}
+
+}());
+%>

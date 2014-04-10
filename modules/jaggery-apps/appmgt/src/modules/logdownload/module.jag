@@ -1,0 +1,15 @@
+<%
+
+jagg.module("logdownload", {
+
+    downloadLogFile:function () {
+        return jagg.require(jagg.getModulesDir() + "logdownload/logdownload.jag").downloadLogFile.apply(this, arguments);
+    },
+    downloadArchivedLogFile:function () {
+        return jagg.require(jagg.getModulesDir() + "logdownload/logdownload.jag").downloadArchivedLogFile.apply(this, arguments);
+    },
+    getVersionsOfApplicationInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "logdownload/logdownload.jag").getVersionsOfApplicationInStages.apply(this, arguments);
+    }
+});
+%>

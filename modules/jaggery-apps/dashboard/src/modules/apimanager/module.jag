@@ -1,0 +1,8 @@
+<%
+jagg.module("apimanager", {
+
+    getAPICount:function () {
+    	return jagg.require(jagg.getModulesDir() + "apimanager/get/get.jag").getAPICount.apply(this, arguments);
+    }
+});
+%>

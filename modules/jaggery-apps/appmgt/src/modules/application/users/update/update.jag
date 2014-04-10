@@ -1,0 +1,90 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log("module/application/users/update/update.jag");
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+
+/*This method removes a given user from the application specified by applicationKey*/
+removeUserFromApplication=function removeUserFromApplication (applicationKey,users) {
+
+    var tenantDomain=modManager.getTenantDomain() ;
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    var isDeleted = false;
+
+    var userArray=users.split(",");
+
+    try{
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        isDeleted = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.' +
+                'ApplicationUserManagementService').removeUsersFromApplication(userArray, applicationKey);
+        return isDeleted;
+
+    } catch (e) {
+        log.error("Error while removing the user " + e.message);
+        throw "Error while getting application of user";
+    } finally{
+        context.endTenantFlow();
+    }
+
+
+};
+updateRolesOfUserForApplication=function updateUserOfApplication (applicationKey,userName,rolesToDelete,rolesToAdd) {
+	var ws = require("ws");
+	var userAdmin = new ws.WSRequest();
+	var options = new Array();
+
+	options.useSOAP = 1.1;
+	options.action = "urn:updateUserOfApplication";
+	options["HTTPHeaders"] =[{
+		name:
+			"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+	}];
+    var deleteRoles=rolesToDelete.split(',');
+    var newRoles=rolesToAdd.split(',');
+    var deleteUserRolesString='';
+    var newUserRolesString='';
+    for(var role in deleteRoles){
+        if(deleteRoles[role]!=null){
+             deleteUserRolesString+='<ser:rolesToDelete>'+deleteRoles[role].replace(' ','')+'</ser:rolesToDelete>';
+        }
+
+    }
+    for(var role in newRoles){
+    	if(newRoles[role]!=null){
+    		newUserRolesString+='<ser:rolesToAdd>'+newRoles[role].replace(' ','')+'</ser:rolesToAdd>';
+    	}
+
+    }
+
+	var payload='<ser:updateUserOfApplication xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org"><ser:applicationId>'+applicationKey+'</ser:applicationId><ser:userName>'+userName+'</ser:userName>'+deleteUserRolesString+newUserRolesString+'</ser:updateUserOfApplication>';
+	var result;
+
+	try {
+		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+		userAdmin.open(options,endPoint, false);
+		userAdmin.send(payload);
+		result = userAdmin.responseE4X;
+		var ns=new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+		var element = result.ns::["return"];
+		return element;
+	} catch (e) {
+		log.error("Error while updating the user " + e.message);
+		throw "Error while updating the user of user";
+	}
+};
+
+
+
+ 
+%>

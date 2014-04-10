@@ -1,0 +1,244 @@
+<% jagg.template("resources/registry/get", function(inputs, outputs, jagg) { %>
+<%
+var applicationKey = request.getParameter("applicationKey");
+var applicationName = request.getParameter("applicationName");
+//var hasConfigureResourcePermissions=outputs.hasConfigureResourcePermissions;
+//var dependencies=outputs.dependencies;
+var hasCreateResourcePermissions = outputs.hasCreateResourcePermissions;
+
+%>
+<script type="text/javascript">
+//[cdata[
+
+function drawPropertiesTable() {
+	$("#loadingProperties").show();
+	jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
+		action: "getAllDependencies",
+		applicationKey: '<%=applicationKey%>'
+	},
+
+	function (response) {
+		if (response !== undefined) {
+			response = jQuery.parseJSON(response);
+
+			var tableModel = {};
+			
+			for (var stageIndex in response) {
+			
+				var stageProperties = response[stageIndex];
+				for (var propIndex in stageProperties) {
+						
+					var property = stageProperties[propIndex];
+					var tableRowModel = tableModel[property.name] || (tableRowModel = {});
+					tableRowModel.description = property.description;
+					tableRowModel.mediaType = property.mediaType;
+					var valuesMap = tableRowModel.values || (valuesMap = {});
+					valuesMap[stageIndex] = property.value;
+					tableRowModel.values = valuesMap;
+					
+					var descMap = tableRowModel.descs || (descMap = {});
+					descMap[stageIndex] = property.description;
+					tableRowModel.descs = descMap ;
+	
+					tableModel[property.name] = tableRowModel;
+				}
+			}
+			
+			var tableBodyHTML= "";
+            
+            var count = 0; 
+			for (var name in tableModel) {
+				var row = tableModel[name];
+				var mediaType = row.mediaType;
+	            var displayMediaType = "Registry" ;
+	            if(mediaType == "External API"){
+        			continue;
+        		}
+                if(mediaType == "application/vnd.wso2.endpoint"){
+                    displayMediaType = "Endpoint"
+                }
+
+                
+
+				
+            	tableBodyHTML += '<li class="list_row_item first_list_row_item">';
+  				var values = row.values;
+  				
+  				for (var stage in values) {
+  					
+  					var url = "#";
+  				
+  					url = "<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey %>&pagePath=resources&isEdit=true&resourceName=" +name +"&stage="+ stage ;
+
+	                var htmlTag = "";
+	        		
+	                if(name.toLowerCase().indexOf("consumersecret") != -1 || name.toLowerCase().indexOf("consumerkey") != -1 || name.toLowerCase().indexOf("key") != -1 ){
+	                    htmlTag  = '<li><a href="#" onclick="showUneditableMsg(\''+name+'\')">'+name+'</a></li>';
+	                }
+	                else{
+	                    htmlTag  = '<li><a href="' +url +'">'+ name +'</a></li>';
+	                }
+  				
+  				
+  					tableBodyHTML += '<ul class="list_row first_list_row">'
+	                        +'<li class="list_col first_list_col resources_endregname_col">'
+	                            +'<div class="list_col_content">'
+	                                +'<ul class="list">'
+	                                +htmlTag
+	                                 +'</ul> </div></li>'
+	                                 +'<li class="list_col resources_endregdescriptionpage_col">'
+	                                 +'<div class="list_col_content">'+ row.descs[stage] +'</div>'
+	                            +'</li>'
+	                            +'<li class="list_col last_list_col resources_endregpagetype_col">'
+	                            +'<div class="list_col_content" style="font-size: 0.857142857em;>'
+	                              +'<span class="prime">'+ displayMediaType +'</span>'  //TODO
+	                            +'</div></li>'
+	                        
+	                        +'<li class="list_col last_list_col resources_values_col">'
+	                          +'<div class="list_col_content">'
+	                          +'<dl class="list">';
+	      				
+  					tableBodyHTML += '<dt><i class="tag" style="margin-left:0px">'+ stage + '</i></dt><dd style="padding-left:6px;font-size: 0.857142857em;">'+ values[stage] +'</dd>';
+  					tableBodyHTML += ' </dl></div></li></ul>';     
+ 
+  				}
+  				tableBodyHTML += '</li>';
+  				
+  				//TODO: Hide/Show Messages
+  				count++;
+			}
+			
+			if(count == 0){
+				$("#propertySection").html("<div class='noData-message'>Registries and Endpoints have not been created yet.</div>");
+			}else{
+				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
+                			'<ul class="list_row first_list_row">' +
+                			'<li class="list_col first_list_col resources_endregname_col">' +
+                			'<h2 class="list_col_heading">Name & Version</h2>' +
+                			'</li>' +
+                			'<li class="list_col resources_endregdescriptionpage_col">' +
+                			'<h2 class="list_col_heading">Description</h2>'+
+                			'</li>' +
+                			'<li class="list_col last_list_col resources_endregpagetype_col">' +
+                			'<h2 class="list_col_heading">Type</h2>' +
+                			'</li>' + 
+                			'<li class="list_col last_list_col resources_values_col">' +
+                			'<h2 class="list_col_heading">Values</h2>'+
+                			'</li>' +
+                			'</ul>' +
+                			'</li>';
+				$("#propertySection").html(initTableTxt + $("#propertySection").html()+ tableBodyHTML);
+			}
+			
+		} else {
+			//TODO: No properties created yet message
+		}
+	},
+
+	function (jqXHR, textStatus, errorThrown) {
+		jagg.message({content:'Error occurred while reading registry resources',type:'warning', id:'propertyoverview' });
+	});
+}
+
+function showUneditableMsg(name){
+    jagg.message({
+        content: 'Resource ' + name + ' is an uneditable resource',
+        type: 'warning'
+    });
+}
+
+function clearForm(){
+	$("#resourceName").val("");
+	$("#resourceDescription").val("");
+	$("#contentValue").val("");
+}
+
+function launchUpdateResourceUI (key,description,content) {
+      jagg.message({
+        type: 'custom',
+        title: "Edit Endpoint",
+        content: content,
+        buttons: [{
+                cssClass: 'btn',
+                name: 'Update',
+                cbk: function () {
+                    jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
+                        action: "updateResource",
+                        applicationKey: $("#applicationKey").attr('value'),
+                        resourceName: key,
+                        resourceDescription: description,
+                        stage: $("#sel_stage").attr('value'),
+                        contentValue: $("#update_value").attr('value')
+                    },
+
+                    function (result) {
+                        if (result !== undefined) {
+                            jagg.message({
+                                content: 'Endpoint has been updated',
+                                type: 'info'
+                            });
+                            drawPropertiesTable();
+                            //window.location.reload(false);
+                            $('#messageModal').modal('hide');
+                        }
+                    },
+
+                    function (jqXHR, textStatus, errorThrown) {
+                        jagg.message({
+                            content: 'Error occurred while updating endpoint',
+                            type: 'error'
+                        });
+                        window.location.reload(false);
+                    });
+                }
+            }
+        ]
+    });
+}
+
+
+$(document).ready(function() {
+    drawPropertiesTable();     
+}); 
+//]]
+</script>
+
+
+ <div class="container">
+				<article class="main">
+				    
+                        <header><div><% jagg.includeBlock("page/messages", null); %></div>
+                        	<div class="content">
+                                <h1>Resources</h1>
+                             </div>
+                        </header>
+                        <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
+                        <section class="separator">
+                            <div class="page_nav">
+                                <div class="content clear">
+                                    <ol class="breadcrumb left">
+                                            <li class="breadcrumb_item"><h2>Endpoint & Registry</h2></li>
+                                    </ol>
+                                    <% if(hasCreateResourcePermissions){ %>
+                                    <div class="right btn_list_box">
+                                        <ul class="inline_box inline_list btn_list">
+                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=resources" class="btn main btn_list_first">Add Property</a></li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                     </div>
+                                     <% } %>
+                                </div>
+                            </div>
+                            <div class="content clear well">
+
+                                <ul class="list_table push_top_20" id="propertySection">
+                                    
+                                </ul>
+
+
+                             </div>
+                        </section>
+                        <div class="clearfix"></div>
+                 </article>
+            </div>
+<% }); %>

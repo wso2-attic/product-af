@@ -1,0 +1,54 @@
+{
+    "legend": {
+        "show": true
+    },
+    "series": {
+        "color": "#CC9933",
+        "bars": {
+            "show": true,
+            "barWidth": 0.2,
+            "align": "center",
+            "fillColor": "#FFCC66"
+        }
+    },
+    "grid": {
+        "hoverable": true,
+        "clickable": true
+    },
+    "yaxis": {
+
+        "axisLabel": "Number of Builds",
+        "axisLabelUseCanvas": true,
+        "axisLabelFontSizePixels": 12,
+        "axisLabelFontFamily": "Verdana, Arial, Helvetica, Tahoma, sans-serif",
+        "axisLabelPadding": 5,
+        "show": true,
+        "tickDecimals": 0,
+        "zoomRange": false,
+        "panRange": false
+    },
+    "xaxis": {
+
+        "axisLabel": "Application",
+        "axisLabelUseCanvas": true,
+        "axisLabelFontSizePixels": 12,
+        "axisLabelFontFamily": "Verdana, Arial, Helvetica, Tahoma, sans-serif",
+        "axisLabelPadding": 5,
+        "show": true,
+        "tickLength": 0,       // to remove the vertical grid lines
+        "min": 0.5,
+        "max": 10,
+        "ticks": null,
+        "panRange": null
+
+    },
+    "pan": {
+        "interactive": true
+    },
+    "zoom": {
+        "interactive": true
+    },
+    "selection": {
+        "mode": null
+    }
+}

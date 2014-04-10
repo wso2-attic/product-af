@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://wso2.org/bps/sample" xmlns:vprop="http://docs.oasis-open.org/wsbpel/2.0/varprop" xmlns:wsdl="http://services.mgt.tenant.carbon.wso2.org" xmlns:wsdl1="http://services.core.appfactory.carbon.wso2.org" xmlns:wsdl2="http://services.mgt.tenant.appfactory.carbon.wso2.org" name="CreateTenant" targetNamespace="http://wso2.org/bps/sample">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="TenantMgtAdminServicePLT">
+    <plnk:role name="TenantMgtAdminServiceProvider" portType="wsdl:TenantMgtAdminServicePortType"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="AppFactoryTenantToolInitializerServicePLT">
+    <plnk:role name="AppFactoryTenantToolInitializerServicePLProvider" portType="wsdl1:AppFactoryTenantToolInitializerServicePortType"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="AppFactoryTenantMgtAdminServicePLT">
+    <plnk:role name="AppFactoryTenantMgtAdminServiceProvider" portType="wsdl2:AppFactoryTenantMgtAdminServicePortType"/>
+  </plnk:partnerLinkType>
+    <plnk:partnerLinkType name="AppFactoryTenantInfraStructureInitializerServicePLT">
+    <plnk:role name="AppFactoryTenantInfraStructureInitializerServiceProvider" portType="wsdl1:AppFactoryTenantInfraStructureInitializerServicePortType"/>
+  </plnk:partnerLinkType>
+    <import location="TenantMgtAdminService.wsdl" namespace="http://services.mgt.tenant.carbon.wso2.org"/>
+    <import location="AppFactoryTenantInfraStructureInitializerService.wsdl" namespace="http://services.core.appfactory.carbon.wso2.org"/>
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://wso2.org/bps/sample">
+
+            <element name="CreateTenantRequest" type="tns:TenantInfoBeanType">
+            </element>
+
+            <element name="CreateTenantResponse">
+                <complexType>
+                    <sequence>
+                        <element name="result" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        
+            <complexType name="TenantInfoBeanType">
+            	<sequence>
+            		<element name="admin" type="string" />
+            		<element name="firstName" type="string" />
+            		<element name="lastName" type="string" />
+            		<element name="adminPassword" type="string" />
+            		<element name="tenantDomain" type="string" />
+            		<element name="tenantId" type="int"></element>
+            		<element name="email" type="string" />
+            		<element name="active" type="boolean" />
+            		<element name="successKey" type="string" />
+            		<element name="createdDate" type="dateTime" />
+            		<element name="originatedService" type="string" />
+            		<element name="usagePlan" type="string" />
+            	</sequence>
+            </complexType>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="CreateTenantRequestMessage">
+        <part element="tns:CreateTenantRequest" name="payload"/>
+    </message>
+    <message name="CreateTenantResponseMessage">
+        <part element="tns:CreateTenantResponse" name="payload"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the CreateTenant BPEL process -->
+    <portType name="CreateTenant">
+        <operation name="process">
+            <input message="tns:CreateTenantRequestMessage"/>
+            <output message="tns:CreateTenantResponseMessage"/>
+        </operation>
+    </portType>   
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="CreateTenant">
+        <plnk:role name="CreateTenantProvider" portType="tns:CreateTenant"/>
+    </plnk:partnerLinkType>
+    
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BINDING DEFINITION - Defines the message format and protocol details
+     for a web service.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <binding name="CreateTenantBinding" type="tns:CreateTenant">
+    	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    	<operation name="process">
+    		<soap:operation soapAction="http://wso2.org/bps/sample/process"/>
+    		<input>
+    			<soap:body use="literal"/>
+    		</input>
+    		<output>
+    			<soap:body use="literal"/>
+    		</output>
+    	</operation>
+    </binding>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     SERVICE DEFINITION - A service groups a set of ports into
+     a service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <service name="CreateTenant">
+    	<port binding="tns:CreateTenantBinding" name="CreateTenantPort">
+    		<soap:address location="http://localhost:8080/CreateTenant"/>
+    	</port>
+    </service>
+</definitions>

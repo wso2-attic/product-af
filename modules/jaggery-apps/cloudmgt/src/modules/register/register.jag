@@ -1,0 +1,335 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log();
+var modManager = jagg.module("manager");
+
+var file = new File("/site/conf/cloud-mgt.xml");
+file.open("r");
+var data = file.readAll();
+var doc= new XML(data);
+//var url = doc.dbConfig.(@name == "cloud_mgt").url.toString();
+//var userName = doc.dbConfig.(@name == "cloud_mgt").userName.toString();
+//var password = doc.dbConfig.(@name == "cloud_mgt").password.toString();
+var ADMIN_USERNAME = doc.SSORelyingParty.AdminUserName.toString();
+var ADMIN_PASSWORD = doc.SSORelyingParty.AdminPassword.toString();
+
+var AFURL = doc.ServerUrls.AppFactory.toString();
+var BPSURL = doc.ServerUrls.BPS.toString();
+file.close();
+
+var emailFile = new File("/site/conf/email.xml");
+emailFile.open("r");
+var emailData = emailFile.readAll();
+var emailOM= new XML(emailData);
+var from = emailOM.from.toString();
+var subject =  emailOM.subject.toString();
+var body =  emailOM.body.toString();
+var senderEmail = emailOM.sender.username.toString();
+var senderPort = emailOM.sender.port.toString();
+var senderPassword= emailOM.sender.password.toString();
+var senderHost= emailOM.sender.host.toString();
+var tls = emailOM.sender.tls.toString();
+emailFile.close();
+var registerOrganization = function (organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan) {
+
+var tenantId = modManager.getTenantId(organizationDomain);
+var ws = require("ws");
+var creatTenant = new ws.WSRequest();
+var options = new Array();
+options.useSOAP = 1.1;
+options.action = "http://wso2.org/bps/sample/process";
+options.mep = "in-only";
+
+   options["rampart"] = { user : ADMIN_USERNAME, userPassword :ADMIN_PASSWORD };
+    options["policy"] = <wsp:Policy xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+    wsu:Id="UTOverTransport">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <sp:TransportBinding
+                xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:TransportToken>
+                            <wsp:Policy>
+                                <sp:HttpsToken RequireClientCertificate="false" />
+                            </wsp:Policy>
+                        </sp:TransportToken>
+                        <sp:AlgorithmSuite>
+                            <wsp:Policy>
+                                <sp:Basic256 />
+                            </wsp:Policy>
+                        </sp:AlgorithmSuite>
+                        <sp:Layout>
+                            <wsp:Policy>
+                                <sp:Lax />
+                            </wsp:Policy>
+                        </sp:Layout>
+                        <sp:IncludeTimestamp />
+                    </wsp:Policy>
+                </sp:TransportBinding>
+                <sp:SignedSupportingTokens
+                xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:UsernameToken
+                        sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient" />
+                    </wsp:Policy>
+                </sp:SignedSupportingTokens>
+                <rampart:RampartConfig xmlns:rampart="http://ws.apache.org/rampart/policy">
+                    <rampart:encryptionUser>useReqSigCert</rampart:encryptionUser>
+                    <rampart:timestampPrecisionInMilliseconds>true</rampart:timestampPrecisionInMilliseconds>
+                    <rampart:timestampTTL>300</rampart:timestampTTL>
+                    <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
+                    <rampart:timestampStrict>false</rampart:timestampStrict>
+                    <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                    <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
+                    <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
+                </rampart:RampartConfig>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>;
+
+var payload ='<p:CreateTenantRequest xmlns:p="http://wso2.org/bps/sample">'+
+    '<admin xmlns="http://wso2.org/bps/sample">'+adminUsername+'</admin>'+
+    '<firstName xmlns="http://wso2.org/bps/sample">'+firstName+'</firstName>'+
+    '<lastName xmlns="http://wso2.org/bps/sample">'+lastName+'</lastName>'+
+    '<adminPassword xmlns="http://wso2.org/bps/sample">'+adminPassword+'</adminPassword>'+
+    '<tenantDomain xmlns="http://wso2.org/bps/sample">'+organizationDomain+'</tenantDomain>'+
+    '<tenantId xmlns="http://wso2.org/bps/sample">'+tenantId+'</tenantId>'+
+    '<email xmlns="http://wso2.org/bps/sample">'+email+'</email>'+
+    '<active xmlns="http://wso2.org/bps/sample">true</active>'+
+    '<successKey xmlns="http://wso2.org/bps/sample">key</successKey>'+
+    '<createdDate xmlns="http://wso2.org/bps/sample">2001-12-31T12:00:00</createdDate>'+
+    '<originatedService xmlns="http://wso2.org/bps/sample">WSO2 App Factory</originatedService>'+
+    '<usagePlan xmlns="http://wso2.org/bps/sample">'+usagePlan+'</usagePlan>'+
+    '</p:CreateTenantRequest>';
+
+   
+ log.info("*******[Test log] paylod deployTaggedArtifact----------------" + payload);
+
+    var result;
+    try {
+        var endPoint = BPSURL + "CreateTenant";
+        creatTenant.open(options,endPoint, false);
+        creatTenant.send(payload);
+        result = creatTenant.responseE4X;
+
+        return result;
+    } catch (e) {
+        log.error("Error while registering organization " + organizationDomain + " : " + e.message);
+        throw "Error while registering organization " + organizationDomain + " : " + e.message;
+    }
+}
+
+var registerOrg = function (organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan, imagePath, secretKey, userAnswer) {
+
+    var ws = require("ws");
+    var creatTenant = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:registerTenant";
+    options.timeout = 1000000;
+
+    options["HTTPHeaders"] = [
+        {name : "Cookie", value :modManager.getAdminCookie(AFURL)}
+    ];
+
+    var payload = '<p:registerTenant xmlns:p="http://services.mgt.tenant.carbon.wso2.org">' +
+        '<tenantInfoBean xmlns="http://services.mgt.tenant.carbon.wso2.org">' +
+            '<active xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">true</active>' +
+            '<admin xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + adminUsername + '</admin>' +
+            '<adminPassword xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + adminPassword + '</adminPassword>' +
+            '<createdDate xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">2001-12-31T12:00:00</createdDate>' +
+            '<email xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + email + '</email>' +
+            '<firstname xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + firstName + '</firstname>' +
+            '<lastname xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + lastName + '</lastname>' +
+            '<originatedService xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">WSO2 Stratos Manager</originatedService>' +
+            '<tenantDomain xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + organizationDomain + '</tenantDomain>' +
+            '<tenantId xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">-1</tenantId>' +
+            '<usagePlan xmlns="http://beans.common.stratos.carbon.wso2.org/xsd">' + usagePlan + '</usagePlan>' +
+        '</tenantInfoBean>' +
+        '<captchaInfoBean xmlns="http://services.mgt.tenant.carbon.wso2.org">' +
+            '<imagePath xmlns="http://beans.mgt.captcha.carbon.wso2.org/xsd">' + imagePath + '</imagePath> ' +
+            '<secretKey xmlns="http://beans.mgt.captcha.carbon.wso2.org/xsd">' + secretKey + '</secretKey> ' +
+            '<userAnswer xmlns="http://beans.mgt.captcha.carbon.wso2.org/xsd">' + userAnswer + '</userAnswer>' +
+        '</captchaInfoBean>' +
+    '</p:registerTenant>' ;
+
+    log.info("payload ------> "+payload);
+
+    var result;
+    try {
+        var endPoint = AFURL + "TenantMgtService";
+        creatTenant.open(options,endPoint, false);
+        creatTenant.send(payload);
+        result = creatTenant.responseE4X;
+        registerOrganization(organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan);
+
+        return result;
+    } catch (e) {
+	    log.error("Error while registering organization " + organizationDomain + " : " + e.message);
+        throw "Error while registering organization " + organizationDomain + " : " + e.message;    
+    }
+}
+
+var checkDomainAvailability = function (domainName) {
+    log.info("Checking Domain Availability : " + domainName);
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.timeout = 1000000;
+    options.action = "urn:checkDomainAvailability";
+    options["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getAdminCookie(AFURL) }
+    ];
+
+    var payload =   '<checkDomainAvailability xmlns="http://services.mgt.tenant.carbon.wso2.org">' +
+                        '<domainName xmlns="http://services.mgt.tenant.carbon.wso2.org">'+ domainName +'</domainName>' +
+                    '</checkDomainAvailability>';
+    var result;
+
+    try {
+        var endPoint = AFURL + "TenantMgtService";
+        request.open(options, endPoint, false);
+        request.send(payload);
+        result = request.responseE4X;
+        var availability = result.*::["return"].text();
+        log.info("Domain Availability : " + availability);
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+        }
+    } catch (e) {
+        log.error("Error while checking the domain availability \n" + e.message);
+        throw "Error while checking the domain availability";
+    }
+    return availability;
+}
+
+var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email, uuid) {
+
+    var ws = require("ws");
+    var creatTenant = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:sendOrganizationRegistrationConfirmationEmail";
+    options.timeout = 1000000;
+
+    options["HTTPHeaders"] = [
+        {name : "Cookie", value :modManager.getAdminCookie(AFURL)}
+    ];
+
+    var payload ='<p:sendOrganizationRegistrationConfirmationEmail xmlns:p="http://services.registration.user.appfactory.carbon.wso2.org">'+
+                 '<userName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">testusername***</userName>'+
+                 '<firstName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+firstName+'</firstName>'+
+                 '<uuid xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+uuid+'</uuid>'+
+                 '<email xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+email+'</email>'+
+                 '<organizationName xmlns="http://services.registration.user.appfactory.carbon.wso2.org">'+organizationDomain+'</organizationName>'+
+                 '</p:sendOrganizationRegistrationConfirmationEmail>';
+
+    var result;
+    try {
+        var endPoint = AFURL + "EmailSenderService";
+        creatTenant.open(options,endPoint, false);
+        creatTenant.send(payload);
+        result = creatTenant.responseE4X;
+
+        return result;
+    } catch (e) {
+        log.error("Error while sending organization registration confirmation email " + organizationDomain + " to " + email + e.message);
+        throw "Error while sending organization registration confirmation email " + organizationDomain + " to " + email ;
+    }
+}
+        var generateCaptcha = function() {
+
+                    log.info("--------- gen captcha : module ----")
+                    var ws = require('ws');
+                    var request = new ws.WSRequest();
+                    var options = new Array();
+                    options.useSOAP = 1.1;
+                    options.timeout = 1000000;
+                    options.action = "urn:generateRandomCaptcha";
+                    options["HTTPHeaders"] = [
+                        { name : "Cookie", value :modManager.getAdminCookie(AFURL) }
+                    ];
+                    var payload = '<generateRandomCaptcha xmlns="http://services.mgt.tenant.carbon.wso2.org"></generateRandomCaptcha>';                  
+					var result;
+                    var captchaInfo = {};
+                    try {
+                        var endPoint = AFURL + "TenantMgtService";
+                        request.open(options,endPoint, false);
+                        request.send(payload);
+                        result=request.responseE4X;
+                        log.info("################################## captcha result #########################################");
+                        log.info(result);
+                        var entry = result.*::["return"];
+
+                        var path = entry.*::imagePath.text();
+                        var secretKey = entry.*::secretKey.text();
+
+                        captchaInfo.path = path;
+                        captchaInfo.secretKey = secretKey;
+
+
+                        if (log.isDebugEnabled()) {
+                            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+                        }
+                    } catch (e) {
+                        log.error("Error while checking for application key \n" + e.message);
+                        throw "Error while checking for application key";
+                    }
+                    return captchaInfo;
+        }
+ var storeSubscription = function(options, domain) {
+        log.info("Adding subscriptions");
+        //var db = new Database(url, userName, password);
+        var db = new Database("cloud_mgt");
+        var upperString = "INSERT INTO SUBSCRIPTIONS (tenantDomain, ";
+        var lowerString = "VALUES ('"+domain+"', ";
+        for(var i=0;i<options.length;i++)
+        {
+             var isNull =options[i]!=null;
+             if(isNull) {
+                if(i ==options.length-1) {
+                   upperString = upperString+options[i]+")"
+                   lowerString = lowerString+"1); "
+                } else {
+                  upperString = upperString+options[i]+", ";
+                  lowerString = lowerString+"1, ";
+                }
+             }
+             //
+         }
+        var sqlString = upperString+" "+lowerString;
+        db.query(sqlString);
+        db.close();
+    }
+
+
+var sendEmail = function(name,adminName, domain,to) {
+       var username= adminName+"@"+domain;
+       body = body.replace("$name",name);
+       body = body.replace("$adminName",adminName);
+       body = body.replace("$tenant",domain);
+       body = body.replace("$username",username);
+       var email = require('email');
+       var sender;
+       if (tls == "true") {
+         sender = new email.Sender(senderHost, senderPort, senderEmail,senderPassword,"tls");
+       } else {
+         sender = new email.Sender(senderHost, senderPort, senderEmail,senderPassword);
+       }
+       
+       sender.from = from;
+       sender.to = to;
+       sender.subject = subject;
+       sender.text = body;
+       sender.send();
+       log.info("email successfully sent to " + to);      
+    }
+;
+%>
+

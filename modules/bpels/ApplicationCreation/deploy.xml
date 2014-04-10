@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy xmlns="http://www.apache.org/ode/schemas/dd/2007/03" xmlns:createApplicationProcess="http://wso2.org" xmlns:sample="http://wso2.org" xmlns:service.mgt.application.appfactory.carbon.wso2.org="http://service.mgt.application.appfactory.carbon.wso2.org" xmlns:service.mgt.repository.appfactory.carbon.wso2.org="http://service.mgt.repository.appfactory.carbon.wso2.org" xmlns:services.mgt.tenant.carbon.wso2.org="http://services.mgt.tenant.carbon.wso2.org" xmlns:service.build.jenkins.appfactory.carbon.wso2.org="http://service.build.jenkins.appfactory.carbon.wso2.org">
+  <process name="sample:CreateApplication">
+    <active>true</active>
+    <retired>false</retired>
+    <process-events generate="all"/>
+    <provide partnerLink="client">
+      <service name="sample:CreateApplication" port="CreateApplicationPort">
+                <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" serviceDescriptionReference="SecuredService-service.xml"/>
+      </service>
+    </provide>
+    <invoke partnerLink="RepoMgtPL">
+      <service name="service.mgt.repository.appfactory.carbon.wso2.org:TenantRepositoryCreationService" port="TenantRepositoryCreationServiceHttpsSoap11Endpoint">
+       <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="./../../../../repository/conf/appfactory/endpoints/RepoManagementService.epr" /> 
+      </service>
+    </invoke>
+    <invoke partnerLink="ApplicationMgtPL">
+      <service name="service.mgt.application.appfactory.carbon.wso2.org:ApplicationManagementService" port="ApplicationManagementServiceHttpsSoap11Endpoint">
+       <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="./../../../../repository/conf/appfactory/endpoints/ApplicationManagementService.epr"/>
+      </service>
+    </invoke>
+    <invoke partnerLink="ContinousIntegrationPL">
+     	<service name="service.build.jenkins.appfactory.carbon.wso2.org:TenantContinousIntegrationSystemDriverService" port="TenantContinousIntegrationSystemDriverServiceHttpsSoap11Endpoint">    
+       <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="./../../../../repository/conf/appfactory/endpoints/ContinousIntegrationService.epr"/>
+       </service>
+    </invoke>
+    
+  </process>
+</deploy>

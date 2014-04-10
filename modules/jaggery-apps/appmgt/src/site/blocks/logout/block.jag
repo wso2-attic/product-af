@@ -1,0 +1,9 @@
+<%
+jagg.block("logout", {
+    initialize:function (data) {
+
+    }
+
+
+});
+%>

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<artifactType type="application/vnd.wso2-appversion+xml" shortName="eta" singularLabel="eta"
+             pluralLabel="eta" hasNamespace="false" iconSet="7">
+   <storagePath>/repository/applications/@{eta_key}/eta/@{eta_stage}/@{eta_version}/@{eta_user}/eta</storagePath>
+   <nameAttribute>eta_key</nameAttribute>
+   <ui>
+       <list>
+           
+           <column name="Key">
+               <data type="path" value="eta_key" href="@{storagePath}"/>
+           </column>
+	   <column name="Stage">
+               <data type="path" value="eta_stage" href="@{storagePath}"/>
+           </column>	
+           <column name="Version">
+               <data type="path" value="eta_version" href="@{storagePath}"/>
+           </column>
+	   <column name="User">
+               <data type="path" value="eta_user" href="@{storagePath}"/>
+           </column>		
+	   <column name="EstimatedFrom">
+               <data type="path" value="eta_estimatedFrom" href="@{storagePath}"/>
+           </column>
+ 	   <column name="EstimatedTo">
+               <data type="path" value="eta_estimatedTo" href="@{storagePath}"/>
+           </column>	
+           
+       </list>
+   </ui>
+   <content>
+       <table name="applicationETA">
+
+           <field type="text" required="true">
+               <name>Key</name>
+           </field>
+	   <field type="text" required="true">
+               <name>Stage</name>
+           </field>
+           <field type="text" required="true">
+               <name>Version</name>
+           </field> 
+	   <field type="text" required="true">
+               <name>User</name>
+           </field> 
+           <field type="text" required="true">
+               <name>EstimatedFrom</name>
+           </field> 	
+	   <field type="text" required="true">
+               <name>EstimatedTo</name>
+           </field>
+       </table>
+
+       <table name="Service Lifecycle">
+           <field type="options">
+               <name label="Lifecycle Name">Lifecycle Name</name>
+               <values class="org.wso2.carbon.governance.generic.ui.utils.LifecycleListPopulator">
+               </values>
+           </field>
+   </table>
+   </content>
+
+</artifactType>

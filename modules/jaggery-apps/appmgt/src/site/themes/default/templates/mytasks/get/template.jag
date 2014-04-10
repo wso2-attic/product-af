@@ -1,0 +1,131 @@
+<% jagg.template("mytasks/get", function(inputs, outputs, jagg) { %>        
+
+<script type="text/javascript">
+
+     function completeTask(id) {
+	var approvalStatus = $('input[@name="responseRadio"]:checked').val();
+     		  jagg.post("../blocks/mytasks/get/ajax/list.jag", {
+     	    		action:"complete",
+     	    		id:id,
+			approvalStatus:approvalStatus,
+
+     	      },
+     	      function (result) {
+
+     	      	  if(result != undefined){
+
+                         jagg.message({content:'Successfully completed approval task',type:'info' });
+                   }
+     	      },
+     	      function (jqXHR, textStatus, errorThrown) {
+                   jagg.message({content:'Error occurred while staring task operation',type:'error' });
+     	    });
+          }
+</script>                    	
+
+<!--START breadcrumb section-->
+<div class="container breadcrumb-section">
+    <div class="row">
+        <div class="span12">
+            <table class="appFac-breadcrumb">
+                <tr>
+                    <td class="appFac-breadcrumb-left"></td>
+                    <td class="appFac-breadcrumb-link">
+                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Home</a>
+                    </td>
+                    <td class="appFac-breadcrumb-link-active-sep"></td>
+                    <td class="appFac-breadcrumb-link-active">Task List</td>
+                    <td class="appFac-breadcrumb-right"></td>
+                      
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<!--END breadcrumb section-->
+
+ <div class="container content-container wrapper">
+
+     <form id='taskForm' method='post' class='form-horizontal'>
+     <div class="row">
+            <div class="span12 content-section shadow-up tab-content">
+                <div class="content-data">
+                    <div class="container-fluid">
+			<script>
+			function tabShowHide(obj){
+				var toShow = $(obj).attr('data-value');
+				$('.tag-content').hide();
+				$('#'+toShow).show();
+			}
+			</script>
+				<div class="span2">
+				<a onclick="tabShowHide(this)" data-value="my_tasks">My Tasks</a>
+				</div>
+				<div class="span2">
+				<a onclick="tabShowHide(this)" data-value="all_tasks">All Tasks</a>
+				</div>
+
+		    <div class="span12"><h1/></div><div class="span12"><h1/></div>
+
+		    <div id="my_tasks" class="tag-content">
+                        <div class="row-fluid">
+                            <div class="span12">
+					<div class="span12"><h2>My Tasks</h2></div><div class="span12"><h4/></div>
+				<div class="row-fluid">
+					<div class="span1"><h4>Task Id</h4></div>
+					<div class="span3"><h4>Task Description</h4></div>
+					<div class="span2"><h4>Status</h4></div>
+					<div class="span2"><h4>Created Date/Time</h4></div>
+					<div class="span4"><h4>Manage</h4></div>
+				</div>
+
+               <% for(var i=0; i<outputs.myTaskIDs.length; i++){
+			var task=outputs.myTaskIDs[i];
+		%>
+				
+			<div class="control-group"><div class="span1"><%=task.id%></div><div class="span3"><%=task.presentationSubject%></div><div class="span2"><%=task.status%></div><div class="span2"><%=task.createdTime%></div>
+<% if(task.status=="IN_PROGRESS"){%>
+<div class="span4"><input type='radio' name='responseRadio' id='responseRadio1' value='true'>Approve <input type="radio" name="responseRadio" id="responseRadio2" value='false'>Disapprove <input class="btn btn-primary" type="button" value="complete" onclick="completeTask(<%=task.id%>)"></div>
+<%}%>
+</div>
+                                
+		<%
+			}
+		%>			                                                            
+                        </div>
+                    </div>
+		    </div>
+
+		  
+
+		    <div id="all_tasks" class="tag-content">
+                        <div class="row-fluid">
+                            <div class="span12">
+					<div class="span12"><h2>All Tasks</h2></div><div class="span12"><h4/></div>
+				<div class="row-fluid">
+					<div class="span1"><h4>Task Id</h4></div>
+					<div class="span4"><h4>Task Description</h4></div>
+					<div class="span2"><h4>Status</h4></div>
+					<div class="span4"><h4>Created Date/Time</h4></div>
+					<div class="span1"><h4></h4></div>
+				</div>
+
+               <% for(var i=0; i<outputs.allTaskIDs.length; i++){
+			var task=outputs.allTaskIDs[i];
+		%>
+				
+			<div class="control-group"><div class="span1"><%=task.id%></div><div class="span4"><%=task.presentationSubject%></div><div class="span2"><%=task.status%></div><div class="span4"><%=task.createdTime%></div><div class="span1"></div></div>
+                                
+		<%
+			}
+		%>			                                                            
+                        </div>
+                    </div>
+		    </div>
+
+                </div>
+            </div>
+        </div>
+</div>
+</div>
+<% }); %>

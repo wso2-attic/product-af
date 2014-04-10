@@ -1,0 +1,8 @@
+<%
+jagg.initializer("register", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

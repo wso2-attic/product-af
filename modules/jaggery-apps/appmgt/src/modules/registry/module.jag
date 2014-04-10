@@ -1,0 +1,33 @@
+<%
+jagg.module("registry", {
+	
+	createResourceObject:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/supertenant/registry.jag").createResourceObject.apply(this, arguments);
+    },
+    
+    getResource:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/supertenant/registry.jag").getResource.apply(this, arguments);
+    },
+    
+    resourceExists:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/supertenant/registry.jag").resourceExists.apply(this, arguments);
+    },
+    
+    putResource:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/supertenant/registry.jag").putResource.apply(this, arguments);
+    },
+    
+    createResourceInTenantSpace:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").createResourceInTenantSpace.apply(this, arguments);
+    },
+    
+    getResourceFromTenantSpace:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").getResourceFromTenantSpace.apply(this, arguments);
+    },
+    
+    resourceExistsInTenantSpace:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
+    }
+    
+});
+%>

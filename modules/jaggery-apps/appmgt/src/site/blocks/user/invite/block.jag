@@ -1,0 +1,22 @@
+<%
+        include('/jagg/constants.jag');
+jagg.block("user/invite", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {
+       var hasInviteUserPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_USER_INVITE);
+              return {
+            "hasInviteUserPermission":hasInviteUserPermission
+       };
+    }
+
+
+});
+%>

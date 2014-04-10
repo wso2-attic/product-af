@@ -1,0 +1,86 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+            mod = jagg.module("tenant");
+
+    if (action == "addRolesToUserInTheTenantDomain") {
+
+        var Username = request.getParameter("Username");
+        var UserRole = request.getParameter("UserRole");
+       // jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION.USER.INVITE);
+
+        try {
+            var result = mod.addUserRoles(Username,UserRole);
+
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while adding user as "+UserRole;
+            }
+        } catch(e) {
+            throw "Error while adding user as "+UserRole;
+        }
+    }else if(action=="updateUserRoles"){
+        var userName=request.getParameter("userName");
+        var newRoles=request.getParameter("rolesToAdd");
+        var removeRoles=request.getParameter("rolesToDelete");
+        try {
+            var result = mod.updateUserRoles(userName,newRoles,removeRoles);
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+            throw "Error while updating user "+userName;
+        }
+    }else if(action=="deleteUserFromTenant"){
+        var userName=request.getParameter("userName");
+        try {
+            var result = mod.deleteUserFromTenant(userName);
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+            throw "Error while removing user "+userName;
+        }
+
+    }else if(action=="bulkImportUsers"){
+         var users=request.getParameter("users");
+         var password=request.getParameter("defaultPassword");
+         var userArray=users.split(",");
+         for(var user in userArray){
+            userArray[user]=userArray[user].replace(/^\s+|\s+$/g, '');
+         }
+        try {
+            var result =mod.bulkUserImport(userArray,password);
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+            log.error("Error while adding users "+e);
+            print(""+e.javaException);
+        }
+
+    }else if(action=="changePassword"){
+         var newPassword=request.getParameter("newPassword");
+         var oldPassword=request.getParameter("oldPassword");
+        try {
+            var result =mod.changePassword(oldPassword,newPassword);
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+            throw "Error while changing user passwords for the user";
+        }
+
+    }else{
+	    throw new Error("No action specified");
+    }
+
+}());
+%>

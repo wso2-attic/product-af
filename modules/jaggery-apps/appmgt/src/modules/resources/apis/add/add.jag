@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/resources/apis/add/add.jag');
+
+var modManager = jagg.module("manager");
+var permissionModule = jagg.module("permission");
+
+var createApplication = function (applicationKey){
+	var mod = jagg.module("application");
+	var application =  mod.getAppInfo(applicationKey);
+	if(jagg.getUser() != application.owner){
+		log.error("Unauthorized!!! User does not have permission to complete action");
+		return;
+	}
+//    jagg.module("permission").checkUserActionPermissionforApp(applicationKey,PERMISSION.CONFIGURATION.API.MANAGER);
+    var ws = require('ws');
+    var apiManagerIntegration = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:createApplication";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
+                              { name : "username", value :session.get("LOGGED_IN_USER") },
+                              { name : "SAMLToken" , value : session.get("SAML_TOKEN") }
+                              ];
+    var namespace = getProperty(API_MANAGER_SERVICE_NAMESPACE);
+    var payload = '<p:createApplication xmlns:p="' + namespace + '"><xs:applicationId xmlns:xs="http://integration.apiManager.appfactory.carbon.wso2.org">'
+                + applicationKey +'</xs:applicationId></p:createApplication>';
+    var result;
+
+    try {
+    	var serviceName =getProperty(API_MANAGER_SERVICE_NAME);
+    	var serverUrl = getProperty(APPFACTORY_SERVER_URL);
+
+    	var endPoint = serverUrl + serviceName;
+    	apiManagerIntegration.open(options,endPoint, false);
+    	apiManagerIntegration.send(payload);       
+    	result = apiManagerIntegration.responseE4X;
+
+        if(log.isDebugEnabled()){
+            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+        }
+        var resultNS=new Namespace(namespace);
+        return output=result.resultNS::["result"].text();
+    } catch (e) {
+        log.error("Error while creating application "+ applicationKey + "\n"+e.message);
+        throw "Error while creating application "+ applicationKey;
+    }
+};
+
+%>

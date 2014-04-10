@@ -1,0 +1,128 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var file = new File("/site/conf/cloud-mgt.xml");
+file.open("r");
+var data = file.readAll();
+var doc= new XML(data);
+var types = doc.subscriptions.type;
+file.close();
+
+var log = new Log();
+(function () {
+var mod, obj, result,
+action = request.getParameter("action"),
+mod = jagg.module("register"),
+site = require("/site/conf/site.json");
+
+if (action == "registerOrganization") {
+    var organizationDomain = request.getParameter("organizationDomain");
+    var adminUsername = request.getParameter("adminUsername");
+    var firstName = request.getParameter("firstName");
+    var lastName = request.getParameter("lastName");
+    var email = request.getParameter("email");
+    var adminPassword = request.getParameter("adminPassword");
+    var usagePlan = request.getParameter("usagePlan");
+    try {
+        var result = mod.registerOrganization(organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan);
+
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while registering an organization "+organizationDomain;
+        }
+    } catch(e) {
+        throw "Error while registering an organization "+organizationDomain + e.message;
+    }
+} else if (action == "registerOrg") {
+    var organizationDomain = request.getParameter("organizationDomain");
+    var adminUsername = request.getParameter("adminUsername");
+    var adminPassword = request.getParameter("adminPassword");
+    var firstName = request.getParameter("firstName");
+    var lastName = request.getParameter("lastName");
+    var email = request.getParameter("email");
+    var usagePlan = request.getParameter("usagePlan");
+    var imagePath = request.getParameter("imagePath");
+    var secretKey = request.getParameter("secretKey");
+    var userAnswer = request.getParameter("userAnswer");
+    try {
+        var result = mod.registerOrg(organizationDomain, adminUsername, adminPassword, firstName, lastName, email, usagePlan, imagePath, secretKey, userAnswer);
+
+        if (result != null) {
+            print(result);
+        } else {
+            throw "Error while registering an organization " + organizationDomain;
+        }
+    } catch (e) {
+        var message = e.toString();
+        if(message.indexOf("Captcha validation failed") !== -1){
+            response.status = 500
+            print("Captcha validation failed");
+        } else if(message.indexOf("Domain is not available to register") !== -1){
+            response.status = 500
+            print("Domain is not available to register");
+        }
+        else {
+            throw "Error while registering an organization" +organizationDomain + e.message;
+        }
+    }
+
+} else if (action == "generateCaptcha") {
+
+    try {
+        var result = mod.generateCaptcha();
+		if(result != null ) {
+			print(result);
+		} else {
+			throw "Error while generating captcha";
+		}
+    } catch (e) {
+        throw "Error while generating captcha";
+    }
+
+} else if (action == "storeSubscription") {
+     var options = new Array(); 
+     for(var i=0;i<doc.subscriptions.type.length();i++) {
+         var isNull =request.getParameter(types[i].toString())!=null;
+         if(isNull) {
+           options[i] = request.getParameter(types[i].toString());
+        }
+     }
+    var domainName = request.getParameter("domainName");
+
+    try {
+        var result = mod.storeSubscription(options, domainName);
+    } catch (e) {
+        throw "Error while adding subscription.";
+    }
+
+} else if (action == "sendEmail") {
+    var domainName = request.getParameter("domainName");
+    var adminUsername = request.getParameter("adminUsername");
+    var firstName = request.getParameter("firstName");
+    var email = request.getParameter("email");
+    try {
+        var result = mod.sendEmail(firstName,adminUsername, domainName,email);
+    } catch (e) {
+        throw "Error while sending the registration email.";
+    }
+
+} else if (action == "checkDomainAvailability") {
+    var domainName = request.getParameter("domainName");
+    try {
+        var result = mod.checkDomainAvailability(domainName);
+        if(result != null ) {
+            print(result);
+        } else {
+            throw "Error while checking domain validation.";
+        }
+    } catch (e) {
+        throw "Error while checking domain validation.";
+    }
+
+} else {
+    throw new Error("No action specified");
+}
+
+}());
+%>

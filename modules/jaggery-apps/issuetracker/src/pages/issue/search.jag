@@ -1,0 +1,30 @@
+<%
+var caramel;
+
+(function () {
+    var login = require('/modules/login.js');
+    if(!login.isLogged()){
+        return;
+    }
+
+    issue = require('/modules/issue.js');
+	caramel = require('caramel');
+
+    include('/jagg/jagg.jag');
+
+	userName = context.get(LOGGED_IN_USER);
+	domain = context.get(DOMAIN);
+
+    var searchType = request.getParameter('searchType'),
+    searchValue = request.getParameter('searchValue');
+
+
+	caramel.render({
+		title  : {text :'Issue Tracker | Search'},
+		header : { domain : domain, userName : userName},
+		body   : {title: 'Issue',  data: issue.searchIssue(searchType, searchValue)}
+	});
+
+}());
+
+%>

@@ -1,0 +1,19 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log=new Log();
+
+(function () {
+    var action = request.getParameter("action");
+
+   	if (action == "getAPICount") {
+		var mod = jagg.module("apimanager");
+        print(mod.getAPICount());
+   	}else {
+       	throw new Error("No action specified");
+   	}
+
+}());
+%>

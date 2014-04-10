@@ -1,0 +1,35 @@
+<% jagg.template("breadcrumb", function(inputs, outputs, jagg) { %>
+<!--START breadcrumb section-->
+<% if(inputs.pos == "titlebar"){ %>
+<div class="container breadcrumb-section">
+    <div class="row">
+        <div class="span12">
+            <% if(inputs.pageName != "home") { %>
+            <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>"><h1><%=inputs.applicationName%></h1></a>
+            <i class="icon-breadcrumb-section-sep"></i>
+            <h1><%=inputs.pageName%></h1>
+            <% } else { %>
+                <h1><%=inputs.applicationName%></h1>
+            <% } %>
+            </div>
+    </div>
+</div>
+<% }else{ %>
+<div class="container breadcrumb-section-small">
+    <div class="row">
+        <div class="span12">
+           <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">My Applications</a>
+            >
+           <% if(inputs.pageName != "home") { %>
+               <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>"><%=inputs.applicationName%></a>
+               >
+               <%=inputs.pageName%>
+           <% } else { %>
+                <%=inputs.applicationName%>
+           <% } %>
+         </div>
+     </div>
+</div>
+<% } %>
+<!--END breadcrumb section-->
+<% }); %>

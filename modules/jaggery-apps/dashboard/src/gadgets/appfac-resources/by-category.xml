@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs title="App Factory — Resources" />
+    <UserPref name="mock" display_name="Enable mock" default_value="true" />
+    <UserPref name="gadgetName" display_name="resources-by-category" default_value="resources-by-category"/>
+    <Content type="html" preferred_height="280">
+     <![CDATA[
+       <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css"></link>
+       <link rel="stylesheet" type="text/css" href="../../css/dashboard-gadgets/styles.css"></link>
+       <script src="../../js/jquery-1.8.3.min.js"></script>
+       <script src="by-category.js"></script>
+       <script src="../../js/constants.js"></script>
+       <style>
+        .Databases-icon{
+            background:transparent url('images/dbs.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .APIs-icon{
+            background:transparent url('images/apis.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .Properties-icon{
+            background:transparent url('images/props.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+
+       </style>
+       <div id="usersGadgetList" class="categorized-list"></div>
+		<table class="table">
+		    <tbody>
+		    <tr>
+		        <td><i class="Databases-icon"></i> Databases</td>
+		        <td><div id="datasourcecount"></div></td>
+		    </tr>
+		    <tr>
+		        <td><i class="APIs-icon"></i> APIs</td>
+		        <td><div id="apicount"></td>
+		    </tr>
+		    <tr>
+		        <td><i class="Properties-icon"></i> Properties</td>
+		        <td><div id="propertycount"></td>
+		    </tr>
+		    </tbody>
+		    <tbody></tbody>
+		</table>     
+	  ]]>
+    </Content>
+</Module>

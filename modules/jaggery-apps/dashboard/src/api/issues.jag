@@ -1,0 +1,28 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log=new Log();
+
+(function () {
+    var action = request.getParameter("action");
+
+   	if (action == "getIssueCountsByStatus") {
+		var mod = jagg.module("issuetracker");
+		print(mod.getIssueCountsByStatus());
+   	} else if (action == "getIssueCountsByPriority") {
+		var mod = jagg.module("issuetracker");
+		print(mod.getIssueCountsByPriority());
+   	} else if (action == "getReporterIssueCount") {
+		var mod = jagg.module("issuetracker");
+		print(mod.getReporterIssueCount());
+   	} else if (action == "getAssignerIssueCount") {
+		var mod = jagg.module("issuetracker");
+		print(mod.getAssignerIssueCount());
+   	}else {
+       	throw new Error("No action specified");
+   	} 
+
+}());
+%>

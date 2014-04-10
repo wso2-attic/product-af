@@ -1,0 +1,8 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("build/add", {
+    initialize:function (data) {
+
+    }
+});
+%>

@@ -1,0 +1,64 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+
+(function () {
+
+	mod = jagg.module("application");
+	var log = new Log();
+	if(session.get("last_backend_access_time_for_getting_appList") == null) {
+		session.put("last_backend_access_time_for_getting_appList",((new Date().getTime())/1000)/60);
+	}
+	var userName = session.get("LOGGED_IN_USER");
+	if(userName == null | userName == 'anonymous user') {
+		//do nothing
+	} else {
+		if(session.get('application_list') == null) {
+			var apps = mod.getAllAppsOfUser(userName);
+			session.put('application_list',apps);
+		} else {
+			// do nothing. Application list is already in session
+		}
+
+		var lastAccess = session.get("last_backend_access_time_for_getting_appList");
+		var currentTime = ((new Date().getTime())/1000)/60;
+		if(Math.floor(Math.abs(currentTime-lastAccess)) > 0 ) {
+			// reload application list to session taking from back end
+			var apps = mod.getAllAppsOfUser(userName);
+			session.put('application_list',apps);
+			session.put("last_backend_access_time_for_getting_appList",currentTime);
+		}
+	}
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/index.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"WSO2 App Factory",
+                        "middle":[
+                            {
+                            	"name":"index"
+                            }
+                        ],
+                        "tablinks":[
+                            {
+                                "name":"tablinks",
+                                "inputs":{
+                                    "applicationKey":null,
+                                    "applicationName":null,
+                                    "pageName":"Home"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

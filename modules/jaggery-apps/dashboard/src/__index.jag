@@ -1,0 +1,106 @@
+<%
+
+var scripts = ['js/introGadgetPresenter.js'];
+
+var styles = [];
+
+include("includes/header.jag");
+
+%>
+
+<div class="hero-unit">
+    <img src="img/banner.png">
+    <p>
+        Welcome WSO2 User Engagement Center! It's the one stop shop for content creation and sharing. The User Center enables you to create your own pages, mashing up data aggregating web APIs. You can also share the pages with friends, groups and with public. WSO2 User Engagement Center is an Open Source product, you are welcome to explore
+    </p>
+</div>
+
+<!-- features -->
+<div class="row row1">
+    <div class="span12 separator">
+        <span>Features</span>
+    </div>
+    <div class="span4 feature-desc">
+        <h2>Open Social, Jaggery</h2>
+        <p>
+            Open Social Gadgets, <a href="http://jaggeryjs.org">Jaggery</a> powered page creation, role based content sharing are some of the significant features of the User Center. You can add reusable gadgets among the content in your pages. You can use <a href="http://jaggeryjs.org">JaggeryJs</a> to call web APIs under the hood, perform operations and mashup the data and push to the pages creating beautiful composite UIs.
+        </p>
+    </div>
+
+    <div class="span8 scrollblock">
+        <div id="feature-1-pollution" class="element">
+            <div id="gadgetAreaIntro-0" class="gadget"></div>
+
+        </div>
+        <div id="feature-1-populations" class="element">
+
+            <div id="gadgetAreaIntro-1" class="gadget"></div>
+
+        </div>
+        <div id="feature-1-slider" class="element">
+            <div class="row">
+                <div class="span2">
+                    <input id="SliderSingle" type="slider" name="price" value="20" />
+                    <span class="slider-year">Slide to update</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<hr>
+<div class="row">
+    <div class="span6 scrollblock">
+        <div id="feature-2-store" class="element">
+            <img src="img/feature-2.png">
+        </div>
+    </div>
+    <div class="span6 txt-right feature-desc">
+        <h2>Gadget Store</h2>
+        <p>
+            The User Engagement Center comes with a Store out of the box. The Store provides you the capability to browse Gadgets, search on preferences and add them to your pages. You can also publish new gadgets the store, manage development time and runtime lifecycles. The Store also comes with a REST api, where you can easily integrate to the pages you create.
+            <br>
+            <br>
+            <a href="/store">Check out the Gadget Store now</a>
+        </p>
+    </div>
+
+</div>
+<hr>
+<div class="row">
+    <div class="span6 feature-desc">
+        <h2>Fancy HTML5 design</h2>
+        <p>
+            The Samples shipped with the User Engagement Center act as boilerplates for your pages. You can simply rename those and modify accordingly. The sample dashboards and pages are using HTML5 features such as local storage, websockets and media content across, so you have very little work to do your self.
+        </p>
+
+    </div>
+    <div class="span6 scrollblock scrollblock3">
+        <div id="feature-3-html5" class="element">
+            <img src="img/feature-3.png">
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="row">
+    <div class="span6 scrollblock">
+        <div id="feature-4-responsive" class="element">
+            <img src="img/feature-4.png">
+        </div>
+    </div>
+    <div class="span6 txt-right feature-desc">
+        <h2>Responsive Layouts</h2>
+        <p>
+            The Sample pages and the store are built by taking a mobile first approach. It works in your tablet and your phone as good as in your browser. This enables you to access your favorite gadgets, engage with your users and handle your business from wherever you are.
+        </p>
+    </div>
+
+</div>
+
+<!--./features-->
+
+<%
+include("includes/footer.jag");
+%>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="appfactory">
+  <fileSets>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>.</directory>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory />
+      <includes>
+        <include>pom.xml</include>
+	<include>.classpath</include>
+	<include>.project</include>
+      </includes>
+    </fileSet>
+   <fileSet filtered="true" encoding="UTF-8">
+      <directory>src</directory>
+	<includes>
+                <include>main/java/org/appfac/jaxws/sample/JaxWebService.java</include>
+		<include>main/java/org/appfac/jaxws/sample/JaxWSServiceImpl.java</include>
+		<include>main/webapp/servicelist.css</include>
+		<include>main/webapp/WEB-INF/cxf-servlet.xml</include>
+		<include>main/webapp/WEB-INF/web.xml</include>
+        	<include>main/webapp/META-INF/webapp-classloading.xml</include>
+      </includes>
+   </fileSet>    
+   <fileSet filtered="true" encoding="UTF-8">
+     <directory> src/main/resources</directory>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>

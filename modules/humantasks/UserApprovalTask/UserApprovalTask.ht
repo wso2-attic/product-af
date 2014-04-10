@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) OASIS Open 2009. All Rights Reserved.
+-->
+<htd:humanInteractions
+        xmlns:htd="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803"
+        xmlns:htt="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:cl="http://www.example.com/claims/"
+        xmlns:tns="http://www.example.com"
+        targetNamespace="http://www.example.com"
+        xmlns:test10="http://www.example.com/claims/schema"
+        xsi:schemaLocation="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803 ../../xml/ws-humantask.xsd">
+
+    <htd:documentation>
+        Example for WS-HumanTask 1.1 - WS-HumanTask Task Definition
+    </htd:documentation>
+
+    <htd:import importType="http://schemas.xmlsoap.org/wsdl/"
+                location="sample.wsdl"
+                namespace="http://www.example.com/claims/"/>
+
+    <htd:logicalPeopleGroups>
+        <htd:logicalPeopleGroup name="admin">
+            <htd:documentation xml:lang="en-US">
+                The group of admins responsible for the user approval task.
+            </htd:documentation>
+            <htd:parameter name="role" type="xsd:string"/>
+        </htd:logicalPeopleGroup>
+    </htd:logicalPeopleGroups>
+
+    <htd:tasks>
+        <htd:task name="ApproveUser">
+            <htd:documentation xml:lang="en-US">
+                This task is used to handle user creation process that requires manual
+                approval.
+            </htd:documentation>
+
+            <htd:interface portType="cl:UserHandlingPT"
+                           operation="approve"
+                           responsePortType="cl:UserHandlingCallbackPT"
+                           responseOperation="approvalResponse"/>
+
+            <htd:priority>
+                htd:getInput("UserApprovalRequest")/test10:priority
+            </htd:priority>
+
+            <htd:peopleAssignments>
+                <htd:potentialOwners>
+                    <htd:from logicalPeopleGroup="admin">
+                        <htd:argument name="role">
+                            admin
+                        </htd:argument>
+                    </htd:from>
+                </htd:potentialOwners>
+                <htd:businessAdministrators>
+                    <htd:from logicalPeopleGroup="admin">
+                        <htd:argument name="role">
+                            admin
+                        </htd:argument>
+                    </htd:from>
+                </htd:businessAdministrators>
+            </htd:peopleAssignments>
+
+            <htd:delegation potentialDelegatees="nobody"/>
+
+            <htd:presentationElements>
+                <htd:name xml:lang="en-US">Approve user based on approval criteria</htd:name>
+                <htd:presentationParameters>
+                    <htd:presentationParameter name="userName"
+                                               type="xsd:string">
+                        htd:getInput("UserApprovalRequest")/test10:userName
+                    </htd:presentationParameter>
+                    <htd:presentationParameter name="firstName"
+                                               type="xsd:string">
+                        htd:getInput("UserApprovalRequest")/test10:firstName
+                    </htd:presentationParameter>
+                    <htd:presentationParameter name="lastName"
+                                               type="xsd:string">
+                        htd:getInput("UserApprovalRequest")/test10:lastName
+                    </htd:presentationParameter>
+                    <htd:presentationParameter name="email"
+                                               type="xsd:string">
+                        htd:getInput("UserApprovalRequest")/test10:email
+                    </htd:presentationParameter>
+                </htd:presentationParameters>
+
+                <htd:subject xml:lang="en-US">
+                    Approve $userName$ according to user approval criteria.
+                </htd:subject>
+                <htd:description xml:lang="en-US" contentType="text/plain">
+                    Approve $userName$ according to user approval criteria.
+                </htd:description>
+                <htd:description xml:lang="en-US" contentType="text/html">
+                    <![CDATA[
+          <p>
+           Approve $userName$ according to user approval criteria.
+          </p>
+          ]]>
+                </htd:description>
+            </htd:presentationElements>
+        </htd:task>
+    </htd:tasks>
+</htd:humanInteractions>

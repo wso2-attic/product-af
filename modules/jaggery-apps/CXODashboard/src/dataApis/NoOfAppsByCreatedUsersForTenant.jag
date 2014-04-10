@@ -1,0 +1,90 @@
+<%
+
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+var timePeriod = getTimePeriod();
+var chartData = getData(timePeriod[0], timePeriod[1]);
+
+function getTimePeriod() {
+
+    if (isUserLoggedIn) {
+        var result = [];
+        if (request.getParameter("from") == null || request.getParameter("to") == null) {
+	    var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM APP_CREATION_BY_TENANT WHERE TENANT_ID=" + tenantID + " ;";	
+            var dbResult = dbConfig.queryDb(query);
+            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
+            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+	    	
+        } else {
+            result[0] = request.getParameter("from");
+            result[1] = request.getParameter("to");
+        }
+        return result;
+    }
+}
+
+function getData(from, to) {
+    if (isUserLoggedIn) {
+    var query = "SELECT USER, count(*) AS COUNT FROM APP_CREATION_BY_TENANT WHERE TENANT_ID=" + tenantID + " AND substr(TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) +
+                " GROUP BY USER ;";
+    var dbResult = dbConfig.queryDb(query);
+
+    var respJson = null;
+
+    var colx = "USER";
+    var coly = "COUNT";
+
+
+    respJson = convertDBResult(dbResult, colx, coly);
+    var data1 = [];
+    var ticks = [];
+    for (i = 0; i < respJson.length; i++) {
+        ticks.push([i+1, respJson[i][0]])
+        data1.push([i+1, respJson[i][1]]);
+    }
+
+    return {0:{"data": data1},1:{ "ticks": ticks}};
+  }
+}
+
+
+function convertDBResult(result, colx, coly) {
+    var array = [];
+    for (var i = 0; i < result.length; i++) {
+	var username = result[i][colx];
+	var user = username.split('@')[0];
+        array.push([user, parseFloat(result[i][coly])]);
+    }
+
+    return array;
+};
+
+
+var gen_options = require("config/bar-chart-option.json");
+var full_data;
+
+if (chartData != null) {
+    gen_options["xaxis"]["min"] = 0.5;
+    gen_options["xaxis"]["max"] = chartData[1].ticks.length > 10 ? 10.5 : chartData[1].ticks.length + 1;
+    gen_options["xaxis"]["ticks"] = chartData[1].ticks;
+    gen_options["xaxis"]["panRange"] = [0.5, chartData[1].ticks.length + 1];
+    gen_options["series"]["color"] = "#3399FF";
+    gen_options["series"]["bars"]["fillColor"] = "#99CCFF";
+    full_data = {0: {"data": chartData[0].data}, 1: gen_options};
+}
+else {
+    full_data = {0: {"data":""}, 1: gen_options};
+}
+
+var _full_data = stringify(full_data);
+response.contentType = 'text/json';
+print(_full_data);
+
+
+
+%>

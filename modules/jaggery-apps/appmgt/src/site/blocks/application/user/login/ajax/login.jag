@@ -1,0 +1,46 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log=new Log();
+
+(function () {
+
+    var mod, obj, result;
+        action = request.getParameter("action");
+ 
+if (action === "login") {
+	
+        mod = jagg.module("user");
+        var userName = request.getParameter("userName");
+        var password = request.getParameter("password");
+         try {
+            result=mod.login(userName,password);	
+             var Jresult=parse(result);
+             var cookie=Jresult.cookie;
+
+             var parsedJSON = eval('('+result+')');
+             var errorStatus=parsedJSON.error;
+          //   print('\nerrorStatus:'+errorStatus);
+             if(errorStatus === 'false'){
+		 print('true');
+
+             }
+             else{
+		 print('false');
+
+             }
+
+      } catch (e) {
+             log.error("Error while login user"+userName+"\n" + e.message);
+            throw "Error while login user";
+        }
+
+    } else {
+        print('Action is not specified');
+    }
+
+}());
+
+%>
+

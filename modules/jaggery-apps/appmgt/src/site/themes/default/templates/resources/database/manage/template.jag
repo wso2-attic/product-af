@@ -1,0 +1,263 @@
+<% jagg.template("resources/database/manage", function(inputs, outputs, jagg) { %>
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var hasConfigureDbAdministrationPermission= outputs.hasConfigureDbAdministrationPermission;
+    var log = new Log();
+%>
+
+<script type="text/javascript">
+
+function drawDatabaseUsersTable() {
+
+    jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
+        action: "getDatabaseUsers",
+        applicationKey: $("#applicationKey").val()
+    },
+
+    function (result) {
+
+        if (result !== undefined) {
+
+            var dom = "";
+
+            var parsedArray = jQuery.parseJSON(result);
+
+            if (parsedArray.length > 0) {
+
+                for (var index in parsedArray) {
+                    var instance = parsedArray[index];
+                    dom += '<tr><td>' + instance.name + '</td>' +
+                        '<td>' + instance.rssInstanceName + '</td></tr>';
+                }
+
+                $('#dbUsersTableBody').html(dom);
+                $('#dbUsersTableReplaceInfo').hide();
+                $('#dbUsersTableReplaceWarning').hide();
+                $('#dbUsersTable').fadeIn();
+
+            } else {
+
+                $('#dbUsersTableReplaceInfo').text("No users added yet.").fadeIn();
+                $('#dbUsersTable').hide();
+
+            }
+        } else {
+
+            $('#dbUsersTableReplaceInfo').text("No users added yet.").fadeIn();
+            $('#dbUsersTable').hide();
+
+        }
+    },
+
+    function (jqXHR, textStatus, errorThrown) {
+
+        $('#dbUsersTableReplaceWarning').text("Error occurred while querying users").fadeIn();
+        $('#dbUsersTable').hide();
+
+    });
+
+}
+
+function drawRolesTable() {
+
+    jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
+        action: "getTemplates",
+        applicationKey: $("#applicationKey").val()
+    }, 
+    
+    function (result) {
+
+        if (result !== undefined) {
+
+            var parsedArray = jQuery.parseJSON(result);
+
+            if (parsedArray.length > 0) {
+
+                var domRoles = "";
+
+                for (var i = 0; i < parsedArray.length; i++) {
+
+                    domRoles += '<tr><td width="25%">' +
+                        parsedArray[i].name + '</td></tr>';
+
+                }
+
+                $("#rolesTableBody").html(domRoles);
+                $("#rolesTable").fadeIn();
+                $("#rolesTableReplaceInfo").hide();
+                $("#rolesTableReplaceWarning").hide();
+            } else {
+                $("#rolesTable").hide();
+                $("#rolesTableReplaceInfo").text("No roles created.").fadeIn();
+            }
+
+        } else {
+            $("#rolesTable").hide();
+            $("#rolesTableReplaceInfo").text("No roles created.").fadeIn();
+        }
+    },
+
+    function (jqXHR, textStatus, errorThrown) {
+        $("#rolesTable").hide();
+        $("#rolesTableReplaceWarning").text("Error occurred while reading templates.").fadeIn();
+    });
+
+}
+
+function drawDatabasesTable() {
+
+    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+        action: "getDatabases",
+        applicationKey: $("#applicationKey").val()
+    }, function (result) {
+
+        if (result !== undefined) {
+
+            var parsedArray = jQuery.parseJSON(result);
+
+            if (parsedArray.length > 0) {
+
+                var domRSStbl = "";
+
+                for (var index in parsedArray) {
+
+                    var instance = parsedArray[index];
+
+                    domRSStbl += '<tr><td>' + instance.name +
+                        '</td><td>' + instance.rssInstanceName +
+                        '</td><td style="color:blue;">' + instance.url +
+                        '</td></tr>';
+
+                }
+
+                $("#dbTableBody").html(domRSStbl);
+
+                $("#dbTableReplaceInfo").hide();
+                $("#dbTableReplaceWarning").hide();
+                $("#dbTable").fadeIn();
+
+            } else {
+
+                $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
+                $("#dbTable").hide();
+
+            }
+
+        } else {
+            $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
+            $("#dbTable").hide();
+        }
+
+    },
+
+    function (jqXHR, textStatus, errorThrown) {
+        $("#dbTableReplaceWarning").text("Error occurred while reading databases.").fadeIn();
+        $("#dbTable").hide();
+    });
+
+}
+
+$(function(){
+
+    drawDatabaseUsersTable();
+    drawRolesTable();
+    drawDatabasesTable();
+            
+});
+</script>
+<input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+<input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+<div class="container">
+       <div class="title-section">
+           <div class="row">
+               <div class="span12">
+                   <% jagg.includeBlock("breadcrumb", {"applicationName":applicationName,"applicationKey" :applicationKey,"pageName":"Configure Resources","pos":"titlebar" }); %>
+               </div>
+           </div>
+       </div>
+</div>
+
+<!--START  content section-->
+<div class="container content-container wrapper">
+    <div class="row">
+        <div class="span12 content-section shadow-up">
+            <div class="content-data">
+                <div class="container-fluid space-killer">
+                        <% if(hasConfigureDbAdministrationPermission){ %>
+                        <h2 class="first-h2">Database Configurations</h2>
+
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <button class="btn need-space-bottom special-button-sizer"
+                                        onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/listUsers.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">
+                                <i class="icon-db-user"></i>
+                                Manage Users
+                                </button>
+                                <div id="dbUsersTableReplaceInfo" class="alert alert-info" style="display: none;"></div>
+                                <div id="dbUsersTableReplaceWarning" class="alert error" style="display: none;"></div>
+                                <div>
+                                    <table id="dbUsersTable" class="table table-bordered" style="display: none;">
+                                        <thead>
+                                            <tr><th>User</th><th>Database Environment</th></tr>
+                                        </thead>
+                                        <tbody id="dbUsersTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <br />
+                                <button class="btn need-space-bottom special-button-sizer"
+                                        onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/listTemplates.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">
+                                <i class="icon-privilege-template"></i>
+                                Manage Roles
+                                </button>
+                                <div id="rolesTableReplaceInfo" style="display:none;" class="alert alert-info"></div>
+                                <div id="rolesTableReplaceWarning" style="display:none;" class="alert error"></div>
+                                <div>
+                                    <table id="rolesTable" style="display:none;" class="table table-bordered">
+                                        <thead>
+                                          <tr><th>Roles</th></tr>
+                                        </thead>
+                                        <tbody id="rolesTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+                        
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <br />
+                                <button class="btn need-space-bottom special-button-sizer"
+                                        onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">
+                                <i class="icon-dbs-resource"></i>
+                                Manage Databases
+                                </button>
+                                <div id="dbTableReplaceInfo" style="display:none;" class="alert alert-info"></div>
+                                <div id="dbTableReplaceWarning" style="display:none;" class="alert error"></div>
+                                <div>
+                                    <table id="dbTable" class="table table-bordered" style="display:none;">
+                                        <thead>
+                                            <tr><th>Database Name</th><th>Database Environment</th><th>Database URL</th></tr>
+                                        </thead>
+                                        <tbody id="dbTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+                        <% }%>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="push"></div>
+</div>
+<div class="clearfix"></div>
+        
+<% }); %>

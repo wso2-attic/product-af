@@ -1,0 +1,148 @@
+<%
+jagg.module("application", { 
+	loadConfigValueFromCarbon:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").loadConfigValueFromCarbon.apply(this, arguments);
+    },
+    
+    getRepoURL:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getRepoURL.apply(this, arguments);
+    },
+    
+    getBranchInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getBranchInfo.apply(this, arguments);
+    },
+    
+    createApplicationBPEL:function () {
+    	return jagg.require(jagg.getModulesDir() + "application/add/add.jag").createApplicationBPEL.apply(this, arguments);
+    },
+
+    getDeployedBuildId:function () {
+    	return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getDeployedBuildId.apply(this, arguments);
+    },
+    
+    checkSystemStatus:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").checkSystemStatus.apply(this, arguments);
+    },
+    
+	getAllAppsOfUser:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllAppsOfUser.apply(this, arguments);
+    },
+    getAllAppsCountOfUser:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllAppsCountOfUser.apply(this, arguments);
+    },
+    
+    getAppInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppInfo.apply(this, arguments);
+    },
+    
+    getAllAppVersionsInStage:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllAppVersionsInStage.apply(this, arguments);
+    },
+    
+   	getAppVersionsInStage:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppVersionsInStage.apply(this, arguments);
+    },
+    
+    getAllStages:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllStages.apply(this, arguments);
+    },
+    
+    getAllAppVersionsInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllAppVersionsInStages.apply(this, arguments);
+    },
+    
+    getRetiredVersions:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getRetiredVersions.apply(this, arguments); 
+    },
+    
+    getAppVersionsInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppVersionsInStages.apply(this, arguments);
+    },
+    
+    getAppCountInStage:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppCountInStage.apply(this, arguments);
+    },
+
+	getAppUsersWithRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getAppUsersWithRoles.apply(this, arguments);
+    },
+    
+    getAppUsersByRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getAppUsersByRoles.apply(this, arguments);
+    },
+
+    getRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getRoles.apply(this, arguments);
+    },
+    
+    getUsersOfApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUsersOfApplication.apply(this, arguments);
+    },
+    
+    getUsersInfoOfApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUsersInfoOfApplication.apply(this, arguments);
+    },
+    
+    getUserAccess:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUserAccess.apply(this, arguments);
+    },
+    
+    getUserRolesForApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUserRolesForApplication.apply(this, arguments);
+    },
+    
+    getMetaDataForApplicationState:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getMetaDataForApplicationState.apply(this, arguments);
+    },
+    getTrunkURL:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getTrunkURL.apply(this, arguments);
+    },
+    addUserToApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/add/add.jag").addUserToApplication.apply(this, arguments);
+    },
+    
+    addUserToApplicationWS:function () {
+        return jagg.require(jagg.getModulesDir() + "application/users/add/add.jag").addUserToApplicationWS.apply(this, arguments);
+    },
+    
+    isApplicationKeyAvailable:function () {
+        return jagg.require(jagg.getModulesDir() + "application/add/add.jag").isApplicationKeyAvailable.apply(this, arguments);
+    },
+    
+	editAppInfo:function () {
+            return jagg.require(jagg.getModulesDir() + "application/update/update.jag").editAppInfo.apply(this, arguments);
+    },
+    
+    getLatestBuildSuccessInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getLatestBuildSuccessInfo.apply(this, arguments);
+	},
+	
+    removeUserFromApplication:function(){
+   	 return jagg.require(jagg.getModulesDir() + "application/users/update/update.jag").removeUserFromApplication.apply(this, arguments);
+    },
+    
+    updateRolesOfUserForApplication:function(){
+   	 return jagg.require(jagg.getModulesDir() + "application/users/update/update.jag").updateRolesOfUserForApplication.apply(this, arguments);
+    },
+    
+    getBuildableStages:function(){
+   	 return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getBuildableStages.apply(this, arguments);
+    },
+    
+    getStage:function(){
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getStage.apply(this, arguments);
+    },
+
+	loadAppIcon:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").loadAppIcon.apply(this, arguments);
+    },
+    getUserHomeInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getUserHomeInfo.apply(this, arguments);
+    },
+    
+    stroreUploadedApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "application/add/add.jag").stroreUploadedApplication.apply(this, arguments);
+    }
+    
+});
+%>

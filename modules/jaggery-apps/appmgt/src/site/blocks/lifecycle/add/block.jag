@@ -1,0 +1,16 @@
+<%
+jagg.block("lifecycle/add", {
+    initialize:function (data) {
+
+    }
+
+
+
+
+
+
+
+
+
+});
+%>

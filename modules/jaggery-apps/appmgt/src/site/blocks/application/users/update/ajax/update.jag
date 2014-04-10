@@ -1,0 +1,61 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var log=new Log();
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "removeUserFromApplication") {
+    	mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var users = request.getParameter("users");
+        var response = {};
+        log.debug("=====reached block "+applicationKey+"===="+users);
+        if(jagg.module("permission").isUserAccessGranted(applicationKey,PERMISSION_USER_INVITE)){
+            try {
+                var result = mod.removeUserFromApplication(applicationKey,users);
+
+                if (result != null) {
+                    print(result);
+                } else {
+                    throw "Error while removing the user "+users;
+                }
+            } catch(e) {
+                throw "Error while removing the user "+users;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to remove the users from application";
+            print(response);
+        }
+
+    }else if(action=="updateRolesOfUserForApplication"){
+    	mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        var rolesToDelete= request.getParameter("newrolesToDelete");
+        var rolesToAdd=request.getParameter("newrolesToAdd");
+ //       jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION.USER.INVITE);
+
+        try {
+            var result = mod.updateRolesOfUserForApplication(applicationKey,userName,rolesToDelete,rolesToAdd);
+
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while updating the user "+userName;
+            }
+        } catch(e) {
+        	throw "Exception occured while updating the user "+userName;
+        }
+
+
+    }else {
+	    throw new Error("No action specified");
+    }
+
+}());
+%>

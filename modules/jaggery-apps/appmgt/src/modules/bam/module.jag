@@ -1,0 +1,12 @@
+<%
+jagg.module("bam", {
+
+    createStreamApplicationCreation:function () {
+        return jagg.require(jagg.getModulesDir() + "bam/add/add.jag").createStreamApplicationCreation.apply(this, arguments);
+    },
+    publishApplicationCreationEvent:function () {
+        return jagg.require(jagg.getModulesDir() + "bam/add/add.jag").publishApplicationCreationEvent.apply(this, arguments);
+    }
+
+});
+%>

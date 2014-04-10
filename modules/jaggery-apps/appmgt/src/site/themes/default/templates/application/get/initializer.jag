@@ -1,0 +1,8 @@
+<%
+jagg.initializer("application/get", {
+
+    preInitialize:function () {
+        jagg.addHeaderJS("application/get", "get", "templates/application/get/js/get.js");
+    }
+});
+%>

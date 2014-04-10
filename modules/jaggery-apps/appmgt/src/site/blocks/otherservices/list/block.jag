@@ -1,0 +1,7 @@
+<%
+jagg.block("otherservices/list", {
+    initialize:function (data) {
+
+    }
+});
+%>

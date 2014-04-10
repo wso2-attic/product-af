@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+	<ModulePrefs title="App Factory — Lines of code" />
+    <UserPref name="gadgetName" display_name="code-counts" default_value="code-counts"/>
+	<Content type="html" preferred_height="450">
+		<![CDATA[
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.css"></link>
+        <link rel="stylesheet" type="text/css" href="../../css/dashboard-gadgets/styles.css"></link>
+		<style>
+			body{background-color:#181818;}
+		</style>
+		<div id="codeCountsChartLegend" style="float:left;width:300px;"></div>
+		<div id="codeCountsChart" class="dojoxLineChartNode"></div>
+		
+		<script>
+		dojoConfig = {
+			parseOnLoad:true,
+			baseUrl: '/dashboard/js/dojo/dojo/'
+			}
+		</script>
+		<script src="../../js/dojo/dojo/dojo.js.uncompressed.js"></script>
+		<script src="../../js/GadgetLineChart.js"></script>
+		<script type="text/javascript" src="counts.js"></script>
+		<script src="../../js/constants.js"></script>
+
+		]]>
+	</Content>
+</Module>

@@ -1,0 +1,43 @@
+			
+			<div class="container-fluid footer">
+                <div class="row-fluid">
+                    <div class="span12"></div>
+                </div>
+            </div>
+			
+
+
+		<!-- /container -->
+		
+		<script src="js/jquery-1.8.3.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+
+		<script type="text/javascript" src="js/jshashtable-2.1_src.js"></script>
+		<script type="text/javascript" src="js/jquery.numberformatter-1.2.3.js"></script>
+		<script type="text/javascript" src="js/tmpl.js"></script>
+		<script type="text/javascript" src="js/jquery.dependClass-0.1.js"></script>
+		<script type="text/javascript" src="js/draggable-0.1.js"></script>
+		<script type="text/javascript" src="js/jquery.slider.js"></script>
+		<script type="text/javascript" src="js/jquery.gridster.js"></script>
+		
+		<script>
+            $(".gridster ul").gridster({
+                widget_margins : [10, 10],
+                widget_base_dimensions : [570, 10]
+            });
+		</script>
+		
+		<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+	    <script type="text/javascript" src="/shindig/gadgets/js/container:open-views:opensearch:rpc:xmlutil:pubsub-2.js?c=1&debug=1&container=default"></script>
+
+		<script type="text/javascript" src="js/gadgetContainer.js"></script>
+		<!--script type="text/javascript" src="js/climate-change.js"></script-->
+		<%
+		if(scripts){
+			
+			for(var i=0; i<scripts.length; i++){
+				print('<script type="text/javascript" src="' + scripts[i] + '"></script>');
+			}
+		}
+		%>
+            

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="utf-8">
+    <title>Bootstrap, from Twitter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="lib/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/stylesheet.css" type="text/css" charset="utf-8"/>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="lib/bootstrap/assets/js/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="lib/bootstrap/assets/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144"
+          href="lib/bootstrap/assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114"
+          href="lib/bootstrap/assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72"
+          href="lib/bootstrap/assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="lib/bootstrap/assets/ico/apple-touch-icon-57-precomposed.png">
+
+    <!--[if gte IE 9]>
+    <link rel="stylesheet" href="css/stylesheet-ie9.css" type="text/css"/>
+    <![endif]-->
+
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="css/stylesheet-ie7.css" type="text/css"/>
+    <![endif]-->
+
+    <!--[if IE 8]>
+    <link rel="stylesheet" href="css/stylesheet-ie8.css" type="text/css"/>
+    <![endif]-->
+
+
+    <script src="dojo/dojo/dojo.js"></script>
+</head>
+
+<body >
+<!--
+START Header back ground
+No real content is here just to display the head
+-->
+<div class="container-fluid header">
+    <div class="row-fluid">
+        <div class="span6"></div>
+        <div class="span6 top-menu"></div>
+    </div>
+</div>
+<div class="clearfix"></div>
+<!--END Header back ground-->
+
+<!--START Header menu-->
+<div class="container">
+    <div class="row">
+        <div class="span3 logo-section">
+            <a class="brand" href="#"></a>
+        </div>
+        <div class="span9 menu-back">
+            <div class="menu-content">
+                <div class="navbar">
+                    <div class="navbar-inner">
+                        <ul class="nav">
+                            <li class="active"><a>
+                                <i class="icon-home"></i>
+                                <br/>
+                                Dashboard
+                            </a>
+                            </li>
+                        </ul>
+
+                        <ul class="nav pull-right">
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="icon-user"></i>
+                                    <br/>
+                                    Chanaka <b
+                                        class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Sign Out</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--END Header menu-->
+
+<!--START breadcrumb section-->
+<div class="container breadcrumb-section">
+    <div class="row">
+        <div class="span12" style="height:27px;">
+
+        </div>
+    </div>
+</div>
+<!--END breadcrumb section-->
+<div class="container custom-dashboard">
+    <div class="title-section">
+        <div class="row">
+            <div class="span9"><h1>Dashboard</h1></div>
+            <div class="span3">
+                <div class="title-side-box" id="haveAppsSectionA">
+                    <div class="btn-group">
+                        <button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">Perspective <span
+                                class="caret"></span></button>
+                        <ul class="dropdown-menu perspective-btn">
+                            <li><a href="#">Development</a></li>
+                            <li><a href="#">Operational</a></li>
+                            <li><a href="#">Business</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sliding-icons">
+    <a><i class="icon-panel-issues"></i></a>
+    <a><i class="icon-panel-apps"></i></a>
+    <a><i class="icon-panel-builds"></i></a>
+    <a><i class="icon-panel-sources"></i></a>
+    <a><i class="icon-panel-apps"></i></a>
+    <a><i class="icon-panel-resources"></i></a>
+</div>
+
+<div class="container-fluid dashboard-top-strip-wrapper-odd custom-dashboard">
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="container">
+                <h2 class="section-header dotted-wrapper"><i class="icon-h-issues"></i> Issues</h2>
+
+                <div class="row dotted-wrapper">
+                    <div class="span3">
+                        <div class="dashboard-table-container">
+                            <table class="table table-hover">
+                                <tbody>
+                                <tr class="first-row">
+                                    <td>Open</td>
+                                    <td class="value-cell">10</td>
+                                </tr>
+                                <tr>
+                                    <td>In Progress</td>
+                                    <td class="value-cell">10</td>
+                                </tr>
+                                <tr>
+                                    <td>Close</td>
+                                    <td class="value-cell">10</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="span4 no-margin">
+                        <div class="chart-head-section">Issue State</div>
+                        <div class="chart-content-section">
+                            <div id="chartNode1"></div>
+                        </div>
+                    </div>
+                    <div class="span5">
+                        <div class="chart-head-section">Issue State</div>
+                        <div class="chart-content-section">
+                            <div id="chartNode2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row dotted-wrapper vertical-gap">
+                    <div class="span6">
+                        <div class="dashboard-table-container">
+                            <h3>Top 10 buggers</h3>
+                            <table class="table table-hover">
+                                <tbody>
+                                <tr class="first-row vbad-row">
+                                    <td>Amila De Silva</td>
+                                    <td class="value-cell">120</td>
+                                    <td class="value-cell">10%</td>
+                                </tr>
+                                <tr class="bad-row">
+                                    <td>Chanaka Jayasena</td>
+                                    <td class="value-cell">100</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="span6 black-table-wrapper">
+                        <div class="chart-head-section">
+                            Top 10 QA
+                            <p>
+                                Sorted by number of bugs created
+                            </p>
+                        </div>
+                        <div class="chart-content-section">
+                            <table class="table table-hover">
+                                <tbody>
+                                <tr class="first-row vgood-row">
+                                    <td>Amila De Silva</td>
+                                    <td class="value-cell">120</td>
+                                    <td class="value-cell">10%</td>
+                                </tr>
+                                <tr>
+                                    <td>Chanaka Jayasena</td>
+                                    <td class="value-cell">100</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Chanaka Jayasena</td>
+                                    <td class="value-cell">100</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Dinusha Dilrukshi</td>
+                                    <td class="value-cell">99</td>
+                                    <td class="value-cell">8%</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END of section -->
+
+
+
+<div class="container-fluid dashboard-top-strip-wrapper-even custom-dashboard">
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="container">
+                <h2 class="section-header dotted-wrapper"><i class="icon-h-builds"></i> Builds</h2>
+
+
+                <div class="row dotted-wrapper vertical-gap">
+                    <div class="span6">
+                        <div class="dashboard-table-container">
+                            <h3>Top 10 Build Breakers</h3>
+
+                            <table class="table table-hover">
+                                <tbody>
+                                <tr class="first-row vbad-row"><td>Amila De Silva</td><td class="value-cell">120</td><td class="value-cell">10%</td></tr>
+                                <tr class="bad-row"><td>Chanaka Jayasena</td><td class="value-cell">100</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                <tr><td>Dinusha Dilrukshi</td><td class="value-cell">99</td><td class="value-cell">8%</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="span6 black-table-wrapper">
+                        <div class="chart-head-section">
+                            Overall
+                            <p>
+                                Sorted by  number of build breaks they are responsible.
+                            </p>
+                        </div>
+                        <div class="chart-content-section">
+                            <div id="chartNode3"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--START  content section-->
+<div class="container-fluid footer">
+    <div class="row-fluid">
+        <div class="span12"></div>
+    </div>
+</div>
+<script src="js/dashboard-populator.js"></script>
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="lib/bootstrap/assets/js/jquery.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-transition.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-alert.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-modal.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-dropdown.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-scrollspy.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-tab.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-tooltip.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-popover.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-button.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-collapse.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-carousel.js"></script>
+<script src="lib/bootstrap/assets/js/bootstrap-typeahead.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log= new Log();
+var response = {};
+
+(function () {
+    var mod, obj, result, modPermission
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "dropDatabase") {
+        mod = jagg.module("resources");
+            var applicationKey = request.getParameter("applicationKey");
+            var databaseName = request.getParameter("databaseName");
+            var databaseServerInstanceName = request.getParameter("rssInstanceName");
+
+        var response = {};
+        modPermission = jagg.module("permission");
+        var stage = mod.getStageFromRssInstanceName(databaseServerInstanceName);
+        var hasDbConfigPermission = modPermission.isUserAccessGranted(applicationKey,
+        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE +stage);
+        
+        if(hasDbConfigPermission){
+            try {
+                mod.dropDatabase(applicationKey,databaseName,databaseServerInstanceName);
+
+            } catch(e) {
+                throw "Error while deleting the database";
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to drop databases";
+            print(response);
+        }
+
+
+
+    } else {
+        throw new Error("No action specified");
+
+	}
+}());
+%>
+

@@ -1,0 +1,46 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            log = new Log(),
+            site = require("/site/conf/site.json");
+
+    if (action == "updateDescription") {
+    	mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var newDescription = request.getParameter("newDescription");
+
+        //todo get the rest of info and pass
+        mod = jagg.module("application");
+        var appInfo = mod.getAppInfo(applicationKey);
+
+            var result = mod.editAppInfo(appInfo.name, applicationKey, newDescription, appInfo.type, appInfo.repositoryType);
+
+    }else if(action == "removeFailedPendingApps"){
+    	var appKeys = request.getParameter("pendingAppKeys").split(" ");
+
+     	if (session.get("pendingApplications") != null) {
+     	    var pendingApplications = session.get("pendingApplications");
+     	    
+     	    for (var i = 0; i < appKeys.length; i++) {
+     	    	var appKey = appKeys[i];
+	     	    for (var appIndex in pendingApplications) {
+	     	        var appContainer = pendingApplications[appIndex];
+	     	        if (appKey === appContainer.app.key) {
+	     	            pendingApplications.splice(appContainer, 1);
+	     	            break;
+	     	        }
+	     	    }
+     	   }
+     	    session.put("pendingApplications", pendingApplications);
+     	}
+    	
+    }else {
+	    throw new Error("Invalid action");
+    }
+
+}());
+%>

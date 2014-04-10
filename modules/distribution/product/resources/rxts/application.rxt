@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<artifactType type="application/vnd.wso2-application+xml" shortName="application" singularLabel="application"
+             pluralLabel="applications" hasNamespace="false" iconSet="7">
+   <storagePath>/repository/applications/@{application_key}/appinfo</storagePath>
+   <nameAttribute>application_name</nameAttribute>
+   <ui>
+       <list>
+           <column name="Name">
+               <data type="path" value="application_name" href="@{storagePath}"/>
+           </column>
+           <column name="Key">
+               <data type="path" value="application_key" href="@{storagePath}"/>
+           </column>
+ 	   <column name="Owner">
+               <data type="path" value="application_owner" href="@{storagePath}"/>
+           </column>
+           <column name="Description">
+               <data type="path" value="application_description" href="@{storagePath}"/>
+           </column>
+           <column name="Type">
+               <data type="path" value="application_type" href="@{storagePath}"/>
+           </column>
+           <column name="RepositoryType">
+              <data type="path" value="application_repositorytype" href="@{storagePath}"/>
+           </column>
+           <column name="repoAccessibility">
+              <data type="path" value="application_repoAccessibility" href="@{storagePath}"/>
+           </column>
+	   <column name="BranchCount">
+              <data type="path" value="application_branchcount" href="@{storagePath}"/>
+           </column>
+       </list>
+   </ui>
+   <content>
+       <table name="Application">
+           <field type="text" required="true">
+               <name>Name</name>
+           </field>
+           <field type="text" required="true">
+               <name>Key</name>
+           </field>
+  	   <field type="text" required="true">
+               <name>Owner</name>
+           </field>
+           <field type="text-area" required="true">
+               <name>Description</name>
+           </field>
+           <field type="options" required="true">
+               <name>Type</name>
+               <values>
+                   <value>car</value>
+                   <value>war</value>
+               </values>
+           </field>
+           <field type="options" required="true">
+                          <name>RepoAccessability</name>
+                          <values>
+                              <value>per developer repo</value>
+                              <value>share main repo</value>
+                          </values>
+           </field>
+           <field type="options" required="true">
+                          <name>RepositoryType</name>
+                          <values>
+                              <value>svn</value>
+                              <value>git</value>
+                          </values>
+           </field>
+          <field type="text" required="true">
+               <name>BranchCount</name>
+           </field>
+ 
+       </table>
+
+   </content>
+
+</artifactType>

@@ -1,0 +1,9 @@
+<%
+jagg.block("resources/apis/key", {
+    initialize:function (data) {
+
+    }
+
+
+});
+%>

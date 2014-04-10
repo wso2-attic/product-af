@@ -1,0 +1,160 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var log = new Log();
+    mod = jagg.module("resources");
+
+    var modPermission = jagg.module("permission");
+
+    if (action == "createExternalApi") {
+        var applicationKey = request.getParameter("applicationKey");
+        var apiName = request.getParameter("apiName");
+        var authType = request.getParameter("authType");
+        var givenValues = request.getParameter("givenValues");
+        var propname = "";
+        var propcontent = "";
+        var targetStages = getProperties(DEPLOYMENT_STAGES);
+        var stageArray = givenValues.split("::stage:");
+
+        var response = {}; 
+        for (var i = 1; i < stageArray.length; i++) {
+            var stageString = stageArray[i];
+            var splits = stageString.split(":auth:");
+            var url = splits[0].split(":")[1] + ":" + splits[0].split(":")[2];
+            var stage = splits[0].split(":")[0];
+            
+        	if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
+                var targetStage = [stage];
+                mod.putPropertyCollection(apiName, "ExternalAPI", "External API", applicationKey, targetStage);
+                propname = apiName + "/url";
+                log.debug("Adding *********** url" + propname + " value " + url);
+                mod.addPropertyToStages(propname, url, "URL of " + apiName, "Registry", applicationKey, targetStage);
+
+                var auth = splits[1];
+                var auths = auth.split(":");
+                var authName = apiName + "/authentication";
+                mod.addPropertyToStages(authName, auths[0], "", "Registry", applicationKey, targetStage);
+                if (auths[0] == 'token') {
+                    var param = auths[1];
+                    propname = apiName + "/token";
+                    log.debug("Adding *********** token" + propname);
+                    mod.addPropertyToStages(propname, param, "Token of " + apiName, "Registry", applicationKey, targetStage);
+                } else if (auths[0] == 'oauth') {
+                    var param1 = auths[1];
+                    var param2 = auths[2];
+                    log.debug("Adding *********** oauth" + param1 + " and " + param2);
+                    mod.addPropertyToStages(apiName + "/consumer_key", param1, "Key of " + apiName, "Registry", applicationKey, targetStage);
+                    mod.addPropertyToStages(apiName + "/consumer_secret", param2, "Secret of " + apiName, "Registry", applicationKey, targetStage);
+                } else if (auths[0] == 'basic') {
+                    var param1 = auths[1];
+                    var param2 = auths[2];
+                    mod.addPropertyToStages(apiName + "/username", param1, "Username of " + apiName, "Registry", applicationKey, targetStage);
+                    mod.addPropertyToStages(apiName + "/password", param2, "Password of " + apiName, "Registry", applicationKey, targetStage);
+                    log.debug("Adding *********** basic" + param1 + " and " + param2);
+                }
+                
+            } else {
+                var msg = "You don't have permission to create an external API in stage "+ stage;
+                log.error(msg);
+            }
+        }
+        
+    } else if (action == "updateExternalApi") {
+    	 var applicationKey = request.getParameter("applicationKey");
+         var apiName = request.getParameter("apiName");
+         var authType = request.getParameter("authType");
+         var givenValues = request.getParameter("givenValues");
+         var propname = "";
+         var propcontent = "";
+         var targetStages = getProperties(DEPLOYMENT_STAGES);
+         var stageArray = givenValues.split("::stage:");
+
+         var response = {}; 
+         for (var i = 1; i < stageArray.length; i++) {
+             var stageString = stageArray[i];
+             var splits = stageString.split(":auth:");
+             var url = splits[0].split(":")[1] + ":" + splits[0].split(":")[2];
+             var stage = splits[0].split(":")[0];
+             
+             if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
+	             var targetStage = [stage];
+	             propname = apiName + "/url";
+	             log.debug("Adding *********** url" + propname + " value " + url);
+	             mod.addPropertyToStages(propname, url, "URL of " + apiName, "Registry", applicationKey, targetStage);
+	
+	             var auth = splits[1];
+	             var auths = auth.split(":");
+	             var authName = apiName + "/authentication";
+	             mod.addPropertyToStages(authName, auths[0], "", "Registry", applicationKey, targetStage);
+	             if (auths[0] == 'token') {
+	                 var param = auths[1];
+	                 propname = apiName + "/token";
+	                 log.debug("Adding *********** token" + propname);
+	                 mod.addPropertyToStages(propname, param, "Token of " + apiName, "Registry", applicationKey, targetStage);
+	             } else if (auths[0] == 'oauth') {
+	                 var param1 = auths[1];
+	                 var param2 = auths[2];
+	                 log.debug("Adding *********** oauth" + param1 + " and " + param2);
+	                 mod.addPropertyToStages(apiName + "/consumer_key", param1, "Key of " + apiName, "Registry", applicationKey, targetStage);
+	                 mod.addPropertyToStages(apiName + "/consumer_secret", param2, "Secret of " + apiName, "Registry", applicationKey, targetStage);
+	             } else if (auths[0] == 'basic') {
+	                 var param1 = auths[1];
+	                 var param2 = auths[2];
+	                 mod.addPropertyToStages(apiName + "/username", param1, "Username of " + apiName, "Registry", applicationKey, targetStage);
+	                 mod.addPropertyToStages(apiName + "/password", param2, "Password of " + apiName, "Registry", applicationKey, targetStage);
+	                 log.debug("Adding *********** basic" + param1 + " and " + param2);
+	             } 
+	             
+             } else {
+	             var msg = "You don't have permission to update an external API in stage "+ stage;
+	             log.error(msg);
+             }
+         }
+         
+    } else if (action == "deleteExternalApi") {
+        mod = jagg.module("resources");
+        var applicationKey = request.getParameter("applicationKey");
+        var resourceName = request.getParameter("resourceName");
+        var stage = request.getParameter("stage");
+
+        var response = {};
+        if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
+            try {
+            	mod.deletePropertyFromStages(resourceName, applicationKey, [stage]);
+            } catch (e) {
+                throw "Error while deleting the external API " + resourceName + " from stage " + stage;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to delete the external API " + resourceName + " from stage " + stage;
+            print(response);
+        }
+    } else if (action == "updateResourceDesc") {
+        mod = jagg.module("resources");
+        var applicationKey = request.getParameter("applicationKey");
+        var resourceName = request.getParameter("resourceName");
+        var stage = request.getParameter("stage");
+        var desc = request.getParameter("desc");
+
+        var resource = mod.getResource(applicationKey, stage, resourceName);
+        var dependency = resource.dependencies;
+   
+        try {
+            result = mod.updateResource(applicationKey, stage, resourceName, desc, dependency[0].mediaType, dependency[0].value);
+            log.info("Updated the resource - " + resourceName + " with desc - " + desc + " stage - " + stage);
+        } catch (e) {
+            log.error(e);
+            throw "Error while updating the resoure description";
+        }
+
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

@@ -1,0 +1,18 @@
+<%
+jagg.module("issuetracker", {
+
+    getIssueCountsByStatus:function(){
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getIssueCountsByStatus.apply(this, arguments);
+    },
+    getIssueCountsByPriority:function(){
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getIssueCountsByPriority.apply(this, arguments);
+    },
+    getReporterIssueCount:function(){
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getReporterIssueCount.apply(this, arguments);
+    },
+    getAssignerIssueCount:function(){
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getAssignerIssueCount.apply(this, arguments);
+    }
+    
+});
+%>

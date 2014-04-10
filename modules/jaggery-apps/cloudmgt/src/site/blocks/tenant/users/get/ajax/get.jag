@@ -1,0 +1,74 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "getUsersofTenant") {
+    	mod = jagg.module("tenant");
+        try {
+            var result = mod.getUsersofTenant();
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while retrieving users of the tenant";
+            }
+        } catch(e) {
+            throw "Error while retrieving users of the tenant";
+        }
+    }else if(action=="getUserInfo"){
+        mod = jagg.module("tenant");
+        var userName=request.getParameter("userName");
+        try {
+            var result = mod.getUserInfo(userName);
+
+            if (result != null) {
+                print(result);
+            } else {
+                log.error("No user found with the name "+userName);
+            }
+        } catch(e) {
+            log.error("No user found with the name "+userName);
+            var result = {};
+            result.error="true";
+            result.message=e.javaException.getCause().toString().split(":")[1];
+            print(stringify(result));
+        }
+
+    }else if(action=="isFirstLogin"){
+        mod = jagg.module("tenant");
+        try {
+            var result = mod.isFirstLogin();
+
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+           // log.error("No user found with the name "+userName);
+          // throw
+        }
+
+    }else if(action=="getApplicatioinKeysOfUser"){
+        mod = jagg.module("tenant");
+        var user=request.getParameter("userName");
+        try {
+            var result = mod.getApplicatioinKeysOfUser(user.split('@')[0]);
+
+            if (result != null) {
+                print(result);
+            }
+        } catch(e) {
+           // log.error("No user found with the name "+userName);
+          // throw
+        }
+
+    }else{
+	    throw new Error("No action specified");
+    }
+
+}());
+%>

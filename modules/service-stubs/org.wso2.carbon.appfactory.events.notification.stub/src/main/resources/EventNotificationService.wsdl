@@ -1,0 +1,122 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.notification.events.appfactory.carbon.wso2.org" xmlns:ax213="http://service.notification.events.appfactory.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.notification.events.appfactory.carbon.wso2.org">
+    <wsdl:documentation>EventNotificationService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.notification.events.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="EventBean">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="event" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="result" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax214="http://service.notification.events.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.notification.events.appfactory.carbon.wso2.org">
+            <xs:import namespace="http://service.notification.events.appfactory.carbon.wso2.org/xsd" />
+            <xs:element name="publishEvent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="event" nillable="true" type="ax214:EventBean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEventsForApplications">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appIDs" nillable="true" type="xs:string" />
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEventsForApplicationsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="getEventsForApplicationsRequest">
+        <wsdl:part name="parameters" element="ns:getEventsForApplications" />
+    </wsdl:message>
+    <wsdl:message name="getEventsForApplicationsResponse">
+        <wsdl:part name="parameters" element="ns:getEventsForApplicationsResponse" />
+    </wsdl:message>
+    <wsdl:message name="publishEventRequest">
+        <wsdl:part name="parameters" element="ns:publishEvent" />
+    </wsdl:message>
+    <wsdl:portType name="EventNotificationServicePortType">
+        <wsdl:operation name="getEventsForApplications">
+            <wsdl:input message="ns:getEventsForApplicationsRequest" wsaw:Action="urn:getEventsForApplications" />
+            <wsdl:output message="ns:getEventsForApplicationsResponse" wsaw:Action="urn:getEventsForApplicationsResponse" />
+        </wsdl:operation>
+        <wsdl:operation name="publishEvent">
+            <wsdl:input message="ns:publishEventRequest" wsaw:Action="urn:publishEvent" />
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="EventNotificationServiceSoap11Binding" type="ns:EventNotificationServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="getEventsForApplications">
+            <soap:operation soapAction="urn:getEventsForApplications" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="publishEvent">
+            <soap:operation soapAction="urn:publishEvent" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="EventNotificationServiceSoap12Binding" type="ns:EventNotificationServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="getEventsForApplications">
+            <soap12:operation soapAction="urn:getEventsForApplications" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="publishEvent">
+            <soap12:operation soapAction="urn:publishEvent" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="EventNotificationServiceHttpBinding" type="ns:EventNotificationServicePortType">
+        <http:binding verb="POST" />
+        <wsdl:operation name="getEventsForApplications">
+            <http:operation location="getEventsForApplications" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="publishEvent">
+            <http:operation location="publishEvent" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="EventNotificationService">
+        <wsdl:port name="EventNotificationServiceHttpsSoap11Endpoint" binding="ns:EventNotificationServiceSoap11Binding">
+            <soap:address location="https://appfactory.example.com:9443/services/EventNotificationService.EventNotificationServiceHttpsSoap11Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="EventNotificationServiceHttpsSoap12Endpoint" binding="ns:EventNotificationServiceSoap12Binding">
+            <soap12:address location="https://appfactory.example.com:9443/services/EventNotificationService.EventNotificationServiceHttpsSoap12Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="EventNotificationServiceHttpsEndpoint" binding="ns:EventNotificationServiceHttpBinding">
+            <http:address location="https://appfactory.example.com:9443/services/EventNotificationService.EventNotificationServiceHttpsEndpoint/" />
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

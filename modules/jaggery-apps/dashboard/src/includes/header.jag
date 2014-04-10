@@ -1,0 +1,67 @@
+<%
+var site_url = '/dashboard/';
+include("/jagg/jagg.jag");
+include("/jagg/config_reader.jag");
+include("/jagg/constants.jag");
+
+%>
+
+<%
+    var security =require("sso");
+	var log = new Log();
+	
+	var ssoRelyingParty = new security.SSORelyingParty(getProperty(DASHBOARD_SSO_NAME));
+	var sessionId = session.getId();
+	var isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
+	session.put("LOGGED_IN_USER",ssoRelyingParty.getLoggedInUser(sessionId));
+	
+	var requestURI = request.getRequestURI();
+	var checkSSO = true;
+	
+	if(requestURI.indexOf("register.jag") != -1) {
+		checkSSO = false;
+	}else if(requestURI.indexOf("confirmemail.jag") != -1) {
+		checkSSO = false;
+	}
+	
+	var hasCEODashboardPermission = jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_CEO_DASHBOARD);
+	if(!hasCEODashboardPermission){
+		response.sendRedirect("/appmgt/site/pages/index.jag");
+	} 
+
+	userName = session.get("LOGGED_IN_USER");
+
+	if (checkSSO && !Boolean(isAuthenticated)) {
+	    log.info("User is not authenticated, redirecting to identity server for authentication.");
+	
+	    ssoRelyingParty.setProperty("identityProviderURL", getProperty(SSO_PROVIDER));
+	    ssoRelyingParty.setProperty("keyStorePassword", getProperty(SSO_KEYSTORE_PASSWORD));
+	    ssoRelyingParty.setProperty("identityAlias",getProperty(SSO_KEY_ALIAS));
+	    ssoRelyingParty.setProperty("keyStoreName", getProperty(SSO_KEYSTORE_NAME));
+	
+	    var samlAuthRequest = ssoRelyingParty.getSAMLAuthRequest();
+	    var encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
+	    var relayState = ssoRelyingParty.getUUID();
+	
+	    ssoRelyingParty.setRelayStateProperty(relayState, request.getRequestURI());
+	    var idpURL = ssoRelyingParty.getProperty("identityProviderURL");
+%>
+	    <div>
+	        <p>You are now redirected to Identity. If the
+	        redirection fails, please click the post button.</p>
+	
+	        <form method="post" action="<%=idpURL%>">
+	            <p>
+	                <input type="hidden" name="SAMLRequest" value="<%= encodedRequest %>"/>
+	                <input type="hidden" name="RelayState" value="<%= relayState %>"/>
+	                <input type="hidden" name="SSOAuthSessionID" value="<%= sessionId %>"/>
+	                <button type="submit">POST</button>
+	            </p>
+	        </form>
+	    </div>
+	    <script type = "text/javascript" >
+	           document.forms[0].submit();
+	    </script>
+<%  }  %>
+
+		

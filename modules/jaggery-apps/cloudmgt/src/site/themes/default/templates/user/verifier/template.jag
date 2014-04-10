@@ -1,0 +1,253 @@
+<% jagg.template("user/verifier", function(inputs, outputs, jagg) { %>
+<%
+var log = new Log();
+
+var userName = "";
+var file = new File("/site/conf/cloud-mgt.xml");
+file.open("r");
+var data = file.readAll();
+var doc= new XML(data);
+
+var AFServerUrl = doc.ServerUrls.AppFactory.toString();
+var cloudmgtURL =  doc.ServerUrls.cloudmgtURL.toString();
+file.close();
+
+var verificationData = session.get("intermediate-data");
+var str;
+var userName;
+var confirmationKey;
+if(verificationData != null ) {
+ str = verificationData.toString().trim(); 
+ userName = str.substring(str.indexOf("<userName>"),str.indexOf("</userName>")).replace("<userName>","");
+ confirmationKey = str.substring(str.indexOf("<confirmationKey>"),str.indexOf("</confirmationKey>")).replace("<confirmationKey>","");
+}
+
+%>
+
+<style>
+header{
+	display:none;
+}
+body#home{
+	background:none #292E38;
+}
+.sticky-wrapper{
+	position:relative;
+	height:auto !important;
+}
+
+.warning_message{
+	background-color:#ffffff;
+}
+.info_message .close_message {
+    position: absolute;
+    right: 13px;
+    top: 7px;
+}
+.info_message{
+	background-color:#ffffff;
+	width: 400px;
+}
+
+.txt-right{
+	text-align: right;
+}
+#tenantDomain{
+	width: 87%;
+	margin-left: 7px;
+}
+
+
+#captchaImgDiv img{
+	width:100%;
+	   height: 39px;
+}
+#aPaaS, #iPaaS{
+	width:20%;
+}
+#lblLoginID{
+	color:#888;
+	display:none;
+}
+
+#preAt{
+	margin-left: -3px;
+	margin-right: -3px;
+}
+
+section.start_content div.subs-cont{
+	margin-top:20px;
+	margin-bottom:30px;
+}
+.subs-cont span.error{
+	position: absolute; 
+	margin-top: 71px; 
+	margin-left: -14px;
+}
+span.error {
+    padding-left: 0;
+}
+#submitbtn {
+    background-color: #EB7067;
+    border: #EB7067;
+}
+
+</style>
+ 
+<script type="text/javascript">
+
+
+   function doSubmit() {
+        var secretKey = document.getElementById("secretKey").val;
+        var userAnswer = $("#captcha-user-answer").attr('value');
+        var username = $("#username").attr('value');
+        var password = $("#password").attr('value');
+        var confirmationKey = $("#confirmationKey").attr('value');
+        jagg.post("../blocks/user/change/ajax/user.jag", {
+                         action:"updatePasswordWithUserInput",
+                         username:username,
+                         password:password,
+                         userAnswer:userAnswer,
+                         confirmationKey:confirmationKey,
+                         secretKey:secretKey
+                  },
+                  function (result) {
+                        jagg.message({content:'You have successfully change the password.',type:'info',cbk:function(){
+                                window.location.href = "index.jag";
+                        }
+                        });
+                  },
+                  function (jqXHR, textStatus, errorThrown) {
+                        jagg.message({content:' Old credential does not match with the existing credentials.', type:'error',cbk:function(){
+                        window.location.href = "index.jag";
+                    }
+                  });
+                 })
+    } 
+ 
+function generateCaptcha() {
+
+            jagg.post("../blocks/register/ajax/register.jag", {
+            		action:"generateCaptcha"
+              },
+              function (result) {
+            		showKaptcha(result);
+              },
+              function (jqXHR, textStatus, errorThrown) {
+                  jagg.message({content:'getting captcha - ERROR.',type:'info', cbk:function(){
+            		window.location.href = "#";
+                  	}
+                  });
+        });
+    }
+
+function showKaptcha(captcha) {
+    var captchaInfo = jQuery.parseJSON(captcha);
+    var captchaPath = captchaInfo.path;
+    document.getElementById("secretKey").val = captchaInfo.secretKey;
+    document.getElementById("imagePath").val = captchaPath;
+
+    var AFServiceUrl = '<%=AFServerUrl %>';
+    var serverUrl = AFServiceUrl.split("services")[0];
+    var captchaURL = serverUrl+captchaPath;
+    var captchaImg = document.getElementById("captchaImgDiv");
+    captchaImg.innerHTML = '<img src= "' + captchaURL + '" alt="If you can not see the captcha image please refresh the page."/>';
+
+    // TODO so this part.........   >>  setTimeout("showKaptchaTimely()", 4000);
+
+}
+
+
+ 
+  
+
+    $(document).ready(function($){
+        generateCaptcha();
+        jQuery.validator.setDefaults({
+                errorElement:'span'
+            });
+	    $('#userForm').validate({
+	    rules : {
+                password: {
+                    required: true,
+                    minlength: 5
+                } ,
+                clouds: {	
+                    required: true,
+		    minlength: 1
+		},
+                domainName: {
+                    domain: true
+                }
+            },
+            messages: {
+                password: {
+                    minlength: "Minimum is 5 characters "
+                },
+                clouds: "Select atleast one subscription.",
+            },
+
+	    submitHandler: function(form) {
+				doSubmit();
+		    }
+		});
+    });
+</script>
+
+
+
+<div class="wrapper">
+			<div class="branding">
+				<h1>Password Reset</h1>
+			</div>
+                        <div class="helper_text">
+		             
+	                </div>
+			<article class="start">
+				<div class="alert alert-error error" id="registerError"><% jagg.includeBlock("page/messages", null); %></div>
+				<div id="form_div">
+				<section class="start_content">
+				 <form method='post' name="inputData" class='right_label hold' id='userForm' action="javascript:doSubmit()">
+                                               <div class="input_row">
+						                <label for="username" class="form-title">UserName</label>
+								<input type="text" disabled id="username" name="username"  value=<%=userName%> />
+						</div>
+                                                <div class="input_row">
+						                <label for="password" class="form-title">New Password</label>
+								<input type="password" id="password" name="password" class="required password"  />
+						</div> 
+                                                <div class="input_row">
+							<label for="password2" class="form-title">Confirm Password</label>
+						        <input type="password" id="password2" name="password2" class="required password_match"  />
+						</div>
+                              	<div class="input_row">
+							<label for="captcha-user-answer" class="form-title">Word Verification</label>
+							<!--<label for="captcha-user-answer" style="font-size:10px;color:red">Captcha image is not visible due to untrusted certificates. Please open the image in a new tab to accept the certificate.</label>-->
+							<div class="input_row_col">
+								<div id="captchaImgDiv"></div>
+							</div>
+
+							<div class="input_row_col">
+								<input type="text" id="captcha-user-answer" name="captcha-user-answer" class="required" />
+							</div>
+							 <input type="hidden" name="confirmationKey" id="confirmationKey" value="<%=confirmationKey%>"/>		
+						
+						</div>
+						
+                     <div class="input_row btn_row">
+                         <input id="submitbtn" type='submit' value='Reset Password' class='btn'/>
+                     </div>
+
+                 </form>
+
+                    <input type="hidden" name="secretKey" id="secretKey" value=""/>
+                    <input type="hidden" name="imagePath" id="imagePath" value=""/>
+
+                </section>
+                </div>
+              
+            </article>
+</div><!-- /wrapper -->
+
+<% }); %>
+

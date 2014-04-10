@@ -1,0 +1,118 @@
+<% jagg.template("user/reset", function(inputs, outputs, jagg) { %>
+<%
+var log = new Log();
+var confirm = org.wso2.carbon.ui.util.CharacterEncoder.getSafeText(request.getParameter("confirmation"));
+
+%>
+
+<style>
+header{
+	display:none;
+}
+body#home{
+	background:none #292E38;
+}
+.sticky-wrapper{
+	position:relative;
+	height:auto !important;
+}
+
+.warning_message{
+	background-color:#ffffff;
+}
+.info_message .close_message {
+    position: absolute;
+    right: 13px;
+    top: 7px;
+}
+.info_message{
+	background-color:#ffffff;
+	width: 400px;
+}
+
+.txt-right{
+	text-align: right;
+}
+#tenantDomain{
+	width: 87%;
+	margin-left: 7px;
+}
+
+
+#captchaImgDiv img{
+	width:100%;
+	   height: 39px;
+}
+#aPaaS, #iPaaS{
+	width:20%;
+}
+#lblLoginID{
+	color:#888;
+	display:none;
+}
+
+#preAt{
+	margin-left: -3px;
+	margin-right: -3px;
+}
+
+section.start_content div.subs-cont{
+	margin-top:20px;
+	margin-bottom:30px;
+}
+.subs-cont span.error{
+	position: absolute; 
+	margin-top: 71px; 
+	margin-left: -14px;
+}
+span.error {
+    padding-left: 0;
+}
+#submitbtn {
+    background-color: #EB7067;
+    border: #EB7067;
+}
+
+</style>
+ 
+<script type="text/javascript">
+    $(document).ready(function($){
+        generateResponse();
+        
+    });
+
+function generateResponse() {
+
+            jagg.post("../blocks/user/reset/ajax/reset.jag", {
+            		action:"confirmUser",
+                        confirm:$("#confirm").attr('value')
+              },
+              function (result) {
+             		window.location.href = result;
+              },
+              function (jqXHR, textStatus, errorThrown) {
+                 jagg.message({content:jqXHR.responseText, type:'error',cbk:function(){
+            		window.location.href = "index.jag";
+                  	}
+                  });
+        });
+    }
+</script>
+<div class="wrapper">
+			<div class="branding">
+				<h1> Hello World</h1>
+			</div>
+                       <h1> Hello World</h1>
+			<article class="start">
+				<div class="alert alert-error error" id="registerError"><% jagg.includeBlock("page/messages", null); %></div>
+				 
+ <input type="hidden" name="confirm" id="confirm" value="<%=confirm%>"/>		
+               
+                 
+                
+            
+            </article>
+</div></wrapper >
+
+<% }); %>
+

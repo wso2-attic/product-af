@@ -1,0 +1,45 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS TENANT_USERS
+                (row_id STRING, tenantId STRING, user STRING, action STRING, timeSt BIGINT)
+                                STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+                                with SERDEPROPERTIES
+                                ("wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+                                 "cassandra.cf.name" = "org_wso2_carbon_appfactory_tenantUser" ,
+                                 "cassandra.columns.mapping" =
+                                 ":key, payload_tenantId, payload_user, payload_action, Timestamp" );
+                                 
+CREATE EXTERNAL TABLE IF NOT EXISTS TENANT_USER
+     (TENANT_ID STRING,USER STRING,ACTION STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,USER,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE TENANT_USER
+    (TENANT_ID VARCHAR(100),USER VARCHAR(100),ACTION VARCHAR(20),TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table TENANT_USER
+    SELECT tenantId, user, action, timeSt
+    from TENANT_USERS;
+    
+    
+        
+    CREATE EXTERNAL TABLE IF NOT EXISTS LATEST_TENANT_USERS
+     (TENANT_ID STRING,USER STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,USER,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE LATEST_TENANT_USERS
+    (TENANT_ID VARCHAR(100), USER VARCHAR(100),TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table LATEST_TENANT_USERS
+    SELECT tenantId, user, max(timeSt) as timest FROM TENANT_USERS GROUP BY tenantId, user;
+
+                                    

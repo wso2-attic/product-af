@@ -1,0 +1,15 @@
+<%
+include('constants.jag');
+var issueTrackerConfigReaderModule = require("issueTracker");
+var issueTrackerConfigReader = new issueTrackerConfigReaderModule.IssueTrackerConfigurationReader();
+
+    function getProperty(expression){
+        return  issueTrackerConfigReader.getFirstProperty(expression);
+    }
+
+    function getProperties(expression){
+    	var properties = issueTrackerConfigReader.getProperties(expression);
+  	    return  properties;
+    }
+
+%>

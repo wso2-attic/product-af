@@ -1,0 +1,11 @@
+<%
+jagg.module("datasource", {
+	
+    invokeNDataSource:function () {
+        return jagg.require(jagg.getModulesDir() + "datasource/get/list.jag").invokeNDataSource.apply(this, arguments);
+    },
+    datasourceCount:function () {
+        return jagg.require(jagg.getModulesDir() + "datasource/get/list.jag").datasourceCount.apply(this, arguments);
+    }
+});
+%>

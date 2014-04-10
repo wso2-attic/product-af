@@ -1,0 +1,286 @@
+<% jagg.template("resources/database/users/add", function(inputs, outputs, jagg) { %>
+
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var isEdit = request.getParameter("isEdit");
+    var user = request.getParameter("user");
+    var environment = request.getParameter("environment");
+
+    if (isEdit == undefined ) {
+    	isEdit = false;
+    } 
+%>
+
+<script type="text/javascript">
+
+var MAX_USER_NAME_LENGTH = 8;
+// Password supports special characters and here min length 6 max 20 charters.
+var ck_password = /^[A-Za-z0-9!@#$%^*_]{6,15}$/;
+$(document).ready(function(){
+
+	// during formLoad, load 'Database Environment' list and append to #rssInstances.
+	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+		action:"getRSSinstances",
+		applicationKey:$("#applicationKey").attr('value')
+	}, function (result) {	// if success
+		
+		if(result != undefined){
+			var parsedArray = jQuery.parseJSON(result);
+			for(var i = 0; i < parsedArray.length; i++) {
+				var name = parsedArray[i].name;
+				var row='<option id="'+name+'">'+name+'</option>';
+				$("#rssInstances").append(row);
+			}
+
+			var isEdit = '<%=isEdit%>';
+
+			if(isEdit=='true'){
+				$("#Username").val('<%=user%>'); 
+				 $("#Username").prop("disabled",true);
+
+				$("#rssInstances").val('<%=environment%>'); 	
+				$("#rssInstances").select2("readonly", true);
+			}
+			$("#rssInstances").select2({
+				formatResult: selectBoxOptionFormat,
+                 minimumResultsForSearch: -1,
+                 containerCssClass : "error"
+			});		
+		
+		}
+	},
+	function (jqXHR, textStatus, errorThrown) {	// if failed
+		jagg.message({content:'Error occurred while reading rssInstances',type:'error', id:'dbusercreation' });
+	});
+		
+ 
+	/*$('#Password').focus(function() {
+		jagg.removeMessage('pwdcheck');
+	  	jagg.message({content:'Invalid Password - Capitalization matters. Use 6 to 15 characters. <br/> Use both letters and numbers. <br/> Add special characters (such as !, @, #, $, %, ^, *)',type:'info', id:'pwdcheck' });
+	});*/
+
+
+});
+
+
+
+// function to create DB User
+function createDatabaseUser(btn){
+	$('span#saveSpin').show();	// show spinner
+    $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+	jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {		// call backend
+		action:"createDatabaseUser",
+		applicationKey:$("#applicationKey").val(),
+		password:$("#Password").attr('value'),
+		rssInstance:$("#rssInstances").attr('value'),
+		username:$("#Username").attr('value')
+	},function (result) {	// if it is success, move to previous page.
+ 
+		var result = $.trim(result);
+  		
+		if(result=='success'){
+			callPreviousPage();
+		} else if(result.indexOf('exists') > -1) {	// check whether user is already exist based on identifying key word call 'exists'
+			jagg.message({content:'DB User already exists!', type:'error', id:'dbusercreation' });	
+		} else {
+			jagg.message({content:'Error occurred while creating user!', type:'error', id:'dbusercreation' });	
+		}
+        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+	},function (jqXHR, textStatus, errorThrown) {	// if it failed, hide spinner and show error message.
+		jagg.message({content:'Error occurred while creating user',type:'error', id:'dbusercreation' });
+        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+	});
+	$('span#saveSpin').hide();
+ }
+
+ // function to validate password
+ /* RULE: password cannot be empty.
+  *       password and repeat password show same.
+  */
+ function validatPassword() {	
+    var password = $("#Password").val();
+    var repeatPassword = $("#repeatPassword").val();
+    var validation = true;
+
+    if (password == "") {
+		jagg.message({content:'Password cannot be empty!',type:'error', id:'dbusercreation' });
+		validation=false;
+    } else {    	
+    	if(!ck_password.test(password)){
+		validation=false;
+		jagg.message({content:'Capitalization matters. Use 6 to 15 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *, _).',type:'error', id:'dbusercreation' });
+	}
+    }
+
+    if (password != repeatPassword) {
+	jagg.message({content:'Password does not match!',type:'error', id:'dbusercreation' });
+	validation=false;
+    } 
+    return validation;
+}
+
+// function to call previous page.
+function callPreviousPage(){
+	var oldURL = document.referrer;
+	window.location.replace(oldURL);			
+}
+
+ // function to validate username
+ /* RULE: username cannot be empty.
+  *       maximum length of username is 8.
+  */
+function checkUserName() {
+    var validation = true;
+    
+    var userNameLength = ($("#Username").val()).length;
+    
+    if (userNameLength > MAX_USER_NAME_LENGTH){
+	jagg.message({content:'Username cannot exceed 8 characters!',type:'error', id:'dbusercreation' });
+	validation =false;
+    }
+
+    var username = $("#Username").val();
+    
+    if (username == "") {
+	jagg.message({content:'Username cannot be empty!',type:'error', id:'dbusercreation' });
+	validation=false;
+    }
+    var patterForValidChars =/^[^~!@#$;%^*()+={}\\|\\\\<>,\'\"]{1,8}$/gi;
+    if(!patterForValidChars.test(username)){
+    jagg.message({content:'Username cannot contain one of (~!@#$;%^*()+={}\\|\\\\<>,\'\")',type:'error', id:'dbusercreation' });
+    validation=false;
+    }
+
+
+    return validation;
+}
+
+ // function to validate form
+ /* RULE: validatPassword() should succeed.
+  *       checkUserName() should succeed.
+  *		  rssInstance should have value.
+  */
+function validateForm() {
+	jagg.removeMessage();
+
+	var validation = true;
+
+	if(!checkUserName()){
+		validation=false;
+	}
+	
+	if(!validatPassword()){
+		validation=false;
+	}
+
+	var rssInstance = $('#rssInstances').val();
+
+	if(rssInstance == ""){
+		validation = false;
+		jagg.message({content:'DB Environment cannot be empty!',type:'error', id:'dbusercreation' });
+	} 
+	
+    return validation;
+}
+ 
+/*
+ * Delete db user
+ *
+ */
+function deleteUser(name,rssInstanceName){
+	jagg.popMessage({type:'confirm',title:'Delete Database User',content:'Are you sure you want to delete the user '+name+' ?', okCallback:function(){deleteConfirmation(name,rssInstanceName);}, cancelCallback:function(){}});
+}
+
+function deleteConfirmation(name,rssInstanceName){
+	$('span#deleteSpin').show();
+		
+	jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
+		action:"deleteUser",
+		applicationKey:$("#applicationKey").attr('value'),
+		name:name,
+		rssInstanceName:rssInstanceName
+	},function (result) {
+		callPreviousPage();
+	},function (jqXHR, textStatus, errorThrown) {
+		$('span#deleteSpin').hide();
+		jagg.message({content:'Error occurred while deleting user',type:'error', id:'dbusercreation' });
+	});
+}
+</script>
+
+
+<div class="container">
+	<article class="main">
+		<header><div><% jagg.includeBlock("page/messages", null); %></div>
+			<div class="content">
+				<h1>Resources</h1>
+			</div>
+		</header>
+		<% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
+		<section class="separator">
+			<div class="page_nav">
+				<div class="content clear">
+					<ol class="breadcrumb left">
+						<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
+				    	<li class="breadcrumb_item"><h2> <%  if(isEdit!='true') {%>Create New DB User <%} else { %> <%=user%> <%}%></h2></li>
+				    </ol>
+				    
+				    <%if(isEdit=='true') {%>
+				    	<div class="right btn_list_box" >
+				    		<ul class="inline_box inline_list btn_list">
+				    			<li class="breadcrumb_item" style="float: right; margin-top: -5px;">
+				    				<span class="icon-spinner icon-spin icon-large" id="deleteSpin" style="margin-right: 10px; display:none;"></span>
+				    				<a href="#" class="btn main" onclick="deleteUser('<%=user%>', '<%=environment%>' )" >Delete User</a>
+				    			</li>
+				    		</ul>
+				    	</div>
+				    <%}%>
+				</div>
+			</div> <!-- /page_nav -->
+			
+			<div class="content clear well">
+				<div class="form-container">
+					<form action="#" method="post" class="hold right_label">
+						<fieldset>
+							<div class="input_row">
+								<label for="Username"><strong>Username<em> *</em></strong></label>
+								<input type="text" id="Username" class="half" maxlength="7"/>
+							</div>
+							<%  if(isEdit!='true') {%>
+								<div class="input_row">
+									<label for="Password"><strong>Password<em> *</em></strong> </label>
+									<input type="password" id="Password" class="half" maxlength="15"/>
+								</div>
+								
+								<div class="input_row">
+									<label for="repeatPassword"><strong>Repeat Password <em> *</em></strong> </label>
+									<input type="password" id="repeatPassword" class="half" maxlength="15"/>
+								</div>
+							<%}%>
+							
+							<input type="hidden" id='applicationKey' value='<%=applicationKey%>' />
+							<div class="input_row">
+								<label for="rssInstances"><strong>Database Environment <em> *</em></strong> </label>
+								<select id='rssInstances' class="select_list half big"></select>
+							</div>
+							
+						</fieldset>
+						
+						
+							<div class="buttonrow">  
+								<%  if(isEdit!='true') {%>
+								<input type='button' name='Submit' value='Create DB User' onclick="if(validateForm()){createDatabaseUser(this);}" class='btn main'/>
+								<%}%> 
+								<a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
+								<span id="saveSpin" class="icon-spinner icon-spin icon-large" style="margin-left: 10px; display:none;"></span>
+							</div>
+						
+					</form>
+				</div>
+			</div><!-- /content clear well -->
+		</section>
+		<div class="clearfix"></div>
+		</article><!-- /main -->
+	</div><!-- /container -->
+<% }); %>

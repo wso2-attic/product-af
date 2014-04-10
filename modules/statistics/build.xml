@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="create-toolboxes" default="zip" basedir=".">
+
+	<property name="project-name" value="${ant.project.name}" />
+	<property name="target-dir" value="target" />
+
+	<property name="AF_Analytics_dir" value="AF_Analytics" />
+
+	<target name="clean">
+		<delete dir="${target-dir}" />
+	</target>
+
+	<target name="pre-configure">
+		<mkdir dir="${target-dir}" />
+		<!--copy file="README.txt" todir="${target-dir}"/-->
+	</target>
+
+	<target name="zip" depends="clean,pre-configure">
+		<zip destfile="${target-dir}/${AF_Analytics_dir}.tbox">
+		  	<zipfileset dir="${AF_Analytics_dir}" prefix="${AF_Analytics_dir}"/> 
+		</zip>
+	</target>
+
+</project>
+

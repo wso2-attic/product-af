@@ -1,0 +1,159 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log("module/mytasks/get/list.jag");
+
+var modManager = jagg.module("manager")
+
+//get taskID by simpleQueryCategory
+var getTaskId = function getTaskId(simpleQueryCategory){
+    jagg.module("permission").checkUserAuthenticated();
+    var ws = require('ws');
+    var getTaskIdRequest = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803/simpleQuery";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
+                              ];
+    var payload = '<ns:simpleQuery xmlns:ns="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803"><ns:simpleQueryInput><ns1:status xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:status><ns1:createdDate xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:createdDate><ns1:undatedDate xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:undatedDate><ns1:taskName xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:taskName><ns1:pageSize xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:pageSize><ns1:pageNumber xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:pageNumber><ns1:simpleQueryCategory xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803">' + simpleQueryCategory + '</ns1:simpleQueryCategory><ns1:queryOrder xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:queryOrder><ns1:queryOrderBy xmlns:ns1="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"></ns1:queryOrderBy></ns:simpleQueryInput></ns:simpleQuery>';
+    var result;
+
+    try {
+    	var endPoint =getProperty(APPFACTORY_SERVER_URL)+'HumanTaskClientAPIAdmin';
+    	getTaskIdRequest.open(options,endPoint, false);
+    	getTaskIdRequest.send(payload);
+    	result = getTaskIdRequest.responseE4X;
+
+    	if(log.isDebugEnabled()){
+    		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+    	}
+    	return parseResponse(result);
+    } catch (e) {
+    	log.error("Error while getting assigned task IDs " + "\n"+e.message);
+    	throw "Error while getting assigned task IDs " + "\n"+e.message;
+    }
+};
+
+var parseResponse=function parseResponse(response){
+var tasks=response.*::taskSimpleQueryResultSet.*::row
+var tasksObject=[];
+
+for(var i=0; i<tasks.length(); i++){
+var task={};
+ var entry=tasks[i];
+
+ var id = entry.*::id.text();
+ var presentationSubject = entry.*::presentationSubject.text();
+ var status = entry.*::status.text();
+ var createdTime = entry.*::createdTime.text();
+
+ task.id=id;
+ task.presentationSubject=presentationSubject;
+if(status=="RESERVED"){
+ startTask(id);
+ task.status="IN_PROGRESS";
+}else{
+ task.status=status;
+}
+ task.createdTime=createdTime;
+ tasksObject.push(task);
+ }
+return tasksObject;
+};
+
+//load task information
+
+var loadTask = function loadTask(taskId){
+    jagg.module("permission").checkUserAuthenticated();
+    var ws = require('ws');
+    var loadTaskRequest = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803/loadTask";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
+                              ];
+    var payload = '<ns:loadTask xmlns:ns="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803"><ns:identifier>' + taskId + '</ns:identifier></ns:loadTask>';
+    var result;
+
+    try {
+    	var endPoint =getProperty(APPFACTORY_SERVER_URL)+'HumanTaskClientAPIAdmin';
+    	loadTaskRequest.open(options,endPoint, false);
+    	loadTaskRequest.send(payload);
+    	result = loadTaskRequest.responseE4X;
+
+    	if(log.isDebugEnabled()){
+    		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+    	}
+    	return parseResponse(result);
+    } catch (e) {
+    	log.error("Error while loading task information " + "\n"+e.message);
+    	throw "Error while loading task information " + "\n"+e.message;
+    }
+};
+
+//start task approval
+
+var startTask = function startTask(taskId){
+    jagg.module("permission").checkUserAuthenticated();
+    var ws = require('ws');
+    var startTaskRequest = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803/start";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
+                              ];
+    var payload = '<ns:start xmlns:ns="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803"><ns:identifier>' + taskId + '</ns:identifier></ns:start>';
+    var result;
+
+    try {
+    	var endPoint =getProperty(APPFACTORY_SERVER_URL)+'HumanTaskClientAPIAdmin';
+    	startTaskRequest.open(options,endPoint, false);
+    	startTaskRequest.send(payload);
+    	result = startTaskRequest.responseE4X;
+
+    	if(log.isDebugEnabled()){
+    		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+    	}
+    	return parseResponse(result);
+    } catch (e) {
+    	log.error("Error while starting task approval " + "\n"+e.message);
+    	throw "Error while starting task approval " + "\n"+e.message;
+    }
+};
+
+//complete approval task
+
+var completeTask = function completeTask(taskId, approvalStatus){
+    jagg.module("permission").checkUserAuthenticated();
+    var ws = require('ws');
+    var completeTaskRequest = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803/complete";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
+                              ];
+    var payload = '<ns:complete xmlns:ns="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/api/200803"><ns:identifier>' + taskId + '</ns:identifier><ns:taskData>' + '<![CDATA[<sch:UserApprovalResponse xmlns:sch="http://www.example.com/claims/schema"><sch:approved>' + approvalStatus + '</sch:approved></sch:UserApprovalResponse>]]>' + '</ns:taskData></ns:complete>';
+    var result;
+
+    try {
+        var endPoint =getProperty(APPFACTORY_SERVER_URL)+'HumanTaskClientAPIAdmin';
+        completeTaskRequest.open(options,endPoint, false);
+        completeTaskRequest.send(payload);
+        result = completeTaskRequest.responseE4X;
+
+        if(log.isDebugEnabled()){
+            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+        }
+ return parseResponse(result);
+    } catch (e) {
+        log.error("Error while completing task approval process " + "\n"+e.message);
+        throw "Error while completing task approval process " + "\n"+e.message;
+    }
+};
+%>

@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/util.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var log=new Log("blocks/resources/registry/add/ajax/add.jag");
+    if (action == "createResource") {
+    	mod = jagg.module("resources");
+    	var lifeCycleModule = jagg.module("lifecycle");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var resourceName = request.getParameter("resourceName");
+    	var resourceDescription = request.getParameter("resourceDescription");
+    	var resourceMediaType = request.getParameter("resourceMediaType");
+    	var contentValue = request.getParameter("contentValue");
+    	var stage = request.getParameter("stage");
+
+        var response = {};
+        var initialStages = lifeCycleModule.getInitialLifeCycleStages();
+        var stages = [stage];
+        
+        //var stages=getAllowedStages(initialStages,PERMISSION_RESOURCES_CREATE_FOR_STAGE,applicationKey);
+        try{
+            mod.addPropertyToStages(resourceName, contentValue, resourceDescription,
+            resourceMediaType, applicationKey, stages);
+        } catch(e) {
+            throw "Error while creating resources";
+        }
+
+    } else if (action == "deleteResource") {
+        mod = jagg.module("resources");
+        var lifeCycleModule = jagg.module("lifecycle");
+        var applicationKey = request.getParameter("applicationKey");
+        var resourceName = request.getParameter("resourceName");
+
+        var response = {};
+        var allStages= lifeCycleModule.getAllLifeCycleStages();
+        var stages=getAllowedStages(allStages,PERMISSION_RESOURCES_UPDATE_FOR_STAGE);
+            try {
+                mod.deletePropertyFromStages(resourceName, applicationKey, stages);
+            } catch(e) {
+                throw "Error while creating an resources"+e.toString();
+            }
+
+
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

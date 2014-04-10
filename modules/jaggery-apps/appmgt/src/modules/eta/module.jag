@@ -1,0 +1,17 @@
+<%
+jagg.module("eta", {
+
+	set:function () {
+    		return jagg.require(jagg.getModulesDir() + "eta/eta.jag").set.apply(this, arguments);
+    	},
+
+	get:function () {
+		return jagg.require(jagg.getModulesDir() + "eta/eta.jag").get.apply(this, arguments);
+	},
+
+	calculate:function () {
+		return jagg.require(jagg.getModulesDir() + "eta/eta.jag").calculate.apply(this, arguments);
+	}
+
+});
+%>

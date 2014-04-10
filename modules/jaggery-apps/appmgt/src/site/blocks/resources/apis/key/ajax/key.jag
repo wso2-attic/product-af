@@ -1,0 +1,85 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var modPermission = jagg.module("permission");
+
+    if(action == "getSavedKeys"){
+        mod = jagg.module("resources");
+        var applicationId = request.getParameter("applicationKey");
+        var isSync = request.getParameter("isSync");
+        var userName = request.getParameter("userName");
+        var response = {};
+               
+        var stagesWithPermission = [];
+        var stages = getProperties(DEPLOYMENT_STAGES);
+        for (var i = 0; i < stages.length; i++) {
+        	var stage = stages[i];
+        	if(isSync == "true"){
+        		if(modPermission.isUserAccessGranted(applicationId, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
+        			stagesWithPermission.push(stage);
+        		}
+        	}else{
+        		if(modPermission.isUserAccessGranted(applicationId, PERMISSION_RESOURCES_READ_FOR_STAGE + stage)){
+        			stagesWithPermission.push(stage);
+        		}
+        	}
+        }
+        var envKeyConstants = {};
+        if (stagesWithPermission.length > 0){
+        	for(var i = 0; i < stagesWithPermission.length; i++){
+        		var stage = stagesWithPermission[i];
+	            var keyConstants = (getProperties(APIM_KEY_CONSTANTS + stage)[0]).split(":");
+	            envKeyConstants[stage] = keyConstants;
+        	}
+        } else {
+        	 var msg = "You don't have permission to get saved API keys from registry";
+             log.error(msg);
+             throw msg;
+        }
+        
+        try{
+            result = mod.getSavedKeys(applicationId, userName, isSync, envKeyConstants);
+            if(result == null){
+            	print("0");
+            }else{
+                print(result);
+            }
+        }catch(e){
+            throw "Error while retrieving keys"
+        }
+    } else if(action == "keysExistsInAllStages"){
+        mod = jagg.module("resources");
+        var applicationId = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        if (modPermission.hasAPISubscriptionAndKeyGenerationPermission(applicationId, userName)){
+        	
+        	var envKeyConstants = {};
+        	var stages = getProperties(DEPLOYMENT_STAGES);
+        	for (var i = 0; i < stages.length; i++) {
+        		var stage = stages[i]; 
+        		var keyConstants = (getProperties(APIM_KEY_CONSTANTS + stage)[0]).split(":");
+        		envKeyConstants[stage] = keyConstants;
+        	}
+        	
+            try{
+                result = mod.keysExistsAllInStages(applicationId, envKeyConstants);
+                print(result);
+            }catch(e){
+                throw "Error while checking existance of saved keys in Registries";
+            }
+        } else {
+            var msg = "Unauthorized!!! Only Application Owner has permission to complete this action";
+            log.error(msg);
+            throw msg;
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

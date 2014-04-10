@@ -1,0 +1,218 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log('modules/resources/datasources/add/add.jag');
+
+var cookieRefreshInterval = getProperty(COOKIE_REFRESH_INTERVAL);
+var clock = new Date();
+var modManager = jagg.module("manager");
+var permissionModule = jagg.module("permission");
+var lifeCycleModule =  jagg.module("lifecycle");
+
+var deleteDatasource = function (applicationId, stageName, name) {
+    var ws = require('ws');
+    var deleteDataSourceService = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.action = "urn:deleteDataSource";
+
+    var payload ='<p:deleteDataSource xmlns:p="http://datasource.ext.appfactory.carbon.wso2.org">'+
+                     '<xs:dsName xmlns:xs="http://datasource.ext.appfactory.carbon.wso2.org">'+name+'</xs:dsName>'+
+                     '<xs:applicationID xmlns:xs="http://datasource.ext.appfactory.carbon.wso2.org">'+applicationId+'</xs:applicationID>'+
+                 '</p:deleteDataSource>';
+    var result;
+    try {
+        var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.DeploymentServerURL') + 'AppFactoryNDataSourceAdmin';
+        options["HTTPHeaders"] =
+        [{
+        	name : "Cookie", value :modManager.getBackendCookie(getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.DeploymentServerURL'))
+        }];
+        deleteDataSourceService.open(options, endPoint, false);
+        deleteDataSourceService.send(payload);
+        return {
+        	error:false
+        };
+
+    } catch (e) {
+        log.error("Error while deleting datasource " + stageName + "\n" + e.message);
+        throw "Error while deleting datasource  " + stageName;
+    }
+};
+
+var addDataSource = function (applicationId, stageName, name, url, driverClass, username,
+        password, description) {
+    var ws = require('ws');
+    var createDataSourcesService = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.action = "urn:addDataSource";
+
+    var payload = '<p:addDataSource xmlns:p="http://datasource.ext.appfactory.carbon.wso2.org">'+
+                 '<ax29:dsmInfo xmlns:ax29="http://datasource.ext.appfactory.carbon.wso2.org">' +
+                 '<ax29:definition xmlns:ax29="http://services.core.ndatasource.carbon.wso2.org/xsd">'+
+                 '<xs:dsXMLConfiguration xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">'+
+                  '<![CDATA[<configuration>' +
+                  '<url>' + url + '</url>' +
+                  '<username>' + username + '</username>' +
+                  '<password>' + password + '</password>' +
+                  '<driverClassName>' + driverClass + '</driverClassName>' +
+                  '<maxActive>50</maxActive>' +
+                  '<maxWait>60000</maxWait>' +
+                  '<testOnBorrow>true</testOnBorrow>' +
+                  '<validationQuery>SELECT 1</validationQuery>' +
+                  '<validationInterval>30000</validationInterval>' +
+                  '</configuration>]]>' +
+                  '</xs:dsXMLConfiguration>'+
+                  '<xs:type xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">RDBMS</xs:type>'+
+                  '</ax29:definition>'+
+                  '<xs:description xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">'+description+'</xs:description>'+
+                  '<ax210:jndiConfig xmlns:ax210="http://services.core.ndatasource.carbon.wso2.org/xsd">'+
+                  '<xs:name xmlns:xs="http://core.ndatasource.carbon.wso2.org/xsd">'+ 'jdbc/'+name+'</xs:name>'+
+                  '<xs:useDataSourceFactory xmlns:xs="http://core.ndatasource.carbon.wso2.org/xsd">false</xs:useDataSourceFactory>' +
+                  '</ax210:jndiConfig>'+
+                  '<xs:name xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">'+name+'</xs:name>'+
+                  '<xs:system xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">false</xs:system>'+
+                  '</ax29:dsmInfo>'+
+                  '<xs:applicationID xmlns:xs="http://datasource.ext.appfactory.carbon.wso2.org">'+applicationId+'</xs:applicationID>'+
+                  '</p:addDataSource>';;
+    var result;
+    try {
+    	var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.DeploymentServerURL') + 'AppFactoryNDataSourceAdmin';
+    	options["HTTPHeaders"] =
+    	[{
+    		name : "Cookie", value :modManager.getBackendCookie(getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.DeploymentServerURL'))
+    	}];
+        createDataSourcesService.open(options, endPoint, false);
+        createDataSourcesService.send(payload);
+	    result = createDataSourcesService.responseE4X;
+        var datasources = buildResponse(result);
+         log.info("Created data source: " + datasources);
+        return datasources;
+
+
+    } catch (e) {
+        log.error("Error while creating datasource " + stageName + "\n" + e.message);
+        throw "Error while creating datasource  " + stageName;
+    }
+	
+};
+
+
+
+var createDataSource = function (stage,applicationId, name, url, driverClass, username,
+                                 password, description) { 
+    var ws = require('ws');
+    var createDataSourcesService = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.action = "urn:addDataSource";
+
+    var payload ='<p:addDataSource xmlns:p="http://datasource.ext.appfactory.carbon.wso2.org">'+
+                 '<ax29:dsmInfo xmlns:ax29="http://datasource.ext.appfactory.carbon.wso2.org">' +
+                 '<ax29:definition xmlns:ax29="http://services.core.ndatasource.carbon.wso2.org/xsd">'+
+                 '<xs:dsXMLConfiguration xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">'+
+                  '<![CDATA[<configuration>' +
+                  '<url>' + url + '</url>' +
+                  '<username>' + username + '</username>' +
+                  '<password>' + password + '</password>' +
+                  '<driverClassName>' + driverClass + '</driverClassName>' +
+                  '<maxActive>50</maxActive>' +
+                  '<maxWait>60000</maxWait>' +
+                  '<testOnBorrow>true</testOnBorrow>' +
+                  '<validationQuery>SELECT 1</validationQuery>' +
+                  '<validationInterval>30000</validationInterval>' +
+                  '</configuration>]]>' +
+                  '</xs:dsXMLConfiguration>'+
+                  '<xs:type xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">RDBMS</xs:type>'+
+                  '</ax29:definition>'+
+                  '<xs:description xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">'+description+'</xs:description>'+
+                  '<ax210:jndiConfig xmlns:ax210="http://services.core.ndatasource.carbon.wso2.org/xsd">'+
+                  '<xs:name xmlns:xs="http://core.ndatasource.carbon.wso2.org/xsd">'+ 'jdbc/'+name+'</xs:name>'+
+                  '<xs:useDataSourceFactory xmlns:xs="http://core.ndatasource.carbon.wso2.org/xsd">false</xs:useDataSourceFactory>' +
+                  '</ax210:jndiConfig>'+
+                  '<xs:name xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">'+name+'</xs:name>'+
+                  '<xs:system xmlns:xs="http://services.core.ndatasource.carbon.wso2.org/xsd">false</xs:system>'+
+                  '</ax29:dsmInfo>'+
+                  '<xs:applicationID xmlns:xs="http://datasource.ext.appfactory.carbon.wso2.org">'+applicationId+'</xs:applicationID>'+
+                  '</p:addDataSource>';
+    
+    // AF will create data sources only in a initial stage.
+    var deploymentStages = lifeCycleModule.getInitialLifeCycleStages();
+    
+    var result;
+    var datasources = [];
+    
+    	try {
+    		var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.DeploymentServerURL');
+    		options["HTTPHeaders"] = [{
+    			name : "Cookie", value :modManager.getBackendCookie(endPoint)
+    		}];
+    		createDataSourcesService.open(options, endPoint + 'AppFactoryNDataSourceAdmin', false);
+    		createDataSourcesService.send(payload);
+    		result = createDataSourcesService.responseE4X;
+    		var datasource = buildResponse(result);
+    		log.info("Created data source: " + datasource);
+    		datasources.push(datasource);
+    	} catch (e) {
+    		log.error("Error while creating datasource " + deploymentStages[i] + "\n" + e.message);
+    	}
+
+    return datasources;
+        	    
+};
+
+var copyNewDataSources = function(applicationId, sourceStage, targetStage) {
+	
+	var resourcesModule = jagg.module("resources");
+	
+	var dataSourcesInSourceStage = resourcesModule.getDatasources(applicationId, sourceStage);
+	var dataSourcesInTargetStage = resourcesModule.getDatasources(applicationId, targetStage);
+	
+	dataSourcesInSourceStage = buildMap(dataSourcesInSourceStage);
+	dataSourcesInTargetStage = buildMap(dataSourcesInTargetStage);
+	
+
+	for (var dsName in dataSourcesInSourceStage){
+		if ( dataSourcesInTargetStage[dsName] == null){
+			try{				
+				var dsToCreate = dataSourcesInSourceStage[dsName];
+				
+				log.info("copying datasource: " + dsToCreate.name + "to: " + targetStage);
+				
+				resourcesModule.addDataSource(applicationId, targetStage, dsToCreate.name, dsToCreate.url, dsToCreate.driverClassName, 
+						                      dsToCreate.username, dsToCreate.password, dsToCreate.description);
+				
+			} catch(e){
+				log.error("Error while copying datasource: " + ds.name + "from :" 
+								+ sourceStage + "to: " + targetStage + "\n" + e.message);
+			}
+		}
+	}
+	
+};
+
+function buildMap(dsObjectArray){
+	var map = {};
+	if (dsObjectArray != null){
+		for ( i = 0 ; i < dsObjectArray.length; i++){
+			var ds = dsObjectArray[i];
+			map[ds.name] = ds;
+		}
+	}
+	return map;
+};
+
+function buildResponse(result){
+   var databaseObject=[];
+   
+   if(result != undefined){    
+     var response=result.*::["return"].text();
+     var entry=response[0];
+     return entry;
+   }
+}
+
+%>

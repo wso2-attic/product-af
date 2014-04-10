@@ -1,0 +1,11 @@
+
+
+<%
+jagg.initializer("resources/database/templates", {
+
+    preInitialize:function () {
+
+    }
+});
+%>
+

@@ -1,0 +1,11 @@
+<%
+jagg.module("user/change", {
+changePassword: function () {
+        return jagg.require(jagg.getModulesDir() + "user/change/user.jag").changePassword.apply(this, arguments);
+    },
+updatePasswordWithUserInput: function () {
+        return jagg.require(jagg.getModulesDir() + "user/change/user.jag").updatePasswordWithUserInput.apply(this, arguments);
+    }
+   
+});
+%>

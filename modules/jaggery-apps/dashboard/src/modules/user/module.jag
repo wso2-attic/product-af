@@ -1,0 +1,8 @@
+<%
+jagg.module("user", {
+	
+    getUserCountByRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getUserCountByRoles.apply(this, arguments);
+    }
+});
+%>

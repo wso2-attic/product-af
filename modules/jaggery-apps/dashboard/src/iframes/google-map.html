@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>World Map Gadget</title>
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+     
+	 
+	  function initialize() {
+       var br = new google.maps.LatLng(30.411944, -91.185556);
+        var mapOptions = {
+          zoom:2,
+          center: br,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+
+        var map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+
+        var ctaLayer = new google.maps.KmlLayer('http://www.gelib.com/wp-content/uploads/2009/world-borders_nl.kml', {preserveViewport:true});
+        ctaLayer.setMap(map);
+		
+		google.maps.event.addListener(ctaLayer, 'click', function(kmlEvent) {
+			var text = kmlEvent.featureData.snippet;
+			window.parent.cc = text.match(/[A-Z]{3}/).toString();
+			window.parent.range = '1992:2008';
+			window.parent.showSticky();
+			window.parent.document.getElementById('alert-start').style.display = 'none';
+			window.parent.update();
+			//alert(window.cc);
+		});
+
+		
+		
+		
+      }
+	
+	  
+	    /*
+  function initialize() {
+	  var map;
+	  var br = new google.maps.LatLng(30.411944, -91.185556);
+	  var myOptions = {
+		zoom: 7,
+		center: br,
+		mapTypeId: google.maps.MapTypeId.TERRAIN,
+	  }
+	  map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
+
+	  var lchLayer = new google.maps.KmlLayer('http://www.srh.noaa.gov/ridge/kml/animation/N0R/LCH_N0R_loop.kml', {preserveViewport:true});
+		lchLayer.setMap(map);
+	   var lixLayer = new google.maps.KmlLayer('http://www.srh.noaa.gov/ridge/kml/animation/N0R/LIX_N0R_loop.kml', {preserveViewport:true,suppressInfoWindows:true});
+		lixLayer.setMap(map);
+
+    } 
+	*/
+	  
+    </script>
+	<style type="text/css">
+  html { height: 100% }
+  body { height: 100%; margin: 0; padding: 0 }
+  #map_canvas { height: 100% }
+</style>
+  </head>
+  <body onload="initialize()">
+    <div id="map_canvas"></div>
+  </body>
+</html>

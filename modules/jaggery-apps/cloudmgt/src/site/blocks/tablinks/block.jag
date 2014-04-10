@@ -1,0 +1,7 @@
+<%
+jagg.block("tablinks", {
+    initialize:function (data) {
+
+    }
+});
+%>

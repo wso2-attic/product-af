@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<artifactType type="application/vnd.wso2-template+xml" shortName="template"
+              singularLabel="template"
+              pluralLabel="tempalates" hasNamespace="false" iconSet="7">
+    <storagePath>/repository/rss/@{databasetemplate_environment}/template/@{databasetemplate_appkey}/@{databasetemplate_name}/templateinfo</storagePath>
+    <nameAttribute>databasetemplate_name</nameAttribute>
+    <ui>
+        <list>
+
+            <column name="Name">
+                <data type="path" value="databasetemplate_name" href="@{storagePath}"/>
+            </column>
+            <column name="Environment">
+                <data type="path" value="databasetemplate_environment" href="@{storagePath}"/>
+            </column>
+
+            <column name="Appkey">
+                <data type="path" value="databasetemplate_appkey" href="@{storagePath}"/>
+            </column>
+        </list>
+    </ui>
+    <content>
+        <table name="databasetemplate">
+
+            <field type="text" required="true">
+                <name>Name</name>
+            </field>
+            <field type="text" required="true">
+                <name>Environment</name>
+            </field>
+            <field type="text" required="true">
+                <name>Appkey</name>
+            </field>
+
+        </table>
+
+        <table name="Service Lifecycle">
+            <field type="options">
+                <name label="Lifecycle Name">Lifecycle Name</name>
+                <values class="org.wso2.carbon.governance.generic.ui.utils.LifecycleListPopulator">
+                </values>
+            </field>
+        </table>
+    </content>
+
+</artifactType>

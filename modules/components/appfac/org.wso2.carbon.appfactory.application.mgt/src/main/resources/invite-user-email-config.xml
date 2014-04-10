@@ -1,0 +1,54 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+
+<!--
+   refer following example to access parameters to put in the mail.
+  -->
+<configuration>
+    <subject>You have been invited as a {roles} of {applicationId} Application</subject>
+    <body>
+Hi {userName},
+
+Welcome to {applicationName} Application as a {roles}.
+    {applicationName}:
+    {applicationDescription}
+    {roleTask}
+    You can access your application through https://appfactorypreview.wso2.com/appmgt/site/pages/application.jag?applicationName={applicationNameEncoded}&amp;applicationKey={applicationId}
+
+Thank you
+    </body>
+    <userParams>
+        <roleTask>
+                <developer>
+    As a Developer, you need to checkout the application from the repository URL and import the project to your preferred IDE.
+    You can add your implementation and commit the code again to the repository.Once committed, you can build the code. Once built, you can deploy and launch your application.
+    If you need to check the logs of the developed application, you have the facility of downloading the logs.
+    Once you are done with the development of the application, you can promote the application into the QA stage
+        </developer>
+                <qa>
+    As a QA, you can launch the Application hosted in the test environment and perform functional and non functional testing.
+    Once the necessary tests are completed, you can promote the application to Staging environment.
+    Once you are done with the testing, you can promote the application to the Staging environment
+                </qa>
+                <devOps>
+    As a DevOp, you can check the staging environment, do the necessary production database and other resource configurations and promote the application to the Production environment.
+                </devOps>
+        </roleTask>
+    </userParams>
+</configuration>
+

@@ -1,0 +1,25 @@
+<%
+var caramel = require('caramel');
+(function () {
+    var login = require('/modules/login.js');
+    if(!login.isLogged()){
+        return;
+    }
+    issue = require('/modules/issue.js'),
+
+    pkey = request.getParameter('issuePkey');
+    include('/jagg/jagg.jag');
+
+	userName = context.get(LOGGED_IN_USER);
+	domain = context.get(DOMAIN);
+
+    caramel.render({
+        title  : { text : 'Issue Tracker | View Issue'},
+        header : { domain : domain, userName : userName},
+        body   : { data : issue.getIssueByKey(pkey) }
+    });
+}());
+%>
+
+
+

@@ -1,0 +1,28 @@
+<%
+jagg.module("dashboard", {
+    
+    getApplicationsOfUser:function () {
+        return jagg.require(jagg.getModulesDir() + "dashboard/get/list.jag").getApplicationsOfUser.apply(this, arguments);
+    },
+    
+    getVersionsInLifecycle:function () {
+        return jagg.require(jagg.getModulesDir() + "dashboard/get/list.jag").getVersionsInLifecycle.apply(this, arguments);
+    },
+    
+    getApplicationsWithVersions:function () {
+        return jagg.require(jagg.getModulesDir() + "dashboard/get/list.jag").getApplicationsWithVersions.apply(this, arguments);
+    },
+    
+    getAllApplications:function () {
+        return jagg.require(jagg.getModulesDir() + "dashboard/get/list.jag").getAllApplications.apply(this, arguments);
+    },
+
+    listAppsWithDetails:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").listAppsWithDetails.apply(this, arguments);
+    },
+    
+    getBuildInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "dashboard/get/list.jag").getBuildInfo.apply(this, arguments);
+    }
+});
+%>

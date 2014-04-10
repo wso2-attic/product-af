@@ -1,0 +1,46 @@
+<%
+
+jagg.module("permission", {
+
+    checkUserAuthenticated:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").checkUserAuthenticated.apply(this, arguments);
+    },
+
+    checkSystemAdminPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").checkSystemAdminPermission.apply(this, arguments);
+    },
+    checkUserActionPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").checkUserActionPermission.apply(this, arguments);
+    },
+    isUserAccessGranted:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").isUserAccessGranted.apply(this, arguments);
+    },
+    isUserAccessGrantedForPlatform:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").isUserAccessGrantedForPlatform.apply(this, arguments);
+    },
+    hasPermissionToStage:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag").hasPermissionToStage.apply(this, arguments);
+    },
+    hasTenantLevelUserMgtPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasTenantLevelUserMgtPermission.apply(this, arguments);
+    },
+    hasAppCreationPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasAppCreationPermission.apply(this, arguments);
+    },
+    hasApplevelUserMgtPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasApplevelUserMgtPermission.apply(this, arguments);
+    },
+    checkUserAuthorization:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasApplevelUserMgtPermission.apply(this, arguments);
+    },
+    authorizeRole:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). authorizeRole.apply(this, arguments);
+    },
+    denyRole:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). denyRole.apply(this, arguments);
+    },
+    isRoleAuthorized:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). isRoleAuthorized.apply(this, arguments);
+    }
+});
+%>

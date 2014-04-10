@@ -1,0 +1,289 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log("module/dashboard/get/list.jag");
+
+var modManager = jagg.module("manager");
+var modApplication = jagg.module("application");
+
+var getApplicationsOfUser = function () {
+    
+    var ws = require("ws");
+    var applicationMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getApplicationsOfUser";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+    var payload = '<p:getApplicationsOfUser xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"><p:roleName>' + ROLE_APP_OWNER + '</p:roleName></p:getApplicationsOfUser>';
+    var result;
+
+	var outerArray = {};
+	try {
+		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "DashboardManagementService";
+		applicationMgtService.open(options,endPoint, false);
+		applicationMgtService.send(payload);
+		result = applicationMgtService.responseE4X;
+		var ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+		var ax29 = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org/xsd");
+		result = result.ns::["return"];
+
+        var lessThanFive = 'LESS_THAN_FIVE';
+        var fiveToTen = 'FIVE_TO_TEN';
+        var tenToFifteen = 'TEN_TO_FIFTEEN';
+        var fifteenToTwenty = 'FIFTEEN_TO_TWENTY';
+        var moreThanTwenty = 'MORE_THAN_TWENTY';
+        
+        var elementsArray = new Array();
+        var contentArray = new Array();
+        elementsArray[lessThanFive] = new Array('Less than 5', 0, 1);
+        elementsArray[fiveToTen] = new Array('6 to 10', 0, 2);
+        elementsArray[tenToFifteen] = new Array('11 to 15', 0, 3);
+        elementsArray[fifteenToTwenty] = new Array('16 to 20', 0, 4);
+        elementsArray[moreThanTwenty] = new Array('More than 20', 0, 5);
+        
+        for (var userKey in result) {
+        	
+        	var appInfo = result[userKey];
+        	var userName = appInfo.ax29::["userNam"];
+        	
+        	var applicationList = appInfo.ax29::["applications"];      
+        	var listLength = applicationList.length();
+		
+        	if(listLength < 5) {
+        		elementsArray[lessThanFive][1] = elementsArray[lessThanFive][1] + 1;
+        	}else if(listLength >= 5 && listLength < 10) {
+        		elementsArray[fiveToTen][1] = elementsArray[fiveToTen][1] + 1;
+        	}else if(listLength >= 10 && listLength < 15) {
+        		elementsArray[tenToFifteen][1] = elementsArray[tenToFifteen][1] + 1;
+        	}else if(listLength >= 15 && listLength < 20) {
+        		elementsArray[fifteenToTwenty][1] = elementsArray[fifteenToTwenty][1] + 1;
+        	}else if(listLength >= 20) {
+        		elementsArray[moreThanTwenty][1] = elementsArray[moreThanTwenty][1] + 1;
+        	}
+        }
+
+        for(var sectionKey in elementsArray) {
+        	var element = elementsArray[sectionKey];
+            var innerElement = {};
+        	innerElement.text = element[0];
+        	innerElement.data = element[1];
+        	innerElement.value = element[2];
+			contentArray.push(innerElement);
+        }
+
+        outerArray.labels = contentArray;
+
+    } catch (e) {
+        log.error("Error while getting all applications \n" + e.message);
+        throw "Error while getting all applications";
+    }
+
+    return outerArray;
+}
+
+var getAllApplications = function () {
+    
+    var ws = require("ws");
+    var applicationMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getAllCreatedApplications";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+    var payload = '<p:getAllCreatedApplications xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"></p:getAllCreatedApplications>';
+    var result;
+
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "DashboardManagementService";
+    	applicationMgtService.open(options,endPoint, false);
+    	applicationMgtService.send(payload);
+    	result = applicationMgtService.responseE4X;
+    	var ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+    	result = result.ns::["return"].text();
+
+        var elementsArray = new Array();
+        
+        for (var userKey in result) {
+        	var appInfo = result[userKey];
+
+        	elementsArray.push(appInfo);	
+        }
+
+        return elementsArray;
+    } catch (e) {
+        log.error("Error while getting all applications \n" + e.message);
+        throw "Error while getting all applications";
+    }
+    
+    return arrApplications;
+}
+
+var getVersionsInLifecycle = function () {
+	var ws = require("ws");
+    var applicationMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getVersionsInStages";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+    var payload = '<p:getVersionsInStages xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"></p:getVersionsInStages>';
+    var result;
+
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "DashboardManagementService";
+    	applicationMgtService.open(options,endPoint, false);
+    	applicationMgtService.send(payload);
+    	result = applicationMgtService.responseE4X;
+    	var ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+    	var ax213 = new Namespace("http://dto.core.appfactory.carbon.wso2.org/xsd");
+    	result = result.ns::["return"];
+		
+		var elementsArray = new Array();
+       
+        var index = 0;
+        for (var version in result) {
+        	var versionInfo = result[version]; 
+        	var id  = versionInfo.ax213::["id"].text();
+        	var lifecycleStage = versionInfo.ax213::["lifecycleStage"].text();
+
+        	var innerElement = {};
+        	innerElement.id = '' + id;
+        	innerElement.lifecycleStage = '' + lifecycleStage;
+        	
+			elementsArray.push(innerElement);
+        }
+        
+        var outArray = {};
+        var contentArray = new Array();
+
+        var allStages = modApplication.getAllStages();
+        allStages = parse(allStages);
+
+        for(var i=0; i<allStages.length; i++) {
+        	var stage = allStages[i];
+        	var versionCounter = 0;
+        	
+        	for (var j=0; j<elementsArray.length; j++) {
+        		var version = elementsArray[j];
+        		if(version.lifecycleStage == stage) {
+        			versionCounter++;
+        		}
+        	}
+        	
+        	var innerElement = {};
+        	innerElement.value = i + 1;
+        	innerElement.text = stage;
+        	innerElement.data = versionCounter;
+			contentArray.push(innerElement);
+        }
+
+        outArray.labels = contentArray;
+
+        return outArray;
+    } catch (e) {
+        log.error("Error while getting all applications \n" + e.message);
+        throw "Error while getting all applications";
+    }
+}
+
+var getApplicationsWithVersions = function () {
+
+	var ws = require("ws");
+    var applicationMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getAllVersionsOfApplications";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+    var payload = '<p:getAllVersionsOfApplications xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"></p:getAllVersionsOfApplications>';
+    var result;
+
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "DashboardManagementService";
+    	applicationMgtService.open(options,endPoint, false);
+    	applicationMgtService.send(payload);
+    	result = applicationMgtService.responseE4X;
+    	var ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+    	var ax29 = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org/xsd");
+    	result = result.ns::["return"];
+
+        var elementsArray = new Array();
+       
+        var index = 0;
+        for (var application in result) {if(index == 3) break;
+        	var appInfo = result[application]; 
+        	var name  = appInfo.ax29::["name"].text();
+        	var length = appInfo.ax29::["versions"].length();
+        	
+        	var innerElement = {};
+        	innerElement.value = ++index;
+        	innerElement.text = name;
+        	innerElement.data = length;
+        	
+			elementsArray.push(innerElement);
+        }
+        
+        var outArray = {};
+        outArray.labels = elementsArray;
+        
+        return outArray;	              
+    } catch (e) {
+        log.error("Error while getting all applications \n" + e.message);
+        throw "Error while getting all applications";
+    }
+}
+
+var getBuildInfo = function () {
+    
+    var ws = require("ws");
+    var buildService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getGlobalStatistics";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+    var payload = '<p:getGlobalStatistics xmlns:p="http://build.core.appfactory.carbon.wso2.org"></p:getGlobalStatistics>';
+    var result;
+
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
+    	buildService.open(options,endPoint, false);
+    	buildService.send(payload);
+    	result = buildService.responseE4X;
+    	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
+    	var ax225 = new Namespace("http://dto.core.appfactory.carbon.wso2.org/xsd");
+    	result = result.ns::["return"];
+
+		var elementsArray = new Array();
+		
+		for (var buildData in result) {
+        	var buildInfo = result[buildData]; 
+        	var name  = buildInfo.ax225::["name"].text();
+        	var value = buildInfo.ax225::["value"].text();
+        	
+        	var innerElement = {};
+        	innerElement.name = name;
+        	innerElement.value = value;
+        	
+			elementsArray.push(innerElement);
+        }
+
+        return elementsArray;
+    } catch (e) {
+        log.error("Error while getting build information \n" + e.message);
+        throw "Error while getting build information";
+    }
+    
+    return arrApplications;
+}
+
+%>

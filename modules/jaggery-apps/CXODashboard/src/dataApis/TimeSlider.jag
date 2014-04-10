@@ -1,0 +1,19 @@
+<%
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+function getSliderEndpoints (){
+
+    if (isUserLoggedIn) {
+        var query = "SELECT START_DATE FROM SLIDER_ENDPOINTS WHERE TENANT_ID=" + tenantID + ";";
+        var dbResult = dbConfig.queryDb(query);
+
+        return dbResult[0]['START_DATE'];
+    }
+}
+print(getSliderEndpoints());
+%>

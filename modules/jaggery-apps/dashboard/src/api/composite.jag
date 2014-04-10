@@ -1,0 +1,27 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log=new Log();
+
+(function () {
+    var action = request.getParameter("action");
+
+   	if (action == "getResourceCount") {
+		var modDatasource = jagg.module("datasource");
+		var modAPIManager = jagg.module("apimanager");
+		var modResources = jagg.module("resources");
+		
+		var feedResponse = {};
+		feedResponse.datasourcecount = modDatasource.datasourceCount();
+		feedResponse.apicount = modAPIManager.getAPICount();
+		feedResponse.resourcecount = modResources.getDependenciesCount();
+		
+        print(feedResponse);
+   	}else {
+       	throw new Error("No action specified");
+   	}
+
+}());
+%>

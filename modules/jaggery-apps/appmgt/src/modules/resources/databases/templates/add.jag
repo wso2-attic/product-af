@@ -1,0 +1,367 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log('modules/resources/databases/templates/add.jag');
+
+var modManager = jagg.module("manager");
+var wso2_rss_instanceName = 'WSO2_RSS';
+var rssFilter=jagg.module("rss-filter");
+
+var getStageFromRssInstanceName=function(rssInstanceName){
+	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	for(var i=0;i<deploymentStages.length;i++){
+		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);
+		if(rssInstanceName==rssName){
+			return deploymentStages[i];
+		}
+	}
+
+};
+var dropTemplate = function (applicationKey,databaseServerInstanceName,name){
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var ws = require('ws');
+
+	var dropDatabaseTemplate = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.action = "urn:dropDatabasePrivilegesTemplate";
+	options.mep = "in-only";
+	var payload ='<ser:dropDatabasePrivilegesTemplate  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">' +
+	'<ser:ctx>' +
+	'<xsd:environmentName>' + databaseServerInstanceName + '</xsd:environmentName>' +
+	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+	'</ser:ctx>' +
+	'<ser:templateName>'+name+'</ser:templateName></ser:dropDatabasePrivilegesTemplate>';
+
+	var result;
+
+	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
+	options["HTTPHeaders"] =
+	[{
+		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+	}];
+	try {
+
+		dropDatabaseTemplate.open(options, storageServerURL+'RSSAdmin', false);
+		dropDatabaseTemplate.send(payload);
+        rssFilter.deleteDatabaseTemplate( rssFilter.getEnvironmentAwareTemplateName(name),
+        applicationKey, stage);
+
+	} catch (e) {
+		log.error("Error while dropping a template \n" + e.message);
+		throw "Error while dropping a template";
+	}
+
+};
+
+
+var editTemplate = function (applicationKey, name,databaseServerInstanceName){
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var ws = require('ws');
+
+	var editDatabaseTemplate = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.action = "urn:getDatabasePrivilegesTemplate";
+	var payload ='<ser:getDatabasePrivilegesTemplate  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">' +
+	'<ser:ctx>' +
+	'<xsd:environmentName>' + databaseServerInstanceName + '</xsd:environmentName>' +
+	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+	'</ser:ctx>' +
+	'<ser:templateName>'+name+'</ser:templateName></ser:getDatabasePrivilegesTemplate>';
+
+	var result;
+	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
+	options["HTTPHeaders"] =
+	[{
+		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+	}];
+	try {
+
+		editDatabaseTemplate.open(options, storageServerURL+'RSSAdmin', false);
+		editDatabaseTemplate.send(payload);
+		result = editDatabaseTemplate.responseE4X;
+
+	} catch (e) {
+		log.error("Error while editing a template \n" + e.message);
+		throw "Error while editing a template";
+	}
+	return buildTemplate(result);
+
+};
+
+
+var createTemplate = function (applicationKey,databaseServerInstanceName,name,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv){
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var ws = require('ws');
+	var createTemplateService = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.mep = "in-only";
+	options.action = "urn:createDatabasePrivilegesTemplate";
+	var tenantId="-1234";
+	options.robust = true;
+
+	var payload ='<ser:createDatabasePrivilegesTemplate  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org"  xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">'+
+	'<ser:ctx>' +
+	'<xsd:environmentName>' + databaseServerInstanceName + '</xsd:environmentName>' +
+	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+	'</ser:ctx>' +
+	'<ser:template>'+
+	'<xsd:name>'+name+'</xsd:name>'+
+	'<xsd:privileges>'+
+	'<xsd:alterPriv>'+alterPriv+'</xsd:alterPriv>'+
+	'<xsd:alterRoutinePriv>'+alterRoutinePriv+'</xsd:alterRoutinePriv>'+
+	'<xsd:createPriv>'+createPriv+'</xsd:createPriv>'+
+	'<xsd:createRoutinePriv>'+createRoutinePriv+'</xsd:createRoutinePriv>'+
+	'<xsd:createTmpTablePriv>'+createTmpTablePriv+'</xsd:createTmpTablePriv>'+
+	'<xsd:createViewPriv>'+createViewPriv+'</xsd:createViewPriv>'+
+	'<xsd:deletePriv>'+deletePriv+'</xsd:deletePriv>'+
+	'<xsd:dropPriv>'+dropPriv+'</xsd:dropPriv>'+
+	'<xsd:eventPriv>'+eventPriv+'</xsd:eventPriv>'+
+	'<xsd:executePriv>'+executePriv+'</xsd:executePriv>'+
+	'<xsd:grantPriv>'+grantPriv+'</xsd:grantPriv>'+
+	'<xsd:indexPriv>'+indexPriv+'</xsd:indexPriv>'+
+	'<xsd:insertPriv>'+insertPriv+'</xsd:insertPriv>'+
+	'<xsd:lockTablesPriv>'+lockTablesPriv+'</xsd:lockTablesPriv>'+
+	'<xsd:referencesPriv>'+referencesPriv+'</xsd:referencesPriv>'+
+	'<xsd:selectPriv>'+selectPriv+'</xsd:selectPriv>'+
+	'<xsd:showViewPriv>'+showViewPriv+'</xsd:showViewPriv>'+
+	'<xsd:triggerPriv>'+triggerPriv+'</xsd:triggerPriv>'+
+	'<xsd:updatePriv>'+updatePriv+'</xsd:updatePriv>'+
+	'</xsd:privileges>'+
+	' <xsd:tenantId>'+tenantId+'</xsd:tenantId>'+
+	'</ser:template></ser:createDatabasePrivilegesTemplate>';
+
+	var result;
+	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
+	options["HTTPHeaders"] =
+	[{
+		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+	}];
+	try {
+		createTemplateService.open(options, storageServerURL+'RSSAdmin', false);
+		createTemplateService.send(payload);
+		rssFilter.addDatabaseTemplate(rssFilter.getEnvironmentAwareTemplateName(name),
+		applicationKey,stage);
+		result = "success";
+	} catch (e) {
+		log.error("Error while creating a template \n" + e.message);
+		//throw "Error while creating a template";
+		result = ""+e.javaException.cause;
+	}
+	return result;
+};
+
+var editDbTemplate = function (applicationKey,databaseServerInstanceName,name,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv){
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var ws = require('ws');
+
+	var editTemplateService = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.mep = "in-only";
+	options.action = "urn:editDatabasePrivilegesTemplate";
+
+	var tenantId="-1234";
+
+	var payload ='<ser:editDatabasePrivilegesTemplate  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">'+
+	'<ser:ctx>' +
+	'<xsd:environmentName>' + databaseServerInstanceName + '</xsd:environmentName>' +
+	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+	'</ser:ctx>' +
+	'<ser:template>'+
+	'<xsd:name>'+name+'</xsd:name>'+
+	'<xsd:privileges>'+
+	'<xsd:alterPriv>'+alterPriv+'</xsd:alterPriv>'+
+	'<xsd:alterRoutinePriv>'+alterRoutinePriv+'</xsd:alterRoutinePriv>'+
+	'<xsd:createPriv>'+createPriv+'</xsd:createPriv>'+
+	'<xsd:createRoutinePriv>'+createRoutinePriv+'</xsd:createRoutinePriv>'+
+	'<xsd:createTmpTablePriv>'+createTmpTablePriv+'</xsd:createTmpTablePriv>'+
+	'<xsd:createViewPriv>'+createViewPriv+'</xsd:createViewPriv>'+
+	'<xsd:deletePriv>'+deletePriv+'</xsd:deletePriv>'+
+	'<xsd:dropPriv>'+dropPriv+'</xsd:dropPriv>'+
+	'<xsd:eventPriv>'+eventPriv+'</xsd:eventPriv>'+
+	'<xsd:executePriv>'+executePriv+'</xsd:executePriv>'+
+	'<xsd:grantPriv>'+grantPriv+'</xsd:grantPriv>'+
+	'<xsd:indexPriv>'+indexPriv+'</xsd:indexPriv>'+
+	'<xsd:insertPriv>'+insertPriv+'</xsd:insertPriv>'+
+	'<xsd:lockTablesPriv>'+lockTablesPriv+'</xsd:lockTablesPriv>'+
+	'<xsd:referencesPriv>'+referencesPriv+'</xsd:referencesPriv>'+
+	'<xsd:selectPriv>'+selectPriv+'</xsd:selectPriv>'+
+	'<xsd:showViewPriv>'+showViewPriv+'</xsd:showViewPriv>'+
+	'<xsd:triggerPriv>'+triggerPriv+'</xsd:triggerPriv>'+
+	'<xsd:updatePriv>'+updatePriv+'</xsd:updatePriv>'+
+	'</xsd:privileges>'+
+	' <xsd:tenantId>'+tenantId+'</xsd:tenantId>'+
+	'</ser:template></ser:editDatabasePrivilegesTemplate>';
+
+	var result;
+	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
+	options["HTTPHeaders"] =
+	[{
+		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+	}];
+	try {
+		editTemplateService.open(options, storageServerURL+'RSSAdmin', false);
+		editTemplateService.send(payload);
+	} catch (e) {
+		log.error("Error while editing Db template \n" + e.message);
+		throw "Error while editing Db template";
+	}
+};
+
+
+var getTemplates = function (applicationKey){
+	var ws = require('ws');
+	var getDatabaseTemplate = new ws.WSRequest();	
+	var result;
+	var permissionModule = jagg.module("permission");
+	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var templatesArray=[];
+	for(var i=0;i<deploymentStages.length;i++){
+		//if user has access to stage
+		var hasDBConfigurePermissionToStage = permissionModule.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_READ_FOR_STAGE +deploymentStages[i]);
+		if(hasDBConfigurePermissionToStage){
+			var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+STORAGE_SERVER_URL);
+			var options = new Array();
+			options.useSOAP = 1.2;
+			options.action = "urn:getDatabasePrivilegesTemplates";
+			options["HTTPHeaders"] =
+			[{
+				name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+			}];
+			var payload ='<ser:getDatabasePrivilegesTemplates  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">' +
+			'<ser:ctx>' +
+			'<xsd:environmentName>' + deploymentStages[i] + '</xsd:environmentName>' +
+			'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+			'</ser:ctx>' +
+			'</ser:getDatabasePrivilegesTemplates>';
+			getDatabaseTemplate.open(options, storageServerURL+'RSSAdmin', false);
+			getDatabaseTemplate.send(payload);
+			result = getDatabaseTemplate.responseE4X;
+			var templateObjects = rssFilter.getAllDatabaseTemplates(applicationKey,deploymentStages[i],buildResponse(result));
+			for(var index in  templateObjects){
+				var templateObject = templateObjects[index];
+				templatesArray.push(templateObject);
+
+			}
+		}
+	}
+	return templatesArray;
+};
+
+var getAvailableTemplatesToAttachToDatabase = function (applicationKey, rssInstance){
+	var stage = getStageFromRssInstanceName(rssInstance);
+	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
+	var ws = require('ws');
+	var getDatabaseTemplate = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.action = "urn:getDatabasePrivilegesTemplates";
+	options["HTTPHeaders"] =
+	[{
+		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+	}];
+	var payload ='<ser:getDatabasePrivilegesTemplates  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">' +
+	'<ser:ctx>' +
+	'<xsd:environmentName>' + rssInstance + '</xsd:environmentName>' +
+	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+	'</ser:ctx></ser:getDatabasePrivilegesTemplates>';
+	var result;
+	var permissionModule = jagg.module("permission");
+	var templatesArray=[];
+	var hasDBConfigurePermissionToStage = permissionModule.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_READ_FOR_STAGE +stage);
+	if(hasDBConfigurePermissionToStage){
+		getDatabaseTemplate.open(options, storageServerURL+'RSSAdmin', false);
+		getDatabaseTemplate.send(payload);
+		result = getDatabaseTemplate.responseE4X;
+		var templateObjects = rssFilter.getAllDatabaseTemplates(applicationKey,
+		stage,buildResponse(result));
+		for(var index in  templateObjects){
+			var templateObject = templateObjects[index];
+			templatesArray.push(templateObject);
+		}
+	}
+	return templatesArray;
+};
+
+function buildResponse(result){
+	var databaseObject=[];
+	if(result != undefined){
+		var response=result.*::["return"]
+		for(var index=0; index < response.length();index++){
+			var task={};
+			var entry=response[index];
+			var name=entry.*::name.text();
+			task.name=name;
+			databaseObject.push(task);
+		}
+	}
+	return databaseObject;
+}
+
+
+function buildTemplate(result){
+	var databaseObject=[];
+
+	if(result != undefined){
+		var response=result.*::["return"]
+		for(var index=0; index < response.length();index++){
+			var task={};
+			var entry=response[index];
+			var name=entry.*::name.text();
+			var privilages=entry.*::privileges
+
+			var alterPriv=privilages.*::alterPriv.text();
+			var alterRoutinePriv=privilages.*::alterRoutinePriv.text();
+			var createPriv=privilages.*::createPriv.text();
+			var createRoutinePriv=privilages.*::createRoutinePriv.text();
+			var createTmpTablePriv=privilages.*::createTmpTablePriv.text();
+			var createViewPriv=privilages.*::createViewPriv.text();
+			var deletePriv=privilages.*::deletePriv.text();
+			var dropPriv=privilages.*::dropPriv.text();
+			var eventPriv=privilages.*:: eventPriv.text();
+			var executePriv=privilages.*::executePriv.text();
+			var grantPriv=privilages.*::grantPriv.text();
+			var indexPriv=privilages.*::indexPriv.text();
+			var insertPriv=privilages.*::insertPriv.text();
+			var lockTablesPriv=privilages.*::lockTablesPriv.text();
+			var referencesPriv=privilages.*::referencesPriv.text();
+			var selectPriv=privilages.*::selectPriv.text();
+			var showViewPriv=privilages.*::showViewPriv.text();
+			var triggerPriv=privilages.*::triggerPriv.text();
+			var updatePriv=privilages.*::updatePriv.text();
+
+			task.name=name;
+			task.alterPriv=alterPriv;
+			task.alterRoutinePriv=alterRoutinePriv;
+			task.createPriv=createPriv;
+			task.createRoutinePriv=createRoutinePriv;
+			task.createTmpTablePriv=createTmpTablePriv;
+			task.createViewPriv=createViewPriv;
+			task.deletePriv=deletePriv;
+			task.dropPriv=dropPriv;
+			task.eventPriv=eventPriv;
+			task.executePriv=executePriv;
+			task.grantPriv=grantPriv;
+			task.indexPriv=indexPriv;
+			task.insertPriv=insertPriv;
+			task.lockTablesPriv=lockTablesPriv;
+			task.referencesPriv=referencesPriv;
+			task.selectPriv=selectPriv;
+			task.showViewPriv=showViewPriv;
+			task.triggerPriv=triggerPriv;
+			task.updatePriv=updatePriv;
+
+			databaseObject.push(task);
+		}
+	}
+	return databaseObject;
+}
+
+%>
+

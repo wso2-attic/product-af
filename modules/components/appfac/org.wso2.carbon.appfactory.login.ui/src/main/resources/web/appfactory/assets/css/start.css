@@ -1,0 +1,172 @@
+/* ==========================================================================
+   AppFactory
+   By Amila Sampath @vesess - amila@vesess.com (last update - June 12 2013) 
+   ========================================================================== */
+
+/* ==========================================================================
+    Initial styles and fonts
+   ========================================================================== */
+
+/* Fonts */
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,300,400italic);
+body { font: 0.875em/150% 'Open Sans', sans-serif; background-color: #292E38; font-weight: 400; }
+
+/*  Open Sans font weight value are Light - 300; Normal - 400; Normal Italic - 400; Semi-Bold - 600; Semi-Bold Italic - 600; Bold - 700;
+  Note: Icons are loading via font-awesome.min.css file from the document header */
+
+
+* { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+html,
+button,
+input,
+select,
+textarea { color: #FFF; font-family: 'Open Sans', sans-serif; } 
+
+::-moz-selection { background: #C7F4FF; text-shadow: none; }
+::selection { background: #C7F4FF; text-shadow: none; }
+hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin: 1em 0; padding: 0; }
+img { vertical-align: middle; }
+fieldset { border: 0; margin: 0; padding: 0; }
+textarea { resize: vertical; }
+strong { font-weight: 700; }
+label strong { font-weight: 600; }
+.chromeframe { margin: 0.2em 0; background: #ccc; color: #000; padding: 0.2em 0; }
+
+a { color: #1190A5; }
+a:hover { color: #FFF; text-decoration: none;
+	 -webkit-transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+     -moz-transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+     -o-transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+     -ms-transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+     transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease; }
+
+    /*
+   User Logins 
+   ----------------------------- */
+   .branding { width: 400px; margin: 80px auto 40px auto; text-align: center; font-weight: 300; font-size: 1.71428571em; }  
+   .branding h1 { margin: 0 0 40px 0; }  
+   .branding p { margin: 0; }  
+    .start { width: 400px; margin: 0 auto 100px auto; -webkit-box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.05); -moz-box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.05);
+box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.05);  }
+	.start_header { background-color: #FFF; padding: 20px 30px; border-bottom: 1px solid #1190A7; }
+	.start_header h2 { margin: 0; line-height: 100%; font-weight: 700; color: #262C38;  }
+	.account { margin: 0; font-size: 1em; line-height: 100%; text-align: center; font-weight: bold; color: #282D38;  }
+	.account img { margin: 0 5px; }
+	.sign_in { float: right; margin: 0; color: #282D38; font-weight: 700; font-size: 1em; }
+	.sign_in a { color: #18CCE6; }
+	.start_content { padding: 30px; border-top: 1px solid #62D9EF; background-color: #18CDE8; }
+	.start_content .input_row { margin-bottom: 25px; }
+	.start_content .btn_row { margin-bottom: 0; }
+	.start_content label { margin-bottom: 10px; display: inline-block; line-height: 100%; font-size: 1.71428571em; color: #FFF; font-weight: 700; }
+	.start_content input { width: 100%; padding: 5px; font-size: 1.42857143em; font-weight: 700; color: #262C38; border: 1px solid #0E7C90; background-color: #C7F2F9; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;  }
+	.start_content input:focus { background-color: #FFFFEE; outline: none; }
+	.start_content input.filled { background-color: #FFF; }
+	.start_content .error input { border: 1px solid #EB7067; background-color: #FFE0E0; } 
+	.separator { margin: 0 -30px 25px -30px; border-top: 1px solid #1190A7; border-bottom: 1px solid #62D9EF; } 
+	.start_content .btn { margin-right: 30px; padding: 0 60px; line-height: 100%; font-weight: 700; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; border: none; display: inline-block; text-decoration: none; height: 40px; line-height: 38px; background-color: #EB7067; color: #FFF; border: 1px solid #B51F17; font-size: 1.42857143em; }
+	.start_content .create_account { padding: 0 20px; }
+	.start_content .btn:hover { background-color: #B51F17; }
+	.link { color: #FFFFED; font-size: 1.14285714em; }
+	.message { margin: -30px -30px 30px -30px; padding: 20px 30px; background-color: #FFE0E0; position: relative; top: -2px; color: #EB7067; border-top: 1px solid #EB7067; border-bottom: 1px solid #1190A7; }
+	.message ul { margin: 0; padding: 0; list-style: none; }
+	
+	.help_box { width: 190px; border: 1px solid #0E7C90; background-color: #C7F2F9;  
+	-webkit-box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.05);
+	-moz-box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.05); 
+	color: #000; font-size: 12px; line-height: 150%;
+}
+	.help_box p { margin: 0; font-size: 105%; }
+	.help_box ul { margin: 0 0 0 0; padding: 0;  }
+	.help_box li { margin: 0 0 5px 20px; padding: 0; font-size: 150%; color: #0E7D91; }
+	.help_box li span { font-size: 70%; color: #000; }
+	.help_box .ui-tooltip-titlebar,
+	.help_box .ui-tooltip-content{
+		filter: progid:DXImageTransform.Microsoft.Shadow(Color='gray', Direction=135, Strength=3);
+		-ms-filter:"progid:DXImageTransform.Microsoft.Shadow(Color='gray', Direction=135, Strength=3)";
+ 
+		_margin-bottom: -3px; /* IE6 */
+		.margin-bottom: -3px; /* IE7 */
+	}
+	.qtip-tip { }
+	
+
+ 
+ 
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #66A5B2 !important;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:    #66A5B2 !important;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #66A5B2 !important;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:    #66A5B2 !important;
+}
+
+ /* ==========================================================================
+    Helper classes
+   ========================================================================== */
+
+.ir { background-color: transparent; border: 0; overflow: hidden; *text-indent: -9999px; } 
+.ir:before { content: ""; display: block; width: 0; height: 150%; } 
+.hidden { display: none !important; visibility: hidden; }
+.hide,
+.form-container label.hide  { display: none; } 
+.visuallyhidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; } .visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus { clip: auto; height: auto; margin: 0; overflow: visible; position: static; width: auto; } 
+.invisible { visibility: hidden; } 
+.clearfix:before,
+.clearfix:after { content: " "; display: table; } 
+.clearfix:after { clear: both; } 
+.clearfix { *zoom: 1; }
+.clear { overflow: auto; } 
+.left { float: left; }
+.right { float: right; } 
+.hide { display: none; }
+.top_margin { margin-top: 10px !important; }
+
+/* ==========================================================================
+    Media Queries
+   ========================================================================== */
+ 
+@media only screen and (max-width : 1024px) {
+ }
+   
+   
+  
+
+/* ==========================================================================
+    Print styles
+   ========================================================================== */
+
+@media print {
+    * { background: transparent !important; color: #000 !important; box-shadow: none !important; text-shadow: none !important; } 
+    a,
+    a:visited { text-decoration: underline; } 
+    a[href]:after { content: " (" attr(href) ")"; } 
+    abbr[title]:after { content: " (" attr(title) ")"; }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after { content: ""; } 
+    pre,
+    blockquote { border: 1px solid #999; page-break-inside: avoid; } 
+    thead { display: table-header-group; } 
+    tr,
+    img { page-break-inside: avoid; } 
+    img { max-width: 100% !important; } 
+    @page { margin: 0.5cm; } 
+    p,
+    h2,
+    h3 { orphans: 3; widows: 3; } 
+    h2,
+    h3 { page-break-after: avoid; }
+} 
+

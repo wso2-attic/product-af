@@ -1,0 +1,57 @@
+<%
+    include("/jagg/jagg.jag");
+    include("/jagg/constants.jag");
+    include("/jagg/config_reader.jag");
+    var log = new Log();
+
+    (function()
+    {
+
+        var mod, obj, result, stages, output =[],isAllowed = false,
+            action = request.getParameter("action");
+
+        if (action === "fetchPermittedStagesForUser") {
+            stages = getProperties("ApplicationDeployment.DeploymentStage");
+            mod = jagg.module("permission");
+            var applicationKey = request.getParameter("applicationKey");
+            if (log.isDebugEnabled()) {
+                log.debug("stages: " + stages);
+                log.debug("application key: " + applicationKey);
+                log.debug("module: " + mod);
+            }
+            try {
+
+                for (var index in stages){
+                    var stage = stages[index];
+                    isAllowed = mod.hasPermissionToStage(applicationKey, stage);
+                    if (log.isDebugEnabled()) {
+                        log.debug("isAllowed " + isAllowed);
+                    }
+                    if (isAllowed === true) {
+                        output.push(stage);
+                    }
+                }
+
+            } catch (e) {
+                log.error("Error while fetching permitted stages \n" + e.message);
+                throw "Error while fetching permitted stages";
+            }
+            print(output);
+        } else if(action==="getUserInfoBean"){
+    	mod = jagg.module("user");
+    	var userName = request.getParameter("userName");
+    	result = false ;
+    	try {
+    		result = mod.getUserInfoBean(userName);
+    		print(result);
+    	} catch(e) {
+    		throw "Error while getting userinfo bean";
+    	}
+
+        }else {
+            print('Action is not Specified');
+        }
+
+    }());
+
+%>

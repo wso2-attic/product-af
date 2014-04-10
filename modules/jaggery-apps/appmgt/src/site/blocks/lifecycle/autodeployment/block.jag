@@ -1,0 +1,8 @@
+<%
+jagg.block("deployment/autodeployment", {
+    initialize:function (data) {
+
+    }
+
+});
+%>

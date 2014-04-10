@@ -1,0 +1,36 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log();
+var repository = jagg.module("repository");
+var modManager = jagg.module("manager");
+
+var getPopularRepositoriesBySize = function () {
+	var ws = require("ws");
+    var repositoryMgtService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getPopularRepositoriesBySize";
+    options["HTTPHeaders"] = [
+        { name : "Cookie", value :modManager.getAdminCookie() }
+    ];
+    var payload = '<p:getPopularRepositoriesBySize xmlns:p="http://service.mgt.repository.appfactory.carbon.wso2.org"></p:getPopularRepositoriesBySize>';
+    var result;
+
+    try {
+        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "RepositoryManagementService";
+        repositoryMgtService.open(options, endPoint, false);
+        repositoryMgtService.send(payload);
+        result = repositoryMgtService.responseE4X;
+        result = result.*::["return"];
+
+        return result;
+    } catch (e) {
+        log.error("Error while getting all applications \n" + e.message);
+        throw "Error while getting all applications";
+    }
+}
+
+%>

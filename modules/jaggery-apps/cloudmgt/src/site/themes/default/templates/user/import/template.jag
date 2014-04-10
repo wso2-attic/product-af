@@ -1,0 +1,160 @@
+<% jagg.template("user/import", function(inputs, outputs, jagg) { %>
+
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+   // jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
+    var hasTenantLevelUserMgtPermission = outputs.hasTenantLevelUserMgtPermission;
+%>
+
+
+<script type="text/javascript">
+    function importUsers(users,password){
+        var users = $('#users').attr('value');
+        var allUsersValid = validateUserNames(users);
+
+        if(allUsersValid == false) {
+        jagg.message({
+                content: "UserList contains invalid user names. User name should be of length 3-30 in alphanumeric characters",
+                type: 'error',
+                id:'reposBuild'
+            });
+        }  else {
+
+            jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                action: "bulkImportUsers",
+                users:users,
+                defaultPassword:password
+            }, function (result) {
+                if(result==='true'){
+                    tenantUsers= <%=session.get("tenantUsers")%>;
+                    jagg.message({
+                        content: "Users imported successfully",
+                        type: 'success', id:'importUsersPage'
+                    });
+                    window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/user.jag")%>");
+                } else if(result.indexOf('Error importing users') > -1) {
+					var errorMsg = result.split("TenantManagementException:")[1] + ". Please check whether the same user exists in the system.";
+					jagg.message({
+                        content: errorMsg,
+                        type: 'error'
+                    });
+				}
+
+            }, function (jqXHR, textStatus, errorThrown) {
+                tenantUsers= <%=session.get("tenantUsers")%>;
+            });
+        }
+    }
+    function passwordComparisonHandling(isMatching){
+        if(!isMatching){
+            //show error message
+            $('#pwdError').css("display","inline");
+            $('#password2').addClass('error');
+            //add error class to passowrd 2 textbox
+        }else{
+            $('#pwdError').css("display","none");
+            $('#password2').removeClass('error');
+        }
+
+
+    }
+
+    function validateUserNames(nameString) {
+        var names = nameString.split(",");
+        var allUserNamesMatch = true;
+        //var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;	// validate version of format: '0.0.0', each can contain atmost 10 characters.
+        var pattern = /[a-zA-Z0-9._-|//]{3,30}$/;	// validate version of format: '0.0.0', each can contain atmost 10 characters.
+
+        for(var i = 0; i < names.length; i++) {
+            var match = pattern.test(names[i]);
+            if(match == false){
+                allUserNamesMatch = false;
+            }
+        }
+        return allUserNamesMatch;
+    }
+
+    $(document).ready(function(){
+
+
+    $('#btnImport').click(function(){
+
+        var password=$('#password').attr('value');
+        var password2=$('#password2').attr('value');
+        if(password===password2){
+            passwordComparisonHandling(true);
+            importUsers($('#users').attr('value'),password);
+        }else{
+            passwordComparisonHandling(false);
+        }
+
+
+    });
+     $('#password2').focusout(function(){
+        passwordComparisonHandling($('#password').attr('value')==this.value)
+     });
+});
+
+
+</script>
+
+<div class="container">
+
+    <article class="main">
+
+        <% jagg.includeBlock("page/messages", null); %>
+        <header class="separator">
+            <div class="content">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb_item"><a class="breadcrumb_link" href="<%=jagg.getAbsoluteUrl("/site/pages/user.jag")%>">Home</a></li>
+                    <li class="breadcrumb_item"><h1>Import Members</h1></li>
+                </ol>
+            </div>
+        </header>
+        <section class="separator">
+            <div class="mini_content well">
+                <div class="form-container" name="#">
+
+                            <!--  <select class="select_list_custom select2-input" id="allUsersList" type="text"></select>     -->
+                               <form class="right_label hold" onsubmit="return(false)">
+                                    <fieldset>
+                                <div class="input_row">
+                                <label for="users">User List</label>
+                                <textarea maxlength="250" class="full" cols="10" rows="5"  name="users" id="users" required></textarea>
+                                    <p class="note">
+                                        Enter comma seperated list to import multiple users.</p>
+                                </div>
+                                <div class="input_row">
+                                <label>Default Password</label>
+                                <input type="password" id="password" name="password" class="required password" required/>   </br>
+                                </div>
+                                <div class="input_row">
+                                <label>Confirm Default Password</label>
+                                <input type="password" id="password2" name="password2" class="required password_match"/>
+                                    <span for="password2" generated="true" class="error" style="display:none;" id="pwdError">Password does not match</span>
+                                </div>
+                                <div class="buttonrow">
+                                <button class="btn sub" id="btnImport">Import</button><a id="btn_cancel" href="javascript:location.href='/appmgt/site/pages/user.jag'">Cancel</a>
+                                </div>
+                                    </fieldset>
+                               </form>
+
+                </div>
+
+
+                <div class="clearfix"></div>
+            </div>
+        </section>
+
+        <div class="clearfix"></div>
+    </article>
+</div><!-- /container -->
+<input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
+<input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
+
+
+
+
+
+        <% }); %>

@@ -1,0 +1,180 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log();
+/**
+ * Authorize given role with given permission,action on cloud environment(stage)
+ * @param stage - cloud environment
+ * @param role - role to be authorized
+ * @param permission - resource id to be authorized
+ * @param action - action on resource id
+ * @return {Array} which contains error and message elements. if error==false, operation is successful.
+ */
+var authorizeRole = function (stage, role, permission, action) {
+
+    var remoteServerServiceURL = getRemoteServerServiceURL(stage);
+    var manager = jagg.module("manager");
+    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+
+    if (!(cookie)) {
+        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
+    }
+
+    var ws = require('ws');
+
+    var remoteAuthorizationMgtRequest = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.action = "urn:authorizeRole";
+    options.mep = "in-only";
+    options["HTTPHeaders"] = [
+        { name: "Cookie", value: cookie }
+    ];
+    var payload =
+            '<ser:authorizeRole xmlns:ser="http://service.ws.um.carbon.wso2.org">' +
+                    '<ser:roleName>' + role + '</ser:roleName>' +
+                    '<ser:resourceId>' + permission + '</ser:resourceId>' +
+                    '<ser:action>' + action + '</ser:action>' +
+                    '</ser:authorizeRole>';
+
+    var result = {};
+    try {
+        remoteAuthorizationMgtRequest.open(options, remoteServerServiceURL + 'RemoteAuthorizationManagerService', false);
+        remoteAuthorizationMgtRequest.send(payload);
+
+        result.error = 'false';
+        result.message = 'Role successfully authorized';
+    } catch (e) {
+        log.error(e.toString());
+        result.error = 'true';
+        result.message = e.toString();
+    }
+
+    return result;
+};
+
+/**
+ * Check if given role is authorized in given cloud environment
+ * @param stage - cloud environment
+ * @param role - role to be checked for authorization
+ * @param permission - resource id
+ * @param action - action on resource
+ * @return {Array} which contains error and message elements. if error==false, operation is successful.
+ */
+var isRoleAuthorized = function (stage, role, permission, action) {
+
+    var remoteServerServiceURL = getRemoteServerServiceURL(stage);
+    var manager = jagg.module("manager");
+    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+
+    if (!(cookie)) {
+        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
+    }
+
+    var ws = require('ws');
+
+    var remoteAuthorizationMgtRequest = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.2;
+    options.useWSA = 1.0;
+    options.action = "urn:isRoleAuthorized";
+    options["HTTPHeaders"] = [
+        { name: "Cookie", value: cookie }
+    ];
+    var payload = '<ser:isRoleAuthorized xmlns:ser="http://service.ws.um.carbon.wso2.org">' +
+            '<ser:roleName>' + role + '</ser:roleName>' +
+            '<ser:resourceId>' + permission + '</ser:resourceId>' +
+            '<ser:action>' + action + '</ser:action>' +
+            '</ser:isRoleAuthorized>';
+
+    var result = {};
+    try {
+        remoteAuthorizationMgtRequest.open(options, remoteServerServiceURL + 'RemoteAuthorizationManagerService', false);
+        remoteAuthorizationMgtRequest.send(payload);
+        result.error = 'false';
+        result.message = remoteAuthorizationMgtRequest.responseE4X;
+    } catch (e) {
+        log.error(e.toString());
+        result.error = 'true';
+        result.message = e.toString();
+    }
+
+    return result;
+};
+/**
+ * Deny given role on given cloud environment(stage) for given permission and action
+ * @param stage - cloud environment
+ * @param role - role to be denied
+ * @param permission - resource id to be denied
+ * @param action - action on resource
+ * @return {Array} which contains error and message elements. if error==false, operation is successful.
+ */
+var denyRole = function (stage, role, permission, action) {
+
+    var remoteServerServiceURL = getRemoteServerServiceURL(stage);
+    var manager = jagg.module("manager");
+    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+
+    if (!(cookie)) {
+        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
+    }
+
+    var ws = require('ws');
+
+    var remoteAuthorizationMgtRequest = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.2;
+    options.useWSA = 1.0;
+    options.action = "urn:denyRole";
+    options.mep = "in-only";
+    options["HTTPHeaders"] = [
+        { name: "Cookie", value: cookie }
+    ];
+    var payload = '<ser:denyRole xmlns:ser="http://service.ws.um.carbon.wso2.org">' +
+            '<ser:roleName>' + role + '</ser:roleName>' +
+            '<ser:resourceId>' + permission + '</ser:resourceId>' +
+            '<ser:action>' + action + '</ser:action>' +
+            '</ser:denyRole>';
+
+    var result = {};
+    try {
+        remoteAuthorizationMgtRequest.open(options, remoteServerServiceURL + 'RemoteAuthorizationManagerService', false);
+        remoteAuthorizationMgtRequest.send(payload);
+        result.error = 'false';
+        result.message = 'Role successfully denied.';
+    } catch (e) {
+        log.error(e.toString());
+        result.error = 'true';
+        result.message = e.toString();
+    }
+
+    return result;
+};
+
+// method implementation for endsWith(string)
+if (typeof String.prototype.endsWith != 'function') {
+    String.prototype.endsWith = function (str) {
+        return this.substring(this.length - str.length, this.length) === str;
+    }
+}
+/**
+ * Get remote server service URL for given cloud environment defined in appfactory.xml
+ * @param stage - cloud environment
+ * @return {*} remote server service url.
+ */
+var getRemoteServerServiceURL = function (stage) {
+    var remoteServerBaseURL = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.TenantMgtUrl');
+    if (!(remoteServerBaseURL)) {
+        throw 'remote server url was not found for stage:' + stage;
+    }
+    if (remoteServerBaseURL.endsWith("/")) {
+        remoteServerBaseURL += 'services/';
+    } else {
+        remoteServerBaseURL += '/services/';
+    }
+    return remoteServerBaseURL;
+};
+
+%>

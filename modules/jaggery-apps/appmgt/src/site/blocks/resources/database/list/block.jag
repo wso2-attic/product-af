@@ -1,0 +1,23 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("resources/database/list", {
+    initialize: function (data) {
+
+    },
+    getInputs: function () {
+        return {
+            "applicationKey": null
+        }
+    },
+
+    // getOutputs:function (inputs) {
+    //    var hasConfigureDbAdministrationPermission = jagg.module("permission").isUserAccessGranted
+//(inputs.applicationKey,PERMISSION_CONFIGURATION_DB_ADMINISTRATION);
+    //            return {
+    //          "hasConfigureDbAdministrationPermission":hasConfigureDbAdministrationPermission
+    //     };
+    //  }
+
+
+});
+%>

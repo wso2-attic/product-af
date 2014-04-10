@@ -1,0 +1,48 @@
+<%
+jagg.module("manager", {
+
+    getAdminCookie:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookie.apply(this, arguments);
+    },
+    updateAdminCookie:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").updateAdminCookie.apply(this, arguments);
+    },
+    getAdminCookieBySAMLToken:function () {
+            return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookieBySAMLToken.apply(this, arguments);
+    },
+    encodeString:function () {
+            return jagg.require(jagg.getModulesDir() + "manager/manager.jag").encodeString.apply(this, arguments);
+    },
+    createDataSource:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").createDataSource.apply(this, arguments);
+    },
+    deleteDatasource:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").deleteDatasource.apply(this, arguments);
+    },
+   getDataSource:function () {
+   	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getDataSource.apply(this, arguments);
+    },
+   addDataSource:function () {
+       	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").addDataSource.apply(this, arguments);
+   },
+    getBackendCookie:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getBackendCookie.apply(this, arguments);
+    },
+    getTenantDomain:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getTenantDomain.apply(this, arguments);
+    },
+    getTenantId:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getTenantId.apply(this, arguments);
+    },
+	getDomainlessUserName:function () {
+		return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getDomainlessUserName.apply(this, arguments);
+	},
+	getOTtenantProperty:function () {
+        	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getOTtenantProperty.apply(this, arguments);
+    },
+    getTenantAwareUsername:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getTenantAwareUsername.apply(this, arguments);
+    }
+
+});
+%>

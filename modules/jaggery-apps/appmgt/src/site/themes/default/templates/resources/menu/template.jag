@@ -1,0 +1,11 @@
+<% jagg.template("resources/menu", function (inputs, outputs, jagg) { %>
+<nav class="sub_menu">
+    <ul class="sub_list">
+        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'overview') { %>active<% } %>">Overview</a></li>
+        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'database_config') { %>active<% } %>">Database Configurations</a></li>
+        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'datasources') { %>active<% } %>">Datasources</a></li>
+        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'apis') { %>active<% } %>">APIs</a></li>
+        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'endpoints_registry') { %>active<% } %>">Endpoints & Registry</a></li>
+     </ul>
+</nav>
+<% }); %>

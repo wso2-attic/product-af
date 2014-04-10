@@ -1,0 +1,150 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd"
+                  xmlns:ns="http://services.management.dependency.apiManager.appfactory.carbon.wso2.org"
+                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  targetNamespace="http://services.management.dependency.apiManager.appfactory.carbon.wso2.org">
+    <wsdl:documentation>AppFactoryDependencyManagementService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://services.management.dependency.apiManager.appfactory.carbon.wso2.org">
+            <xs:element name="removeDependency">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="appId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="jndiName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeDependencyResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addDependency">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="appId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="jndiName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addDependencyResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="removeDependencyRequest">
+        <wsdl:part name="parameters" element="ns:removeDependency"/>
+    </wsdl:message>
+    <wsdl:message name="removeDependencyResponse">
+        <wsdl:part name="parameters" element="ns:removeDependencyResponse"/>
+    </wsdl:message>
+    <wsdl:message name="addDependencyRequest">
+        <wsdl:part name="parameters" element="ns:addDependency"/>
+    </wsdl:message>
+    <wsdl:message name="addDependencyResponse">
+        <wsdl:part name="parameters" element="ns:addDependencyResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="AppFactoryDependencyManagementServicePortType">
+        <wsdl:operation name="removeDependency">
+            <wsdl:input message="ns:removeDependencyRequest" wsaw:Action="urn:removeDependency"/>
+            <wsdl:output message="ns:removeDependencyResponse" wsaw:Action="urn:removeDependencyResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="addDependency">
+            <wsdl:input message="ns:addDependencyRequest" wsaw:Action="urn:addDependency"/>
+            <wsdl:output message="ns:addDependencyResponse" wsaw:Action="urn:addDependencyResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="AppFactoryDependencyManagementServiceSoap11Binding"
+                  type="ns:AppFactoryDependencyManagementServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="removeDependency">
+            <soap:operation soapAction="urn:removeDependency" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addDependency">
+            <soap:operation soapAction="urn:addDependency" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="AppFactoryDependencyManagementServiceSoap12Binding"
+                  type="ns:AppFactoryDependencyManagementServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="removeDependency">
+            <soap12:operation soapAction="urn:removeDependency" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addDependency">
+            <soap12:operation soapAction="urn:addDependency" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="AppFactoryDependencyManagementServiceHttpBinding"
+                  type="ns:AppFactoryDependencyManagementServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="removeDependency">
+            <http:operation location="removeDependency"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addDependency">
+            <http:operation location="addDependency"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="AppFactoryDependencyManagementService">
+        <wsdl:port name="AppFactoryDependencyManagementServiceHttpsSoap11Endpoint"
+                   binding="ns:AppFactoryDependencyManagementServiceSoap11Binding">
+            <soap:address
+                    location="https://appfactory.example.com:9443/services/AppFactoryDependencyManagementService.AppFactoryDependencyManagementServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="AppFactoryDependencyManagementServiceHttpsSoap12Endpoint"
+                   binding="ns:AppFactoryDependencyManagementServiceSoap12Binding">
+            <soap12:address
+                    location="https://appfactory.example.com:9443/services/AppFactoryDependencyManagementService.AppFactoryDependencyManagementServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="AppFactoryDependencyManagementServiceHttpsEndpoint"
+                   binding="ns:AppFactoryDependencyManagementServiceHttpBinding">
+            <http:address
+                    location="https://appfactory.example.com:9443/services/AppFactoryDependencyManagementService.AppFactoryDependencyManagementServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

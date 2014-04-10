@@ -1,0 +1,49 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS AppIssue
+                (row_id STRING, tenantId STRING, applicationName STRING, applicationKey STRING, 
+                applicationVersion STRING, issueKey STRING, assignee STRING, priority STRING, 
+                reporter STRING, severity STRING, status STRING, type STRING, action STRING, timeSt BIGINT)
+                                STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+                                with SERDEPROPERTIES
+                                ("wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+                                 "cassandra.cf.name" = "org_wso2_carbon_appfactory_appIssue" ,
+                                 "cassandra.columns.mapping" =
+                                 ":key, payload_tenantId, payload_applicationName, payload_applicationKey,
+                                 payload_appVersion, payload_issueKey, payload_assignee, payload_priority, 
+                                 payload_reporter, payload_severity, payload_status, payload_type, 
+                                 payload_action, Timestamp" );
+                                 
+
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_ISSUES
+     (TENANT_ID STRING,APPLICATION_NAME STRING,APPLICATION_KEY STRING,APPLICATION_VERSION STRING,ISSUE_KEY STRING,ASSIGNEE STRING,PRIORITY STRING,REPORTER STRING,SEVERITY STRING,STATUS STRING,TYPE STRING,ACTION STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,APPLICATION_VERSION,ISSUE_KEY,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE APP_ISSUES
+    (TENANT_ID VARCHAR(100), APPLICATION_NAME VARCHAR(100), APPLICATION_KEY VARCHAR(100), APPLICATION_VERSION VARCHAR(100), ISSUE_KEY VARCHAR(100), ASSIGNEE VARCHAR(100), PRIORITY VARCHAR(100),REPORTER VARCHAR(100), SEVERITY VARCHAR(100), STATUS VARCHAR(100), TYPE VARCHAR(100), ACTION VARCHAR(20), TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table APP_ISSUES
+    SELECT tenantId, applicationName, applicationKey, applicationVersion, issueKey, assignee, priority, reporter, severity, status, type, action, timeSt FROM AppIssue;
+    
+    
+CREATE EXTERNAL TABLE IF NOT EXISTS LATEST_APP_ISSUES
+     (TENANT_ID STRING,APPLICATION_KEY STRING,APPLICATION_VERSION STRING,ISSUE_KEY STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,APPLICATION_VERSION,ISSUE_KEY' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE LATEST_APP_ISSUES
+    (TENANT_ID VARCHAR(100), APPLICATION_KEY VARCHAR(100), APPLICATION_VERSION VARCHAR(100), ISSUE_KEY VARCHAR(100), TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table LATEST_APP_ISSUES
+    SELECT tenantId, applicationKey, applicationVersion, issueKey, max(timeSt) as timest FROM AppIssue GROUP BY tenantId, applicationKey, applicationVersion,issueKey;
+
+                                    

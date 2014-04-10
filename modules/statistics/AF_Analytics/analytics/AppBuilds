@@ -1,0 +1,31 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS AppBuild
+                (row_id STRING, applicationName STRING, applicationKey STRING, 
+                applicationVersion STRING, tenantId STRING, status STRING, 
+                buildId STRING, revision STRING, user STRING, timeSt BIGINT)
+                                STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+                                with SERDEPROPERTIES
+                                ("wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+                                 "cassandra.cf.name" = "org_wso2_carbon_appfactory_appBuild" ,
+                                 "cassandra.columns.mapping" =
+                                 ":key, payload_applicationName, payload_applicationKey,
+                                 payload_applicationVersion, payload_tenantId, payload_status, 
+                                 payload_buildId, payload_revision, payload_user, Timestamp");
+                                 
+
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_BUILDS
+     (APPLICATION_NAME STRING,APPLICATION_KEY STRING,APPLICATION_VERSION STRING,TENANT_ID STRING,STATUS STRING,BUILD_ID STRING,REVISION STRING,USER STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,APPLICATION_VERSION,BUILD_ID,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE APP_BUILDS
+    (APPLICATION_NAME VARCHAR(100), APPLICATION_KEY VARCHAR(100), APPLICATION_VERSION VARCHAR(100), TENANT_ID VARCHAR(100), STATUS VARCHAR(100), BUILD_ID VARCHAR(100), REVISION VARCHAR(100),USER VARCHAR(100), TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table APP_BUILDS
+    SELECT applicationName, applicationKey, applicationVersion, tenantId, status, buildId, revision, user, timeSt FROM AppBuild;
+
+                                    

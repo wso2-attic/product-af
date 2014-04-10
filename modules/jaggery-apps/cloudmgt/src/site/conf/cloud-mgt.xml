@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<cloudmgt>
+	<subscriptions>
+		<type display_name="App Cloud" url="https://milestones.appfactory.wso2.com:9443/appmgt/">app_cloud</type>
+		<type display_name="Integration Cloud" url="https://milestones.appfactory.wso2.com:9443/ipaas/">integration_cloud</type>
+		<type display_name="API Cloud" url="https://milestones.appfactory.wso2.com:9443/apimgt/">api_cloud</type>
+         </subscriptions>
+     <ServerUrls>
+        <AppFactory>https://localhost:9443/services/</AppFactory>
+        <cloudmgtURL>https://milestones.appfactory.wso2.com:9443/cloudmgt</cloudmgtURL>
+        <BPS>https://localhost:9543/services/</BPS>
+        <Greg>https://localhost:9443/services/</Greg>
+    </ServerUrls>
+    <SSORelyingParty>
+        <Name>cloudmgt</Name>
+        <DashboardName>WSO2 AppFactory Dashboard</DashboardName>
+        <IdentityProviderURL>https://milestones.appfactory.wso2.com:9443/samlsso</IdentityProviderURL>
+        <KeyStorePassword>wso2carbon</KeyStorePassword>
+        <IdentityKeyAlias>wso2carbon</IdentityKeyAlias>
+        <KeyStoreName>../../../../../../resources/security/wso2carbon.jks</KeyStoreName>
+        <CookieRefreshInterval>300000</CookieRefreshInterval>
+         <AdminUserName>admin</AdminUserName>
+         <AdminPassword>admin</AdminPassword>
+    </SSORelyingParty>
+    
+    <CloudApplicationsUrls>
+         <AppCloud>
+             <BaseUrl>https://milestones.appfactory.wso2.com:9443/appmgt</BaseUrl>
+             <HomePageContext>/site/pages/</HomePageContext>
+             <LogoutContext>/site/pages/logout.jag</LogoutContext>
+         </AppCloud>
+         <APICloud>
+         </APICloud> 
+    </CloudApplicationsUrls>
+
+</cloudmgt>

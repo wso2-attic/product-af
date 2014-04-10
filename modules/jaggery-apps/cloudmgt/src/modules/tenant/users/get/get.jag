@@ -1,0 +1,171 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+// used for logging
+var log = new Log();
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var userName =  session.get("LOGGED_IN_USER");
+
+var getUsersofTenant = function getUsersofTenant() {
+    var user=session.get('LOGGED_IN_USER').split('@')[0];
+    var tenantDomain=modManager.getTenantDomain();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();    
+
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+        var users = tenantMgtService.getUsersofTenant();
+        log.info(users.length);
+    }catch (e){
+    	log.error(e);
+    }finally{
+        context.endTenantFlow();
+    }
+    try {
+    	var resultUsers=[];
+        for(var i=0;i<users.length;i++){
+        	var user=users[i];
+        	var tmpUser={};
+        	var tmpuserName=user.getUserName();
+            var tmpemail=user.getEmail();
+            var tmpdisplayName=user.getDisplayName();
+            var tmpfirstName=user.getFirstName();
+            var tmplastName=user.getLastName();
+            var tmproles=user.getRoles();
+            tmpUser.userName=tmpuserName;
+            var userName=tmpuserName;
+            tmpUser.email=tmpemail;
+            tmpUser.displayName=tmpdisplayName;
+            tmpUser.firstName=tmpfirstName;
+            tmpUser.lastName=tmplastName;
+            var allRoles="";
+            for(var j=0;j<tmproles.length;j++) {
+               if(allRoles != ""){
+                 allRoles= tmproles[j]+"\n"+allRoles;
+               } else {
+                 allRoles= tmproles[j];
+               }
+            }
+            
+            tmpUser.roles=allRoles;
+            log.info("test "+tmpUser.roles);
+            var troles=tmproles;
+            tmpUser.displayRoles=[];
+            for(var ttRole in troles){
+                var tmpRole= troles[ttRole];
+                var disName=getProperty("TenantRoles.Role." +tmpRole+ ".DisplayName");
+                if(tmpRole=='admin'){
+                    tmpUser.displayRoles=[];
+                    tmpUser.displayRoles.push('Admin');
+                    break;
+                }
+                if(disName!=null){
+                    tmpUser.displayRoles.push(disName);
+                }
+            }
+            resultUsers.push(tmpUser);
+         }
+         session.put('tenantUsers',resultUsers);
+       	if(log.isDebugEnabled()){
+    		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+    	}
+    } catch (e) {
+    	log.error("Error while adding user to tenant \n"+e.message);
+    	throw "Error while adding user to application";
+    }
+    return resultUsers ;
+};
+var getUserInfo = function getUserInfo(userName) {
+    var tmpUser={};
+    
+    var user=session.get('LOGGED_IN_USER').split('@')[0];
+    var tenantDomain=modManager.getTenantDomain();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();  
+
+    try {
+    	var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
+        var user = tenantMgtService.getUsersofTenant(userName);  
+        var tmpuserName=user.getUserName();
+        var tmpemail=user.getEmail();
+        var tmpdisplayName=user.getDisplayName();
+        var tmpfirstName=user.getFirstName();
+        var tmplastName=user.getLastName();
+        var tmproles=useruser.getRoles();
+        tmpUser.userName=tmpuserName;
+        var userName=tmpuserName;
+        tmpUser.email=tmpemail;
+        tmpUser.displayName=tmpdisplayName;
+        tmpUser.firstName=tmpfirstName;
+        tmpUser.lastName=tmplastName;
+        tmpUser.roles=tmproles;
+        log.info(userName + " Role "+  tmpUser.roles);
+        var troles=tmpUser.roles;
+        tmpUser.displayRoles=[];
+        for(var ttRole in troles){
+            tmpUser.displayRoles.push(getProperty("TenantRoles.Role." + troles[ttRole] + ".DisplayName"));
+        }
+
+       	if(log.isDebugEnabled()){
+    		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+    	}
+    	 }
+    catch (e) {
+    	log.error("Error while retrieving user info for"+userName);
+		throw e;
+    }
+    return tmpUser;
+};
+
+var isFirstLogin=function(){
+    var user=session.get("LOGGED_IN_USER").split('@')[0];
+    var tenantDomain=modManager.getTenantDomain();
+    var tenantManager = multitenancy.getTenantManager();
+    try {
+        //context.startTenantFlow();
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager=realm.getUserStoreManager();
+        var claimValue=userStoreManager.getUserClaimValue(user,"http://wso2.org/claims/firstlogin",null);
+        return claimValue;
+    }catch (e){
+        log.error("Error occured while checking first login status");
+        throw "Error occured while checking first login status"
+    }
+}
+
+var getApplicatioinKeysOfUser=function(userName){
+       var appsOfUser;
+                var tenantDomain=modManager.getTenantDomain() ;
+                var context=multitenancy.getPrivilegedCarbonContext();
+                var tenantManager= multitenancy.getTenantManager();
+                try{
+                    context.startTenantFlow();
+                    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+                    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                    appsOfUser = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').getApplicationKeysOfUser(userName);
+
+                }finally{
+                    context.endTenantFlow();
+                }
+        return appsOfUser;
+};
+
+
+%>

@@ -1,0 +1,333 @@
+<% jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
+
+<%
+    var baseURL = getProperty(BASE_URL);
+    var gitURL = null;
+    %>
+    <style>
+    .popover_form input.branch-txt-width-fix{
+            width:240px;
+        }
+    #d_clip_button {
+        text-align:center;
+        border:1px solid black;
+        background-color:#ccc;
+        margin:10px; padding:10px;
+    }
+    #d_clip_button.zeroclipboard-is-hover { background-color:#eee; }
+    #d_clip_button.zeroclipboard-is-active { background-color:#aaa; }
+
+    </style>
+
+    <script type="text/javascript">
+
+    function drawVersionsList() {
+    	var row = '',
+            versions = [],
+            element = {},
+            count = 0;
+        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+                action: "getbuildandrepodata",
+                buildableforstage:"true",
+                metaDataNeed:"false",
+                applicationKey: applicationKey,
+                userName:userName,
+                isRoleBasedPermissionAllowed:"false"
+            }, function (result) {
+            
+                versions = jQuery.parseJSON(result);
+                $("#repositories_and_builds_list").empty();
+                
+                count = versions.length;
+                $theTable=$('<table class="data-table"><thead><tr><th>Date</th><th>Stage</th><th></th><th></th></tr></thead></table>');
+                for (var i = 0; i < count; i++) {
+                    element = versions[i];
+                    $theTable.append(constructRow(element,i));
+
+                }
+              
+                	$("#repositories_and_builds_list").append($theTable);
+                    $("#repositories_and_builds_list").append($('<div class="clearfix"></div>'));
+                                               
+                    $('.deploy_action').click(function(event){
+				
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var tmpstage=$(this).attr('data-stage');
+                        doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion);
+                    });
+
+                    $('.launch_action').click(function(event){
+                        var tmpAppType=$(this).attr('data-type');
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var tmpstage=$(this).attr('data-stage');
+                        var state="started";
+                        doLaunch(applicationKey, tmpSrcVersion,tmpstage,state,tmpAppType);
+                    });
+
+                    $('#filter_repos_or_stages').keyup(function(event){
+                         doSearch($(this).val());
+                    });
+
+
+                },
+        function (jqXHR, textStatus, errorThrown) {
+
+        });
+    }
+
+
+    $(function () {
+            applicationKey = '<%=request.getParameter("applicationKey")%>';
+            userName = '<%=session.get("LOGGED_IN_USER")%>';
+            drawVersionsList();
+               
+    });
+    
+    function uploadNewVersion(){
+    	if(validate()){
+    		$("#versionUploadForm").submit();
+	}
+	//return false;
+    	
+    }
+   
+    function validate(){
+    	if(!$("#uploaded_application").val()){
+		   jagg.message({
+				    content: "File is not provided to upload.",
+				    type: 'error'
+			    });
+		  return false;	
+		}
+	return true;
+    }
+ 	
+
+    function constructRow(element,i){
+    
+        var version=element.version.current;
+        var stage=element.version.stage;
+        var versionForIds=version.replace(/\./g,'_');
+	var timeStampVersion = version;              
+        if (version != "trunk"){
+		timeStampVersion = new Date(parseInt(version));
+	}
+        var $resultRow = $('<tr><td>' + timeStampVersion +'</td><td>' + stage + '</td>' +
+			   '<td><a href="#" class="btn main small deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></td>' +
+                           '<td><a href="#" class="btn main small launch_action" data-version="'+version+'" data-stage="'+stage+'">Test</a></td></tr>');
+
+			
+		
+            return $resultRow;
+    }
+
+    function doCreateBranch(applicationKey,srcVersion,targetVersion,button){
+        if(validateBranch(targetVersion)){
+            $(button).attr('disabled','disabled').val('Creating..');
+            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+                        action: "invokeDoVersion",
+                        applicationKey: applicationKey,
+                        srcVersion:srcVersion,
+                        targetVersion:targetVersion
+                    }, function (result) {
+                        $(button).removeAttr('disabled').val('Create Branch');
+                        //drawVersionsList();
+                        forcePageAppRefresh = true ;
+                    },
+
+                    function (jqXHR, textStatus, errorThrown) {
+                        $(button).removeAttr('disabled').val('Create Branch');
+                        jagg.message({
+                            content: "Error while creating version. Check the given version value and try again.",
+                            type: 'error'
+                        });
+                    });
+        }else{	// if wrong versioning number
+            jagg.removeMessage();
+            jagg.message({
+                content: "Invalid version number - Provide version number in format major.minor.patch",
+                type: 'error',
+                id:'reposBuild'
+            });
+        }
+
+
+    }
+    
+    var runThread = null ;
+
+
+    function doDeploy(applicationKey,deployAction,stage,tagName,version){
+
+        jagg.post("../blocks/build/add/ajax/add.jag", {
+                    action: "deployArtifact",
+                    applicationKey: applicationKey,
+                    deployAction:deployAction,
+                    stage:stage,
+                    tagName:tagName,
+                    version:version
+                }, function (result) {
+                    drawVersionsList();
+                    jagg.message({
+                        content: "Deployment has been submitted successfully - Refresh the page in few seconds.",
+                        type: 'success',
+                        id:'message_id_success'
+                    });
+                    hideNotification();
+                },
+
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({
+                        content: "Error occurred while deploying the artifact.",
+                        type: 'error',
+                        id:'message_id'
+                    });
+
+                });
+
+
+    }
+    function doLaunch(applicationKey, version,stage,state,type){
+        jagg.post("../blocks/application/get/ajax/list.jag", {
+                    action: "getMetaDataForAppVersion",
+                    applicationKey: applicationKey,
+                    version: version,
+                    stage: stage,
+                    state: state,
+                    type: type
+                }, function (result) {
+                    var resJSON;
+                    var msg = "";
+                    resJSON = jQuery.parseJSON(result);
+                    var URL="";
+                    if(type==='bpel' || type==='dbs'){         // if app type is either 'bpel' or 'dbs' then take only accessURLMD
+                       URL = resJSON.accessURLMD;
+                    }else if(type ==='jaxws'){
+                        URL=resJSON.baseURLMD + resJSON.accessURLMD +"services" ;
+                    }
+
+                    else	// for other types append baseURLMD and accessURLMD
+                	    URL=resJSON.baseURLMD + resJSON.accessURLMD;
+                    if(URL===""){
+                        jagg.message({
+                            content: "Application is not deployed yet.!",
+                            type: 'error'
+                        });
+
+                    }
+                window.open(URL, '_blank')
+            },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({
+                        content: "Error occurred while launching the artifact.!",
+                        type: 'error',
+                        id:'message_id'
+                    });
+
+                });
+
+    }
+
+    function doSearch(searchtext){
+
+        $(".row").each(function(){
+            var searchPara= searchtext.toLowerCase();
+            var dv=$(this).attr("data-version");
+            var ds=$(this).attr("data-stage");
+         //   if(searchtext.indexOf("*")!=-1){
+                var pattern=new RegExp(searchPara);
+                if((pattern.test(dv))||(pattern.test(ds))){
+                    $(this).show();
+
+                }else{
+                    $(this).hide();
+                }
+
+
+    //        }else{
+    //            if((dv.indexOf(searchPara)==0)||(ds.indexOf(searchPara)==0)){
+    //                $(this).show();
+    //
+    //            }else{
+    //                $(this).hide();
+    //            }
+    //            }
+    });
+
+    }
+
+    //]]
+
+    function hideNotification() {
+          // create new timer with given time interval
+            setTimeout(function () {jagg.removeMessage('message_id_success')}, 5000);
+        }
+
+
+    </script>
+    <div class="container">
+        <article class="main">
+        <%
+    jagg.includeBlock("page/messages", null);
+    %>
+            <header class="separator">
+               <div class="content">
+                   <h1 class="left" style="margin-right:20px;">Deployments</h1>
+
+                    <form class="right fw_250 form-container search_form" onSubmit="return false;">
+                        <div class="input_row">
+                            <label for="filter_repos_or_stages" class="hide" >Filter Repos or Stages</label>
+                            <input id="filter_repos_or_stages" type="text" class="fw_250 margin_15" placeholder="Filter Repos or Stages" name="filter_repos_or_stages" value=""  /><span class="icon-search"></span>
+                        </div>                       
+                    </form>
+                </div>
+
+            </header>
+		
+		<section class="content" style="margin-bottom: 20px">
+			
+			<form id="versionUploadForm"
+				action="../blocks/lifecycle/add/ajax/add.jag" enctype="multipart/form-data" method='post'>
+				<input type="hidden" id="action" name="action"
+					value="uploadNewVersionOfExistingApp" />
+				<input type="hidden" id="applicationKey" name="applicationKey" name="applicationKey"
+					value="<%=request.getParameter('applicationKey')%>" />
+				<div class="input_row">
+					<label><strong>Upload New Version</strong></label> 
+					<span id="iconContainer">
+						<input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." />
+					</span> 
+					    <input type="button" value="Upload" class="btn main" id='appcreation' onclick="uploadNewVersion()" />
+				</div>
+			</form>
+			<style>
+				.data-table{
+					border-left:solid 1px #ccc;
+					border-bottom:solid 1px #ccc;
+					width:100%;
+				}
+				.data-table td,.data-table th{
+					padding:5px;
+					margin:0;
+					border-right:solid 1px #ccc;
+					border-top:solid 1px #ccc;
+					text-align:left;
+				}
+			</style>
+			
+		</section>
+		
+		<section id="repositories_and_builds_list" class="content" style="margin-bottom:122px">
+		        <span class="icon-spinner icon-spin icon-large spin-large"></span>
+        </section>
+
+
+            <!--<div class="clearfix separator"></div>-->
+        </article>
+    </div><!-- /container -->
+    <%
+}); %>
+
+
+
+

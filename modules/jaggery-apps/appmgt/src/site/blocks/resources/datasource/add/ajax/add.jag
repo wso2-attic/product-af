@@ -1,0 +1,139 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var log = new Log("/site/blocks/resources/datasource/add/ajax/add.jag");
+    var modPermission = jagg.module("permission");
+    var response = {};
+    var applicationKey = request.getParameter("applicationKey");
+    if (action == "createDatasource") {
+    	mod = jagg.module("resources");
+	    var datasourceName = request.getParameter("datasourceName");
+	    var rssInstanceName = request.getParameter("rssInstanceName");
+	    var url = request.getParameter("url");
+	    var datasourceDescription = request.getParameter("datasourceDescription");
+	    var driverName=request.getParameter("driverName");
+        var dbUsername= request.getParameter("dbUsername");
+        var dbPassword= request.getParameter("dbPassword");
+
+        var stage = mod.getStageFromRssInstanceName(rssInstanceName);
+
+            //if user has access to stage
+            var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
+                    PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);
+            if(dataSourceCreatePermission){
+                try {
+                    print(mod.createDataSource(stage, applicationKey, datasourceName, url,
+                            driverName, dbUsername, dbPassword, datasourceDescription));
+                } catch(e) {
+                    response.error= true;
+                    response.errorMessage = "Error while creating the datasource : " + datasourceName+'; reason:'+ e.message;
+                    log.error("Error while creating the datasource",e);
+                    print(response);
+                }
+            }  else {
+                response.result = true;
+                response.message = "You don't have permission to create datasource in stage:"+stage;
+                log.error("You don't have permission to create datasource in stage:"+stage);
+                print(response);
+            }
+
+
+
+    } else   if (action == "deleteDatasource") {
+    	mod = jagg.module("resources");
+	    var datasourceName = request.getParameter("datasourceName");
+	    var stage = request.getParameter("stage");
+
+        var response = {};
+        var hasDatasourceUpdatePermission =  modPermission.isUserAccessGranted(applicationKey,
+                PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
+
+        if(hasDatasourceUpdatePermission){
+            try {
+                print(mod.deleteDatasource(applicationKey, stage, datasourceName));
+            } catch(e) {
+                throw "Error while deleting the datasource: " + datasourceName;
+                log.error(e);
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to delete a datasource";
+            log.error("You don't have permission to delete a datasource");
+            print(response);
+        }
+
+    }  else   if (action == "editDatasource") {
+
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var datasourceName = request.getParameter("datasourceName");
+    	var stage = request.getParameter("stage");
+    	var url = request.getParameter("url");
+    	var datasourceDescription = request.getParameter("datasourceDescription");
+    	var driverName=request.getParameter("driverName");
+    	var dbUsername= request.getParameter("dbUsername");
+    	var dbPassword= request.getParameter("dbPassword");
+        var hasDatasourceUpdatePermission =  PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage;
+        if (hasDatasourceUpdatePermission) {
+            try {
+                mod.deleteDatasource(applicationKey, stage, datasourceName);
+                print(mod.addDataSource(applicationKey, stage, datasourceName, url,
+                        driverName, dbUsername, dbPassword, datasourceDescription));
+            } catch (e) {
+                throw "Error while updating the datasource : " + datasourceName;
+            }
+        }
+    } else if (action == "addDataSource") {
+    	mod = jagg.module("resources");
+	    var applicationKey = request.getParameter("applicationKey");
+	    var datasourceName = request.getParameter("datasourceName");
+	    var stage = request.getParameter("stage");
+	    var url = request.getParameter("url");
+	    var datasourceDescription = request.getParameter("datasourceDescription");
+	    var driverName=request.getParameter("driverName");
+        var dbUsername= request.getParameter("dbUsername");
+        var dbPassword= request.getParameter("dbPassword");
+
+        var response = {};
+        var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
+                PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);
+        if(dataSourceCreatePermission){
+            try {
+                print(mod.addDataSource(applicationKey, stage, datasourceName, url,
+                        driverName, dbUsername, dbPassword, datasourceDescription));
+            } catch(e) {
+                throw "Error while creating the datasource : " + datasourceName;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to add a datasource";
+            print(response);
+        }
+
+    } else if (action == "copyNewDataSources") {
+    	mod = jagg.module("resources");
+        var sourceStage = request.getParameter("sourceStage");
+        var targetStage = request.getParameter("targetStage");
+        var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
+                PERMISSION_RESOURCES_CREATE_FOR_STAGE  + targetStage);
+        var dataSourceReadPermission = modPermission.isUserAccessGranted(applicationKey,
+                PERMISSION_RESOURCES_READ_FOR_STAGE + sourceStage);
+        if (dataSourceCreatePermission && dataSourceReadPermission) {
+            try {
+                mod.copyNewDataSources(applicationKey, sourceStage, targetStage);
+            } catch (e) {
+                throw "Error while copying new datasources from : " + sourceStage + "to: " + targetStage;
+            }
+        }
+        
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

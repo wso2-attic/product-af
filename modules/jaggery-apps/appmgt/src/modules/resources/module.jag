@@ -1,0 +1,233 @@
+<%
+jagg.module("resources", {
+
+    createDataSource:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/datasources/add/add.jag").createDataSource.apply(this, arguments);
+	},
+	
+	deleteDatasource:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/datasources/add/add.jag").deleteDatasource.apply(this, arguments);
+	},
+	
+	getDataSource:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/datasources/get/list.jag").getDataSource.apply(this, arguments);
+	},
+	
+	addDataSource:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/datasources/add/add.jag").addDataSource.apply(this, arguments);
+	},
+	
+	copyNewDataSources:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/datasources/add/add.jag").copyNewDataSources.apply(this, arguments);
+	},
+	
+	getDatasources:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/datasources/get/list.jag").getDatasources.apply(this, arguments);
+    },
+    
+    datasourceCount:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/datasources/get/list.jag").datasourceCount.apply(this, arguments);
+    },
+    
+    getDataSourceInfoUrl:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/datasources/get/list.jag").getDataSourceInfoUrl.apply(this, arguments);
+    },
+        
+	createDatabaseWithAttachedUsers:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").createDatabaseWithAttachedUsers.apply(this, arguments);
+	},
+
+    createDbWithUserAndTemplate:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").createDbWithUserAndTemplate.apply(this, arguments);
+	},
+
+	createDatabase:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").createDatabase.apply(this, arguments);
+	},
+
+	getDatabaseUsersForRssInstance:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/users/list.jag").getDatabaseUsersForRssInstance.apply(this,arguments);
+	},
+
+	getDatabases:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getDatabases.apply(this,arguments);
+	},
+
+	getDatabasesForStage:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getDatabasesForStage.apply(this, arguments);
+	},
+
+    getDbUserTemplateInfoForStage:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getDbUserTemplateInfoForStage.apply(this,arguments);
+	},
+    getDatabasesInfoForStage:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getDatabasesInfoForStage.apply(this,arguments);
+	},
+    
+    getDatabaseInfoUrl:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getDatabaseInfoUrl.apply(this,arguments);
+	},
+
+	dropDatabase:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/drop/drop.jag").dropDatabase.apply(this,arguments);
+	},
+
+	getTemplates:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/templates/add.jag").getTemplates.apply(this,arguments);
+	},
+
+	getAvailableTemplatesToAttachToDatabase:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/templates/add.jag").getAvailableTemplatesToAttachToDatabase.apply(this,arguments);
+	},
+
+	dropTemplate:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/templates/add.jag").dropTemplate.apply(this,arguments);
+	},
+
+	createTemplate:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/templates/add.jag").createTemplate.apply(this,arguments);
+	},
+
+	editTemplate:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/templates/add.jag").editTemplate.apply(this,arguments);
+	},
+
+	editDbTemplate:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/templates/add.jag").editDbTemplate.apply(this,arguments);
+	},
+
+	getDatabaseUsers:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/users/list.jag").getDatabaseUsers.apply(this,arguments);
+	},
+
+	getAvailableUsersToAttachToDatabase:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/users/list.jag").getAvailableUsersToAttachToDatabase.apply(this,arguments);
+	},
+
+	getRSSinstances:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getRSSinstances.apply(this,arguments);
+	},
+	getRSSinstanceInStage:function() {
+    		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getRSSinstanceInStage.apply(this,arguments);
+    },
+    getStageFromRssInstanceName:function() {
+        		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getStageFromRssInstanceName.apply(this,arguments);
+    },
+
+	deleteUser:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/users/list.jag").deleteUser.apply(this,arguments);
+	},
+
+	createDatabaseUser:function() {
+		return jagg.require(jagg.getModulesDir()+"resources/databases/users/list.jag").createDatabaseUser.apply(this,arguments);
+	},
+
+	getAttachedUsers:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getAttachedUsers.apply(this, arguments);
+	},
+
+	attachNewUser :function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").attachNewUser.apply(this, arguments);
+	},
+
+	detachUser:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").detachUser.apply(this, arguments);
+	},
+
+	getUserPrivileges:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getUserPrivileges.apply(this, arguments);
+	},
+
+	editUserPermissions:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").editUserPermissions.apply(this, arguments);
+	},
+	
+    createApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/apis/add/add.jag").createApplication.apply(this, arguments);
+    },
+    
+    keysExistsAllInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/apis/key/key.jag").keysExistsAllInStages.apply(this, arguments);
+    },
+    
+    getAPIsOfUserApp:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/apis/get/get.jag").getAPIsOfUserApp.apply(this, arguments);
+    },
+    
+    generateKeys:function () {
+            return jagg.require(jagg.getModulesDir() + "resources/apis/key/key.jag").generateKeys.apply(this, arguments);
+    },
+    
+    getSavedKeys:function () {
+            return jagg.require(jagg.getModulesDir() + "resources/apis/key/key.jag").getSavedKeys.apply(this, arguments);
+    },
+    
+    addPropertyToStages:function () {
+            return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").addPropertyToStages.apply(this, arguments);
+    },
+      
+    addPropertyToInitialStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").addPropertyToInitialStages.apply(this, arguments);
+    },
+    
+    getPropertyValueInAllStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getPropertyValueInAllStages.apply(this, arguments);
+    },
+    
+    getDetailedPropertyValuesInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getDetailedPropertyValuesInStages.apply(this, arguments);
+    },
+    
+    updatePropertyInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag")
+        .updatePropertyInStages.apply(this, arguments);
+    },
+    
+    putResourcesForCollectionInStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag")
+        .putResourcesForCollectionInStages.apply(this, arguments);
+    },
+    
+    deletePropertyFromStages:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").deletePropertyFromStages.apply(this, arguments);
+    },
+    
+    getPropertyValueInStage:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getPropertyValueInStage.apply(this, arguments);
+    },
+    
+    putPropertyCollection:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").addPropertyCollectionToStages.apply(this, arguments);
+    },
+    
+    getDetailedPropertyValueInStage:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getDetailedPropertyValueInStage.apply(this, arguments);
+    },
+    
+    getPropertiesInStage:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getPropertiesInStage.apply(this, arguments);
+    },
+    
+    propertyExistsInAllStages:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").propertyExistsInAllStages.apply(this, arguments);
+    },
+    
+    updatePropertyDescriptionInStages:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").updatePropertyDescriptionInStages.apply(this, arguments);
+    },
+    
+    propertyExistsInStages:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").propertyExistsInStages.apply(this, arguments);
+    },
+    copyNewProperties:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").copyNewProperties.apply(this, arguments);
+    },
+    setUserRealmSupport:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/userrealm/realm.jag").setUserRealmSupport.apply(this, arguments);
+    },
+    isUserRealmSupported:function () {
+    	return jagg.require(jagg.getModulesDir() + "resources/userrealm/realm.jag").isUserRealmSupported.apply(this, arguments);
+    }
+    
+});
+%>

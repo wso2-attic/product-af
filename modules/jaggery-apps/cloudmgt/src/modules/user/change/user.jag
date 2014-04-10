@@ -1,0 +1,75 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log();
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+var file = new File("/site/conf/cloud-mgt.xml");
+file.open("r");
+var data = file.readAll();
+var doc= new XML(data);
+//var url = doc.dbConfig.(@name == "cloud_mgt").url.toString();
+//var userName = doc.dbConfig.(@name == "cloud_mgt").userName.toString();
+//var password = doc.dbConfig.(@name == "cloud_mgt").password.toString();
+var AFURL = doc.ServerUrls.AppFactory.toString();
+var BPSURL = doc.ServerUrls.BPS.toString();
+file.close();
+
+var userName =  session.get("LOGGED_IN_USER");
+
+
+var changePassword = function(oldPassword, newPassword) {
+    var user=session.get('LOGGED_IN_USER').split('@')[0];
+    var tenantDomain=modManager.getTenantDomain();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager=realm.getUserStoreManager();
+        var result=userStoreManager.updateCredential(user,newPassword,oldPassword);
+        log.info("Sucessfully changed password");
+        return true;
+    }catch (e){
+        log.error("Error while changing password for the user " + userName + e.message);
+        throw "Error while changing password for the user " + userName + e.message;
+    }finally{
+        context.endTenantFlow();
+    }
+        
+    }
+
+var updatePasswordWithUserInput = function(username, newPassword,userAnswer,secretKey,confirmationKey) {
+        var admin;
+        var tenantDomain;
+        var atIndex = username.lastIndexOf('@');
+        if (username != null) {
+          admin = username;
+          tenantDomain = "";
+          if (atIndex != -1) {
+             admin = username.substring(0, atIndex);
+             tenantDomain = username.substring(atIndex + 1, username.length);
+          }
+        }
+        var adminService = server.osgiService('org.wso2.carbon.admin.mgt.services.AdminManagementService');
+	var captchaInfoBean = new org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean();
+        var adminInfoBean = new org.wso2.carbon.admin.mgt.beans.AdminMgtInfoBean();
+        adminInfoBean.setTenantLessUserName(admin);
+        adminInfoBean.setTenantDomain(tenantDomain);
+        adminInfoBean.setPassword(newPassword);
+        captchaInfoBean.setSecretKey(secretKey);
+        captchaInfoBean.setUserAnswer(userAnswer);
+        adminService.updatePasswordWithUserInput(adminInfoBean,captchaInfoBean,confirmationKey);
+        return true;
+    }
+
+
+%>
+

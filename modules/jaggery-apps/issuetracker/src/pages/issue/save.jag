@@ -1,0 +1,25 @@
+<%
+var caramel = require('caramel');
+(function () {
+    var login = require('/modules/login.js');
+    if(!login.isLogged()){
+        return;
+    }
+
+    issue = require('/modules/issue.js');
+
+    var jsonString = request.getParameter('jsonString'),
+    projectKey  = request.getParameter('projectKey'),
+    action      = request.getParameter('action');
+
+    var result;
+    if (action === 'addIssue') {
+        result = issue.addIssue(projectKey, jsonString);
+    } else if (action === 'editIssue') {
+        issueKey = request.getParameter('issueKey');
+        result = issue.editIssue(issueKey, jsonString);
+    }
+    print(stringify(result));
+
+}());
+%>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs title="Time slider"
+                 author="WSO2 UES"
+                 height="230"
+                 scrolling="true"
+                 tags="slider,visualization,data"
+                 description="A time slider">
+        <Require feature="pubsub-2">
+            <Param name="topics">
+                <![CDATA[
+         <Topic title="timeData name="timeSliderPub" publish="true"/>
+         ]]>
+            </Param>
+        </Require>
+        <Require feature="dynamic-height" />
+    </ModulePrefs>
+    <UserPref name="dataSource"
+              display_name="Data Source"
+              default_value="../../CXODashboard/dataApis/TimeSlider.jag">
+    </UserPref>
+    <!--UserPref name="updateGraph"
+              display_name="Update Interval (s)"
+              default_value="No">
+    </UserPref-->
+    <Content type="html">
+        <![CDATA[
+ <html>
+ <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Time Slider</title>
+	<link href="../../themes/portal/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/jslider.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/jslider.round.plastic.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/tmpl.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/jquery.dependClass-0.1.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/draggable-0.1.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/jquery.slider.js"></script>
+	<script language="javascript" type="text/javascript" src="js/time-slider.js"></script>
+<style>
+.layout-slider {
+    margin-top: 2px;
+}
+</style>
+</head>
+
+<body>
+
+    <div class="layout-slider-settings"></div>
+    <div class="layout-slider">
+         <input id="Slider" type="slider" name="area" value=1384506563;1385543363 />
+    </div>
+
+</body>
+</html>
+
+    ]]>
+    </Content>
+</Module>

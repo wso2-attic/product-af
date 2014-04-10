@@ -1,0 +1,47 @@
+<%
+include('/jagg/constants.jag');
+include('/jagg/config_reader.jag');
+jagg.block("governance/list", {
+    initialize: function (data) {
+
+    },
+    getInputs: function () {
+        return {
+            "applicationKey": null
+        }
+    },
+
+    getOutputs: function (inputs) {
+        var log = new Log();
+        var permissionModule = jagg.module("permission");
+        var lifecycleModule = jagg.module("lifecycle");
+
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var hasPromotePermissions = {};
+        var hasDemotePermissions = {};
+        var hasVisibilityPermissions = {};
+        
+        for (var i = 0; i < deploymentStages.length; i++) {
+            var next = lifecycleModule.getNextLifeCycleStage(deploymentStages[i]);
+            var prev = lifecycleModule.getPreviousLifeCycleStage(deploymentStages[i]);
+
+            hasPromotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_PROMOTE_TO + next);
+
+            hasDemotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + prev);
+            
+            hasVisibilityPermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_VISIBILITY_STAGE + deploymentStages[i]);
+            
+        }
+
+        var hasRetirePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_RETIRE);
+        return {
+            "hasPromotePermissions": hasPromotePermissions,
+            "hasDemotePermissions": hasDemotePermissions,
+            "hasRetirePermission": hasRetirePermission,
+            "hasVisibilityPermissions": hasVisibilityPermissions
+        };
+    }
+
+
+});
+%>

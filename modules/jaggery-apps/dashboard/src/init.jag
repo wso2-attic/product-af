@@ -1,0 +1,4 @@
+<%
+  require('deployer.js');
+  response.sendRedirect("/store");
+%>

@@ -1,0 +1,36 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:entry title="Appfactory server URL" field="appfactoryServerURL"
+            description="Enter the URL of Appfactory server">
+          <f:textbox />
+          </f:entry>
+  <f:section title="Appfactory Plugin">
+    <f:entry title="DeployArtifact BPEL EPR" field="deployBpelEPR"
+      description="Enter the EPR of deploy Bpel">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Admin User Name" field="adminUserName"
+          description="Enter admin usename to use to upload artifact">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Admin Password" field="adminPassword"
+              description="Enter the password of admin user to use to upload the artifact">
+      <f:textbox />
+    </f:entry>
+    <f:entry title="Client Trust Store" field="clientTrustStore"
+                  description="Enter the Client Trust Store to connect appfactory securely">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="Admin Password" field="clientTrustStorePassword"
+                      description="Enter the Client Trust Store Password to connect appfactory securely">
+        <f:textbox />
+    </f:entry>
+<f:entry title="Storage Path" field="storagePath"
+      description="Root directory where appfactory artifacts will be stored">
+    <f:textbox />
+    </f:entry>
+    <f:entry title="Temporary Path" field="tempPath"
+      description="Root directory where all of the temp files will be stored">
+    <f:textbox />
+    </f:entry>
+  </f:section>
+</j:jelly>

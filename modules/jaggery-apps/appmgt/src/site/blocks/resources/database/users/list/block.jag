@@ -1,0 +1,10 @@
+
+<%
+include('/jagg/constants.jag');
+jagg.block("resources/database/users/list", {
+    initialize:function (data) {
+
+    }
+  });
+%>
+

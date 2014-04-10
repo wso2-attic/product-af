@@ -1,0 +1,32 @@
+How to Integrate GitBlit with App Factory (Assume you have App Factory in APPFACTORY_HOME)
+----------------------------------------------------------------------------------
+
+1.Download gitblit from http://gitblit.googlecode.com/files/gitblit-1.1.0.zip
+
+2.Build appfactory.gitblit.plugin and org.wso2.carbon.appfactory.gitblit.git.repository.provider
+by issuing mvn clean install in current directory
+
+3.Unzip gitblit-1.1.0.zip to directory say GITBLIT_HOME
+
+4.Copy appfactory.gitblit.plugin-0.0.1-SNAPSHOT-jar-with-dependencies.jar to GITBLIT_HOME/ext
+
+5.Edit followings in  gitblit.properties from current directory according to your set up
+
+    appfactory.truststore= /media/Entetainment/base_appfactory/appfactory_deployment/setup/appfactory/wso2appfactory-1.0.0/repository/resources/security/wso2carbon.jks
+    appfactory.truststore.password= wso2carbon
+    appfactory.admin.username= admin@admin.com
+    appfactory.admin.password= admin
+    appfactory.authentication.admin.service.epr= https://localhost:9443
+
+6.Copy gitblit.properties from current directory to GITBLIT_HOME
+
+7.Copy org.wso2.carbon.appfactory.gitblit.git.repository.provider-1.0.2.jar to
+APPFACTORY_HOME/repository/component/dropins
+
+8.Copy jar gitblit.jar(can be found in GITBLIT_HOME) to
+APPFACTORY_HOME/repository/component/dropins
+
+9.Start appfactory and jenkins with environment variable GIT_SSL_NO_VERIFY=1(In linux export
+GIT_SSL_NO_VERIFY=1)
+
+10.Start gitblit by executing java -jar gitblit.jar in GITBLIT_HOME

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%
+    var site_url = '/dashboard/';
+    var scripts = ['js/gadgetPresenter.js','js/utils.js'];
+    var styles = [];
+
+    include("includes/header.jag");
+    %>
+    <head>
+        <meta charset="utf-8">
+        <title>App Factory - Dashboard | WSO2</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <link href="<%=site_url%>css/bootstrap.css" rel="stylesheet"/>
+        <link href="<%=site_url%>css/bootstrap-responsive.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="<%=site_url%>css/stylesheet.css" type="text/css" charset="utf-8"/>
+        <link rel="stylesheet" href="<%=site_url%>css/styles.css" type="text/css" charset="utf-8"/>
+        <script src="<%=site_url%>js/constants.js"></script>
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="lib/bootstrap/assets/js/html5.js"></script>
+        <![endif]-->
+        <!-- Le fav and touch icons -->
+        <link rel="shortcut icon" href="lib/bootstrap/assets/ico/favicon.ico">
+        <!--[if gte IE 9]>
+        <link rel="stylesheet" href="<%=site_url%>css/stylesheet-ie9.css" type="text/css"/>
+        <![endif]-->
+        <!--[if IE 7]>
+        <link rel="stylesheet" href="<%=site_url%>css/stylesheet-ie7.css" type="text/css"/>
+        <![endif]-->
+        <!--[if IE 8]>
+        <link rel="stylesheet" href="<%=site_url%>css/stylesheet-ie8.css" type="text/css"/>
+        <![endif]-->
+    </head>
+    <body>
+        <!--
+        START Header back ground
+        No real content is here just to display the head
+        -->
+        <div class="container-fluid header">
+            <div class="row-fluid">
+                <div class="span6"></div>
+                <div class="span6 top-menu"></div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <!--END Header back ground-->
+
+		<!--START Header menu-->
+		<div class="container">
+		    <div class="row">
+		        <div class="span3 logo-section">
+		            <a class="brand" onclick="window.location.href='/appmgt/site/pages/index.jag' "></a>
+		        </div>
+		        <div class="span9 menu-back">
+		            <div class="menu-content">
+		                <div class="navbar">
+		                    <div class="navbar-inner">                
+		                        <ul class="nav pull-right">
+		                            <li class="active">
+		                            <a href="https://wso2.org/jira/browse/APPFAC" target="_blank">
+		                                <i class="icon-feedback"></i>
+		                                <br>
+		                                Feedback
+		                            </a>
+		                            </li>
+		                            <li class="active">
+		                            <a href="http://docs.wso2.org/wiki/display/AF100/User+Guide" target="_blank">
+		                                <i class="icon-user-guide"></i>
+		                                <br>
+		                                User Guide
+		                            </a>
+		                            </li>
+		                            <li class="active">
+		                            <a href="http://wso2.com/solutions/app-factory/" target="_blank">
+		                                <i class="icon-home"></i>
+		                                <br>
+		                                APP Factory @ wso2.com
+		                            </a>
+		                            </li>
+		                            <li class="active">
+		                            <a href="http://wso2.com/support/" target="_blank">
+		                                <i class="icon-support"></i>
+		                                <br>
+		                                Support
+		                            </a>
+		                            </li>
+		                            <li class="active">
+		                            <a href="http://wso2.com/contact/" target="_blank">
+		                                <i class="icon-contact"></i>
+		                                <br>
+		                                Contacts
+		                            </a>
+		                            </li>
+		                            <%
+		                            if(userName!=null) {
+		                            %>
+		                            <li class="dropdown">
+		                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		                                    <i class="icon-user"></i>
+		                                    <br/>
+		                                    <%=userName%> <b class="caret"></b></a>
+		                                <ul class="dropdown-menu">
+		                                   <li><a id="logout-link"  onClick="window.location.href='logout.jag'">Sign Out</a></li>
+		                                </ul>
+		                            </li>
+		                            <%
+		                            }
+		                            %>
+		                        </ul>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+		<div class="message-block" id="messageBlock" style="display: none;">
+		    Your message has been discarded.
+		</div>
+		<!--END Header menu-->
+
+        <!--START breadcrumb section-->
+        <div class="container breadcrumb-section">
+            <div class="row">
+                <div class="span12" style="height:27px;">
+
+                </div>
+            </div>
+        </div>
+        <!--END breadcrumb section-->
+        <div class="container custom-dashboard">
+            <div class="title-section">
+                <div class="row">
+                    <div class="span9">
+                        <h1>Dashboard</h1>
+                    </div>
+                    <!--
+                    <div class="span3">
+                        <div class="title-side-box" id="haveAppsSectionA">
+                            <div class="btn-group">
+                                <button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+                                    Perspective 
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu perspective-btn">
+                                    <li>
+                                        <a href="#">Development</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Operational</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">Business</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sliding-icons" id="slidingIcons">
+            <ul>
+                <li class="active"><a href="#issuesSection" data-toggle="tooltip" data-placement="right" title="" data-original-title="Issues"><i class="icon-panel-issues"></i></a></li>
+                <li><a href="#appsSection" data-toggle="tooltip" data-placement="right" title="" data-original-title="Applications"><i class="icon-panel-apps"></i></a></li>
+                <li><a href="#usersSection" data-toggle="tooltip" data-placement="right" title="" data-original-title="Users"><i class="icon-panel-users"></i></a></li>
+                <li><a href="#buildsSection" data-toggle="tooltip" data-placement="right" title="" data-original-title="Builds"><i class="icon-panel-builds"></i></a></li>
+                <!--<li><a href="#sourceSection" data-toggle="tooltip" data-placement="right" title="" data-original-title="Source Control"><i class="icon-panel-sources"></i></a></li>-->
+                <li><a href="#resourcesSection" data-toggle="tooltip" data-placement="right" title="" data-original-title="Resources"><i class="icon-panel-resources"></i></a></li>
+            </ul>
+
+        </div>
+
+
+
+
+            <div class="container-fluid dashboard-top-strip-wrapper-odd custom-dashboard">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="container">
+                            <h2 class="section-header dotted-wrapper" id="issuesSection"><i class="icon-h-issues"></i> Issues</h2>
+                            <div class="row dotted-wrapper">
+                                <div class="span12">
+                                    <div  class="container">
+                                        <div class="row">
+                                            <div class="span6 dark-wrapper" >
+                                                <div id="gadgetArea-issues-by-priority" class="gadget"></div>
+                                            </div>
+                                            <div class="span6 dark-wrapper">
+                                                <div id="gadgetArea-issues-by-stage" class="gadget"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="span6 light-wrapper" >
+                                                <div id="gadgetArea-top-10-bug-assigners" class="gadget"></div>
+                                            </div>
+                                            <div class="span6 light-wrapper">
+                                                <div id="gadgetArea-top-10-bug-reporters" class="gadget"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="span6 light-wrapper">
+                                        <div id="gadgetArea-issues-by-resolutions" class="gadget"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END of section -->
+            
+            <div class="container-fluid dashboard-top-strip-wrapper-even custom-dashboard">
+                 <div class="row-fluid">
+                    <div class="span12">
+                        <div class="container">
+                            <h2 class="section-header dotted-wrapper" id="appsSection"><i class="icon-h-apps"></i> Applications</h2>
+                            <div class="row dotted-wrapper">
+                                <div class="span6 dark-wrapper">
+                                    <div id="gadgetArea-apps-stages" class="gadget"></div>
+                                </div>
+                                <div class="span6 dark-wrapper">
+                                    <div id="gadgetArea-top-owners" class="gadget"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END of section -->
+
+
+           <div class="container-fluid dashboard-top-strip-wrapper-even custom-dashboard" >
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="container">
+                            <h2 class="section-header dotted-wrapper" id="usersSection"><i class="icon-h-users"></i> Users</h2>
+                            <div class="row dotted-wrapper">
+                                <div class="span6 light-wrapper">
+                                    <div id="gadgetArea-users-by-category" class="gadget"></div>
+                                </div>
+                                <div class="span6 dark-wrapper">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END of section -->
+
+            <div class="container-fluid dashboard-top-strip-wrapper-odd custom-dashboard">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="container">
+                            <h2 class="section-header dotted-wrapper" id="buildsSection"><i class="icon-h-builds"></i>Builds</h2>
+                            <div class="row dotted-wrapper">
+                                <div class="span6 dark-wrapper">
+                                    <div id="gadgetArea-builds-status" class="gadget"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END of section -->
+            <!--
+            <div class="container-fluid dashboard-top-strip-wrapper-even custom-dashboard">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="container">
+                            <h2 class="section-header dotted-wrapper" id="sourceSection"><i class="icon-h-source"></i>Source</h2>
+                            <div class="row dotted-wrapper">
+                                <div class="span6 light-wrapper">
+                                    <div id="gadgetArea-top-repos-by-size" class="gadget"></div>
+                                </div>
+								<div class="span6 light-wrapper">
+                                    <div id="gadgetArea-code-counts" class="gadget"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->
+            <!-- END of section -->
+            <div class="container-fluid dashboard-top-strip-wrapper-even custom-dashboard">
+                <div class="row-fluid">
+                    <div class="span12">
+                        <div class="container">
+                            <h2 class="section-header dotted-wrapper" id="resourcesSection"><i class="icon-h-resources"></i>Resources</h2>
+                            <div class="row dotted-wrapper">
+                                <div class="span6 light-wrapper">
+                                     <div id="gadgetArea-resources-by-category" class="gadget"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END of section -->
+
+
+        <%
+        include("includes/footer.jag");
+        %>
+    </body>
+</html>
+

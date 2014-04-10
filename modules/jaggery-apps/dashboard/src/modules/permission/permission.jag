@@ -1,0 +1,70 @@
+<%
+    include("/jagg/jagg.jag");
+	include("/jagg/constants.jag");
+
+	var log = new Log();
+
+	var checkUserAuthenticated = function() {
+		var username = jagg.getUser();
+		if(!username) {
+			var errorMessage = "User is not authenticated. User should login first.";
+			log.error(errorMessage);
+			throw errorMessage;
+		}
+		return username;
+	};
+	
+	var checkUserActionPermission = function(applicationKey, permission) {
+		var username = checkUserAuthenticated();
+		var appFactoryCarbonUtilModule = require("carbonUtil");
+		var appFactoryCarbonUtil = new appFactoryCarbonUtilModule.CarbonUserRealm();
+	
+		var isUserAuthorized = appFactoryCarbonUtil.isUserAuthorized(username + '@' + applicationKey, permission, PERMISSION_EXECUTE);
+		if(!isUserAuthorized) {
+			var errorMessage = "Un-authorized!!!. User:" + username + " does not have permission:" + permission;
+			log.error(errorMessage);
+			throw errorMessage;
+		}
+	};
+	
+	var checkAdminPermission = function() {
+		var username = checkUserAuthenticated();
+		var appFactoryCarbonUtilModule = require("carbonUtil");
+		var appFactoryCarbonUtil = new appFactoryCarbonUtilModule.CarbonUserRealm();
+		var isUserAuthorized = appFactoryCarbonUtil.isUserAuthorized(userName, PERMISSION_ADMIN, PERMISSION_EXECUTE);
+		if(!isUserAuthorized) {
+			var errorMessage = "Un-authorized!!!. User:" + username + " does not have permission:" + PERMISSION_ADMIN;
+			log.error(errorMessage);
+			throw errorMessage;
+		}
+	};
+	
+	var isUserAccessGranted = function(applicationKey, permission) {
+		var username = checkUserAuthenticated();
+		var appFactoryCarbonUtilModule = require("carbonUtil");
+		var appFactoryCarbonUtil = new appFactoryCarbonUtilModule.CarbonUserRealm();
+		return appFactoryCarbonUtil.isUserAuthorized(username + '@' + applicationKey, permission, PERMISSION_EXECUTE);
+	};
+	
+	var isUserAccessGrantedForPlatform = function(permission) {
+		var username;
+		try {
+			username = checkUserAuthenticated();
+		} catch (e) {
+			return false;
+		}
+		var appFactoryCarbonUtilModule = require("carbonUtil");
+		var appFactoryCarbonUtil = new appFactoryCarbonUtilModule.CarbonUserRealm();
+		return appFactoryCarbonUtil.isUserAuthorized(username, permission, PERMISSION_EXECUTE);
+	};
+	
+	var hasPermissionToStage = function(applicationKey, stage) {
+		var username = checkUserAuthenticated();
+		var appFactoryCarbonUtilModule = require("carbonUtil");
+		var appFactoryCarbonUtil = new appFactoryCarbonUtilModule.CarbonUserRealm();
+		var permission = PERMISSION_VISIBILITY_STAGE + stage;
+	
+		return appFactoryCarbonUtil.isUserAuthorized(username + '@' + applicationKey, permission, PERMISSION_EXECUTE);
+	};
+
+%>

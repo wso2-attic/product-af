@@ -1,0 +1,37 @@
+<%
+include('/jagg/constants.jag');
+include('/jagg/config_reader.jag');
+jagg.block("governance/demote", {
+    initialize: function (data) {
+
+    },
+    getInputs: function () {
+        return {
+            "applicationKey": null
+        }
+    },
+
+    getOutputs: function (inputs) {
+        var log = new Log();
+        var permissionModule = jagg.module("permission");
+        var lifecycleModule = jagg.module("lifecycle");
+
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var hasDemotePermissions = {};
+        
+        for (var i = 0; i < deploymentStages.length; i++) {
+            var prev = lifecycleModule.getPreviousLifeCycleStage(deploymentStages[i]);
+
+            hasDemotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + prev);
+            
+        }
+        var hasRetirePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_RETIRE);
+        return {
+            "hasDemotePermissions": hasDemotePermissions,
+            "hasRetirePermission": hasRetirePermission
+        };
+    }
+
+
+});
+%>

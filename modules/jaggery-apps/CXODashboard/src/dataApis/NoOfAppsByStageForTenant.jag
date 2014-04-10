@@ -1,0 +1,67 @@
+<%
+
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+var timePeriod = getTimePeriod();
+var chartData = getData(timePeriod[0], timePeriod[1]);
+
+function getTimePeriod() {
+
+    if (isUserLoggedIn) {
+        var result = [];
+        if (request.getParameter("from") == null || request.getParameter("to") == null) {
+
+            var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM LATEST_APP_VERSIONS WHERE TENANT_ID=" + tenantID + " ;";
+	    var dbResult = dbConfig.queryDb(query);
+
+            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
+            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+	    	
+        } else {
+            result[0] = request.getParameter("from");
+            result[1] = request.getParameter("to");
+        }
+        return result;
+    }
+}
+
+function getData(from, to) {
+
+if (isUserLoggedIn) {
+
+	var query = "SELECT  A.STAGE, count(*) as COUNT FROM  LATEST_APP_VERSIONS L, APP_VERSIONS_BY_USER A WHERE L.APPLICATION_KEY=A.APPLICATION_KEY AND L.APPLICATION_VERSION=A.APPLICATION_VERSION AND L.TIME_ST=A.TIME_ST AND L.TENANT_ID=A.TENANT_ID AND A.TENANT_ID=" + tenantID +" AND substr(L.TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) +" GROUP BY A.STAGE ;";
+	
+	var dbResult = dbConfig.queryDb(query);
+
+	return createJSON(dbResult);
+      }	
+}
+
+function createJSON(result) {
+	var len = result.length;
+        var rows = new Array();
+	var data = [];
+	var objtemp = {};
+
+        for (var i = 0; i < len; i++) {
+	        var obj = result[i];
+		var row = new Array();
+		if(obj == null || obj.length<2){
+			return null;		
+		}		
+		var noOfApps= obj["COUNT"];
+		var appType = obj["STAGE"];
+		
+		objtemp[appType] = {"label":appType,"data":noOfApps};
+            }
+	data.push(objtemp);
+    	return data;
+}
+
+	print(chartData);
+%>

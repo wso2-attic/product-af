@@ -1,0 +1,29 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS AppCommit
+                (row_id STRING, applicationKey STRING, tenantDomain STRING, user STRING, 
+                 revision STRING, timeSt BIGINT)
+                                STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+                                with SERDEPROPERTIES
+                                ("wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+                                 "cassandra.cf.name" = "org_wso2_carbon_appfactory_appCommit" ,
+                                 "cassandra.columns.mapping" =
+                                 ":key, payload_appKey, payload_tenantDomain, payload_user, 
+                                 payload_revision, Timestamp");
+                                 
+
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_COMMITS
+     (APPLICATION_KEY STRING,TENANT_DOMAIN STRING,USER STRING,REVISION STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_DOMAIN,APPLICATION_KEY,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE APP_COMMITS
+    (APPLICATION_KEY VARCHAR(100), TENANT_DOMAIN VARCHAR(100), USER VARCHAR(100), REVISION VARCHAR(100), TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table APP_COMMITS
+    SELECT applicationKey, tenantDomain, user, revision, timeSt FROM AppCommit;
+
+                                    

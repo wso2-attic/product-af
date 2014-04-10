@@ -1,0 +1,99 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+// used for logging
+var log = new Log();
+var modManager = jagg.module("manager");
+
+var getAllDependencies = function (applicationKey,stage){
+    var ws = require('ws');
+        var dependencyManager = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.1;
+        options.action = "urn:getAllDependency";
+        options["HTTPHeaders"] = [
+                { name : "Cookie", value :modManager.getAdminCookie() }
+            ];
+        var payload =
+        '<ser:getAllDependency xmlns:ser="http://dependency.core.appfactory.carbon.wso2.org">'
+                        + '<ser:applicationKey>' + applicationKey +
+                        '</ser:applicationKey>'+'<ser:stage>'+stage+'</ser:stage>'+'</ser:getAllDependency>';
+        var result;
+
+        try {
+            var serviceName ='AppFactoryDependencyManagementService';
+            var serverUrl = getProperty(APPFACTORY_SERVER_URL);
+
+            var endPoint = serverUrl + serviceName;
+
+            dependencyManager.open(options,endPoint, false);
+            dependencyManager.send(payload);
+            result = dependencyManager.responseE4X;
+
+            if(log.isDebugEnabled()){
+                log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+            }
+
+
+            var elements = result.*::["return"];
+            var elementsArray = [];
+            for(var i = 0; i < elements.length(); i++){
+                var entry = elements[i];
+
+                var dependency = {};
+                var name = entry.*::name.text();
+                var description = entry.*::description.text();
+                var value = entry.*::value.text();
+
+                dependency.name = name;
+                dependency.description = description;
+                dependency.value = value;
+
+
+                elementsArray.push(dependency);
+            }
+            var finalValue = {};
+            finalValue.dependencies = elementsArray;
+            return finalValue;
+        } catch (e) {
+            log.error("Error while creating application "+ applicationKey + "\n"+e.message);
+            throw "Error while creating application "+ applicationKey;
+        }
+};
+
+var getDependenciesCount = function (applicationKey,stage){
+    var ws = require('ws');
+        var dependencyManager = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.1;
+        options.action = "urn:getAllDependency";
+        options["HTTPHeaders"] = [
+                { name : "Cookie", value :modManager.getAdminCookie() }
+            ];
+        var payload =
+        '<ser:getAllDependency xmlns:ser="http://dependency.core.appfactory.carbon.wso2.org">'
+                        + '<ser:applicationKey>' + applicationKey +
+                        '</ser:applicationKey>'+'<ser:stage>'+stage+'</ser:stage>'+'</ser:getAllDependency>';
+        var result;
+
+        try {
+            var serviceName ='AppFactoryDependencyManagementService';
+            var serverUrl = getProperty(APPFACTORY_SERVER_URL);
+
+            var endPoint = serverUrl + serviceName;
+
+            dependencyManager.open(options,endPoint, false);
+            dependencyManager.send(payload);
+            result = dependencyManager.responseE4X;
+
+      		var elements = result.*::["return"];
+        
+			return elements.length();
+        } catch (e) {
+            return 0;
+        }
+};
+
+%>

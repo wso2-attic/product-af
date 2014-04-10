@@ -1,0 +1,9 @@
+<%
+jagg.block("resources/menu", {
+    initialize:function (data) {
+
+    }
+
+
+});
+%>

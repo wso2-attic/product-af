@@ -1,0 +1,11 @@
+{
+    "ssoConfiguration": {
+        "enabled": true,
+        "issuer": "tracker",
+        "identityProviderURL": "https://milestones.appfactory.wso2.com:9443/samlsso",
+        "keyStorePassword": "wso2carbon",
+        "identityAlias": "wso2carbon",
+        "responseSigningEnabled": "true",
+        "keyStoreName": "/repository/resources/security/wso2carbon.jks"
+    }
+}

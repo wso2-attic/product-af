@@ -1,0 +1,709 @@
+<% jagg.template("user/list", function(inputs, outputs, jagg) { %>
+
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+   // jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
+    var hasInviteUserPermission = outputs.hasInviteUserPermission;
+    %>
+
+
+    <script type="text/javascript">
+
+    var usersWithRoles = [];
+    var checkedUsers=[];
+    var selectedCount=0;
+    var appOWner='';
+    var permittedToInvite = <%=hasInviteUserPermission%>;
+/* This method validates a single email address given as an input parameter */
+function ValidateEmail(inputText){
+
+    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if(mailformat.test(inputText)){
+        return true;
+    }
+    else{
+        return false;
+    }
+
+}
+/*this method fill up the table that depicts the roles and the relevant users */
+    function disable(btnId){
+        var classes=$('#'+btnId).attr('class');
+        if(classes.indexOf('disable')===-1){
+            $('#'+btnId).addClass("disable");
+        }
+
+
+    }
+    function enable(btnId){
+        var classes=$('#'+btnId).attr('class');
+        if(classes.indexOf('disable')!==-1){
+            $('#'+btnId).removeClass("disable");
+        }
+    }
+    function enableDisableEditDeleteButtons(enablePara){
+        if(enablePara){
+            //enable delete and edit
+            enable('jsroleAssignPopup');
+            enable('removeUsers');
+
+        }else{
+            //disable edit and delete buttons
+            disable('jsroleAssignPopup');
+            disable('removeUsers');
+
+        }
+
+    }
+function selectCheckBox(id){
+	var isChecked = $('#ck_'+id).is(':checked');
+	if(isChecked){
+		$('#ck_'+id).removeAttr('checked');
+	} else {
+		 
+		$("#ck_"+id).attr('checked',true);
+	}
+	enableButton($('#ck_'+id).is(':checked'));
+}
+
+function enableButton(ischecked){
+	if(ischecked){
+	    selectedCount++;
+	    enableDisableEditDeleteButtons(true);
+	}else{
+	    selectedCount--;
+	    if(selectedCount===0){
+		enableDisableEditDeleteButtons(false);
+	    }
+	}
+}
+ 
+
+    function updateTable() {
+        $('.cleanable').remove();
+        var $userListContainer = $('#userListContainer');
+
+        jagg.post("../blocks/tenant/users/get/ajax/get.jag", {
+            action: "getUsersofTenant"
+    }, function (result) {
+
+
+        var recordCount = 0;
+        if (result !== undefined) {
+            usersWithRoles = jQuery.parseJSON(result);
+            recordCount = usersWithRoles.length;
+
+        }
+
+
+        if (recordCount > 0) {
+            var countString='';
+            if(recordCount===1){
+
+                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Member in Organization</h2>');
+            } else{
+                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">'+recordCount+' Members in Organization</h2>');
+
+            }
+            
+            var chkDisableStr = "";
+            if(!permittedToInvite){
+            	chkDisableStr = "style = 'display:none'";
+            }
+
+            for (var i in usersWithRoles) {
+
+                var userRoles = usersWithRoles[i];
+                var  checkBoxString="";
+                if(userRoles.roles.indexOf('admin')<0){
+                    checkBoxString='<input id="ck_'+i+'" type="checkbox" name="action_check" class="action_check" data-roles="'+userRoles.roles+'" data-user="'+userRoles.userName+'"' + chkDisableStr + ' />';
+                }else{
+                    checkBoxString='';
+                }
+
+                var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="'+userRoles.userName+'" data-name="'+userRoles.userDisplayName+'">'+
+                            '<ul class="list_row" id="'+userRoles.userName+'">'+
+                                '<li class="list_col first_list_col item_select">'+
+                                    '<div class="list_col_content">'+
+                                        checkBoxString+
+                                    '</div>'+
+                                '</li>'+
+                                '<li onclick="selectCheckBox('+i+')" class="list_col team_member">'+
+                                    '<div class="list_col_content">'+
+                                        '<div class="image_list">'+
+                                            '<dl>'+
+                                                '<dt>'+userRoles.displayName+'</dt>'+
+                                                '<dd class="img"><span class="icon-user"></span></dd>'+
+                                                '<dd>'+userRoles.userName+'</dd>'+
+                                           '</dl>'+
+                                        '</div>'+
+                                   '</div>'+
+                                '</li>'+
+                                '<li onclick="selectCheckBox('+i+')" class="list_col  team_role">'+
+                                    '<div class="list_col_content">'+userRoles.displayRoles.toString()+'</div>'+
+                               '</li>'+
+                                '<li onclick="selectCheckBox('+i+')" class="list_col team_last_login">'+
+                                    '<div class="list_col_content">'+
+                                        // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
+                                    '</div>'+
+                                '</li>'+
+                                '<li onclick="selectCheckBox('+i+')" class="list_col team_controller">'+
+                                    '<div class="list_col_heading">&nbsp;</div>'+
+                                     '<div class="list_col_content">&nbsp;</div>'+
+                                '</li>'+
+                            '</ul>'+
+                       '</li>');
+
+                       if(userRoles.roles.indexOf("appowner")!=-1){
+                            $('.action_check',$userListContainerRow).attr('data-deletable','false');
+                           appOWner=userRoles.userName;
+                        }
+                 $userListContainer.append($userListContainerRow);
+                 enableDisableEditDeleteButtons(false);
+                 selectedCount=0;
+            }
+            $('#userListContainer .action_check').click(function(){
+                    manageRoleCheckList();
+                }
+            );
+            $('.action_check').click(function(){
+		        enableButton(this.checked);
+            });
+        } else {
+               $('#userListContainer').html('<li class="noData-message">no data</li>');
+            //messageElement.html("No users/roles found!").fadeIn();
+
+        }
+
+    }, function (jqXHR, textStatus, errorThrown) {
+
+        //messageElement.html("Error occured while loading User/Roles information!").fadeIn();
+
+    });
+}
+var allRoles = [];
+var getRoleByName = function(roleName){
+    var roleObj;
+
+    for(var i=0;i < allRoles.length;i++){
+        if(allRoles[i].role_name == roleName){
+            roleObj = allRoles[i];
+        }
+    }
+    return roleObj;
+
+};
+var manageRoleCheckList = function(){
+    allRoles = [];
+
+    $('#jsroleAssignPopupForm label').each(function(){
+        var trole=$(this).attr('data-role');
+        if(trole!=undefined){
+            allRoles.push({dom_obj:this, role_name:trole,users:[] });
+        }
+
+    });
+    //allRoles.push({dom_obj:{}, role_name:'appowner',users:[] });
+
+    //Push users to specific roles
+    var numberOfUsersChecked = 0;
+    $('#userListContainer .action_check').each(function(){
+        if($(this).is(':checked')){
+            numberOfUsersChecked++;
+            var userName = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            var tmrole=$(this).attr('data-roles');
+            if(tmrole!=undefined&&tmrole.length>0){
+                var allRolesForUser = tmrole.split('\n');
+                for(var i=0;i< allRolesForUser.length;i++){
+                    var role = allRolesForUser[i].replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                    getRoleByName(role).users.push(userName);
+                }
+            }
+        }
+
+    });
+    //Now use the allRows array to show the role checkboxes..
+    if(numberOfUsersChecked > 0 ){
+        for(var i=0;i < allRoles.length;i++){
+            if(allRoles[i].users.length  == numberOfUsersChecked){ //So every user has this role
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-checked"></span>');
+            } else if (allRoles[i].users.length  == 0){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+            } else if (allRoles[i].users.length  != 0 && allRoles[i].users.length < numberOfUsersChecked ){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-half"></span>');
+            }
+        }
+     }else{
+        for(var i=0;i < allRoles.length;i++){
+                $('span',allRoles[i].dom_obj).replaceWith('<span class="checkbox-unchecked"></span>');
+        }
+     }
+};
+
+    var  finalUsers=[];//globally declared
+$(document).ready(function(){
+    updateTable();
+    if(!permittedToInvite){
+       $('#editDelDiv').hide();
+       $('#btnAddMembers').hide();
+       $('#select_all_check').parent().hide();
+    }
+    $('#jsroleAssignPopup').each(function() {
+	$(this).qtip({
+		content: {
+			text: $(this).next()
+		},
+		style: {
+				classes: 'popover_box short_box',
+				widget: false,
+				def: false,
+				tip: false
+			},
+		hide: {
+			fixed: true,
+			event: null,
+			effect: function(offset) {
+				$(this).slideUp(200);
+			}
+		},
+		show:
+		{
+			event: 'click',
+			effect: function(offset) {
+                if(selectedCount!==0){
+
+				$(this).slideDown(200);
+                }
+			}
+		},
+		events: {
+					show: function(event, api) {
+						 api.elements.target.addClass('active');
+                        var $el = $(api.elements.target[0]);
+                        $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
+                        $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+
+                        manageRoleCheckList();
+
+
+					},
+					hide: function(event, api) {
+						 api.elements.target.removeClass('active');
+					}
+				}
+	});
+}).bind('click', function(event){ event.preventDefault(); return false; });
+
+$('.text-box-overrider').click(function(){
+    var $span = $('span',this);
+    var role = $(this).attr('data-role');
+    checkedUsers = [];
+    if(allRoles.length > 0 ){
+        $('#userListContainer .action_check').each(function(){
+                if($(this).is(':checked')){
+                    checkedUsers.push($(this).attr('data-user'));
+                }
+            }
+        );
+        if($span.hasClass('checkbox-checked')){
+            $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
+            getRoleByName(role).users = [];
+        }else if($span.hasClass('checkbox-unchecked')  ){
+            if(getRoleByName(role).halfUsers != null && getRoleByName(role).halfUsers != undefined){
+                $('span',this).replaceWith('<span class="checkbox-half"></span>');
+                getRoleByName(role).users = getRoleByName(role).halfUsers;
+            }else{
+                $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+                getRoleByName(role).users = checkedUsers;
+            }
+        }else if($span.hasClass('checkbox-half')){
+            $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+               getRoleByName(role).halfUsers =checkedUsers;
+        }
+
+    } else{
+        if($span.hasClass('checkbox-checked')){
+            $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
+        }else if($span.hasClass('checkbox-unchecked')){
+            $('span',this).replaceWith('<span class="checkbox-half"></span>');
+        }else if($span.hasClass('checkbox-half')){
+            $('span',this).replaceWith('<span class="checkbox-checked"></span>');
+        }
+    }
+});
+
+$('#select_all_check').click(function(){
+
+    $('#userListContainer .action_check').each(function(){
+            if($('#select_all_check').is(':checked')){
+                $(this).attr('checked','checked');
+
+                selectedCount++;
+                enableDisableEditDeleteButtons(true);
+            }else{
+                $(this).removeAttr('checked');
+                selectedCount=0;
+                enableDisableEditDeleteButtons(false);
+            }
+        }
+    );
+
+    manageRoleCheckList();
+}).removeAttr('checked');
+enableDisableEditDeleteButtons(false);//disabling edit and delete button on load
+
+$('#saveUserRoles').click(function(){
+    // iterate through allRoles and save the users with there roles
+    finalUsers=[];
+    covertAllRoles();
+    detectAllUserRoleChanges();
+    updateUsers();
+    $(this).parents('.qtip').qtip("hide");
+});
+
+$('#removeUsers').click(function(){
+    checkedUsers = [] ;
+	jagg.removeMessage('teampageId');
+    $('#userListContainer .action_check').each(function(){
+                if($(this).is(':checked')){
+                    checkedUsers.push($(this).attr('data-user'));
+
+                }
+            }
+    );
+    if(checkedUsers.indexOf(appOWner)===-1){
+        if(selectedCount!==0){
+            jagg.popMessage({type:'confirm',title:'Delete Users',content:'Are you sure you want to delete users?',okCallback:function(){ doDeleteUser(checkedUsers);},cancelCallback:function(){}});
+        }
+    } else{
+        jagg.message({
+            content: "Application Owner cannot be deleted - Remove the Application Owner from the list.",
+            type: 'warning', id:'teampageId'
+        });
+    }
+
+
+
+
+});
+
+    function covertAllRoles(){
+        //convert all roles array in to processable array in update user method
+        for(var cUser in checkedUsers){
+            var user={};
+            user.name=checkedUsers[cUser];
+            user.roles=[];
+            finalUsers.push(user);
+        }
+        for (var index in allRoles){
+
+            var tempRole=allRoles[index];
+            var tmpRoleName=tempRole.role_name;
+            var tmpUsers=tempRole.users; //array
+            var halfUsers=tempRole.halfUsers;
+            var userFromFinalUsers=[];
+            for(var userIndex in tmpUsers){
+                userFromFinalUsers=getUserfromFinalUsers(tmpUsers[userIndex]);
+                if(userFromFinalUsers===null){
+                    var user={};
+                    var roles=[];
+                    user.name=tmpUsers[userIndex];
+                    roles.push(tmpRoleName);
+                    user.roles=roles;
+                    finalUsers.push(user);
+                }else{
+                    userFromFinalUsers.roles.push(tmpRoleName);
+                }
+            }
+
+            for(var hUserIndex in halfUsers){
+                userFromFinalUsers=getUserfromFinalUsers(halfUsers[hUserIndex]);
+                if(userFromFinalUsers===null){
+                    var user={};
+                    var roles=[];
+                    user.name=halfUsers[hUserIndex];
+                    roles.push(tmpRoleName);
+                    user.roles=roles;
+                    finalUsers.push(user);
+                }else{
+                    userFromFinalUsers.roles.push(tmpRoleName);
+                }
+            }
+
+        }
+
+    }
+    function detectAllUserRoleChanges(){
+        for(u in finalUsers){
+            doDetectChangesNew(finalUsers[u].name);
+        }
+    }
+    function getUserfromFinalUsers(name){
+        for(var index in finalUsers){
+            if(finalUsers[index].name===name){
+                return finalUsers[index];
+                break;
+            }
+        }
+        return null;
+    }
+    function getUserFromUsersWithRoles(name){
+        for(var index in usersWithRoles){
+            if(usersWithRoles[index].userName===name){
+                return usersWithRoles[index];
+                break;
+            }
+        }
+        return null;
+
+    }
+    function doDeleteUser(checkedUsers){
+        var l=checkedUsers.length;
+        for(var i in checkedUsers){
+           deleteUser(checkedUsers[i],i,l);
+        }
+
+    }
+
+    function doDetectChangesNew(userName){
+        var tmpUser= getUserfromFinalUsers(userName);
+        var endingRoles =tmpUser.roles||null;
+        var t=getUserFromUsersWithRoles(userName);
+        var startingRoles=t.roles.split('\n');
+        var trolesToAdd=[];
+        var trolesToDelete=[];
+
+        if(endingRoles!=null){
+            for(var i in startingRoles){
+                if(endingRoles.indexOf(startingRoles[i])===-1){
+                    //add to roles to delete
+                    trolesToDelete.push(startingRoles[i]);
+
+                }
+            }
+            for(var j in endingRoles){
+                if(startingRoles.indexOf(endingRoles[j])===-1){
+                    //ad to rolestoadd
+                    trolesToAdd.push(endingRoles[j]);
+                }
+            }
+        }else{
+            trolesToDelete=startingRoles;
+        }
+
+        tmpUser.rolesToDelete=trolesToDelete;
+        tmpUser.rolesToAdd=trolesToAdd;
+
+    }
+    function updateUsers(){
+
+        for(var u in finalUsers){
+            var user=finalUsers[u];
+            doupdateUser(user.name,user.rolesToDelete,user.rolesToAdd,u);
+        }
+
+    }
+
+
+
+    function doupdateUser(username,rolesToDel,rolestoAd,count){
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                    action:"updateUserRoles",
+                    userName:username,
+                    rolesToDelete:rolesToDel.toString(),
+                    rolesToAdd:rolestoAd.toString()
+                },
+
+                function (result) {
+
+                    if(result != undefined || result==true){
+
+                        // TODO implement addApplicationToApp(applicationKey,
+                        // applicationName, applicationDescription);
+                        var x= (finalUsers.length-1)
+                        if(count==x){
+                            window.setTimeout(function () {
+                                updateTable();
+
+                            }, 300);
+
+                        }
+                        enableDisableEditDeleteButtons(false);
+
+                        return result;
+                    }else if(result==false){
+
+                        return result;
+                    }
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
+                });
+
+    }
+
+    $('#search_members').keyup(function(event){
+        doSearch($(this).val());
+    });
+    function doSearch(searchtext){
+
+        $(".cleanable").each(function(){
+
+            var dv=$(this).attr("data-email").toLowerCase();
+            var ds=$(this).attr("data-name").toLowerCase();
+            //if(searchtext.indexOf("*")!=-1){
+                var pattern=new RegExp(searchtext.toLowerCase());
+                if((pattern.test(dv))||(pattern.test(ds))){
+                    $(this).show();
+
+                }else{
+                    $(this).hide();
+                }
+
+
+//            }else{
+//                if((dv.indexOf(searchtext)==0)||(ds.indexOf(searchtext)==0)){
+//                    $(this).show();
+//
+//                }else{
+//                    $(this).hide();
+//                }
+//            }
+
+        });
+    }
+
+    /*delete a given user*/
+    function deleteUser(username,count,length){
+
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                    action:"deleteUserFromTenant",
+                    userName:username
+                },
+
+                function (result) {
+                    if(count==(length-1)){
+
+                        window.setTimeout(function () {
+                            updateTable();
+
+                        }, 300);
+                    }
+
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    //jagg.message({content:'Error Occured during the removal process of '+userToDelete:'error' });
+                });
+
+
+    }
+
+});
+
+
+</script>
+
+
+
+<div class="container">
+    <article class="main">
+        <% jagg.includeBlock("page/messages", null); %>
+        <header class="separator">
+            <div class="content">
+                <div class="left">
+                    <h1 class="inline_box">Team</h1><a id="btnAddMembers" href="<%=jagg.getAbsoluteUrl("/site/pages/user-import.jag")%>" class="btn main head push_left_40">Import Members</a>
+                </div>
+                <ul class="screen_option right">
+                    <li class="screen_option_item">
+                    <form class="left fw_250 form-container search_form" onSubmit="return false;">
+                            <div class="input_row">
+                                <label for="search_members" class="hide" >Search Members</label>
+                                <input id="search_members" type="text" class="fw_250" placeholder="Search Members" name="search_members" value=""  /><span class="icon-search"></span>
+                            </div>
+                    </form>
+                    </li>
+                </ul>
+             </div>
+        </header>
+        <section class="separator">
+            <div class="content well">
+                <h2 id="membersCount" class="big push_bottom_40"> Members in Team</h2>
+                <ul class="list_table highlight" id="userListContainer">
+                    <li class="list_row_item first_list_row_item">
+                            <ul class="list_row first_list_row ">
+                                <li class="list_col first_list_col item_select cursover_remover">
+                                    <h2 class="list_col_heading"><input type="checkbox" name="select_all" id="select_all_check" /></h2>
+                                </li>
+                                <li class="list_col team_member cursover_remover">
+                                    <h2 class="list_col_heading" style="padding-left:20px;">Member</h2>
+                                </li>
+                                <li class="list_col  team_role cursover_remover">
+                                    <h2 class="list_col_heading">Role</h2>
+                                </li>
+                                <li class="list_col team_last_login cursover_remover">
+                                    <h2 class="list_col_heading">
+                                        &nbsp;
+                                    <!-- Todo - post 1.0 -->
+                                    <!--Last Login-->
+                                    </h2>
+
+
+                                </li>
+                                <li class="list_col team_controller cursover_remover">
+
+                                    <div class="list_col_heading" id="editDelDiv"><!-- style="width:102px"-->
+                                        <ul class="inline_list item_right">
+
+                                            <!--li class="inline_item"><a id="assignRoles" href="<%=jagg.getAbsoluteUrl("/site/pages/user-invite.jag")%>" class="icon_link" title="Assign new roles"><span class="icon-plus" title="Assign New Roles"></span></a></li-->
+
+                                            <li class="inline_item"><a href="#" class="icon_link" id="jsroleAssignPopup" title="Edit user roles" data-popover-my-position="top right" popover-target-position="bottom right" data-hasqtip="0" aria-describedby="qtip-0" ><span class="icon-pencil" title="Edit user roles"></span></a>
+                                            <div class="popover_content hide">
+                                                    <form class="form-container" id="jsroleAssignPopupForm">
+                                                             <div class="input_row">
+                                                                <label class="text-box-overrider" data-role="developer"><span class="checkbox-unchecked"></span> Developer</label>
+                                                             </div>
+                                                             <div class="input_row">
+                                                                <label class="text-box-overrider" data-role="devops"><span class="checkbox-unchecked"></span> DevOps</label>
+                                                             </div>
+                                                             <div class="input_row">
+                                                                <label class="text-box-overrider" data-role="qa"><span class="checkbox-unchecked"></span> QA</label>
+                                                             </div>
+                                                             <div class="input_row">
+                                                                 <label class="text-box-overrider" data-role="appowner"><span class="checkbox-unchecked"></span> Application Owner</label>
+                                                             </div>
+                                                             <div class="input_row">
+                                                                 <label class="text-box-overrider" data-role="cxo"><span class="checkbox-unchecked"></span> CXO</label>
+                                                             </div>
+                                                             <div class="btn_row">
+                                                                <button class="btn main small" type="button" id="saveUserRoles">Save</button><a href="#" class="popover_close small">Close</a>
+                                                             </div>
+                                                    </form>
+                                            </div>
+                                            </li>
+                                            <li class="inline_item"><a id="removeUsers" href="#" class="icon_link" title="Remove User"><span class="icon-remove" title="Remove User"></span></a></li>
+
+                                        </ul>
+                                     </div>
+                                     <div class="list_col_content">
+
+                                    </div>
+                                </li>
+                              </ul>
+                       </li>
+                </ul>
+            </div>
+        </section>
+
+    <div class="clearfix"></div>
+    </article>
+</div><!-- /container -->
+
+<input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
+<input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
+
+
+
+
+
+        <% }); %>

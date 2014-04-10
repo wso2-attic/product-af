@@ -1,0 +1,54 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/registry/supertenant/registry.jag');
+
+var registry = new MetadataStore(getProperty(ADMIN_USERNAME), getProperty(ADMIN_PASSWORD));
+
+var createResourceObject = function () {
+    jagg.module("permission").checkUserAuthenticated();
+    try {
+        return registry.newResource();
+    } catch (e) {
+        log.error("Error while creating registry resource \n" + e.message);
+        throw "Error while creating registry resource";
+    }
+};
+
+var getResource = function (path) {
+    jagg.module("permission").checkUserAuthenticated();
+    try {
+        return registry.get(path);
+    } catch (e) {
+        log.error("Error while retrieving registry resource \n" + path);
+        throw "Error while retrieving registry resource";
+    }
+};
+
+var putResource = function (path, resource) {
+    jagg.module("permission").checkUserAuthenticated();
+    try {
+        registry.put(path, resource);
+    } catch (e) {
+        log.error("Error while storing registry resource \n" + e.message);
+        throw "Error while storing registry resource";
+    }
+};
+
+// checks whether any resource exists in the given path
+var resourceExists = function (path) {
+    jagg.module("permission").checkUserAuthenticated();
+    try {
+        if (registry.resourceExists(path)) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        log.error("Error while accessing registry resource \n" + e.message);
+        return false;
+    }
+};
+%>

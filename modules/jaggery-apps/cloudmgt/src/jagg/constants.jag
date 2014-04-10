@@ -1,0 +1,142 @@
+<%
+// collection names
+var APPLICATIONS = "repository/applications/";
+var USER_APPLICATIONS_MAPPING = "userApplicationMapping/";
+var APPLICATION_STAGES = "stages/";
+
+// property keys of registry 'application' resource
+var APPLICATION_KEY = "applicationKey";
+var APPAPPFACTORY_SERVER_URLLICATION_NAME = "applicationName";
+var APPLICATION_DESC = "applicationDescription";
+var APPLICATION_REPO_LINK = "applicationRepoLink";
+
+// property keys of registry 'userApplicationMapping' resource
+var APPLICATION_LIST = "applications";
+var APP_INFO = "/appinfo";
+
+//appfactory.xml keys
+var SSO_NAME = "SSORelyingParty.Name";
+var SSO_PROVIDER = "SSORelyingParty.IdentityProviderURL";
+var SSO_KEYSTORE_PASSWORD = "SSORelyingParty.KeyStorePassword";
+var SSO_KEY_ALIAS = "SSORelyingParty.IdentityKeyAlias";
+var SSO_KEYSTORE_NAME = "SSORelyingParty.KeyStoreName";
+
+var ADMIN_USERNAME = "AdminUserName";
+var ADMIN_PASSWORD = "AdminPassword";
+var SEND_EMAIL = "EmailSend";
+var SCM_ADMIN_USER_NAME="RepositoryMGTConfig.SCMServerAdminUserName";
+var SCM_ADMIN_PASSWORD="RepositoryMGTConfig.SCMServerAdminPassword";
+var SCM_SERVER_URL="RepositoryMGTConfig.SCMServerURL";
+var BASE_URL="ContinuousIntegrationProvider.jenkins.Property.BaseURL";
+
+var WEB_CONTEXT_ROOT = "WebContextRoot";
+var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
+var BPS_SERVER_URL = "ServerUrls.BPS";
+var GREG_SERVER_URL = "ServerUrls.Greg";
+var SS_SERVER_URL = "ServerUrls.SS";
+
+var DEV_SERVER_URL = "ApplicationDeployment.DeploymentStage.Development.DeploymentServerURL";
+var TEST_SERVER_URL = "ApplicationDeployment.DeploymentStage.Testing.DeploymentServerURL";
+var PROD_SERVER_URL = "ApplicationDeployment.DeploymentStage.Production.DeploymentServerURL";
+
+var ROLE_ADMIN = "admin";
+var ROLE_APP_OWNER = "appOwner";
+var ROLE_QA = "qa";
+var ROLE_DEVOPS = "devOps";
+var ROLE_DEV = "dev";
+
+var API_MANAGER_PROD = "prod";
+var API_MANAGER_SANDBOX = "sandbox";
+
+var LIFE_CYCLE_NAME="ApplicationLifecycle";
+var APP_VERSION = "/appversion";
+
+var API_MANAGER_SERVER_URL = "ApiManager.Server.Url";
+var API_MANAGER_STORE_URL = "ApiManager.Store.Url";
+var API_MANAGER_SERVICE_NAME = "ApiManager.Service.Name";
+var API_MANAGER_SERVICE_NAMESPACE = "ApiManager.Service.Namespace";
+
+var BAM_SERVER_URL = "BAM.Server.Url";
+var ADMIN_DASHBOARD_PATH = "BAM.Dashboards.AdminDashboard.Path";
+var CEO_DASHBOARD_PATH = "BAM.Dashboards.CEODashboard.Path";
+var AF_USERS_DASHBOARD_PATH = "BAM.Dashboards.AppFactoryUsersDashboard.Path";
+
+var PREFERRED_REPOSITORY_TYPE = "RepositoryType";
+var SHOW_OTHER_SERVICES_TAB = "OtherServices.ShowOtherServicesTab"
+var SHOW_SONAR_BTN = "EnableSonar";
+
+var DEPLOYMENT_STAGES="ApplicationDeployment.DeploymentStage"
+var STORAGE_SERVER_URL = "StorageServerUrl"
+var RSS_NAME="RssName"
+
+var LCBUTTON_PROMOTE_KEY="LCButton.PromoteButton.Key"
+var LCBUTTON_PROMOTE_VALUE="LCButton.PromoteButton.Value"
+var LCBUTTON_DEMOTE_KEY="LCButton.DemoteButton.Key"
+var LCBUTTON_DEMOTE_VALUE="LCButton.DemoteButton.Value"
+var LCBUTTON_RETIRE_KEY="LCButton.RetireButton.Key"
+var LCBUTTON_RETIRE_VALUE="LCButton.RetireButton.Value"
+
+var PERMISSION_EXECUTE ="ui.execute";
+var PERMISSION_APPLICATION_CREATE ="/permission/admin/appfactory/application/create";
+var PERMISSION_BUILD ="/permission/admin/appfactory/build";
+var PERMISSION_DEPLOY_TO ="/permission/admin/appfactory/deployTo/";
+var PERMISSION_REPOSITORY_BRANCH ="/permission/admin/appfactory/repository/branch";
+var PERMISSION_REPOSITORY_READ_WRITE ="/permission/admin/appfactory/repository/readwrite";
+var PERMISSION_GOVERNANCE_PROMOTE_TO ="/permission/admin/appfactory/promoteTo/";
+var PERMISSION_GOVERNANCE_DEMOTE_TO ="/permission/admin/appfactory/demoteTo/";
+var PERMISSION_GOVERNANCE_RETIRE ="/permission/admin/appfactory/retire";
+var PERMISSION_CONFIGURATION_DB_FOR_STAGE ="/permission/admin/appfactory/configure/db/";
+var PERMISSION_CONFIGURATION_API_MANAGER ="/permission/admin/appfactory/configuration/apimanager";
+var PERMISSION_CONFIGURATION_RESOURCES_OF_STAGE ="/permission/admin/appfactory/configure/resources/";
+var PERMISSION_USER_INVITE ="/permission/admin/appfactory/usermgt/invite";
+var PERMISSION_ADMIN ="/permission/admin/appfactory";
+var PERMISSION_VISIBILITY_STAGE = "/permission/admin/appfactory/visibility/";
+var PERMISSION_CEO_DASHBOARD = "/permission/admin/appfactory/ceo/dashboard";
+var PERMISSION_TASKS_VIEW = "/permission/admin/appfactory/tasks/view";
+var PERMISSION_APPLICATION_MEMBER = "/permission/admin/login";
+var PRODUCTION = "Production";
+var PERMISSION_TENANT_LEVEL_USR_MGT="/permission/admin/tenant/user/mgt";
+
+var PERMISSION_RESOURCE_CREATE="/permission/admin/appfactory/resource/create"
+var PERMISSION_RESOURCE_UPDATE_OF_STAGE="/permission/admin/appfactory/resource/update/"
+
+var PERMISSION_DATASOURCE_CREATE="/permission/admin/appfactory/datasource/create"
+var PERMISSION_DATASOURCE_UPDATE_OF_STAGE="/permission/admin/appfactory/datasource/update/"
+
+var USER_SEARCH_STATUS = "EnableUserSearch";
+
+var COOKIE_REFRESH_INTERVAL = "CookieRefreshInterval";
+var APPFAC_BACKEND_COOKIE = "APPFAC.backendCookie";
+var SUPER_TENANT_DOMAIN_NAME = "carbon.super";
+var TENANT_DOMAIN_NAME = "APPFAC.domainName";
+
+//Rss related
+var RSS_CREATION_ERROR_HEADING = "RSSCreationError";
+var RSS_DB_USER_DEFAULT_PASSWORD = "DatabaseUserDefaultPassword";
+var ALTER_PRIV = "DatabaseDefaultTemplate.Alter";
+var ALTER_ROUTINE_PRIV = "DatabaseDefaultTemplate.AlterRoutine";
+var CREATE_PRIV = "DatabaseDefaultTemplate.Create";
+var CREATE_ROUTINE_PRIV = "DatabaseDefaultTemplate.CreateRoutine";
+var CREATE_TEMP_TABLE_PRIV = "DatabaseDefaultTemplate.CreateTempTable";
+var CREATE_VIEW_PRIV = "DatabaseDefaultTemplate.CreateView";
+var DELETE_PRIV = "DatabaseDefaultTemplate.Delete";
+var DROP_PRIV = "DatabaseDefaultTemplate.Drop";
+var EVENT_PRIV = "DatabaseDefaultTemplate.Event";
+var EXECUTE_PRIV = "DatabaseDefaultTemplate.Execute";
+var GRANT_PRIV = "DatabaseDefaultTemplate.Grant";
+var INDEX_PRIV = "DatabaseDefaultTemplate.Index";
+var INSERT_PRIV = "DatabaseDefaultTemplate.Insert";
+var LOCKTABLES_PRIV = "DatabaseDefaultTemplate.LockTables";
+var REFERENCES_PRIV = "DatabaseDefaultTemplate.References";
+var SELECT_PRIV = "DatabaseDefaultTemplate.Select";
+var SHOW_VIEW_PRIV = "DatabaseDefaultTemplate.ShowView";
+var TRIGGER_PRIV = "DatabaseDefaultTemplate.Trigger";
+var UPDATE_PRIV = "DatabaseDefaultTemplate.Update";
+
+var BAM_THRIFT_TCP_URL = "BAM.ThriftTCPURL.Url";
+var BAM_THRIFT_SSL_URL = "BAM.ThriftSSLURL.Url";
+var BAM_ADMIN_USERNAME = "BAM.AdminUserName"
+var BAM_ADMIN_PASSWORD = "BAM.AdminPassword"
+var DASHBOARD_SERVER_URL = "BAM.DashboardServer.Url";
+
+%>

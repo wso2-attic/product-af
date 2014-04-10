@@ -1,0 +1,57 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/resources/databases/drop/drop.jag');
+
+var modManager = jagg.module("manager");
+var wso2_rss_instanceName = 'WSO2_RSS';
+var rssFilter=jagg.module("rss-filter");
+
+var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceName){
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var ws = require('ws');
+
+	var dropDatabaseService = new ws.WSRequest();
+	var options = new Array();	
+	options.useSOAP = 1.2;
+	options.action = "urn:dropDatabase";
+	options.mep = "in-only";
+	var payload ='<ser:dropDatabase  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">'+
+	'<ser:ctx>' +
+	'<xsd:environmentName>' + databaseServerInstanceName + '</xsd:environmentName>' +
+	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
+	'</ser:ctx>' +
+	'<ser:databaseName>'+databaseName+'</ser:databaseName></ser:dropDatabase>';
+	var result;
+
+	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
+	options["HTTPHeaders"] =
+	[{
+		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
+	}];
+	try {
+		dropDatabaseService.open(options, storageServerURL+'RSSAdmin', false);
+		dropDatabaseService.send(payload);
+		rssFilter.deleteDatabase(rssFilter.getTenantAwareDBName(databaseName), applicationKey,
+		stage);
+	} catch (e) {
+		log.error("Error while dropping database \n" + e.message);
+		throw "Error while dropping database";
+	}
+
+};
+var getStageFromRssInstanceName=function(rssInstanceName){
+	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	for(var i=0;i<deploymentStages.length;i++){
+		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);
+		if(rssInstanceName==rssName){
+			return deploymentStages[i];
+		}
+	}
+
+};
+
+
+

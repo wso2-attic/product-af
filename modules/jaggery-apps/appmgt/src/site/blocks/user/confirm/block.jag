@@ -1,0 +1,9 @@
+<%
+jagg.block("user/confirm", {
+    initialize:function (data) {
+
+    }
+
+
+});
+%>

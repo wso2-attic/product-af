@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright (c) 2010-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>appfactory-feature</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+	<relativePath>../pom.xml</relativePath>
+    </parent> 
+
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.appfactory.server.feature</artifactId>
+    <packaging>pom</packaging>
+    <name>WSO2 Carbon - AppFactory Server Feature</name>
+    <url>http://wso2.org</url>
+    <description>This feature contains the core bundles required for AppFactory back end
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.hostobjects.carbonutil</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.hostobjects.configuration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.hostobjects.sso</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.listners</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.apiManager.integration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.bam.integration</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.email.sender</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.email.verification</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>plexus-utils.wso2</groupId>
+            <artifactId>plexus-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>maven-invoker.wso2</groupId>
+            <artifactId>maven-invoker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.login.ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.userstore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.core</artifactId>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.deployers</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.stratos.listeners.stub</artifactId>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.bpel.stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.um.ws.api.stub</artifactId>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.dataservices.fileupload.stub</artifactId>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.build</artifactId>
+        </dependency>
+      <!--  Repository-Mgt-->
+        <dependency>
+            <groupId>org.apache.maven.scm.wso2</groupId>
+            <artifactId>maven-scm</artifactId>
+        </dependency>
+             <!--  Repository-Providers-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.utilities</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wso2</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>3.0.3.wso2v1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.wso2</groupId>
+            <artifactId>maven-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.issuetracking</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.gitblit</groupId>
+            <artifactId>gitblit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
+        </dependency>
+ <!--  Tenant Management -->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
+        </dependency>
+<!-- S4 Intergration  -->
+    	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prefilter-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>src/main/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>resources</directory>
+                                    <includes>
+                                        <include>conf/confirmation-email-config.xml</include>
+                                        <include>p2.inf</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.wso2.maven</groupId>
+                <artifactId>carbon-p2-plugin</artifactId>
+                <version>${carbon.p2.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>4-p2-feature-generation</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>p2-feature-gen</goal>
+                        </goals>
+                        <configuration>
+                            <id>org.wso2.carbon.appfactory.server</id>
+                            <propertiesFile>../etc/feature.properties</propertiesFile>
+                            <adviceFile>
+                                <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server
+                                    </propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
+                                    </propertyDef>
+                                </properties>
+                            </adviceFile>
+                            <bundles>
+				<!--bundleDef>org.wso2.carbon:org.wso2.carbon.bpel.stub</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.dataservices.fileupload.stub</bundleDef-->
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.um.ws.api.stub
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.common
+                                </bundleDef>
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.core
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.hostobjects.sso
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.application.mgt
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.email.sender</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.email.verification
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.hostobjects.carbonutil</bundleDef>
+
+                                <bundleDef>maven-invoker.wso2:maven-invoker</bundleDef>
+                                <bundleDef>plexus-utils.wso2:plexus-utils</bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.appfactory.hostobjects.configuration
+                                </bundleDef>
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.login.ui</bundleDef>
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.userstore</bundleDef>
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.build</bundleDef> 
+				<bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.deployers</bundleDef>
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.listners</bundleDef> 
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.tenant.mgt</bundleDef> 
+
+
+                                <!--Repository-mgt-->
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.repository.mgt.service</bundleDef>
+                                <bundleDef> org.apache.maven.scm.wso2:maven-scm</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.utilities</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.stratos.listeners.stub</bundleDef>
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.apiManager.integration</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.bam.integration</bundleDef>
+                                <bundleDef>org.apache.maven.wso2:maven-model</bundleDef>
+                                <bundleDef>org.apache.maven.wso2:maven-core</bundleDef>
+                                <bundleDef>com.gitblit:gitblit</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.issuetracking</bundleDef>
+
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.mutualssl</bundleDef>
+				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.s4.integration</bundleDef>
+                            </bundles>
+                            <importBundles>
+                            </importBundles>
+                            <importFeatures>
+                            </importFeatures>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

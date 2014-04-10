@@ -1,0 +1,8 @@
+<%
+jagg.initializer("resources/datasource/edit", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

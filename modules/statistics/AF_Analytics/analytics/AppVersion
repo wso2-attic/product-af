@@ -1,0 +1,68 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS AppVersions
+                (row_id STRING, applicationName STRING, applicationKey STRING, timeSt BIGINT, tenantId STRING,
+                                user STRING, applicationVersion STRING, stage STRING)
+                                STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+                                with SERDEPROPERTIES
+                                ("wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+                                 "cassandra.cf.name" = "org_wso2_carbon_appfactory_appVersion" ,
+                                 "cassandra.columns.mapping" =
+                                 ":key, payload_applicationName, payload_applicationKey, 
+                                 Timestamp, payload_tenantId, payload_user, payload_appVersion, 
+                                 payload_stage" );
+                                 
+
+CREATE EXTERNAL TABLE IF NOT EXISTS LATEST_APP_VERSIONS
+     (TENANT_ID STRING,APPLICATION_KEY STRING,APPLICATION_VERSION STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,APPLICATION_VERSION' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE LATEST_APP_VERSIONS
+    (TENANT_ID VARCHAR(100), APPLICATION_KEY VARCHAR(100), APPLICATION_VERSION VARCHAR(100), TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table LATEST_APP_VERSIONS
+    SELECT tenantId, applicationKey, applicationVersion, max(timeSt) as timest FROM AppVersions GROUP BY tenantId, applicationKey, applicationVersion;
+
+
+                                 
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_VERSIONS_BY_STAGE
+     (APPLICATION_NAME STRING,APPLICATION_KEY STRING,TIME_ST BIGINT,TENANT_ID STRING,APPLICATION_VERSION STRING,STAGE STRING) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,APPLICATION_VERSION,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE APP_VERSIONS_BY_STAGE
+    (APPLICATION_NAME VARCHAR(100),APPLICATION_KEY VARCHAR(100),TIME_ST BIGINT,TENANT_ID VARCHAR(100),APPLICATION_VERSION VARCHAR(100),STAGE VARCHAR(100))');                                    
+    
+    
+    insert overwrite table APP_VERSIONS_BY_STAGE
+    SELECT applicationName, applicationKey, timeSt, tenantId,
+    applicationVersion, stage
+    from AppVersions;
+    
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_VERSIONS_BY_USER
+     (APPLICATION_NAME STRING,APPLICATION_KEY STRING,TIME_ST BIGINT,TENANT_ID STRING,APPLICATION_VERSION STRING,STAGE STRING, USER STRING) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,APPLICATION_VERSION,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE APP_VERSIONS_BY_USER
+    (APPLICATION_NAME VARCHAR(100),APPLICATION_KEY VARCHAR(100),TIME_ST BIGINT,TENANT_ID VARCHAR(100),APPLICATION_VERSION VARCHAR(100),STAGE VARCHAR(100), USER VARCHAR(100))');                                    
+    
+    
+    insert overwrite table APP_VERSIONS_BY_USER
+    SELECT applicationName, applicationKey, timeSt, tenantId,
+    applicationVersion, stage, user
+    from AppVersions;
+
+                                    

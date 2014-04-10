@@ -1,0 +1,38 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "createApplication") {
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var username = request.getParameter("username");
+        var response = {};
+        if (jagg.module("permission").hasAPISubscriptionAndKeyGenerationPermission(applicationKey, username)){
+            try {
+                result = mod.createApplication(applicationKey);
+                if (result != null) {
+                    return result;
+                } else {
+                    throw "Error while creating the application";
+                }
+            } catch(e) {
+                throw "Error while creating an application";
+            }
+        } else {
+            response.result = 0;
+            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
+            print(response);
+        }
+//    	jagg.module("permission").checkUserActionPermissionforApp(applicationKey,PERMISSION.CONFIGURATION.API.MANAGER);
+
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

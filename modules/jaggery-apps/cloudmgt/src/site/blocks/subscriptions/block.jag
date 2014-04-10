@@ -1,0 +1,8 @@
+<%
+jagg.block("subscriptions", {
+    initialize:function (data) {
+    }
+
+
+});
+%>

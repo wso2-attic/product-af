@@ -1,0 +1,16 @@
+<%
+include('constants.jag');
+
+var context = context || {
+    put:function (key, value) {
+        session.put(key, value);
+    },
+    get:function (key) {
+        return session.get(key);
+    },
+    remove:function (key) {
+        session.remove(key);
+    }
+};
+
+%>

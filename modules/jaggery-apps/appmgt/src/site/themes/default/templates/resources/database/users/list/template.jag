@@ -1,0 +1,265 @@
+<% jagg.template("resources/database/users/list", function (inputs, outputs, jagg) { %>
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    %>
+<script type="text/javascript">
+var MAX_USER_NAME_LENGTH = 8;
+$(document).ready(function(){
+      jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
+                               action:"getDatabaseUsers",
+                               applicationKey:$("#applicationKey").attr('value')
+   }, function (result) {
+
+                       if(result != undefined){
+
+            var contentHeader= '<table class="table table-bordered">'+
+                               '<tr>'+
+
+                       '<th>User</th>'+
+                       '<th>Database Environment</th>'+
+                       '<th>Actions</th>'+
+
+                   '</tr>';
+                var parsedArray = jQuery.parseJSON(result);
+               for(var i = 0; i < parsedArray.length; i++) {
+                     var name = parsedArray[i].name;
+                     var rssInstanceName = parsedArray[i].rssInstanceName;
+                   var row='<tr>'+
+                       '<td>'+name+'</td>'+
+                       '<td>'+rssInstanceName+'</td>'+
+                       '<td><a href="#" onclick="deleteUser('+"'"+name+"',"+"'"+rssInstanceName+"'"+')">Delete</a></td>'+
+                       '</tr>';
+                 contentHeader += row;
+               }
+               contentHeader += '</table>';
+               if(parsedArray.length > 0){
+                   $('#table').html(' <div class="row-fluid"><div class="span12">' + contentHeader + '</div></div>');
+               }else{
+                   $('#table').html(' <div class="row-fluid"><div class="span12"><div class="alert alert-info">No users created yet..</div></div></div>');
+               }
+  }
+                                                 },
+          function (jqXHR, textStatus, errorThrown) {
+                 $('#table').html('<div class="row-fluid"><div class="span12"><div class="alert alert-error">Error occurred while loading database users</div></div></div>');
+         });
+
+         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+                               action:"getRSSinstances",
+                               applicationKey:$("#applicationKey").attr('value')
+   }, function (result) {
+
+                       if(result != undefined){
+
+                var parsedArray = jQuery.parseJSON(result);
+               for(var i = 0; i < parsedArray.length; i++) {
+                     var name = parsedArray[i].name;
+
+                   var row='<option>'+name+'</option>';
+                   $("#rssInstances").append(row);
+               }
+
+              }
+         },
+          function (jqXHR, textStatus, errorThrown) {
+                 jagg.message({content:'Error occurred while reading rssInstances',type:'error' });
+         });
+
+
+
+  });
+
+
+
+  function deleteUser(name,rssInstanceName){
+
+       jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
+                               action:"deleteUser",
+                               applicationKey:$("#applicationKey").attr('value'),
+                               name:name,
+                               rssInstanceName:rssInstanceName
+
+                               },function (result) {
+                                 document.location.reload(true);
+                               },function (jqXHR, textStatus, errorThrown) {
+                                                 jagg.message({content:'Error occurred while deleting user',type:'error' });
+                               });
+
+  }
+
+
+function createDatabaseUser(){
+               jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
+                               action:"createDatabaseUser",
+                               applicationKey:$("#applicationKey").val(),
+                               password:$("#Password").attr('value'),
+                               rssInstance:$("#rssInstances").attr('value'),
+                               username:$("#Username").attr('value')
+
+                               },function (result) {
+                                 document.location.reload(true);
+                               },function (jqXHR, textStatus, errorThrown) {
+                                                 jagg.message({content:'Error occurred while creating user',type:'error' });
+                               });
+
+   }
+
+function validatPassword() {
+    var password = $("#Password").val();
+    var repeatPassword = $("#repeatPassword").val();
+
+    if (password == "") {
+        $("#password_empty_warning").show();
+    } else {
+        $("#password_empty_warning").hide();
+    }
+
+    if (password != repeatPassword) {
+        $("#warningMessage").show();
+    } else {
+        $("#warningMessage").hide();
+    }
+}
+
+function checkUserNameLength() {
+    var userNameLength = ($("#Username").val()).length;
+    if (userNameLength == MAX_USER_NAME_LENGTH) {
+        $("#userNameLengthWarningMessage").show();
+        return;
+    }
+    $("#userNameLengthWarningMessage").hide();
+    var username = $("#Username").val();
+    if (username == "") {
+        $("#username_empty_warning").show();
+    } else {
+        $("#username_empty_warning").hide();
+    }
+}
+
+function validateForm() {
+    var validation = false;
+    var username = $("#Username").val();
+    if (username == "") {
+        $("#username_empty_warning").show();
+    } else {
+        validation = true;
+        $("#username_empty_warning").hide();
+    }
+
+    var password = $("#Password").val();
+    if (password == "") {
+        validation = false;
+        $("#password_empty_warning").show();
+    } else {
+        $("#password_empty_warning").hide();
+    }
+
+    return validation;
+}
+
+function removeUserNameLengthWarning() {
+    $("#userNameLengthWarningMessage").hide();
+}
+
+</script>
+
+
+<div class="container">
+    <div class="title-section">
+        <div class="row">
+            <div class="span12">
+                <% jagg.includeBlock("breadcrumb", {"applicationName":applicationName,"applicationKey" :applicationKey,"pageName":"Manage Database Users","pos":"titlebar" }); %>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!--START  content section-->
+<div class="container content-container wrapper">
+    <div class="row">
+
+        <div class="span12 content-section shadow-up">
+            <div class="content-data">
+                <div class="container-fluid space-killer">
+                    <!--Second Database-->
+                        <div id="table"></div>
+
+                    <form method='post' class="form-horizontal">
+
+                     <div class="row-fluid">
+                            <div class="span12">
+                                <h2>Create New Database User</h2>
+                                <br>
+                                <div class="control-group">
+                                    <label class="control-label" for="databaseName">Database Environment<span class="requiredAstrix">*</span></label>
+                                    <div class="controls">
+                                        <select id='rssInstances'>
+                                         </select>
+                                    </div>
+
+                                </div>
+
+                                <div class="control-group">
+                                    <label class="control-label" for="Username">Username<span class="requiredAstrix">*</span></label>
+
+                                    <div class="controls">
+                                        <textarea id='Username' maxlength="8" onpaste="checkUserNameLength();" onKeyUp="checkUserNameLength();" onblur="removeUserNameLengthWarning();" rows=1 cols=50></textarea>
+                                    </div>
+                                    <div  class="controls">
+                                        <label id="userNameLengthWarningMessage" style="display: none;" ><font color='red'>Username cannot exceed 8 characters</font></label>
+                                   </div>
+                                   <div  class="controls">
+                                       <label id="username_empty_warning" style="display: none;"><font color='red'>Username cannot be empty</font></label>
+                                   </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <label class="control-label" for="Password">Password<span class="requiredAstrix">*</span></label>
+
+                                    <div class="controls">
+                                        <input type="password" id='Password' rows=1 cols=50 onKeyUp="validatPassword();"></input>
+                                    </div>
+                                    <div  class="controls">
+                                        <label id="password_empty_warning" style="display: none;"><font color='red'>Password cannot be empty</font></label>
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <label class="control-label"for="repeatPassword">Repeat Password<span class="requiredAstrix">*</span></label>
+
+                                    <div class="controls">
+                                        <input type="password" id='repeatPassword' rows=1 cols=50 onKeyUp="validatPassword();"></input>
+                                   </div>
+                                   <div  class="controls">
+                                        <label id="warningMessage" style="display: none;"><font color='red'>Pasword does not match</font></label>
+                                   </div>
+                                </div>
+                                <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+
+
+                                <div class="control-group">
+                                    <div class="controls">
+                                        <input type='button' name='Submit' value='Save'
+                                               onclick="if(validateForm()){createDatabaseUser();}"
+                                               class='btn btn-primary'/>
+                                        <input type="button"
+                                               onclick="location.href='configureenvironment.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'"
+                                               value='Cancel' class='btn'/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <%
+}); %>
+
+
+
+
+
+

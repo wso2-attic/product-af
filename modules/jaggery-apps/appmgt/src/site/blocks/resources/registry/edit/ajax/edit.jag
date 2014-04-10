@@ -1,0 +1,63 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/util.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var log=new Log();
+    var modPermission = jagg.module("permission");
+
+    if (action == "updateDescription") {
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var resourceName = request.getParameter("resourceName");
+    	var resourceDescription = request.getParameter("resourceDescription");
+    	var deploymentStage = request.getParameter("deploymentStage");
+
+        var response = {};
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var stages=getAllowedStages(deploymentStages,PERMISSION_RESOURCES_UPDATE_FOR_STAGE,applicationKey);
+        try{
+            mod.updatePropertyDescriptionInStages(resourceName, resourceDescription,
+            applicationKey,[deploymentStage]);
+        } catch(e) {
+            throw "Error while creating resources"+e.toString();
+        }
+
+	} else if (action == "updateResource") {
+        mod = jagg.module("resources");
+        var applicationKey = request.getParameter("applicationKey");
+        var resourceName = request.getParameter("resourceName");
+        var resourceMediaType = request.getParameter("resourceMediaType");
+        var contentValue = request.getParameter("contentValue");
+        var deploymentStage = request.getParameter("deploymentStage");
+        var description = request.getParameter("description");
+
+        var response = {};
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        for (var i = 0; i < deploymentStages.length; i++) {
+            var hasResourceUpdatePermissionToStage= modPermission.isUserAccessGranted(applicationKey,
+                    PERMISSION_RESOURCES_UPDATE_FOR_STAGE +deploymentStages[i]);
+            if(hasResourceUpdatePermissionToStage){
+                try {
+                    result = mod.updatePropertyInStages(resourceName, contentValue, description , resourceMediaType,
+                            applicationKey, [deploymentStage]);
+                } catch(e) {
+                    throw "Error while creating an resources"+e.toString();
+                }
+            } else {
+                response.result = 0;
+                response.message = "You don't have permission to update resource";
+                print(response);
+            }
+        }
+
+    }else {
+        throw new Error("No action specified");
+    }
+}());
+%>

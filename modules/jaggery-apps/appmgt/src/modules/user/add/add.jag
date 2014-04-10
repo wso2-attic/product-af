@@ -1,0 +1,88 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log('modules/user/add/add.jag');
+
+var modManager = jagg.module("manager");
+// creating a user
+function createUser(newUserName, password, email, firstName, lastName, sendEmail) {
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.timeout = 1000000;
+    options.action = "http://wso2.org/process";
+
+    var payload = '<p:UserCreationProcessRequest xmlns:p="http://wso2.org"><userName xmlns="http://wso2.org">' + newUserName + '</userName><password xmlns="http://wso2.org">' + password + '</password><email xmlns="http://wso2.org">' + email + '</email><firstName xmlns="http://wso2.org">' + firstName + '</firstName><lastName xmlns="http://wso2.org">' + lastName + '</lastName><sendEmail xmlns="http://wso2.org">' + sendEmail + '</sendEmail></p:UserCreationProcessRequest>';
+    var result;
+    try {
+    	var endPoint = getProperty(BPS_SERVER_URL) + "UserCreationProcess";
+    	request.open(options, endPoint, false);
+    	request.send(payload);
+    	result = request.responseE4X;
+    	if (log.isDebugEnabled()) {
+    		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+    	}
+    } catch (e) {
+    	log.error("Error while creating the user account \n" + e.message);
+    	throw "Error while creating the user account";
+    }
+    return result;
+}
+
+function invokeUserActivationProcess(userName, email, confirmationKey) {
+    var ws = require('ws');
+    var UserActivationProcess = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "http://wso2.org/process";
+    var payload = '<UserActivationProcessRequest xmlns="http://wso2.org"><userName xmlns="http://wso2.org">' + userName + '</userName><email xmlns="http://wso2.org">' + email + '</email><confirmationKey xmlns="http://wso2.org">' + confirmationKey + '</confirmationKey></UserActivationProcessRequest>';
+    var result;
+
+    try {
+    	var endPoint = getProperty(BPS_SERVER_URL) + "UserActivationProcess";
+    	UserActivationProcess.open(options, endPoint, false);
+    	UserActivationProcess.send(payload);
+    	result = UserActivationProcess.responseE4X;
+    	if (log.isDebugEnabled()) {
+    		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+    	}
+    	return result;
+    } catch (e) {
+    	log.error("Error while activating user \n" + e.message);
+    	throw "Error while activating user";
+    }
+}
+
+//saving the GitHub user name of a user
+function pushGitHubUserName(userName,gitUserName){
+	var log = new Log();
+	var ws = require('ws');
+
+	var version = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.useWSA = 1.0;
+	options.action = "urn:addUserClaims";
+	options["HTTPHeaders"] =[{
+		name:
+			"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+	}];
+	var payload = '<ser:addUserClaims xmlns:ser="http://service.userstore.appfactory.carbon.wso2.org" xmlns:xsd="http://api.user.carbon.wso2.org/xsd"><ser:username>'+userName+'</ser:username><ser:claims><xsd:claimUri>http://wso2.org/github_account_name</xsd:claimUri><xsd:value>'+gitUserName+'</xsd:value></ser:claims></ser:addUserClaims>';
+	var result;
+	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "UserClaimStoreService";
+
+	try {
+		version.open(options,endPoint, false);
+		version.send(payload);
+		result = version.responseE4X;
+	} catch (e) {
+		log.error(e.toString());
+		return e.toString();
+	}
+	return result;
+}
+%>

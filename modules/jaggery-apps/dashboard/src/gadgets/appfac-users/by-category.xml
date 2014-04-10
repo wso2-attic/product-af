@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs title="App Factory — User count by roles" />
+    <UserPref name="mock" display_name="Enable mock" default_value="true" />
+    <UserPref name="gadgetName" display_name="users-by-category" default_value="users-by-category"/>
+    <Content type="html" preferred_height="280">
+     <![CDATA[
+       <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css"></link>
+       <link rel="stylesheet" type="text/css" href="../../css/dashboard-gadgets/styles.css"></link>
+       <script src="../../js/jquery-1.8.3.min.js"></script>
+       <style>
+        .Applicationowner-icon{
+            background:transparent url('images/appOwner-icon.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .Developers-icon{
+            background:transparent url('images/developers-icon.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .DeveloperOps-icon{
+            background:transparent url('images/devOps-icon.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+        .Testers-icon{
+            background:transparent url('images/testers-icon.png') no-repeat left top;
+            width:24px;
+            height:24px;
+            display:inline-block;
+            margin-right:10px;
+        }
+       </style>
+       <div id="usersGadgetList" class="categorized-list"></div>
+       <script src="../../js/constants.js"></script>
+       <script src="by-category.js"></script>
+     ]]>
+    </Content>
+</Module>

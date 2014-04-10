@@ -1,0 +1,5 @@
+This provides jmeter scripts for load testing AppFactory setup.
+1. Load the jmeter script(test_plan.jmx) in jmeter.
+2. After opening the step1 script, select workbench. Then merge workbench.jmx by selecting File --> Merge. 
+3. Run sample data generating scripts at sample_data directory. This will generate apps and  users. 
+4. Run the jmeter script.

@@ -1,0 +1,189 @@
+<% jagg.template("governance/demote", function(inputs, outputs, jagg) { %>
+
+<%
+	var applicationName = request.getParameter("applicationName");
+	var applicationKey = request.getParameter("applicationKey");
+	var modApplication = jagg.module("application");
+	var actionName = request.getParameter("actionName");
+	var stage = request.getParameter("stage");
+	var version = request.getParameter("version");
+	var tagName = request.getParameter("tagName");
+	var checkItems = request.getParameter("checkItems");
+%>
+<input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+<input type="hidden" name="applicationName" id="applicationName" value="<%=applicationName%>"/>
+<input type="hidden" name="actionName" id="actionName" value="<%=actionName%>"/>
+<input type="hidden" name="stage" id="stage" value="<%=stage%>"/>
+<input type="hidden" name="version" id="version" value="<%=version%>"/>
+<input type="hidden" name="tagName" id="tagName" value="<%=tagName%>"/>
+<input type="hidden" name="checkItems" id="checkItems" value="<%=checkItems%>"/>
+<%
+var hasDemotePermissions = outputs.hasDemotePermissions;
+var hasNeededDemotePermissions;
+for(var demoteStage in hasDemotePermissions){
+	if (demoteStage == stage){
+		hasNeededDemotePermissions = hasDemotePermissions[demoteStage];
+	}
+}
+%>
+<% 
+	var appVersions = modApplication.getUserAccess(applicationKey, userName);
+	var parsedVersions = parse(appVersions);
+	
+	if (hasNeededDemotePermissions == true) {
+	%>
+		<script type="text/javascript">
+			var issueArray;
+			var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
+			$(document).ready(function() {
+			alert($("#version").attr('value'));
+				jagg.post("../blocks/issuetracker/list/ajax/list.jag", { 
+					action:"getOpenIssues",
+					applicationKey:$("#applicationKey").attr('value'),
+					applicationVersion:$("#version").attr('value')
+				},
+				function (result) {
+					if(result){						
+						issueArray = jQuery.parseJSON(result);
+						var issuesection = "";
+						if (issueArray.length != 0){
+							$("#issues_section_outer_div").show();
+						}
+						for (var i = 0; i < issueArray.length; i++) {
+							var issue = issueArray[i];
+							issuesection += "<div><label class='checkbox'> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id 
+							+ "' type='checkbox' order='0' " + "title='" + issue.title + "' issuetype='" + issue.type + "' issueid='" + issue.id
+							+ "'> [" + issue.type + "] " + issue.title + "</input></label></div>";
+						}
+						$("#issues_section_inner_div").html(issuesection);
+					} 
+				},
+				function (jqXHR, textStatus, errorThrown) {
+					jagg.message({content:"Error occurred while retrieving issues",type:'info' });
+				});
+				
+				$("#search_text").keypress(function(e){
+					code= (e.keyCode ? e.keyCode : e.which);
+					if (code == 13) search();
+				});
+			});
+			
+			
+			function doGovernanceActionAjaxIn(actionName, stage, version, tagName, checkItems, comment){
+				
+				jagg.post("../blocks/lifecycle/add/ajax/add.jag", { 
+					action:actionName,
+					applicationKey:$("#applicationKey").attr('value'),
+					stageName:stage,
+					version:version,
+					checkItems: JSON.stringify(checkItems),
+					tagName: tagName,
+					comment: comment
+				},
+				function (result) {
+					location.href='<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+				},
+				function (jqXHR, textStatus, errorThrown) {
+					jagg.message({content:"Error occurred while performing the governance operation",type:'info' });
+				});
+			}
+			
+			
+	
+			function doDemote(){
+				var applicationName = "<%=applicationName%>";
+				var comment = "<![CDATA[<span>";
+				var noOfBugsSelected = $('input:checkbox[id^="' + ISSUE_CHECK_BOX_ID_PREFIX + '"]:checked').length;
+				if(noOfBugsSelected != 0){
+					comment += "The application " + applicationName + " is Demoted due to following <a onclick='"
+					+ "$(this).next().toggle();"
+					+ "'>issues</a>.<div style='display:none;'><ul>";
+					$('input:checkbox[id^="' + ISSUE_CHECK_BOX_ID_PREFIX + '"]:checked').each(function(){
+						var title = $(this).attr("title");
+						var url = $(this).attr("url");
+						comment += "<li> <a href='" + url + "' >" + title + "</a> </li>";
+					});
+					comment += "</ul></div> ";
+				}
+				comment += $("#inputComment").val() + "</span>]]>";
+				doGovernanceActionAjaxIn($("#actionName").attr('value'), $("#stage").attr('value'), $("#version").attr('value'), $("#tagName").attr('value'), $("#checkItems").attr('value') , comment);
+				
+			}
+			
+			function search(){
+				var query = $("#search_text").val();
+				var issuesection = "";
+				var isResults = false;
+				for (var i = 0; i < issueArray.length; i++) {
+					var issue = issueArray[i];
+					if((issue.title.toLowerCase()).indexOf(query.toLowerCase()) === -1){
+						continue;
+					}
+					isResults = true;
+					issuesection += "<div><label class='checkbox'> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id 
+					+ "' type='checkbox' order='0' " + "title='" + issue.title + "' issuetype='" + issue.type + "' issueid='" + issue.id + "' url='" + issue.url
+					+ "'> [" + issue.type + "] " + issue.title + "</input> <a href=" + issue.url 
+					+ "><i class='icon-share-alt'></i></a></label></div>";				  					
+				}
+				if (!isResults){
+					$("#issues_section_inner_div").html("No results found");
+					return;
+				}
+				$("#issues_section_inner_div").html(issuesection);
+			}
+			
+		</script>
+	<%
+	}else {
+		%>
+        jagg.message({content:"User does not have permission",type:'error',id:'myuniqeid' });
+		<%
+	}
+	%>
+	<div class="container">
+		<div class="title-section">
+			<div class="row">
+                <div class="span12">
+                    <% jagg.includeBlock("breadcrumb", {"applicationName":applicationName,"applicationKey" :applicationKey,"pageName":"Demote","pos":"titlebar" }); %>
+                </div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="container content-container wrapper">
+		<div class="row">
+			<div class="span12 content-section">
+				<div class="content-data">	
+					<div class="form-horizontal">
+						<div class="control-group" id="issues_section_outer_div" style="display:none">
+							<div class="control-group">
+								<label class="control-label">Select Issues</label>
+								<div class="controls" style="margin-bottom:10px;">
+									<input type="text" id="search_text" placeholder="search issues"  style="margin-right:10px;"/>
+									<input type="button" class="btn" value="Search" onclick="search()"/>
+								</div>
+								<div class="controls">
+									<div id="issues_section_inner_div"></div>
+								</div>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label" for="inputComment">Add Comment</label>
+							<div class="controls">
+								<textarea id="inputComment" rows="3" style="width:95%;"></textarea>
+							</div>
+						</div>
+						<div class="control-group">
+							<div class="controls">
+								<input type="button" class="btn btn-primary" value="Demote" onclick="doDemote()"/>
+								<input type="button" class="btn" value="Cancel" onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>	
+	<% }); %>

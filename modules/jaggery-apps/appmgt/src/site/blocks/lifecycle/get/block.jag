@@ -1,0 +1,7 @@
+<%
+jagg.block("lifecycle/get", {
+    initialize:function (data) {
+
+    }
+});
+%>

@@ -1,0 +1,44 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_USERS
+                (row_id STRING, applicationName STRING, applicationKey STRING, timeSt BIGINT, tenantId STRING,
+                                user STRING, action STRING)
+                                STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+                                with SERDEPROPERTIES
+                                ("wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+                                 "cassandra.cf.name" = "org_wso2_carbon_appfactory_appUser" ,
+                                 "cassandra.columns.mapping" =
+                                 ":key, payload_applicationName, payload_applicationKey, 
+                                 Timestamp, payload_tenantId, payload_user, payload_action" );
+                                 
+CREATE EXTERNAL TABLE IF NOT EXISTS APP_USER
+     (APPLICATION_NAME STRING,APPLICATION_KEY STRING,TIME_ST BIGINT,TENANT_ID STRING,USER STRING,ACTION STRING) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,USER,TIME_ST' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE APP_USER
+    (APPLICATION_NAME VARCHAR(100),APPLICATION_KEY VARCHAR(100),TIME_ST BIGINT,TENANT_ID VARCHAR(100),USER VARCHAR(100),ACTION VARCHAR(20))');                                    
+    
+    
+    insert overwrite table APP_USER
+    SELECT applicationName, applicationKey, timeSt, tenantId, user, action
+    from APP_USERS;
+    
+    
+    CREATE EXTERNAL TABLE IF NOT EXISTS LATEST_APP_USERS
+     (TENANT_ID STRING,APPLICATION_KEY STRING,USER STRING,TIME_ST BIGINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID,APPLICATION_KEY,USER' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE LATEST_APP_USERS
+    (TENANT_ID VARCHAR(100), APPLICATION_KEY VARCHAR(100), USER VARCHAR(100), TIME_ST BIGINT)');                                    
+    
+    
+    insert overwrite table LATEST_APP_USERS
+    SELECT tenantId, applicationKey, user, max(timeSt) as timest FROM APP_USERS GROUP BY tenantId, applicationKey, user;

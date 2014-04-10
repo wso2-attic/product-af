@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<artifactType type="application/vnd.wso2-user+xml" shortName="user"
+              singularLabel="user"
+              pluralLabel="users" hasNamespace="false" iconSet="7">
+    <storagePath>/repository/rss/@{databaseuser_environment}/users/@{databaseuser_appkey}/@{databaseuser_name}/databaseuserinfo</storagePath>
+    <nameAttribute>databaseuser_name</nameAttribute>
+    <ui>
+        <list>
+
+            <column name="Name">
+                <data type="path" value="databaseuser_name" href="@{storagePath}"/>
+            </column>
+            <column name="Environment">
+                <data type="path" value="databaseuser_environment" href="@{storagePath}"/>
+            </column>
+            <column name="Appkey">
+                <data type="path" value="databaseuser_appkey" href="@{storagePath}"/>
+            </column>
+
+        </list>
+    </ui>
+    <content>
+        <table name="databaseuser">
+
+            <field type="text" required="true">
+                <name>Name</name>
+            </field>
+            <field type="text" required="true">
+                <name>Environment</name>
+            </field>
+            <field type="text" required="true">
+                <name>Appkey</name>
+            </field>
+
+        </table>
+
+        <table name="Service Lifecycle">
+            <field type="options">
+                <name label="Lifecycle Name">Lifecycle Name</name>
+                <values class="org.wso2.carbon.governance.generic.ui.utils.LifecycleListPopulator">
+                </values>
+            </field>
+        </table>
+    </content>
+
+</artifactType>

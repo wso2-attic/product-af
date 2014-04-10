@@ -1,0 +1,76 @@
+<%
+    var config = require('/tracker.json');
+    var security =require("sso");
+    var log = new Log();
+	var ssoRelyingParty = new security.SSORelyingParty(config.ssoConfiguration.issuer);
+	var sessionId = session.getId();
+	var isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
+
+	var requestURI;
+	var requestedPage = request.getParameter("requestedPage");
+
+
+	if(requestedPage!=null){
+	    requestURI = requestedPage;
+	}else{
+	  requestURI = request.getRequestURI();
+	  if(request.getQueryString()!=null){
+	    requestURI =requestURI+'?'+request.getQueryString();
+	  }
+	}
+
+	if (!Boolean(isAuthenticated)) {
+
+	    ssoRelyingParty.setProperty("identityProviderURL", config.ssoConfiguration.identityProviderURL);
+	    ssoRelyingParty.setProperty("keyStorePassword", config.ssoConfiguration.keyStorePassword);
+	    ssoRelyingParty.setProperty("identityAlias",config.ssoConfiguration.identityAlias);
+	    ssoRelyingParty.setProperty("keyStoreName",config.ssoConfiguration.keyStoreName);
+
+	    var samlAuthRequest = ssoRelyingParty.getSAMLAuthRequest();
+	    var encodedRequest = ssoRelyingParty.encode(samlAuthRequest);
+	    var relayState = ssoRelyingParty.getUUID();
+	    ssoRelyingParty.setRelayStateProperty(relayState, requestURI);
+	    var idpURL = ssoRelyingParty.getProperty("identityProviderURL");
+
+	    log.info('encodedRequest ' + encodedRequest);
+	    log.info('relayState ' + relayState);
+	    log.info('sessionId ' + sessionId);
+%>
+<div>
+
+	        <p>You are now redirected to Identity. If the
+
+	        redirection fails, please click the post button.</p>
+
+	        <form method="post" action="<%=idpURL%>">
+
+	            <p>
+
+	                <input type="hidden" name="SAMLRequest"
+
+	                value="<%= encodedRequest %>"/>
+
+	                <input type="hidden" name="RelayState" value="<%= relayState %>"/>
+
+	                <input type="hidden" name="SSOAuthSessionID" value="<%= sessionId %>"/>
+
+	                <button type="submit">POST</button>
+
+	            </p>
+
+	        </form>
+
+	    </div>
+
+	    <script type = "text/javascript" >
+
+	           document.forms[0].submit();
+
+	    </script>
+
+<%  }  %>
+
+
+
+
+

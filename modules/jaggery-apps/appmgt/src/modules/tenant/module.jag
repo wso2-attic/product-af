@@ -1,0 +1,38 @@
+<%
+jagg.module("tenant", {
+	
+	addRolestoUserinTenantDomain:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").addRolestoUserinTenantDomain.apply(this, arguments);
+    },
+    addUserRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").addUserRoles.apply(this, arguments);
+    },
+    getUsersofTenant:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersofTenant.apply(this, arguments);
+    },
+     getUserInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
+    },
+    updateUserRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
+    },
+   deleteUserFromTenant:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").deleteUserFromTenant.apply(this, arguments);
+    },
+   bulkUserImport:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").bulkUserImport.apply(this, arguments);
+    },
+   isFirstLogin:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").isFirstLogin.apply(this, arguments);
+    },
+   changePassword:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").changePassword.apply(this, arguments);
+    },
+   getApplicatioinKeysOfUser:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getApplicatioinKeysOfUser.apply(this, arguments);
+    }
+
+
+    
+});
+%>

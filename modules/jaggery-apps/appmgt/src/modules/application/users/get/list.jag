@@ -1,0 +1,336 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log("module/application/users/get/list.jag");
+
+ var modManager = jagg.module("manager");
+ var carbon = require('carbon');
+ var server = carbon.server;
+ var appfactory = require('appFactory');
+ var multitenancy = carbon.multitenancy;
+
+// get the roles of the logged in user for the given application
+ var getUsersOfApplication = function(applicationKey){
+	jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+ 	var users, tenantDomain=modManager.getTenantDomain();
+ 	var context=multitenancy.getPrivilegedCarbonContext();
+ 	var tenantManager= multitenancy.getTenantManager();
+ 	try{
+ 		context.startTenantFlow();
+ 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+ 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+ 		users= server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').getUsersOftheApplication(applicationKey);
+ 	}finally{
+ 		context.endTenantFlow();
+ 	}
+ 	var resultUsers=[];
+ 	for (var k in users) {
+		var user = users[k];
+		var object = {};
+		object.userName = user.userName;
+		object.firstName = user.firstName;
+		object.lastName = user.lastName;
+		object.email = user.email;
+		object.roles=user.roles;
+		object.displayName = user.displayName;
+		var displayRoles=[];
+		for (var i in user.roles) {
+			var roleDisplayName = getProperty("TenantRoles.Role." + user.roles[i] + ".DisplayName");
+			if(roleDisplayName != null) {
+				displayRoles.push(roleDisplayName);
+			}
+		}
+		object.displayRoles = displayRoles;
+		resultUsers.push(object);
+	}	
+ 	return resultUsers;
+ }
+ 
+ 
+var getRoles=function (applicationKey, userName) {
+    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.timeout = 1000000;
+    options.action = "urn:getRolesOfUserPerApplication";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+    var payload = '<p:getRolesOfUserPerApplication xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"><xs:appId xmlns:xs="http://service.mgt.application.appfactory.carbon.wso2.org">' + applicationKey + '</xs:appId><xs:userName xmlns:xs="http://service.mgt.application.appfactory.carbon.wso2.org">' + userName + '</xs:userName></p:getRolesOfUserPerApplication>';
+    var result;
+
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+    	request.open(options,endPoint, false);
+    	request.send(payload);
+    	result = request.responseE4X;
+    	if (log.isDebugEnabled()) {
+    		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+    	}
+    } catch (e) {
+    	throw "Error while retrieving roles";
+    }
+    return result;
+};
+
+var getAppUsersWithRoles = function(applicationKey) {
+    // no need to secure, internal calls are secured.
+    try {
+        var result = getUsersOfApplication(applicationKey);
+
+        if( result != null) {
+            var userArray = new Array();
+            var users  = result.*::["return"];
+
+           for each (var user in users) {
+        		if(user != null) {
+                    var userName = user.*::userName;
+                    var userDisplayName = user.*::displayName;  
+					var roles = getUserRolesForApplication(applicationKey, userName);
+					
+					var displayName = '';
+					
+					for(var i = 0; i < roles.length(); ++i) {
+
+						if(i != 0) {
+							displayName = displayName + ' / ';
+						}
+			                        displayName = displayName + getProperty("ApplicationRoles.Role." + roles[i] + ".DisplayName");
+			                }
+					
+					var userRoles={};
+           	        userRoles.userName =  userName.toString();
+                    userRoles.userDisplayName = userDisplayName.toString();
+					userRoles.roles = roles; 
+					userRoles.displayName = displayName; 
+					userArray.push(userRoles);	
+        		}
+        	}
+        session.put('appUsers',userArray);
+		return stringify(userArray);
+        } else {
+            throw "Error while retrieving users";
+        }
+    } catch(e) {
+        throw "Error while retrieving users";
+    }
+};
+
+var getUsersInfoOfApplication=function(applicationKey) {
+    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.2;
+    options.timeout = 1000000;
+    options.action = "urn:getUserInfo";
+    options["HTTPHeaders"] = [
+                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) }
+                              ];
+
+    var payload = '<p:getUserInfo xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"><p:applicationId>' + applicationKey + '</p:applicationId></p:getUserInfo>';
+    var result;
+    try {
+    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService/getUserInfo";
+    	request.open(options,endPoint, false);
+    	request.send(payload);
+    	result = request.responseE4X;
+    	if (log.isDebugEnabled()) {
+    		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+    	}
+    } catch (e) {
+    	throw "Error while retrieving user info";
+    }
+    return result;
+};
+
+var getUserRolesForApplication = function(applicationKey, userName) {
+    // no need to secure, internal calls are secured.
+    try {
+        var result = getRoles(applicationKey, userName);
+        if( result != null) {
+            var roleArray = result.*::["return"].text();
+            return roleArray;
+        } else {
+            throw "Error while retrieving roles";
+        }
+    } catch(e) {
+        throw "Error while retrieving roles";
+    }
+};
+
+
+var getUserAccess = function(applicationKey, userName) {
+	// no need to secure, internal calls are secured.
+	//var roleArray = getUserRolesForApplication(applicationKey, userName);
+	var jsonFeed = {};
+//returning everything as true since we do not have application based roles anymore.
+/*   	if (roleArray != null && roleArray.length() > 0){
+		jsonFeed.userHasAccess = true;
+		
+		if(isOwner(roleArray) || isAdmin(roleArray)) {
+			jsonFeed.adminPrivilege = true;
+		}else {
+			jsonFeed.adminPrivilege = false;
+		}
+		
+		if(isDevOps(roleArray)) {
+			jsonFeed.devOpsPrivilege = true;
+		}else {
+			jsonFeed.devOpsPrivilege = false;
+		}
+		
+		if(isDeveloper(roleArray)) {
+			jsonFeed.developerPrivilege = true;
+		}else {
+			jsonFeed.developerPrivilege = false;
+		}
+	}else {
+		jsonFeed.userHasAccess = false;
+		jsonFeed.adminPrivilege = false;
+		jsonFeed.devOpsPrivilege = false;
+		jsonFeed.developerPrivilege = false;
+
+	}
+*/
+    jsonFeed.userHasAccess = true;
+    jsonFeed.adminPrivilege = true;
+    jsonFeed.devOpsPrivilege = true;
+    jsonFeed.developerPrivilege = true;
+
+	return stringify(jsonFeed);
+};
+
+var isOwner = function(roleArray) {
+    try {
+        var isOwner = false;
+        for(var i =0; i < roleArray.length(); ++i) {
+            if(roleArray[i] == ROLE_APP_OWNER) {
+                isOwner = true;
+                break;
+            }
+        }
+        return isOwner;
+    } catch(e) {
+        return false;
+    }
+};
+
+var isDevOps = function(roleArray) {
+	try {
+        var isDevOps = false;
+        for(var i =0; i < roleArray.length(); ++i) {
+            if(roleArray[i] == ROLE_DEVOPS) {
+            	isDevOps = true;
+                break;
+            }
+        }
+        return isDevOps;
+    } catch(e) {
+        return false;
+    }
+};
+
+var isAdmin = function(roleArray) {
+    try {
+        var isAdmin = false;
+        for(var i =0; i < roleArray.length(); ++i) {
+            if(roleArray[i] == ROLE_ADMIN) {
+            	isAdmin = true;
+                break;
+            }
+        }
+        return isAdmin;
+    } catch(e) {
+        return false;
+    }
+};
+
+var isDeveloper = function(roleArray) {
+	try {
+        var isDeveloper = false;
+        for(var i =0; i < roleArray.length(); ++i) {
+            if(roleArray[i] == ROLE_DEV) {
+            	isDeveloper = true;
+                break;
+            }
+        }
+        return isDeveloper;
+    } catch(e) {
+        return false;
+    }
+};
+
+var getTrunkURL = function(applicationKey) {
+    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+    var repositoryType=getProperty(PREFERRED_REPOSITORY_TYPE);
+	return getProperty('RepositoryProviderConfig.'+ repositoryType+'.Property.BaseURL')+'/'+repositoryType+'/'+applicationKey+'/trunk';
+};
+
+var getAppUsersByRoles = function(applicationKey) {
+    // no need to secure, internal calls are secured.
+    
+    var rolesMap = {};
+    
+    try {
+        
+        var result = getUsersOfApplication(applicationKey);
+        
+        if ( result === null){
+        	log.error("No response recieved while retrieving users \n");
+            throw "No response recieved while retrieving users";
+        }
+               
+        var responseUsers = result.*::["return"];
+        if(!(responseUsers === null || responseUsers === undefined)) {
+            
+            for each (var user in responseUsers) {
+                
+                var userName = user.*::userName;  //  responseUsers[userIndex];
+                var firstName =  user.*::firstName;  
+                if(userName != null) {
+                	userName = userName.text();
+                	firstName = firstName.text();
+                    var roles = getUserRolesForApplication(applicationKey, userName);
+                    
+                    for(var roleIndex in roles){
+                        
+                        var currentElement=roles[roleIndex];
+                        
+                        var role=rolesMap[currentElement] || (role={});
+                        
+                        role.displayName=getProperty("ApplicationRoles.Role." + currentElement + ".DisplayName");
+                        
+                        var roleUsers=[];
+                        
+                        if(!(rolesMap[currentElement]===undefined || rolesMap[currentElement].users===undefined)){
+                            roleUsers=rolesMap[currentElement].users;
+                        }
+                        
+                        roleUsers.push(userName);
+                        roleUsers.push(firstName);
+                        
+                        role.users=roleUsers;
+                        
+                        rolesMap[currentElement]=role;
+                        
+                    }
+                }
+            }
+            
+            return rolesMap;
+        } else {
+            log.error("Error while retrieving users \n");
+            throw "Error while retrieving users";
+        }
+    } catch(e) {
+        log.error("Error while retrieving users \n"+e.message);
+        throw "Error while retrieving users";
+    }
+};
+%>

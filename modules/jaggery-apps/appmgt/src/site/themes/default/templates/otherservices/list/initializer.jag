@@ -1,0 +1,8 @@
+<%
+jagg.initializer("otherservices/list", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

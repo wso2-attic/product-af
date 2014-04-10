@@ -1,0 +1,23 @@
+<%
+jagg.module("register", {
+
+    registerOrganization: function () {
+        return jagg.require(jagg.getModulesDir() + "register/register.jag").registerOrganization.apply(this, arguments);
+    },
+    registerOrg: function () {
+        return jagg.require(jagg.getModulesDir() + "register/register.jag").registerOrg.apply(this, arguments);
+    },
+    generateCaptcha: function () {
+        return jagg.require(jagg.getModulesDir() + "register/register.jag").generateCaptcha.apply(this, arguments);
+    },
+    storeSubscription: function () {
+        return jagg.require(jagg.getModulesDir() + "register/register.jag").storeSubscription.apply(this, arguments);
+    },
+     sendEmail: function () {
+        return jagg.require(jagg.getModulesDir() + "register/register.jag").sendEmail.apply(this, arguments);
+    },
+    checkDomainAvailability:function () {
+        return jagg.require(jagg.getModulesDir() + "register/register.jag").checkDomainAvailability.apply(this, arguments);
+    }
+});
+%>

@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.wso2.carbon</groupId>
+    <artifactId>org.wso2.carbon.appfactory.jenkinsext</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>jenkins-tenant-ext</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+<build>
+ <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <configuration>
+        <compilerVersion>1.6</compilerVersion>
+        <source>1.6</source>
+        <target>1.6</target>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.studio</groupId>
+            <artifactId>org.apache.commons.io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <!--dependency>
+          <groupId>org.jenkins-ci.main</groupId>
+          <artifactId>jenkins-core</artifactId>
+          <version>1.525</version>
+        </dependency -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
+            <artifactId>axiom</artifactId>
+            <version>1.2.11.wso2v4</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jenkins-releases</id>
+            <url>http://repo.jenkins-ci.org/releases/</url>
+        </repository>
+         <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+
+    </repositories>
+</project>

@@ -1,0 +1,15 @@
+<data name="${artifactId}-${version}">
+   <config id="default">
+        <property name="carbon_datasource_name">TestDS</property>
+   </config>
+   <query id="SQL1" useConfig="default">
+      <sql>select id,data from Persons</sql>
+      <result element="Entries" rowName="Entry">
+         <element column="id" name="id" xsdType="string"/>
+         <element column="data" name="data" xsdType="string"/>
+      </result>
+ </query>
+   <operation name="OP1">
+      <call-query href="SQL1"/>
+   </operation>
+</data>

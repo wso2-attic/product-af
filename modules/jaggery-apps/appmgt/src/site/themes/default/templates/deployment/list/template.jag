@@ -1,0 +1,132 @@
+<% jagg.template("deployment/list", function(inputs, outputs, jagg) { %>
+<%
+    var log = new Log();
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+
+%>
+	<script type="text/javascript" charset="utf-8">
+	
+	    function doDeployDirectly(stage, versionId, shouldBuild) {
+            jagg.post("../blocks/lifecycle/add/ajax/add.jag", { 
+            action:"directdeploy",
+            applicationKey:$("#applicationKey").attr('value'),
+            stageName:stage,
+            version:versionId,
+            build:shouldBuild
+        },
+        function (result) { },
+        function (jqXHR, textStatus, errorThrown) { });
+		jagg.message({content:"Application submitted to deploy ",type:'info' });
+        }	
+
+        function doCreateArtifact(versionId) {
+            jagg.post("../blocks/lifecycle/add/ajax/add.jag", { 
+            action:"createArtifact",
+            applicationKey:$("#applicationKey").attr('value'),
+            version:versionId,
+            revision:""
+        },
+        function (result) {
+            if(result != undefined){
+                jagg.message({content:"Successfully started the build",type:'info' });
+            }
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            jagg.message({content:"Error occurred while starting the build",type:'error' });
+        });
+        }
+
+	
+	    $(document).ready(function() {
+			jagg.post("../blocks/application/get/ajax/list.jag", { 
+				action:"getAppVersionsInStages",
+				userName:$("#userName").attr('value'),
+				applicationKey:$("#applicationKey").attr('value')
+	  		},
+	  		
+	  		
+            function (result) {
+			    var parsedArray = jQuery.parseJSON(result);
+                var hasDeployPermission= ($("#hasDeployPermission").attr('value') === 'true');
+				for (var i = 0; i < parsedArray.length; i++) {
+		  			var application = parsedArray[i]; 
+		  			var versions = application.versions;
+		  			
+				  	for (var j = 0; j < versions.length; j++) {
+			  			var versionInfo = versions[j];
+                        var domContent;
+                        if(hasDeployPermission){
+                        domContent ='<div class="row-fluid">' +
+                                            '<div class="span3">' +
+                                                '<h4>'+versionInfo.version+'</h4>' +
+                                            '</div>' +
+                                            '<div class="span7">' +
+                                                'This version will be <strong>Deployed</strong> in <span class="label label-info">'+application.stage+'</span>' +
+                                                '<div><a href="'+versionInfo.accessUrl+'">'+versionInfo.accessUrl+'</a></div>'+
+                                            '</div>'+
+                                            '<div class="span2">'+
+                                                '<a id="deploy"><i class="icon-arrow-down"></i> Deploy</a>' +
+                                            '</div>' +
+                                        '</div>' +
+                                        '<div class="row-fluid"><hr /></div>';
+                        }else{
+                        domContent ='<div class="row-fluid">' +
+                                            '<div class="span3">' +
+                                                '<h4>'+versionInfo.version+'</h4>' +
+                                            '</div>' +
+                                            '<div class="span7">' +
+                                                'This version will be <strong>Deployed</strong> in <span class="label label-info">'+application.stage+'</span>' +
+                                                '<div><a href="'+versionInfo.accessUrl+'">'+versionInfo.accessUrl+'</a></div>'+
+                                            '</div>'+
+                                        '</div>' +
+                                        '<div class="row-fluid"><hr /></div>';
+                        }
+                        		
+                        var row = $(domContent);
+                        $("#deploy", row).click({stg: application.stage, v: versionInfo.version}, function(e){
+                           doDeployDirectly(e.data.stg, e.data.v, true);
+                        });
+                        
+                        $("#build", row).click({v: versionInfo.version}, function(e){
+                          
+                           doCreateArtifact(e.data.v);
+                        });
+
+			 			$("#outerdiv").append(row);
+			  		}
+			  		
+	    
+				}	
+			},
+		  	function (jqXHR, textStatus, errorThrown) {
+		      	//add the error label in the grid
+		  	});
+		});
+	</script>
+    
+    <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+    <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+    <input type="hidden" name="hasDeployPermission" id="hasDeployPermission" value="<%=outputs.hasDeployPermission%>"/>
+
+    <!--START  content section-->
+    <div class="container content-container wrapper">
+
+        <div class="row">
+
+            <div class="span12 content-section shadow-up tab-content">
+                <div class="content-data">
+                    <div class="container-fluid" id="outerdiv">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <div class="navbar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="push"></div>
+    </div>
+    <div class="clearfix"></div>
+<% }); %>

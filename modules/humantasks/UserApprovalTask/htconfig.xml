@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hic:HTDeploymentConfig xmlns:hic="http://wso2.org/ht/schema/deployment/config"
+	xmlns:claim="http://www.example.com/claims/"
+	xmlns:claimtask="http://www.example.com">
+	<hic:task name="claimtask:ApproveUser">
+		<hic:publish>
+			<hic:service name="claim:UserApprovalService" port="UserApprovalPort" />
+		</hic:publish>
+		<hic:callback>
+			<hic:service name="claim:UserApprovalServiceCB" port="UserApprovalPortCB" />
+		</hic:callback>
+	</hic:task>
+</hic:HTDeploymentConfig>

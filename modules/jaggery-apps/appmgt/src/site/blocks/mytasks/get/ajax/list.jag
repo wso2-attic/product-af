@@ -1,0 +1,29 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json"),
+            taskId = request.getParameter("id");
+            approvalStatus = request.getParameter("approvalStatus");
+
+    if (action == "complete") {
+		mod = jagg.module("mytasks");
+        try {
+            result = mod.completeTask(taskId, approvalStatus);
+            if (result != null) {
+                return result;
+            } else {
+                throw "Error while completing task operation";
+            }
+        } catch(e) {
+            throw "Error while completing task operation";
+        }
+    } else {
+        throw new Error("Action not specified");
+    } 
+}());
+%>

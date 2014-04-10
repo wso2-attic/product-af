@@ -1,0 +1,156 @@
+
+<input type="hidden" name="ukey" id="ukey" value="{{data.issue.key}}"/>
+<input type="hidden" name="reporter" id="reporter" />
+
+<section class="content push_top_40">
+    <div class="form-container">
+        <fieldset>
+            <div class="input_row">
+                <label for="projectId" ><strong>Project</strong> </label>
+                {{data.projectName}}
+            </div>
+
+            <div class="input_row">
+                <label for="summary" ><strong>Summary</strong> </label>
+                {{data.issue.summary}}
+            </div>
+
+
+            <div class="input_row">
+                <label for="description" >Description</label>
+                {{data.issue.description}}
+            </div>
+
+
+            <div class="input_row">
+                <label for="type" ><strong>Type</strong> </label>
+                {{data.issue.type}}
+            </div>
+
+            <div class="input_row">
+                <label for="priority" ><strong>Priority</strong> </label>
+               {{data.issue.priority}}
+            </div>
+
+
+            <div class="input_row">
+                <label for="priority" ><strong>Reporter</strong> </label>
+               {{data.issue.reporter}}
+            </div>
+
+
+
+            <div class="input_row">
+                <label for="status" ><strong>Status</strong> </label>
+                 {{data.issue.status}}
+            </div>
+
+            <div class="input_row">
+                <label for="assignee" ><strong>Assignee</strong> </label>
+               {{data.issue.assignee}}
+            </div>
+
+            <div class="input_row">
+                <label for="severity" ><strong>Severity</strong> </label>
+                {{data.issue.severity}}
+            </div>
+
+        </fieldset>
+
+        <div class="btn main">
+            <input type="button" value="Edit Issue" class="btn main" onClick="window.location.href='{{url "/issue/edit"}}?issuePkey={{data.issue.key}}&projectKey={{data.projectKey}}'" />
+        </div>
+         <div class="btn main">
+            <input type="button" value="Home" class="btn main" onClick="window.location.href='/issuetracker'" />
+        </div>
+</div><!-- /form-container -->
+
+<hr>
+
+<div class="span12"><h3>Comments</h3></div>
+
+<table>
+    {{#each data.comments}}
+     {{#if id}}
+    <tr><td colspan="2">{{creator}}
+        {{#if updatedTime}}
+            updated
+        {{else}}
+            added
+        {{/if}}
+
+        comment - {{#if updatedTime}} {{updatedTime}} {{else}} {{createdTime}} {{/if}}</td> </tr>
+    <tr><td colspan="2" id="desc_{{id}}">{{description}}</td> </tr>
+    {{#if isOwner}}
+    <tr>
+    <td> <a href="#" onclick="showCommentbox({{id}}, '{{creator}}')" >Edit</a> </td>
+    <td><a href="#" onclick="deleteComment({{id}})">Delete</a></td>
+    </tr>
+
+    {{/if}}
+    <tr><td colspan="2"> <hr></td></tr>
+    {{/if}}
+     {{/each}}
+</table>
+
+<div style="display:none;" id="editCommentBox">
+    <input type='text' id='comment' name="comment" />
+    <input type="button" value="Comment" id="commentMe">
+</div>
+
+
+
+
+<textarea name="review-text" id="commentVal" rows="4" cols="200" style="width: 500px; height: 100px;"></textarea>
+<br>
+<a style="margin:5px 0 0 0" href="#" id="commentAdd" class="btn main" >Comment</a>
+
+
+
+<div id="windowTitleDialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="windowTitleLabel" aria-hidden="true">
+    <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal">&times;</a>
+        <h3>Enter your comment.</h3>
+    </div>
+    <div class="modal-body">
+        <div class="divDialogElements">
+           <textarea name="review-text" id="commentpopup" rows="4" cols="200" style="width: 500px; height: 100px;"></textarea>
+           <input type="hidden" name="comment_id" id="comment_id" />
+
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" onclick="closeDialog ();">Cancel</a>
+        <a href="#" class="btn main" onclick="okClicked ();" id="commentEdit">OK</a>
+    </div>
+</div>
+
+
+<script src="{{url "/themes/issuetracker/js/jquery-1.8.3.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/bootstrap-modal.js"}}"></script>
+
+<script type="text/javascript">
+    function showCommentbox(id, creator){
+        document.getElementById ("commentpopup").value = $("#desc_"+id).text();
+        $("#comment_id").val(id);
+        $("#reporter").val(creator);
+        $("#windowTitleDialog").modal ("show");
+    }
+
+    $(document).ready(function() {
+        $("#windowTitleDialog").bind ('show', function () {});
+    });
+
+    function closeDialog () {
+        $('#windowTitleDialog').modal('hide');
+    };
+
+    function okClicked () {
+        var commentId = $("#comment_id").val();
+        var popup  = $("#commentpopup").val();
+        $('#desc_'+commentId).text(popup);
+        closeDialog ();
+    };
+
+
+</script>

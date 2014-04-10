@@ -1,0 +1,6 @@
+<!--
+  This view is used to render the installed plugins page.
+-->
+<div>
+  This plugin is used to send notifications after building artifact and manage a jenkins artifact storage
+</div>

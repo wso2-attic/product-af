@@ -1,0 +1,58 @@
+<%
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+	
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+ 	var log = new Log();
+ 
+    if (action == "getLifeCycleHistoryForApplication") {
+    	mod = jagg.module("lifecycle");
+    	var modPermission = jagg.module("permission");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var version = request.getParameter("version");
+    	var stageName = request.getParameter("stageName");
+    	var userName = request.getParameter("userName");
+
+        var response = {};
+        var nextStage = mod.getNextLifeCycleStage(stageName);
+        var previousStage = mod.getPreviousLifeCycleStage(stageName);
+        var permissionPromoteToNextStage,permissionDemoteToNextStage;
+        var isAuthorizeToPromote = false;
+        var isAuthorizeToDemote = false;
+
+        if(nextStage != null && nextStage != undefined) {
+            permissionPromoteToNextStage = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage;
+            isAuthorizeToPromote = modPermission.isUserAccessGrantedForPlatform(permissionPromoteToNextStage);
+        }
+        if(previousStage != null || previousStage != undefined){
+            permissionDemoteToNextStage = PERMISSION_GOVERNANCE_DEMOTE_TO + previousStage;
+            isAuthorizeToDemote = modPermission.isUserAccessGrantedForPlatform(permissionDemoteToNextStage);
+        }
+
+        if(isAuthorizeToPromote || isAuthorizeToDemote){
+            var result = mod.getLifeCycleHistoryForApplication(applicationKey,version,stageName,userName);
+            print(result);
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to perform the life cycle operation";
+            print(response);
+        }
+
+
+    }else {
+		log.error("No action specified");
+	}
+}());
+
+
+
+
+
+%>

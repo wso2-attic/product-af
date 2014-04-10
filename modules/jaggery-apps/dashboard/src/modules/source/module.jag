@@ -1,0 +1,8 @@
+<%
+jagg.module("source", {
+	
+    topRepositoriesByLinesOfCode:function () {
+        return jagg.require(jagg.getModulesDir() + "source/get/list.jag").topRepositoriesByLinesOfCode.apply(this, arguments);
+    }
+});
+%>

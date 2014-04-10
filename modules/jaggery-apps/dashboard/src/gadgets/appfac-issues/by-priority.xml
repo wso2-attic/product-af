@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+	<ModulePrefs title="App Factory — Issues by Priority" />
+    <UserPref name="gadgetName" display_name="issues-by-priority" default_value="issues-by-priority"/>
+	<Content type="html" preferred_height="300">
+		<![CDATA[
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.css"></link>
+        <link rel="stylesheet" type="text/css" href="../../css/dashboard-gadgets/styles.css"></link>
+		<link rel="stylesheet" type="text/css" href="../../css/jquery.jqplot.css"/>
+		<style>
+		.jqplot-data-label{
+		    color: #000000 !important;
+		    font-size:12px !important;
+		}
+		table.jqplot-table-legend{
+		    margin:8px 35px 8px 8px;
+		    border-color:#1C1C1C;
+            color:#ffffff;
+		}
+        
+		#chart1{
+			float:left;
+		}
+		.info{
+			float:left;
+			width:auto;
+			position:absolute;
+			min-height:20px;
+			font-size:16px;
+			font-weight:bold;
+			padding:10px;
+			color:#bcbcbc;
+            background-color:#000000;
+            display:none;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            border:1px solid #545453;
+            opacity:0.8;
+            -moz-opacity:0.8;
+            -webkit-opacity:0.8;
+            filter:alpha(opacity=80); /* For IE8 and earlier */
+		}
+		</style>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script src="../../js/jquery.jqplot.js"></script>
+		<script src="../../js/jqplot.pieRenderer.min.js"></script>
+        <script src="../../js/GadgetPieChart.js"></script>
+        <script src="by-priority.js"></script>
+        <script src="../../js/constants.js"></script>
+        <div id="prioritiesChart"></div>
+        <div id="prioritiesChartInfo" class="info"></div>
+		]]>
+	</Content>
+</Module>

@@ -1,0 +1,17 @@
+<%
+jagg.module("application", {
+	
+    getVersionsInLifecycleStages:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getVersionsInLifecycleStages.apply(this, arguments);
+    },
+    getAllStages:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllStages.apply(this, arguments);
+    },
+    getAllCreatedApplications:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAllCreatedApplications.apply(this, arguments);
+    },
+    getTopAppOwners:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getTopAppOwners.apply(this, arguments);
+    }
+});
+%>

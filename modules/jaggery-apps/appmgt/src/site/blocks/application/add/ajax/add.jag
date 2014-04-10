@@ -1,0 +1,251 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var modManager = jagg.module("manager");
+var log=new Log();
+
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	
+	if (action == "createNewApplication") {
+		mod = jagg.module("application");
+		var registryMod = jagg.module("registry");
+		var applicationName = request.getParameter("applicationName");
+		var applicationKey = request.getParameter("applicationKey");
+		var applicationDescription = request.getParameter("applicationDescription");
+		var applicationType = request.getParameter("applicationType");
+		var repositoryType = request.getParameter("repositoryType");
+        var repoAccessibility = request.getParameter("repoAccessibility");
+		var userName = request.getParameter("userName");
+		var response = {};
+		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
+			try {
+				var repositoryProviders = getProperties('RepositoryProviderConfig');
+
+				var message = "Repository type ".concat(repositoryType).concat(" is not Configured!");
+				response.message = message;
+				response.result = 0;
+				if (getProperties('ApplicationType.' + applicationType + '.Property.DisplayName').length != 0) {
+					// adds to session in 'Pending state', until the application
+					// is created.
+					var pendingApplications = [];
+					if (session.get("pendingApplications") != null) {
+						pendingApplications = session.get("pendingApplications");
+					}
+					
+					var isDuplicateWithSession = false ;
+					for(var pendApp in pendingApplications){
+						if(pendingApplications[pendApp].app.key === applicationKey){
+							isDuplicateWithSession = true ;
+							break;
+						}
+					}
+					if(!isDuplicateWithSession){
+						var appContainer = {};
+						appContainer.userName = userName;
+	
+						var thisApplication = {};
+						thisApplication.key = applicationKey;
+						thisApplication.name = applicationName;
+						thisApplication.repositoryType = "";
+						thisApplication.description = "";
+						thisApplication.type = applicationType;
+						thisApplication.roles = "";
+						thisApplication.isPending = true;
+	
+						appContainer.app = thisApplication;
+	
+						pendingApplications.push(appContainer);
+	
+						session.put("pendingApplications", pendingApplications);
+						// adds to session in 'Pending state', until the application
+						// is created.
+	
+						for (var provider in repositoryProviders) {
+							if (repositoryType == repositoryProviders[provider]) {
+
+	                            result = mod.createApplicationBPEL(applicationName, applicationKey,
+    							    applicationDescription, applicationType, repoAccessibility, repositoryType, userName);
+
+								message = "Application was created under Repository type ".concat(repositoryType);
+								response.message = message;
+								response.result = 1;
+	
+								try{
+									var appIcon = request.getFile("appIcon");
+									if(appIcon){
+										var regPath = "/_system/governance/repository/applications/"+applicationKey+"/icon";
+										var type = 'image/jpg';
+										registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
+									}
+								}catch(e){
+									log.info("No Application Icon found to upload.  " + e);
+									// Just skip when error occured becauyse there
+									// is no file to upload.
+								}
+							}
+						}
+					}
+				} else {
+					message = "Application type ".concat(applicationType).concat(" is not Supported!");
+					response.message = message;
+					response.result = 0;
+				}
+				
+				print(response);
+				
+			} catch (e) {
+				var err = "Error while creating the application"; 
+				log.error( err + e.message);
+				throw ( err + e.message )
+			}
+		} else {
+
+			response.result = 0;
+			response.message = "You don't have permission to create application";
+			print(response);
+		}
+
+	}else if (action == "uploadExistingApplication") {
+		
+		var registryMod = jagg.module("registry");
+		
+		var applicationName = request.getParameter("applicationName");
+		var applicationKey = request.getParameter("applicationKey");
+		var applicationDescription = request.getParameter("applicationDescription");
+		var applicationType = request.getParameter("uploadableAppType");
+		var repoAccessibility = request.getParameter("repoAccessibility");
+		var repositoryType = "git";
+		var userName = request.getParameter("userName");
+		
+		if(log.isDebugEnabled()){
+		    log.debug("Application Creation for Application id " + applicationKey + " is started by uploading existing application with type " + applicationType);
+		}
+		
+		var response = {};
+		try{
+			if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
+				if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType, applicationDescription, applicationType, userName)){
+				    	mod = jagg.module("application");
+		  			mod.stroreUploadedApplication(applicationKey, request.getFile("uploaded_application"), applicationType);
+				        
+					result = mod.createApplicationBPEL(applicationName, applicationKey,
+    							    applicationDescription, applicationType, repoAccessibility, repositoryType, userName);
+	    				uploadApplicationIcon(request.getFile("appIcon"));				    
+					
+					var message = "New application was created with uploaded artifact";
+					response.message = message;
+					response.result = 1;
+					
+				}else{			
+				   response.message = "Another application with same key is in the process of creation right now.";
+				   response.result = 0;
+				}
+			}else{
+				response.message = "You don't have permission to create application";
+				response.result = 0;
+			}
+			
+			print(response);
+		
+		} catch (e) {
+			var err = "Error while creating the application by uploading existing application"; 
+			log.error( err + e.message);
+			throw ( err + e.message );
+		}	
+	
+		
+	} else if (action == "isApplicationKeyAvailable") {
+
+		var applicationKey = request.getParameter("applicationKey");
+        var response = {};
+        if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)){
+            mod = jagg.module("application");
+            try {
+                var status = mod.isApplicationKeyAvailable(applicationKey, true);
+                print(status);
+
+            } catch (e) {
+                throw "Error while checking the key availability";
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to check the application key availability";
+            print(response);
+        }
+
+	} else if(action == "tenantExists"){
+		var applicationKey = request.getParameter("applicationKey");
+		mod = jagg.module("application");
+		try {
+			var status = mod.isApplicationKeyAvailable(applicationKey, false);
+			print(status);
+		} catch (e) {
+			throw "Error while creating repository";
+		} 	
+	} else {
+		throw new Error("No action specified");
+	}
+}());
+
+function isApplicationDuplicateWithSession(applicationKey, applicationName, repositoryType, description, applicationType, userName){
+	
+	var pendingApplications = [];
+	if (session.get("pendingApplications") != null) {
+		pendingApplications = session.get("pendingApplications");
+	}
+					
+	var isDuplicateWithSession = false ;
+	for(var pendApp in pendingApplications){
+		if(pendingApplications[pendApp].app.key === applicationKey){
+			isDuplicateWithSession = true ;
+			break;
+		}
+	}	
+	
+	if(!isDuplicateWithSession){
+	
+		var appContainer = {};
+		appContainer.userName = userName;
+	
+		var thisApplication = {};
+		thisApplication.key = applicationKey;
+		thisApplication.name = applicationName;
+		thisApplication.repositoryType = repositoryType;
+		thisApplication.description = description;
+		thisApplication.type = applicationType;
+		thisApplication.roles = "";
+		thisApplication.isPending = true;
+	
+		appContainer.app = thisApplication;
+	
+		pendingApplications.push(appContainer);
+	
+		// adds to session in 'Pending state', until the application
+		// is created.
+		session.put("pendingApplications", pendingApplications);
+		
+	}	
+	
+	return isDuplicateWithSession;
+}
+
+function uploadApplicationIcon(appIcon){
+
+	try{
+		if(appIcon){
+			var regPath = "/_system/governance/repository/applications/"+applicationKey+"/icon";
+			var type = 'image/jpg';
+			registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
+		}
+	}catch(e){
+		log.info("No Application Icon found to upload.  " + e);
+	}
+}
+
+%>
+

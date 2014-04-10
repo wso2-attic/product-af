@@ -1,0 +1,49 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+// used for logging
+var log = new Log();
+var modManager = jagg.module("manager");
+
+var getAPICount = function (applicationKey){
+ //   jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION.CONFIGURATION.API.MANAGER);
+    var ws = require('ws');
+    var apiManagerIntegration = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:getAPIsOfApplication";
+    options["HTTPHeaders"] = [
+            { name : "Cookie", value :modManager.getAdminCookie() },
+            { name : "username", value :session.get("LOGGED_IN_USER") },
+            { name : "SAMLToken" , value : session.get("SAML_TOKEN") }
+        ];
+
+    var namespace = getProperty(API_MANAGER_SERVICE_NAMESPACE);
+    var payload = '<int:getAPIsOfApplication xmlns:int="' + namespace+ '"><int:applicationId>'
+        + applicationKey +'</int:applicationId></int:getAPIsOfApplication>';
+    var result;
+
+    try {
+        var serviceName =getProperty(API_MANAGER_SERVICE_NAME);
+        var serverUrl = getProperty(APPFACTORY_SERVER_URL);
+
+        var endPoint = serverUrl + serviceName;
+
+        apiManagerIntegration.open(options,endPoint, false);
+        apiManagerIntegration.send(payload);
+        result = apiManagerIntegration.responseE4X;
+        if(log.isDebugEnabled()){
+            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+        }
+
+        var elements = result.*::["return"];
+        
+		return elements.length();
+    } catch (e) {
+    	return 0;
+    }
+};
+
+%>

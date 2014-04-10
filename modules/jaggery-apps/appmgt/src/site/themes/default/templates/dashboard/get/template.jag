@@ -1,0 +1,431 @@
+<% jagg.template("dashboard/get", function(inputs, outputs, jagg) { %>
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("lib/dojo/dojo/dojo.js"))%>" data-dojo-config="isDebug: 1, async: 1, parseOnLoad: 1"></script>
+<script type="text/javascript">
+    
+    var applications = new Array();
+
+    //fetches all applications information; and generates the UI list.
+    jagg.post("../blocks/dashboard/get/ajax/list.jag", {
+        action : "listappswithdetails"
+    }, function(result) {
+        if (result != undefined) {
+            var parsedArray = jQuery.parseJSON(result);
+            applications = parsedArray;
+
+            for (var index = 0; index < parsedArray.length; index++) {
+                var application = parsedArray[index];
+
+                var listItem = $("<li></li>");
+                var link = $("<a></a>");
+                link.attr("href", "/appmgt/site/pages/application.jag?applicationName=" + application.name + "&applicationKey=" + application.key);
+                link.text(application.name);
+
+                listItem.append(link);
+                $("#applist").append(listItem);
+            }
+        }
+    }, function(jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content : 'Error loading all applications',
+            type : 'error'
+        });
+    });
+
+    //get build information
+    jagg.post("../blocks/dashboard/get/ajax/list.jag", {
+        action : "buildinfo"
+    }, function(result) {
+
+        var parsedArray = jQuery.parseJSON(result);
+        for (var i = 0; i < parsedArray.length; i++) {
+            var name = parsedArray[i].name;
+            var value = parsedArray[i].value;
+
+            if (name == 'Aborted') {
+                $("#aborted").html(value);
+            } else if (name == 'Unstable') {
+                $("#unstable").html(value);
+            } else if (name == 'Not Build') {
+                $("#notbuild").html(value);
+            } else if (name == 'Successful') {
+                $("#success").html(value);
+            } else if (name == 'Failed') {
+                $("#failed").html(value);
+            }
+        }
+    }, function(jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content : 'Error loading build information',
+            type : 'error'
+        });
+    });
+
+    //get applications of user
+    jagg.post("../blocks/dashboard/get/ajax/list.jag", {
+        action : "appsperuser"
+    }, function(result) {
+
+		if (result != undefined) {
+
+            var parsedResult = jQuery.parseJSON(result);
+            var elementArray = parsedResult.labels;
+            var chartData = new Array();
+
+            for (var i = 0; i < elementArray.length; i++) {
+                chartData[elementArray[i].value -1] = elementArray[i].data;
+            }
+
+            require([
+            // Require the basic chart class
+            "dojox/charting/Chart",
+
+            // Require the theme of our choosing
+            "dojox/charting/themes/Tom",
+
+            // Charting plugins:
+
+            //  We want to plot Columns
+            "dojox/charting/plot2d/Columns",
+
+            //  We want to use Markers
+            "dojox/charting/plot2d/Markers",
+
+            //  We'll use default x/y axes
+            "dojox/charting/axis2d/Default",
+
+            // Wait until the DOM is ready
+            "dojo/domReady!"], function(Chart, theme) {
+
+                // Create the chart within it's "holding" node
+                var chart = new Chart("appsperuser");
+
+                // Set the theme
+                chart.setTheme(theme);
+
+                // Add the only/default plot
+                chart.addPlot("default", {
+                    type : "Columns",
+                    markers : true,
+                    gap : 1
+                });
+
+                // Add axes
+                chart.addAxis("x", parsedResult);
+                chart.addAxis("y", {
+                    vertical : true,
+                    fixLower : "major",
+                    fixUpper : "major",
+                    includeZero : true
+                });
+
+                // Add the series of data
+                chart.addSeries("Versions in lifecycles", chartData);
+
+                // Render the chart!
+                chart.render();
+            });
+        }
+        
+    }, function(jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content : 'Error loading applications for user',
+            type : 'error'
+        });
+    });
+
+    //get versions in lifecycle
+    jagg.post("../blocks/dashboard/get/ajax/list.jag", {
+        action : "versionslifecycle"
+    }, function(result) {
+
+        if (result != undefined) {
+
+            var parsedResult = jQuery.parseJSON(result);
+            var elementArray = parsedResult.labels;
+            var chartData = new Array();
+
+            for (var i = 0; i < elementArray.length; i++) {
+                chartData.push(elementArray[i].data)
+            }
+
+            require([
+            // Require the basic chart class
+            "dojox/charting/Chart",
+
+            // Require the theme of our choosing
+            "dojox/charting/themes/Tom",
+
+            // Charting plugins:
+
+            //  We want to plot Columns
+            "dojox/charting/plot2d/Columns",
+
+            //  We want to use Markers
+            "dojox/charting/plot2d/Markers",
+
+            //  We'll use default x/y axes
+            "dojox/charting/axis2d/Default",
+
+            // Wait until the DOM is ready
+            "dojo/domReady!"], function(Chart, theme) {
+
+                // Create the chart within it's "holding" node
+                var chart = new Chart("versionslifecycle");
+
+                // Set the theme
+                chart.setTheme(theme);
+
+                // Add the only/default plot
+                chart.addPlot("default", {
+                    type : "Columns",
+                    markers : true,
+                    gap : 1
+                });
+
+                // Add axes
+                chart.addAxis("x", parsedResult);
+                chart.addAxis("y", {
+                    vertical : true,
+                    fixLower : "major",
+                    fixUpper : "major"
+                });
+
+                // Add the series of data
+                chart.addSeries("Versions in lifecycles", chartData);
+
+                // Render the chart!
+                chart.render();
+            });
+        }
+    }, function(jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content : 'Error loading applications for user',
+            type : 'error'
+        });
+    });
+	
+	/**
+    //get applications with versions
+    jagg.post("../blocks/dashboard/get/ajax/list.jag", {
+        action : "appswithversions"
+    }, function(result) {
+
+        if (result != undefined) {
+
+            var parsedResult = jQuery.parseJSON(result);
+            var elementArray = parsedResult.labels;
+            var chartData = new Array();
+
+            for (var i = 0; i < elementArray.length; i++) {
+                chartData.push(elementArray[i].data);
+            }
+
+            require([
+            // Require the basic chart class
+            "dojox/charting/Chart",
+
+            // Require the theme of our choosing
+            "dojox/charting/themes/Claro",
+
+            // Charting plugins:
+
+            //  We want to plot Columns
+            "dojox/charting/plot2d/Columns",
+
+            //  We want to use Markers
+            "dojox/charting/plot2d/Markers",
+
+            //  We'll use default x/y axes
+            "dojox/charting/axis2d/Default",
+
+            // Wait until the DOM is ready
+            "dojo/domReady!"], function(Chart, theme) {
+
+                // Create the chart within it's "holding" node
+                var chart = new Chart("appswithversions");
+
+                // Set the theme
+                chart.setTheme(theme);
+
+                // Add the only/default plot
+                chart.addPlot("default", {
+                    type : "Columns",
+                    markers : true,
+                    gap : 1
+                });
+
+                // Add axes
+                chart.addAxis("x", parsedResult);
+                chart.addAxis("y", {
+                    vertical : true,
+                    fixLower : "major",
+                    fixUpper : "major",
+                    includeZero : true
+                });
+
+                // Add the series of data
+                chart.addSeries("Popular Apps with versions", chartData);
+
+                // Render the chart!
+                chart.render();
+            });
+        }
+    }, function(jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content : 'Error loading applications for user',
+            type : 'error'
+        });
+    });
+	*/appswithversions
+    /* The applications list is filtered by the below javascript.*/
+    $(document).ready(function() {
+        $("#search").bind("keyup", function() {
+
+            $("#applist").html("");
+            var _finder = $(this).val();
+            var _typingPattern = new RegExp($(this).val(), "gi");
+
+            jQuery.grep(_applications, function(element, index) {
+
+                var _href = "/appmgt/site/pages/application.jag?applicationName=" + element.name + "&applicationKey=" + element.key;
+
+                if (element.name.match(_typingPattern) != null) {
+                    var _matcher = element.name.match(_typingPattern);
+
+                    var _listItem = $("<li></li>");
+                    var _link = $("<a></a>");
+                    _link.attr("href", _href);
+
+                    if (_finder.length > 1) {
+                        var _pre = element.name.substr(0, element.name.indexOf(_matcher));
+                        var _highlight = element.name.substr(element.name.indexOf(_matcher), (_finder.length));
+                        var _rest = element.name.substr(element.name.indexOf(_matcher) + (_finder.length), element.name.length);
+
+                        //console.info(_pre+","+_highlight+","+_rest);
+
+                        var _text = _pre + "<b style=\"background-color:yellow;\">" + _highlight + "</b>" + _rest;
+
+                        _link.html(_text);
+                    } else {
+                        _link.text(element.name);
+                    }
+                    _listItem.append(_link);
+                    $("#applist").append(_listItem);
+                }
+            });
+
+            if ($("#applist").children().length == 0) {
+                var _listItem = $("<li></li>").css('width', '100%');
+                _listItem.html("Sorry! <br/>No matches found!");
+                $("#applist").append(_listItem);
+            }
+        });
+    });
+
+    //]]
+</script>
+
+<!--START breadcrumb section-->
+<div class="container breadcrumb-section">
+    <div class="row">
+        <div class="span12">
+            <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Applications</a>
+            >
+            Dashboard
+            </div>
+    </div>
+</div>
+<!--END breadcrumb section-->
+
+<div class="container-fluid dashboard-top-strip-wrapper">
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="container">
+                <div class="row">
+                    <h1>Dashboard</h1>
+                    <p>
+                        Overall view about all applications.
+                    </p>
+                </div>
+                <div class="dashboard-top-strip-title"></div>
+                <div class="row dotted-wrapper">
+                    <div class="span6">
+                        <h2>Number Of Users Per Application Range</h2>
+                        <div id="appsperuser" style="width:450px;height:250px;padding:10px;"></div>
+                    </div>
+                    <div class="span6">
+                        <h2>Application Versions In Life-Cycle Stages</h2>
+                        <div id="versionslifecycle" style="width:450px;height:250px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid dashboard-second-strip-wrapper">
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="container">
+                <div class="dashboard-second-strip-title"></div>
+                <div class="row dotted-wrapper">
+                    <div class="span6">
+                        <h2>Build Status - Last 24 Hours</h2>
+                        <div>
+                            <div>
+                                Aborted - <span id="aborted"/>
+                            </div>
+                            <div>
+                                Not Build - <span id="notbuild"/>
+                            </div>
+                            <div>
+                                Unstable - <span id="unstable"/>
+                            </div>
+                        </div>
+                        <div class="build-state-wrapper">
+                            <div class="chart-success-box">
+                                <div class="success-head">
+                                    Success
+                                </div>
+                                <div class="success-content"><span id="success"/>
+                                </div>
+                            </div>
+                            <div class="chart-fail-box">
+                                <div class="fail-head">
+                                    Failed
+                                </div>
+                                <div class="fail-content"><span id="failed"/>
+                                </div>
+                            </div>
+
+                            <div class="chart-all-ran">
+                            </div>
+                        </div>
+
+                    </div>
+                    <!--
+                    <div class="span6">
+                        <h2>Versions In Applications</h2>
+                        <div id="appswithversions" style="width:450px;height:250px;"></div>
+                    </div>-->
+                    <div class="span6">
+                        <h2>All Applications</h2>
+                        <input id="search" type="text" placeholder="Filter by name..."/>
+                        <ul id="applist" style="overflow-y:auto;height:200px;padding:15px;">
+
+                        </ul>
+                    </div>
+                </div>
+                <!--
+                <div class="row">
+
+                    <div class="span6"></div>
+                </div>
+                -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<% }); %>

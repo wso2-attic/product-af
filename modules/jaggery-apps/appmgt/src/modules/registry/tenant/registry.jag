@@ -1,0 +1,56 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/registry/tenant/registry.jag');
+
+var modManager = jagg.module("manager");
+var tenantDomain=modManager.getTenantDomain();
+
+var carbon = require('carbon');
+var multitenancy = carbon.multitenancy;
+var context=multitenancy.getPrivilegedCarbonContext();
+var tenantManager= multitenancy.getTenantManager();
+var tenantId = tenantManager.getTenantId(tenantDomain);
+var serverUrl = getProperty(APPFACTORY_SERVER_URL);
+var options = {system: true , domain: tenantDomain , tenantId: tenantId};
+var registry = new carbon.registry.Registry(serverUrl, options);
+
+var createResourceInTenantSpace = function (path, content, type) {
+	jagg.module("permission").checkUserAuthenticated();
+	try {
+		var resource = {mediaType: type, content: content};
+		var result = registry.put(path, resource );
+	} catch (e) {
+        log.error("Error while storing tenant space registry resource \n" + e.message);
+        throw "Error while storing tenant space registry resource";
+    }
+};
+
+var getResourceFromTenantSpace = function (path) {
+	jagg.module("permission").checkUserAuthenticated();
+	try {
+		return registry.get(path);
+	} catch (e) {
+        log.error("Error while retriving tenant space registry resource \n" + e.message);
+        throw "Error while retriving tenant space registry resource";
+    }
+};
+
+//checks whether any resource exists in the given path
+var resourceExistsInTenantSpace = function (path) {
+    jagg.module("permission").checkUserAuthenticated();
+    try {
+        if (registry.exists(path)) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        log.error("Error while accessing tenant space registry resource \n" + e.message);
+        return false;
+    }
+};
+
+%>

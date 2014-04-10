@@ -1,0 +1,13 @@
+<%
+    var ISSUE_TRACKER_URL = "url";
+    var LOGGED_IN_USER = "LOGGED_IN_USER";
+    var DOMAIN = "DOMAIN";
+    var IS_LOGGED = "IS_LOGGED";
+
+    var CONFIG_ISSUE = "CONFIG_ISSUE";
+    var CONFIG_ISSUE_TYPE = "Issue.Type";
+    var CONFIG_ISSUE_PRIORITY = "Issue.Priority";
+    var CONFIG_ISSUE_STATUS = "Issue.Status";
+    var CONFIG_ISSUE_SEVERITY = "Issue.Severity";
+
+%>

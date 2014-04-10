@@ -1,0 +1,156 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log=new Log();
+
+(function () {
+
+    var mod, obj, result, response,
+    action = request.getParameter("action"),
+    site = require("/site/conf/site.json");
+    var modPermission = jagg.module("permission");
+      
+    if(action=="getbuildandrepodata"){
+
+        var modBuild = jagg.module("build");
+        
+        //gathering request parameters
+        var applicationKey = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        var isRoleBasedPermissionAllowed = request.getParameter("isRoleBasedPermissionAllowed");
+        var metaDataNeed = request.getParameter("metaDataNeed");
+        var buildableforstage = request.getParameter("buildableforstage");
+
+        modApp = jagg.module("application");
+
+        if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)){
+            //calling module app
+            var x = modApp.getAppVersionsInStages(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed);
+            var appInfo=parse(x);
+
+            var buildableStages=parse(modApp.getBuildableStages());
+            var appDetails=[];
+
+            for(var appIndex in appInfo ){
+                var elementAppInfo=appInfo[appIndex];
+
+                //Identifying separately whether artifact type is buildable or non-buildable.
+                var isBuildableArtifact = getProperty("ApplicationType." + elementAppInfo.type + ".Property.Buildable");
+
+                var versions=elementAppInfo.versions;
+
+                for(var index in versions){
+
+
+                    var tempAppDetail={};
+                    var version={};
+                    var build={};
+                    var deployment={};
+                    var versionElement=versions[index];
+
+                    version.current=versionElement.version;
+                    version.stage=versionElement.stage;
+                    version.artifactType=elementAppInfo.type;
+                    version.isBuildableArtifact = isBuildableArtifact ;
+                    version.parent=" ";
+                    version.repoURL=versionElement.repoURL;
+                    version.isAutoDeploy=versionElement.isAutoDeploy;
+                    version.isAutoBuild=versionElement.isAutoBuild;
+                    version.currentBuildStatus=versionElement.currentBuildStatus;
+
+                    var buildInfo=versionElement.lastBuildResult.split(' ');
+                    build.lastBuildId=buildInfo[1];
+                    build.status=buildInfo[2];
+                    build.triggeredBy="";
+                    build.triggeredTime="";
+
+                    deployment.deployedBuildId=versionElement.deployedBuildId;
+                    deployment.triggeredBy="";
+                    deployment.triggeredTime="";
+                    tempAppDetail.type=appInfo[0].type;
+                    tempAppDetail.version=version;
+                    tempAppDetail.build=build;
+                    tempAppDetail.deployment=deployment;
+
+                    appDetails.push(tempAppDetail);
+                }
+            }
+            appDetails.buildableStages=buildableStages;
+            print(appDetails);
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get build and repo data";
+            print(response);
+        }
+
+
+    }else if(action=="getJenkinsURL"){
+        modManager = jagg.module("manager");
+        var response = {};
+        if (modPermission.isUserAccessGrantedForPlatform(PERMISSION_BUILD)){
+            var tenantDomain = modManager.getTenantDomain();
+            var jenkinsUrl = getProperty(BASE_URL) + "/t/" + tenantDomain + "/webapps/jenkins";
+
+            print(stringify(jenkinsUrl));
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to check the application key availability";
+            print(response);
+        }
+
+
+    }else if(action=="createCodeEnvyUrl"){
+        modManager = jagg.module("manager");
+        var response = {};
+        var gitUrl = request.getParameter("gitURL");
+        var applicationKey = request.getParameter("applicationKey");
+        var version = request.getParameter("version");
+        var appType = request.getParameter("appType");
+        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_BUILD)){
+
+            var codeEnvyUrl = getProperty(CODENVY_BASE_URL);
+            var codeEnvyApiVersion = getProperty(CODENVY_API_VERSION);
+            var projectName = applicationKey + "_project";
+            var workspanceName =  applicationKey + "_workspace";
+            var versionControlSystem = getProperty(CODENVY_VCS_TYPE);
+            var vcsUrl = gitUrl;
+            var action = "openproject";
+            var repoType = "Jar";
+
+            if(appType=="war"){
+                repoType = "War";
+            }else if(appType=="jaxrs"){
+                repoType = "War"
+            }else if(appType=="jaxws"){
+                repoType = "War"
+            }else if(appType=="jaggery"){
+                repoType = "JavaScript";
+            }else{
+                repoType = "default";
+            }
+
+            if(version=="trunk"){
+                version = "master";
+            }
+
+            var nonEncodedUrl = codeEnvyUrl + "?v=" + codeEnvyApiVersion + "&pname=" + projectName +
+                    "&wname=" + workspanceName +
+                    "&vcs="+ versionControlSystem + "&vcsurl=" +
+                    vcsUrl + "&action=" + action + "&ptype=" + repoType +
+                    "&vcsinfo=true&vcsbranch="+version;
+            print(nonEncodedUrl);
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get the codenvy URL";
+            print(response);
+        }
+
+
+    }else {
+        throw new Error("No action specified"+action);
+    }
+
+}());
+%>
+

@@ -1,0 +1,40 @@
+<%
+var caramel;
+
+(function () {
+    var login = require('/modules/login.js');
+    if(!login.isLogged()){
+        return;
+    }
+
+    issue = require('/modules/issue.js'),
+    project = require('/modules/project.js');
+    user = require('/modules/user.js');
+
+    var issuePkey = request.getParameter('issuePkey');
+    var projectKey = request.getParameter('projectKey');
+    var issueRes = issue.getIssueByKey(issuePkey);
+	caramel = require('caramel');
+
+    include('/jagg/jagg.jag');
+
+	userName = context.get(LOGGED_IN_USER);
+	domain = context.get(DOMAIN);
+
+    caramel.render({
+            title  : { text : 'Issue Tracker | Edit Issue'},
+            header : { domain : domain, userName : userName},
+            body : {
+                        project: project.getProjectsOfDomain(),
+                        issue : issueRes.issue,
+                        projectKey: issueRes.projectKey,
+                        version : project.getAllVersionOfProject(projectKey),
+                        isSameUser : (issueRes.issue.reporter == userName),
+                        users: user.getUsersOfDomain()
+                    }
+        });
+}());
+%>
+
+
+

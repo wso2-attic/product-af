@@ -1,0 +1,38 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "setAutoDeployment") {
+    	mod = jagg.module("lifecycle");
+	    var applicationKey = request.getParameter("applicationKey");
+	    var stageName = request.getParameter("stageName");
+	    var version = request.getParameter("version");
+	    var isEnable = request.getParameter("isEnable");
+	    try {
+	        print(mod.updateAutoDeployment(applicationKey, stageName, version, isEnable));
+	    } catch (e) {
+	    	throw e.message;
+	    }
+
+    }else if(action == "setAutoBuild"){
+	mod = jagg.module("lifecycle");
+	var applicationKey = request.getParameter("applicationKey");
+	var stageName = request.getParameter("stageName");
+	var version = request.getParameter("version");
+	var isEnable = request.getParameter("isEnable");
+	try {
+		print(mod.updateAutoBuild(applicationKey, stageName, version, isEnable));
+	} catch (e) {
+	    throw e.message;
+	}
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

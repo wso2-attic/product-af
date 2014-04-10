@@ -1,0 +1,142 @@
+<% jagg.template("password-change", function(inputs, outputs, jagg) { %>
+<script type="text/javascript">
+    function changePassword() {
+        console.log("in the post call");
+        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
+                    action: "changePassword",
+                    newPassword:$('#password').attr('value'),
+                    oldPassword:$('#old_password').attr('value')
+                },
+
+                function (result) {
+
+                    window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>");
+
+                },
+
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.removeMessage('pwChange');
+                    jagg.message({
+                        content: 'Authentication Failed, Enter correct old password',
+                        type: 'error',
+                        id:'pwChange'
+                    });
+
+                });
+    }
+    function passwordComparisonHandling(isMatching){
+        if(!isMatching){
+            //show error message
+            $('#pwdError').css("display","inline");
+            $('#password2').addClass('error');
+            //add error class to passowrd 2 textbox
+        }else{
+            $('#pwdError').css("display","none");
+            $('#password2').removeClass('error');
+        }
+
+
+    }
+    $(document).ready(function(){
+        jagg.message({
+            content: 'Please change your default password',
+            type: 'warning',
+            id:'pwChange'
+        });
+
+        $('#password2').focusout(function(){
+            passwordComparisonHandling($('#password').attr('value')==this.value)
+        });
+        $('#password').focus(function(){
+            jagg.removeMessage('enterNewPassword');
+        });
+        $('#password2').focus(function(){
+            jagg.removeMessage('enterNewPassword');
+        });
+
+        $('#old_password').focus(function(){
+            jagg.removeMessage('pwChange');
+            jagg.removeMessage('enterNewPassword');
+        });
+
+
+        $('#btnSubmit').click(function(){
+            var password=$('#password').attr('value');
+            var password2=$('#password2').attr('value');
+            if((password == null || password == "") && (password2 == null || password2 == "")){
+               jagg.message({
+                   content: 'Please enter a new password',
+                   type: 'error',
+                   id: 'enterNewPassword'
+                   });
+            }
+            else if(password===password2){
+                passwordComparisonHandling(true);
+                changePassword();
+            }else{
+                passwordComparisonHandling(false);
+            }
+
+
+        });
+    });
+
+
+
+
+</script>
+<div class="container">
+
+    <article class="main">
+
+        <% jagg.includeBlock("page/messages", null); %>
+        <header class="separator">
+            <div class="content">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb_item"><a class="breadcrumb_link" href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Home</a></li>
+                    <li class="breadcrumb_item"><h1>Change Password</h1></li>
+                </ol>
+            </div>
+        </header>
+        <section class="separator">
+            <div class="mini_content well">
+                <div class="form-container" name="#">
+
+                            <!--  <select class="select_list_custom select2-input" id="allUsersList" type="text"></select>     -->
+                               <form class="right_label hold" onsubmit="return(false)">
+                                    <fieldset>
+                                <div class="input_row">
+                                <label for="old_password">Old Password</label>
+                                    <input type="password" id="old_password" name="password" class="required password"/>   </br>
+                                </div>
+                                <div class="input_row">
+                                <label>New Password</label>
+
+                                <input type="password" id="password" name="password" class="required password"/>   </br>
+                                </div>
+                                <div class="input_row">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="password2" name="password2" class="required password_match"/>
+                                    <span for="password2" generated="true" class="error" style="display:none;" id="pwdError">Password does not match</span>
+                                </div>
+                                <div class="buttonrow">
+                                <button class="btn sub" id="btnSubmit">Submit</button>
+                                </div>
+                                    </fieldset>
+                               </form>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </section>
+
+        <div class="clearfix"></div>
+    </article>
+</div><!-- /container -->
+<input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
+<input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
+
+
+
+
+
+        <% }); %>

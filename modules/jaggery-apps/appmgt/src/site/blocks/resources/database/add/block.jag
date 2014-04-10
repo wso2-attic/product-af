@@ -1,0 +1,13 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("resources/database/add", {
+    initialize:function (data) {
+
+    },
+    getInputs: function () {
+        return {
+            "applicationKey": null
+        }
+    }
+  });
+%>

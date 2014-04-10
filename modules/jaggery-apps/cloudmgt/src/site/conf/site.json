@@ -1,0 +1,12 @@
+{
+    "theme" : {
+        "base" : "default"
+    },
+    "context" : "/cloudmgt",
+    "recentAPIsCount" : 5,
+    "topRatedCount" : 5,
+    "defaultUser" : {
+        "username" : "admin",
+        "password" : "admin"
+    }
+}

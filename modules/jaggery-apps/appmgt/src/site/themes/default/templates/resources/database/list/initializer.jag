@@ -1,0 +1,8 @@
+<%
+jagg.initializer("resources/database/list", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

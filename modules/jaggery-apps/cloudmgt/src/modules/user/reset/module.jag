@@ -1,0 +1,8 @@
+<%
+jagg.module("user/reset", {
+confirmUser: function () {
+        return jagg.require(jagg.getModulesDir() + "user/reset/reset.jag").confirmUser.apply(this, arguments);
+    },
+   
+});
+%>

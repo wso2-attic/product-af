@@ -1,0 +1,905 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log("module/lifecycle/lifecycle.jag");
+
+var modApplication = jagg.module("application");
+var modManager = jagg.module("manager");
+//var modResource = jagg.module("resource");
+
+var carbon = require('carbon');
+var server = carbon.server;
+var appfactory = require('appFactory');
+var multitenancy = carbon.multitenancy;
+
+var invokeCreateArtifact = function invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName) {
+    var tenantDomain = modManager.getTenantDomain();
+    var loggedInUser = session.get("LOGGED_IN_USER");
+    var userName = "";
+    if (loggedInUser != null) {
+        userName = loggedInUser.split("@")[0];
+    }
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        context.getThreadLocalCarbonContext().setUsername(userName);
+        if (doDeploy == "true") {
+            server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(true), stage, tagName);
+        }
+        else {
+            server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(false), stage, tagName);
+        }
+    } finally {
+        context.endTenantFlow();
+    }
+
+};
+
+var invokeDeployToStage = function invokeDeployToStage(applicationKey, revision, version, stageName, build) {
+    var deployToStagePermission = PERMISSION_DEPLOY_TO + stageName;
+    jagg.module("permission").checkUserActionPermission(applicationKey, deployToStagePermission);
+    var ws = require('ws');
+    var deployApplicationToStageProcess = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.mep = "in-only";
+    options.action = "http://wso2.org/process";
+
+    var payload = '<p:DeployToStageRequest xmlns:p="http://wso2.org"><p:applicationId>' + applicationKey + '</p:applicationId><p:revision>' + revision + '</p:revision><p:version>' + version + '</p:version><p:stage>' + stageName + '</p:stage><p:build>' + build + '</p:build></p:DeployToStageRequest>';
+    var result;
+
+    try {
+        var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.ProcessEndPoint');
+        deployApplicationToStageProcess.open(options, endPoint, false);
+        deployApplicationToStageProcess.send(payload);
+        result = deployApplicationToStageProcess.responseE4X;
+
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+        }
+    } catch (e) {
+        log.error("Error while deploying to " + stageName + "\n" + e.message);
+        throw "Error while deploying to " + stageName;
+    }
+};
+
+var addGenericArtifact = function addGenericArtifact(key, content, lifecycleAttribute) {
+
+    var ws = require('ws');
+    var manageGenericArtifactService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:addArtifact";
+    options["HTTPHeaders"] =
+            [
+                {
+                    name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+                }
+            ];
+    var payload = "";
+
+    if (lifecycleAttribute == null) {
+        payload = '<ser:addArtifact xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+                '<ser:key>' + key + '</ser:key>' +
+                '<ser:info>' + content + '</ser:info>' +
+                '</ser:addArtifact>';
+    }
+    else {
+        payload = '<ser:addArtifact xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+                '<ser:key>' + key + '</ser:key>' +
+                '<ser:info>' + content + '</ser:info>' +
+                '<ser:lifecycleAttribute>' + lifecycleAttribute + '</ser:lifecycleAttribute>' +
+                '</ser:addArtifact>';
+    }
+    var result;
+    try {
+        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+        manageGenericArtifactService.open(options, endPoint, false);
+        manageGenericArtifactService.send(payload);
+        result = manageGenericArtifactService.responseE4X;
+
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint: " + endPoint + " returned result: " + result);
+        }
+        return result;
+    } catch (e) {
+        log.error("Error in calling manage generic artifact service " + e.toString());
+        throw "Error in calling manage generic artifact service " + e.toString();
+    }
+
+};
+
+function invokeAspectWithParameter(path, aspect, action, items, parameters, currentStage) {
+    if (action == "Promote") {
+        var nextStage = getNextLifeCycleStage(currentStage);
+        jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage);
+    } else if (action == "Demote") {
+        var previousStage = getPreviousLifeCycleStage(currentStage);
+        jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_DEMOTE_TO + previousStage);
+    } else if (action == "Retire") {
+        jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_RETIRE);
+    }
+    var ws = require('ws');
+    var customCheckListAdminService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.mep = 'in-only';
+    options.action = "urn:invokeAspectWithParams";
+    options["HTTPHeaders"] =
+            [
+                {
+                    name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+                }
+            ];
+    var payload = '<ser:invokeAspectWithParams' +
+            ' xmlns:ser=\'http://services.checklist.lifecycles.custom.governance.carbon.wso2.org\'>' +
+            '<ser:path>' + path + '</ser:path>' +
+            '<ser:aspect>' + aspect + '</ser:aspect>' +
+            '<ser:action>' + action + '</ser:action>';
+
+    // If life cycle items are defined send them in payload.
+    if (items != null && items.length > 0) {
+        for (i = 0; i < items.length; i++) {
+            payload = payload + '<ser:items>' + items[i] + '</ser:items>';
+        }
+    } else {
+        payload = payload + '<ser:items></ser:items>';
+    }
+
+
+    if (parameters.length >= 2) {
+        for (var i = 0; i < parameters.length;) {
+            payload = payload + '<ser:parameters><ser:array>' + parameters[i] + '</ser:array>' + '<ser:array>' + parameters[++i] + '</ser:array></ser:parameters>';
+            i++;
+        }
+    }
+    payload = payload + '</ser:invokeAspectWithParams>';
+    var result;
+
+    try {
+        var endPoint = getProperty(GREG_SERVER_URL) + "CustomLifecyclesChecklistAdminService";
+        customCheckListAdminService.open(options, endPoint, false);
+        customCheckListAdminService.send(payload);
+        result = customCheckListAdminService.responseE4X;
+
+        log.debug("Invoking service endpoint: " + endPoint + " returned result: " + result);
+
+        return result;
+    } catch (e) {
+        log.error("Error in calling CustomLifecyclesChecklistAdminService " + e.toString());
+        throw "Error in calling CustomLifecyclesChecklistAdminService " + e.toString();
+    }
+};
+
+function invokeDoVersion(applicationKey, srcVersion, targetVersion) {
+    jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_REPOSITORY_BRANCH);
+
+
+    var doBranchResult, versionCreationEventResult;
+    var tenantDomain = modManager.getTenantDomain();
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+
+
+    var versionCreationEventPayload =
+            '<ser:publishApplicationVersionCreation xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+                    '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
+                    '<ser:sourceVersion>' + srcVersion + '</ser:sourceVersion>' +
+                    '<ser:targetVersion>' + targetVersion + '</ser:targetVersion>' +
+                    '</ser:publishApplicationVersionCreation>';
+
+
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        doBranchResult = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
+                branch(applicationKey, srcVersion, targetVersion, "HEAD", tenantDomain);
+
+        var key = 'appversion';
+        var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
+                '<appversion>' +
+                '<key>' + applicationKey + '</key>' +
+                '<version>' + targetVersion + '</version>' +
+                '<autodeployment>false</autodeployment>' +
+                '<isAutoBuild>true</isAutoBuild>' +
+                '<isAutoDeploy>true</isAutoDeploy>' +
+                '</appversion>' +
+                '<serviceLifecycle><lifecycleName>' + LIFE_CYCLE_NAME + '</lifecycleName></serviceLifecycle>' +
+                '</metadata>]]>';
+        var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
+        addGenericArtifact(key, content, lifecycleAttribute);
+
+        //Finally notify application management service about the version addition.
+        var publishVersionAddEvent = new ws.WSRequest();
+        var publishVersionAddOptions = new Array();
+        publishVersionAddOptions.useSOAP = 1.1;
+        publishVersionAddOptions.action = "urn:publishApplicationVersionCreation";
+        publishVersionAddOptions["HTTPHeaders"] = [
+            {
+                name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+            }
+        ];
+        var publishVersionAddEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+        publishVersionAddEvent.open(publishVersionAddOptions, publishVersionAddEndpoint, true);
+        publishVersionAddEvent.send(versionCreationEventPayload);
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + publishVersionAddEndpoint);
+        }
+
+        return "true";
+    } catch (e) {
+        log.error("Error while branching\n" + e.message);
+        throw "Error while branching";
+    } finally {
+        context.endTenantFlow();
+    }
+
+};
+
+/*var invokeCreateArtifact = function invokeCreateArtifact(applicationKey,version,revision, stage, doDeploy, tagName){
+ jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_BUILD);
+ var ws = require('ws');
+ var createArtifactProcess = new ws.WSRequest();
+ var createArtifactAddOptions = new Array();
+ createArtifactAddOptions.useSOAP = 1.1;
+ createArtifactAddOptions.action = "urn:createArtifact";
+ createArtifactAddOptions["HTTPHeaders"] =[{
+ name:
+ "Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+ }];
+
+ var payload = '<p:createArtifact xmlns:p="http://build.core.appfactory.carbon.wso2.org">' +
+ '<p:applicationId>' + applicationKey + '</p:applicationId>' +
+ '<p:version>' + version + '</p:version>' +
+ '<p:revision>' + revision + '</p:revision>' +
+ '<p:doDeploy>' + doDeploy + '</p:doDeploy>'  +
+ '<p:deployStage>' + stage + '</p:deployStage>' +
+ '<p:tagName>' + tagName + '</p:tagName>' +
+ '</p:createArtifact>' ;
+
+ var createArtifactEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ArtifactCreator";
+ createArtifactProcess.open(createArtifactAddOptions, createArtifactEndpoint, true);
+ createArtifactProcess.send(payload);
+
+ if(log.isDebugEnabled()){
+ log.debug("Invoking service endpoint:"+ createArtifactEndpoint);
+ }
+ };*/
+
+
+function createLifeCycleCheckListItem(xmlObject) {
+
+    var KEY_STATUS = "status:";
+    var KEY_NAME = "name:";
+    var KEY_VALUE = "value:";
+    var KEY_ORDER = "order:";
+    var extractStringAfter = function (beginIndex, startString, fromStr) {
+        return fromStr.substring(beginIndex + startString.length);
+    }
+
+    var checkListItem = {};
+
+    checkListItem.key = xmlObject.*::key.text();
+
+    for each( var v
+in
+    xmlObject.*::values
+)
+    {
+        var text = v.text();
+
+        var index = text.indexOf(KEY_STATUS);
+        if (index != -1) {
+            // found the status
+            checkListItem.status = extractStringAfter(index, KEY_STATUS, text);
+            continue;
+        }
+
+        index = text.indexOf(KEY_NAME);
+        if (index != -1) {
+            // found name
+            checkListItem.name = extractStringAfter(index, KEY_NAME, text);
+            continue;
+        }
+
+        index = text.indexOf(KEY_VALUE);
+        if (index != -1) {
+            //found value ( true false)
+            checkListItem.value = extractStringAfter(index, KEY_VALUE, text);
+            continue;
+        }
+
+        index = text.indexOf(KEY_ORDER);
+        if (index != -1) {
+            // found the order
+            checkListItem.order = extractStringAfter(index, KEY_ORDER, text);
+            continue;
+        }
+    }
+
+    return checkListItem;
+};
+
+function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
+    // no need to secure, internal calls are already secured.
+    var appVersions = parse(modApplication.getAppVersionsInStages(applicationKey, userName, false, false, "true"));
+    var stages = parse(modApplication.getAllStages());
+    var stageVersions = new Object();
+    for (var i = 0; i < stages.length; i++) {
+        var versionArry = new Array();
+        var stageObject = new Object();
+        stageObject.stage = stages[i];
+        stageObject.versions = versionArry;
+        stageVersions[stages[i]] = stageObject;
+    }
+
+    var appVersionWithLifeCycleCheckLists = new Array();
+
+    for (var appVersionCounter = 0; appVersionCounter < appVersions.length; appVersionCounter++) {
+
+        var parsedAppVersionInfo = appVersions[appVersionCounter];
+
+        for (var i = 0; i < appVersions[appVersionCounter].versions.length; i++) {
+
+            var path = '/_system/governance' + '/repository/applications/' + applicationKey +
+                    '/' + appVersions[appVersionCounter].versions[i].version;
+
+            var result = getLifeCycleBean(path);
+
+            var elements = result.*::["return"].*::["lifecycleProperties"];
+
+            var lifeCycleCheckListItems = new Array();
+            var k = 0;
+
+            for each(var ele
+        in
+            elements
+        )
+            {
+                var key = ele.*::key;
+                var keyValue = key.text();
+
+                if (keyValue.indexOf("registry.custom_lifecycle.checklist.option") != -1 &&
+                        keyValue.indexOf("permission") < 0) { // we don't want to permission property
+                    var values = ele.*::values;
+                    lifeCycleCheckListItems[k++] = createLifeCycleCheckListItem(ele);
+                }
+            }
+
+            // ensure that intended order (in lifecycle definition) is preserved
+            lifeCycleCheckListItems.sort(function (listItem1, listItem2) {
+                return listItem1.order.localeCompare(listItem2.order)
+            });
+
+            appVersions[appVersionCounter].versions[i].lifeCycleCheckListItems = lifeCycleCheckListItems;
+            //skip the retired versions
+            if (stageVersions[appVersions[appVersionCounter].versions[i].stage]) {
+                stageVersions[appVersions[appVersionCounter].versions[i].stage].versions[i] = appVersions[appVersionCounter].versions[i];
+                stageVersions[appVersions[appVersionCounter].versions[i].stage].appKey = appVersions[appVersionCounter].key;
+            }
+        }
+
+        appVersionWithLifeCycleCheckLists[appVersionCounter] = appVersions[appVersionCounter];
+    }
+
+    return (stageVersions);
+};
+
+function getLifeCycleBean(path) {
+    jagg.module("permission").checkUserAuthenticated();
+    var ws = require('ws');
+    var customCheckListAdminService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:getLifecycleBean";
+    options["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+        }
+    ];
+
+    var payload = '<ser:getLifecycleBean ' +
+            ' xmlns:ser=\'http://services.checklist.lifecycles.custom.governance.carbon.wso2.org\'>' +
+            '<ser:path>' + path + '</ser:path>' +
+            '</ser:getLifecycleBean>'
+    var result;
+
+    try {
+        var endPoint = getProperty(GREG_SERVER_URL) + "CustomLifecyclesChecklistAdminService";
+        customCheckListAdminService.open(options, endPoint, false);
+        customCheckListAdminService.send(payload);
+        result = customCheckListAdminService.responseE4X;
+        return result;
+    } catch (e) {
+        log.error("Error in calling CustomLifecyclesChecklistAdminService :" + e.toString());
+        throw "Error in calling CustomLifecyclesChecklistAdminService : " + e.toString();
+    }
+};
+
+
+function getLifeCycleHistoryForApplication(key, version, stage, userName) {
+    jagg.module("permission").checkUserAuthenticated();
+    var pathPrefix = "/_system/governance/";
+    var relativePath = "repository/components/org.wso2.carbon.governance/lifecycles/history/__system_governance_repository_applications_" + key + "_" + version;
+    var path = pathPrefix + relativePath;
+    var resultJSON = [];
+
+    var result = getLifeCycleHistory(path);
+    var elements = result.*::["return"].text();
+    var xml = new XML(elements.toString(0));
+
+    for (var a = 0; a < xml.item.length(); a++) {
+        resultJSON[a] = {};
+        resultJSON[a].item = {};
+        resultJSON[a].item.order = xml.item[a].@order;
+        resultJSON[a].item.state = xml.item[a].@state;
+        resultJSON[a].item.targetState = xml.item[a].@targetState;
+        resultJSON[a].item.timestamp = xml.item[a].@timestamp;
+        resultJSON[a].item.user = xml.item[a].action.executors.executor.operations.data.user.text();
+        resultJSON[a].item.action = xml.item[a].action.executors.executor.operations.data.action.text();
+        try {
+            resultJSON[a].item.comment = xml.item[a].action.executors.executor.operations.data.comment.text();
+        } catch (e) {
+            //errors are ignored
+        }
+    }
+    return stringify(resultJSON);
+
+};
+
+
+function getLifeCycleHistory(path) {
+    jagg.module("permission").checkUserAuthenticated();
+    var ws = require('ws');
+    var resourceAdminService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:getTextContent";
+    options["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+        }
+    ];
+
+    var payload = '<ser:getTextContent ' +
+            ' xmlns:ser=\'http://services.resource.registry.carbon.wso2.org\'>' +
+            '<ser:path>' + path + '</ser:path>' +
+            '</ser:getTextContent>'
+    var result;
+
+    try {
+        var endPoint = getProperty(GREG_SERVER_URL) + "ResourceAdminService";
+        resourceAdminService.open(options, endPoint, false);
+        resourceAdminService.send(payload);
+        result = resourceAdminService.responseE4X;
+        log.info("Lifecycle History read for path :" + path);
+        return result;
+    } catch (e) {
+        log.error("Error in calling ResourceAdminService :" + e.toString());
+        throw "Error in calling ResourceAdminService : " + e.toString();
+    }
+};
+
+var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentStage, applicationID, revision, version, build, currentPath, aspect, deployAction, checkListItems, params, tagName, userName) {
+    jagg.module("permission").checkUserActionPermission(applicationID, PERMISSION_APPLICATION_MEMBER);
+    var ws = require('ws');
+    var governanceProcess = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.mep = "in-only";
+    options.action = "http://wso2.org/bps/sample/process";
+    options["rampart"] = { user: getProperty(ADMIN_USERNAME), userPassword: getProperty(ADMIN_PASSWORD) };
+    options["policy"] = <wsp:Policy xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+    wsu:Id="UTOverTransport">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <sp:TransportBinding
+                xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:TransportToken>
+                            <wsp:Policy>
+                                <sp:HttpsToken RequireClientCertificate="false" />
+                            </wsp:Policy>
+                        </sp:TransportToken>
+                        <sp:AlgorithmSuite>
+                            <wsp:Policy>
+                                <sp:Basic256 />
+                            </wsp:Policy>
+                        </sp:AlgorithmSuite>
+                        <sp:Layout>
+                            <wsp:Policy>
+                                <sp:Lax />
+                            </wsp:Policy>
+                        </sp:Layout>
+                        <sp:IncludeTimestamp />
+                    </wsp:Policy>
+                </sp:TransportBinding>
+                <sp:SignedSupportingTokens
+                xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                    <wsp:Policy>
+                        <sp:UsernameToken
+                        sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient" />
+                    </wsp:Policy>
+                </sp:SignedSupportingTokens>
+                <rampart:RampartConfig xmlns:rampart="http://ws.apache.org/rampart/policy">
+                    <rampart:encryptionUser>useReqSigCert</rampart:encryptionUser>
+                    <rampart:timestampPrecisionInMilliseconds>true</rampart:timestampPrecisionInMilliseconds>
+                    <rampart:timestampTTL>300</rampart:timestampTTL>
+                    <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
+                    <rampart:timestampStrict>false</rampart:timestampStrict>
+                    <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                    <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
+                    <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
+                </rampart:RampartConfig>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>;
+
+    var payload = '   <p:GovernanceBPELRequest xmlns:p="http://wso2.org/bps/sample">' +
+            '<p:action>' + action + '</p:action>' +
+            '<p:currentStage>' + currentStage + '</p:currentStage>' +
+            '<p:applicationID>' + applicationID + '</p:applicationID>' +
+            '<p:revision>' + revision + '</p:revision>' +
+            '<p:version>' + version + '</p:version>' +
+            '<p:build>' + build + '</p:build>' +
+            '<p:currentPath>' + currentPath + '</p:currentPath>' +
+            '<p:aspect>' + aspect + '</p:aspect>' +
+            '<p:deployAction>' + deployAction + '</p:deployAction>' +
+            '<p:checkListItems>' + checkListItems + '</p:checkListItems>' +
+            '<p:userName>' + userName + '</p:userName>';
+
+    if (params.length > 0) {
+//for (var index=0;index<params.length;index++) {
+
+        //payload += '<p:array>'+ params[index] + '</p:array>';
+//payload += '<p:parameters><p:array>'+params[index]+'</p:array><p:array>'+params[index+1]+'</p:array></p:parameters>';
+//index = index +1;
+//	}
+
+        for (var i = 0; i < params.length;) {
+            payload = payload + '<p:parameters><p:array>' + params[i] + '</p:array>' + '<p:array>' + params[++i] + '</p:array></p:parameters>';
+            i++;
+        }
+
+
+    } else {
+        payload += '<p:parameters><p:array></p:array></p:parameters>';
+    }
+    //'<p:array>'+ params + '</p:array>' +
+    payload += '<p:tagName>' + tagName + '</p:tagName>' +
+            '</p:GovernanceBPELRequest>';
+
+    var result;
+
+    try {
+        var endPoint = getProperty('ServerUrls.BPS') + 'GovernanceBPEL';
+        governanceProcess.open(options, endPoint, false);
+        governanceProcess.send(payload);
+        result = governanceProcess.responseE4X;
+
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+        }
+    } catch (e) {
+        log.error("Error while deploying to " + currentStage + "\n" + e.message);
+        throw "Error while deploying to " + currentStage;
+    }
+};
+
+var setAutoDeployment = function setAutoDeployment(applicationKey, stageName, previousVersion, nextVersion) {
+    jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_BUILD);
+    log.info("application key: " + applicationKey + "stage name: " + stageName + "previous version: " +
+            previousVersion + "next version: " + nextVersion);
+    var adVersionChangePayload =
+            '<ser:publishApplicationAutoDeploymentChange xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+                    '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
+                    '<ser:previousVersion>' + previousVersion + '</ser:previousVersion>' +
+                    '<ser:nextVersion>' + nextVersion + '</ser:nextVersion>' +
+                    '<ser:versionStage>' + stageName + '</ser:versionStage>' +
+                    '</ser:publishApplicationAutoDeploymentChange>';
+
+
+    var key = 'appversion';
+
+
+    var preVersionContent = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
+            '<appversion>' +
+            '<key>' + applicationKey + '</key>' +
+            '<version>' + previousVersion + '</version>' +
+            '<autodeployment>false</autodeployment>' +
+            '</appversion>' +
+            '<serviceLifecycle><lifecycleName>' + LIFE_CYCLE_NAME + '</lifecycleName></serviceLifecycle>' +
+            '</metadata>]]>';
+
+
+    var nextVersionContent = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
+            '<appversion>' +
+            '<key>' + applicationKey + '</key>' +
+            '<version>' + nextVersion + '</version>' +
+            '<autodeployment>true</autodeployment>' +
+            '</appversion>' +
+            '<serviceLifecycle><lifecycleName>' + LIFE_CYCLE_NAME + '</lifecycleName></serviceLifecycle>' +
+            '</metadata>]]>';
+
+    var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
+    if (previousVersion != "") {
+        editGenericArtifact(key, preVersionContent, lifecycleAttribute);
+    }
+    if (nextVersion != "") {
+        editGenericArtifact(key, nextVersionContent, lifecycleAttribute);
+    }
+
+    //Finally notify application management service about the adVersion Change.
+
+
+    if (log.isDebugEnabled()) {
+        log.debug("Start of Add version AD  change request");
+    }
+
+    // NEw WS request
+    var publishVersionADChangeEvent = new ws.WSRequest();
+    var publishVersionADChangeOptions = new Array();
+    publishVersionADChangeOptions.useSOAP = 1.1;
+    publishVersionADChangeOptions.action = "urn:publishApplicationAutoDeploymentChange";
+    publishVersionADChangeOptions["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }
+    ];
+    try {
+        var publishVersionADChangeEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+        publishVersionADChangeEvent.open(publishVersionADChangeOptions, publishVersionADChangeEndpoint, true);
+        publishVersionADChangeEvent.send(adVersionChangePayload);
+        if (log.isDebugEnabled()) {
+            log.debug("End of Add version AD  change request");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + publishVersionAddEndpoint);
+        }
+        return "true";
+    } catch (e) {
+        log.error("Error while branching\n" + e.message);
+        throw "Error while branching";
+    }
+};
+
+var editGenericArtifact = function editGenericArtifact(key, content, lifecycleAttribute) {
+    var ws = require('ws');
+    var manageGenericArtifactService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:editArtifact";
+    options["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+        }
+    ];
+    var payload = "";
+
+    if (lifecycleAttribute == null) {
+        payload = '<ser:addArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">' +
+                '<ser:key>' + key + '</ser:key>' +
+                '<ser:info>' + content + '</ser:info>' +
+                '</ser:addArtifact>';
+    }
+    else {
+        payload = '<ser:addArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">' +
+                '<ser:key>' + key + '</ser:key>' +
+                '<ser:info>' + content + '</ser:info>' +
+                '<ser:lifecycleAttribute>' + lifecycleAttribute + '</ser:lifecycleAttribute>' +
+                '</ser:addArtifact>';
+    }
+
+    var result;
+
+    try {
+        var endPoint = getProperty(GREG_SERVER_URL) + "ManageGenericArtifactService";
+        manageGenericArtifactService.open(options, endPoint, false);
+        manageGenericArtifactService.send(payload);
+        result = manageGenericArtifactService.responseE4X;
+
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+        }
+        return result;
+    } catch (e) {
+        log.error("Error in calling manage generic artifact service " + e.toString());
+        throw "Error in calling manage generic artifact service " + e.toString();
+    }
+};
+var getNextLifeCycleStage = function getNextLifeCycleStage(currentLifeCycleStage) {
+    return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Promote.TargetStage');
+
+};
+var getPreviousLifeCycleStage = function getPreviousLifeCycleStage(currentLifeCycleStage) {
+    return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Demote.TargetStage');
+};
+
+
+var getInitialLifeCycleStages = function getInitialLifeCycleStages() {
+    var stages = getProperties(DEPLOYMENT_STAGES);
+    var initialStages = [];
+
+    for (var i = 0; i < stages.length; i++) {
+        if (isInitialLifeCycleStage(stages[i])) {
+            initialStages.push(stages[i]);
+        }
+    }
+    return initialStages;
+};
+
+var getAllLifeCycleStages = function getAllLifeCycleStages() {
+     return  getProperties(DEPLOYMENT_STAGES);
+};
+
+
+var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage) {
+    return getPreviousLifeCycleStage(lifeCycleStage) === null;
+};
+
+var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, version, isEnable) {
+    jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+    log.info("Updating auto build status. \n Application key: " + applicationKey + " stage: " + stageName + " version: " + version + " isEnable: " + isEnable);
+
+    var setApplicationAutoBuildPayload =
+            '<ser:publishSetApplicationAutoBuild xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+                    '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
+                    '<ser:stage>' + stageName + '</ser:stage>' +
+                    '<ser:version>' + version + '</ser:version>' +
+                    '<ser:isAutoBuildable>' + isEnable + '</ser:isAutoBuildable>' +
+                    '</ser:publishSetApplicationAutoBuild>';
+
+    log.info("Calling auto build status update service.....................................");
+
+    var publishSetApplicationAutoBuildEvent = new ws.WSRequest();
+    var publishSetApplicationAutoBuildOptions = new Array();
+    publishSetApplicationAutoBuildOptions.useSOAP = 1.1;
+    publishSetApplicationAutoBuildOptions.action = "urn:publishSetApplicationAutoBuild";
+    publishSetApplicationAutoBuildOptions["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }
+    ];
+
+    try {
+        var publishSetApplicationAutoBuildEP = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+        publishSetApplicationAutoBuildEvent.open(publishSetApplicationAutoBuildOptions, publishSetApplicationAutoBuildEP, true);
+        publishSetApplicationAutoBuildEvent.send(setApplicationAutoBuildPayload);
+        if (log.isDebugEnabled()) {
+            log.debug("End of Add version AD  change request");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + publishSetApplicationAutoBuildEP);
+        }
+        return "true";
+    } catch (e) {
+        log.error("Error while branching\n" + e.message);
+        throw "Error while branching";
+    }
+
+
+    return "false";
+};
+
+var updateAutoDeployment = function updateAutoDeployment(applicationKey, stageName, version, isEnable) {
+    jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+    log.info(" updating auto deploy status. application key: " + applicationKey + " stage: " + stageName + " version: "
+            + version + " isEnable: " + isEnable);
+
+    var setApplicationAutoDeployPayload = '<ser:publishSetApplicationAutoDeploy xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+            '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
+            '<ser:stage>' + stageName + '</ser:stage>' +
+            '<ser:version>' + version + '</ser:version>' +
+            '<ser:isAutoDeployable>' + isEnable + '</ser:isAutoDeployable>' +
+            '</ser:publishSetApplicationAutoDeploy>';
+
+    log.info("Invoking auto deploy status update service...");
+
+    var publishSetApplicationAutoDeployEvent = new ws.WSRequest();
+    var publishSetApplicationAutoDeployOptions = new Array();
+    publishSetApplicationAutoDeployOptions.useSOAP = 1.1;
+    publishSetApplicationAutoDeployOptions.action = "urn:publishSetApplicationAutoDeploy";
+    publishSetApplicationAutoDeployOptions["HTTPHeaders"] = [
+        {
+            name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+        }
+    ];
+
+    try {
+        var publishSetApplicationAutoDeployEP = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+
+        publishSetApplicationAutoDeployEvent.open(publishSetApplicationAutoDeployOptions, publishSetApplicationAutoDeployEP, true);
+        publishSetApplicationAutoDeployEvent.send(setApplicationAutoDeployPayload);
+        if (log.isDebugEnabled()) {
+            log.debug("End of add version Auto deploy change request");
+            log.debug("Invoking service endpoint:" + publishSetApplicationAutoDeployEP);
+        }
+        return "true";
+    } catch (e) {
+        log.error("Error while branching\n" + e.message);
+        throw "Error while branching";
+    }
+
+    return "false";
+};
+
+function getLifecycleAction(path) {
+    jagg.module("permission").checkUserAuthenticated();
+    var actionNamespace = new Namespace("http://util.checklist.lifecycles.custom.governance.carbon.wso2.org/xsd");
+    var result = getLifeCycleBean(path);
+    var availableActions = result.*::["return"].*::["availableActions"];
+    var actions = availableActions.actionNamespace::["actions"];
+    var lifecycleActions = new Array();
+    var k = 0;
+    for each(var action in actions)
+    {
+        var value = action.text();
+        lifecycleActions[k++] = value;
+    }
+    return lifecycleActions;
+};
+
+function invokeDoFork(applicationKey, parentRepoUrl, userName, type) {
+    jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_REPOSITORY_FORK);
+
+
+    var doForkResult, versionCreationEventResult;
+    var tenantDomain = modManager.getTenantDomain();
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+
+
+    var forkEventPayload =
+            '<ser:createFork xmlns:ser="http://service.mgt.repository.appfactory.carbon.wso2.org">' +
+                    '<ser:parentRepoUrl>' + applicationKey + '</ser:parentRepoUrl>' +
+                    '<ser:userName>' + userName + '</ser:userName>' +
+                    '<ser:type>' + type + '</ser:type>' +
+                    '</ser:createFork>';
+
+
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        doForkResult = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
+                createFork(parentRepoUrl, userName, type);
+
+        //Finally notify application management service about the application fork.
+        var publishForkRepoEvent = new ws.WSRequest();
+        var publishForkRepoOptions = new Array();
+        publishForkRepoOptions.useSOAP = 1.1;
+        publishForkRepoOptions.action = "urn:publishForkRepository";
+        publishForkRepoOptions["HTTPHeaders"] = [
+            {
+                name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+            }
+        ];
+        var publishForkRepoEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+        publishForkRepoEvent.open(publishForkRepoOptions, publishForkRepoEndpoint, true);
+        publishForkRepoEvent.send(forkEventPayload);
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + publishForkRepoEndpoint);
+        }
+
+        return "true";
+    } catch (e) {
+        log.error("Error while forking repository\n" + e.message);
+        throw "Error while forking repository";
+    } finally {
+        context.endTenantFlow();
+    }
+
+};
+
+
+%>
+
+

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<registrationEmail>
+   <from>amani.soysa@gmail.com</from>
+   <subject>WSO2 Cloud Services - Registration completed</subject>
+   <body>
+Hi $name,
+ 
+Congratulations! You have successfully created an account in WSO2 Cloud Services. 
+
+Your Admin Name: $adminName
+Your Domain: $tenant
+
+Your User Name: $username
+
+Best Regards,
+WSO2 Cloud Services Team
+http://cloudpreview.wso2.com/
+   </body>
+
+   <sender>
+     <username>amani.soysa@gmail.com</username>
+     <password>password</password>
+     <host>smtp.gmail.com</host>
+     <port>587</port>
+     <tls>false</tls>
+   </sender>
+</registrationEmail>

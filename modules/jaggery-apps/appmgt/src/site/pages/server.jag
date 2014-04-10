@@ -1,0 +1,45 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+
+(function () {
+    var applicationKey = request.getParameter('applicationKey');
+    var applicationName = request.getParameter('applicationName');
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/server.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"WSO2 App Factory",
+                        "middle":[
+                            {
+                            	"name":"server/list",
+                            "inputs":{
+                                "applicationKey":applicationKey,
+                                "applicationName":applicationName,
+                                "pageName":"logs"
+                            }
+                            }
+                        ],
+                        "tablinks":[
+                            {
+                            	"name":"tablinks",
+                                "inputs":{
+                                     "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"logs"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+
+%>

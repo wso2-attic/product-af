@@ -1,0 +1,9 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("resources/database/drop", {
+    initialize:function (data) {
+
+    }
+});
+%>
+

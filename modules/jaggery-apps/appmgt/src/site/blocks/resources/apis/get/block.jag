@@ -1,0 +1,27 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/util.jag");
+jagg.block("resources/apis/get", {
+    initialize:function (data) {
+
+    },
+    
+    getOutputs:function (inputs) {
+		var log = new Log();
+		var applicationKey = request.getParameter("applicationKey");
+		var permissionModule = jagg.module("permission");
+		var lifeCycleModule = jagg.module("lifecycle");
+                var initialStages= lifeCycleModule.getInitialLifeCycleStages();
+                var stages=getAllowedStages(initialStages,PERMISSION_RESOURCES_CREATE_FOR_STAGE,applicationKey);
+                var hasCreateResourcePermissions=false;
+                if(stages.length>0){
+	        	hasCreateResourcePermissions = true;
+		}
+		return {
+			"hasCreateResourcePermissions": hasCreateResourcePermissions
+		};
+	}
+
+
+});
+%>

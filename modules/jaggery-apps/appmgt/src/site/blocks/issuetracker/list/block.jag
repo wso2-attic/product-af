@@ -1,0 +1,23 @@
+<%
+jagg.block("issuetracker/list", {
+    initialize:function (data) {
+
+    } ,
+getInputs:function () {
+       return {
+           "applicationKey":null
+       }
+   },
+
+   getOutputs:function (inputs) {
+
+       var issues,newIssueUrl;
+       newIssueUrl=jagg.module("issuetracker").getUrlForReportIssue(inputs.applicationKey);
+       return {
+           "newIssueUrl":newIssueUrl
+       };
+   }
+
+});
+%>
+

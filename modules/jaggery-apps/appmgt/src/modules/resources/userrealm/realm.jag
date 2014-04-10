@@ -1,0 +1,58 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('userrealm/realm.jag');
+var modManager = jagg.module("manager");
+var permissionModule = jagg.module("permission");
+
+var setUserRealmSupport = function (appId, isSet) {
+    var uniqueAppRoleName = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil.getRoleNameForApplication(appId);
+    var resource = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.INVOKE_PERMISSION;
+    var action = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.CONSUME;
+    var stages = getProperties(DEPLOYMENT_STAGES);
+    try {
+        for (var i = 0; i < stages.length; i++) {
+            var stage = stages[i];
+            var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + SC_URL) + '/services/';
+            var cookie = modManager.getBackendCookie(serverUrl);
+            if (isSet === 'true') {
+                permissionModule.authorizeRole(stage, uniqueAppRoleName, resource, action);
+            } else {
+                permissionModule.denyRole(stage, uniqueAppRoleName, resource, action);
+            }
+        }
+
+    } catch (e) {
+        log.error("Error while setting user realm support\n" + e.message);
+        throw "Error while setting user realm support";
+    }
+};
+var isUserRealmSupported = function (appId) {
+    var uniqueAppRoleName = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil.getRoleNameForApplication(appId);
+    var resource = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.INVOKE_PERMISSION;
+    var action = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.CONSUME;
+    var stages = getProperties(DEPLOYMENT_STAGES);
+    var result = {};
+    result.error = 'false';
+    result.message = 'true';
+    try {
+        for (var i = 0; i < stages.length; i++) {
+            var stage = stages[i];
+            var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + SC_URL) + '/services/';
+            var cookie = modManager.getBackendCookie(serverUrl);
+
+            result = permissionModule.isRoleAuthorized(stage, uniqueAppRoleName, resource, action);
+            if (result.error === 'true' || !result.message === 'true') {
+                return result;
+            }
+        }
+        return result;
+
+    } catch (e) {
+        log.error("Error while setting user realm support\n" + e.message);
+        throw "Error while setting user realm support";
+    }
+};
+%>

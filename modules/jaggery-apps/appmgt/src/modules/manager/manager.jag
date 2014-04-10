@@ -1,0 +1,165 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/manager/manager.jag");
+
+var cookieRefreshInterval = getProperty(COOKIE_REFRESH_INTERVAL);
+var clock = new Date();
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+/* 
+ * getBackendCookie returns returns logged in user's server session string.
+ */
+var getBackendCookie = function (serverUrl) {
+    try {
+        var timeNow = clock.getTime();
+        if (session.get(BACKEND_COOKIE_LAST_UPDATED_TIME + serverUrl) == null) {
+            session.put(BACKEND_COOKIE_LAST_UPDATED_TIME + serverUrl, timeNow);
+        }
+        var backendCookieLastUpdatedTime = session.get(BACKEND_COOKIE_LAST_UPDATED_TIME + serverUrl);
+        if (((timeNow - backendCookieLastUpdatedTime) > cookieRefreshInterval) || (session.get(APPFAC_BACKEND_COOKIE + serverUrl) == null)) {
+            updateBackendCookie(serverUrl);
+            session.put(BACKEND_COOKIE_LAST_UPDATED_TIME + serverUrl, timeNow);
+        }
+        return session.get(APPFAC_BACKEND_COOKIE + serverUrl);
+    } catch (e) {
+        log.error("getting back end cookie falied " + serverUrl + " \n" + e.message);
+        throw "getting back end cookie falied";
+    }
+};
+/**
+ * This method get an authenticated cookie from backend serverUrl using current logged in user saml token.
+ * If failed, throw an exception.
+ * @param serverUrl - backend server url, eg; application server url.
+ */
+var updateBackendCookie = function (serverUrl) {
+    var token = getToken();
+    var security = require("sso");
+    var ssoRelyingParty = new security.SSORelyingParty(getProperty(SSO_NAME));
+    var encodedToken = ssoRelyingParty.xmlEncode(token);
+    var ws = require("ws");
+    var request = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:login";
+    var endPoint = serverUrl + "SAML2SSOAuthenticationService";
+    var payload = '<sso:login xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org"><sso:authDto><xsd:response xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd">' + encodedToken + '</xsd:response></sso:authDto></sso:login>';
+    request.open(options,endPoint, false);
+    request.send(payload);
+
+    var response = request.responseE4X;
+
+    var ns = new Namespace("http://sso.saml2.authenticator.identity.carbon.wso2.org");
+    var result = response.ns::["return"].text();
+    if(result){
+        var cookieString = request.getResponseHeader("Set-Cookie");
+        var cookie = cookieString.split(";")[0];
+        session.put(APPFAC_BACKEND_COOKIE + serverUrl, cookie.toString());
+    } else{
+        var error ="Current logged in user:"+jagg.getUser()+" could not authenticate with backend:"+serverUrl+". Please check backend server logs for authentication failure.";
+        log.error(error);
+        throw error;
+    }
+};
+
+var getToken = function (){
+	if(session.get(SAML_RESPONSE_TOKEN_SESSION_KEY)){
+		return session.get(SAML_RESPONSE_TOKEN_SESSION_KEY);
+	} else if(session.get(SAML_ASSERTION_TOKEN_SESSION_KEY)){
+		return session.get(SAML_ASSERTION_TOKEN_SESSION_KEY);
+	} else {
+		return null;
+	}
+};
+
+/*
+ *   getTenantDomain is used to logged user's domain name.
+ */
+var getTenantDomain = function () {
+
+    if (session.get(TENANT_DOMAIN_NAME) == null) {
+        var username = jagg.getUser();
+        var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+        if (username.indexOf("@") != -1) {
+            tenantDomain = username.substring(username.lastIndexOf('@') + 1);
+        } else {	// else assume super tenant
+            tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+        }
+        session.put(TENANT_DOMAIN_NAME, tenantDomain.toString().toLowerCase());
+    }
+    return session.get(TENANT_DOMAIN_NAME);
+};
+
+
+var getTenantAwareUsername = function (username) {
+	if(!username){
+		username = jagg.getUser();
+	}
+    var tenantAwareUsername = 'null';
+    if (username.indexOf("@") != -1) {
+        tenantAwareUsername = username.substring(0, username.lastIndexOf('@'));
+    } else {        // else assume super tenant
+        tenantAwareUsername = SUPER_TENANT_DOMAIN_NAME;
+    }
+    return tenantAwareUsername;
+};
+
+/*
+ *   getDomainlessUserName is used to get the user name without the domain name.
+ */
+var getDomainlessUserName = function (username) {
+	if(!username){
+		username = jagg.getUser();
+	}
+	
+    var seperator = "@";
+    var strippedUserName = "";
+    var index = username.lastIndexOf(seperator);
+    if (index == -1)
+        strippedUserName = username;
+    else
+        strippedUserName = username.substring(0, index);
+
+    return strippedUserName;
+};
+
+var getTenantId = function () {
+    var carbon = require('carbon');
+    var server = carbon.server;
+    var tenantDomain = session.get(TENANT_DOMAIN_NAME);
+    if (tenantDomain == null) {
+        tenantDomain = getTenantDomain();
+    }
+    var tenantManager = multitenancy.getTenantManager();
+    var tenantId = tenantManager.getTenantId(tenantDomain);
+    return tenantId;
+};
+
+var getOTtenantProperty=function(){
+    var tenantDomain=getTenantDomain() ;
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    var tenantId=tenantManager.getTenantId(tenantDomain);
+    var index=-1;
+    try{
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var tenant=tenantManager.getTenant(tenantId);
+        var realm = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
+        var properties=realm.getRealmConfiguration().getUserStoreProperties();
+        var sProp=properties.toString();
+        var propString ="OTTenant=true";
+        index=sProp.indexOf(propString);
+
+    }finally{
+        context.endTenantFlow();
+    }
+     return index>0;
+};
+
+%>

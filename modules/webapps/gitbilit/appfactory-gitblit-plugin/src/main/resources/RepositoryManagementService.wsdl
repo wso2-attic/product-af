@@ -1,0 +1,765 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:ns="http://service.mgt.repository.svn.appfactory.carbon.wso2.org"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:ax221="http://impl.mgt.repository.svn.appfactory.carbon.wso2.org/xsd"
+                  xmlns:ax223="http://io.java/xsd"
+                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                  targetNamespace="http://service.mgt.repository.svn.appfactory.carbon.wso2.org">
+    <wsdl:documentation>RepositoryManagementService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://common.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="AppFactoryConfiguration">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://io.java/xsd">
+            <xs:complexType name="File">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="absolute" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="absoluteFile" nillable="true"
+                                type="ax223:File"/>
+                    <xs:element minOccurs="0" name="absolutePath" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="canonicalFile" nillable="true"
+                                type="ax223:File"/>
+                    <xs:element minOccurs="0" name="canonicalPath" nillable="true"
+                                type="xs:string"/>
+                    <xs:element minOccurs="0" name="directory" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="file" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="freeSpace" type="xs:long"/>
+                    <xs:element minOccurs="0" name="hidden" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parent" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parentFile" nillable="true" type="ax223:File"/>
+                    <xs:element minOccurs="0" name="path" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="totalSpace" type="xs:long"/>
+                    <xs:element minOccurs="0" name="usableSpace" type="xs:long"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://impl.mgt.repository.svn.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="SCMManagerExceptions">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax219="http://common.appfactory.carbon.wso2.org/xsd"
+                   attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://mgt.repository.svn.appfactory.carbon.wso2.org/xsd">
+            <xs:import namespace="http://common.appfactory.carbon.wso2.org/xsd"/>
+            <xs:complexType abstract="true" name="RepositoryManager">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="config" nillable="true"
+                                type="ax219:AppFactoryConfiguration"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="RepositoryMgtException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax220="http://mgt.repository.svn.appfactory.carbon.wso2.org/xsd"
+                   attributeFormDefault="qualified"
+                   elementFormDefault="qualified"
+                   targetNamespace="http://service.mgt.repository.svn.appfactory.carbon.wso2.org">
+            <xs:import namespace="http://mgt.repository.svn.appfactory.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://impl.mgt.repository.svn.appfactory.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://io.java/xsd"/>
+            <xs:element name="svnMove">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="sourceUrl" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="destinationUrl" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="commitMessage" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="svnRevision" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="svnCopy">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="sourceUrl" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="destinationUrl" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="commitMessage" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="svnRevision" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="setRepositoryManager">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="repositoryManager" nillable="true"
+                                    type="ax220:RepositoryManager"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="RepositoryManagementServiceSCMManagerExceptions">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="SCMManagerExceptions" nillable="true"
+                                    type="ax221:SCMManagerExceptions"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="initSVNClient">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="RepositoryManagementServiceRepositoryMgtException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="RepositoryMgtException" nillable="true"
+                                    type="ax220:RepositoryMgtException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="hasAccess">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="hasAccessResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getURL">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationKey" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getURLResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getRepositoryManager">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getRepositoryManagerResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true"
+                                    type="ax220:RepositoryManager"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAdminUsername">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAdminUsernameResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationKey" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createRepositoryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createDirectory">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="url" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="commitMessage" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createApplicationCheckoutDirectory">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationName" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createApplicationCheckoutDirectoryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax223:File"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="cleanApplicationDir">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationPath" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="checkoutApplication">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationSvnUrl" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true"
+                                    type="xs:string"/>
+                        <xs:element minOccurs="0" name="svnRevision" nillable="true"
+                                    type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="checkoutApplicationResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="svnCopyRequest">
+        <wsdl:part name="parameters" element="ns:svnCopy"/>
+    </wsdl:message>
+    <wsdl:message name="checkoutApplicationRequest">
+        <wsdl:part name="parameters" element="ns:checkoutApplication"/>
+    </wsdl:message>
+    <wsdl:message name="checkoutApplicationResponse">
+        <wsdl:part name="parameters" element="ns:checkoutApplicationResponse"/>
+    </wsdl:message>
+    <wsdl:message name="RepositoryManagementServiceSCMManagerExceptions">
+        <wsdl:part name="parameters" element="ns:RepositoryManagementServiceSCMManagerExceptions"/>
+    </wsdl:message>
+    <wsdl:message name="hasAccessRequest">
+        <wsdl:part name="parameters" element="ns:hasAccess"/>
+    </wsdl:message>
+    <wsdl:message name="hasAccessResponse">
+        <wsdl:part name="parameters" element="ns:hasAccessResponse"/>
+    </wsdl:message>
+    <wsdl:message name="RepositoryManagementServiceRepositoryMgtException">
+        <wsdl:part name="parameters"
+                   element="ns:RepositoryManagementServiceRepositoryMgtException"/>
+    </wsdl:message>
+    <wsdl:message name="setRepositoryManagerRequest">
+        <wsdl:part name="parameters" element="ns:setRepositoryManager"/>
+    </wsdl:message>
+    <wsdl:message name="svnMoveRequest">
+        <wsdl:part name="parameters" element="ns:svnMove"/>
+    </wsdl:message>
+    <wsdl:message name="createRepositoryRequest">
+        <wsdl:part name="parameters" element="ns:createRepository"/>
+    </wsdl:message>
+    <wsdl:message name="createRepositoryResponse">
+        <wsdl:part name="parameters" element="ns:createRepositoryResponse"/>
+    </wsdl:message>
+    <wsdl:message name="createApplicationCheckoutDirectoryRequest">
+        <wsdl:part name="parameters" element="ns:createApplicationCheckoutDirectory"/>
+    </wsdl:message>
+    <wsdl:message name="createApplicationCheckoutDirectoryResponse">
+        <wsdl:part name="parameters" element="ns:createApplicationCheckoutDirectoryResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getAdminUsernameRequest">
+        <wsdl:part name="parameters" element="ns:getAdminUsername"/>
+    </wsdl:message>
+    <wsdl:message name="getAdminUsernameResponse">
+        <wsdl:part name="parameters" element="ns:getAdminUsernameResponse"/>
+    </wsdl:message>
+    <wsdl:message name="initSVNClientRequest">
+        <wsdl:part name="parameters" element="ns:initSVNClient"/>
+    </wsdl:message>
+    <wsdl:message name="getURLRequest">
+        <wsdl:part name="parameters" element="ns:getURL"/>
+    </wsdl:message>
+    <wsdl:message name="getURLResponse">
+        <wsdl:part name="parameters" element="ns:getURLResponse"/>
+    </wsdl:message>
+    <wsdl:message name="createDirectoryRequest">
+        <wsdl:part name="parameters" element="ns:createDirectory"/>
+    </wsdl:message>
+    <wsdl:message name="cleanApplicationDirRequest">
+        <wsdl:part name="parameters" element="ns:cleanApplicationDir"/>
+    </wsdl:message>
+    <wsdl:message name="getRepositoryManagerRequest">
+        <wsdl:part name="parameters" element="ns:getRepositoryManager"/>
+    </wsdl:message>
+    <wsdl:message name="getRepositoryManagerResponse">
+        <wsdl:part name="parameters" element="ns:getRepositoryManagerResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="RepositoryManagementServicePortType">
+        <wsdl:operation name="svnCopy">
+            <wsdl:input message="ns:svnCopyRequest" wsaw:Action="urn:svnCopy"/>
+        </wsdl:operation>
+        <wsdl:operation name="checkoutApplication">
+            <wsdl:input message="ns:checkoutApplicationRequest"
+                        wsaw:Action="urn:checkoutApplication"/>
+            <wsdl:output message="ns:checkoutApplicationResponse"
+                         wsaw:Action="urn:checkoutApplicationResponse"/>
+            <wsdl:fault message="ns:RepositoryManagementServiceSCMManagerExceptions"
+                        name="RepositoryManagementServiceSCMManagerExceptions"
+                        wsaw:Action="urn:checkoutApplicationRepositoryManagementServiceSCMManagerExceptions"/>
+        </wsdl:operation>
+        <wsdl:operation name="hasAccess">
+            <wsdl:input message="ns:hasAccessRequest" wsaw:Action="urn:hasAccess"/>
+            <wsdl:output message="ns:hasAccessResponse" wsaw:Action="urn:hasAccessResponse"/>
+            <wsdl:fault message="ns:RepositoryManagementServiceRepositoryMgtException"
+                        name="RepositoryManagementServiceRepositoryMgtException"
+                        wsaw:Action="urn:hasAccessRepositoryManagementServiceRepositoryMgtException"/>
+        </wsdl:operation>
+        <wsdl:operation name="setRepositoryManager">
+            <wsdl:input message="ns:setRepositoryManagerRequest"
+                        wsaw:Action="urn:setRepositoryManager"/>
+        </wsdl:operation>
+        <wsdl:operation name="svnMove">
+            <wsdl:input message="ns:svnMoveRequest" wsaw:Action="urn:svnMove"/>
+        </wsdl:operation>
+        <wsdl:operation name="createRepository">
+            <wsdl:input message="ns:createRepositoryRequest" wsaw:Action="urn:createRepository"/>
+            <wsdl:output message="ns:createRepositoryResponse"
+                         wsaw:Action="urn:createRepositoryResponse"/>
+            <wsdl:fault message="ns:RepositoryManagementServiceRepositoryMgtException"
+                        name="RepositoryManagementServiceRepositoryMgtException"
+                        wsaw:Action="urn:createRepositoryRepositoryManagementServiceRepositoryMgtException"/>
+        </wsdl:operation>
+        <wsdl:operation name="createApplicationCheckoutDirectory">
+            <wsdl:input message="ns:createApplicationCheckoutDirectoryRequest"
+                        wsaw:Action="urn:createApplicationCheckoutDirectory"/>
+            <wsdl:output message="ns:createApplicationCheckoutDirectoryResponse"
+                         wsaw:Action="urn:createApplicationCheckoutDirectoryResponse"/>
+            <wsdl:fault message="ns:RepositoryManagementServiceSCMManagerExceptions"
+                        name="RepositoryManagementServiceSCMManagerExceptions"
+                        wsaw:Action="urn:createApplicationCheckoutDirectoryRepositoryManagementServiceSCMManagerExceptions"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAdminUsername">
+            <wsdl:input message="ns:getAdminUsernameRequest" wsaw:Action="urn:getAdminUsername"/>
+            <wsdl:output message="ns:getAdminUsernameResponse"
+                         wsaw:Action="urn:getAdminUsernameResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="initSVNClient">
+            <wsdl:input message="ns:initSVNClientRequest" wsaw:Action="urn:initSVNClient"/>
+            <wsdl:fault message="ns:RepositoryManagementServiceSCMManagerExceptions"
+                        name="RepositoryManagementServiceSCMManagerExceptions"
+                        wsaw:Action="urn:initSVNClientRepositoryManagementServiceSCMManagerExceptions"/>
+        </wsdl:operation>
+        <wsdl:operation name="getURL">
+            <wsdl:input message="ns:getURLRequest" wsaw:Action="urn:getURL"/>
+            <wsdl:output message="ns:getURLResponse" wsaw:Action="urn:getURLResponse"/>
+            <wsdl:fault message="ns:RepositoryManagementServiceRepositoryMgtException"
+                        name="RepositoryManagementServiceRepositoryMgtException"
+                        wsaw:Action="urn:getURLRepositoryManagementServiceRepositoryMgtException"/>
+        </wsdl:operation>
+        <wsdl:operation name="createDirectory">
+            <wsdl:input message="ns:createDirectoryRequest" wsaw:Action="urn:createDirectory"/>
+        </wsdl:operation>
+        <wsdl:operation name="cleanApplicationDir">
+            <wsdl:input message="ns:cleanApplicationDirRequest"
+                        wsaw:Action="urn:cleanApplicationDir"/>
+        </wsdl:operation>
+        <wsdl:operation name="getRepositoryManager">
+            <wsdl:input message="ns:getRepositoryManagerRequest"
+                        wsaw:Action="urn:getRepositoryManager"/>
+            <wsdl:output message="ns:getRepositoryManagerResponse"
+                         wsaw:Action="urn:getRepositoryManagerResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="RepositoryManagementServiceSoap11Binding"
+                  type="ns:RepositoryManagementServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="svnCopy">
+            <soap:operation soapAction="urn:svnCopy" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="checkoutApplication">
+            <soap:operation soapAction="urn:checkoutApplication" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceSCMManagerExceptions">
+                <soap:fault use="literal" name="RepositoryManagementServiceSCMManagerExceptions"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="hasAccess">
+            <soap:operation soapAction="urn:hasAccess" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceRepositoryMgtException">
+                <soap:fault use="literal" name="RepositoryManagementServiceRepositoryMgtException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="svnMove">
+            <soap:operation soapAction="urn:svnMove" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="setRepositoryManager">
+            <soap:operation soapAction="urn:setRepositoryManager" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="createRepository">
+            <soap:operation soapAction="urn:createRepository" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceRepositoryMgtException">
+                <soap:fault use="literal" name="RepositoryManagementServiceRepositoryMgtException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createApplicationCheckoutDirectory">
+            <soap:operation soapAction="urn:createApplicationCheckoutDirectory" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceSCMManagerExceptions">
+                <soap:fault use="literal" name="RepositoryManagementServiceSCMManagerExceptions"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAdminUsername">
+            <soap:operation soapAction="urn:getAdminUsername" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getURL">
+            <soap:operation soapAction="urn:getURL" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceRepositoryMgtException">
+                <soap:fault use="literal" name="RepositoryManagementServiceRepositoryMgtException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="initSVNClient">
+            <soap:operation soapAction="urn:initSVNClient" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="RepositoryManagementServiceSCMManagerExceptions">
+                <soap:fault use="literal" name="RepositoryManagementServiceSCMManagerExceptions"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createDirectory">
+            <soap:operation soapAction="urn:createDirectory" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="cleanApplicationDir">
+            <soap:operation soapAction="urn:cleanApplicationDir" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getRepositoryManager">
+            <soap:operation soapAction="urn:getRepositoryManager" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="RepositoryManagementServiceSoap12Binding"
+                  type="ns:RepositoryManagementServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="svnCopy">
+            <soap12:operation soapAction="urn:svnCopy" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="checkoutApplication">
+            <soap12:operation soapAction="urn:checkoutApplication" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceSCMManagerExceptions">
+                <soap12:fault use="literal" name="RepositoryManagementServiceSCMManagerExceptions"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="hasAccess">
+            <soap12:operation soapAction="urn:hasAccess" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceRepositoryMgtException">
+                <soap12:fault use="literal"
+                              name="RepositoryManagementServiceRepositoryMgtException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="svnMove">
+            <soap12:operation soapAction="urn:svnMove" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="setRepositoryManager">
+            <soap12:operation soapAction="urn:setRepositoryManager" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="createRepository">
+            <soap12:operation soapAction="urn:createRepository" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceRepositoryMgtException">
+                <soap12:fault use="literal"
+                              name="RepositoryManagementServiceRepositoryMgtException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createApplicationCheckoutDirectory">
+            <soap12:operation soapAction="urn:createApplicationCheckoutDirectory" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceSCMManagerExceptions">
+                <soap12:fault use="literal" name="RepositoryManagementServiceSCMManagerExceptions"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getAdminUsername">
+            <soap12:operation soapAction="urn:getAdminUsername" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getURL">
+            <soap12:operation soapAction="urn:getURL" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="RepositoryManagementServiceRepositoryMgtException">
+                <soap12:fault use="literal"
+                              name="RepositoryManagementServiceRepositoryMgtException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="initSVNClient">
+            <soap12:operation soapAction="urn:initSVNClient" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="RepositoryManagementServiceSCMManagerExceptions">
+                <soap12:fault use="literal" name="RepositoryManagementServiceSCMManagerExceptions"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createDirectory">
+            <soap12:operation soapAction="urn:createDirectory" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="cleanApplicationDir">
+            <soap12:operation soapAction="urn:cleanApplicationDir" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getRepositoryManager">
+            <soap12:operation soapAction="urn:getRepositoryManager" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="RepositoryManagementServiceHttpBinding"
+                  type="ns:RepositoryManagementServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="svnCopy">
+            <http:operation location="svnCopy"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="checkoutApplication">
+            <http:operation location="checkoutApplication"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="hasAccess">
+            <http:operation location="hasAccess"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="svnMove">
+            <http:operation location="svnMove"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="setRepositoryManager">
+            <http:operation location="setRepositoryManager"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="createRepository">
+            <http:operation location="createRepository"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="createApplicationCheckoutDirectory">
+            <http:operation location="createApplicationCheckoutDirectory"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAdminUsername">
+            <http:operation location="getAdminUsername"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getURL">
+            <http:operation location="getURL"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="initSVNClient">
+            <http:operation location="initSVNClient"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="createDirectory">
+            <http:operation location="createDirectory"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="cleanApplicationDir">
+            <http:operation location="cleanApplicationDir"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getRepositoryManager">
+            <http:operation location="getRepositoryManager"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="RepositoryManagementService">
+        <wsdl:port name="RepositoryManagementServiceHttpsSoap11Endpoint"
+                   binding="ns:RepositoryManagementServiceSoap11Binding">
+            <soap:address
+                    location="https://appfactory.example.com:9443/services/RepositoryManagementService.RepositoryManagementServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="RepositoryManagementServiceHttpsSoap12Endpoint"
+                   binding="ns:RepositoryManagementServiceSoap12Binding">
+            <soap12:address
+                    location="https://appfactory.example.com:9443/services/RepositoryManagementService.RepositoryManagementServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="RepositoryManagementServiceHttpsEndpoint"
+                   binding="ns:RepositoryManagementServiceHttpBinding">
+            <http:address
+                    location="https://appfactory.example.com:9443/services/RepositoryManagementService.RepositoryManagementServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

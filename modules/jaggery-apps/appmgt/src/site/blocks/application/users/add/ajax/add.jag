@@ -1,0 +1,122 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "inviteUserToApplication") {
+    	mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var users = request.getParameter("users");
+        var response = {};
+        if (jagg.module("permission").isUserAccessGranted(applicationKey,PERMISSION_USER_INVITE)){
+            try {
+                var result = mod.addUserToApplicationWS(applicationKey,users);
+
+                if (result != null) {
+                    print(result);
+                } else {
+                    throw "Error while adding user as "+users;
+                }
+            } catch(e) {
+                throw "Error while adding user as "+users;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to invite users to application";
+            print(response);
+        }
+
+    }else if(action == "createUserAccount") {
+    	mod = jagg.module("user");
+    	var userName = request.getParameter("userName");
+    	var password = request.getParameter("password");
+    	var email = request.getParameter("email");
+    	var firstName = request.getParameter("firstName");
+    	var lastName = request.getParameter("lastName");
+	var sendEmail = getProperty(SEND_EMAIL);
+
+    	try {
+            var result = mod.createUser(userName, password, email, firstName, lastName, sendEmail);
+            if( result != null) {
+                return result;
+            } else {
+                throw "Error while creating the user account";
+            }
+        } catch(e) {
+            throw "Error while creating the user account";
+        }
+    }else if(action == "activateUser") {
+    	mod = jagg.module("user");
+    	var userName = request.getParameter("userName");
+    	var email = request.getParameter("email");
+    	var confirmationKey = request.getParameter("confirmationKey");
+    	
+    	try {
+            var result = mod.invokeUserActivationProcess(userName,email,confirmationKey);
+            var wso2=new Namespace("http://wso2.org");
+            return result.wso2::success;
+        } catch(e) {
+            throw "Error while activating user";
+        }
+    }else if(action == "addApplicationToUser") {
+    	var newUser = request.getParameter("newUser");
+    	var applicationKey = request.getParameter("applicationKey");
+ //   	jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION.USER.INVITE);
+    	var path = USER_APPLICATIONS_MAPPING + newUser;
+        var result = resourceExists(path);
+        if(log.isDebugEnabled()){
+             log.debug("in addApplicationToUser, user mapping exists "+result);
+        }
+
+        if(result =="true") {
+            if(log.isDebugEnabled()){
+                log.debug("create application- user already exist");
+                log.debug("add application to User "+ resourceExists(path));
+            }
+            var resource = getResource(path);
+            var existingApplicationsList = resource.getProperty(APPLICATION_LIST);
+            if(log.isDebugEnabled()){
+                log.debug("applications list "+existingApplicationsList);
+            }
+
+            if(!containsApplication(existingApplicationsList, applicationKey)) {
+                var newApplicationsList = existingApplicationsList + "," + applicationKey;
+                if(log.isDebugEnabled()){
+                    log.debug("new application list "+newApplicationsList);
+                }
+                resource.setProperty(APPLICATION_LIST, newApplicationsList);
+                putResource(path, resource);
+            }
+
+        }
+        // add the new application to user to user-applications mapping in registry
+        else {
+            if(log.isDebugEnabled()){
+                log.debug("create application- user doesn't exist");
+            }
+            var resource = createResource();
+            var applicationsList = applicationKey;
+            resource.setProperty(APPLICATION_LIST, applicationsList);
+            putResource(path, resource);
+        }
+
+}else if(action == "pushGitHubUserName") {
+    	mod = jagg.module("user");
+    	var userName = request.getParameter("userName");
+    	var gitUserName = request.getParameter("gitUserName");
+
+    	try {
+            var result = mod.pushGitHubUserName(userName, gitUserName);
+        } catch(e) {
+            throw "Error while saving the GitHub user name";
+        }
+    }else {
+	    throw new Error("No action specified");
+    }
+
+}());
+%>

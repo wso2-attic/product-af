@@ -1,0 +1,7 @@
+<%
+jagg.block("password-change", {
+    initialize:function (data) {
+
+    }
+});
+%>

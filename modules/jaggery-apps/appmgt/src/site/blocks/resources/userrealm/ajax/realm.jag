@@ -1,0 +1,35 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+    var obj, result,
+            resourceModule = jagg.module("resources"),
+            log = new Log("ajax/realm"),
+            action = request.getParameter("action"),
+            applicationKey = request.getParameter("applicationKey"),
+            site = require("/site/conf/site.json");
+    if (action == "disableUserRealmSupport") {
+        try {
+            resourceModule.setUserRealmSupport(applicationKey, "false");
+        } catch (e) {
+            throw "Error while disabling user realm support.";
+        }
+    } else if (action == "enableUserRealmSupport") {
+        try {
+            resourceModule.setUserRealmSupport(applicationKey, "true");
+        } catch (e) {
+            throw "Error while enabling user realm support.";
+        }
+    } else if (action == "isUserRealmSupported") {
+        try {
+            print(resourceModule.isUserRealmSupported(applicationKey));
+        } catch (e) {
+            throw "Error while enabling user realm support.";
+        }
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

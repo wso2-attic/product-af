@@ -1,0 +1,27 @@
+<%
+include('/jagg/constants.jag');
+include('/jagg/config_reader.jag');
+jagg.block("resources/database/manage", {
+	initialize:function (data) {
+
+	},
+	getInputs:function () {
+		return {
+			"applicationKey":null
+		}
+	},
+	getOutputs: function (inputs) {
+		var log = new Log();
+		var permissionModule = jagg.module("permission");
+		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var hasConfigureDbAdministrationPermissions = {};
+		for (var i = 0; i < deploymentStages.length; i++) {
+			var hasConfigureDbAdministrationPermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + deploymentStages[i]);
+			hasConfigureDbAdministrationPermissions[i] = hasConfigureDbAdministrationPermission;
+		}
+		return {
+			"hasConfigureDbAdministrationPermission": hasConfigureDbAdministrationPermissions
+		};
+	}
+});
+%>

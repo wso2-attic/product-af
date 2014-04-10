@@ -1,0 +1,95 @@
+<%
+
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+var timePeriod = getTimePeriod();
+var chartData = getData(timePeriod[0], timePeriod[1]);
+new Log().info(chartData);
+function getTimePeriod() {
+
+    if (isUserLoggedIn) {
+
+        var result = [];
+        if (request.getParameter("from") == null || request.getParameter("to") == null) {
+
+            var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM APP_DETAILS WHERE TENANT_ID=" + tenantID + " ;";
+	    var dbResult = dbConfig.queryDb(query);
+
+            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
+            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+	    	
+        } else {
+            result[0] = request.getParameter("from");
+            result[1] = request.getParameter("to");
+        }
+        return result;
+    }
+}
+
+function getData(from, to) {
+
+if (isUserLoggedIn) {
+	new Log().info(from);
+	new Log().info(to);
+	var query = "SELECT COUNT(DISTINCT APPLICATION_KEY) AS NO_OF_APPS, TIME_ST FROM APP_DETAILS WHERE TENANT_ID = '" + tenantID + "' AND substr(TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) + " GROUP BY DATE(from_unixtime(substr(TIME_ST,1,10))) ORDER BY TIME_ST;";
+
+	var dbResult = dbConfig.queryDb(query);
+
+        return convertDBResult(dbResult);
+	}
+}
+
+function convertDBResult(dbResult){
+
+	var data = [];
+	var len = dbResult.length;
+        var temp = 0;
+        for (var i = 0; i < len; i++) {
+        var obj = dbResult[i];
+		if(obj == null || obj.length<2){
+			return null;		
+		}
+		var timest = obj["TIME_ST"];
+		var noOfApps = obj["NO_OF_APPS"];
+
+		var date = new Date(parseInt(timest));
+
+		var month = date.getMonth();
+        	var day = date.getDate();
+       		var year = date.getFullYear();
+
+		var adjustedTimest = Date.UTC(year,month,day);
+
+		data.push([adjustedTimest, noOfApps]);		
+		
+            }
+	return data;
+}
+
+var gen_options = require("config/line-chart-option.json");
+var full_data;
+
+if (chartData != null) {
+    gen_options["xaxis"]["min"] = chartData.length ==0 ? new Date().getTime() : chartData[0][0]-24*60*60*1000;
+    gen_options["xaxis"]["max"] = chartData.length ==0 ? new Date().getTime() + 24*60*60*1000 : chartData[chartData.length-1][0] + 24*60*60*1000;
+    gen_options["series"]["color"] = "#7F8CFF";
+    gen_options["xaxis"]["mode"] = "time";
+    gen_options["xaxis"]["timeformat"] = "%y/%m/%d";
+    gen_options["xaxis"]["minTickSize"] = [1, "day"];
+    gen_options["xaxis"]["axisLabel"] = 'Date';
+    full_data = {0:{"data": chartData}, 1: gen_options};
+}
+else {
+    full_data = {0: {"data":""}, 1: gen_options};
+}
+
+var _full_data = stringify(full_data);
+response.contentType = 'text/json';
+print(_full_data);
+
+%>

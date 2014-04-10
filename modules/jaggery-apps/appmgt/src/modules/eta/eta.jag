@@ -1,0 +1,168 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/eta/eta.jag");
+
+var ws = require('ws');
+var etaManagementService = new ws.WSRequest();
+var modManager = jagg.module("manager");
+
+var set = function (applicationId, stage, version, user, etaFrom, etaTo) {
+    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_APPLICATION_MEMBER);
+     if(log.isDebugEnabled()){
+         log.debug("stting ETA value.................................................." + etaFrom + " " + etaTo);
+     }
+    var options = new Array();
+  	options.useSOAP = 1.1;
+  	options.action = "urn:publishSetETA";
+  	options["HTTPHeaders"] =[{
+  		name:
+  			"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+  	}];
+  	
+  	try{			
+  		var payload = "<ser:publishSetETA xmlns:ser=\'http://service.mgt.application.appfactory.carbon.wso2.org' > " +
+  		"<ser:applicationKey>"+ applicationId +"</ser:applicationKey>" +
+  		"<ser:stage>"+ stage +"</ser:stage>" +
+  		"<ser:version>"+ version +"</ser:version>" +
+  		"<ser:user>"+ user +"</ser:user>" +
+  		"<ser:etaFrom>"+ etaFrom +"</ser:etaFrom>" +
+  		"<ser:etaTo>"+ etaTo +"</ser:etaTo>" +
+  		"</ser:publishSetETA>"; 
+
+  		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ETAManagementService";
+  		etaManagementService.open(options,endPoint, false);
+  		etaManagementService.send(payload);
+
+  		return {
+  			error:false
+  		};
+
+  	} catch (e) {
+  		log.error(e.message);
+  		return {
+  			error:e
+  		};
+  	}
+}
+
+var get = function (applicationId, stage, version, user){
+    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_APPLICATION_MEMBER);
+	var options = new Array();
+  	options.useSOAP = 1.1;
+  	options.action = "urn:publishGetETAValuePerUser";
+  	options["HTTPHeaders"] =[{
+  		name:
+  			"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+  	}];
+  	
+  	try{
+  		var payload = "<ser:publishGetETAValuePerUser xmlns:ser=\'http://service.mgt.application.appfactory.carbon.wso2.org' > " +
+  		"<ser:applicationKey>"+ applicationId +"</ser:applicationKey>" +
+  		"<ser:stage>"+ stage +"</ser:stage>" +
+  		"<ser:version>"+ version +"</ser:version>" +
+  		"<ser:user>"+ user +"</ser:user>" +
+  		"</ser:publishGetETAValuePerUser>"; 
+
+  		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ETAManagementService";
+  		etaManagementService.open(options,endPoint, false);
+  		etaManagementService.send(payload);
+  		result = etaManagementService.responseE4X;
+  		ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+  		ax213 = new Namespace("http://eta.mgt.application.appfactory.carbon.wso2.org/xsd");
+  	} catch (e) {
+  		log.error("Error occured while fetching ETA information \n" + e.message);
+  		throw "Error while getting ETA information";
+  	}	
+
+	try{
+		
+		var response = result.ns::["return"];
+        if(log.isDebugEnabled()){
+            log.debug("Response of publishGetETAValuePerUser: " +response);
+        }
+
+		
+			var responseArtifact = response[0];
+			
+			var eta={};
+			eta.applicationKey = responseArtifact.ax213::["applicationKey"].text();
+			eta.stage = responseArtifact.ax213::["stage"].text();
+			eta.version = responseArtifact.ax213::["version"].text();
+			eta.user = responseArtifact.ax213::["user"].text();
+			eta.etaFrom = responseArtifact.ax213::["etaFrom"].text();
+			eta.etaTo = responseArtifact.ax213::["etaTo"].text();
+		
+		 return {
+	         error:false,
+	         eta:eta
+	     };
+     
+	} catch (e) {
+		log.error("Error occured while processing information returned from urn:publishGetETAValuePerUser ");
+        throw "Error occured while processing information returned from urn:publishGetETAValuePerUser ";
+	}
+	
+}
+
+var calculate = function (applicationId, stage, version){
+    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_APPLICATION_MEMBER);
+	var options = new Array();
+  	options.useSOAP = 1.1;
+  	options.action = "urn:getCalculatedETA";
+  	options["HTTPHeaders"] =[{
+  		name:
+  			"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+  	}];
+  	
+  	var payload = "<ser:getCalculatedETA xmlns:ser=\'http://service.mgt.application.appfactory.carbon.wso2.org'>\
+         <ser:applicationKey>" + applicationId +"</ser:applicationKey>\
+         <ser:stage>" + stage +"</ser:stage>\
+         <ser:version>"+ version +"</ser:version>\
+      </ser:getCalculatedETA>";
+  	
+  	try{
+  		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ETAManagementService";
+  		etaManagementService.open(options,endPoint, false);
+  		etaManagementService.send(payload);
+
+  		result = etaManagementService.responseE4X;
+  		ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
+  		ax217 = new Namespace("http://eta.mgt.application.appfactory.carbon.wso2.org/xsd");
+  	} catch (e) {
+  		log.error("Error occured while fetching Calculated ETA information \n" + e.message);
+  		throw "Error while getting ETA information";
+  	}
+	
+	try{
+		
+		var response = result.ns::["return"];
+         if(log.isDebugEnabled()){
+            log.debug("Response of getCalculatedETA: " +response);
+        }
+
+		
+		var responseArtifact = response[0];
+		
+		var eta={};
+		eta.applicationKey = responseArtifact.ax217::["applicationKey"].text();
+		eta.stage = responseArtifact.ax217::["stage"].text();
+		eta.version = responseArtifact.ax217::["version"].text();
+		eta.startDate = responseArtifact.ax217::["startDate"].text();
+		eta.endDate = responseArtifact.ax217::["endDate"].text();
+		
+		 return {
+	         error:false,
+	         eta:eta
+	     };
+     
+	} catch (e) {
+		log.error("Error occured while processing information returned from urn:publishGetETAValuePerUser ");
+        throw "Error occured while processing information returned from urn:publishGetETAValuePerUser ";
+	}
+	
+}
+
+%>

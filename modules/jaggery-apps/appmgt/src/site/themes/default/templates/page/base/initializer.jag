@@ -1,0 +1,8 @@
+<%
+jagg.initializer("page/base", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

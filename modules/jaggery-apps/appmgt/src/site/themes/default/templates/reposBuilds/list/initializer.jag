@@ -1,0 +1,8 @@
+<%
+jagg.initializer("reposBuilds/list", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

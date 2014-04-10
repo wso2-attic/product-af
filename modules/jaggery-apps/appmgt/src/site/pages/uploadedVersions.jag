@@ -1,0 +1,55 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+
+(function () {
+   var applicationKey = request.getParameter('applicationKey');
+   var applicationName = request.getParameter('applicationName');
+   var vesionPage = 'uploadedAppVersions/list';	
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/reposBuilds.jag",
+
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"WSO2 App Factory",
+                        "middle":[
+                            {
+                            	"name": vesionPage,
+                                "inputs":{
+                                    "applicationKey":applicationKey
+                                }
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                            	"name":"breadcrumb",
+                                "inputs":{
+                                    "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"reposBuilds"
+                                }
+                            }
+                        ],
+                        "tablinks":[
+                            {
+                            	"name":"tablinks",
+                                "inputs":{
+                                     "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "pageName":"reposBuilds"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+
+%>

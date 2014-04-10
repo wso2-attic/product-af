@@ -1,0 +1,42 @@
+<%
+jagg.module("rss-filter", {
+addDatabase:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabase.apply(this,
+arguments);
+},
+deleteDatabase:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabase.apply(this,
+arguments);
+},
+addDatabaseUser:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabaseUser.apply(this, arguments);
+},
+deleteDatabaseUser:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabaseUser.apply(this, arguments);
+},
+addDatabaseTemplate:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabaseTemplate.apply(this, arguments);
+},
+deleteDatabaseTemplate:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabaseTemplate.apply(this, arguments);
+},
+getAllDatabases:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabases.apply(this, arguments);
+},
+getAllDatabaseUsers:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabaseUsers.apply(this, arguments);
+},
+getAllDatabaseTemplates:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabaseTemplates.apply(this, arguments);
+},
+getTenantAwareUserName:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getTenantAwareUserName.apply(this, arguments);
+},
+getTenantAwareDBName:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getTenantAwareDBName.apply(this, arguments);
+},
+getEnvironmentAwareTemplateName:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getEnvironmentAwareTemplateName.apply(this, arguments);
+}
+});
+%>

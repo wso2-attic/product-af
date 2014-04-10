@@ -1,0 +1,34 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, obj, result,
+    action = request.getParameter("action"),
+    site = require("/site/conf/site.json");
+    var log = new Log();
+	if (action == "get") {
+   	   	mod = jagg.module("eta");
+		var applicationId = request.getParameter("applicationKey");
+		var stage = request.getParameter("stage");
+		var version = request.getParameter("version");
+		var user = request.getParameter("user");
+        var response = {};
+        var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
+
+        if (jagg.module("permission").isUserAccessGranted(applicationId,deployToStagePermission) &&
+                jagg.module("permission").isUserAccessGranted(applicationId,PERMISSION_GOVERNANCE_RETIRE)){
+            result = mod.get(applicationId, stage, version, user);
+            print(result);
+        }	else {
+            response.result = 0;
+            response.message = "You don't have permission to get the ETA of the application in this stage";
+            print(response);
+        }
+
+	} else {
+       throw new Error("Invalid action specified");
+    }
+
+}());
+%>

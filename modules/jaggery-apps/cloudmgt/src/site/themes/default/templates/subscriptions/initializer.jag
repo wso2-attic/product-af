@@ -1,0 +1,8 @@
+<%
+jagg.initializer("subscriptions", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

@@ -1,0 +1,22 @@
+<%
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+function getData(){
+	if (isUserLoggedIn) {
+
+	var appKey = request.getParameter("appKey");
+	var appVersion = request.getParameter("appVersion");
+
+	var query = "SELECT L.ISSUE_KEY, A.ASSIGNEE, A.PRIORITY, A.REPORTER, A.SEVERITY, A.STATUS, A.TYPE FROM APP_ISSUES A, LATEST_APP_ISSUES L WHERE  L.TENANT_ID=" + tenantID +" AND L.APPLICATION_KEY='" + appKey + "'  AND L.APPLICATION_VERSION='" + appVersion + "' AND L.TENANT_ID=A.TENANT_ID AND L.APPLICATION_KEY=A.APPLICATION_KEY AND L.APPLICATION_VERSION=A.APPLICATION_VERSION AND L.ISSUE_KEY=A.ISSUE_KEY AND L.TIME_ST=A.TIME_ST AND A.ACTION!='DELETE';";
+
+	return dbConfig.queryDb(query);
+	}
+}
+
+	print(getData());
+%>

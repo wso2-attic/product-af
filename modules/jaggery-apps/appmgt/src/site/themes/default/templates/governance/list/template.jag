@@ -1,0 +1,1172 @@
+<% jagg.template("governance/list", function(inputs, outputs, jagg)
+    {
+%>
+
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))
+    %>" rel="stylesheet" type="text/css">
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))
+    %>"></script>
+
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var modApplication = jagg.module("application");
+%>
+<%
+    // var appVersions = modApplication.getUserAccess(applicationKey, userName);
+    //  var parsedVersions = parse(appVersions);
+    var stages = getProperties('ApplicationDeployment.DeploymentStage');
+
+    print('<div id="hiddenstages">');
+    for (var i = 0; i < stages.length; i++) {
+        var stage = stages[i];
+        print('<input type="hidden" value="' + stage + '">');
+    }
+    print('</div>');
+
+    //  if (parsedVersions.userHasAccess == true) {
+    //     %>
+<link rel="stylesheet" href="/appmgt/site/themes/default/lib/jquery/css/jquery-ui.css"/>
+<script type="text/javascript">
+var processIndicatorHTML = '<span class="icon-spinner icon-spin icon-large spin-large"></span>';
+var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
+
+function doDemoteActionAjax(stage, version, tagName) {
+    var checkItems = [];
+    var applicationName = "<%=applicationName
+        %>";
+
+    var comment = "<![CDATA[<span>";
+    var noOfBugsSelected = $('input:checkbox[id^="' + ISSUE_CHECK_BOX_ID_PREFIX + '"]:checked').length;
+    var userComment = $(".comment_area").val();
+    if (noOfBugsSelected != 0) {
+        comment += " <a onclick='"
+                + "$(this).next().toggle();"
+                + "'>More</a>.<div style='display:none;'><ul>";
+        $('input:checkbox[id^="' + ISSUE_CHECK_BOX_ID_PREFIX + '"]:checked').each(function () {
+            var title = $(this).attr("title");
+            var url = $(this).attr("url");
+            comment += "<li> <a href='" + url + "' target='_blank'>" + title + "</a> </li>";
+        });
+        comment += "</ul></div> ";
+    }
+    if (userComment === '' && noOfBugsSelected === 0) {
+        jagg.message({
+            content: "Cannot demote an application without comments - Add related issue/s and/or reason/s for demotion as comments",
+            type: 'error'
+        });
+        return;
+    } else {
+        comment = userComment + comment + "</span>]]>";
+    }
+
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: 'Demote',
+        applicationKey: $("#applicationKey").attr('value'),
+        stageName: stage,
+        version: version,
+        checkItems: JSON.stringify(checkItems),
+        tagName: tagName,
+        userName: $("#userName").attr('value'),
+        comment: comment
+    }, function (result) {
+        jagg.message({
+            id: 'noification',
+            content: "Successfully submitted request for the governance operation - Demote",
+            type: 'success'
+        });
+        waitAndRedrawVersionList();
+        hideNotification();
+    }, function (jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content: "Error occurred while performing the governance operation",
+            type: 'error'
+        });
+    });
+}
+function doGovernanceActionAjax(actionName, stage, version, tagName, checkItems, comment) {
+
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: actionName,
+        applicationKey: $("#applicationKey").attr('value'),
+        stageName: stage,
+        version: version,
+        checkItems: JSON.stringify(checkItems),
+        tagName: tagName,
+        comment: comment,
+        userName: $("#userName").attr('value')
+    }, function (result) {
+        jagg.message({
+            id: 'noification',
+            content: "Successfully submitted request for the governance operation - " + actionName,
+            type: 'success'
+        });
+        waitAndRedrawVersionList();
+        hideNotification();
+    }, function (jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content: "Error occurred while performing the governance operation",
+            type: 'error'
+        });
+    });
+}
+
+function doGovernanceAction(uiElement, actionName, stage, version, tagName) {
+    if (tagName == null) {
+        tagName = "";
+    }
+    var checkItems = new Array();
+    var allChecked = true;
+    var itemNotChecked = new Array();
+    $('input[type="checkbox"]', $(uiElement).parent().parent().parent()).each(function (index, element) {
+        checkItems[index] = $(this).is(':checked');
+        if (!($(this).is(':checked'))) {
+            allChecked = false;
+            itemNotChecked.push($(this).attr('value'));
+        }
+
+    });
+
+    if (!allChecked && (actionName == 'Promote' || actionName == 'Retire')) {
+        var fields = "";
+        for (var x=0;x<itemNotChecked.length;x++) {
+            fields += itemNotChecked[x];
+            if(itemNotChecked.length-1 != x){
+                fields += " , ";
+            }
+        }
+
+        if(fields != ""){
+            jagg.message({
+                content: "Checklist item: <strong> " + fields + " </strong> not fulfilled - Mandatory fulfillment required",
+                type: 'error'
+            });
+        }
+        return;
+    }
+
+    if (actionName == 'Demote') {
+        $('input.actionName', $(uiElement).next()).val(actionName);
+        $('input.stage', $(uiElement).next()).val(stage);
+        $('input.version', $(uiElement).next()).val(version);
+        $('input.tagName', $(uiElement).next()).val(tagName);
+        $('input.checkItems', $(uiElement).next()).val(checkItems);
+        $(uiElement).next().submit();
+    } else {
+        doGovernanceActionAjax(actionName, stage, version, tagName, checkItems, "");
+    }
+
+}
+//This function call when we click on the check list item.
+function lifeCycleCheckListItemEventHandler(uiElement, stageName, version) {
+    var checkItems = new Array();
+
+    $('input[type="checkbox"]', $(uiElement).parent().parent().parent()).each(function (index, element) {
+        checkItems[index] = $(this).is(':checked');
+
+    });
+
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: "invokeUpdateLifeCycleCheckList",
+        applicationKey: $("#applicationKey").attr('value'),
+        stageName: stageName,
+        version: version,
+        checkItems: JSON.stringify(checkItems)
+
+    }, function (result) {
+        if (result != undefined) {
+            //jagg.message({content:"Successfully completed the operation",type:'info' });
+            //window.location.reload(false);
+        }
+    }, function (jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content: "Error occurred while performing the governance operation",
+            type: 'info'
+        });
+    });
+}
+;
+
+function createLifeCycleItemCheckbox(stage, version, item) {
+    //  var uiElement = '<label class="checkbox"> <input type="checkbox"' + ' order="' + item.order + '"';
+    var uiElement = '<div class="input_row"><label> <input type="checkbox"' + ' order="' + item.order + '"';
+
+    if (item.value == 'true') {
+        uiElement = uiElement + ' checked="checked"';
+    }
+
+    uiElement = uiElement + ' id="' + item.key + '" onclick="lifeCycleCheckListItemEventHandler(this,\'' + stage + '\',\'' + version + '\');" value="' + item.name + '"/> ' + getFormattedLifeCycleItem(item.name) + '</label></div>';
+
+    return uiElement;
+}
+
+function getFormattedLifeCycleItem(item) {
+    if (item.indexOf("*") > -1) {
+        return item.replace("*", '<font color="red">*</font>');
+    }
+    return item;
+}
+
+function VersionComparator(a, b) {
+    return b.version.localeCompare(a.version);
+}
+function waitAndRedrawVersionList() {
+    $('#whereItAllGoes').empty();
+    $("#loader_id").append(processIndicatorHTML);
+    setTimeout(function () {
+        drawVersionsList()
+    }, 5000);
+
+}
+function drawVersionsList() {
+    var stages = $("#hiddenstages").children();
+    $("#loader_id").empty();
+    $("#loader_id").append(processIndicatorHTML);
+
+    $('#whereItAllGoes').innerHTML = '';
+    $('#whereItAllGoes').empty();
+
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: "getAppVersionsInStagesWithLifeCycleInfo",
+        userName: $("#userName").attr('value'),
+        applicationKey: $("#applicationKey").attr('value'),
+        isRoleBasedPermissionAllowed: true
+    }, function (result) {
+
+        var trunkHTML = "";
+        var branchesHTML = "";
+
+        $("#loader_id").html("").hide();
+
+        var parsedArray = jQuery.parseJSON(result);
+
+        var applicationsCount = parsedArray.length;
+        var isTrunkOnly = true;
+        var m = 0;
+        for (var i in parsedArray) {
+
+            var stage = parsedArray[i].stage;
+            var appKey = parsedArray[i].appKey;
+
+            var versions = parsedArray[i].versions;
+            versions.sort(VersionComparator);
+
+            var hasPromotePermission = ($("#hasPromotePermissionTo" + stage).val() === 'true');
+            var hasDemotePermission = ($("#hasDemotePermissionTo" + stage).val() === 'true');
+            var hasRetirePermission = ($("#hasRetirePermission").val() === 'true');
+            var stageHeading = '';
+            var stageContentDiv = '';
+            var vesionsCount = versions.length;
+            if (vesionsCount > 0) {
+
+                stageContentDiv = '<ul class="list_table" >';
+            }
+            var domContent = '';
+
+            for (var j = 0; j < vesionsCount; j++) {
+                var versionInfo = versions[j];
+                if (versionInfo.version === 'trunk') {
+                    domContent = getTableHeaders();
+                } else {
+                    var elementPosition = -1;
+                    var stagesCount = stages.length;
+                    var hasRetireOperation = false;
+                              var hasPromoteOperation = true;
+                    for (var k = 0; k < stagesCount; k++) {
+
+                        if (stages[k].value === stage) {
+
+                            elementPosition = k;
+
+                            break;
+                        }
+                    }
+                    if (elementPosition == stages.length - 1) {
+                        hasRetireOperation = true;
+                         hasPromoteOperation = false;
+                    }
+                    isTrunkOnly = false;
+                    var promoteText, demoteText, retireText, domeETAText, lifeCycleContent;
+                    lifeCycleContent = getLifeCycleContents(versionInfo, stage);
+                    promoteText = getPromoteText(hasPromotePermission,hasPromoteOperation, versionInfo, stage, lifeCycleContent);
+                    demoteText = getDemoteText(hasDemotePermission, versionInfo, stage);
+                    domeETAText = getETAText(hasPromotePermission, versionInfo, stage);
+                    retireText = getRetireText(hasRetirePermission, hasRetireOperation, versionInfo, stage, lifeCycleContent);
+                    //  if (hasRetirePermission) {
+                    //    retireText = '<button class="btn Retire" onClick="doGovernanceAction(this, \'Retire\',\'' +
+                    //      stage + '\'' + ', \'' + versionInfo.version + '\')" >' +
+                    //    '<i class="icon-retire"></i> Retire </button>';
+                    //
+                    // } else {
+                    //     retireText = '';
+                    //}
+                    domContent = getVersionRowContents(versionInfo, stage, promoteText, domeETAText, demoteText, retireText);
+                }
+                var row = $(domContent);
+                stageContentDiv += domContent;
+            }
+
+            if (m != 0) {
+                //$("#whereItAllGoes").append("<br/><br/>");
+            }
+            $("#whereItAllGoes").append(stageHeading).append(stageContentDiv);
+            m++;
+        }
+        if (isTrunkOnly) {
+            $("#whereItAllGoes").html('<div class="noData-message">Governance operations do not apply to Trunk, only to versioned branches. You can create branches on <a href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Repositories & Builds</a> tab </div>');
+        }
+        initPops();
+
+        $("#governance_list_container").removeClass("hide").addClass("separator");
+    }, function (jqXHR, textStatus, errorThrown) {
+        $("#loader").html("");
+    });
+}
+function getTableHeaders() {
+    var trunkContent = '<li class="list_row_item first_list_row_item">' +
+            '<ul class="list_row first_list_row">' +
+            '<li class="list_col first_list_col governance_version">' +
+            '<h2 class="list_col_heading">Version</h2>' +
+            '<li class="list_col first_list_col governance_version">' +
+            '<h2 class="list_col_heading">Lifecyle State</h2>' +
+            '<li class="list_col governance_lifecycle">' +
+            '<h2 class="list_col_heading"><lable class="js_deta_tooltip" data-tooltip="Your estimated end date of lifecycle stage. ">Completion Date</lable>' +
+        //'<span class="icon-stack question-icon js_deta_tooltip" data-tooltip="Your estimated end date of lifecycle stage. " style="margin-left: 5px;" data-hasqtip="1" aria-describedby="qtip-1">'+
+        //'<i class="icon-circle icon-stack-base"></i><i class="icon-question"></i></span>' +
+            '</h2>' +
+
+            '</li>' +
+            '<li class="list_col last_list_col governance_option">' +
+            '<h2 class="list_col_heading">&nbsp;</h2>' +
+
+            '</li> ' +
+            '</ul>';
+    return trunkContent;
+}
+function getVersionRowContents(versionInfo, stage, promoteText, domeETAText, demoteText, retireText) {
+    var domContent = '<li class="list_row_item first_list_row_item">' +
+            '<ul class="list_row first_list_row">' +
+            '<li class="list_col first_list_col governance_version">' +
+            '<div class="list_col_content" style="padding-left:10px;">' +
+            '<strong>' + versionInfo.version + '</strong>&nbsp;&nbsp;' +
+            '</div>' +
+            '</li>' +
+            '<li class="list_col first_list_col governance_version">' +
+            '<div class="list_col_content" >' +
+            '<i class="tag">' + stage + '</i>' +
+            '</div>' +
+            '</li>' +
+            '<li class="list_col governance_lifecycle">' +
+        //    '<h2 class="list_col_heading">Completion Date</h2>'+
+            domeETAText +
+            '</li>' +
+            '<li class="list_col last_list_col governance_option">' +
+        //    '<h2 class="list_col_heading">&nbsp;</h2>'+
+            '<div class="list_col_content">' +
+            '<ul class="inline_list item_right">' +
+            promoteText +
+            demoteText +
+            retireText +
+            '<li class="inline_item" title="Life Cycle History">' +
+            '<a href="#" class="icon_link js_governance_history" demote-app-stage="' + stage + '" demote-app-version="' + versionInfo.version + '" demote-app-tagName="">' +
+            '<span class="icon-file-alt" />' +
+            '</a>' +
+            '</li>' +
+            '</ul>' +
+            '</div> ' +
+            '</li> ' +
+            '</ul>';
+    return domContent;
+}
+function getDemoteText(hasDemotePermission, versionInfo, stage) {
+    var demoteText = '';
+    if (hasDemotePermission) {
+        demoteText = '<li class="inline_item" title="Demote">' +
+                '<button class="btn main small js_demote_popover" data-popover-my-position="top right" ' +
+                'popover-target-position="bottom right" demote-app-stage="' + stage + '" demote-app-version="' + versionInfo.version + '" demote-app-tagName="">Demote</button>' +
+                '</li>';
+    } else {
+        demoteText = '<li class="inline_item" title="Demote">' +
+                '<button class="btn small main" disabled="disabled">Demote</button>' +
+                '</li>';
+    }
+    return demoteText;
+}
+function getPromoteText(hasPromotePermission,hasPromoteOperation, versionInfo, stage, lifeCycleContent) {
+    var promoteText = '';
+    if (hasPromotePermission & hasPromoteOperation) {
+        promoteText = '<li class="inline_item" title="Promote"><button class="btn  main small js_promote_popover">Promote</button>' +
+                '<div class="popover_content hide">' +
+                '<form class="form-container" onSubmit="return false;">' +
+                lifeCycleContent +
+                '<div class="btn_row">' +
+                '<button class="btn main small hide_button" onClick="doGovernanceAction(this, \'Promote\',\'' +
+                stage + '\'' + ', \'' + versionInfo.version + '\')" >Promote</button>' +
+                '<a href="#" class="popover_close small" >Close</a>' +
+                '</div> ' +
+                '   </form>' +
+                '</div> ' +
+                '</li>';
+    } else {
+        promoteText = '<li class="inline_item" title="Promote">' +
+                '<button class="btn main small" disabled="disabled">Promote</button>' +
+                '</li>';
+
+    }
+    return promoteText;
+}
+function getRetireText(hasRetirePermission, hasRetireOperation, versionInfo, stage, lifeCycleContent) {
+    var retireText = '';
+    if (hasRetirePermission & hasRetireOperation) {
+        retireText = '<li class="inline_item" title="Retire"><button class="btn main small js_promote_popover">Retire</button>' +
+                '<div class="popover_content hide" style="width:400px;">' +
+                '<form class="form-container" onSubmit="return false;">' +
+                lifeCycleContent +
+                '<div class="btn_row">' +
+                '<button class="btn main small hide_button" onClick="doGovernanceAction(this, \'Retire\',\'' +
+                stage + '\'' + ', \'' + versionInfo.version + '\')" >Retire</button>' +
+                '<a href="#" class="popover_close small" >Close</a>' +
+                '</div> ' +
+                '   </form>' +
+                '</div> ' +
+                '</li>';
+    } else {
+        retireText = '<li class="inline_item" title="Retire">' +
+                '<button class="btn main small disable" disabled="disabled">Retire</button>' +
+                '</li>';
+
+    }
+    return retireText;
+}
+function getLifeCycleContents(versionInfo, stage) {
+    var lifeCycleContent = '';
+    for (counter = 0; counter < versionInfo.lifeCycleCheckListItems.length; counter++) {
+        var lifeCycleItem = versionInfo.lifeCycleCheckListItems[counter];
+        lifeCycleContent = lifeCycleContent + createLifeCycleItemCheckbox(stage, versionInfo.version, lifeCycleItem);
+    }
+    return lifeCycleContent;
+}
+function getETAText(hasPromotePermission, versionInfo, stage) {
+    var domeETAText = '';
+    if (hasPromotePermission) {
+        var modifiedVertionId = versionInfo.version.replace(/\./g, "_");
+        domeETAText = '<div id="eta_display_' + modifiedVertionId + '" class="list_col_content"  ></div>' +
+                '<div id="eta_edit_' + modifiedVertionId + '" class="list_col_content" style="display:none" ></div>';
+        getETA(domeETAText, stage, versionInfo.version);
+
+    } else {
+        domeETAText = '<div class="list_col_content">' +
+                '<form class="form-container">' +
+                '<div><input type="text" class="small push_right_10"  disabled="true" placeholder="Date" /><button type="submit" disabled="true" class="btn main small">Save</button></div>' +
+                '</form>' +
+                '</div>';
+    }
+    return  domeETAText;
+}
+function generateLifecycleHistoryTable(dataJSON) {
+    var itemJSON = JSON.parse(dataJSON);
+
+    //var tableHeader = "<div class='etaDisplay'>Life Cycle History :</div><table class='table table-striped'>";
+    var tableHeader = '<div class="popover_content"><table class="small_table">';
+    tableHeader += '<tr><th>User</th><th>Action</th><th>From</th><th>To</th><th>Timestamp</th></tr>';
+    var tableBody = "";
+    for (var item in itemJSON) {
+
+        var attributes = itemJSON[item]['item'];
+        if (attributes && attributes['targetState']) {
+
+            var row = '<tr>'
+            row += '<td><strong>' + attributes['user'] + '</strong></td>';
+            row += '<td><strong>' + attributes['action'] + '</strong></td>';
+            row += '<td>' + attributes['state'] + '</td>';
+            row += '<td>' + attributes['targetState'] + '</td>';
+            row += '<td style="color:#636771">' + attributes['timestamp'] + '</td>';
+            row += '<tr>';
+            row += '<tr><td colspan="5" class="comment">' + $('<div/>').html(attributes['comment']).text() + ' </td></tr>';
+            tableBody += row;
+        }
+
+    }
+    if (tableBody.length == 0) {
+        return '<span class="noData-message">This version still did not go through lifecycle</span><a href="#" class="popover_close small right" >Cancel</a></div>';
+    }
+
+    return tableHeader + tableBody + '</table><a href="#" class="popover_close small right" >Close</a></div>';
+}
+
+function getLifeCycleHistoryForApplication(api, key, version, stage) {
+    var historyContent;
+    jagg.post("../blocks/lifecycle/get/ajax/get.jag", {
+        action: "getLifeCycleHistoryForApplication",
+        userName: $("#userName").attr('value'),
+        applicationKey: key,
+        version: version,
+        stageName: stage
+    }, function (result) {
+
+        historyContent = generateLifecycleHistoryTable(result);
+        api.set('content.text', historyContent);
+    }, function (jqXHR, textStatus, errorThrown) {
+
+        historyContent = '<span>Error while retriving the lifecycle history</span><a href="#" class="popover_close small right" >Close</a></div>';
+        api.set('content.text', historyContent);
+    });
+    return  historyContent;
+}
+
+function addETA(uiElement, version, stage) {
+    jagg.removeMessage();
+    var user = $("#userName").attr('value');
+    var applicationKey = $("#applicationKey").attr('value');
+    var etaFrom, etaTo;
+    //$('label.error', $(uiElement).parent()).hide();
+    var dateValid = true;
+    var modifiedVersion = version.replace(/\./g, "_");
+    $('input[type="text"], input[type="hidden"]', $(uiElement).parent().parent()).each(function (index, element) {
+        if ($(this).attr('id') == "etaFrom_" + modifiedVersion) {
+            etaFrom = $(this).attr('value');
+        }
+        if ($(this).attr('id') == "etaTo_" + modifiedVersion) {
+
+            etaTo = $(this).attr('value');
+
+            //Adding date validation
+            var currentDate = new Date();
+            var selectedDate = new Date();
+
+            var etaStr = etaTo.split('-');
+            var year = etaStr[0];
+            var month = etaStr[1];
+            var date = etaStr[2];
+
+            selectedDate.setFullYear(year, month - 1, date);
+            var formatVaild = isDate(etaTo);
+            var b = selectedDate >= currentDate;
+            dateValid = formatVaild && b;
+
+            if (!b) {
+                $('label.error', $(uiElement).parent().parent()).show().html('Invalid Estimated End Date - Should not be lesser than the current date');
+                jagg.message({
+                    content: "Invalid Estimated End Date - Should not be lesser than the current date",
+                    type: 'error',
+                    id: 'govPage'
+                });
+            }
+            if ((!formatVaild)) {
+
+                $('label.error', $(uiElement).parent().parent()).show().html('Invalid Format of Estimated End Date - Enter a valid date with format yyyy-mm-dd');
+                jagg.message({
+                    content: "Invalid Format of Estimated End Date - Enter a valid date with format yyyy-mm-dd",
+                    type: 'error',
+                    id: 'govPage'});
+
+            }
+        }
+    });
+
+    if (!dateValid) {
+        return;
+    }
+    if (etaFrom.length == 0 || etaTo.length == 0 || version.length == 0 || stage.length == 0) {
+        jagg.message({
+            content: "Invalid Estimated End Date - Should not be empty",
+            type: 'error'
+        });
+        return;
+    } else {
+        var etaFromDate = new Date(etaFrom);
+        var etaToDate = new Date(etaTo);
+        if (etaFromDate.getTime() > etaToDate.getTime()) {
+            jagg.message({
+                content: "Estimated From cannot be larger than Estimated To in version " + version,
+                type: 'error'
+            });
+            return;
+        }
+    }
+
+    $(uiElement).val("Saving");
+    $(uiElement).attr("disabled", "disabled");
+    jagg.post("../blocks/eta/set/ajax/set.jag", {
+        action: "set",
+        applicationKey: $("#applicationKey").attr('value'),
+        stage: stage,
+        version: version,
+        user: user,
+        etaFrom: etaFrom,
+        etaTo: etaTo
+    }, function (result) {
+        if (!result.error) {
+            makeETAUneditable(modifiedVersion);
+            $('span:first', "#eta_display_" + modifiedVersion).html(etaTo);
+
+        } else {
+
+            jagg.message({
+                content: "Error occurred while adding the Estimated End Date information - Check Estimated End Date ",
+                type: 'error'
+            });
+        }
+        $(uiElement).val("Save");
+        $(uiElement).removeAttr("disabled");
+    }, function (jqXHR, textStatus, errorThrown) {
+        $(uiElement).val("Save");
+        $(uiElement).removeAttr("disabled");
+        jagg.message({
+            content: "Error occurred while performing the governance operation",
+            type: 'info'
+        });
+    });
+
+}
+
+function getETA(uiElement, stage, version) {
+    var user = $("#userName").attr('value');
+    var applicationKey = $("#applicationKey").val();
+
+    jagg.post("../blocks/eta/get/ajax/get.jag", {
+        action: "get",
+        applicationKey: applicationKey,
+        stage: stage,
+        version: version,
+        user: user
+    }, function (result) {
+        var modifiedVersion = version.replace(/\./g, "_");
+        var resultJson = jQuery.parseJSON(result);
+        if (result != undefined && !resultJson.error) {
+            if (resultJson.eta.etaFrom.length != 0 && resultJson.eta.etaTo.length != 0) {
+
+                var etaEdit = $('<form class="form-container" onsubmit="return false;">' +
+                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="small push_right_10 datepicker" placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="' + resultJson.eta.etaFrom + '" type="hidden"/><input type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
+                        '</form>');
+
+                $("#eta_edit_" + modifiedVersion).append(etaEdit);
+
+                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
+                $("#eta_display_" + modifiedVersion).append(suggestedETAstr);
+                makeETAUneditable(modifiedVersion);
+
+            } else {
+                var etaEdit = $('<form class="form-container" onsubmit="return false;">' +
+                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="small push_right_10 datepicker" placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="0000-00-00" type="hidden"/><input type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
+                        '</form>');
+                $("#eta_edit_" + modifiedVersion).append(etaEdit);
+
+                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\',\'' + resultJson.eta.etaTo + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
+                $("#eta_display_" + modifiedVersion).append(suggestedETAstr);
+                showETAEditable(modifiedVersion);
+
+            }
+
+            // var modifiedVersion = version.replace(/\./g, "_");
+            //var etaEdit='<div id="eta_edit_' + modifiedVersion + '" class="etaDisplay" style="display:none" >';
+
+            initDatePicker();
+        }
+    }, function (jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content: "Error occurred while performing the governance operation",
+            type: 'info'
+        });
+    });
+}
+
+function showETAEditable(version) {
+
+    $("#eta_display_" + version).hide();
+    var value = $('span:first', "#eta_display_" + version).text();
+    if (value.length > 0) {
+        $('a:first', "#eta_edit_" + version).show();
+    } else {
+        $('a:first', "#eta_edit_" + version).hide();
+    }
+
+    $("#etaTo_" + version).val(value);
+    $("#eta_edit_" + version).show();
+
+}
+
+function makeETAUneditable(version) {
+    $("#eta_edit_" + version).hide();
+    $("#eta_display_" + version).show();
+}
+function initDatePicker() {
+    $('.datepicker').each(function () {
+        $(this).datepick({dateFormat: 'yyyy-mm-dd'});
+    });
+}
+
+function initPops() {
+
+    $('.hide_button').live('click', function () {
+        $(this).parents('.qtip').qtip("hide");
+    });
+    $('.js_demote_popover').each(function () {
+        $(this).qtip({
+            content: {
+                text: processIndicatorHTML
+            },
+            style: {
+                classes: 'popover_box issue_down',
+                widget: false,
+                def: false,
+                tip: false
+            },
+            hide: {
+                fixed: true,
+                event: null,
+                effect: function (offset) {
+                    $(this).slideUp(200);
+                }
+            },
+            show: {
+                event: 'click',
+                effect: function (offset) {
+                    $(this).slideDown(200);
+                }
+            },
+            events: {
+                show: function (event, api) {
+                    api.elements.target.addClass('active');
+                    var $el = $(api.elements.target[0]);
+                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
+                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+                    
+
+                },
+                hide: function (event, api) {
+                    api.elements.target.removeClass('active');
+                },
+                render: function (event, api) {
+                    var $el = $(api.elements.target[0]);
+
+                    $('.popover_box').each(function () {
+                          if ($(this).is(':visible')) {
+                              $(this).hide();
+                              $(this).prev().toggleClass("active");
+                              $('html').unbind('click');
+                          }
+                      });
+
+                      $('html').click(function (event) {
+                      	  var popover_box = $(event.target).closest('.popover_box');
+                      	  if(popover_box.length == 0){
+	                          $('.js_demote_popover').removeClass("active");
+	                          $('.popover_box').hide().removeClass("highlight");
+	                          //$('html').unbind('click');
+	                      }
+                      });
+
+                    var stage = $el.attr('demote-app-stage');
+                    var version = $el.attr('demote-app-version');
+                    var tagName = $el.attr('demote-app-tagName');
+
+                    var issueArray;
+                    var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
+
+                    jagg.post("../blocks/issuetracker/list/ajax/list.jag", {
+                                action: "getOpenIssues",
+                                applicationKey: $("#applicationKey").attr('value'),
+                                applicationVersion: version
+                            },
+                            function (result) {
+                                if (result) {
+                                    issueArray = jQuery.parseJSON(result);
+                                    var issuesection = '<form class="form-container" onsubmit="return false">' +
+                                            '<div class="input_row">';
+                                    if (issueArray.length > 0) {
+                                        issuesection = issuesection + '<label>Related Issue</label>' +
+                                                '<div style="margin-left:140px;overflow-y:scroll;height:120px">';
+
+                                        for (var i = 0; i < issueArray.length; i++) {
+                                            var issue = issueArray[i];
+                                            issuesection += "<p> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id
+                                                    + "' type='checkbox'  order='0' " + "title='" + issue.title + "' issuetype='" + issue.type + "' issueid='" + issue.id + "' url='" + issue.url
+                                                    + "'> [" + issue.type + "] " + issue.title + "</input> <a href=" + issue.url
+                                                    + " target='_blank' ><i class='icon-share-alt'></i></a></p>";
+                                        }
+                                    }
+                                    issuesection = issuesection +
+                                            '</div>' +
+                                            '</div>' +
+                                            '<div class="input_row">' +
+                                            '<label>Add Comment<font color="red">*</font></label>' +
+                                            '<textarea cols="5" rows="3" name="something" class="comment_area"></textarea>' +
+                                            '<div class="btn_row">' +
+                                            '<button class="btn main small hide_button" onclick="doDemoteActionAjax(\'' + stage + '\'' + ', \'' + version + '\'' + ',\'' + tagName + '\'' + ' )">Demote</button><a href="#" class="popover_close small" >Cancel</a>' +
+                                            '</div>' +
+                                            '</div>' +
+                                            '</form>' +
+                                            '</div>';
+                                    api.set('content.text', issuesection)
+
+                                }
+                            },
+                            function (jqXHR, textStatus, errorThrown) {
+                                jagg.message({content: "Error occurred while retrieving issues", type: 'info' });
+                            });
+
+
+                }
+            }
+        });
+    }).bind('click', function (event) {
+                event.preventDefault();
+                return false;
+            });
+    $('.js_promote_popover').each(function () {
+        $(this).qtip({
+            content: {
+                text: $(this).next()
+            },
+            style: {
+                classes: 'popover_box issue_up',
+                widget: false,
+                def: false,
+                tip: false
+            },
+            hide: {
+                fixed: true,
+                event: null,
+                effect: function (offset) {
+                    $(this).slideUp(200);
+                }
+            },
+            show: {
+                event: 'click',
+                effect: function (offset) {
+                    $(this).slideDown(200);
+                }
+            },
+            events: {
+                show: function (event, api) {
+                    api.elements.target.addClass('active');
+
+                    var $el = $(api.elements.target[0]);
+                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
+                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+
+                },
+                hide: function (event, api) {
+                    api.elements.target.removeClass('active');
+                },
+                render: function (event, api) {
+                    var $el = $(api.elements.target[0]);
+
+                    $('.popover_box').each(function () {
+                        if ($(this).is(':visible')) {
+                            $(this).hide();
+                            $(this).prev().toggleClass("active");
+                            $('html').unbind('click');
+                        }
+                    });
+
+                    $('html').click(function () {
+                		  var popover_box = $(event.target).closest('.popover_box');
+						  if(popover_box.length == 0){
+						    $('.js_promote_popover').removeClass("active");
+						    $('.popover_box').hide().removeClass("highlight");
+						    //$('html').unbind('click');
+						  }
+                    });
+                }
+
+            }
+        });
+    }).bind('click', function (event) {
+                event.preventDefault();
+                return false;
+            });
+    $('.js_governance_history').each(function () {
+        $(this).qtip({
+            content: {
+                text: processIndicatorHTML// The text to use whilst the AJAX request is loading
+
+
+            },
+            style: {
+                classes: 'popover_box issue_down',
+                widget: false,
+                def: false,
+                tip: false
+            },
+            hide: {
+                fixed: true,
+                event: null,
+                effect: function (offset) {
+                    $(this).slideUp(200);
+                }
+            },
+            show: {
+                event: 'click',
+                effect: function (offset) {
+                    $(this).slideDown(200);
+                }
+            },
+            events: {
+                show: function (event, api) {
+                    api.elements.target.addClass('active');
+                    var $el = $(api.elements.target[0]);
+                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
+                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+
+                },
+                hide: function (event, api) {
+                    api.elements.target.removeClass('active');
+                },
+                render: function (event, api) {
+                    var $el = $(api.elements.target[0]);
+
+
+                    $('.popover_box').each(function () {
+
+                        if ($(this).is(':visible')) {
+                            $(this).hide();
+                            $(this).prev().toggleClass("active");
+                            $('html').unbind('click');
+                        }
+                    });
+
+                    $('html').click(function () {
+                        $('.js_governance_history').removeClass("active");
+                        $('.popover_box').hide().removeClass("highlight");
+                        $('html').unbind('click');
+                    });
+
+                    var stage = $el.attr('demote-app-stage');
+                    var version = $el.attr('demote-app-version');
+                    var tagName = $el.attr('demote-app-tagName');
+                    var key = $("#applicationKey").attr('value');
+                    getLifeCycleHistoryForApplication(api, key, version, stage);
+                    //api.set('content.text',content);
+
+
+                }
+            }
+        });
+    }).bind('click', function (event) {
+                event.preventDefault();
+                return false;
+            });
+
+    //Create the tool tip for ETA Header
+    $('.js_deta_tooltip').each(function () {
+        $(this).qtip(
+                {
+                    content: {
+                        attr: 'data-tooltip'
+                    },
+                    show: {
+                        when: 'click',
+                        solo: true // Only show one tooltip at a time
+                    },
+                    hide: 'unfocus',
+                    style: {
+                        classes: 'popup_status_box tooltip',
+                        widget: false,
+                        def: false
+                    }
+                });
+    });
+
+}
+$(function () {
+    drawVersionsList();
+
+
+});
+//]]
+
+// Declaring valid date character, minimum year and maximum year
+var dtCh = "-";
+var minYear = 1900;
+var maxYear = 2100;
+
+function isInteger(s) {
+    var i;
+    for (i = 0; i < s.length; i++) {
+        // Check that current character is number.
+        var c = s.charAt(i);
+        if (((c < "0") || (c > "9"))) return false;
+    }
+    // All characters are numbers.
+    return true;
+}
+
+function stripCharsInBag(s, bag) {
+    var i;
+    var returnString = "";
+    // Search through string's characters one by one.
+    // If character is not in bag, append to returnString.
+    for (i = 0; i < s.length; i++) {
+        var c = s.charAt(i);
+        if (bag.indexOf(c) == -1) returnString += c;
+    }
+    return returnString;
+}
+
+function daysInFebruary(year) {
+    // February has 29 days in any year evenly divisible by four,
+    // EXCEPT for centurial years which are not also divisible by 400.
+    return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
+}
+function DaysArray(n) {
+    for (var i = 1; i <= n; i++) {
+        this[i] = 31
+        if (i == 4 || i == 6 || i == 9 || i == 11) {
+            this[i] = 30
+        }
+        if (i == 2) {
+            this[i] = 29
+        }
+    }
+    return this
+}
+
+function isDate(dtStr) {
+    var daysInMonth = DaysArray(12)
+    var pos1 = dtStr.indexOf(dtCh)
+    var pos2 = dtStr.indexOf(dtCh, pos1 + 1)
+    var strYear = dtStr.substring(0, pos1)
+    var strMonth = dtStr.substring(pos1 + 1, pos2)
+    var strDay = dtStr.substring(pos2 + 1)
+    strYr = strYear
+    if (strDay.charAt(0) == "0" && strDay.length > 1) strDay = strDay.substring(1)
+    if (strMonth.charAt(0) == "0" && strMonth.length > 1) strMonth = strMonth.substring(1)
+    for (var i = 1; i <= 3; i++) {
+        if (strYr.charAt(0) == "0" && strYr.length > 1) strYr = strYr.substring(1)
+    }
+    month = parseInt(strMonth)
+    day = parseInt(strDay)
+    year = parseInt(strYr)
+    if (pos1 == -1 || pos2 == -1) {
+        //  alert("The date format should be : mm/dd/yyyy")
+        return false
+    }
+    if (strMonth.length < 1 || month < 1 || month > 12) {
+        // alert("Please enter a valid month")
+        return false
+    }
+    if (strDay.length < 1 || day < 1 || day > 31 || (month == 2 && day > daysInFebruary(year)) || day > daysInMonth[month]) {
+        // alert("Please enter a valid day")
+        return false
+    }
+    if (strYear.length != 4 || year == 0 || year < minYear || year > maxYear) {
+        //  alert("Please enter a valid 4 digit year between "+minYear+" and "+maxYear)
+        return false
+    }
+    if (dtStr.indexOf(dtCh, pos2 + 1) != -1 || isInteger(stripCharsInBag(dtStr, dtCh)) == false) {
+        //  alert("Please enter a valid date")
+        return false
+    }
+    return true
+}
+
+function ValidateForm() {
+    var dt = document.frmSample.txtDate
+    if (isDate(dt.value) == false) {
+        dt.focus()
+        return false
+    }
+    return true
+}
+
+function hideNotification() {
+    // create new timer with given time interval
+    setTimeout(function () {
+        jagg.removeMessage('noification')
+    }, 5000);
+}
+
+</script>
+<%
+    //} else { // show message below
+    //    %>
+
+<%
+    // }
+    //  %>
+
+<%
+
+    var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    for (var i = 0; i < stages.length; i++) {
+        var stage = stages[i];
+        var promoteDepPolicy = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.Promote.DeploymentPolicy');
+
+        if (promoteDepPolicy != null) {
+            print('<input type="hidden" name="' + stage + '" id="' + stage + '" value="' +
+                    promoteDepPolicy + '">');
+        } else {
+            print('<input type="hidden" name="' + stage + '" id="' + stage + '" value="">');
+        }
+    }
+%>
+
+<!--START content section-->
+
+<input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+<input type="hidden" name="userName" id="userName" value="<%=userName
+    %>"/>
+<%
+    var log = new Log();
+    var hasPromotePermissions = outputs.hasPromotePermissions;
+    for (var promoteStage in hasPromotePermissions){
+    var promoteParameterName = 'hasPromotePermissionTo' + promoteStage;
+    var promoteParameterValue = hasPromotePermissions[promoteStage];
+%>
+<input type="hidden" name="<%=promoteParameterName%>" id="<%=promoteParameterName%>" value="<%=promoteParameterValue
+        %>"/>
+<%
+    }
+%>
+<%
+    var hasDemotePermissions = outputs.hasDemotePermissions;
+    for (var demoteStage in hasDemotePermissions){
+    var demoteParameterName = 'hasDemotePermissionTo' + demoteStage;
+    var demoteParameterValue = hasDemotePermissions[demoteStage];
+%>
+<input type="hidden" name="<%=demoteParameterName%>" id="<%=demoteParameterName%>" value="<%=demoteParameterValue
+        %>"/>
+<%
+    }
+%>
+<input type="hidden" name="hasRetirePermission" id="hasRetirePermission" value="<%=outputs.hasRetirePermission%>"/>
+
+<div class="container">
+    <article class="main">
+        <%
+            jagg.includeBlock("page/messages", null);
+        %>
+        <header class="separator">
+            <div class="content">
+                <h1>Lifecycle Management</h1>
+            </div>
+        </header>
+        <section id="governance_list_container" class="">
+            <div class="loader" id="loader_id" style="padding-left:40px;padding-top:40px;"></div>
+            <div class="content clear well" id="whereItAllGoes">
+
+                <div class="clearfix"></div>
+            </div>
+        </section>
+
+        <div class="clearfix"></div>
+    </article>
+</div>
+<!-- /container -->
+
+<style>
+    li.governance_option {
+        width: 340px;
+    }
+    .qtip{
+        max-width: none;
+    }
+</style>
+
+<%
+    }
+    )
+    ; %>
+

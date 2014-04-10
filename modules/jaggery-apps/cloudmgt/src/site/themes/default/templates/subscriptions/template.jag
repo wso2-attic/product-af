@@ -1,0 +1,105 @@
+<% jagg.template("subscriptions", function(inputs, outputs, jagg) { %>
+<%
+
+ var log = new Log();
+ var userName =  session.get("LOGGED_IN_USER");
+if(userName !=null ) {
+
+ var file = new File("/site/conf/cloud-mgt.xml");
+ file.open("r");
+ var data = file.readAll();
+ var doc= new XML(data);
+ var types = doc.subscriptions.type;
+file.close();
+ var subscriptionInfo = {};
+ var db = new Database("cloud_mgt");
+ for(var i=0;i<types.length();i++) {
+   var columnName = types[i].toString();
+   var url = types[i].@url;
+    var domainName = userName.substring(userName.indexOf("@")+1,userName.length); 
+     var isRegistered = db.query("SELECT "+columnName+" FROM SUBSCRIPTIONS WHERE tenantDomain ='"+domainName+"'");
+
+   subscriptionInfo[columnName] = isRegistered[0][columnName];
+ }
+ db.close();
+
+%>
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/index.css'))%>" />
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>" />
+
+
+
+<div class="wrapper">
+    <article class="start">
+        <div class="af_container">
+            <div class="af_row">
+                <div class="col-1"></div>
+                <div class="col-11 logo-column">
+                    <a><i class="wso2-cloud-logo"></i></a>
+                    <div class="dropdown user right">
+
+
+              <%
+                if(userName!=null) {
+              %>
+
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <!--<img class="user_photo" src="assets/img/avatar.png" alt="Avatar of avatar" />--> <%=userName%>
+                <span class="icon-chevron-down"></span>
+              </a>
+              <ul class="dropdown-menu">
+                     <!--li><a href="/your_profile">Your Profile</a></li-->
+                      <li><a onclick="window.location.href='change-password.jag'" href="#"><nbr>Change Password</nbr></a></li>
+                      <li><a onclick="window.location.href='user.jag'" href="#"><nbr>Manage Users and Roles</nbr></a></li>
+                    <li><a href="#" onclick="window.location.href='logout.jag'">Sign Out</a></li>
+                  
+               </ul>
+               <%
+                }
+               %>
+            </div>
+                 </div>
+               
+            </div>
+        </div>
+        <div class="af_container">
+            <div class="af_row">
+                <div class="col-12 help-text-column">
+                    &nbsp; 
+                </div>
+            </div>
+        </div>
+        <div class="af_container main-link-container">
+            <div class="af_row">
+				<% 
+			    for(var i=0;i<types.length();i++) {
+					 if(subscriptionInfo[types[i].toString()] == true) {
+				   %>
+				   <div class="col-4">
+                                      <%  if(types[i].toString()=="integration_cloud") {%>
+                                              <i class="<%=types[i].toString()%>_disabled"></i>
+                                             <div class="helper_text"> Coming Soon...</div>
+                                       <%} else {%>
+
+						<a title="Go to <%=types[i].@display_name.toString()%>" href="<%=types[i].@url.toString()%>"><i class="<%=types[i].toString()%>"></i></a> <%} %>
+				   </div>
+				  <% }else{ %>
+					<div class="col-4">
+						<i class="<%=types[i].toString()%>_disabled"></i>
+					</div>
+				  <% } 
+				 } %>
+				 <input type="hidden" name="secretKey" id="secretKey" value=""/>
+                 <input type="hidden" name="imagePath" id="imagePath" value=""/>
+            </div>
+    </article>
+	<div class="helper_text">
+		<p class="helper_text_bold">You are now signed in.</p> 
+		<p>Click the logo of the cloud you want to access.</p>
+	</div>
+</div><!-- /wrapper -->
+ 
+  <% } 
+ %>
+<% }); %>
+

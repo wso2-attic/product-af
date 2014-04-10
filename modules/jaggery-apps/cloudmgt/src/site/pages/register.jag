@@ -1,0 +1,28 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+
+(function () {
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/register.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"Register",
+                        "middle":[
+                            {
+                            	"name":"register"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

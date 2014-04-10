@@ -1,0 +1,744 @@
+<% jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
+
+<%
+    var baseURL = getProperty(BASE_URL);
+    var gitURL = null;
+    %>
+    <style>
+    .popover_form input.branch-txt-width-fix{
+            width:240px;
+        }
+    #d_clip_button {
+        text-align:center;
+        border:1px solid black;
+        background-color:#ccc;
+        margin:10px; padding:10px;
+    }
+    #d_clip_button.zeroclipboard-is-hover { background-color:#eee; }
+    #d_clip_button.zeroclipboard-is-active { background-color:#aaa; }
+
+    </style>
+
+    <script type="text/javascript">
+    //[cdata[
+
+     var successStateStyle="status success push_left_10";
+     var failedStateStyle="status failed push_left_10";
+    //this is for zeroclipboard pluging
+     var _defaults = {
+        moviePath:         "<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))
+    %>",        // URL to movie
+        trustedDomains:    undefined,                  // Domains that we should trust (single string or array of strings)
+        hoverClass:        "zeroclipboard-is-hover",   // The class used to hover over the object
+        activeClass:       "zeroclipboard-is-active",  // The class used to set object active
+        allowScriptAccess: "sameDomain",               // SWF outbound scripting policy
+        useNoCache:        true,                       // Include a nocache query parameter on requests for the SWF
+        amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
+
+     };
+     ZeroClipboard.setDefaults(_defaults);
+
+    /**
+     * To create the Code envy workspace URL
+     * @returns {string}
+     */
+    function createCodeEnvyUrl(version,appType){
+
+        var codeEnvyUrl = null;
+
+        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+                action: "createCodeEnvyUrl",
+                gitURL: gitURL,
+                applicationKey: applicationKey,
+                appType: appType,
+                version:version
+            }, function (result) {
+                codeEnvyUrl = result;
+                 if(codeEnvyUrl===""){
+                        jagg.message({
+                            content: "Failed creating the Codenvy workspace URL!",
+                            type: 'error',
+                            id:'message_id'
+                        });
+
+                    }else{
+                        //OpenInNewTab(codeEnvyUrl);
+                        window.open(codeEnvyUrl, '_blank');
+                    }
+        });
+       // return nonEncodedUrl;
+    }
+
+
+
+    function drawVersionsList() {
+        var row = '',
+            versions = [],
+            element = {},
+            count = 0;
+        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+                action: "getbuildandrepodata",
+                buildableforstage:"true",
+                metaDataNeed:"false",
+                applicationKey: applicationKey,
+                userName:userName,
+                isRoleBasedPermissionAllowed:"false"
+            }, function (result) {
+            
+                versions = jQuery.parseJSON(result);
+                $("#repositories_and_builds_list").empty();
+
+                count = versions.length;
+                $theUl="";
+                for (var i = 0; i < count; i++) {
+                    element = versions[i];
+                    $theUl =constructRow(element,i);
+
+                    $("#repositories_and_builds_list").append($theUl);
+
+                    var clip = new ZeroClipboard($('#copy'+i));
+
+                    clip.on( 'load', function(client) {
+
+                    });
+
+                    clip.on( 'complete', function(client, args) {
+
+                    } );
+                    clip.on( 'mousedown', function(client) {
+
+                    } );
+
+                }
+                    $("#repositories_and_builds_list").append($('<div class="clearfix"></div>'));
+                    $('.js_create_branch').click(function(event){
+                        $(this).toggleClass("active");
+                         jagg.removeMessage('reposBuild');
+
+
+                        $('.popover_form').each(function(){
+                            if($(this).is(':visible')){
+                                $(this).toggle();
+                                $(this).prev().toggleClass("active");
+                                $('html').unbind('click');
+                            }
+                        });
+
+                        $(this).next().toggle( function() {
+                            $(this).toggleClass("highlight");
+                            if($('.js_create_branch').next().is(":visible")){
+                                $('html').click(function() {
+                                    $('.js_create_branch').removeClass("active");
+                                    $('.js_create_branch').next().hide().toggleClass("highlight");
+                                    $('html').unbind('click');
+                                });
+
+                                $('.js_create_branch').next().click(function(event){
+                                    event.stopPropagation();
+                                });
+                                $('.js_create_branch').click(function(event){
+                                    event.stopPropagation();
+                                });
+                            }else{
+                                $('html').unbind('click');
+                            }
+                        });
+                        event.preventDefault();
+                    });
+                    $('.js_build_option').click(function(event){
+                        $(this).toggleClass("active");
+                        $('.popover_form').each(function(){
+                            if ($(this).is(':visible')) {
+                                $(this).toggle();
+                                $(this).prev().toggleClass("active");
+                                $('html').unbind('click');
+                            }
+                        });
+                        $(this).next().toggle( function() {
+                            $(this).toggleClass("highlight");
+                            if($('.js_build_option').next().is(":visible")){
+                                $('html').click(function() {
+                                    $('.js_build_option').removeClass("active");
+                                    $('.js_build_option').next().hide().toggleClass("highlight");
+                                    $('html').unbind('click');
+                                });
+
+                                $('.js_build_option').next().click(function(event){
+                                    event.stopPropagation();
+                                });
+                                $('.js_build_option').click(function(event){
+                                    event.stopPropagation();
+                                });
+                            }else{
+                                $('html').unbind('click');
+                            }
+                        });
+                        event.preventDefault();
+                    });
+                    $('.popover_form .cancel').click(function(event){
+                         jagg.removeMessage('reposBuild');
+                        $(this).closest(".popover_form").toggle( function() {
+                            $(this).toggleClass("highlight");
+                        });
+                        $(this).closest(".popover_form").prev().toggleClass("active");
+                        event.preventDefault();
+                    });
+
+                    $('.create_branch_button').click(function(event){
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var tmpTargetVersion=$("#create_branch"+tmpSrcVersion.replace(/\./g,'_')).attr('value');
+                         doCreateBranch(applicationKey,tmpSrcVersion,tmpTargetVersion,this);
+                    });
+                    $('.build_action').click(function(event){
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var vr=tmpSrcVersion.replace(/\./g,'_');
+                        var tmpstage=$(this).attr('data-stage');
+                        var id2= "#auto_deploy_"+ vr;
+                        var autoDeploy= $(id2).is(':checked');
+                        doBuild(applicationKey," ",tmpstage," ",tmpSrcVersion,autoDeploy);
+                    });
+                    $('.createCodeEnvyUrl').click(function(event){
+                        var version=$(this).attr('data-version');
+                        var appType=$(this).attr('data-type');
+                        if(appType=== 'bpel' || appType=== 'esb' || appType=== 'dbs'){
+                        jagg.message({
+                            content: "Code editor not supported for the " + appType + " application type!",
+                            type: 'error',
+                            id:'message_id'
+                        });
+
+                    } else
+                        createCodeEnvyUrl(version,appType);
+                    });
+                    $('.deploy_action').click(function(event){
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var tmpstage=$(this).attr('data-stage');
+
+                        doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion);
+                    });
+                    $('.launch_action').click(function(event){
+                        var tmpAppType=$(this).attr('data-type');
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var tmpstage=$(this).attr('data-stage');
+                        var state="started";
+                        doLaunch(applicationKey, tmpSrcVersion,tmpstage,state,tmpAppType);
+                    });
+
+                    $('.config_save-action').click(function(event){
+                        var tmpSrcVersion=$(this).attr('data-version');
+                        var vr=tmpSrcVersion.replace(/\./g,'_');
+                        var id1= "#auto_build_"+vr;
+
+                        var autoBuild= $(id1).is(':checked');
+                        var id2= "#auto_deploy_"+ vr;
+                        var autoDeploy= $(id2).is(':checked');
+
+
+                        var tmpstage=$(this).attr('data-stage');
+                        doSetBuildDeployConfigs(applicationKey,tmpSrcVersion,tmpstage,autoBuild,autoDeploy);
+                    });
+
+                    $('#filter_repos_or_stages').keyup(function(event){
+                         doSearch($(this).val());
+                    });
+
+                    $('.copy_link').click(function(){
+                        CopyToClipboard($(this).attr('data-url'));
+                    });
+
+                    $('.fork_repo').click(function(event){
+                        var gitURL = $(this).attr('data-gitURL');
+                        var fType = $(this).attr('data-forkType');
+                        doFork(applicationKey, gitURL, userName, fType);
+                    });
+
+            //use following section when needed to stop user from entering text as the version number
+            /*        $('.txt_version').keyup(function(){
+                        var query=$(this).val();
+                        var len=query.length;
+                        var c=query[len-1];
+                        var res=isInteger(c);
+                        if(res)
+                        {
+
+                        }
+                        else{
+                            if(query[len-1]!='.'){
+                                $(this).val('');
+                                jagg.message({
+                                    content: "Text are not accepted in the version number.",
+                                    type: 'error'
+                                });
+                            }
+
+                        }
+
+                    });
+                    function isInteger(str) {
+                        return /^\d+$/.test(str);
+                    }*/
+
+
+                },
+        function (jqXHR, textStatus, errorThrown) {
+
+        });
+    }
+
+    function setJenkinsURL(){
+        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+                action: "getJenkinsURL"
+            }, function (result) {
+                var jenkinsUrl = jQuery.parseJSON(result);
+                $('#tenant_jenkins_url').attr("href",jenkinsUrl);
+                $('#tenant_jenkins_url_img').attr("href",jenkinsUrl);
+            });
+    }
+
+    $(function () {
+            applicationKey = '<%=request.getParameter("applicationKey")
+    %>';
+            userName = '<%=session.get("LOGGED_IN_USER")
+    %>';
+            drawVersionsList();
+            drawVersionListRec();
+            setJenkinsURL();
+    });
+    
+    var forcePageAppRefresh = false ;
+
+    function constructRow(element,i){
+    
+        var statusStyle="";
+        var version=element.version.current;
+        var isBuildableArtifact=element.version.isBuildableArtifact;
+        var stage=element.version.stage;
+        var versionForIds=version.replace(/\./g,'_');
+        var buildHidden="";
+        var delpoyHidden=""
+        var buildDeployHide="";
+        var currentBuildStatusHidden = "" ;
+        var launchHide="";
+        if(element.build.lastBuildId===null){
+            //hide build id,status
+            var buildHidden="hidden";
+        }
+        if((element.deployment.deployedBuildId===null)||(element.deployment.deployedBuildId==="")){
+            //hide ,deployed id,state
+            delpoyHidden="hidden";
+        }
+
+        if(element.build.status=="successful"){
+            statusStyle=successStateStyle;
+        }else{
+            statusStyle=failedStateStyle;
+        }
+        var isAutoBuildChecked="";
+        var isAutoDeploymentChecked="";
+        if(element.version.isAutoBuild=="true"){
+            isAutoBuildChecked='checked="checked" ';
+
+        }
+        if(element.version.isAutoDeploy=="true"){
+            isAutoDeploymentChecked='checked="checked" ';
+
+        }
+        if(stage!="Development"){
+            buildDeployHide="hidden";
+        }
+        if(stage==="Retired"){
+        	launchHide="hidden";
+        }
+        gitURL = element.version.repoURL;
+        
+        var currentBuildStatus = "" ;
+        
+        if(element.version.currentBuildStatus==="start"){
+        	currentBuildStatus = " build running"
+        	if(isBuildableArtifact==="true"){
+        		forcePageAppRefresh = true ;
+        	}
+        }else{
+        	currentBuildStatusHidden = "hidden";
+        }
+        
+        var hiddenForNonBuildableArtifact = "" ;
+        if(isBuildableArtifact==="false"){
+        	hiddenForNonBuildableArtifact = 'style="display:none"' ;
+        	currentBuildStatusHidden = "hidden" ;
+        	delpoyHidden="hidden";
+        }
+       
+        var $resultRow = $(
+
+		        '<ul class="row" data-version="'+version+'" data-stage="'+stage.toLowerCase()+'">' +
+		         '  <li class="col" style="width:290px;">'+
+		                '<h2>Version</h2>'+
+		                '<p class="version">'+
+		                    '<strong class="version_number">'+version+'</strong>'+
+		                    '<span class="version_from">'+
+		                        '<i class="icon-double-angle-left"></i>'+
+		                        '<i class="tag_number">'+element.version.parent+'</i>'+
+		                        '<i class="tag">'+stage+'</i>'+
+		                    '</span>'+
+		                '</p>'+
+		
+		            '<ul class="inline_list item_right tag_link push_top_20">'+
+		                '<li class="inline_item">Copy URL <a id="copy'+i+'" class="icon_link copy_link" href="#" title="Copy Git URL " data-clipboard-text="'+gitURL+'"><span class="icon-copy"></span></a></li>'+
+		                '<li class="inline_item push_left_20">Browse URL <a class="icon_link" href="'+gitURL.replace("/git/","/summary/?r=")+'"target="_blank" title="Git browse URL"><span class="icon-globe "></span></a></li>'+
+                        '<li class="inline_item">Fork Repo <a id="fork'+i+'" class="icon_link fork_repo" data-gitURL="'+gitURL+'" data-forkType="git"><span class="icon-copy"></span></a></li>'+
+		            '</ul>'+
+		
+		            '<div class="action">'+
+		                '<div class="relative push_left_10">'+
+		                    '<a href="#" class="btn main small js_create_branch" rel="popover" >Create Branch</a>'+
+		                     '<div class="icon_link_popover popover_form" style="width:500px;">'+
+		                        '<form class="form-container" onSubmit="return false;">'+
+		                                '<div class="input_row separator">'+
+		                                    '<label for="create_branch" class="push_right_10" align="center">Version:</label>'+
+		                                    '<input id="create_branch'+versionForIds+'" type="text" class="txt_version fw_250 branch-txt-width-fix" placeholder="Version Number" name="create_branch" value=""  />'+
+		                                   '</div>'+
+		                                '<div class="btn_row" >'+
+		                                    '<input type="button" value="Create Branch" class="btn main small create_branch_button" data-version="'+version+'"/> <span class="submit_note">from <strong>'+version+'</strong> <a class="cancel" href="#">Cancel</a></span>'+
+		                                '</div>'+
+		                        '</form>'+
+		                     '</div>'+
+		                '</div>'+
+		            '</div>'+
+		
+		            '<li>'+
+		                '<li class="col" style="width:350px;">'+
+		                '<h2>Last Build</h2>'+
+		                '<p '+buildHidden+' class="build_status">Build '+element.build.lastBuildId+' ' +
+		                    '<span class="'+statusStyle+'">'+element.build.status + '</span>' +
+		                '</p>'+
+		                '<p '+currentBuildStatusHidden+' class="build_status"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('img-dev/loading-small.gif'))%>" />'+currentBuildStatus+' ' +
+		                '</p>'+
+		
+		             //   TODO post 1.0      <p class="build_user">By <a href="#">'+element.build.triggeredBy+'</a><br />'+
+		           // 'at <a href="#"><time datetime="'+element.build.triggeredTime+'">'+element.build.triggeredTime+'</time></a></p>'+
+		
+		                '<div class="action">'+
+		                    '<ul class="inline_list" '+buildDeployHide+'>'+
+		                        '<li class="inline_item"><a href="#" class="btn main small createCodeEnvyUrl" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li>'+
+		                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small build_action" data-version="'+version+'" data-stage="'+stage+'">Build</a></li>'+
+		                        '<li class="inline_item"><a href="#" class="btn main small deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></li>'+
+		                        '<li class="inline_item relative">'+
+		                            '<a href="#" class="icon_link js_build_option" title="Change auto build,auto deployment settings"><span class="icon-cog"></span></a>'+
+		                        '<div  class="icon_link_popover build_option popover_form">'+
+		                            '<form class="form-container" onSubmit="return false;">'+
+		                                '<div class="input_row">'+
+		                                    '<label for="auto_build" ' + hiddenForNonBuildableArtifact + '><input id="auto_build_'+versionForIds+'" type="checkbox" name="auto_build" '+isAutoBuildChecked+'/> Auto Build</label><br />'+
+		                                    '<label for="auto_deploy"><input id="auto_deploy_'+versionForIds+'" type="checkbox" name="auto_deploy" '+ isAutoDeploymentChecked+'/> Auto Deploy</label><br />'+
+		                                '</div>'+
+		                                '<div class="input_row">'+
+		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#">Cancel</a>'+
+		                                '</div>'+
+		                            '</form>'+
+		                        '</div>'+
+		                        '</li>'+
+		                    '</ul>'+
+		                '</div>'+
+		            '</li>'+
+		
+		            '<li class="col last_dep">'+
+		                '<h2>Last Deployment</h2>'+
+		                '<p '+delpoyHidden+' class="deployment_status">Build '+element.deployment.deployedBuildId+'</p>'+
+		                '<!--TODO post 1.0<p class="deployment_user">By <a href="#">'+element.deployment.triggeredBy+'</a><br />'+
+		                'at <a href="#"><time datetime="'+element.deployment.triggeredTime+'">'+element.deployment.triggeredTime+'</time></a></p>-->'+
+		                '<div class="action">'+
+		                    '<ul class="inline_list">'+
+		                        '<li class="inline_item"'+launchHide+'><a href="#" class="btn main small launch_action" data-type="'+element.type+'" data-version="'+version+'" data-stage="'+stage+'">Test</a></li>'+
+		                    '</ul>'+
+		                '</div>'+
+		            '</li>'+
+		
+		    '</ul>'
+		    );
+
+            return $resultRow;
+    }
+
+    function doCreateBranch(applicationKey,srcVersion,targetVersion,button){
+        if(validateBranch(targetVersion)){
+            $(button).attr('disabled','disabled').val('Creating..');
+            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+                        action: "invokeDoVersion",
+                        applicationKey: applicationKey,
+                        srcVersion:srcVersion,
+                        targetVersion:targetVersion
+                    }, function (result) {
+                        $(button).removeAttr('disabled').val('Create Branch');
+                        //drawVersionsList();
+                        forcePageAppRefresh = true ;
+                    },
+
+                    function (jqXHR, textStatus, errorThrown) {
+                        $(button).removeAttr('disabled').val('Create Branch');
+                        jagg.message({
+                            content: "Error while creating version. Check the given version value and try again.",
+                            type: 'error'
+                        });
+                    });
+        }else{	// if wrong versioning number
+            jagg.removeMessage();
+            jagg.message({
+                content: "Invalid version number - Provide version number in format major.minor.patch",
+                type: 'error',
+                id:'reposBuild'
+            });
+        }
+
+
+    }
+
+    function validateBranch(version){
+        var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;	// validate version of format: '0.0.0', each can contain atmost 10 characters.
+        return  pattern.test(version)
+    }
+
+    function doBuild(applicationKey,revision,stage,tagName,version,autoDeploy){
+
+        jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+                    action: "createArtifact",
+                    applicationKey: applicationKey,
+                    revision:revision,
+                    stage:stage,
+                    tagName:tagName,
+                    version:version,
+                    doDeploy:autoDeploy
+                },function (result) {
+                    //drawVersionsList();
+                    clearTimeout(runThread);
+                    forcePageAppRefresh = true ;
+                    drawVersionListRec();
+                },
+
+                function (jqXHR, textStatus, errorThrown) {
+
+                });
+        jagg.message({
+            content: "Build has been triggered succesfully - Refresh the page in few seconds.",
+            type: 'success',
+            id:'message_id_success'
+        });
+        hideNotification();
+    }
+    
+    var runThread = null ;
+    
+    function drawVersionListRec(){
+    	if(forcePageAppRefresh){
+    		forcePageAppRefresh = false ;
+    		drawVersionsList();
+    	};  	    
+    	runThread = window.setTimeout(function () {
+            drawVersionListRec();
+        }, 20000);
+    }
+
+    function doDeploy(applicationKey,deployAction,stage,tagName,version){
+
+        jagg.post("../blocks/build/add/ajax/add.jag", {
+                    action: "deployArtifact",
+                    applicationKey: applicationKey,
+                    deployAction:deployAction,
+                    stage:stage,
+                    tagName:tagName,
+                    version:version
+                }, function (result) {
+                    drawVersionsList();
+                    jagg.message({
+                        content: "Deployment has been submitted successfully - Refresh the page in few seconds.",
+                        type: 'success',
+                        id:'message_id_success'
+                    });
+                    hideNotification();
+                },
+
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({
+                        content: "Error occurred while deploying the artifact.",
+                        type: 'error',
+                        id:'message_id'
+                    });
+
+                });
+
+
+    }
+    function doLaunch(applicationKey, version,stage,state,type){
+        jagg.post("../blocks/application/get/ajax/list.jag", {
+                    action: "getMetaDataForAppVersion",
+                    applicationKey: applicationKey,
+                    version: version,
+                    stage: stage,
+                    state: state,
+                    type: type
+                }, function (result) {
+                    var resJSON;
+                    var msg = "";
+                    resJSON = jQuery.parseJSON(result);
+                    var URL="";
+                    if(type==='bpel' || type==='dbs'){         // if app type is either 'bpel' or 'dbs' then take only accessURLMD
+                       URL = resJSON.accessURLMD;
+                    }else if(type ==='jaxws'){
+                        URL=resJSON.baseURLMD + resJSON.accessURLMD +"services" ;
+                    }
+
+                    else	// for other types append baseURLMD and accessURLMD
+                	    URL=resJSON.baseURLMD + resJSON.accessURLMD;
+                    if(URL===""){
+                        jagg.message({
+                            content: "Application is not deployed yet.!",
+                            type: 'error'
+                        });
+
+                    }
+                window.open(URL, '_blank')
+            },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({
+                        content: "Error occurred while launching the artifact.!",
+                        type: 'error',
+                        id:'message_id'
+                    });
+
+                });
+
+    }
+
+    function doSetBuildDeployConfigs(applicationKey, version,stage,autoBuild,autoDeploy){
+
+        jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
+                    action: "setBuildDelpymentConfigs",
+                    applicationKey: applicationKey,
+                    version: version,
+                    stageName: stage,
+                    autoBuild:autoBuild,
+                    autoDep:autoDeploy
+                }, function (result) {
+                    var res=jQuery.parseJSON(result);
+                    window.setTimeout(function () {
+                        drawVersionsList();
+                    }, 300);
+                     if(res.autoBuild!="true"||res.autoDeploy!="true"){
+                        jagg.message({
+                            content: "Error occurred while changing configurations.",
+                            type: 'error',
+                            id:'message_id'
+                        });
+                    }
+
+                },
+                function (jqXHR, textStatus, errorThrown) {
+                    jagg.message({
+                        content: "Error occurred while changing configurations.",
+                        type: 'error',
+                        id:'message_id'
+                    });
+
+                });
+    }
+
+    function doSearch(searchtext){
+
+        $(".row").each(function(){
+            var searchPara= searchtext.toLowerCase();
+            var dv=$(this).attr("data-version");
+            var ds=$(this).attr("data-stage");
+         //   if(searchtext.indexOf("*")!=-1){
+                var pattern=new RegExp(searchPara);
+                if((pattern.test(dv))||(pattern.test(ds))){
+                    $(this).show();
+
+                }else{
+                    $(this).hide();
+                }
+
+
+    //        }else{
+    //            if((dv.indexOf(searchPara)==0)||(ds.indexOf(searchPara)==0)){
+    //                $(this).show();
+    //
+    //            }else{
+    //                $(this).hide();
+    //            }
+    //            }
+    });
+
+    }
+
+    //]]
+
+    function hideNotification() {
+          // create new timer with given time interval
+            setTimeout(function () {jagg.removeMessage('message_id_success')}, 5000);
+        }
+
+    function doFork(applicationKey, parentRepoUrl, userName, type){
+            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+                        action: "invokeDoFork",
+                        applicationKey: applicationKey,
+                        parentRepoUrl:parentRepoUrl,
+                        userName:userName,
+                        type:type
+                    }, function (result) {
+                        $(button).removeAttr('disabled').val('Fork Repository');
+                        //drawVersionsList();
+                        forcePageAppRefresh = true ;
+                    },
+
+                    function (jqXHR, textStatus, errorThrown) {
+                        $(button).removeAttr('disabled').val('Fork Repository');
+                        jagg.message({
+                            content: "Error while forking repository.",
+                            type: 'error'
+                        });
+                    });
+    }
+
+
+    </script>
+    <div class="container">
+        <article class="main">
+        <%
+    jagg.includeBlock("page/messages", null);
+    %>
+            <header class="separator">
+               <div class="content">
+                   <h1 class="left" style="margin-right:20px;">Repositories & Builds</h1>
+   <div class="row-fluid">
+   <div ' + hiddenForNonBuildableArtifact + ' align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
+   <a  id="tenant_jenkins_url" href="<%=baseURL%>" style="text-decoration: none" target="_blank">Build Server</a>
+<a id="tenant_jenkins_url_img" href="<%=baseURL%>" class="icon_link" target="_blank">
+<span class="icon-globe "></span>
+</a></div>
+                                </div>
+<!--                <a href="<%=baseURL%>" class="btn main left margin_15" style="margin-right:20px;" target="_blank">Build Server</a>
+<div  class="url_truncate" title="<%=baseURL
+    %>" >Build Server</div>-->
+                    <form class="right fw_250 form-container search_form" onSubmit="return false;">
+                        <div class="input_row">
+                            <label for="filter_repos_or_stages" class="hide" >Filter Repos or Stages</label>
+                            <input id="filter_repos_or_stages" type="text" class="fw_250 margin_15" placeholder="Filter Repos or Stages" name="filter_repos_or_stages" value=""  /><span class="icon-search"></span>
+                        </div>
+                    </form>
+                </div>
+
+            </header>
+
+            <section id="repositories_and_builds_list" class="content" style="margin-bottom:122px">
+                <span class="icon-spinner icon-spin icon-large spin-large"></span>
+            </section>
+
+
+            <!--<div class="clearfix separator"></div>-->
+        </article>
+    </div><!-- /container -->
+    <%
+}); %>
+
+
+
+

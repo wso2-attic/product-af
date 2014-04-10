@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
+  ~
+  ~      Licensed under the Apache License, Version 2.0 (the "License");
+  ~      you may not use this file except in compliance with the License.
+  ~      You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~      Unless required by applicable law or agreed to in writing, software
+  ~      distributed under the License is distributed on an "AS IS" BASIS,
+  ~      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~      See the License for the specific language governing permissions and
+  ~      limitations under the License.
+  -->
+
+<maven2-moduleset>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+        <name>isAutomatic</name>
+          <description></description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>persistArtifact</name>
+          <description></description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>doDeploy</name>
+          <description></description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.StringParameterDefinition>
+          <hudson.model.StringParameterDefinition>
+              <name>deployAction</name>
+              <description></description>
+              <defaultValue>deploy</defaultValue>
+          </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>deployStage</name>
+          <description></description>
+          <defaultValue>empty</defaultValue>
+        </hudson.model.StringParameterDefinition>
+          <hudson.model.StringParameterDefinition>
+              <name>tagName</name>
+              <description></description>
+              <defaultValue></defaultValue>
+          </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>svn location</remote>
+        <local>.</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <excludedRegions></excludedRegions>
+    <includedRegions></includedRegions>
+    <excludedUsers></excludedUsers>
+    <excludedRevprop></excludedRevprop>
+    <excludedCommitMessages></excludedCommitMessages>
+    <workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <concurrentBuild>false</concurrentBuild>
+  <mavenName>m3</mavenName>
+  <mavenOpts>-Xmx4048M -XX:MaxPermSize=4048M</mavenOpts>
+  <aggregatorStyleBuild>true</aggregatorStyleBuild>
+  <incrementalBuild>false</incrementalBuild>
+  <perModuleEmail>true</perModuleEmail>
+  <ignoreUpstremChanges>false</ignoreUpstremChanges>
+  <archivingDisabled>false</archivingDisabled>
+  <resolveDependencies>false</resolveDependencies>
+  <processPlugins>false</processPlugins>
+  <mavenValidationLevel>-1</mavenValidationLevel>
+  <runHeadless>false</runHeadless>
+  <settingConfigId></settingConfigId>
+  <globalSettingConfigId></globalSettingConfigId>
+  <reporters/>
+  <publishers>
+    <xunit>
+      <types>
+        <JUnitType>
+          <pattern>*</pattern>
+          <failIfNotNew>false</failIfNotNew>
+          <deleteOutputFiles>true</deleteOutputFiles>
+          <stopProcessingIfError>false</stopProcessingIfError>
+        </JUnitType>
+      </types>
+      <thresholds>
+        <org.jenkinsci.plugins.xunit.threshold.FailedThreshold>
+          <unstableThreshold>1</unstableThreshold>
+          <unstableNewThreshold>1</unstableNewThreshold>
+          <failureThreshold>1</failureThreshold>
+          <failureNewThreshold>1</failureNewThreshold>
+        </org.jenkinsci.plugins.xunit.threshold.FailedThreshold>
+        <org.jenkinsci.plugins.xunit.threshold.SkippedThreshold>
+          <unstableThreshold></unstableThreshold>
+          <unstableNewThreshold></unstableNewThreshold>
+          <failureThreshold></failureThreshold>
+          <failureNewThreshold></failureNewThreshold>
+        </org.jenkinsci.plugins.xunit.threshold.SkippedThreshold>
+      </thresholds>
+      <thresholdMode>1</thresholdMode>
+    </xunit>
+    <org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager>
+        <applicationId>app1</applicationId>
+        <applicationVersion>1.0.0</applicationVersion>
+        <applicationArtifactExtension>war</applicationArtifactExtension>
+    </org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager>
+    <!--hudson.plugins.sonar.SonarPublisher>
+	  <jdk>(Inherit From Job)</jdk>
+	  <branch></branch>
+	  <language></language>
+	  <mavenOpts></mavenOpts>
+	  <jobAdditionalProperties></jobAdditionalProperties>
+    </hudson.plugins.sonar.SonarPublisher-->
+  </publishers>
+  <buildWrappers/>
+  <prebuilders/>
+  <!--postbuilders>
+    <hudson.tasks.Maven>
+      <targets></targets>
+      <mavenName>m3</mavenName>
+      <usePrivateRepository>false</usePrivateRepository>
+    </hudson.tasks.Maven>
+  </postbuilders-->
+  <runPostStepsIfResult>
+    <name>FAILURE</name>
+    <ordinal>2</ordinal>
+    <color>RED</color>
+  </runPostStepsIfResult>
+  <triggers class="vector">
+	<hudson.triggers.SCMTrigger>
+	<spec>*/6 * * * *</spec>
+	</hudson.triggers.SCMTrigger>
+  </triggers>	
+</maven2-moduleset>

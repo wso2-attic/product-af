@@ -1,0 +1,52 @@
+{
+    "server": {
+        "https": "https://ues.milestones.appfactory.wso2.com:9454",
+        "http": "http://ues.milestones.appfactory.wso2.com:9774"
+    },
+    "roles": {
+        "portal": {
+            "/permission/admin/login": ["ui.execute"]
+        }
+    },
+    "adminRole": "admin",
+    "user": {
+        "username": "admin",
+        "password": "admin"
+    },
+    "userRoles": ["portal"],
+    "permissions": {
+        "login": {
+            "/permission/admin/login": ["ui.execute"]
+        }
+    },
+    "userSpace": {
+        "space": "CXODashboard",
+        "options": {
+            "type": "registry",
+            "serverUrl": "https://ues.milestones.appfactory.wso2.com:9454/admin",
+            "path": "/_system/governance/users",
+            "username": "admin",
+            "password": "admin"
+        }
+    },
+    "storeSpace": {
+        "space": "store",
+        "options": {
+            "type": "registry",
+            "serverUrl": "https://ues.milestones.appfactory.wso2.com:9454/admin",
+            "path": "/_system/governance/users",
+            "username": "admin",
+            "password": "admin"
+        }
+    },
+    "ssoConfiguration": {
+        "enabled": true,
+        "issuer": "CXODashboard",
+        "identityProviderURL": "https://milestones.appfactory.wso2.com:9443/samlsso",
+        "keyStorePassword": "wso2carbon",
+        "identityAlias": "wso2carbon",
+        "responseSigningEnabled": "true",
+        "keyStoreName": "/repository/resources/security/wso2carbon.jks",
+        "appAcs" : "https://ues.milestones.appfactory.wso2.com:9454/CXODashboard/sso.jag",
+    }
+}

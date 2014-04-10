@@ -1,0 +1,8 @@
+<%
+jagg.initializer("resources/apis/get", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy xmlns="http://www.apache.org/ode/schemas/dd/2007/03" xmlns:deploy.core.appfactory.carbon.wso2.org="http://deploy.core.appfactory.carbon.wso2.org" xmlns:sample="http://wso2.org">
+  <process name="sample:DeployArtifact">
+    <active>true</active>
+    <retired>false</retired>
+    <process-events generate="all"/>
+    <provide partnerLink="client">
+      <service name="sample:DeployArtifact" port="DeployArtifactPort">
+           <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" serviceDescriptionReference="SecuredService-service.xml"/>
+      </service>
+    </provide>
+    <invoke partnerLink="deployPL">
+      <service name="deploy.core.appfactory.carbon.wso2.org:ApplicationDeployer" port="ApplicationDeployerHttpsSoap11Endpoint">
+			<endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="./../../../../repository/conf/appfactory/endpoints/ApplicationDeployer.epr" />
+      </service>
+    </invoke>
+  </process>
+</deploy>

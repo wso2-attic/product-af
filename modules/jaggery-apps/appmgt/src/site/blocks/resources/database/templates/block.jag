@@ -1,0 +1,14 @@
+
+<%
+include('/jagg/constants.jag');
+jagg.block("resources/database/templates", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    }
+  });
+%>

@@ -1,0 +1,33 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+var site = require("/site/conf/site.json");
+
+(function () {
+	
+	session.put('application_list',null);
+	session.put("last_backend_access_time_for_getting_appList",null);
+    session.put('authenticatedCookie',null);
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/logout.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"Logout",
+                        "middle":[
+                            {
+                            	"name":"logout"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

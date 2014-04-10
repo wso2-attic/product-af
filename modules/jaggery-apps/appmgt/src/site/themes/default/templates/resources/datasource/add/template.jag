@@ -1,0 +1,394 @@
+<% jagg.template("resources/datasource/add", function(inputs, outputs, jagg) { %>
+<%
+var applicationName = request.getParameter("applicationName");
+var applicationKey = request.getParameter("applicationKey");
+
+var allowedStages = outputs.allowedStages;
+//  jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_DB_ADMINISTRATION);
+%>
+
+<script type="text/javascript">
+    var ck_password = /^[A-Za-z0-9!@#$%^*_]{6,15}$/;
+    var allowedStages = <%=allowedStages%>;
+    //[cdata[
+    function dbCustomUrlSelected() {
+        $("#datasource_url_text").show().val("");
+        $("#datasource_username_text").show().val("");
+        $("#datasource_username_div").hide();
+        fillUrlTemplate($("#database_driver").val(), "#datasource_url_text_value");
+    }
+    function changeDatabaseUsers(){
+        var selectedOption = $("#datasource_url_select").find(":selected");
+        var selectedValue = selectedOption.val();
+	    if (selectedValue === 'Custom') {
+	        dbCustomUrlSelected();
+	    } else {
+            var selectedDBName = selectedOption.attr('data-dbname');
+            var selectedRSSInstanceName = selectedOption.attr('data-rssname');
+            dbUrlSelected(selectedDBName, selectedRSSInstanceName, selectedValue);
+	    }
+    }
+    function bindDatabaseURLListChangeEvent() {
+        $("#datasource_url_select").bind("change", function () {
+              changeDatabaseUsers();
+        });
+        changeDatabaseUsers();
+    }
+
+    function drawDatabaseURLsList() {
+        var rssInstancesElement = document.getElementById("rssInstances");
+        var rssInstanceName = rssInstancesElement.options[rssInstancesElement.selectedIndex].text;
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action: "getDatabases",
+            applicationKey: "<%= applicationKey %>"
+        },
+        function (result) {
+            if (result !== undefined) {
+
+                var parsedArray = jQuery.parseJSON(result);
+                var dom = "";
+
+                var loopCount = parsedArray.length;
+                var selectedVal = "";
+                for (var i = 0; i < loopCount; i++) {
+
+                    var element = parsedArray[i];
+                    if(element.rssInstanceName==rssInstanceName){
+                        dom += '<option data-dbname="' + element.dbName + '"data-rssname="' + element
+                    .rssInstanceName + '" value="' + element.url + '">' + element.url + '</option>';
+                    }
+
+                    if (i === 0) {
+                    	dbUrlSelected(element.dbName, element.rssInstanceName, element.url);
+                        selectedVal = element.url;
+                    }
+                }
+                dom += '<option value="Custom">Custom Database</option>';
+
+                $("#datasource_url_select").html(dom);
+            	$("#datasource_url_select").select2("val", selectedVal);
+                
+                if (loopCount !== 0) {
+                    bindDatabaseURLListChangeEvent();
+                } else {
+                	dbCustomUrlSelected();
+                }
+
+            } else {
+            	var dom = '<option value="Custom">Custom Database</option>';
+                var selectedVal = "Custom";
+                $("#datasource_url_select").html(dom);
+            	$("#datasource_url_select").select2("val", selectedVal);
+            	dbCustomUrlSelected();
+            	
+                jagg.message({
+                    content: 'Error loading Databases',
+                    type: 'error'
+                }); 
+            }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        	var dom = '<option value="Custom">Custom Database</option>';
+        	var selectedVal = "Custom";
+        	$("#datasource_url_select").html(dom);
+        	$("#datasource_url_select").select2("val", selectedVal);
+        	dbCustomUrlSelected();
+        	
+            jagg.message({
+                content: 'Error loading Databases',
+                type: 'error'
+            });
+        });
+    }
+
+    function setPageStatus() {
+        if ($('#useSameDataSource').attr('checked') == "checked") {
+            $('.dataSource-section').hide();
+            $($('.dataSource-section')[0]).show();
+        } else {
+            $('.dataSource-section').hide();
+            $($('.dataSource-section')[0]).show();
+        }
+    }
+
+    function createDatasource(btn) {
+        $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+    	var varDsName = $("#datasource_name").val();
+    	var varDsDesc = $("#datasource_description").val();
+    	
+    	var varUrl = $("#datasource_url_text_value").val();
+        var varDriverName = $("#database_driver").val();
+        var varDbUsername = $("#datasource_username_text").val();
+        var varDbPassword = $("#datasource_password").val();
+        
+        create(varDsName, varDsDesc, varUrl, varDriverName, varDbUsername, varDbPassword);
+        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));    	
+    }
+
+    function create(varDsName, varDsDesc, varUrl, varDriverName, varDbUsername, varDbPassword){
+    	 var rssInstancesElement = document.getElementById("rssInstances");
+         var rssInstanceName = rssInstancesElement.options[rssInstancesElement.selectedIndex].text;
+         if(allowedStages.indexOf(rssInstanceName) !=-1)  {
+             jagg.syncPost("../blocks/resources/datasource/add/ajax/add.jag", {
+                 action: "createDatasource",
+                 applicationKey: $("#applicationKey").val(),
+                 datasourceName: varDsName,
+                 datasourceDescription: varDsDesc,
+                 rssInstanceName: rssInstanceName,
+                 url: varUrl,
+                 driverName: varDriverName,
+                 dbUsername: varDbUsername,
+                 dbPassword: varDbPassword
+             },
+
+             function (result) {
+                 if (result) {
+                     location.href = 'listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+                 } else {
+                     jagg.message({
+                         content: 'Error occurred while creating datasource: Datasource already exsist',
+                         type: 'error'
+                     });
+                 }
+
+             },
+
+             function (jqXHR, textStatus, errorThrown) {
+                 jagg.message({
+                     content: 'Error occurred while creating datasource',
+                     type: 'error'
+                 });
+             });
+         }
+    	
+    }
+
+    function dbUrlSelected(databasename, rssinstancename, url) {
+        $("#datasource_url_text" ).hide();
+        $("#datasource_url_text_value").val(url);
+        
+        $("#datasource_username_text").hide();
+        $("#datasource_username_div").show();
+
+
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action: "getAttachedUsers",
+            applicationKey: $("#applicationKey").attr('value'),
+            dbname: databasename,
+            rssInstance: rssinstancename
+        },
+
+        function (result) {
+            if (result != undefined) {
+                var parsedArray = jQuery.parseJSON(result);
+                $("#datasource_username_select").empty();
+                $("#datasource_username_text").val("");
+                var i = 0;
+                for (i = 0; i < parsedArray.length; i++) {
+                    var name = parsedArray[i];
+
+                    var row = '<option value="' + name + '">' + name + '</option>';
+                    $("#datasource_username_select").append(row);
+                    if (i == 0) {
+                        userSelected(name);
+                    }
+                }
+                
+                if (i == 0) {
+                    $("#no_users_error").show();
+                    $("#datasource_username_div").hide();
+                } else {
+                    $("#no_users_error").hide();
+                    $("#datasource_username_select").select2("val", parsedArray[0].name);
+                }
+            }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+           /* jagg.message({
+                content: 'Error loading Users',
+                type: 'error'
+            }); */
+        });
+
+    }
+
+    function userSelected(value) {
+        $("#datasource_username_text").val(value);
+    }
+    function environmentSelected(value) {
+        $("#rssInstance").val(value);
+        drawDatabaseURLsList();
+    }
+
+    
+    function validateForm() {
+		jagg.removeMessage();
+        var errorMsg = "";
+        var datasourceName = $("#datasource_name").val();
+        if (datasourceName == "") {
+        	errorMsg = "Invalid Data Source Name - Enter Valid Data Source Name";
+        }
+        var url = $("#datasource_url_text_value").val();
+        if (url == "") {
+        	errorMsg += "<br />Invalid Data Source Url - Enter/Select Valid Data Source Url";
+        }         
+        var username = $("#datasource_username_text").val();
+        if (username == "") {
+        	errorMsg += "<br />Invalid Username - Enter/Select Valid Username";
+        } 
+        var password = $("#datasource_password").val();
+        
+        if(errorMsg.length > 0){
+        	jagg.message({
+        		content: errorMsg,
+        		type: 'error'
+        		});
+        	return false;
+        }
+        return true;
+    }
+    
+    function fillUrlTemplate(driver,id){
+    	if((driver.toLowerCase()).indexOf("mysql")!== -1){
+    		$(id).val("jdbc:mysql://<server>:<port>/<dbname>");
+    	}
+    }
+    function drawRSSInstances(){
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+                action:"getRSSinstances",
+                applicationKey:$("#applicationKey").attr('value')
+            }, function (result) {
+
+                if(result != undefined){
+
+                    var parsedArray = jQuery.parseJSON(result);
+                    for(var i = 0; i < parsedArray.length; i++) {
+                        var name = parsedArray[i].name;
+                        if(allowedStages.indexOf(name) !=-1)  {
+                            var row='<option>'+name+'</option>';
+                            $("#rssInstances").append(row);
+                            $("#rssInstances").select2({
+                               formatResult: selectBoxOptionFormat,
+                               minimumResultsForSearch: -1,
+                               containerCssClass : "error" });
+                        }
+                    }
+                    if(parsedArray.length == 0){
+                        $('#rssInstances').html('<div class="row-fluid"><div class="span12"><div class="alert alert-info">No rssInstances created yet</div></div></div>');
+
+                    }
+                    drawDatabaseURLsList();
+                }
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                $('#rssInstances').html('<div class="row-fluid"><div class="span12"><div class="alert alert-error">Error occurred while reading rssInstances</div></div></div>');
+            });
+    }
+    $(document).ready(function () {
+        // load rss instances(environments) and populate rssInstances options.
+        drawRSSInstances();
+     
+    });
+    //]]
+</script>
+
+
+<div class="container">
+				<article class="main">
+                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %></div>
+                        	<div class="content">
+                                <h1>Resources</h1>
+                             </div>
+                        </header>
+                        <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+                        <section class="separator">
+                            <div class="page_nav">
+                                <div class="content clear">
+                                    <ol class="breadcrumb">
+                                            <li class="breadcrumb_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="breadcrumb_link">Datasources</a></li>
+                                            <li class="breadcrumb_item"><h2>Create New Datasource</h2></li>
+                                    </ol>
+                                 </div>
+                            </div>
+                            <div class="content clear well">
+                            	<div class="form-container">
+
+                                    <form action="#" method="post" class="hold right_label" onsubmit="return false;">
+                                      <fieldset>
+                                            <div class="input_row">
+                                                <label for="datasource_name"><strong>Datasource Name</strong> <em>*</em></label>
+                                                <input type="text" name="datasource_name" id="datasource_name" class="half" />
+                                            </div>
+                                            <div class="input_row">
+                                                <label for="datasource_description"><strong>Description</strong></label>
+                                                <textarea name="datasource_description" id="datasource_description" rows="5" class="full"></textarea>
+                                            </div>
+                                            <div class="input_row">
+                                            	<label for="database_driver"><strong>Database Driver</strong> <em>*</em></label>
+                                                <select class="select_list half big" id="database_driver" name="database_driver" onchange="fillUrlTemplate(this.value,'#datasource_url_text_value')">
+                                                	<option value="com.mysql.jdbc.Driver">mySql</option>
+                                                	<!--option value="org.h2.Driver">H2</option-->
+                                                </select>
+                                            </div>
+                                            <div class="input_row">
+                                                    <label for="rssInstance" ><strong>Datasource Environment</strong> <em>*</em></label>
+                                                    <select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
+                                                    <div>
+                                                	<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
+                                                </div>
+                                                </div>
+                                            <div class="input_row">
+                                                <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
+                                                	<div>
+	                                                	<select class="select_list full big datasource_url" id="datasource_url_select" name="datasource_url_select">
+	                                                    </select>
+	                                                    
+	                                                </div>                                         
+                                             </div>
+                                             <div class="input_row" id="datasource_url_text" style="display:none;">
+                                             <label for="datasource_password"><strong>&nbsp;&nbsp;&nbsp;</strong></label>
+                                             <input type="text" class="full" id="datasource_url_text_value"/>
+                                             </div>                                            
+                                            <div class="input_row">
+                                            	<label for="datasource_username"><strong>Username</strong> <em>*</em></label>
+                                                	<div id="datasource_username_div">
+                                                    	<select class="select_list half big" id="datasource_username_select" onchange="userSelected(this.value)"></select>
+                                                    </div>    
+                                                    <div>
+                                                        <label id="no_users_error" generated="true" class="error" style="display:none;">There are no attached users for the selected Database. Please attach users to the Database.</label>
+                                                    </div>
+                                                
+                                                <div>                                                	
+                                                	<input type="text" name="datasource_username_text" id="datasource_username_text" class="half"  style="display:none;"/>
+                                                </div>
+                                            </div>
+                                            <div class="input_row">
+                                                <label for="datasource_password"><strong>Password</strong> <em>*</em></label>
+                                                <input type="password" name="datasource_password" id="datasource_password" class="half" maxlength="15"/>
+                                            </div>                                           
+                                            
+                                            
+                                            <div class="controlset">                                                
+                                                <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+                                                <input type="hidden" name="stages" id='stages' value='<%=outputs.deploymentStages%>' />
+                                            </div>
+                                        </fieldset>
+                                         <div class="buttonrow">
+                                         	 <input type='submit' name='Submit' value='Create Datasource' onclick="if(validateForm()){createDatasource(this);}" class='btn main'/>
+                                         	 <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
+                                        </div>
+
+
+                                     </form>
+
+								</div>
+                            </div>
+                        </section>
+                        <div class="clearfix"></div>
+                 </article>
+            </div><!-- /container -->
+
+
+<% }); %>

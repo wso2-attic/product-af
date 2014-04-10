@@ -1,0 +1,14 @@
+<%
+jagg.module("issuetracker", {
+
+    getUrlForReportIssue:function () {
+        return jagg.require(jagg.getModulesDir() +"issuetracker/create/create.jag").getUrlForReportIssue.apply(this, arguments);
+    },
+    getIssuesSummary:function () {
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getIssuesSummary.apply(this, arguments);
+    },
+    getOpenIssues:function(){
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getOpenIssues.apply(this, arguments);
+    }
+});
+%>

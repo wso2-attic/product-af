@@ -1,0 +1,14 @@
+<%
+jagg.module("manager", {
+
+    getAdminCookie:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookie.apply(this, arguments);
+    },
+    getAdminCookieBySAMLToken:function () {
+            return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getAdminCookieBySAMLToken.apply(this, arguments);
+    },
+    encodeString:function () {
+            return jagg.require(jagg.getModulesDir() + "manager/manager.jag").encodeString.apply(this, arguments);
+    }
+});
+%>

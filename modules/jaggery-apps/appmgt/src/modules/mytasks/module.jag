@@ -1,0 +1,16 @@
+<%
+jagg.module("mytasks", {
+
+    getTaskId:function () {
+            return jagg.require(jagg.getModulesDir() +"mytasks/get/list.jag").getTaskId.apply(this, arguments);
+    },
+
+    loadTask:function () {
+        return jagg.require(jagg.getModulesDir() + "mytasks/get/list.jag").loadTask.apply(this, arguments);
+    },
+
+    completeTask:function () {
+        return jagg.require(jagg.getModulesDir() + "mytasks/get/list.jag").completeTask.apply(this, arguments);
+    },
+});
+%>

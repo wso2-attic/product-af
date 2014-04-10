@@ -1,0 +1,31 @@
+<%
+var caramel = require('caramel');
+
+(function () {
+    var login = require('/modules/login.js');
+    if(!login.isLogged()){
+        return;
+    }
+
+    comment = require('/modules/comment.js');
+
+    var commentJsonString = request.getParameter('commentJsonString'),
+    commentId = request.getParameter('commentId'),
+    issueUniqueKey = request.getParameter('issueUniqueKey');
+
+    action = request.getParameter('action');
+
+
+    var result;
+    if (action === 'addComment') {
+        result = comment.addComment(issueUniqueKey, commentJsonString);
+    } else if (action === 'editComment') {
+        result = comment.editComment(issueUniqueKey, commentId, commentJsonString);
+    } else if(action === 'deleteComment'){
+        result = comment.deleteComment(issueUniqueKey, commentId);
+    }
+
+    print(stringify(result));
+
+}());
+%>

@@ -1,0 +1,22 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("buildandrepo/set", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {
+       var hasBuildPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_BUILD);
+       return {
+            "hasBuildPermission":hasBuildPermission
+       };
+    }
+
+
+});
+%>

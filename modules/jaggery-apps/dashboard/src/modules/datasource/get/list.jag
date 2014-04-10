@@ -1,0 +1,94 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log = new Log();
+
+var devEndpoint = getProperty(DEV_SERVER_URL);
+var testEndpoint = getProperty(TEST_SERVER_URL);
+var prodEndpoint = getProperty(PROD_SERVER_URL);
+var stagEndpoint = getProperty(STAGING_SERVER_URL);
+
+var modManager = jagg.module("manager");
+
+var invokeNDataSource = function (applicationKey, stage){
+	var ws = require('ws');
+	var ds = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.useWSA = 1.0;
+	options.action = "urn:getAllDataSources";
+	var payload = '<xsd:getAllDataSources xmlns:xsd="http://org.apache.axis2/xsd"/>';
+	var result;
+
+    var endpoint = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.DeploymentServerURL');
+    log.info(endpoint);
+	try {	
+		//reloadAllDataSources(applicationKey, endpoint);
+		ds.open(options, endpoint + "NDataSourceAdmin", false, getProperty(ADMIN_USERNAME)+'@'+applicationKey, getProperty(ADMIN_PASSWORD));
+		ds.send(payload);
+	   	result = ds.responseE4X;
+	
+	   	return result;
+    } catch (e) {
+    	log.error(e.toString());
+    	return e.toString();
+    }
+};
+
+var datasourceCount = function (applicationKey, stage){
+	var ws = require('ws');
+	var ds = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.useWSA = 1.0;
+	options.action = "urn:getAllDataSources";
+	var payload = '<xsd:getAllDataSources xmlns:xsd="http://org.apache.axis2/xsd"/>';
+	var result;
+
+    var endpoint = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.DeploymentServerURL');
+    
+	try {	
+		//reloadAllDataSources(applicationKey, endpoint);
+		ds.open(options, endpoint + "NDataSourceAdmin", false, getProperty(ADMIN_USERNAME)+'@'+applicationKey, getProperty(ADMIN_PASSWORD));
+		ds.send(payload);
+	   	result = ds.responseE4X;
+	   	result = result.*::["return"];
+	   	
+	   	if(result != null) {
+	   		return result.length();
+	   	}
+	   	
+		return 0;
+    } catch (e) {
+    	return 0;
+    }
+};
+
+var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
+    var ws = require('ws');
+    var reloadAllDS = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:reloadAllDataSources";
+    var payload = '<ns:reloadAllDataSources xmlns:ns="http://org.apache.axis2/xsd"/>';
+    var result;
+
+    try {
+		reloadAllDS.open(options, epr + "NDataSourceAdmin", false, getProperty(ADMIN_USERNAME)+'@'+applicationKey, getProperty(ADMIN_PASSWORD));
+		reloadAllDS.send(payload);
+	   	result = reloadAllDS.responseE4X;
+
+        if(log.isDebugEnabled()){
+            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+        }
+        
+ 		return parseResponse(result);
+    } catch (e) {
+        log.error("Error while reloading datasources " + "\n"+e.message);
+        throw "Error while relading datasources " + "\n"+e.message;
+    }
+};
+%>

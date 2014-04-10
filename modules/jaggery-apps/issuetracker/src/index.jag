@@ -1,0 +1,31 @@
+<%
+var caramel;
+
+(function () {
+    var login = require('/modules/login.js');
+    if(!login.isLogged()){
+            return;
+    }
+
+    caramel = require('caramel');
+    include('jagg/jagg.jag');
+
+    issue = require('/modules/issue.js');
+
+    userName = context.get(LOGGED_IN_USER);
+    domain = context.get(DOMAIN);
+
+    caramel.render({
+        title  : { text   : 'Issue Tracker'},
+        header : { domain : domain, userName : userName},
+        body   : {title: 'Issue',  data: issue.searchIssue('','')}
+    });
+
+}());
+%>
+
+
+
+
+
+

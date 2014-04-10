@@ -1,0 +1,49 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+ //importPackage(Packages.org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean);
+ //importPackage(Packages.org.wso2.carbon.admin.mgt.beans.AdminMgtInfoBean);
+//importPackage(java.io)
+var log = new Log();
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+var file = new File("/site/conf/cloud-mgt.xml");
+file.open("r");
+var data = file.readAll();
+var doc= new XML(data);
+//var url = doc.dbConfig.(@name == "cloud_mgt").url.toString();
+var AFURL = doc.ServerUrls.AppFactory.toString();
+var BPSURL = doc.ServerUrls.BPS.toString();
+file.close();
+
+
+var initiatePasswordReset = function(username,secretKey, userAnswer) {
+        var adminService = server.osgiService('org.wso2.carbon.admin.mgt.services.AdminManagementService');
+        var admin;
+        var tenantDomain;
+        var atIndex = username.lastIndexOf('@');
+        if (username != null) {
+          admin = username;
+          tenantDomain = "";
+          if (atIndex != -1) {
+             admin = username.substring(0, atIndex);
+             tenantDomain = username.substring(atIndex + 1, username.length);
+          }
+        }
+        var captchaInfoBean = new org.wso2.carbon.captcha.mgt.beans.CaptchaInfoBean();
+        var adminInfoBean = new org.wso2.carbon.admin.mgt.beans.AdminMgtInfoBean();
+        captchaInfoBean.setSecretKey(secretKey);
+        captchaInfoBean.setUserAnswer(userAnswer);
+        adminInfoBean.setTenantLessUserName(admin);
+        adminInfoBean.setTenantDomain(tenantDomain);
+       
+        adminService.initiatePasswordReset(adminInfoBean,captchaInfoBean);
+        return "true";
+    }
+
+
+
+%>
+

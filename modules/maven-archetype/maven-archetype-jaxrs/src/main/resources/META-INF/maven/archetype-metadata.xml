@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="appfactory">
+  <fileSets>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>.</directory>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory />
+      <includes>
+        <include>pom.xml</include>	
+	<include>.classpath</include>
+	<include>.project</include>
+      </includes>
+    </fileSet>
+   <fileSet filtered="true" encoding="UTF-8">
+      <directory>src</directory>
+      <includes>
+        <include>main/java/demo/jaxrs/client/Client.java</include>
+		<include>main/java/demo/jaxrs/client/add_customer.xml</include>
+		<include>main/java/demo/jaxrs/client/update_customer.xml</include>
+	
+	
+		<include>main/java/demo/jaxrs/server/Customer.java</include>
+		<include>main/java/demo/jaxrs/server/CustomerService.java</include>
+		<include>main/java/demo/jaxrs/server/Order.java</include>
+		<include>main/java/demo/jaxrs/server/Product.java</include>
+		<include>main/java/demo/jaxrs/server/Server.java</include>
+		
+		<include>main/webapp/servicelist.css</include>
+		<include>main/webapp/WEB-INF/cxf-servlet.xml</include>
+        	<include>main/webapp/META-INF/webapp-classloading.xml</include>
+		<include>main/webapp/WEB-INF/web.xml</include>
+
+		<include>test/java/demo/jaxrs/server/CustomerServiceTest.java</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>

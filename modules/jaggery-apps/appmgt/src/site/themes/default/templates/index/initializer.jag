@@ -1,0 +1,9 @@
+<%
+jagg.initializer("index", {
+
+    preInitialize:function () {
+        jagg.addFooterJS("index", "index", "templates/index/js/index.js");
+
+    }
+});
+%>

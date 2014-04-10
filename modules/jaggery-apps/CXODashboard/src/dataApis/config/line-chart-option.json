@@ -1,0 +1,46 @@
+	{	    
+	    legend: {
+	        show: true
+	    },
+	    series: {
+		color: "#F39C12",
+	        lines: {
+	            show: true
+	        },
+	        points: {
+	            show: true
+	        }
+	    },
+	    grid: {
+	        hoverable: false,
+	        clickable: false
+	    },
+	    yaxis: {
+		show: true,
+		min: 0,
+	        axisLabel: 'Value',
+        	axisLabelUseCanvas: true,
+        	axisLabelFontSizePixels: 12,
+        	axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+        	axisLabelPadding: 5,
+		tickDecimals: 0
+	    },
+	    xaxis: {
+		show: true,
+	        min: new Date().getTime(),
+        	max: new Date().getTime()+ 24*60*60*1000,
+        	mode: null,
+        	timeformat: null,
+        	tickLength: 0, // hide gridlines
+		minTickSize: null,
+        	axisLabel: 'Month',
+        	axisLabelUseCanvas: true,
+        	axisLabelFontSizePixels: 12,
+        	axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+		"ticks": null,
+        	"panRange": null
+	    },
+	    zoom: {
+	        interactive: true
+	    }
+	}

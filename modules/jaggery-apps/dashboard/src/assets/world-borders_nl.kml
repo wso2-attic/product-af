@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<NetworkLink>
+	<name>World Borders</name>
+	<visibility>0</visibility>
+	<Snippet maxLines="0"></Snippet>
+	<description><![CDATA[<a href="http://www.gelib.com/world-borders.htm">More Information</a><br><br>]]></description>
+	<Url>
+		<href>http://www.gelib.com/maps/world-borders.kmz</href>
+		<viewRefreshMode>onRequest</viewRefreshMode>
+	</Url>
+</NetworkLink>
+</kml>

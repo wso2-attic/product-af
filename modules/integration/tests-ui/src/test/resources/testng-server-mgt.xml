@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="appFactory-ui-tests">
+    <parameter name="useDefaultListeners" value="false"/>
+    <test name="InitializedAndSetupServer" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.carbon.appfactory.integration.ui.*"/>
+        </packages>
+    </test>
+</suite>

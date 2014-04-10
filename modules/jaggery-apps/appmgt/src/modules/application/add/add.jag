@@ -1,0 +1,212 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/application/add/add.jag");
+
+var modLifecycle = jagg.module("lifecycle");
+var modManager = jagg.module("manager");
+
+
+// creates application in stratos and return svn repository path to application.
+var createApplicationBPEL = function (applicationName, applicationKey, applicationDescription,
+applicationType,repoAccessibility, repositoryType, userName) {
+
+    var adminUserName=getProperty(ADMIN_USERNAME);
+    jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_CREATE);
+    if (repoAccessibility == null) {
+        repoAccessibility = "shareMain";
+    }
+
+    try {
+
+        try {
+               var key = 'application';
+               var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+               '<application>'+
+               '<description>'+applicationDescription+'</description>'+
+               '<name>'+applicationName+'</name>'+
+               '<owner>'+userName+'</owner>'+
+               '<key>'+applicationKey+'</key>'+
+               '<type>'+applicationType+'</type>'+
+               '<repoAccessability>'+repoAccessibility+'</repoAccessability>'+
+               '<repositorytype>'+repositoryType+'</repositorytype>'+
+               '</application>'+
+               '</metadata>]]>';
+
+               var lifecycleAttribute = null;
+
+               modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
+
+               key = 'appversion';
+               content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+                            '<appversion>'+
+                                '<key>'+applicationKey+'</key>'+
+                                '<version>trunk</version>'+
+	                            '<autodeployment>false</autodeployment>'+
+	                            '<isAutoBuild>true</isAutoBuild>'+
+	                            '<isAutoDeploy>true</isAutoDeploy>'+
+                            '</appversion>'+
+                            '<serviceLifecycle><lifecycleName>'+LIFE_CYCLE_NAME+'</lifecycleName></serviceLifecycle>'+
+                      '</metadata>]]>';
+
+               lifecycleAttribute = 'serviceLifecycle_lifecycleName';
+
+               modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
+        } catch (e) {
+            log.error("Error while storing resource \n"+e.message);
+            throw new Error("Error while storing registry resource");
+        }
+
+
+        var ws = require('ws');
+        var request = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.1;
+        options.timeout = 1000000;
+        options.action = "http://wso2.org";
+        options.mep="in-only";
+        options["rampart"] = { user : getProperty(ADMIN_USERNAME), userPassword : getProperty(ADMIN_PASSWORD) };
+        options["policy"] = <wsp:Policy xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+                       xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                       wsu:Id="UTOverTransport">
+                       <wsp:ExactlyOne>
+                               <wsp:All>
+                                       <sp:TransportBinding
+                                               xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                                               <wsp:Policy>
+                                                       <sp:TransportToken>
+                                                               <wsp:Policy>
+                                                                       <sp:HttpsToken RequireClientCertificate="false" />
+                                                               </wsp:Policy>
+                                                       </sp:TransportToken>
+                                                       <sp:AlgorithmSuite>
+                                                               <wsp:Policy>
+                                                                       <sp:Basic256 />
+                                                               </wsp:Policy>
+                                                       </sp:AlgorithmSuite>
+                                                       <sp:Layout>
+                                                               <wsp:Policy>
+                                                                       <sp:Lax />
+                                                               </wsp:Policy>
+                                                       </sp:Layout>
+                                                       <sp:IncludeTimestamp />
+                                               </wsp:Policy>
+                                       </sp:TransportBinding>
+                                       <sp:SignedSupportingTokens
+                                               xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                                               <wsp:Policy>
+                                                       <sp:UsernameToken
+                                                               sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient" />
+                                               </wsp:Policy>
+                                       </sp:SignedSupportingTokens>
+                                       <rampart:RampartConfig xmlns:rampart="http://ws.apache.org/rampart/policy">
+                                               <rampart:encryptionUser>useReqSigCert</rampart:encryptionUser>
+                                               <rampart:timestampPrecisionInMilliseconds>true</rampart:timestampPrecisionInMilliseconds>
+                                               <rampart:timestampTTL>300</rampart:timestampTTL>
+                                               <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
+                                               <rampart:timestampStrict>false</rampart:timestampStrict>
+                                               <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                                               <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
+                                               <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
+                                       </rampart:RampartConfig>
+                               </wsp:All>
+                       </wsp:ExactlyOne>
+               </wsp:Policy>;
+
+        var tenantDomain=modManager.getTenantDomain();
+
+
+        var payload = '<p:CreateApplicationRequest xmlns:p="http://wso2.org"><applicationId xmlns="http://wso2.org">' + applicationKey + '</applicationId><userName xmlns="http://wso2.org">' + userName + '</userName><repositoryType xmlns="http://wso2.org">' + repositoryType + '</repositoryType><adminUserName xmlns="http://wso2.org">' + adminUserName + '</adminUserName><domainName xmlns="http://wso2.org">'+ tenantDomain +'</domainName></p:CreateApplicationRequest>';
+        var result;
+        var endPoint = getProperty(BPS_SERVER_URL) + "CreateApplication";
+        //var endPoint =  "http://localhost:8181/services/CreateApplication";
+        request.open(options, endPoint, false);
+        log.info("Payload :"+payload);
+        request.send(payload);
+        result = request.responseE4X;
+        //var resultNS = new Namespace("http://wso2.org");
+        //var repositoryPath = result.resultNS::["result"].text();
+
+        log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+        }
+    } catch (e) {
+        log.error("Error while creating application \n" + e.message);
+        throw "Error while creating application";
+    }
+    //return repositoryPath;
+};
+
+
+var isApplicationKeyAvailable = function (applicationKey, auth) {
+
+	if(auth){
+		jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE);
+	}
+
+	var ws = require('ws');
+	var request = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.1;
+	options.timeout = 1000000;
+	options.action = "urn:isApplicationIdAvailable";
+	options["HTTPHeaders"] = [{
+		name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+	}];
+	var payload = '<isApplicationIdAvailable xmlns="http://service.mgt.application.appfactory.carbon.wso2.org"><applicationKey xmlns="http://service.mgt.application.appfactory.carbon.wso2.org">'+applicationKey+'</applicationKey></isApplicationIdAvailable>';
+	var result;
+	var status={};
+	try {
+		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+		request.open(options,endPoint, false);
+		request.send(payload);
+		result=request.responseE4X;
+		if (log.isDebugEnabled()) {
+			log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+		}
+	} catch (e) {
+		log.error("Error while checking for application key \n" + e.message);
+		throw "Error while checking for application key";
+	}
+	status.isAvailable=result.*::["return"].text();
+	return status;
+
+};
+
+
+
+var stroreUploadedApplication = function(uploadedApplicationName , file, type){
+
+	   validateUploadedApplication(file, type);
+	   log.info("TODO: Get the tenant here....................." + TMP_UPLOADED_APPLICATIONS_PATH);
+	   var tmpFileName = TMP_UPLOADED_APPLICATIONS_PATH + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type);
+	   file.move(tmpFileName); 
+	   
+	   if(log.isDebugEnabled()){	
+	   	log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH); 
+	   }
+    
+};
+
+function validateUploadedApplication(file, applicationType) {
+	
+	var fileRealExtension = getExtenstionByAppType(applicationType);
+	var uploadedFileExtention = file.getName().split('.').pop();
+	if(fileRealExtension != uploadedFileExtention){
+		log.error("Incompatible File Type.");
+		throw new Exception("Incompatible File Type.");
+	}	
+	log.info("Application extention valided sucessfully");
+
+};
+	
+function getExtenstionByAppType(applicationType){
+	
+	return getProperty("ApplicationType."+applicationType+".Property.Extension");
+};
+
+
+%>

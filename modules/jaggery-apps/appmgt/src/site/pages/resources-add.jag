@@ -1,0 +1,55 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+var applicationKey = request.getParameter('applicationKey');
+var applicationName = request.getParameter('applicationName');
+var stage = request.getParameter('stage');
+(function () {
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/configureenvironment.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"WSO2 App Factory",
+                        "middle":[
+                            {
+                            "name":"resources/registry/add",
+                            "inputs":{
+                                "applicationKey":applicationKey
+                            }
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                            	"name":"breadcrumb",
+                                "inputs":{
+                                    "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "stage":stage,
+                                    "pageName":"Configure Resources"
+                                }
+                            }
+                        ],
+                        "tablinks":[
+                            {
+                            	"name":"tablinks",
+                                "inputs":{
+                                     "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
+                                    "stage":stage,
+                                    "pageName":"Configure Resources"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

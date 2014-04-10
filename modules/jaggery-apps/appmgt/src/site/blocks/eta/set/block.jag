@@ -1,0 +1,8 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("eta/set", {
+    initialize:function (data) {
+
+    }
+});
+%>

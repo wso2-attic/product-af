@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+	<ModulePrefs title="App Factory — Issues by Resolutions" />
+    <UserPref name="gadgetName" display_name="issues-by-resolutions" default_value="issues-by-resolutions"/>
+	<Content type="html" preferred_height="350">
+		<![CDATA[
+		<link rel="stylesheet" type="text/css" href="../../css/bootstrap.css"></link>
+        <link rel="stylesheet" type="text/css" href="../../css/dashboard-gadgets/styles.css"></link>
+		<script src="../../js/constants.js"></script>
+		
+		<table class="table table-hover">
+            <tbody>
+            <tr class="first-row">
+                <td>Unresolved</td>
+                <td class="value-cell">10</td>
+            </tr>
+            <tr>
+                <td>Won't Fix</td>
+                <td class="value-cell">10</td>
+            </tr>
+            <tr>
+                <td>Duplicate</td>
+                <td class="value-cell">10</td>
+            </tr>
+            <tr>
+                <td>Incomplete</td>
+                <td class="value-cell">10</td>
+            </tr>
+            <tr>
+                <td>Not a bug</td>
+                <td class="value-cell">10</td>
+            </tr>
+            <tr>
+                <td>Invalid</td>
+                <td class="value-cell">10</td>
+            </tr>
+            <tr>
+                <td>Postponed</td>
+                <td class="value-cell">10</td>
+            </tr>
+
+            </tbody>
+        </table>
+		]]>
+	</Content>
+</Module>

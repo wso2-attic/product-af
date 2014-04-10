@@ -1,0 +1,239 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+
+var log= new Log();
+var response = {};
+
+(function () {
+    var mod, obj, result,
+            modPermission = jagg.module("permission"),
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+
+    if(action == "getTemplates"){
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+
+        var response = {};
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        for(var i=0;i<deploymentStages.length;i++){
+            //if user has access to stage
+            var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+            		PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+            if(hasDBConfigurePermissionToStage){
+                try {
+                    result = mod.getTemplates(applicationKey);
+                    print(result);
+                } catch(e) {
+                    throw "Error while reading templates";
+                }
+            } else {
+                response.result = 0;
+                response.message = "You don't have permission to get templates";
+                print(response);
+            }
+        }
+
+    }else if(action == "getAvailableTemplatesToAttachToDatabase"){
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var rssInstance = request.getParameter("rssInstance");
+        var response = {};
+        var stage = mod.getStageFromRssInstanceName(rssInstance);
+        var hasPermission = modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_READ_FOR_STAGE +
+                stage);
+        
+        if( !hasPermission ){
+	        response.error = true;
+	        response.errorMessage = "No permission";
+	        print(response);
+	        return;
+        }
+        
+        try {
+            result = mod.getAvailableTemplatesToAttachToDatabase(applicationKey, rssInstance);
+            print(result);
+        } catch(e) {
+            throw "Error while reading templates";
+        }
+
+    } else if(action == "dropTemplate"){
+    	  mod = jagg.module("resources");
+          var applicationKey = request.getParameter("applicationKey");
+          var name= request.getParameter("templateName");
+          var environment = request.getParameter("environment");
+
+        var response = {};
+        var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + environment);
+        
+        if( !hasPermission ){
+	        response.error = true;
+	        response.errorMessage = "No permission";
+	        print(response);
+	        return;
+        }
+        
+        name = name + '@' + environment;
+        try {
+            mod.dropTemplate(applicationKey,environment,name);
+
+        } catch(e) {
+            throw "Error while deleting template";
+        }
+
+    }else  if(action == "createTemplate"){
+    	  
+          mod = jagg.module("resources");
+          var applicationKey = request.getParameter("applicationKey");
+          var databaseServerInstanceName= request.getParameter("environment");         
+          var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+          		PERMISSION_RESOURCES_CREATE_FOR_STAGE + databaseServerInstanceName);
+       
+          if( !hasPermission ){
+  	        response.error = true;
+  	        response.errorMessage = "No permission";
+  	        print(response);
+  	        return;
+          }
+          
+          
+          var name= request.getParameter("templateName");
+          var alterPriv=createValue(request.getParameter("alterPriv"));
+          var alterRoutinePriv=createValue(request.getParameter("alterRoutinePriv"));
+          var createPriv=createValue(request.getParameter("createPriv"));
+          var createRoutinePriv=createValue(request.getParameter("createRoutinePriv"));
+          var createTmpTablePriv=createValue(request.getParameter("createTmpTablePriv"));
+          var createViewPriv=createValue(request.getParameter("createViewPriv"));
+          var deletePriv=createValue(request.getParameter("deletePriv"));
+          var dropPriv=createValue(request.getParameter("dropPriv"));
+          var eventPriv=createValue(request.getParameter("eventPriv"));
+          var executePriv=createValue(request.getParameter("executePriv"));
+          var grantPriv=createValue(request.getParameter("grantPriv"));
+          var indexPriv=createValue(request.getParameter("indexPriv"));
+          var insertPriv=createValue(request.getParameter("insertPriv"));
+          var lockTablesPriv=createValue(request.getParameter("lockTablesPriv"));
+          var referencesPriv=createValue(request.getParameter("referencesPriv"));
+          var selectPriv=createValue(request.getParameter("selectPriv"));
+          var showViewPriv=createValue(request.getParameter("showViewPriv"));
+          var triggerPriv=createValue(request.getParameter("triggerPriv"));
+          var updatePriv=createValue(request.getParameter("updatePriv"));
+
+
+        var response = {};
+        
+        // this is to identify the role name that maps to environment.
+        name = getEnvironmentAwareTemplateName(name, databaseServerInstanceName );
+        try {
+            result = mod.createTemplate(applicationKey,databaseServerInstanceName,name,alterPriv,
+                    alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,
+                    deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,
+                    referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
+            print(result);
+        } catch(e) {
+            throw "Error while creating template";
+        }
+        
+    }else if(action == "editDbTemplate"){
+
+    	mod = jagg.module("resources");
+    	var applicationKey = request.getParameter("applicationKey");
+    	var databaseServerInstanceName= request.getParameter("environment");
+    	
+    	var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + databaseServerInstanceName);
+    	if( !hasPermission ) {
+  	        response.error = true;
+  	        response.errorMessage = "No permission";
+  	        print(response);
+  	        return;
+          }
+
+    	
+    	var name= request.getParameter("templateName");
+    	var alterPriv=createValue(request.getParameter("alterPriv"));
+    	var alterRoutinePriv=createValue(request.getParameter("alterRoutinePriv"));
+    	var createPriv=createValue(request.getParameter("createPriv"));
+    	var createRoutinePriv=createValue(request.getParameter("createRoutinePriv"));
+    	var createTmpTablePriv=createValue(request.getParameter("createTmpTablePriv"));
+    	var createViewPriv=createValue(request.getParameter("createViewPriv"));
+    	var deletePriv=createValue(request.getParameter("deletePriv"));
+    	var dropPriv=createValue(request.getParameter("dropPriv"));
+    	var eventPriv=createValue(request.getParameter("eventPriv"));
+    	var executePriv=createValue(request.getParameter("executePriv"));
+    	var grantPriv=createValue(request.getParameter("grantPriv"));
+    	var indexPriv=createValue(request.getParameter("indexPriv"));
+    	var insertPriv=createValue(request.getParameter("insertPriv"));
+    	var lockTablesPriv=createValue(request.getParameter("lockTablesPriv"));
+    	var referencesPriv=createValue(request.getParameter("referencesPriv"));
+    	var selectPriv=createValue(request.getParameter("selectPriv"));
+    	var showViewPriv=createValue(request.getParameter("showViewPriv"));
+    	var triggerPriv=createValue(request.getParameter("triggerPriv"));
+    	var updatePriv=createValue(request.getParameter("updatePriv"));
+    	
+
+        var response = {};
+        name = name + '@' + databaseServerInstanceName;
+        try {
+            mod.editDbTemplate(applicationKey,databaseServerInstanceName,name,alterPriv,alterRoutinePriv,
+                    createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,
+                    eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,
+                    selectPriv,showViewPriv,triggerPriv,updatePriv);
+
+        } catch(e) {
+            throw "Error while editing the  template";
+        }
+    
+        
+
+    }else if(action == "getDetailedTemplate"){
+
+        mod = jagg.module("resources");
+        var applicationKey = request.getParameter("applicationKey");
+        var name= request.getParameter("templateName");
+        var databaseServerInstanceName= request.getParameter("environment");
+
+        var response = {};
+        var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        		PERMISSION_RESOURCES_READ_FOR_STAGE + databaseServerInstanceName);
+        
+        if( !hasPermission ){
+  	        response.error = true;
+  	        response.errorMessage = "No permission";
+  	        print(response);
+  	        return;
+        }
+        
+        try {
+            result =  mod.editTemplate(applicationKey, name + '@'+ databaseServerInstanceName,
+                    databaseServerInstanceName);
+            print(stringify(result));
+        } catch(e) {
+            throw "Error while deleting template";
+        }
+        
+    }  else {
+       throw new Error("No action specified");
+    }
+}());
+
+function createValue(value){
+   
+   if(value=='true'){
+       value="Y";
+   }else{
+       value="N";
+   }
+  return value;
+
+}
+function getEnvironmentAwareTemplateName(template, environment){
+    return template +'@'+environment;
+}
+
+%>
+

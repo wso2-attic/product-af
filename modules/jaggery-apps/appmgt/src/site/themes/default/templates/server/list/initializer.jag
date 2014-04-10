@@ -1,0 +1,8 @@
+<%
+jagg.initializer("server/list", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

@@ -1,0 +1,22 @@
+<%
+ include('/jagg/constants.jag');
+jagg.block("reposBuilds/list", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {        
+       var hasBranchingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_REPOSITORY_BRANCH);
+       return {
+            "hasBranchingPermission":hasBranchingPermission
+       };
+    }
+
+
+});
+%>

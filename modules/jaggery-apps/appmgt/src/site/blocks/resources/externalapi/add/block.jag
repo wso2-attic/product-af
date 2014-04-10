@@ -1,0 +1,16 @@
+<%
+include('/jagg/constants.jag');
+include('/jagg/config_reader.jag');
+jagg.block("resources/externalapi/add", {
+    initialize:function (data) {
+
+    },
+    getOutputs:function (inputs) {
+           var log = new Log();
+           var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+           return {
+               "stages": deploymentStages
+           };
+    }
+});
+%>

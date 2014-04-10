@@ -1,0 +1,8 @@
+<%
+jagg.module("user/initiate", {
+initiatePasswordReset: function () {
+        return jagg.require(jagg.getModulesDir() + "user/initiate/initiate.jag").initiatePasswordReset.apply(this, arguments);
+    },
+   
+});
+%>

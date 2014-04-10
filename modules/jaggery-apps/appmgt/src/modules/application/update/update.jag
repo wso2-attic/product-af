@@ -1,0 +1,63 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/application/update/update.jag");
+
+
+var modLifecycle = jagg.module("lifecycle");
+var modManager = jagg.module("manager");
+
+// update the appinfo txt with the given values
+
+var editAppInfo = function (applicationName, applicationKey, applicationDescription,
+                                  applicationType,repositoryType) {
+    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+    var path = "/_system/governance/" + APPLICATIONS + applicationKey + APP_INFO;
+
+    var key = 'application';
+    var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+            '<application>'+
+            '<description>'+applicationDescription+'</description>'+
+            '<name>'+applicationName+'</name>'+
+            '<key>'+applicationKey+'</key>'+
+            '<type>'+applicationType+'</type>'+
+            '<repositorytype>'+repositoryType+'</repositorytype>'+
+            '</application>'+
+            '</metadata>]]>';
+
+    var ws = require('ws');
+    var editAppInfoReq = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.action = "urn:editArtifact";
+    options["HTTPHeaders"] =[{
+        name:
+        "Cookie", value:modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+    }];
+    var payload = '<ser:editArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">'+
+                '<ser:path>'+path+'</ser:path>'+
+                '<ser:key>'+key+'</ser:key>'+
+                '<ser:info>'+content+'</ser:info>'+
+                '<ser:lifecycleAttribute></ser:lifecycleAttribute>'+
+                '</ser:editArtifact>';
+
+    var result;
+
+    try {
+    	var endPoint =getProperty(GREG_SERVER_URL) + "ManageGenericArtifactService";
+    	editAppInfoReq.open(options,endPoint, false);
+    	editAppInfoReq.send(payload);
+    	result = editAppInfoReq.responseE4X;
+
+    	if(log.isDebugEnabled()){
+    		log.debug("Invoking service endpoint :"+endPoint+" returned result :"+result);
+    	}
+    	return result;
+    } catch (e) {
+    	log.error("Error in calling manage generic artifact service "+e.toString());
+    	throw "Error in calling manage generic artifact service "+e.toString();
+    }
+};
+
+                                  %>

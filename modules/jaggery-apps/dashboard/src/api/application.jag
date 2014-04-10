@@ -1,0 +1,22 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log=new Log();
+
+(function () {
+    var action = request.getParameter("action");
+
+   	if (action == "getVersionsInLifecycleStages") {
+		var mod = jagg.module("application");
+        print(mod.getVersionsInLifecycleStages());
+   	} else if (action == "getTopAppOwners") {
+		var mod = jagg.module("application");
+        print(mod.getTopAppOwners());
+   	} else {
+       	throw new Error("No action specified");
+   	}
+
+}());
+%>

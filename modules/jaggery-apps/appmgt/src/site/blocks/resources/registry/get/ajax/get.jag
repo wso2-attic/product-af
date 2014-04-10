@@ -1,0 +1,69 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/util.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "getAllDependencies") {
+        var mod = jagg.module("resources");
+        var permissionModule = jagg.module("permission");
+        var dependencies = {};
+        var response = {};
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var applicationKey = request.getParameter("applicationKey");
+
+        var allStages = getProperties(DEPLOYMENT_STAGES);
+        var allowedStages=getAllowedStages(allStages,PERMISSION_RESOURCES_READ_FOR_STAGE,applicationKey);
+
+        try {
+            dependencies = mod.getDetailedPropertyValuesInStages(applicationKey,allowedStages);
+
+            if (dependencies != null) {
+                print(dependencies);
+            } else {
+                throw "Error while getting the resources of application";
+            }
+        } catch (e) {
+            throw "Error while getting dependent resources " + e.toString();
+        }
+    } else if (action == "getResource") {
+
+        var mod = jagg.module("resources");
+        var dependency = {
+        };
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = request.getParameter("stage");
+        var resourceName = request.getParameter("resourceName");
+        var permissionModule = jagg.module("permission");
+
+        var response = {};
+
+        var hasPermissionToStage = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
+        if (hasPermissionToStage) {
+            try {
+                dependency = mod.getDetailedPropertyValueInStage(resourceName, applicationKey, stage);
+                if (dependency != null) {
+                    print(dependency);
+                } else {
+                    throw "Error while getting the resources of application";
+                }
+            } catch (e) {
+                throw "Error while getting dependent resources " + e.toString();
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get resource";
+            print(response);
+        }
+
+
+    } else {
+        throw new Error("No action specified");
+    }
+}());
+%>

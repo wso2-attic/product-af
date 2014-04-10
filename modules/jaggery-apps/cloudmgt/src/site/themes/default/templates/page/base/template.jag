@@ -1,0 +1,159 @@
+<% jagg.template("page/base", function(inputs, outputs, jagg) {%>
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <%
+        jagg.includeBlock("header", {});
+        userName = session.get("LOGGED_IN_USER");
+        var applicationKey = request.getParameter('applicationKey');
+        var applicationName = request.getParameter('applicationName');
+
+        if(session.get("iconsAvailableApps") != null && applicationKey != null){
+	        var iconList = session.get("iconsAvailableApps");
+	        var iconUrl = iconList[applicationKey];
+        }
+        %>
+
+        <script type="text/javascript">
+
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-XXXXXXXX']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+
+          function loadAppIcon(appKey) {
+              jagg.post("../blocks/resource/get/ajax/get.jag", {
+                      action: "isAppIconAvailable",
+                      applicationKey: appKey
+              },
+
+              function (result) {
+                   if(result == 101){
+                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+                   }
+              },
+
+              function (jqXHR, textStatus, errorThrown) {
+              });
+
+            }
+
+            $(document).ready(function () {
+        	  loadAppIcon('<%=applicationKey%>');
+        	});
+
+        </script>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>WSO2 Cloud HTML Layout</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome.min.css'))%>">
+        <!--[if IE 7]>
+          <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome-ie7.min.css'))%>">
+        <![endif]-->
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/jquery.qtip.min.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/development.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/custom.css'))%>">
+
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js'))%>"></script>
+		<link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
+		<link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
+    </head>
+    <body <% if(applicationKey == null){ %>id="home"<% } %>>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+     <header class="main_header">
+        <div class="right">
+            <h1 class="logo"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/appfactory_logo.png'))%>" alt="App Factory" /></a></h1>
+            <div class="dropdown user right">
+
+
+              <%
+                if(userName!=null) {
+              %>
+
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <!--<img class="user_photo" src="assets/img/avatar.png" alt="Avatar of avatar" />--> <%=userName%>
+                <span class="icon-chevron-down"></span>
+              </a>
+              <ul class="dropdown-menu">
+                     <!--li><a href="/your_profile">Your Profile</a></li-->
+                    <%
+			var logoutUrl = jagg.getCloudAppBasedUrl(request.getParameter('cloudType'),'LogoutContext', '/site/pages/logout.jag');
+		    %>
+                    <li><a href="#" onclick="window.location.href='<%= logoutUrl %>'">Sign Out</a></li>
+               </ul>
+               <%
+                }
+               %>
+            </div>
+
+            <div class="dropdown context_menu">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-reorder"></span></a>
+              <ul class="dropdown-menu">
+                   <li><a href="http://wso2.com/support/" target="_blank">Support</a></li>
+                    <li><a href="https://wso2.org/jira/browse/APPFAC" target="_blank">Feedback</a></li>
+                    <li><a href="http://docs.wso2.org/wiki/display/AF100/User+Guide" target="_blank">User Guide</a></li>
+                    <li><a href="http://wso2.org/more-downloads/developer-studio" target="_blank">Tooling</a></li>
+                    <li><a href="http://wso2.com/contact/" target="_blank">Contacts</a></li>
+               </ul>
+            </div>
+         </div>
+
+        <h2><a href="<%=jagg.getCloudAppBasedUrl(request.getParameter('cloudType'),'HomePageContext', '/site/pages/index.jag')%>" class="icon-home"><span>Home</span></a></h2>
+
+
+        <% if(applicationKey != null && applicationName != null){ %>
+        <p class="sub_heading">
+            <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+            <img id="icon" src="<%=iconUrl%>" alt="" height="50px" width="40px"/>
+            <%=applicationName%></a>
+        </p>
+        <% } %>
+        <div class="clearfix"></div>
+
+    </header>
+    <div class="wrapper">
+        <% jagg.includeBlocks(outputs.body); %>
+
+
+            <!--<nav class="main_menu">
+                <ul class="main_list">
+                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-desktop"></span> Overview</a></li>
+                    <li class="main_list_item"><a href="#" class="main_list_link"><span class=" icon-cogs"></span> Repos & Builds</a></li>
+                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-legal"></span> Governance</a></li>
+                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-tags"></span> Issues</a></li>
+                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-group"></span> Users</a></li>
+                    <li class="main_list_item"><a href="#" class="main_list_link active"><span class="icon-wrench"></span> Resources</a></li>
+                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-hdd"></span> Server</a></li>
+                </ul>
+            </nav>-->
+
+     </div>
+
+
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.sticky.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/main.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.qtip.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
+    </body>
+</html>
+<% }); %>

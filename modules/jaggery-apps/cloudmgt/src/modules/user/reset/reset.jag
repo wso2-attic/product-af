@@ -1,0 +1,24 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+ 
+var log = new Log();
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+var confirmUser = function(confirm) {
+        var emailService = server.osgiService('org.wso2.carbon.email.verification.services.EmailVerificationService');
+        var confirmationBean = new org.wso2.carbon.email.verification.util.ConfirmationBean();
+        confirmationBean = emailService.confirmUser(confirm);
+        var data = confirmationBean.getData();
+        var redirect = confirmationBean.getRedirectPath();
+        session.put('intermediate-data',data);
+        return redirect;
+    }
+
+
+
+%>
+

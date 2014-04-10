@@ -1,0 +1,147 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("modules/build/add/add.jag");
+
+var modManager = jagg.module("manager");
+
+var deployTaggedArtifact = function (applicationId, stage, version, tagName) {
+	var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
+	jagg.module("permission").checkUserActionPermission(applicationId,deployToStagePermission);
+	var ws = require("ws");
+	var deployArtifact = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.2;
+	options.action = "urn:deployArtifact";
+	options["HTTPHeaders"] = [{ 
+		name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) 
+	}];
+	var payload = '<p:deployArtifact xmlns:p="http://deploy.core.appfactory.carbon.wso2.org"><p:applicationId>' + applicationId + '</p:applicationId><p:stage>' + stage + '</p:stage><p:version>' + version + '</p:version><p:tagName>' + tagName + '</p:tagName></p:deployArtifact>';
+	
+	log.info("[Test log] paylod deployTaggedArtifact----------------" + payload);
+	
+	var result;
+	try {
+		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationDeployer";
+		deployArtifact.open(options,endPoint, false);
+		deployArtifact.send(payload);
+		result = deployArtifact.responseE4X;
+		var ns = new Namespace("http://deploy.core.appfactory.carbon.wso2.org");
+		result = result.ns::["return"].text();
+		return result;
+	} catch (e) {
+		log.error("Error while deploying the artifact with tag " + tagName + " : " + e.message);
+		throw "Error while deploying the artifact with tag " + tagName;
+	}
+};
+
+var deployArtifact = function(applicationId, stage, version, tagName, deployAction) {
+    var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
+    jagg.module("permission").checkUserActionPermission(applicationId,deployToStagePermission);
+    var ws = require('ws');
+    var deployArtifactRequest = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.mep = "in-only";
+    options.action = "http://wso2.org/process";
+
+    options["rampart"] = { user : getProperty(ADMIN_USERNAME), userPassword : getProperty(ADMIN_PASSWORD) };
+    options["policy"] = <wsp:Policy xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+                           xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                           wsu:Id="UTOverTransport">
+                           <wsp:ExactlyOne>
+                                   <wsp:All>
+                                           <sp:TransportBinding
+                                                   xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                                                   <wsp:Policy>
+                                                           <sp:TransportToken>
+                                                                   <wsp:Policy>
+                                                                           <sp:HttpsToken RequireClientCertificate="false" />
+                                                                   </wsp:Policy>
+                                                           </sp:TransportToken>
+                                                           <sp:AlgorithmSuite>
+                                                                   <wsp:Policy>
+                                                                           <sp:Basic256 />
+                                                                   </wsp:Policy>
+                                                           </sp:AlgorithmSuite>
+                                                           <sp:Layout>
+                                                                   <wsp:Policy>
+                                                                           <sp:Lax />
+                                                                   </wsp:Policy>
+                                                           </sp:Layout>
+                                                           <sp:IncludeTimestamp />
+                                                   </wsp:Policy>
+                                           </sp:TransportBinding>
+                                           <sp:SignedSupportingTokens
+                                                   xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                                                   <wsp:Policy>
+                                                           <sp:UsernameToken
+                                                                   sp:IncludeToken="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy/IncludeToken/AlwaysToRecipient" />
+                                                   </wsp:Policy>
+                                           </sp:SignedSupportingTokens>
+                                           <rampart:RampartConfig xmlns:rampart="http://ws.apache.org/rampart/policy">
+                                                   <rampart:encryptionUser>useReqSigCert</rampart:encryptionUser>
+                                                   <rampart:timestampPrecisionInMilliseconds>true</rampart:timestampPrecisionInMilliseconds>
+                                                   <rampart:timestampTTL>300</rampart:timestampTTL>
+                                                   <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
+                                                   <rampart:timestampStrict>false</rampart:timestampStrict>
+                                                   <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                                                   <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
+                                                   <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
+                                           </rampart:RampartConfig>
+                                   </wsp:All>
+                           </wsp:ExactlyOne>
+                   </wsp:Policy>;
+        
+                   
+    var payload;
+    if(tagName == '' | tagName == null){
+        payload =  '<p:DeployArtifactRequest xmlns:p="http://wso2.org">'+
+	      '<p:applicationId>'+applicationId+'</p:applicationId>'+
+	      '<p:revision></p:revision>'+
+	      '<p:version>' + version + '</p:version>'+
+	      '<p:stage>'+ stage +'</p:stage>'+
+	      '<p:build>true</p:build>'+
+          '<p:tagName></p:tagName>'+
+          '<p:deployAction>' + deployAction + '</p:deployAction>'+
+          '<p:userName>' + session.get("LOGGED_IN_USER") + '</p:userName>'+
+	    '</p:DeployArtifactRequest>';
+    } else {
+        payload = '<p:DeployArtifactRequest xmlns:p="http://wso2.org">'+
+	      '<p:applicationId>'+applicationId+'</p:applicationId>'+
+	      '<p:revision></p:revision>'+
+	      '<p:version>' + version + '</p:version>'+
+	      '<p:stage>'+ stage +'</p:stage>'+
+	      '<p:build>true</p:build>'+
+          '<p:tagName>'+ tagName +'</p:tagName>'+
+          '<p:deployAction>' + deployAction + '</p:deployAction>'+
+          '<p:userName>' + session.get("LOGGED_IN_USER") + '</p:userName>'+
+          '</p:DeployArtifactRequest>';
+    }
+
+    try {
+    	
+    	log.info("[Test log] paylod deployArtifact----------------" + payload);
+
+        var endPoint = getProperty(BPS_SERVER_URL) + "DeployArtifact";
+        deployArtifactRequest.open(options,endPoint, true);
+        
+    	deployArtifactRequest.send(payload);
+
+        if(log.isDebugEnabled()){
+            log.debug("Invoked service endpoint:" + endPoint);
+        }
+
+    } catch (e) {
+        log.error("Error while creating artifact for application key :"+ applicationId +
+        		  "version : " + version + "\n"+ e.message);
+
+        throw "Error while deploying to " + stage;
+    }
+
+
+};
+
+%>

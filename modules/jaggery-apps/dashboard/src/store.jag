@@ -1,0 +1,139 @@
+<%
+include("includes/header.jag");
+%>
+    
+    <div class="row row-border-bottom">
+			<div class="span8">
+				<div class="row">
+					<div class="span4">Sort Gadgets by 
+						<select>
+							<option>Popularity</option>
+							<option>Alphabetical order</option>
+							<option>Date added</option>
+						</select>
+					</div>
+					<div class="span3 pull-right txt-right">
+						Showing <strong>1-10</strong> of 20
+					</div>
+				</div>
+			</div>
+			
+			<div class="span4">
+				<input id="search" type="text" placeholder="Search Gadget">
+			</div>
+			
+		</div>
+		
+		<div class="row">
+			<div class="span8 store-left">
+				<div class="row">
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-1.png">
+						</a>
+					</div>
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-2.png">
+						</a>
+					</div>
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-3.png">
+						</a>
+					</div>
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-4.png">
+						</a>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-1.png">
+						</a>
+					</div>
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-2.png">
+						</a>
+					</div>
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-3.png">
+						</a>
+					</div>
+					<div class="span2 store-gadget">
+						<a href="#">
+							<p>Weather Forecast <small>by John Doe</small></p>
+							<img src="img/store-gadget-4.png">
+						</a>
+					</div>
+				</div>
+				
+			</div>
+			
+			<div class="span4 store-right">
+				<div class="row">
+					<div class="span4">
+						<h4>Recently added</h4>
+						<div class="row recently-added">
+							<div class="span1"><a href="#"><img src="img/store-gadget-recent.png"></a></div>
+							<div class="span3"><a href="#">Weather Forecast</a><small>by <a href="#">John Doe</a></small><span class="star-rating"><img src="img/store-stars.png"></span></div>
+						</div>
+						<div class="row recently-added">
+							<div class="span1"><a href="#"><img src="img/store-gadget-recent.png"></a></div>
+							<div class="span3"><a href="#">Weather Forecast</a><small>by <a href="#">John Doe</a></small><span class="star-rating"><img src="img/store-stars.png"></span></div>
+						</div>
+						<div class="row recently-added">
+							<div class="span1"><a href="#"><img src="img/store-gadget-recent.png"></a></div>
+							<div class="span3"><a href="#">Weather Forecast</a><small>by <a href="#">John Doe</a></small><span class="star-rating"><img src="img/store-stars.png"></span></div>
+						</div>
+						<div class="row recently-added">
+							<div class="span1"><a href="#"><img src="img/store-gadget-recent.png"></a></div>
+							<div class="span3"><a href="#">Weather Forecast</a><small>by <a href="#">John Doe</a></small><span class="star-rating"><img src="img/store-stars.png"></span></div>
+						</div>
+						<div class="row recently-added">
+							<div class="span1"><a href="#"><img src="img/store-gadget-recent.png"></a></div>
+							<div class="span3"><a href="#">Weather Forecast</a><small>by <a href="#">John Doe</a></small><span class="star-rating"><img src="img/store-stars.png"></span></div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="span4">
+						<h4>Popular Tags</h4>
+						<div class="row store-tags">
+							<ul>
+								<li><a href="#">Tag One</a></li>
+								<li><a href="#">Tag Two</a></li>
+								<li><a href="#">Tag Three</a></li>
+								<li><a href="#">Tag Four</a></li>
+								<li><a href="#">Tag Five</a></li>
+								<li><a href="#">Tag One</a></li>
+								<li><a href="#">Tag Two</a></li>
+								<li><a href="#">Tag Three</a></li>
+								<li><a href="#">Tag Four</a></li>
+								<li><a href="#">Tag Five</a></li>
+							</ul>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+			
+		</div>
+     
+
+<%
+include("includes/footer.jag");
+%>

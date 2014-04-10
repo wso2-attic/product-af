@@ -1,0 +1,73 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+// used for logging
+var log = new Log();
+var modManager = jagg.module("manager");
+
+var getAllJenkinsBuildsStats = function(applicationKey) {
+    var returnObject = [];
+    var webServiceResponse, webServiceResponseText, webServiceResponseObject;
+    var treeStructure = "jobs[name,builds[number,id,timestamp,result,duration]]";
+    var ws = require("ws");
+    var buildService = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.2;
+    options.action = "urn:getJsonTree";
+    options["HTTPHeaders"] = [{
+        name: "Cookie",
+        value: modManager.getAdminCookie()
+    }];
+    var payload = '<p:getJsonTree xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:jobName>all</p:jobName><p:treeStructure>' + treeStructure + '</p:treeStructure></p:getJsonTree>';
+
+    try {
+        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
+        buildService.open(options, endPoint, false);
+        buildService.send(payload);
+        webServiceResponse = buildService.responseE4X;
+        var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
+        webServiceResponseText = webServiceResponse.ns::["return"].text();
+        log.info("webServiceResponseText > "+webServiceResponseText);
+    } catch (e) {
+        log.error("Error while getting builds information : " + e.message);
+        throw "Error while while getting builds information";
+    }
+
+    if (webServiceResponseText != null && webServiceResponseText.length != 0) {
+        try {
+            webServiceResponseObject = parse(webServiceResponseText.toString());
+            var success = 0;
+            var failure = 0;
+            var aborted = 0;
+            log.info(webServiceResponseObject);
+            for (var index in webServiceResponseObject.jobs) {
+                var job = webServiceResponseObject.jobs[index];
+                for (var bIndex in job.builds) {
+                    var build = job.builds[bIndex];
+                    //console.log(build.result);
+                    if ("SUCCESS" === build.result) {
+                        success += 1;
+                    } else if ("FAILURE" === build.result) {
+                        failure += 1;
+                    } else if ("ABORTED" === build.result) {
+                        aborted += 1;
+                    }
+                }
+            }
+            var successArray=['success', success];
+            var failureArray=['failure', failure];
+            var abortedArray=['aborted', aborted];
+
+            returnObject = [successArray,failureArray,abortedArray];
+            
+        } catch (ex) {
+            print("Error while generating builds chart information : " + ex.message);
+            throw "Error while generatiing builds chart information";
+        }
+    }
+    return returnObject;
+} 
+
+%>

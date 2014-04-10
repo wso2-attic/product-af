@@ -1,0 +1,22 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("user/list", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {
+        var hasInviteUserPermission = jagg.module("permission").hasTenantLevelUserMgtPermission();
+        return {
+            "hasInviteUserPermission":hasInviteUserPermission
+        };
+    }
+
+
+});
+%>

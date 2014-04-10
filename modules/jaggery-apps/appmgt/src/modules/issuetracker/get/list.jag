@@ -1,0 +1,95 @@
+<%
+    include("/jagg/constants.jag");
+    include("/jagg/config_reader.jag");
+
+	var log = new Log("module/issuetracker/get/list.jag");
+
+    var modManager = jagg.module("manager");
+    
+    var getAllIssuesOfApplicationByType = function(applicationKey)
+    {
+        jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+        var issueTrackerUrl = getProperty(ISSUE_TRACKER_SERVER_URL);
+        var tenantDomain = modManager.getTenantDomain();
+
+        var url  = issueTrackerUrl+ "services/tenant/" + tenantDomain + "/report/"+applicationKey+"/type";
+        var data = {  };
+        var issues = get(url, {} ,"json");
+        return issues.data;
+    };
+
+    var getIssuesOfApplicationVersion = function(applicationKey, applicationVersion){
+        jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+        var issueTrackerUrl = getProperty(ISSUE_TRACKER_SERVER_URL);
+        var tenantDomain = modManager.getTenantDomain();
+
+        var url  = issueTrackerUrl+ "services/tenant/" + tenantDomain + "/project/" + applicationKey + "/issue/" + applicationVersion;
+        var data = {  };
+        var issues = get(url, {} ,"json");
+        return issues.data;
+    }
+    
+    var getIssuesSummary = function(applicationKey)
+    {
+ 
+        jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+
+        var result;
+        var issues = {};
+
+        result = getAllIssuesOfApplicationByType(applicationKey);
+        var resultElems = result.reportResponse;
+
+        for (var i = 0; i < resultElems.length; i++){
+            var issue = {};
+            issue.appKey = applicationKey;
+
+            var resultElem = resultElems[i];
+            issue.version = resultElem.projectVersion;
+
+            var typeList = resultElem.reportList;
+            if(typeList instanceof Array){
+                for (var j = 0; j < typeList.length; j++){
+                    var typeElem = typeList[j];
+                    issue[typeElem.type] = Number(typeElem.issueCount);
+                }
+            }else{
+                issue[typeList.type] = Number(typeList.issueCount);
+            }
+
+            issues[resultElem.projectVersion] = issue;
+        }
+        return issues;
+
+    };
+    
+    var getOpenIssues = function(applicationKey, applicationVersion)
+    {
+        jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+        var result;
+        var issues = new Array();
+
+        try {
+            result = getIssuesOfApplicationVersion(applicationKey,applicationVersion);
+
+            var resultElems = result.issueResponse;
+            for (var i = 0; i < resultElems.length; i++){
+                var issue =  resultElems[i].issue;
+                if(issue.status == "OPEN"){
+                    var openIssue = {};
+                    openIssue.title = issue.summary;
+                    openIssue.type = issue.type;
+                    openIssue.id = issue.key;
+                    openIssue.status = issue.status;
+                    openIssue.url = getProperty(ISSUETRACKER_URL) + 'issue/get?issuePkey=' + issue.key;
+                    issues[i] = openIssue;
+                }
+            }
+        } catch (e) {
+            log.error("Error while getting issues of " + applicationKey + "\n" + e.message);
+            throw "Error while getting issues of " + applicationKey + "\n";
+        }
+        return issues;
+
+    };
+%>

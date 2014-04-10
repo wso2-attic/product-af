@@ -1,0 +1,97 @@
+<%
+// collection names
+var APPLICATIONS = "repository/applications/";
+var USER_APPLICATIONS_MAPPING = "userApplicationMapping/";
+var APPLICATION_STAGES = "stages/";
+
+// property keys of registry 'application' resource
+var APPLICATION_KEY = "applicationKey";
+var APPAPPFACTORY_SERVER_URLLICATION_NAME = "applicationName";
+var APPLICATION_DESC = "applicationDescription";
+var APPLICATION_REPO_LINK = "applicationRepoLink";
+
+// property keys of registry 'userApplicationMapping' resource
+var APPLICATION_LIST = "applications";
+var APP_INFO = "/appinfo";
+
+//appfactory.xml keys
+var SSO_NAME = "SSORelyingParty.Name";
+var DASHBOARD_SSO_NAME = "SSORelyingParty.DashboardName";
+var SSO_PROVIDER = "SSORelyingParty.IdentityProviderURL";
+var SSO_KEYSTORE_PASSWORD = "SSORelyingParty.KeyStorePassword";
+var SSO_KEY_ALIAS = "SSORelyingParty.IdentityKeyAlias";
+var SSO_KEYSTORE_NAME = "SSORelyingParty.KeyStoreName";
+
+var ADMIN_USERNAME = "AdminUserName";
+var ADMIN_PASSWORD = "AdminPassword";
+var SEND_EMAIL = "EmailSend";
+var SCM_ADMIN_USER_NAME="RepositoryMGTConfig.SCMServerAdminUserName";
+var SCM_ADMIN_PASSWORD="RepositoryMGTConfig.SCMServerAdminPassword";
+var SCM_SERVER_URL="RepositoryMGTConfig.SCMServerURL";
+var BASE_URL="ContinuousIntegrationProvider.jenkins.Property.BaseURL";
+
+var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
+var BPS_SERVER_URL = "ServerUrls.BPS";
+var GREG_SERVER_URL = "ServerUrls.Greg";
+var SS_SERVER_URL = "ServerUrls.SS";
+
+var DEV_SERVER_URL = "ApplicationDeployment.DeploymentStage.Development.DeploymentServerURL";
+var TEST_SERVER_URL = "ApplicationDeployment.DeploymentStage.Testing.DeploymentServerURL";
+var PROD_SERVER_URL = "ApplicationDeployment.DeploymentStage.Production.DeploymentServerURL";
+var STAGING_SERVER_URL = "ApplicationDeployment.DeploymentStage.Staging.DeploymentServerURL";
+
+var ROLE_ADMIN = "admin";
+var ROLE_APP_OWNER = "appOwner";
+var ROLE_QA = "qa";
+var ROLE_DEVOPS = "devOps";
+var ROLE_DEV = "dev";
+
+var LIFE_CYCLE_NAME="ApplicationLifecycle";
+var APP_VERSION = "/appversion";
+
+var API_MANAGER_SERVER_URL = "ApiManager.Server.Url";
+var API_MANAGER_STORE_URL = "ApiManager.Store.Url";
+var API_MANAGER_SERVICE_NAME = "ApiManager.Service.Name";
+var API_MANAGER_SERVICE_NAMESPACE = "ApiManager.Service.Namespace";
+
+var PREFERRED_REPOSITORY_TYPE = "RepositoryType";
+var SHOW_OTHER_SERVICES_TAB = "OtherServices.ShowOtherServicesTab"
+
+var DEPLOYMENT_STAGES="ApplicationDeployment.DeploymentStage"
+var STORAGE_SERVER_URL = "StorageServerUrl"
+var RSS_NAME="RssName"
+
+var LCBUTTON_PROMOTE_KEY="LCButton.PromoteButton.Key"
+var LCBUTTON_PROMOTE_VALUE="LCButton.PromoteButton.Value"
+var LCBUTTON_DEMOTE_KEY="LCButton.DemoteButton.Key"
+var LCBUTTON_DEMOTE_VALUE="LCButton.DemoteButton.Value"
+var LCBUTTON_RETIRE_KEY="LCButton.RetireButton.Key"
+var LCBUTTON_RETIRE_VALUE="LCButton.RetireButton.Value"
+
+var PERMISSION_EXECUTE ="ui.execute";
+var PERMISSION_BUILD ="/permission/admin/appfactory/build";
+var PERMISSION_DEPLOY_TO ="/permission/admin/appfactory/deployTo/";
+var PERMISSION_REPOSITORY_BRANCH ="/permission/admin/appfactory/repository/branch";
+var PERMISSION_GOVERNANCE_PROMOTE_TO ="/permission/admin/appfactory/promoteTo/";
+var PERMISSION_GOVERNANCE_DEMOTE_TO ="/permission/admin/appfactory/demoteTo/";
+var PERMISSION_GOVERNANCE_RETIRE ="/permission/admin/appfactory/retire";
+var PERMISSION_CONFIGURATION_DB_FOR_STAGE ="/permission/admin/appfactory/configure/db/";
+var PERMISSION_CONFIGURATION_API_MANAGER ="/permission/admin/appfactory/configuration/apimanager";
+var PERMISSION_CONFIGURATION_RESOURCES_OF_STAGE ="/permission/admin/appfactory/configure/resources/";
+var PERMISSION_USER_INVITE ="/permission/admin/appfactory/usermgt/invite";
+var PERMISSION_ADMIN ="/permission/admin/appfactory";
+var PERMISSION_VISIBILITY_STAGE = "/permission/admin/appfactory/visibility/";
+var PERMISSION_CEO_DASHBOARD = "/permission/admin/appfactory/ceo/dashboard";
+var PERMISSION_TASKS_VIEW = "/permission/admin/appfactory/tasks/view";
+var PRODUCTION = "Production";
+
+var PERMISSION_RESOURCE_CREATE="/permission/admin/appfactory/configure/resources/"
+
+var PERMISSION_DATASOURCE_CREATE="/permission/admin/appfactory/datasource/create"
+var PERMISSION_DATASOURCE_UPDATE_OF_STAGE="/permission/admin/appfactory/datasource/update/"
+
+var SONAR_URL = "http://appfactorypreview.wso2.com:9000/api/";
+var SONAR_USERNAME = "admin@admin.com";
+var SONAR_PASSWORD = "admin";
+
+%>

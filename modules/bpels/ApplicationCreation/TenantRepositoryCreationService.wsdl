@@ -1,0 +1,163 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.mgt.repository.appfactory.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax270="http://mgt.repository.appfactory.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.mgt.repository.appfactory.carbon.wso2.org">
+    <wsdl:documentation>TenantRepositoryCreationService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.repository.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="RepositoryMgtException">
+                <xs:sequence></xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax271="http://mgt.repository.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.mgt.repository.appfactory.carbon.wso2.org">
+            <xs:import namespace="http://mgt.repository.appfactory.carbon.wso2.org/xsd"></xs:import>
+            <xs:element name="TenantRepositoryCreationServiceRepositoryMgtException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="RepositoryMgtException" nillable="true" type="ax271:RepositoryMgtException"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createTenantRepo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createTenantRepoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationKey" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="createRepositoryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="createRepositoryRequest">
+        <wsdl:part name="parameters" element="ns:createRepository"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="createRepositoryResponse">
+        <wsdl:part name="parameters" element="ns:createRepositoryResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="TenantRepositoryCreationServiceRepositoryMgtException">
+        <wsdl:part name="parameters" element="ns:TenantRepositoryCreationServiceRepositoryMgtException"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="createTenantRepoRequest">
+        <wsdl:part name="parameters" element="ns:createTenantRepo"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="createTenantRepoResponse">
+        <wsdl:part name="parameters" element="ns:createTenantRepoResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="TenantRepositoryCreationServicePortType">
+        <wsdl:operation name="createRepository">
+            <wsdl:input message="ns:createRepositoryRequest" wsaw:Action="urn:createRepository"></wsdl:input>
+            <wsdl:output message="ns:createRepositoryResponse" wsaw:Action="urn:createRepositoryResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantRepositoryCreationServiceRepositoryMgtException" name="TenantRepositoryCreationServiceRepositoryMgtException" wsaw:Action="urn:createRepositoryTenantRepositoryCreationServiceRepositoryMgtException"></wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createTenantRepo">
+            <wsdl:input message="ns:createTenantRepoRequest" wsaw:Action="urn:createTenantRepo"></wsdl:input>
+            <wsdl:output message="ns:createTenantRepoResponse" wsaw:Action="urn:createTenantRepoResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantRepositoryCreationServiceRepositoryMgtException" name="TenantRepositoryCreationServiceRepositoryMgtException" wsaw:Action="urn:createTenantRepoTenantRepositoryCreationServiceRepositoryMgtException"></wsdl:fault>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="TenantRepositoryCreationServiceSoap11Binding" type="ns:TenantRepositoryCreationServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap:binding>
+        <wsdl:operation name="createRepository">
+            <soap:operation soapAction="urn:createRepository" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantRepositoryCreationServiceRepositoryMgtException">
+                <soap:fault use="literal" name="TenantRepositoryCreationServiceRepositoryMgtException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createTenantRepo">
+            <soap:operation soapAction="urn:createTenantRepo" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantRepositoryCreationServiceRepositoryMgtException">
+                <soap:fault use="literal" name="TenantRepositoryCreationServiceRepositoryMgtException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="TenantRepositoryCreationServiceSoap12Binding" type="ns:TenantRepositoryCreationServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap12:binding>
+        <wsdl:operation name="createRepository">
+            <soap12:operation soapAction="urn:createRepository" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantRepositoryCreationServiceRepositoryMgtException">
+                <soap12:fault use="literal" name="TenantRepositoryCreationServiceRepositoryMgtException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="createTenantRepo">
+            <soap12:operation soapAction="urn:createTenantRepo" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantRepositoryCreationServiceRepositoryMgtException">
+                <soap12:fault use="literal" name="TenantRepositoryCreationServiceRepositoryMgtException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="TenantRepositoryCreationServiceHttpBinding" type="ns:TenantRepositoryCreationServicePortType">
+        <http:binding verb="POST"></http:binding>
+        <wsdl:operation name="createRepository">
+            <http:operation location="createRepository"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="createTenantRepo">
+            <http:operation location="createTenantRepo"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="TenantRepositoryCreationService">
+        <wsdl:port name="TenantRepositoryCreationServiceHttpsSoap11Endpoint" binding="ns:TenantRepositoryCreationServiceSoap11Binding">
+            <soap:address location="https://10.200.0.246:9443/services/TenantRepositoryCreationService.TenantRepositoryCreationServiceHttpsSoap11Endpoint/"></soap:address>
+        </wsdl:port>
+        <wsdl:port name="TenantRepositoryCreationServiceHttpsSoap12Endpoint" binding="ns:TenantRepositoryCreationServiceSoap12Binding">
+            <soap12:address location="https://10.200.0.246:9443/services/TenantRepositoryCreationService.TenantRepositoryCreationServiceHttpsSoap12Endpoint/"></soap12:address>
+        </wsdl:port>
+        <wsdl:port name="TenantRepositoryCreationServiceHttpsEndpoint" binding="ns:TenantRepositoryCreationServiceHttpBinding">
+            <http:address location="https://10.200.0.246:9443/services/TenantRepositoryCreationService.TenantRepositoryCreationServiceHttpsEndpoint/"></http:address>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,8 @@
+<%
+jagg.initializer("breadcrumb", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

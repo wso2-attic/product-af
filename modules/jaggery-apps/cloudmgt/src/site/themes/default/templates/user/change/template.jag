@@ -1,0 +1,180 @@
+<% jagg.template("user/change", function(inputs, outputs, jagg) { %>
+<%
+ var userName =  session.get("LOGGED_IN_USER");
+var log = new Log();
+session.put("wso2carbon.admin.logged.in", userName);
+
+%>
+
+<style>
+header{
+	display:none;
+}
+body#home{
+	background:none #292E38;
+}
+.sticky-wrapper{
+	position:relative;
+	height:auto !important;
+}
+
+.warning_message{
+	background-color:#ffffff;
+}
+.info_message .close_message {
+    position: absolute;
+    right: 13px;
+    top: 7px;
+}
+.info_message{
+	background-color:#ffffff;
+	width: 400px;
+}
+
+.txt-right{
+	text-align: right;
+}
+#tenantDomain{
+	width: 87%;
+	margin-left: 7px;
+}
+
+
+#captchaImgDiv img{
+	width:100%;
+	   height: 39px;
+}
+#aPaaS, #iPaaS{
+	width:20%;
+}
+#lblLoginID{
+	color:#888;
+	display:none;
+}
+
+#preAt{
+	margin-left: -3px;
+	margin-right: -3px;
+}
+
+section.start_content div.subs-cont{
+	margin-top:20px;
+	margin-bottom:30px;
+}
+.subs-cont span.error{
+	position: absolute; 
+	margin-top: 71px; 
+	margin-left: -14px;
+}
+span.error {
+    padding-left: 0;
+}
+#submitbtn {
+    background-color: #EB7067;
+    border: #EB7067;
+}
+
+</style>
+ 
+<script type="text/javascript">
+
+
+   function doSubmit() {
+        var oldPassword = $("#oldPassword").attr('value');
+        var password  = $("#password").attr('value');
+        jagg.post("../blocks/user/change/ajax/user.jag", {
+                         action:"changePassword",
+                         oldPassword:oldPassword,
+                         password:password
+                  },
+                  function (result) {
+                        jagg.message({content:'You have successfully change the password.',type:'info',cbk:function(){
+                                window.location.href = "index.jag";
+                        }
+                        });
+                  },
+                  function (jqXHR, textStatus, errorThrown) {
+                        jagg.message({content:' Old credential does not match with the existing credentials.', type:'error',cbk:function(){
+                        window.location.href = "index.jag";
+                    }
+                  });
+                 })
+    } 
+ 
+ 
+  
+
+    $(document).ready(function($){
+        jQuery.validator.setDefaults({
+                errorElement:'span'
+            });
+	    $('#userForm').validate({
+	    rules : {
+                password: {
+                    required: true,
+                    minlength: 5
+                } ,
+                clouds: {	
+                    required: true,
+		    minlength: 1
+		},
+                domainName: {
+                    domain: true
+                }
+            },
+            messages: {
+                password: {
+                    minlength: "Minimum is 5 characters "
+                },
+                clouds: "Select atleast one subscription.",
+            },
+
+	    submitHandler: function(form) {
+				doSubmit();
+		    }
+		});
+    });
+</script>
+
+
+
+<div class="wrapper">
+			<div class="branding">
+				<h1></h1>
+			</div>
+			<article class="start">
+				<div class="alert alert-error error" id="registerError"><% jagg.includeBlock("page/messages", null); %></div>
+				<div id="form_div">
+				<section class="start_content">
+				 <form method='post' name="inputData" class='right_label hold' id='userForm' action="javascript:doSubmit()">
+                                                <div class="input_row">
+						                <label for="oldPassword" class="form-title">Current Password</label>
+								<input type="password" id="oldPassword" name="oldPassword" class="required password"  />
+						</div>
+						
+						<div class="input_row">
+						                <label for="password" class="form-title">New Password</label>
+								<input type="password" id="password" name="password" class="required password"  />
+						</div> 
+                                                <div class="input_row">
+							<label for="password2" class="form-title">Confirm Password</label>
+						        <input type="password" id="password2" name="password2" class="required password_match"  />
+						</div>
+						
+                     <div class="input_row btn_row">
+                         <input id="submitbtn" type='submit' value='Reset Password' class='btn'/>
+                     </div>
+
+                 </form>
+
+                    <input type="hidden" name="secretKey" id="secretKey" value=""/>
+                    <input type="hidden" name="imagePath" id="imagePath" value=""/>
+
+                </section>
+                </div>
+              
+            </article>
+</div><!-- /wrapper -->
+
+<% }); %>
+

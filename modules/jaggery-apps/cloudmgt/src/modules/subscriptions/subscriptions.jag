@@ -1,0 +1,8 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+
+var log = new Log();
+
+%>
+

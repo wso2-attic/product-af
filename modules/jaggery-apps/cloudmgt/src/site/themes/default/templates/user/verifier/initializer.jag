@@ -1,0 +1,8 @@
+<%
+jagg.initializer("user/verifier", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

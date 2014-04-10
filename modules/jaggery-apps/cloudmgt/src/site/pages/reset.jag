@@ -1,0 +1,27 @@
+<%
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
+(function () {
+
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 Cloud",
+            "pagePath":"/site/pages/reset.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"Forget Password",
+                        "middle":[
+                            {
+                            	"name":"user/reset"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>

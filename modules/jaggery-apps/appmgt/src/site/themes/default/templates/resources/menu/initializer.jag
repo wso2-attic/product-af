@@ -1,0 +1,8 @@
+<%
+jagg.initializer("resources/menu", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

@@ -1,0 +1,125 @@
+<%
+var userConfig = require('commons/userConfig.js');
+var dbConfig = require('commons/dbConfig.js');
+
+var isUserLoggedIn = userConfig.isUserLoggedIn();
+
+var tenantID = userConfig.getTenantID();
+
+var timePeriod = getTimePeriod();
+var chartData = getData(timePeriod[0], timePeriod[1]);
+
+function getTimePeriod() {
+
+   if (isUserLoggedIn) {
+        var result = [];
+        if (request.getParameter("from") == null || request.getParameter("to") == null) {
+
+            var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM APP_BUILDS WHERE TENANT_ID=" + tenantID + " ;";
+	    var dbResult = dbConfig.queryDb(query);
+
+            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
+            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+	    	
+        } else {
+            result[0] = request.getParameter("from");
+            result[1] = request.getParameter("to");
+        }
+        return result;
+    }
+}
+
+function getData(from, to) {
+
+if (isUserLoggedIn) {
+
+    var query = "SELECT APPLICATION_NAME, STATUS, count(STATUS) FROM APP_BUILDS WHERE TENANT_ID=" + tenantID + " AND substr(TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) +
+                " GROUP BY APPLICATION_NAME,STATUS ;";
+
+    var dbResult = dbConfig.queryDb(query);
+
+    if (dbResult.length <= 0) {
+
+	var emptyChartData = {"0" : [], "1" : [
+			     {"label" : "PASS", "data" : [], "bars" : { "fillColor" : "#336600"}, "color" : "#336600"},
+			     {"label" : "FAIL", "data" : [], "bars" : { "fillColor" : "#E41B17"}, "color" : "#E41B17"}]};
+
+        return emptyChartData;
+    }
+    return processResults(dbResult);
+    }
+}
+
+function processResults(obj) {
+
+    var tickArray = [];
+    var tickNumber = 1;
+
+    var pass = [];
+    var fail = [];
+    var prevAppName = obj[0].APPLICATION_NAME;
+    tickArray.push([tickNumber, obj[0].APPLICATION_NAME]);
+
+    for (var i = 0; i < obj.length; i++) {
+        if (prevAppName != obj[i].APPLICATION_NAME) {
+            tickNumber++;
+            tickArray.push([tickNumber, obj[i].APPLICATION_NAME]);
+        }
+        if (obj[i].STATUS == "FAIL") {
+            fail.push([tickNumber, obj[i]["count(STATUS)"]])
+        }
+        else if (obj[i].STATUS == "SUCCESS") {
+            pass.push([tickNumber, obj[i]["count(STATUS)"]])
+        }
+        prevAppName = obj[i].APPLICATION_NAME;
+
+    }
+
+    // flot does not render the graph if one of the data arrays are empty
+    if (fail.length == 0) {
+        for (var i = 0; i < tickArray.length; i++) {
+            fail.push([i + 1, 0])
+        }
+    }
+    else if (pass.length == 0) {
+        for (var i = 0; i < tickArray.length; i++) {
+            pass.push([i + 1, 0])
+        }
+    }
+
+    var fin = {0: tickArray, 1: [
+        {label: "PASS", data: pass, bars: {order: 1, fillColor: "#336600"}, color: "#336600"},
+        {label: "FAIL", data: fail, bars: {order: 2, fillColor: "#E41B17"}, color: "#E41B17"}
+    ]};
+
+    return fin;
+
+
+}
+
+var gen_options = require("config/bar-chart-option.json");
+var full_data;
+
+if (chartData != null) {
+    gen_options["xaxis"]["min"] = 0.5;
+    gen_options["xaxis"]["max"] = chartData[0].length > 10 ? 10.5 :chartData[0].length+0.5;
+    gen_options["xaxis"]["ticks"] = chartData[0];
+    gen_options["xaxis"]["panRange"] = [0.5, chartData[0].length + 1];
+    full_data = {0: chartData[1], 1: gen_options};
+}
+else {
+    full_data = {0: [], 1: gen_options};
+}
+//var full_data = {0: chartData[1], 1: options};
+var _full_data = stringify(full_data);
+response.contentType = 'text/json';
+print(_full_data);
+
+%>
+
+
+
+
+
+
+

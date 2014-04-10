@@ -1,0 +1,14 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/issuetracker/create/create.jag");
+
+var modManager = jagg.module("manager");
+
+var getUrlForReportIssue = function getUrlForReportIssue(applicationKey){
+    return getProperty(ISSUETRACKER_URL);
+};
+
+
+%>

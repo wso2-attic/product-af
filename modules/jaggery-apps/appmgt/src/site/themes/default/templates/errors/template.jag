@@ -1,0 +1,5 @@
+<% jagg.template("errors", function(inputs, outputs, jagg) {
+  //temp fix for handling errors.
+   // response.sendRedirect('/appmgt');
+
+});%>

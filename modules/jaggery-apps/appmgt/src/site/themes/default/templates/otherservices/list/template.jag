@@ -1,0 +1,30 @@
+<% jagg.template("otherservices/list", function(inputs, outputs, jagg) { %>
+
+    <div class="container content-container wrapper">
+        <div class="row">
+            <div class="span12 content-section shadow-up tab-content">
+                <div class="content-data">
+                    <div class="container-fluid">
+
+<%
+        var services = getProperties('OtherServices.Service');
+        for(var i=0; i<services.length;i++){
+            var service = services[i];
+            var link = getProperty('OtherServices.Service.'+service+'.Link');
+            var description = getProperty('OtherServices.Service.'+service+'.Description');
+            var title = getProperty('OtherServices.Service.'+service+'.Title');
+			print ('<div class="row-fluid"><div class="span3"><h4>'+title+'</h4></div><div class="span9"><div class="help-block">'+description+'</div><button class="btn" onclick="location.href=\''+link+'\'"><i class="icon-newpro"></i>'+title+'</button></div></div>	<div class="row-fluid"> <hr /> </div>');
+			}
+        %>
+
+                        <div class="row-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="push"></div>
+    </div>
+
+<% }); %>
+

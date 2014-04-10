@@ -1,0 +1,129 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+// used for logging
+var log = new Log();
+
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+//var appfactory = require('appFactory');
+//var multitenancy = carbon.multitenancy;
+//var server = require('/modules/server.js');
+
+/*Add user to the tenant domain with a particlualr role*/
+var addRolestoUserinTenantDomain = function addUserToTenantDomain(requestersUsername,username,userRole) {
+
+  /*  var tenantDomain=session.get("APPLICATION_INFO").tenantDomain;
+    var userManager = server.userManager(server,tenantDomain);
+    var user=userManager.getUser(username);
+    user.addRoles(userRole);
+    */
+
+};
+var addUserRoles = function addUserRoles(username,userRoles) {
+//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
+       log.info("addUserRoles "+username);
+        var tenantDomain=modManager.getTenantDomain();
+        var context = multitenancy.getPrivilegedCarbonContext();
+        var tenantManager = multitenancy.getTenantManager();
+        try {
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            result = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').addUserRoles(username,userRoles);
+        } finally {
+            context.endTenantFlow();
+        }
+
+
+};
+
+var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
+//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
+    var paraAddRoles,paraRemoveRoles;
+    paraAddRoles=addRoles.split(",");
+    paraRemoveRoles=removeRols.split(",");
+    if((paraAddRoles.length==0)||(paraAddRoles[0].length==0)){
+        paraAddRoles=null;
+    }
+    if((paraRemoveRoles.length==0)||(paraRemoveRoles[0].length==0)){
+        paraRemoveRoles=null;
+    }
+    var result;
+        var tenantDomain=modManager.getTenantDomain();
+        var context = multitenancy.getPrivilegedCarbonContext();
+        var tenantManager = multitenancy.getTenantManager();
+        try {
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            result = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
+        } finally {
+            context.endTenantFlow();
+        }
+        return result;
+};
+var deleteUserFromTenant = function deleteUserFromTenant(userName){
+    var isSuccess = "false";
+    var tenantDomain=modManager.getTenantDomain() ;
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        isSuccess = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').removeUserFromTenant(userName);
+    }finally{
+        context.endTenantFlow();
+    }
+    return isSuccess;
+
+}
+
+var bulkUserImport = function bulkUserImport(users,defaultPassword){
+    var isSuccess = "false";
+    var tenantDomain=modManager.getTenantDomain() ;
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        isSuccess = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService').importUsersTotheTenant(users,defaultPassword);
+    }finally{
+        context.endTenantFlow();
+    }
+    return isSuccess;
+}
+
+var changePassword=function(oldPassword,newPassword){
+    var user=session.get('LOGGED_IN_USER').split('@')[0];
+    var tenantDomain=modManager.getTenantDomain();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager = multitenancy.getTenantManager();
+    try {
+        var tenantId = tenantManager.getTenantId(tenantDomain);
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+        var realm = realmService.getTenantUserRealm(tenantId);
+        var userStoreManager=realm.getUserStoreManager();
+        var result=userStoreManager.updateCredential(user,newPassword,oldPassword);
+        var claimValue=userStoreManager.setUserClaimValue(user,"http://wso2.org/claims/firstlogin","false",null);
+
+    }catch (e){
+         log.error("Error occured while changing password");
+         throw "Error occured while changing password";
+    }finally{
+        context.endTenantFlow();
+    }
+}
+
+
+%>

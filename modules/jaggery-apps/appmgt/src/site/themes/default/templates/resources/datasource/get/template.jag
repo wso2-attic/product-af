@@ -1,0 +1,289 @@
+<% jagg.template("resources/datasource/get", function(inputs, outputs, jagg) {
+    var applicationKey = request.getParameter("applicationKey");
+    var applicationName = request.getParameter("applicationName");
+    var datasources = outputs.datasources;
+    
+    var hasCreatePermission = outputs.hasResourceCreatePermissionInAnyEnvironment;
+%>
+<script xmlns="http://www.w3.org/1999/html">
+    var printableDS=[];
+    function tabShowHide(obj) {
+        var toShow = $(obj).attr('data-value');
+        $('.tag-content').hide();
+        $('#' + toShow).show();
+
+    }
+    $(document).ready(function(){
+        convertDataSourcesToPrintableFormat();
+    });
+
+    function convertDataSourcesToPrintableFormat(){
+    	jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
+            action: "getDatasources",
+            applicationKey: "<%=applicationKey%>"
+        }, function (result) {
+            if (result !== undefined) {
+                var datasources = jQuery.parseJSON(result); 
+                printableDS=[];
+                for(var stage in datasources){
+                    var tmpStage=datasources[stage];
+                    for(var ds in tmpStage){
+                        var tmpDs=tmpStage[ds];
+                        var fDs=isInPrinatableDS(tmpDs.name);
+                        if(fDs===null){
+                            //add the ds to printableDs
+                            fDs={};
+                            fDs.name=tmpDs.name;
+                            fDs.type=tmpDs.type;
+                          //  fDs.description=tmpDs.description;
+                            fDs.stages=[];
+                            var objStage={};
+
+                            objStage.name=stage;
+                            objStage.driverClassName=tmpDs.driverClassName;
+                            objStage.Description=tmpDs.description;
+                            objStage.url=tmpDs.url;
+                            fDs.stages.push(objStage);
+                            printableDS.push(fDs);
+
+                        }else{
+                            //add only new stage
+                            var objStage={};
+                            objStage.name=stage;
+                            objStage.driverClassName=tmpDs.driverClassName;
+                            objStage.Description=tmpDs.description;
+                            objStage.url=tmpDs.url;
+                            fDs.stages.push(objStage);
+                        }
+                    }
+                }               
+            }
+            constructHTML();
+        }, function (jqXHR, textStatus, errorThrown) {
+        	$('#contentHeader').html("");
+        	jagg.message({content:'Error occurred while reading datasources',type:'warning', id:'datasourceoverview' });
+        });
+    }
+    
+    function isInPrinatableDS(dsName){
+        for(var ds in printableDS ){
+            if(printableDS[ds].name==dsName){
+                return printableDS[ds];
+                break;
+            }
+        }
+        return null;
+    }
+
+    function constructHTML(){
+        var $table='';
+        var count = 0;
+        for(var ds in printableDS){
+            $table+=constructRow(printableDS[ds]);
+            count++;
+        }
+        if(count == 0){
+        	$('#contentHeader').html("<div class='noData-message'>Data Sources have not been created yet.</div>");
+        }else{
+        	$('#content').append($table);
+        }	
+        
+        $('.dsLink').click(function(){
+            var dsName=$(this).attr('data-dsname');
+            var stage=$(this).attr('stage');
+            window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+        });
+         $('.stage_label').click(function(){
+            var dsName=$(this).attr('data-dsname');
+            var stage=this.innerHTML;
+            window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+        });
+
+    }
+
+        function constructRow(ds){
+            var $row='<li class="list_row_item  ">'+
+                    '<ul class="list_row  ">'+
+                    '<li class="col-2">'+
+                    '<div class="list_col_content">'+
+                    '<ul class="list">'+generateDataSourceLinks(ds)+
+                   '<li class="small">'+ds.type+'</li>'+
+                    '</ul>'+
+                    '</div>'+
+                    '</li>'+
+                    '<li class="col-2">'+
+                    '<div class="list_col_content">' +
+                    '<dl class="list datasource-description">'+
+                    generatDescriptionforStages(ds.stages)+
+                    '</dl>' +
+                    '</div>'+
+                    '</li>'+
+                    '<li class="col-2">'+
+                    '<div class="list_col_content">'+
+                    '<dl class="list">'+
+                    generateStages(ds) +
+                    '</dl>'+
+                    '</div>'+
+                    '</li>'+
+                    '<li class="col-2">'+
+                    '<div class="list_col_content">'+
+                    '<dl class="list">'+
+                     generatDriversforStages(ds.stages)+
+                    '</dl>'+
+                    '</div>'+
+                    '</li>'+
+                    '<li class="col-4">'+
+                    '<div class="list_col_content">'+
+                    '<dl class="list">'+
+                     generatUrlsforStages(ds.stages)+
+                    '</dl>'+
+                    '</div>'+
+                    '</li>'+
+                    '</ul>'+
+            '</li>' ;
+
+            return $row;
+        }
+        function generateDataSourceLinks(ds){
+            var $links='';
+
+            for(var stage in ds.stages){
+        		var stageName=ds.stages[stage].name;
+        		if(stageName!=undefined){
+        			$links+='<li></li><a href="#" title="View '+ds.name+' on '+stageName+' stage." class="dsLink" stage="'+stageName+'" data-dsname="'+ds.name+'">'+ds.name+'</a></li>';
+        		}
+        	}
+        	return $links;
+
+        }
+        function generatDriversforStages(stages){
+        	var $drivers='';
+        	for(var stage in stages){
+        		var classname=stages[stage].driverClassName;
+        		if(classname!=undefined){
+        			$drivers+='<dd style="padding-right:10px;">'+classname+'</dd>';
+        		}
+        	}
+        	return $drivers;
+        }
+        
+        function generateStages(ds){
+        	var $stagesStr='';
+        	for(var stage in ds.stages){
+        		$stagesStr+='<dt style="margin-bottom:7px;"><i data-dsname="'+ds.name+'" class="stage_label tag">'+ds.stages[stage].name+'</i></dt>';
+        	}
+        	return $stagesStr;
+        }
+
+        
+        function generatDescriptionforStages(stages){
+        	var $desc='';
+        	var description=stages[0].Description;
+        	if((description!=undefined)&&(description!='')){
+        		$desc+='<dd style="white-space:normal;">'+description+'</dd>';
+        	}
+        	return $desc;
+        }
+
+        function generatUrlsforStages(stages){
+        	var $urls='';
+        	for(var stage in stages){
+        		var url=stages[stage].url;
+        		if(url!=undefined){
+        			$urls+='<dd title="'+url+'">'+url   +'</dd>'  ;
+        		}
+        	}
+        	return $urls;
+        }
+
+</script>
+
+ <div class="container">
+				<article class="main">
+				    
+                        <header><div><% jagg.includeBlock("page/messages", null); %></div>
+                        	<div class="content">
+                                <h1>Resources</h1>
+                             </div>
+                        </header>
+                        <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+                        <section class="separator">
+                            <div class="page_nav">
+                                <div class="content clear">
+                                    <ol class="breadcrumb left">
+                                            <li class="breadcrumb_item"><h2>Datasources</h2></li>
+                                    </ol>
+                                    <div class="right btn_list_box">
+                                        <ul class="inline_box inline_list btn_list">
+                                        
+                                        	<% var disableTxt = "";
+                                        		if(!hasCreatePermission){
+                                        			disableTxt= 'disabled="disabled"';
+                                        		} 
+                                        		
+                                        	%>
+                                            <li class="inline_item"><button onclick="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="btn main btn_list_first" type="button" <%=disableTxt%>>Create Datasource</button></li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                     </div>
+
+
+                                </div>
+                            </div>
+                            <div class="content clear well" >
+                                <ul class="list_table push_top_20" id="contentHeader">
+                                    <li class="list_row_item first_list_row_item">
+                                        <ul class="list_row first_list_row">
+                                            <li class="col-2">
+                                                <h2 class="list_col_heading">Name</h2>  
+                                            </li>                                              
+                                            <li class="col-2">
+                                                <h2 class="list_col_heading">Description</h2>                                               
+                                            </li>
+                                            <li class="col-2">
+	                                            <h2 class="list_col_heading">Lifecycle State</h2>                                               
+	                                        </li>
+                                            <li class="col-2">
+                                                <h2 class="list_col_heading">DriverClass</h2>                                               
+                                            </li>
+                                            <li class="col-4">
+                                                <h2 class="list_col_heading">URL</h2>                                                
+                                            </li>
+                                        </ul>
+                                   </li>
+                                   <div id="content">
+                                   </div>
+                                </ul>
+                            </div>
+                        </section>
+                        <div class="clearfix"></div>
+                 </article>
+            </div><!-- /container -->
+<script type="text/javascript">
+// Create the tooltips only on document load
+$(document).ready(function()
+{
+  $('.datasource-description dd').each(function(){
+      if($(this).html().length > 24){
+          $(this).qtip(
+             {
+                 content: {
+                             text: $(this).html()
+                          },
+                 show: {
+                     when: 'click',
+                     solo: true // Only show one tooltip at a time
+                 },
+                 hide: 'unfocus',
+                 style: {
+                                classes: 'popup_status_box tooltip',
+                                widget: false,
+                                def: false
+                            }
+             });
+      }
+  });
+
+});
+</script>
+<% }); %>
