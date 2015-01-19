@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<AppFactory xmlns="http://www.wso2.org/appfactory/">
+    <Database>
+        <URL>jdbc:h2:target/repository/database/WSO2AF_DB</URL>
+        <Username>wso2carbon</Username>
+        <Password>wso2carbon</Password>
+        <Driver>org.h2.Driver</Driver>
+        <maxActive>50</maxActive>
+        <maxWait>60000</maxWait>
+        <minIdle>5</minIdle>
+    </Database>
+    <ApplicationDeployment>
+    <DeploymentStage name="Development"/>
+    <DeploymentStage name="Testing"/>
+    <DeploymentStage name="Production"/>
+    </ApplicationDeployment>
+</AppFactory>
+<!--
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<AppFactory xmlns="http://www.wso2.org/appfactory/">
+    <Database>
+        <URL>jdbc:mysql://localhost:3306/appfac</URL>
+        <Username>root</Username>
+        <Password>root</Password>
+        <Driver>com.mysql.jdbc.Driver</Driver>
+        <maxActive>50</maxActive>
+        <maxWait>60000</maxWait>
+        <minIdle>5</minIdle>
+    </Database>
+</AppFactory>-->

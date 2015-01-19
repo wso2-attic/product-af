@@ -1,0 +1,24 @@
+<ApplicationType>
+    <ApplicationType>war</ApplicationType>
+    <ProcessorClassName>org.wso2.carbon.appfactory.application.mgt.type.MavenBasedApplicationTypeProcessor</ProcessorClassName>
+    <DisplayName>Java Web Application</DisplayName>
+    <Extension>war</Extension>
+    <Description>Web Application Archive file</Description>
+    <Buildable>true</Buildable>
+    <BuildJobTemplate>maven</BuildJobTemplate>
+    <MavenArcheTypeRequest>-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.webapparchetype
+        -DarchetypeArtifactId=webapp-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+        -Dversion=default-SNAPSHOT -DinteractiveMode=false
+        -DarchetypeCatalog=local
+    </MavenArcheTypeRequest>
+    <ServerDeploymentPaths>webapps</ServerDeploymentPaths>
+    <Enable>enabled</Enable>
+    <Comment>Test123</Comment>
+    <Language>Java</Language>
+    <SubscriptionAvailability>aPaaS</SubscriptionAvailability>
+    <isUploadableAppType>false</isUploadableAppType>
+    <DevelopmentStageParam>.dev</DevelopmentStageParam>
+    <TestingStageParam>.test</TestingStageParam>
+    <LaunchURLPattern>https://appserver{stage}.milestones.appfactory.wso2.com:9443/t/{tenantDomain}/webapps/{applicationID}-{applicationVersion}/</LaunchURLPattern>
+    <Runtimes>appserver</Runtimes>
+</ApplicationType>
