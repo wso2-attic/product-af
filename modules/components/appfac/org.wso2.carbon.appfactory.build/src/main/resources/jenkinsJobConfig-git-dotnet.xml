@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
+  ~
+  ~      Licensed under the Apache License, Version 2.0 (the "License");
+  ~      you may not use this file except in compliance with the License.
+  ~      You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~      Unless required by applicable law or agreed to in writing, software
+  ~      distributed under the License is distributed on an "AS IS" BASIS,
+  ~      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~      See the License for the specific language governing permissions and
+  ~      limitations under the License.
+  -->
+
+<project>
+    <actions/>
+    <description></description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>isAutomatic</name>
+                    <description></description>
+                    <defaultValue>true</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>persistArtifact</name>
+                    <description></description>
+                    <defaultValue>false</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>doDeploy</name>
+                    <description></description>
+                    <defaultValue>false</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>deployAction</name>
+                    <description></description>
+                    <defaultValue>deploy</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>deployStage</name>
+                    <description></description>
+                    <defaultValue>empty</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>tagName</name>
+                    <description></description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>tenantUserName</name>
+                    <description></description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@2.2.5">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+            <hudson.plugins.git.UserRemoteConfig>
+                <url>http://admin%40admin.com:admin@10.100.5.129:9763/scm-webapp-1.14/git/app2</url>
+            </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+            <hudson.plugins.git.BranchSpec>
+                <name>*/master</name>
+            </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <submoduleCfg class="list"/>
+        <extensions/>
+    </scm>
+    <assignedNode>dotnetSlave</assignedNode>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers class="vector">
+        <hudson.triggers.SCMTrigger>
+            <spec>5 * * * *</spec>
+        </hudson.triggers.SCMTrigger>
+    </triggers>
+    <concurrentBuild>false</concurrentBuild>
+    <builders>
+        <hudson.plugins.msbuild.MsBuildBuilder plugin="msbuild@1.24">
+            <msBuildName>v4.0</msBuildName>
+            <msBuildFile>Application.sln</msBuildFile>
+            <cmdLineArgs>/p:Configuration=Release /p:DeployOnBuild=true</cmdLineArgs>
+            <buildVariablesAsProperties>false</buildVariablesAsProperties>
+            <continueOnBuildFailure>false</continueOnBuildFailure>
+            <unstableIfWarnings>false</unstableIfWarnings>
+        </hudson.plugins.msbuild.MsBuildBuilder>
+    </builders>
+    <publishers>
+        <hudson.tasks.ArtifactArchiver>
+            <artifacts>Application/obj/Release/Package/*.zip</artifacts>
+            <latestOnly>false</latestOnly>
+            <allowEmptyArchive>false</allowEmptyArchive>
+        </hudson.tasks.ArtifactArchiver>
+
+        <org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager plugin="appfactory-plugin@2.0.1">
+            <applicationId>dotnetapp</applicationId>
+            <applicationVersion>trunk</applicationVersion>
+            <applicationArtifactExtension>zip</applicationArtifactExtension>
+            <userName>aaa@bbb.com</userName>
+            <repositoryFrom>original</repositoryFrom>
+        </org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager>
+    </publishers>
+    <buildWrappers/><prebuilders/>
+    <postbuilders/>
+    <runPostStepsIfResult>
+        <name>FAILURE</name>
+        <ordinal>2</ordinal>
+        <color>RED</color>
+    </runPostStepsIfResult>
+</project>
