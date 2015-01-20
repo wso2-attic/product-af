@@ -22,8 +22,8 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>appfactory-feature</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>2.1.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
     </parent> 
 
 
@@ -59,10 +59,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.apiManager.integration</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.appfactory.bam.integration</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -151,6 +147,18 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.issuetracking</artifactId>
         </dependency>
+		<dependency>
+            <groupId>com.gitblit.wso2</groupId>
+            <artifactId>gitblit</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>org.eclipse.jgit.wso2</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+        </dependency>
+		<dependency>
+            <groupId>com.nimbusds.wso2</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.gitblit</groupId>
             <artifactId>gitblit</artifactId>
@@ -159,6 +167,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.signedjwt</artifactId>
+        </dependency>
+
  <!--  Tenant Management -->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -229,11 +242,15 @@
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.common
                                 </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.application.mgt.stub
+                                </bundleDef>
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.core
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.hostobjects.sso
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.application.mgt
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.eventing
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.email.sender</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.email.verification
@@ -250,8 +267,8 @@
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.build</bundleDef> 
 				<bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.deployers</bundleDef>
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.listners</bundleDef> 
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.tenant.mgt</bundleDef> 
-
+                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.tenant.mgt</bundleDef>
+				 <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.metadata</bundleDef> 
 
                                 <!--Repository-mgt-->
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.repository.mgt.service</bundleDef>
@@ -260,12 +277,14 @@
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.stratos.listeners.stub</bundleDef>
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.apiManager.integration</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.bam.integration</bundleDef>
-                                <bundleDef>org.apache.maven.wso2:maven-model</bundleDef>
+				                <bundleDef>org.apache.maven.wso2:maven-model</bundleDef>
                                 <bundleDef>org.apache.maven.wso2:maven-core</bundleDef>
-                                <bundleDef>com.gitblit:gitblit</bundleDef>
+                                <bundleDef>com.gitblit.wso2:gitblit</bundleDef>
+				<bundleDef>org.eclipse.jgit.wso2:org.eclipse.jgit</bundleDef>
+				<bundleDef>com.nimbusds.wso2:nimbus-jose-jwt</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.issuetracking</bundleDef>
 
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.signedjwt</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.mutualssl</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.s4.integration</bundleDef>
                             </bundles>
