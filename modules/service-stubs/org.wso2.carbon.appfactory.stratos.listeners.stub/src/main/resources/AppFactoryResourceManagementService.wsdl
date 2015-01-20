@@ -1,14 +1,13 @@
-
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://services.stratos.appfactory.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax237="http://services.stratos.appfactory.carbon.wso2.org/xsd" xmlns:ax235="http://common.appfactory.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://services.stratos.appfactory.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax220="http://services.stratos.appfactory.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://services.stratos.appfactory.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ax218="http://common.appfactory.carbon.wso2.org/xsd" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://services.stratos.appfactory.carbon.wso2.org">
     <wsdl:documentation>AppFactoryResourceManagementService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax238="http://services.stratos.appfactory.carbon.wso2.org/xsd" xmlns:ax236="http://common.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://services.stratos.appfactory.carbon.wso2.org">
+        <xs:schema xmlns:ax219="http://common.appfactory.carbon.wso2.org/xsd" xmlns:ax221="http://services.stratos.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://services.stratos.appfactory.carbon.wso2.org">
             <xs:import namespace="http://common.appfactory.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://services.stratos.appfactory.carbon.wso2.org/xsd"></xs:import>
             <xs:element name="AppFactoryResourceManagementServiceAppFactoryException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="AppFactoryException" nillable="true" type="ax236:AppFactoryException"></xs:element>
+                        <xs:element minOccurs="0" name="AppFactoryException" nillable="true" type="ax219:AppFactoryException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -16,7 +15,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -24,7 +23,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -32,7 +31,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -40,7 +39,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -48,7 +47,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -56,7 +55,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -64,7 +63,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax238:AppFactoryResource"></xs:element>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -77,13 +76,13 @@
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://services.stratos.appfactory.carbon.wso2.org/xsd">
             <xs:complexType name="AppFactoryResource">
                 <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResources" nillable="true" type="ax237:AppFactoryResource"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResources" nillable="true" type="ax220:AppFactoryResource"></xs:element>
                     <xs:element minOccurs="0" name="collection" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="mediaType" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="resourceContent" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="resourceName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceProperties" nillable="true" type="ax237:ResourceProperty"></xs:element>
+                    <xs:element minOccurs="0" name="resourcePath" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceProperties" nillable="true" type="ax220:ResourceProperty"></xs:element>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="ResourceProperty">
@@ -404,13 +403,13 @@
     </wsdl:binding>
     <wsdl:service name="AppFactoryResourceManagementService">
         <wsdl:port name="AppFactoryResourceManagementServiceHttpsSoap11Endpoint" binding="ns:AppFactoryResourceManagementServiceSoap11Binding">
-            <soap:address location="https://sc.s2.AF_HOST:9463/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsSoap11Endpoint/"></soap:address>
+            <soap:address location="https://appserver.dev.milestones.appfactory.wso2.com:9444/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsSoap11Endpoint/"></soap:address>
         </wsdl:port>
         <wsdl:port name="AppFactoryResourceManagementServiceHttpsSoap12Endpoint" binding="ns:AppFactoryResourceManagementServiceSoap12Binding">
-            <soap12:address location="https://sc.s2.AF_HOST:9463/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsSoap12Endpoint/"></soap12:address>
+            <soap12:address location="https://appserver.dev.milestones.appfactory.wso2.com:9444/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsSoap12Endpoint/"></soap12:address>
         </wsdl:port>
         <wsdl:port name="AppFactoryResourceManagementServiceHttpsEndpoint" binding="ns:AppFactoryResourceManagementServiceHttpBinding">
-            <http:address location="https://sc.s2.AF_HOST:9463/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsEndpoint/"></http:address>
+            <http:address location="https://appserver.dev.milestones.appfactory.wso2.com:9444/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsEndpoint/"></http:address>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
