@@ -1,6 +1,6 @@
 <data name="${artifactId}-${version}">
    <config id="default">
-        <property name="carbon_datasource_name">TestDS</property>
+        <property name="jndi_resource_name">jdbc/TestDS</property>
    </config>
    <query id="SQL1" useConfig="default">
       <sql>select id,data from Persons</sql>

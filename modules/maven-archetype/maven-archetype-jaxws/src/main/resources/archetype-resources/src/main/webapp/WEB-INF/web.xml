@@ -4,7 +4,10 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
 	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 <display-name>cxf</display-name>
-
+<context-param>
+    <param-name>applicationKey</param-name>
+    <param-value>${artifactId}</param-value>
+ </context-param>
 <servlet>
 	<servlet-name>cxf</servlet-name>
 	<display-name>cxf</display-name>
