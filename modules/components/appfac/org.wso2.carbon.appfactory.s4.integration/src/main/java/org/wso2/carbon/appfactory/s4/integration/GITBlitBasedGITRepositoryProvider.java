@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * GITBlit specific repository manager implementation for git
@@ -58,11 +59,14 @@ public class GITBlitBasedGITRepositoryProvider implements RepositoryProvider {
         String repoCreateUrl = baseUrl + "rpc?req=CREATE_REPOSITORY&name="
                 + repoName;
 
+        if (isRepoExist()) {
+            return getAppRepositoryURL();
+        }
         //Create the gitblit repository model
         RepositoryModel model = new RepositoryModel();
         model.name = repoName;
         //authenticated users can clone, push and view the repository
-        model.accessRestriction = Constants.AccessRestrictionType.NONE;
+        model.accessRestriction = Constants.AccessRestrictionType.VIEW;
         try {
             boolean created = RpcUtils.createRepository(model, repoCreateUrl, adminUsername,
                     adminPassword.toCharArray());
@@ -78,6 +82,27 @@ public class GITBlitBasedGITRepositoryProvider implements RepositoryProvider {
             }
         } catch (IOException e) {
             String msg = "Repository is not created for " + repoName + " due to " + e.getLocalizedMessage();
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+    }
+
+    /**
+     * This method checks whether currently a repo already exists for the app
+     *
+     * @return boolean
+     * @throws AppFactoryException
+     */
+    public boolean isRepoExist() throws AppFactoryException {
+
+        try {
+            Map<String, RepositoryModel> repoMap = RpcUtils.getRepositories(baseUrl, adminUsername, adminPassword.
+                    toCharArray());
+
+            return repoMap.containsKey(getAppRepositoryURL());
+
+        } catch (IOException e) {
+            String msg = "Error while getting repositories from url " + baseUrl;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
