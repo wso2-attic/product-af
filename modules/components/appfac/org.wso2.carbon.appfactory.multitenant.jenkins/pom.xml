@@ -14,15 +14,15 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	 <parent>
-        	<groupId>org.wso2.carbon</groupId>
-	        <artifactId>appfactory</artifactId>
-        	<version>1.1.0-SNAPSHOT</version>
-	        <relativePath>../pom.xml</relativePath>
-    	</parent>
+     	<groupId>org.wso2.carbon</groupId>
+	    <artifactId>appfactory</artifactId>
+      	<version>2.1.0-SNAPSHOT</version>
+	    <relativePath>../pom.xml</relativePath>
+    </parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.wso2.carbon.appfactory.multitenant.jenkins</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>2.1.0-SNAPSHOT</version>
 	<name>WSO2 Appfactory - Jenkins multi tenant facilitator</name>
 	<description>WSO2 Appfactory - tenant based build server deployment component</description>
 	<url>http://maven.apache.org</url>
@@ -48,7 +48,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -60,9 +59,9 @@
 	<build>
 		<plugins>
 			<plugin>
-<groupId>org.apache.felix</groupId>
-<artifactId>maven-scr-plugin</artifactId>
-</plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-scr-plugin</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -81,17 +80,6 @@
 					</instructions>
 				</configuration>
 			</plugin>
-			
-
-		</plugins>
-
-		
+		</plugins>		
 	</build>
-	<repositories>
-		<repository>
-			<id>wso2-nexus</id>
-			<name>WSO2 internal Repository</name>
-			<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-		</repository>
-	</repositories>
 </project>

@@ -65,8 +65,8 @@ public class DirectUploader implements BuildServerUploader {
 		try {
 
 			PrivilegedCarbonContext.startTenantFlow();
-			PrivilegedCarbonContext.getCurrentContext().setTenantId(this.tenantId);
-			PrivilegedCarbonContext.getCurrentContext().setTenantDomain(this.tenantDomain);
+			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(this.tenantId);
+			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(this.tenantDomain);
 
 			WebappAdmin webAppAdmin = new WebappAdmin();
 			webAppAdmin.uploadWebapp(new WebappUploadData[] { getWebAppUploadDataItem(serverApp) });
@@ -93,8 +93,8 @@ public class DirectUploader implements BuildServerUploader {
 		try {
 
 			PrivilegedCarbonContext.startTenantFlow();
-			PrivilegedCarbonContext.getCurrentContext().setTenantId(this.tenantId);
-			PrivilegedCarbonContext.getCurrentContext().setTenantDomain(this.tenantDomain);
+			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(this.tenantId);
+			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(this.tenantDomain);
 
 			WebappAdmin webAppAdmin = new WebappAdmin();
 			webAppAdmin.deleteWebapp(serverApp.getName());
