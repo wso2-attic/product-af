@@ -53,12 +53,12 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 
 	private static final Log log = LogFactory.getLog(APIManagerIntegrationService.class);
 
-	public void loginToStore(HttpClient httpClient) throws AppFactoryException {
-		login(STORE_LOGIN_ENDPOINT, httpClient);
+	public void loginToStore(HttpClient httpClient, String samlToken) throws AppFactoryException {
+		login(STORE_LOGIN_ENDPOINT, httpClient, samlToken);
 	}
 
-	public void loginToPublisher(HttpClient httpClient) throws AppFactoryException {
-		login(PUBLISHER_LOGIN_ENDPOINT, httpClient);
+	public void loginToPublisher(HttpClient httpClient, String samlToken) throws AppFactoryException {
+		login(PUBLISHER_LOGIN_ENDPOINT, httpClient, samlToken);
 	}
 
 	/**
@@ -71,11 +71,7 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 	 * @param httpClient
 	 * @throws AppFactoryException
 	 */
-	private void login(String endpoint, HttpClient httpClient) throws AppFactoryException {
-		HttpServletRequest request =
-		                             (HttpServletRequest) MessageContext.getCurrentMessageContext()
-		                                                                .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
-		String samlToken = request.getHeader(SAML_TOKEN);
+	private void login(String endpoint, HttpClient httpClient, String samlToken) throws AppFactoryException {
 
 		// We expect an encoded saml token.
 		if (samlToken == null || samlToken.equals("")) {
@@ -103,13 +99,13 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		}
 	}
 
-	public boolean createApplication(String applicationId) throws AppFactoryException {
+	public boolean createApplication(String applicationId, String samlToken) throws AppFactoryException {
 
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToStore(httpClient);
+			loginToStore(httpClient, samlToken);
 
-			if (!isApplicationNameInUse(applicationId)) {
+			if (!isApplicationNameInUse(applicationId, samlToken)) {
 				URL apiManagerUrl = getApiManagerURL();
 
 				List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -141,17 +137,17 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 
 			try {
 				// Remove DefaultApplication from API Manager
-				removeApplication("DefaultApplication");
+				removeApplication("DefaultApplication", samlToken);
 			} catch (AppFactoryException e) {
 				log.error("Error while deleteing 'DefaultApplication' from API Manager");
 			}
 		}
 	}
 
-	public boolean isApplicationNameInUse(String applicationId) throws AppFactoryException {
+	public boolean isApplicationNameInUse(String applicationId, String samlToken) throws AppFactoryException {
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToStore(httpClient);
+			loginToStore(httpClient, samlToken);
 
 			URL apiManagerUrl = getApiManagerURL();
 
@@ -205,11 +201,11 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		}
 	}
 
-	public boolean removeApplication(String applicationId) throws AppFactoryException {
+	public boolean removeApplication(String applicationId, String samlToken) throws AppFactoryException {
 
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToStore(httpClient);
+			loginToStore(httpClient, samlToken);
 			URL apiManagerUrl = getApiManagerURL();
 
 			List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -231,7 +227,7 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		return true;
 	}
 
-	public boolean addAPIsToApplication(String s, String s1, String s2, String s3)
+	public boolean addAPIsToApplication(String s, String s1, String s2, String s3, String samlToken)
 	                                                                              throws AppFactoryException {
 		// returning false since we do not support this for the moment.
 		return false;
@@ -247,10 +243,10 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 	 * @throws AppFactoryException
 	 */
 
-	public API[] getAPIsOfUserApp(String applicationId, String appOwner) throws AppFactoryException {
+	public API[] getAPIsOfUserApp(String applicationId, String appOwner, String samlToken) throws AppFactoryException {
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToStore(httpClient);
+			loginToStore(httpClient, samlToken);
 			URL apiManagerUrl = getApiManagerURL();
 
 			List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -315,17 +311,13 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		return null;
 	}
 
-	public API[] getAPIsOfApplication(String applicationId) throws AppFactoryException {
+	public API[] getAPIsOfApplication(String applicationId, String username, String samlToken) throws AppFactoryException {
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToStore(httpClient);
+			loginToStore(httpClient, samlToken);
 
 			URL apiManagerUrl = getApiManagerURL();
 
-			HttpServletRequest request =
-			                             (HttpServletRequest) MessageContext.getCurrentMessageContext()
-			                                                                .getProperty(HTTPConstants.MC_HTTP_SERVLETREQUEST);
-			String username = request.getHeader(USERNAME);
 
 			List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 			parameters.add(new BasicNameValuePair(ACTION, "getAllSubscriptions"));
@@ -384,11 +376,11 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		}
 	}
 
-	public API getAPIInformation(String apiName, String apiVersion, String apiProvider)
+	public API getAPIInformation(String apiName, String apiVersion, String apiProvider, String samlToken)
 	                                                                                   throws AppFactoryException {
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToPublisher(httpClient);
+			loginToPublisher(httpClient, samlToken);
 
 			URL apiManagerUrl = getApiManagerURL();
 
@@ -433,10 +425,10 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		}
 	}
 
-	public boolean generateKeys(String appId) throws AppFactoryException {
+	public boolean generateKeys(String appId, String samlToken) throws AppFactoryException {
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
-			loginToStore(httpClient);
+			loginToStore(httpClient, samlToken);
 
 			URL apiManagerUrl = getApiManagerURL();
 
@@ -449,7 +441,7 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 		}
 	}
 
-	public boolean removeAPIFromApplication(String s, String s1, String s2, String s3)
+	public boolean removeAPIFromApplication(String s, String s1, String s2, String s3, String samlToken)
 	                                                                                  throws AppFactoryException {
 		// returning false since we do not support this for the moment.
 		return false;
@@ -463,16 +455,16 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 	 * @return list of keys both sandbox and prod
 	 * @throws AppFactoryException
 	 */
-	public APIMetadata[] getSavedKeys(String applicationId) throws AppFactoryException {
-		List<APIMetadata> keyList = retrieveKeys(applicationId);
-		if (keyList.isEmpty() || keyList.size() == 3) {
+	public APIMetadata[] getSavedKeys(String applicationId, String username, String samlToken) throws AppFactoryException {
+        List<APIMetadata> keyList = retrieveKeys(applicationId, username, samlToken);
+		if (keyList.isEmpty()) {
 			return new APIMetadata[0];
 		}
 		return keyList.toArray(new APIMetadata[keyList.size()]);
 	}
 
-	private List<APIMetadata> retrieveKeys(String applicationId) throws AppFactoryException {
-		API[] api = getAPIsOfApplication(applicationId);
+	private List<APIMetadata> retrieveKeys(String applicationId, String username, String samlToken) throws AppFactoryException {
+		API[] api = getAPIsOfApplication(applicationId, username, samlToken);
 		List<APIMetadata> keyList = new ArrayList<APIMetadata>();
 
 		if (api != null && api.length > 0) {

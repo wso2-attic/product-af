@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -59,7 +60,10 @@ public class AppFactoryIntegrationServiceComponent {
 			.getLog(AppFactoryIntegrationServiceComponent.class);
     private static BundleContext bundleContext;
     protected void activate(ComponentContext context) {
+
         AppFactoryIntegrationServiceComponent. bundleContext = context.getBundleContext();
+        APIManagerIntegrationService apiManagerIntegrationService = new APIManagerIntegrationService();
+        bundleContext.registerService(APIManagerIntegrationService.class.getName(), apiManagerIntegrationService, null);
 
         try {
             if (log.isDebugEnabled()) {
