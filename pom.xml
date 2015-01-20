@@ -420,7 +420,7 @@
 	   <dependency>
 	      <groupId>org.wso2.carbon</groupId>
 	      <artifactId>org.wso2.carbon.registry.metadata</artifactId>
-	      <version>${carbon.platform.version}</version>
+	      <version>1.0.0-SNAPSHOT</version>
 	    </dependency>
 	    <dependency>
 	      <groupId>org.wso2.carbon</groupId>
@@ -642,6 +642,11 @@
             <groupId>com.nimbusds.wso2</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>2.26.1.wso2v2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gitblit.wso2</groupId>
+            <artifactId>gitblit</artifactId>
+            <version>1.4.1.wso2v1</version>
         </dependency>
 
       <!--App Factory Components-->
@@ -931,7 +936,6 @@
       <eclipse.version>3.2.0</eclipse.version>
       <servlet-api.version>2.4</servlet-api.version>
       <spring.version>2.5.1.wso2v1</spring.version>
-      <appfactory.version>1.1.0-SNAPSHOT</appfactory.version>
       <sonia.scm.version>1.14</sonia.scm.version>
       <jenkins.ci.version>1.479</jenkins.ci.version>
       <junit.version>3.8.1</junit.version>
@@ -943,8 +947,7 @@
       <stratos.version>4.0.0-wso2v1</stratos.version>
 
       <!--App Factory-->
-      <appfac.version.old>1.0.0</appfac.version.old>
-      <appfac.version>2.1.0</appfac.version>
+      <appfac.version>2.1.0-SNAPSHOT</appfac.version>
 
       
       <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
