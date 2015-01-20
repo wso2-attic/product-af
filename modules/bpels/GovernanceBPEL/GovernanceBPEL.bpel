@@ -8,16 +8,14 @@
 	xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
 	xmlns:ns="http://wso2.org"
 	xmlns:ns0="http://services.checklist.lifecycles.custom.governance.carbon.wso2.org"
-	xmlns:ns1="http://deploy.core.appfactory.carbon.wso2.org" xmlns:ns2="http://www.w3.org/2001/XMLSchema">
+	xmlns:ns1="http://deploy.core.appfactory.carbon.wso2.org" xmlns:ns2="http://www.w3.org/2001/XMLSchema" xmlns:ns3="http://service.mgt.application.appfactory.carbon.wso2.org">
 
 	<!-- Import the client WSDL -->
-	<bpel:import namespace="http://deploy.core.appfactory.carbon.wso2.org"
-		location="ApplicationDeployer.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
+    <bpel:import namespace="http://service.mgt.application.appfactory.carbon.wso2.org" location="ApplicationManagementService.wsdl" 
+    	importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
 	<bpel:import
 		namespace="http://services.checklist.lifecycles.custom.governance.carbon.wso2.org"
 		location="CustomLifecyclesChecklistAdminService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
-	<bpel:import namespace="http://wso2.org" location="DeployArtifact.wsdl"
-		importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
 	<bpel:import location="GovernanceBPELArtifacts.wsdl"
 		namespace="http://wso2.org/bps/sample" importType="http://schemas.xmlsoap.org/wsdl/" />
 
@@ -29,13 +27,10 @@
 		<!-- The 'client' role represents the requester of this service. -->
 		<bpel:partnerLink name="client" partnerLinkType="tns:GovernanceBPEL"
 			myRole="GovernanceBPELProvider" />
-		<bpel:partnerLink name="deployArtifactPL"
-			partnerLinkType="tns:deployArtifactPLT" partnerRole="deployerRole"></bpel:partnerLink>
 		<bpel:partnerLink name="CustomLifecyclePL"
 			partnerLinkType="tns:CustomLifecyclePLT" partnerRole="CustomLifecycleRole"></bpel:partnerLink>
-		<bpel:partnerLink name="applicationDeployerPL"
-			partnerLinkType="tns:ApplicationDeployerPTL" partnerRole="ApplicationDeployerRole"></bpel:partnerLink>
-	</bpel:partnerLinks>
+        <bpel:partnerLink name="applicationManagementPL" partnerLinkType="tns:ApplicationManagementPLT" partnerRole="appmangementrole"></bpel:partnerLink>
+    </bpel:partnerLinks>
 
 	<!-- ================================================================= -->
 	<!-- VARIABLES -->
@@ -47,16 +42,12 @@
 
 		<!-- Reference to the message that will be returned to the requester -->
 		<bpel:variable name="output" messageType="tns:GovernanceBPELResponseMessage" />
-		<bpel:variable name="deployArtifactPLRequest"
-			messageType="ns:DeployArtifactRequestMessage"></bpel:variable>
 		<bpel:variable name="CustomLifecyclePLRequest"
 			messageType="ns0:invokeAspectWithParamsRequest"></bpel:variable>
-		<bpel:variable name="applicationDeployerPLResponse"
-			messageType="ns1:unDeployArtifactResponse"></bpel:variable>
-		<bpel:variable name="applicationDeployerPLRequest"
-			messageType="ns1:unDeployArtifactRequest"></bpel:variable>
-        <bpel:variable name="applicationDeployerPLResponse1" messageType="ns1:deployArtifactResponse"></bpel:variable>
-        <bpel:variable name="applicationDeployerPLRequest1" messageType="ns1:deployArtifactRequest"></bpel:variable>
+			
+        
+        <bpel:variable name="updateRxtRequest" messageType="ns3:updateRxtWithPromoteStateRequest"></bpel:variable>
+        <bpel:variable name="updateRxtResponse" messageType="ns3:updateRxtWithPromoteStateResponse"></bpel:variable>
     </bpel:variables>
 
 	<!-- ================================================================= -->
@@ -73,177 +64,7 @@
 			createInstance="yes" />
 
 		<!-- Generate reply to synchronous request -->
-		<bpel:if name="IfPomoteAction">
-			<bpel:condition><![CDATA[$input.payload/tns:action="Promote"]]></bpel:condition>
-			<bpel:sequence name="PromoteSequence">
-				<bpel:if name="If">
-					<bpel:condition><![CDATA[$input.payload/tns:currentStage="Development"]]></bpel:condition>
-					    <bpel:assign validate="no" name="AssignTestingDeployment"><bpel:copy>
-                                <bpel:from>
-                                    <bpel:literal><ns1:deployArtifact>
-                                        <ns1:applicationId>ns1:applicationId</ns1:applicationId>
-                                        <ns1:stage>ns1:stage</ns1:stage>
-                                        <ns1:version>ns1:version</ns1:version>
-                                        <ns1:tagName>ns1:tagName</ns1:tagName>
-                                        <ns1:deployAction>ns1:deployAction</ns1:deployAction>
-                                    </ns1:deployArtifact>
-                                
-                                    </bpel:literal>
-                                
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                            </bpel:to>
-                            
-                            
-                            </bpel:copy><bpel:copy><bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[tns:applicationID]]>
-                                    </bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[ns1:applicationId]]>
-                                    </bpel:query>
-                                </bpel:to>
-                            
-                            </bpel:copy><bpel:copy>
-                                <bpel:from>                                                                    
-                                    <![CDATA['Testing']]>
-								</bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[ns1:stage]]>
-                                    </bpel:query>
-                                </bpel:to>
-                            
-                            </bpel:copy>
-                            <bpel:copy><bpel:from part="payload" variable="input">
-                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                    <![CDATA[tns:version]]>
-                                </bpel:query>
-                            </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                    <![CDATA[ns1:version]]>
-                                </bpel:query>
-                            </bpel:to>
-                            
-                            </bpel:copy>
-                            <bpel:copy><bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:tagName]]></bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns1:tagName]]></bpel:query>
-                                </bpel:to>
-                            
-                            </bpel:copy>
-                            <bpel:copy><bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:deployAction]]></bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns1:deployAction]]></bpel:query>
-                                </bpel:to>
-                            
-                            </bpel:copy>
-                        <bpel:copy>
-                            <bpel:from>
-                                <bpel:literal><tns:UserName xmlns:tns="http://mutualssl.carbon.wso2.org">MyName</tns:UserName></bpel:literal>
-                            </bpel:from>
-                            <bpel:to header="UserName" variable="applicationDeployerPLRequest1"></bpel:to>
-                        </bpel:copy>
-                        <bpel:copy>
-                            <bpel:from part="payload" variable="input">
-                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:userName]]></bpel:query>
-                            </bpel:from>
-                            <bpel:to header="UserName" variable="applicationDeployerPLRequest1"></bpel:to>
-                        </bpel:copy>
-                    </bpel:assign>
-					<bpel:elseif>
-						<bpel:condition><![CDATA[$input.payload/tns:currentStage="Testing"]]></bpel:condition>
-                        <bpel:assign validate="no" name="AssignTestingDeployment">
-                            <bpel:copy>
-                                <bpel:from>
-                                    <bpel:literal><ns1:deployArtifact>
-           <ns1:applicationId>ns1:applicationId</ns1:applicationId>
-           <ns1:stage>ns1:stage</ns1:stage>
-           <ns1:version>ns1:version</ns1:version>
-           <ns1:tagName>ns1:tagName</ns1:tagName>
-           <ns1:deployAction>ns1:deployAction</ns1:deployAction>
- </ns1:deployArtifact></bpel:literal>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1"></bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[tns:applicationID]]>
-                                    </bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns1:applicationId]]></bpel:query>
-                                </bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from>                                                                    
-                                    
-                                    <![CDATA['Production']]>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[ns1:stage]]>
-                                    </bpel:query>
-                                </bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:version]]></bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns1:version]]></bpel:query>
-                                </bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:tagName]]></bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns1:tagName]]></bpel:query>
-                                </bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[tns:deployAction]]>
-                                    </bpel:query>
-                                </bpel:from>
-                                <bpel:to part="parameters" variable="applicationDeployerPLRequest1">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
-                                        <![CDATA[ns1:deployAction]]>
-                                    </bpel:query>
-                                </bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from>
-                                    <bpel:literal><tns:UserName xmlns:tns="http://mutualssl.carbon.wso2.org">MyName</tns:UserName></bpel:literal>
-                                </bpel:from>
-                                <bpel:to header="UserName" variable="applicationDeployerPLRequest1"></bpel:to>
-                            </bpel:copy>
-                            <bpel:copy>
-                                <bpel:from part="payload" variable="input">
-                                    <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:userName]]></bpel:query>
-                                </bpel:from>
-                                <bpel:to header="UserName" variable="applicationDeployerPLRequest1"></bpel:to>
-                            </bpel:copy>                
-                        </bpel:assign>
-                    </bpel:elseif>
-</bpel:if>
-                <!--  
-				<bpel:invoke name="InvokeDeployArtifact" partnerLink="applicationDeployerPL"
-					operation="deployArtifact" portType="ns1:ApplicationDeployerPortType" inputVariable="applicationDeployerPLRequest1" outputVariable="applicationDeployerPLResponse1"></bpel:invoke>
-				-->	
-				 	
-			</bpel:sequence>
-</bpel:if>
+		
 		<bpel:sequence name="Sequence">
 			<bpel:forEach parallel="no" counterName="Counter" name="ForEach">
 				<bpel:startCounterValue>
@@ -313,7 +134,7 @@
 							</bpel:copy>
                             <bpel:copy>
                                 <bpel:from>
-                                    <bpel:literal><tns:UserName xmlns:tns="http://mutualssl.carbon.wso2.org">MyName</tns:UserName></bpel:literal>
+                                    <bpel:literal><tns:UserName xmlns:tns="http://handler.authorization.appfactory.carbon.wso2.org">MyName</tns:UserName></bpel:literal>
                                 </bpel:from>
                                 <bpel:to header="UserName" variable="CustomLifecyclePLRequest"></bpel:to>
                             </bpel:copy>
@@ -329,7 +150,89 @@
 			</bpel:forEach>
 			<bpel:invoke name="InvokeCustomLifecycles" partnerLink="CustomLifecyclePL"
 				operation="invokeAspectWithParams" portType="ns0:CustomLifecyclesChecklistAdminServicePortType"
-				inputVariable="CustomLifecyclePLRequest"></bpel:invoke>
-		</bpel:sequence>
+						inputVariable="CustomLifecyclePLRequest"></bpel:invoke>
+		
+		
+		
+            <bpel:assign validate="no" name="assignValuesToStageUpdate">
+                <bpel:copy>
+                    <bpel:from>
+                        <bpel:literal xml:space="preserve">
+                        	<ns3:updateRxtWithPromoteState xmlns:ns3="http://service.mgt.application.appfactory.carbon.wso2.org"> 
+							         <ns3:applicationId></ns3:applicationId>
+							         <ns3:stage></ns3:stage>
+							         <ns3:version></ns3:version>
+                                                                 <ns3:action></ns3:action>
+                                                                 <ns3:state></ns3:state>  
+							 </ns3:updateRxtWithPromoteState>
+						</bpel:literal>
+                    </bpel:from>
+                    <bpel:to part="parameters" variable="updateRxtRequest"></bpel:to>
+                </bpel:copy>
+                <bpel:copy>
+                    <bpel:from part="payload" variable="input">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                            <![CDATA[tns:applicationID]]>
+                        </bpel:query>
+                    </bpel:from>
+                    <bpel:to part="parameters" variable="updateRxtRequest">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                            <![CDATA[ns3:applicationId]]>
+                        </bpel:query>
+                    </bpel:to>
+                </bpel:copy>
+                <bpel:copy>
+                    <bpel:from part="payload" variable="input">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:currentStage]]></bpel:query>
+                    </bpel:from>
+                    <bpel:to part="parameters" variable="updateRxtRequest">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns3:stage]]></bpel:query>
+                    </bpel:to>
+                </bpel:copy>
+                <bpel:copy>
+                    <bpel:from part="payload" variable="input">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:version]]></bpel:query>
+                    </bpel:from>
+                    <bpel:to part="parameters" variable="updateRxtRequest">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns3:version]]></bpel:query>
+                    </bpel:to>
+                </bpel:copy>
+                <bpel:copy>
+                    <bpel:from part="payload" variable="input">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:action]]></bpel:query>
+                    </bpel:from>
+                    <bpel:to part="parameters" variable="updateRxtRequest">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
+                            <![CDATA[ns3:action]]>
+                        </bpel:query>
+                    </bpel:to>
+                </bpel:copy>
+                <bpel:copy>
+                    <bpel:from part="payload" variable="input">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:state]]></bpel:query>
+                    </bpel:from>
+                    <bpel:to part="parameters" variable="updateRxtRequest">
+                        <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns3:state]]></bpel:query>
+                    </bpel:to>
+                </bpel:copy>
+        	<bpel:copy>
+			<bpel:from>
+				<bpel:literal>
+					<tns:UserName xmlns:tns="http://handler.authorization.appfactory.carbon.wso2.org">MyName</tns:UserName>
+				</bpel:literal>
+			</bpel:from>
+			<bpel:to header="UserName" variable="updateRxtRequest"></bpel:to>
+		</bpel:copy>
+		<bpel:copy>
+			<bpel:from part="payload" variable="input">
+				<bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:userName]]></bpel:query>
+			</bpel:from>
+			<bpel:to header="UserName" variable="updateRxtRequest"></bpel:to>
+		</bpel:copy>
+            </bpel:assign>
+            <bpel:invoke name="InvokeManagementService" partnerLink="applicationManagementPL"
+				operation="updateRxtWithPromoteState" portType="ns3:ApplicationManagementServicePortType"
+				inputVariable="updateRxtRequest" outputVariable="updateRxtResponse"></bpel:invoke>
+        </bpel:sequence>
 	</bpel:sequence>
 </bpel:process>
