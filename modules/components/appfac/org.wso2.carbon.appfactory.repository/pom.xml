@@ -117,10 +117,6 @@
             <artifactId>org.wso2.carbon.appfactory.userstore</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.appfactory.bam.integration</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.maven.scm.wso2</groupId>
             <artifactId>maven-scm</artifactId>
         </dependency>
@@ -129,13 +125,17 @@
             <artifactId>org.wso2.carbon.appfactory.utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.gitblit</groupId>
-            <artifactId>gitblit</artifactId>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/gitblit-1.4.0-SNAPSHOT.jar</systemPath>
-            <!--<systemPath>/home/manisha/tmp/gitBlit_with_Ticket/gitblit-9f8d019e9379959929bfbab8789174e1f82f91c9/build/target/gitblit-1.4.0-SNAPSHOT/gitblit-1.4.0-SNAPSHOT.jar</systemPath>-->
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.gitblit.wso2</groupId>
+            <artifactId>gitblit</artifactId>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
