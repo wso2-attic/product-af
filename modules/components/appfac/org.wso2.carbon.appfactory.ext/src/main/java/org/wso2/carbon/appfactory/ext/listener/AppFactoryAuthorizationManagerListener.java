@@ -39,7 +39,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean isUserAuthorized(String userName, String resourceId, String action,
                                     AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkNonModifiablePermissions(resourceId);
             Util.checkAuthorizationForUserRealm();
         }
@@ -49,7 +49,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean isRoleAuthorized(String userName, String resourceId, String action,
                                     AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkNonModifiablePermissions(resourceId);
             Util.checkAuthorizationForUserRealm();
         }
@@ -59,7 +59,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean authorizeUser(String userName, String resourceId, String action,
                                  AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             // avoid letting users to use deprecated methods.
             String errorMsg = "AuthorizeUser method is depreciated. Use authorizeRole method instead.";
             log.warn(errorMsg);
@@ -71,7 +71,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean authorizeRole(String roleName, String resourceId, String action,
                                  AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkNonModifiablePermissions(resourceId);
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
@@ -82,7 +82,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean denyUser(String userName, String resourceId, String action,
                             AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             // avoid letting users to use deprecated methods.
             String errorMsg = "denyUser method is depreciated. Use denyRole method instead.";
             log.warn(errorMsg);
@@ -94,7 +94,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean denyRole(String roleName, String resourceId, String action,
                             AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkNonModifiablePermissions(resourceId);
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
@@ -105,7 +105,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean clearUserAuthorization(String userName, String resourceId, String action,
                                           AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             // avoid letting users to use deprecated methods.
             String errorMsg = "clearUserAuthorization method is depreciated. Use clearRoleAuthorization method instead.";
             log.warn(errorMsg);
@@ -117,7 +117,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean clearUserAuthorization(String userName, AuthorizationManager authorizationManager)
             throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             // avoid letting users to use deprecated methods.
             String errorMsg = "clearUserAuthorization method is depreciated. Use clearRoleAuthorization method instead.";
             log.warn(errorMsg);
@@ -129,7 +129,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean clearRoleAuthorization(String roleName, String resourceId, String action,
                                           AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkNonModifiablePermissions(resourceId);
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
@@ -140,7 +140,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean clearRoleActionOnAllResources(String roleName, String action,
                                                  AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
         }
@@ -150,7 +150,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean clearRoleAuthorization(String roleName, AuthorizationManager authorizationManager)
             throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
         }
@@ -160,7 +160,7 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean clearResourceAuthorizations(String resourceId, AuthorizationManager authorizationManager)
             throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkNonModifiablePermissions(resourceId);
             Util.checkAuthorizationForUserRealm();
         }
@@ -170,10 +170,11 @@ public class AppFactoryAuthorizationManagerListener extends AbstractAuthorizatio
     @Override
     public boolean resetPermissionOnUpdateRole(String roleName, String newRoleName,
                                                AuthorizationManager authorizationManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed())  {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName, newRoleName});
         }
         return super.resetPermissionOnUpdateRole(roleName, newRoleName, authorizationManager);
     }
 }
+

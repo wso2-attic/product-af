@@ -104,7 +104,7 @@ public class CarbonServerSelectorContext extends SelectorContext {
     // Check weather the look up request is for tenant sub context
     private boolean isSubTenantRequest(String name) {
 
-        int tID = CarbonContext.getCurrentContext().getTenantId();
+        int tID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         return (tID > 0) && name.equals(String.valueOf(tID));
 
     }

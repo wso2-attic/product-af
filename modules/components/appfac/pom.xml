@@ -48,6 +48,6 @@
         <module>org.wso2.carbon.appfactory.apimanager.integration</module>
         <module>org.wso2.carbon.appfactory.multitenant.jenkins</module>
         <module>org.wso2.carbon.appfactory.s4.integration</module>
-	<module>org.wso2.carbon.appfactory.ext</module>
+	    <module>org.wso2.carbon.appfactory.ext</module>
     </modules>
 </project>

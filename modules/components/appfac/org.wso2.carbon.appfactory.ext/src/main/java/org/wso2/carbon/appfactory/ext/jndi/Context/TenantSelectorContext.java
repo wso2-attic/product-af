@@ -112,7 +112,7 @@ public class TenantSelectorContext extends SelectorContext {
                 throw new RuntimeException(msg, e1);
             }
         }
-        return new ApplicationSelectorContext(env, initialContext, tenantInitialContext, applicationContext);
+        return new ApplicationSelectorContext(env, initialContext, this, applicationContext);
 
     }
 
@@ -121,8 +121,17 @@ public class TenantSelectorContext extends SelectorContext {
     }
 
     private boolean isApplicationRequest(String name) {
-        String currentApplication = Util.getCurrentArtifactName();
-        return (currentApplication != null && !currentApplication.isEmpty() && name.equals
-                (currentApplication));
+        String currentApplication = Util.getCurrentApplicationContextName();
+        if(name.startsWith(Util.JNDI_APPLICATION_SUB_CONTEXT_PREFIX)){
+            if((currentApplication != null && !currentApplication.isEmpty() && name.equals
+                    (currentApplication))){
+                return true;
+            } else {
+                String msg = "Illegal access to " + name+" from "+Util.getCurrentArtifactName();
+                log.error(msg);
+                throw new RuntimeException(msg);
+            }
+        }
+        return false;
     }
 }

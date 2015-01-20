@@ -22,22 +22,23 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.ext.authorization.AppFactorySecurityPermission;
 import org.wso2.carbon.appfactory.ext.internal.AuthorizationMetaDataHolder;
 import org.wso2.carbon.appfactory.ext.internal.ServiceHolder;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Util {
     private static final Log log = LogFactory.getLog(Util.class);
+    public static String JNDI_APPLICATION_SUB_CONTEXT_PREFIX="app-";
 
     /**
      * This method provides current artifact name without considering the version. example, foo-1.0.0 is returned as foo.
@@ -68,8 +69,21 @@ public class Util {
         return pattern.matcher(path).matches();
     }
 
+    public static boolean isCurrentTenantLoaded() throws UserStoreException {
+        try {
+            return TenantAxisUtils.getLastAccessed(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(),
+                    ServiceHolder.getInstance().getConfigContextService().getServerConfigContext()) != -1;
+        } catch (Exception e) {
+            throw new UserStoreException("Failed to get active list of tenants.", e);
+        }
+    }
+
     public static boolean isApplicationSpecificRequest() throws UserStoreException {
         String currentApplicationName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Current application name in carbon context:" + currentApplicationName);
+        }
         // if current application null, it is not a application specific request
         // if current application is a hidden service or a admin service, it is not a appfactory application specific request
         return currentApplicationName != null &&
@@ -81,6 +95,8 @@ public class Util {
         boolean isAuthorized = false;
         RealmService realmService = ServiceHolder.getInstance().getRealmService();
         try {
+            String currentApplicationName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setApplicationName(null);
             UserRealm userRealm = realmService.getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId());
             AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
             // check if current logged in user is given user management permissions.
@@ -91,6 +107,7 @@ public class Util {
                         CarbonConstants.UI_PERMISSION_ACTION);
 
             }
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setApplicationName(currentApplicationName);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMsg = "Failed to get the tenant user realm of tenant:" +
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -105,10 +122,13 @@ public class Util {
         RealmService realmService = ServiceHolder.getInstance().getRealmService();
         String roleNameForApplication = AppFactoryUtil.getRoleNameForApplication(getCurrentArtifactName());
         try {
+            String currentApplicationName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setApplicationName(null);
             UserRealm userRealm = realmService.getTenantUserRealm(CarbonContext.getThreadLocalCarbonContext().getTenantId());
             // check if current application is authorized to user realm operations by checking application specific role is authorized
             isAuthorized = userRealm.getAuthorizationManager().isRoleAuthorized(roleNameForApplication,
                     AppFactoryConstants.INVOKE_PERMISSION, AppFactoryConstants.CONSUME);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setApplicationName(currentApplicationName);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMsg = "Failed to check role:" + roleNameForApplication + " authorization for resource:" +
                     AppFactoryConstants.INVOKE_PERMISSION + " on action:" + AppFactoryConstants.CONSUME;
@@ -201,4 +221,27 @@ public class Util {
         }
     }
 
+    public static boolean isRequestFromSystemCode() {
+        SecurityManager secMan = System.getSecurityManager();
+        if (secMan != null) {
+            try{
+                secMan.checkPermission(new AppFactorySecurityPermission("RegistryPermission"));
+            }   catch (RuntimeException e)   {
+                if(log.isDebugEnabled()){
+                    log.debug(e);
+                }
+                 return false;
+            }
+        }
+        return true;
+    }
+
+    public static String getCurrentApplicationContextName() {
+        String currentArtifactName=getCurrentArtifactName();
+        String currentApplicationContextName = null;
+        if(currentArtifactName!=null){
+            currentApplicationContextName=JNDI_APPLICATION_SUB_CONTEXT_PREFIX+currentArtifactName;
+        }
+        return currentApplicationContextName;
+    }
 }

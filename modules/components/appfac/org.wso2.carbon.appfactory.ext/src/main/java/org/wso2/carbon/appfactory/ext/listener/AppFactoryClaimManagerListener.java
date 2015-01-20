@@ -35,7 +35,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAttributeName(String claimURI) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAttributeName(claimURI);
@@ -43,7 +43,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getClaim(String claimURI) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getClaim(claimURI);
@@ -51,7 +51,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getClaimMapping(String claimURI) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getClaimMapping(claimURI);
@@ -59,7 +59,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAllSupportClaimMappingsByDefault() throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAllSupportClaimMappingsByDefault();
@@ -67,7 +67,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAllClaimMappings() throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAllClaimMappings();
@@ -75,7 +75,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAllClaimMappings(String dialectUri) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAllClaimMappings(dialectUri);
@@ -83,7 +83,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAllRequiredClaimMappings() throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAllRequiredClaimMappings();
@@ -91,7 +91,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAllClaimUris() throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAllClaimUris();
@@ -99,7 +99,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean addNewClaimMapping(ClaimMapping mapping) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.addNewClaimMapping(mapping);
@@ -107,7 +107,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean deleteClaimMapping(ClaimMapping mapping) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.deleteClaimMapping(mapping);
@@ -115,7 +115,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean updateClaimMapping(ClaimMapping mapping) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.updateClaimMapping(mapping);
@@ -123,7 +123,7 @@ public class AppFactoryClaimManagerListener extends AbstractClaimManagerListener
 
     @Override
     public boolean getAttributeName(String domainName, String claimURI) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.getAttributeName(domainName, claimURI);

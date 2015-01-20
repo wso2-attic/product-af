@@ -181,7 +181,7 @@ public class ApplicationAwareCarbonInitialJNDIContext implements EventDirContext
             }
         }
         String tenantContextName = Integer.toString(tenantId);
-        String applicationContextName = Util.getCurrentArtifactName();
+        String applicationContextName = Util.getCurrentApplicationContextName();
         Context subContext;
         try {
             subContext = (Context) base.lookup(tenantContextName);

@@ -47,12 +47,12 @@ public class ApplicationSelectorContext extends SelectorContext {
         try {
             return super.lookup(name);
         } catch (NamingException ex) {
-      /*      try {*/
+            try {
             return applicationInitialContext.lookup(name);
-           /* } catch (NamingException e) {
+            } catch (NamingException e) {
                 //finally lookup common resources at tenant level
                 return this.parentInitialContext.lookup(name);
-            }*/
+            }
         }
     }
 
@@ -60,11 +60,11 @@ public class ApplicationSelectorContext extends SelectorContext {
         try {
             return super.lookup(name);
         } catch (NamingException ex) {
-       /*     try {*/
+            try {
             return applicationInitialContext.lookup(name);
-           /* } catch (NamingException e) {
+            } catch (NamingException e) {
                 return this.parentInitialContext.lookup(name);
-            }*/
+            }
         }
     }
 
@@ -72,11 +72,11 @@ public class ApplicationSelectorContext extends SelectorContext {
         try {
             return super.lookupLink(name);
         } catch (NamingException ex) {
-          /*  try {*/
+            try {
             return applicationInitialContext.lookup(name);
-           /* } catch (NamingException e) {
+            } catch (NamingException e) {
                 return this.parentInitialContext.lookup(name);
-            }*/
+            }
         }
     }
 
@@ -84,11 +84,11 @@ public class ApplicationSelectorContext extends SelectorContext {
         try {
             return super.lookupLink(name);
         } catch (NamingException ex) {
-         /*   try {*/
+            try {
             return applicationInitialContext.lookup(name);
-         /*   } catch (NamingException e) {
+            } catch (NamingException e) {
                 return this.parentInitialContext.lookup(name);
-            }*/
+            }
         }
     }
 }

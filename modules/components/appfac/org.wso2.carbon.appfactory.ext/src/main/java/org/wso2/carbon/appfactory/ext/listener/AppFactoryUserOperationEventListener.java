@@ -42,7 +42,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreAuthenticate(String userName, Object credential, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreAuthenticate(userName, credential, userStoreManager);
@@ -52,7 +52,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(roleList);
         }
@@ -64,7 +64,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreGetUserClaimValues(String userName, String[] claims, String profileName, Map<String, String> claimMap,
                                            UserStoreManager storeManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreGetUserClaimValues(userName, claims, profileName, claimMap, storeManager);
@@ -73,7 +73,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreGetUserClaimValue(String userName, String claim, String profileName,
                                           UserStoreManager storeManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreGetUserClaimValue(userName, claim, profileName, storeManager);
@@ -82,7 +82,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(deletedRoles);
             Util.checkNonModifiableRoles(newRoles);
@@ -93,7 +93,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
         }
@@ -103,7 +103,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreDeleteUserClaimValue(userName, claimURI, profileName, userStoreManager);
@@ -112,7 +112,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
                                 UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreAddRole(roleName, userList, permissions, userStoreManager);
@@ -120,7 +120,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
 
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
         }
@@ -130,7 +130,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
             Util.checkNonModifiableRoles(new String[]{roleName});
         }
@@ -140,7 +140,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreUpdateCredential(String userName, Object newCredential, Object oldCredential,
                                          UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreUpdateCredential(userName, newCredential, oldCredential, userStoreManager);
@@ -149,7 +149,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
                                                 UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             String errorMsg = "Updating credential by Admin method is not supported for applications.";
             log.warn(errorMsg);
             throw new UserStoreException(errorMsg);
@@ -159,7 +159,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
             Util.checkUserInNonModifiableRole(userName);
         }
@@ -169,7 +169,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
                                           UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreSetUserClaimValue(userName, claimURI, claimValue, profileName, userStoreManager);
@@ -178,7 +178,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreSetUserClaimValues(userName, claims, profileName, userStoreManager);
@@ -187,7 +187,7 @@ public class AppFactoryUserOperationEventListener extends AbstractUserOperationE
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName,
                                               UserStoreManager userStoreManager) throws UserStoreException {
-        if (Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
+        if (!Util.isRequestFromSystemCode() && Util.isApplicationSpecificRequest() && !Util.isUserMgtPermissionsAllowed()) {
             Util.checkAuthorizationForUserRealm();
         }
         return super.doPreDeleteUserClaimValues(userName, claims, profileName, userStoreManager);
