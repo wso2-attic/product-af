@@ -34,8 +34,6 @@
    <modules>
       <module>modules/service-stubs</module>
       <module>modules/components/appfac</module>
-      <module>modules/components/authenticators</module>
-      <module>modules/components/cloud-mgt</module>   
       <module>modules/features</module>
       <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
