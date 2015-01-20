@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="appfactory">
+    <fileSets>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>.</directory>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory />
+            <includes>
+                <include>.classpath</include>
+                <include>.project</include>
+		<include>pom.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>src</directory>
+            <includes>
+                <include>main/java/com/HelloApp/HelloServlet.java</include>
+            </includes>
+        </fileSet>
+	  <fileSet filtered="true" encoding="UTF-8">
+            <directory>.settings</directory>
+            <includes>
+		<include>org.eclipse.jdt.core.prefs</include>
+		<include>org.eclipse.wst.common.component</include>
+		<include>org.eclipse.wst.common.project.facet.core.xml</include>
+		<include>org.eclipse.wst.jsdt.ui.superType.container</include>
+		<include>org.eclipse.wst.jsdt.ui.superType.name</include>
+            </includes>
+        </fileSet>
+ <fileSet filtered="true" encoding="UTF-8">
+            <directory>build</directory>
+            <includes>
+                <include>classes/</include>
+            </includes>
+        </fileSet>
+
+<fileSet filtered="true" encoding="UTF-8">
+            <directory>WebContent</directory>
+            <includes>
+                <include>META-INF</include>
+                <include>META-INF/MANIFEST.MF</include>
+                <include>WEB-INF</include>
+                <include>WEB-INF/lib</include>
+                <include>WEB-INF/web.xml</include>
+                <include>index.jsp</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</archetype-descriptor>
+

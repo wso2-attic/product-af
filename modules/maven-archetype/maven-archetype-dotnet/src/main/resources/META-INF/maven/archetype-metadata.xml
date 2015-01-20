@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd" name="dotnet-archetype"
+    xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <fileSets>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>Application/Account</directory>
+      <includes>
+        <include>**/*.cs</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>Application</directory>
+      <includes>
+        <include>**/*.cs</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>Application/Properties</directory>
+      <includes>
+        <include>**/*.cs</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory>Application/Account</directory>
+      <includes>
+        <include>**/*.config</include>
+        <include>**/*.aspx</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory>Application/Styles</directory>
+      <includes>
+        <include>**/*.css</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory>Application</directory>
+      <includes>
+        <include>**/*.asax</include>
+        <include>**/*.config</include>
+        <include>**/*.csproj</include>
+        <include>**/*.Master</include>
+        <include>**/*.user</include>
+        <include>**/*.aspx</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory>Application/obj</directory>
+      <includes>
+        <include>**/*.cache</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory>Application/Scripts</directory>
+      <includes>
+        <include>**/*.js</include>
+      </includes>
+    </fileSet>
+    <fileSet encoding="UTF-8">
+      <directory></directory>
+      <includes>
+        <include>Application.suo</include>
+        <include>Application.sln</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>
