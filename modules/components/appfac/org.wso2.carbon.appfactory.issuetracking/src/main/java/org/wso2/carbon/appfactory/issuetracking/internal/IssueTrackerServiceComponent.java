@@ -44,39 +44,38 @@ import org.wso2.carbon.appfactory.jenkins.build.JenkinsApplicationEventsListener
 public class IssueTrackerServiceComponent {
     private static final Log log = LogFactory.getLog(IssueTrackerServiceComponent.class);
 
-    protected void activate(ComponentContext context) {
+	protected void activate(ComponentContext context) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Issue tracking  service bundle is activated");
-        }
+		if (log.isDebugEnabled()) {
+			log.debug("Issue tracking  service bundle is activated");
+		}
 
-        if(ServiceContainer.getAppFactoryConfiguration().getProperties("IssueTrackerConnector").length>0){
-        
-        String priorityConfigValue =  ServiceContainer.getAppFactoryConfiguration().getFirstProperty("IssueTrackerConnector.issueTracker.Property.ListenerPriority");
-        
-        int redmineListnerPriority = -1;
-        try {
-            redmineListnerPriority = Integer.parseInt(priorityConfigValue);
-        } catch (NumberFormatException nef) {
-            throw new IllegalArgumentException(
-                                               "Invalid priority specified for redmin application event listener. Please provide a number",
-                                               nef);
-        }
-        
-        BundleContext bundleContext = context.getBundleContext();
-        // Registering the issueTracker application event listener.
-        //bundleContext.registerService(ApplicationEventsListener.class.getName(),
-        //                              new AppFactoryApplicationEventListener(redmineListnerPriority), null);
+		if (ServiceContainer.getAppFactoryConfiguration().getProperties("IssueTrackerConnector").length > 0) {
 
-            //TODO check for the priority value and whether it is required to add to af.xml
-        bundleContext.registerService(ApplicationEventsHandler.class.getName(),
-                    new IssueTrackerListener(redmineListnerPriority), null);
+			String priorityConfigValue =
+			                             ServiceContainer.getAppFactoryConfiguration()
+			                                             .getFirstProperty("IssueTrackerConnector.issueTracker.Property.ListenerPriority");
 
-        log.info("Issue tracking is enabled");
-        }else {
-        log.info("Issue tracking is disabled");
-        }
-    }
+			int listnerPriority = -1;
+			try {
+				listnerPriority = Integer.parseInt(priorityConfigValue);
+			} catch (NumberFormatException nef) {
+				throw new IllegalArgumentException(
+				                                   "Invalid priority specified for Issuetracker application event listener. Please provide a number",
+				                                   nef);
+			}
+
+			BundleContext bundleContext = context.getBundleContext();
+
+			bundleContext.registerService(ApplicationEventsHandler.class.getName(),
+			                              new IssueTrackerListener("IssueTrackerListener",
+			                                                       listnerPriority), null);
+
+			log.info("Issue tracking is enabled");
+		} else {
+			log.info("Issue tracking is disabled");
+		}
+	}
 
     protected void setAppFactoryConfiguration(AppFactoryConfiguration appFactoryConfiguration) {
         ServiceContainer.setAppFactoryConfiguration(appFactoryConfiguration);

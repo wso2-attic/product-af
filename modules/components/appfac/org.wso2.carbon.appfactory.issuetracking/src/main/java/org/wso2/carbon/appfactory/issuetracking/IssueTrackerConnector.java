@@ -39,7 +39,7 @@ public class IssueTrackerConnector{
         this.issueTrackerUrl = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty("IssueTrackerConnector.issueTracker.Property.Url");
     }
 
-    public boolean createProject(Application application, String userName, String tenantDomain) throws AppFactoryException {
+    public boolean createProject(Application application, String userName, String tenantDomain, boolean isUploadableAppType) throws AppFactoryException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name",application.getName());
         jsonObject.put("owner", userName);
@@ -59,7 +59,13 @@ public class IssueTrackerConnector{
             HttpClient httpclient = new HttpClient();
 
             int result = httpclient.executeMethod(post);
-            onVersionCreation(application, "trunk", tenantDomain);
+            
+            String defaultVersion = "trunk";
+			if(isUploadableAppType){
+				defaultVersion = "1.0.0";
+			}
+			
+            onVersionCreation(application, defaultVersion, tenantDomain);
             return true;
         } catch (Exception e) {
             String msg = "Error while  creating project in issue repository for " + application.getName();
@@ -82,7 +88,10 @@ public class IssueTrackerConnector{
             result = httpclient.executeMethod(deleteProject);
         } catch (Exception e) {
             String msg = "Error while  creating project in issue repository for " + application.getName();
-            log.error(msg, e);
+            log.error(msg);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
             throw new AppFactoryException(msg, e);
         } finally {
             // Release current connection to the connection pool once you are done

@@ -23,25 +23,37 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
+import org.wso2.carbon.appfactory.eventing.Event;
+
+import org.wso2.carbon.appfactory.eventing.EventNotifier;
+import org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
 
 public class IssueTrackerListener extends ApplicationEventsHandler {
 
     private static final Log log = LogFactory.getLog(IssueTrackerListener.class);
     private IssueTrackerConnector connector;
-    private int listnerPriority =0;
 
-    public IssueTrackerListener(int listnerPriority) {
+    public IssueTrackerListener(String identifier, int listnerPriority) {
+    	super(identifier, listnerPriority);
         try {
             connector = new IssueTrackerConnector();
         } catch (AppFactoryException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        this.listnerPriority = listnerPriority;
     }
 
     @Override
-    public void onCreation(Application application, String userName, String tenantDomain) throws AppFactoryException {
-        connector.createProject(application, userName, tenantDomain);
+    public void onCreation(Application application, String userName, String tenantDomain, boolean isUploadableAppType) throws AppFactoryException {
+        connector.createProject(application, userName, tenantDomain, isUploadableAppType);
+        try {
+            String infoMessage = "Issue tracker space created for " + application.getName() + ".";
+            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(infoMessage, "", Event.Category.INFO));
+            //EventNotifier.getInstance().notify(EventBuilderUtil.buildApplicationCreationEvent(application.getId(), infoMessage, infoMessage, Event.Category.INFO));
+        } catch (AppFactoryEventException e) {
+            log.error("Failed to notify issue tracker provisioning events",e);
+            // do not throw again.
+        }
     }
 
     @Override
@@ -83,18 +95,12 @@ public class IssueTrackerListener extends ApplicationEventsHandler {
     }
 
     @Override
-    public int getPriority() {
-        return listnerPriority;
-    }
-
-    @Override
     public boolean hasExecuted(Application application, String userName, String tenantDomain) throws AppFactoryException {
         return true;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 	@Override
-	public void onForking(Application application, String version,
-			String userName, String tenantDomain) throws AppFactoryException {
+	public void onFork(Application application, String userName, String tenantDomain, String version, String[] forkedUsers) throws AppFactoryException {
 		// TODO Auto-generated method stub
 		
 	}
