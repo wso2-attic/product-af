@@ -1,0 +1,73 @@
+
+
+<%
+
+	var data1 = [];
+	var data2 = [];
+	var config = {};
+
+	if (data1.length > 0)
+        data1 = data1.slice(1);
+
+   	if (data2.length > 0)
+        data2 = data2.slice(1);
+
+        var db = new Database("jdbc:h2:/home/wso2/wso2/wso2bam-2.3.0/repository/database/samples/WSO2CARBON_DB;AUTO_SERVER=TRUE",
+        "wso2carbon", "wso2carbon", config);
+    	var result = db.query("select min(TIMEST) as TIMEST, TS, YYYY, MM, DD, COUNT(DISTINCT applicationKey) as noOfApps from appdetailsnew group by TS order by DD");
+	
+	 
+              
+        function createJSON(result) {
+
+	    var rows = new Array();
+	
+            var len = result.length;
+            var temp = 0;
+            for (var i = 0; i < len; i++) {
+                var obj = result[i];
+		var row = new Array();
+		if(obj == null || obj.length<6){
+			return null;		
+		}
+		var timest = obj["TIMEST"];
+		var ts = obj["TS"];
+
+		//data1.push([i, ts]);
+
+		var yyyy = obj["YYYY"];
+		var mm = obj["MM"];
+		
+		var dd = obj["DD"];
+		var noOfApps = obj["NOOFAPPS"];
+
+		if(dd<10){
+		dd="0"+dd;
+		}
+		if(mm<10){
+		mm="0"+mm;
+		}
+		
+	//	if(dd == temp +1 || temp == 0 ){
+	//	temp = dd;
+	//	}else{
+	//	for(var j = temp+1; j<dd; j++){
+	//	data2.push([""+yyyy+mm+j, 0]);			
+	//	}
+	//	temp = dd;
+	//	}
+		
+
+		data2.push([""+yyyy+mm+dd, noOfApps]);		
+
+		
+            }
+	return [
+        {"series1":{label: "noOfApps", data:data2}}
+    ];
+	 
+}
+ 
+
+        print(createJSON(result));
+   		 %>

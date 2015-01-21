@@ -1,0 +1,48 @@
+     CREATE EXTERNAL TABLE IF NOT EXISTS AppCreationTableNew
+     (row_id STRING, applicationName STRING, applicationKey STRING, timest BIGINT,
+     user STRING, appType STRING, repoType STRING)
+     STORED BY 'org.apache.hadoop.hive.cassandra.CassandraStorageHandler'
+     with SERDEPROPERTIES
+     ("cassandra.host" = "127.0.0.1" , "cassandra.port" = "9163" , "cassandra.ks.name" = "EVENT_KS",
+     "cassandra.ks.username" = "admin", "cassandra.ks.password" = "admin" ,
+     "cassandra.cf.name" = "org_wso2_carbon_appfactory_appCreation" ,
+     "cassandra.columns.mapping" =
+     ":key,payload_applicationName,payload_applicationKey,Timestamp,payload_user,payload_appType,payload_repoType" );
+
+    CREATE EXTERNAL TABLE IF NOT EXISTS AppDetailsNew
+     (applicationName STRING,applicationKey STRING,timest BIGINT,appType STRING,repoType STRING,ts STRING,yyyy SMALLINT,mm SMALLINT,dd SMALLINT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'org.h2.Driver' ,
+    'mapred.jdbc.url' = 'jdbc:h2:repository/database/samples/WSO2CARBON_DB;AUTO_SERVER=TRUE' ,
+    'mapred.jdbc.username' = 'wso2carbon' ,
+    'mapred.jdbc.password' = 'wso2carbon' ,
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'applicationName' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE AppDetailsNew
+    (applicationName VARCHAR(100),applicationKey VARCHAR(20),timest BIGINT,appType VARCHAR(20),repoType VARCHAR(20),ts VARCHAR(20),yyyy SMALLINT,mm SMALLINT,dd SMALLINT)' );
+
+    insert overwrite table AppDetailsNew
+    SELECT applicationName, applicationKey, timest, appType,
+    repoType , x.new_timestamp, year(x.new_timestamp) as year, month(x.new_timestamp) as month, day(x.new_timestamp) as day from
+    (select applicationName, applicationKey, timest, appType,
+    repoType, from_unixtime(cast(substr(cast(timest as string),1,10) as bigint),'yyyy-MM-dd') as new_timestamp from AppCreationTableNew) x;
+
+
+    CREATE EXTERNAL TABLE IF NOT EXISTS noOfAppsByTypeNew
+     (appType STRING, noOfApps INT) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'org.h2.Driver' ,
+    'mapred.jdbc.url' = 'jdbc:h2:repository/database/samples/WSO2CARBON_DB;AUTO_SERVER=TRUE' ,
+    'mapred.jdbc.username' = 'wso2carbon' ,
+    'mapred.jdbc.password' = 'wso2carbon' ,
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'appType' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE noOfAppsByTypeNew
+    (appType VARCHAR(20),noOfApps INT)' );
+
+    insert overwrite table noOfAppsByTypeNew
+    select appType, COUNT(DISTINCT applicationKey) as noOfApps from AppCreationTableNew group by appType;
