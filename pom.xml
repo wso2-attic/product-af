@@ -34,7 +34,7 @@
    <modules>
       <module>modules/service-stubs</module>
       <module>modules/components/appfac</module>
-      <module>modules/features</module>
+      <!-- module>modules/features</module>
       <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
@@ -44,7 +44,7 @@
       <module>modules/jaggery-apps/dashboard</module>
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <module>modules/distribution</module>
+      <module>modules/distribution</module -->
    </modules>
    <profiles>
       <profile>
@@ -129,6 +129,12 @@
             <artifactId>org.wso2.carbon.andes.stub</artifactId>
             <version>4.2.1</version>
         </dependency>
+	<dependency>
+        	<groupId>org.wso2.carbon</groupId>
+        	<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>
+        	<version>4.2.1</version>
+        </dependency>
+
 	<!--Service stubs-->
 
         <!--ArcheTypes-->
@@ -696,6 +702,21 @@
             <groupId>org.wso2.andes.wso2</groupId>
             <artifactId>andes-client</artifactId>
             <version>0.13.wso2v8</version>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.url.mapper</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.ndatasource.core</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+	<dependency>
+            <groupId>org.apache.tomcat.wso2</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>7.0.34.wso2v1</version>
         </dependency>
 	
 
