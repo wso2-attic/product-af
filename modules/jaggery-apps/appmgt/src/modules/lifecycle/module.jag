@@ -60,9 +60,17 @@ jagg.module("lifecycle", {
     getInitialLifeCycleStages:function(){
         return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getInitialLifeCycleStages.apply(this, arguments);
     },
-    invokeDoFork:function () {
-        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").invokeDoFork.apply(this, arguments);
+    createFork:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").createFork.apply(this, arguments);
+    },
+    getCheckItemsByPath:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getCheckItemsByPath.apply(this, arguments);
+    },
+    createForkBranch:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").createForkBranch.apply(this, arguments);
+    },
+    getCheckItemsByPathWithSleep:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getCheckItemsByPathWithSleep.apply(this, arguments);
     }
-
 });
 %>

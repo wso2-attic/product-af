@@ -13,7 +13,7 @@ include("/jagg/config_reader.jag");
         var applicationKey = request.getParameter("applicationKey");
         var users = request.getParameter("users");
         var response = {};
-        log.debug("=====reached block "+applicationKey+"===="+users);
+        log.debug("RemoveUserFromApplication: "+applicationKey+";Users:"+users);
         if(jagg.module("permission").isUserAccessGranted(applicationKey,PERMISSION_USER_INVITE)){
             try {
                 var result = mod.removeUserFromApplication(applicationKey,users);

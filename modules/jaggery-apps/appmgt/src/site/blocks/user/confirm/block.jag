@@ -2,8 +2,29 @@
 jagg.block("user/confirm", {
     initialize:function (data) {
 
+    },
+    getInputs: function () {
+        return {
+             "applicationKey": null
+        }
+    },
+
+    getOutputs: function (inputs) {
+        var userMod = jagg.module("user");
+        var confirm = request.getParameter("confirmation");
+        var confirmationObject = userMod.getUserConfirmationObject(confirm);
+        var hasUserActivated = false;
+        var hasConfirmationObject = false;
+        if(confirmationObject != null){
+            hasConfirmationObject = true;
+        	if(userMod.invokeUserActivationProcess(confirmationObject.admin, confirmationObject.email, confirmationObject.confirmationKey)){
+        	    hasUserActivated = true;
+        	}
+        }
+        return {
+             "hasUserActivated": hasUserActivated,
+             "hasConfirmationObject" : hasConfirmationObject
+        };
     }
-
-
 });
 %>

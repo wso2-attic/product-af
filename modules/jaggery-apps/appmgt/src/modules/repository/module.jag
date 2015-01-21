@@ -1,0 +1,12 @@
+<%
+jagg.module("repository", {
+    
+    createFork:function () {
+        return jagg.require(jagg.getModulesDir() + "repository/add/add.jag").createFork.apply(this, arguments);
+    },
+    createForkBranch:function () {
+        return jagg.require(jagg.getModulesDir() + "repository/add/add.jag").createForkBranch.apply(this, arguments);
+    }
+    
+});
+%>

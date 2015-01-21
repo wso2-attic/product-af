@@ -9,6 +9,7 @@ include("/jagg/config_reader.jag");
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     var log=new Log("blocks/resources/registry/add/ajax/add.jag");
+    var modPermission = jagg.module("permission");
     if (action == "createResource") {
     	mod = jagg.module("resources");
     	var lifeCycleModule = jagg.module("lifecycle");
@@ -18,12 +19,15 @@ include("/jagg/config_reader.jag");
     	var resourceMediaType = request.getParameter("resourceMediaType");
     	var contentValue = request.getParameter("contentValue");
     	var stage = request.getParameter("stage");
+    	var copyToAll=request.getParameter("copyToAll");
 
         var response = {};
         var initialStages = lifeCycleModule.getInitialLifeCycleStages();
         var stages = [stage];
-        
-        //var stages=getAllowedStages(initialStages,PERMISSION_RESOURCES_CREATE_FOR_STAGE,applicationKey);
+        var allStages=getProperties(DEPLOYMENT_STAGES);
+        if((copyToAll=="true")&&jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
+        	stages=allStages;
+        }
         try{
             mod.addPropertyToStages(resourceName, contentValue, resourceDescription,
             resourceMediaType, applicationKey, stages);
@@ -36,17 +40,20 @@ include("/jagg/config_reader.jag");
         var lifeCycleModule = jagg.module("lifecycle");
         var applicationKey = request.getParameter("applicationKey");
         var resourceName = request.getParameter("resourceName");
+        var stage = request.getParameter("stage");
 
         var response = {};
-        var allStages= lifeCycleModule.getAllLifeCycleStages();
-        var stages=getAllowedStages(allStages,PERMISSION_RESOURCES_UPDATE_FOR_STAGE);
+        if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
             try {
-                mod.deletePropertyFromStages(resourceName, applicationKey, stages);
-            } catch(e) {
-                throw "Error while creating an resources"+e.toString();
+            	mod.deletePropertyFromStages(resourceName, applicationKey, [stage]);
+            } catch (e) {
+            	 throw "Error while creating an resource "+e.toString();
             }
-
-
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to resource " + resourceName + " from stage " + stage;
+            print(response);
+        }
     } else {
         throw new Error("No action specified");
     }

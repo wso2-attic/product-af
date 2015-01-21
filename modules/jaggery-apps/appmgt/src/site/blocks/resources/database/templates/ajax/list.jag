@@ -69,7 +69,7 @@ var response = {};
 
         var response = {};
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + environment);
+        		PERMISSION_RESOURCES_CREATE_FOR_STAGE + environment);
         
         if( !hasPermission ){
 	        response.error = true;
@@ -91,16 +91,16 @@ var response = {};
           mod = jagg.module("resources");
           var applicationKey = request.getParameter("applicationKey");
           var databaseServerInstanceName= request.getParameter("environment");         
+	  var copyToAll = request.getParameter("copyToAll");
           var hasPermission = modPermission.isUserAccessGranted(applicationKey,
           		PERMISSION_RESOURCES_CREATE_FOR_STAGE + databaseServerInstanceName);
-       
-          if( !hasPermission ){
+        var response = {};
+        if( !hasPermission ){
   	        response.error = true;
   	        response.errorMessage = "No permission";
   	        print(response);
   	        return;
           }
-          
           
           var name= request.getParameter("templateName");
           var alterPriv=createValue(request.getParameter("alterPriv"));
@@ -124,15 +124,13 @@ var response = {};
           var updatePriv=createValue(request.getParameter("updatePriv"));
 
 
-        var response = {};
-        
         // this is to identify the role name that maps to environment.
         name = getEnvironmentAwareTemplateName(name, databaseServerInstanceName );
         try {
             result = mod.createTemplate(applicationKey,databaseServerInstanceName,name,alterPriv,
                     alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,
                     deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,
-                    referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
+                    referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv,null,copyToAll);
             print(result);
         } catch(e) {
             throw "Error while creating template";

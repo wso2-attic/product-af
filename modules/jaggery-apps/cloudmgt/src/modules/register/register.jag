@@ -83,7 +83,7 @@ options.mep = "in-only";
                     <rampart:timestampTTL>300</rampart:timestampTTL>
                     <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
                     <rampart:timestampStrict>false</rampart:timestampStrict>
-                    <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                    <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.common.security.PWCBHandler</rampart:passwordCallbackClass>
                     <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
                     <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
                 </rampart:RampartConfig>
@@ -107,7 +107,7 @@ var payload ='<p:CreateTenantRequest xmlns:p="http://wso2.org/bps/sample">'+
     '</p:CreateTenantRequest>';
 
    
- log.info("*******[Test log] paylod deployTaggedArtifact----------------" + payload);
+ log.debug("*******[Test log] paylod deployTaggedArtifact----------------" + payload);
 
     var result;
     try {
@@ -157,7 +157,7 @@ var registerOrg = function (organizationDomain,adminUsername,adminPassword, firs
         '</captchaInfoBean>' +
     '</p:registerTenant>' ;
 
-    log.info("payload ------> "+payload);
+    log.debug("payload ------> "+payload);
 
     var result;
     try {
@@ -175,7 +175,7 @@ var registerOrg = function (organizationDomain,adminUsername,adminPassword, firs
 }
 
 var checkDomainAvailability = function (domainName) {
-    log.info("Checking Domain Availability : " + domainName);
+    log.debug("Checking Domain Availability : " + domainName);
     var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
@@ -198,7 +198,7 @@ var checkDomainAvailability = function (domainName) {
         request.send(payload);
         result = request.responseE4X;
         var availability = result.*::["return"].text();
-        log.info("Domain Availability : " + availability);
+        log.debug("Domain Availability : " + availability);
         if (log.isDebugEnabled()) {
             log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
         }
@@ -245,7 +245,6 @@ var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email
 }
         var generateCaptcha = function() {
 
-                    log.info("--------- gen captcha : module ----")
                     var ws = require('ws');
                     var request = new ws.WSRequest();
                     var options = new Array();
@@ -263,17 +262,11 @@ var sendRegisterOrganizationEmail = function (organizationDomain,firstName,email
                         request.open(options,endPoint, false);
                         request.send(payload);
                         result=request.responseE4X;
-                        log.info("################################## captcha result #########################################");
-                        log.info(result);
                         var entry = result.*::["return"];
-
                         var path = entry.*::imagePath.text();
                         var secretKey = entry.*::secretKey.text();
-
                         captchaInfo.path = path;
                         captchaInfo.secretKey = secretKey;
-
-
                         if (log.isDebugEnabled()) {
                             log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
                         }

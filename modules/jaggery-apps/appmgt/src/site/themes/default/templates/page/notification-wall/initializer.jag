@@ -1,0 +1,8 @@
+<%
+jagg.initializer("page/notification-wall", {
+
+    preInitialize:function () {
+
+    }
+});
+%>

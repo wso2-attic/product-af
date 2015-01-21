@@ -20,6 +20,9 @@ jagg.module("manager", {
     },
     getOTtenantProperty:function () {
         	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getOTtenantProperty.apply(this, arguments);
-    }
+    },
+    checkPermissionforStages:function () {
+        	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").checkPermissionforStages.apply(this, arguments);
+    },
 });
 %>

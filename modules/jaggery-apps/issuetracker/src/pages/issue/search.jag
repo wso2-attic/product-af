@@ -14,6 +14,7 @@ var caramel;
 
 	userName = context.get(LOGGED_IN_USER);
 	domain = context.get(DOMAIN);
+	var appkey = request.getParameter('appkey');
 
     var searchType = request.getParameter('searchType'),
     searchValue = request.getParameter('searchValue');
@@ -22,7 +23,7 @@ var caramel;
 	caramel.render({
 		title  : {text :'Issue Tracker | Search'},
 		header : { domain : domain, userName : userName},
-		body   : {title: 'Issue',  data: issue.searchIssue(searchType, searchValue)}
+		body   : {title: 'Issue',  data: issue.searchIssue(searchType, searchValue), appkey: appkey}
 	});
 
 }());

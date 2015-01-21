@@ -15,6 +15,7 @@ var caramel;
     var projectKey = request.getParameter('projectKey');
     var issueRes = issue.getIssueByKey(issuePkey);
 	caramel = require('caramel');
+	var appkey = request.getParameter('appkey');
 
     include('/jagg/jagg.jag');
 
@@ -30,7 +31,8 @@ var caramel;
                         projectKey: issueRes.projectKey,
                         version : project.getAllVersionOfProject(projectKey),
                         isSameUser : (issueRes.issue.reporter == userName),
-                        users: user.getUsersOfDomain()
+                        users: user.getUsersOfApp(),
+                        appkey: appkey
                     }
         });
 }());

@@ -9,8 +9,14 @@ include("/jagg/config_reader.jag");
 
  	var log = new Log();
     var modPermission = jagg.module("permission");
-
-    if (action == "deployToStage") {
+    if(request.getParameter("stageName") != null){
+        session.put('stage',request.getParameter("stageName"));
+    }
+    if(action == "updateSessionInfo"){
+        //We do nothing here. But when we send the stage as a parameter for this, the above if condition will get hit
+        //And it will update the session with the correct info.
+        //Therefore don't remove this method
+    }else if (action == "deployToStage") {
     	mod = jagg.module("lifecycle");
     	
     	var applicationKey = request.getParameter("applicationKey");
@@ -41,7 +47,7 @@ include("/jagg/config_reader.jag");
                     throw new Error(e.message);
                 }
             } else {
-                log.info("Artifact is not configured for direct deploy");
+                log.debug("Artifact is not configured for direct deploy");
             }
         } else{
             response.result = 0;
@@ -50,10 +56,8 @@ include("/jagg/config_reader.jag");
         }
 	    
     } else if(action == "Promote" || action == "Demote" || action == "Retire") {
-		mod = jagg.module("lifecycle");
-	    log.info("promoting ..............");
-	    	    
-    	var applicationKey = request.getParameter("applicationKey");
+		mod = jagg.module("lifecycle"); 
+		var applicationKey = request.getParameter("applicationKey");
     	var stageName = request.getParameter("stageName");
     	var version = request.getParameter("version");
 		var tagName = request.getParameter("tagName");
@@ -80,6 +84,19 @@ include("/jagg/config_reader.jag");
         }
 
         if(isAuthorizeToPromote || isAuthorizeToDemote){
+        	var appmod = jagg.module("application");
+        	var buildInfo = JSON.parse(appmod.getBuildandDelpoyedStatus(applicationKey, version));
+
+		if(!(buildInfo != null && buildInfo != undefined &&  buildInfo.buildStatus == "successful")){
+			response.error = true;
+            		response.message = "Cannot promote/demote because no successful build is available!";
+            		print(response);
+			return;	
+		}else{
+                    //do nothing
+		}
+        	
+        	
             if ( currentStage != stageName){
                 // check whether current stage and the stage user saw is the same.
                 throw new Error("Unable to complete the governance operation. Application stage is already changed to : " +
@@ -129,6 +146,9 @@ include("/jagg/config_reader.jag");
                         build, path, aspect, deployAction, lifeCycleCheckListItems, parameters, tagName, userName);
 
                 log.debug(applicationKey + " was successfully invoked " + action + " action");
+                response.error = false;
+        		response.message = "Promote/demote was successful.";
+        		print(response);
             } catch (e) {
                 throw new Error(e.message);
             }
@@ -152,7 +172,7 @@ include("/jagg/config_reader.jag");
             try {
                 return mod.invokeDoVersion(applicationKey, srcVersion, targetVersion);
             } catch (e) {
-                log.info(e.message);
+                log.error(e.message);
                 throw e.message;
             }
         } else{
@@ -169,10 +189,11 @@ include("/jagg/config_reader.jag");
         var stage = request.getParameter("stage");
         var doDeploy = request.getParameter("doDeploy");
         var tagName = request.getParameter("tagName");
+        var repoFrom = request.getParameter("repoFrom");
         var response = {};
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURE_GOVERNANCE)){
             try {
-                return mod.invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName);
+                return mod.invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName,repoFrom);
             } catch (e) {
                 log.error(e.message);
             }
@@ -241,54 +262,83 @@ include("/jagg/config_reader.jag");
         }
 
     }else if(action == "uploadNewVersionOfExistingApp"){
-    	
     	var applicationMod = jagg.module("application");
     	var lifecycleMod = jagg.module("lifecycle");
     	
-    	var applicationKey = request.getParameter("applicationKey");
-    	var timestamp = new Date().getTime();
-    	var srcVersion = timestamp;
-        var targetVersion = timestamp;
+    	var existingVersion = request.getParameter("latestVersion");//existing latest version
+    	var major=Number(existingVersion.split(".")[0]);
+    	var newMajor=++major;
+	var newVersion=newMajor+".0.0";
+
+	applicationKey = request.getParameter("applicationKey");
+    	var userName = request.getParameter("userName");
+    	var srcVersion = newVersion;//increment of version 
+        var targetVersion = newVersion;
        
-    	var file = request.getFile("uploaded_application");
-    	    	
+    	var file = request.getFile("uploaded_application");    	 
+
     	try {
 			var mod = jagg.module("manager");
     		var projUtils = Packages.org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 	    	var applicationType = projUtils.getApplicationType(applicationKey, mod.getTenantDomain());
 
     		applicationMod.stroreUploadedApplication(applicationKey + "-" + targetVersion , file, applicationType);
-	        return lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion);
+	        lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion);
+	        
+	    	var revision = '0';
+			var build = 'true';
+			var version = targetVersion;
+			var action = 'Promote';
+			var revision= 'HEAD';
+			var deployAction = 'promote';
+			var path = '/_system/governance/repository/applications/' + applicationKey + '/' + version;
+			var aspect = LIFE_CYCLE_NAME;
+
+			var parameters = new Array();
+			parameters[0] = 'version';
+			parameters[1] = version;
+			parameters[2] = 'applicationId';
+			parameters[3] = applicationKey;
+			parameters[4] = 'revision';
+			parameters[5] = revision;
+			parameters[6] = 'build';
+			parameters[7] = build;
+			parameters[8] = 'autodeployment';
+			parameters[9] = 'false';
+			parameters[10] = 'action';
+			parameters[11] = action;
+			parameters[12] = 'user';
+			parameters[13] = userName;
+
+            var stages = lifecycleMod.getAllLifeCycleStages();
+			for(var index in stages){
+				var stageName = stages[index];
+				var targetStage = getProperty("ApplicationDeployment.DeploymentStage."+ stageName +".Promote.TargetStage");
+                parameters[14] = 'stage';
+                parameters[15] = stageName;
+
+              if(targetStage != null){
+                     var items = new Array();
+                     var itemCount = lifecycleMod.getCheckItemsByPathWithSleep(path).length;
+                     for (i = 0; i < itemCount; i++) {
+                        items.push("true");
+                     }
+                     lifecycleMod.invokeAspectWithParameter(path, aspect, "itemClick", items, [],stageName);
+                     lifecycleMod.invokeGovernanceProcess(action, stageName, applicationKey, revision, version,
+									build, path, aspect, deployAction, items, parameters, "", userName);
+               }
+			}
+
+		//print("<html><script>window.location.replace('/appmgt/site/pages/uploadedVersions.jag?applicationName=" + request.getParameter("applicationName") + "&applicationKey=" + request.getParameter("applicationKey") + "');</script><body></body></html>");
+
 	    } catch (e) {
-	    	log.info(e.message);
+	    	log.error(e.message);
 		    throw e.message;
 	    }
     	
     	
-    }else if(action == "invokeDoFork") {
-    	mod = jagg.module("lifecycle");
-
-    	var applicationKey = request.getParameter("applicationKey");
-        var parentRepoUrl = request.getParameter("parentRepoUrl");
-        var userName = request.getParameter("userName");
-        var type = request.getParameter("type");
-
-        var response = {};
-        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_REPOSITORY_FORK)){
-            try {
-                return mod.invokeDoFork(applicationKey, parentRepoUrl, userName, type);
-            } catch (e) {
-                log.info(e.message);
-                throw e.message;
-            }
-        } else{
-            response.result = 0;
-            response.message = "You don't have permission to fork the repository";
-            print(response);
-        }
-
     }else {
-		log.info("No action specified");
+		log.error("No action specified");
 	}
 }());
 

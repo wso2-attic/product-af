@@ -6,7 +6,7 @@
     var isEdit = request.getParameter("isEdit");
     var user = request.getParameter("user");
     var environment = request.getParameter("environment");
-
+    var hasDataSourceDeletePermissionInCurrentStage = outputs.hasDataSourceDeletePermissionInCurrentStage;
     if (isEdit == undefined ) {
     	isEdit = false;
     } 
@@ -21,7 +21,7 @@ $(document).ready(function(){
 
 	// during formLoad, load 'Database Environment' list and append to #rssInstances.
 	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-		action:"getRSSinstances",
+		action:"getCreatableRSSinstances",
 		applicationKey:$("#applicationKey").attr('value')
 	}, function (result) {	// if success
 		
@@ -38,8 +38,9 @@ $(document).ready(function(){
 			if(isEdit=='true'){
 				$("#Username").val('<%=user%>'); 
 				 $("#Username").prop("disabled",true);
-
-				$("#rssInstances").val('<%=environment%>'); 	
+				
+				$("#rssInstances").empty();
+				$("#rssInstances").append('<option><%=environment%></option>');
 				$("#rssInstances").select2("readonly", true);
 			}
 			$("#rssInstances").select2({
@@ -68,7 +69,7 @@ $(document).ready(function(){
 // function to create DB User
 function createDatabaseUser(btn){
 	$('span#saveSpin').show();	// show spinner
-    $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+    $(btn).attr('disabled','disabled');
 	jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {		// call backend
 		action:"createDatabaseUser",
 		applicationKey:$("#applicationKey").val(),
@@ -82,14 +83,14 @@ function createDatabaseUser(btn){
 		if(result=='success'){
 			callPreviousPage();
 		} else if(result.indexOf('exists') > -1) {	// check whether user is already exist based on identifying key word call 'exists'
-			jagg.message({content:'DB User already exists!', type:'error', id:'dbusercreation' });	
+			jagg.message({content:'The given user name already exists in the environment!', type:'error', id:'dbusercreation' });
 		} else {
 			jagg.message({content:'Error occurred while creating user!', type:'error', id:'dbusercreation' });	
 		}
-        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+        $(btn).removeAttr('disabled');
 	},function (jqXHR, textStatus, errorThrown) {	// if it failed, hide spinner and show error message.
 		jagg.message({content:'Error occurred while creating user',type:'error', id:'dbusercreation' });
-        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+        $(btn).removeAttr('disabled');
 	});
 	$('span#saveSpin').hide();
  }
@@ -204,7 +205,8 @@ function deleteConfirmation(name,rssInstanceName){
 		callPreviousPage();
 	},function (jqXHR, textStatus, errorThrown) {
 		$('span#deleteSpin').hide();
-		jagg.message({content:'Error occurred while deleting user',type:'error', id:'dbusercreation' });
+		jagg.message({content:'Error occurred while deleting user. ' +
+		 'User might be already attached to a database.',type:'error', id:'dbusercreation' });
 	});
 }
 </script>
@@ -212,7 +214,9 @@ function deleteConfirmation(name,rssInstanceName){
 
 <div class="container">
 	<article class="main">
-		<header><div><% jagg.includeBlock("page/messages", null); %></div>
+		<header><div><% jagg.includeBlock("page/messages", null); %>
+	     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+		 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
 			<div class="content">
 				<h1>Resources</h1>
 			</div>
@@ -227,14 +231,16 @@ function deleteConfirmation(name,rssInstanceName){
 				    </ol>
 				    
 				    <%if(isEdit=='true') {%>
-				    	<div class="right btn_list_box" >
-				    		<ul class="inline_box inline_list btn_list">
-				    			<li class="breadcrumb_item" style="float: right; margin-top: -5px;">
-				    				<span class="icon-spinner icon-spin icon-large" id="deleteSpin" style="margin-right: 10px; display:none;"></span>
-				    				<a href="#" class="btn main" onclick="deleteUser('<%=user%>', '<%=environment%>' )" >Delete User</a>
-				    			</li>
-				    		</ul>
-				    	</div>
+				    	<% if(hasDataSourceDeletePermissionInCurrentStage){ %>
+					    	<div class="right btn_list_box" >
+					    		<ul class="inline_box inline_list btn_list">
+					    			<li class="breadcrumb_item" style="float: right; margin-top: -5px;">
+					    				<span class="icon-spinner icon-spin icon-large" id="deleteSpin" style="margin-right: 10px; display:none;"></span>
+					    				<a href="#" class="btn main" onclick="deleteUser('<%=user%>', '<%=environment%>' )" >Delete User</a>
+					    			</li>
+					    		</ul>
+					    	</div>
+				    	 <%}%>
 				    <%}%>
 				</div>
 			</div> <!-- /page_nav -->

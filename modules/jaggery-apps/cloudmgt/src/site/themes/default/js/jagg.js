@@ -158,7 +158,7 @@ var messageTimer;
     //jagg.popMessage({content:'Message'});
 
     jagg.popMessage = function(params){
-        $('.qtip').remove();
+        //$('.qtip').remove();
         var $modelObject = $('<div class="modal_content">'+
             '<div class="message_body error_details">'+
             '<dl>'+

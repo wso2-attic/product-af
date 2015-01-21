@@ -1,0 +1,48 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("module/urlmapper/urlmapper.jag");
+var modManager = jagg.module("manager");
+var context=multitenancy.getPrivilegedCarbonContext();
+
+var addDomainMappingsToStratos= function(stage, domain, version, appKey){
+	var service = getDomainMappingManagementService();
+	try{
+		service.addSubscriptionDomain(stage, domain, version, appKey);
+	} catch (e) {
+		var msg = "Error while adding "+ domain +" to Stratos in "+stage;
+        log.error(msg + e.message);
+        throw msg;
+    }finally{
+        context.endTenantFlow();
+    }
+};
+
+var removeDomainMappingsFromStratos = function(stage, domain){
+	var service = getDomainMappingManagementService();
+	try{
+		service.removeSubscriptionDomain(stage, domain);
+	} catch (e) {
+		var msg = "Error while removing "+ domain +" from Stratos in "+stage;
+        log.error(msg + e.message);
+        throw msg;
+    }finally{
+        context.endTenantFlow();
+    }
+};
+
+var getDomainMappingManagementService = function(){
+    var carbon = require('carbon');
+    var tenantDomain=modManager.getTenantDomain() ;
+    var tenantManager= multitenancy.getTenantManager();
+    
+    context.startTenantFlow();
+    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+    context.getThreadLocalCarbonContext().setUsername(session.get("LOGGED_IN_USER"));
+    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+    return carbon.server.osgiService('org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService');
+};
+
+
+%>

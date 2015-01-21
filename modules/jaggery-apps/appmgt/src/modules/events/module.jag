@@ -1,0 +1,27 @@
+<%
+jagg.module("events", {
+
+	publish:function () {
+		return jagg.require(jagg.getModulesDir() + "events/publish/publish.jag").publish.apply(this, arguments);
+	},
+    listen:function () {
+		return jagg.require(jagg.getModulesDir() + "events/listen/listen.jag").listen.apply(this, arguments);
+	},
+    buildEvent:function () {
+		return jagg.require(jagg.getModulesDir() + "events/buildEvent/buildEvent.jag").buildEvent.apply(this, arguments);
+	},subscribe:function () {
+		return jagg.require(jagg.getModulesDir() + "events/subscribe/subscribe.jag").subscribe.apply(this, arguments);
+	},pollMessages:function () {
+		return jagg.require(jagg.getModulesDir() + "events/subscribe/subscribe.jag").pollMessages.apply(this, arguments);
+	},acknowledgeMessage:function () {
+		return jagg.require(jagg.getModulesDir() + "events/subscribe/subscribe.jag").acknowledgeMessage.apply(this, arguments);
+	},stopSubscription:function () {
+		return jagg.require(jagg.getModulesDir() + "events/subscribe/subscribe.jag").stopSubscription.apply(this, arguments);
+	}, stopAllSubscriptions: function(){
+	    return jagg.require(jagg.getModulesDir() + "events/subscribe/subscribe.jag").stopAllSubscriptions.apply(this, arguments);
+	},getUserTopics:function () {
+		return jagg.require(jagg.getModulesDir() + "events/subscribe/subscribe.jag").getUserTopics.apply(this, arguments);
+	}
+
+});
+%>

@@ -2,7 +2,7 @@ body {background: #fff url(../img/appfac-back-normal.png) repeat-y left top}
 @media only screen and (max-width: 1024px) {
     body {background-image: url(../img/appfac-back-small.png)}
 }
-body#home{background-image: url(../img/appfac-back-small.png)}
+body#home{background-image:none }
 .box_items .app_role { margin: 0 0 10px 0; position: relative; top: -5px; color: #636671;  font-size: 0.85714285714em;}
 .table_items .app_role {  vertical-align: middle; color: #636671; font-size: 0.85714285714em;}
 .box_items .item { margin: 0 10px 20px 10px; padding: 10px; width: 200px; height: 120px; border: 1px solid #B0D1D8; float: left; position: relative; 
@@ -327,6 +327,7 @@ article.main section.separator{
     border-bottom: none;
     background: transparent;
     border-left: none;
+    margin-left:0;
 }
 /* register page */
 .branding {
@@ -481,4 +482,45 @@ ul.subtabs li.active{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.edit-btn{
+    margin-top:10px;
+}
+.issue-item-detail{
+    float:left;
+    width:800px;
+}
+.comment-date-text{
+    color:#888;
+    float:left;
+    display: block;
+}
+.comment-table a{
+    text-indent: 10px;
+    display: block;
+    margin-left: 10px;
+    float: right;
+}
+.list_row{
+    margin-bottom:5px;
+    display: inline-block;
+}
+/* table styles */
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+table.data-table{
+    width:100%;
+}
+table.data-table th{
+    border-bottom: 2px solid #B0D1D8;
+    color: #636771;
+    font-size: 0.857143em;
+    text-align:left;
+}
+table.data-table td{
+    font-size: 0.827143em;
+    padding:10px 0;
+    border-bottom: 1px solid #B0D1D8;
 }

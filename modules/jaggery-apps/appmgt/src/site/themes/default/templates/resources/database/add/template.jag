@@ -3,6 +3,10 @@
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var isDefaultMode = request.getParameter("isDefaultMode");
+    AllowedAllStages=outputs.hasAccessForAllstages;
+    isEdit = request.getParameter("isEdit");
+    appInfo=session.get("APP_INFO");
+    language=appInfo.language;
     %>
 
     <script type="text/javascript">
@@ -59,10 +63,9 @@
         }
 
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-            action:"getRSSinstances",
+            action:"getCreatableRSSinstances",
             applicationKey:$("#applicationKey").attr('value')
         }, function (result) {
-
             if(result != undefined){
 
                 var parsedArray = jQuery.parseJSON(result);
@@ -145,6 +148,22 @@
     function reloadUsersNTemplates() {
         loadUsersForSelectedStage();
         loadTemplatesForSelectedStage();
+
+        //If the stage is development, we give an option to create datasources
+        //showCreateDSCheckBox();
+    }
+
+    function showCreateDSCheckBox(){
+        var databaseEnvironment = $("#rssInstances").attr('value');
+        //TODO: remove the hardcoded name
+        if(databaseEnvironment == 'Development'){
+            if($('#addDatasourceCheckBox').is(':disabled')){
+                $('#addDatasourceCheckBox').prop( "disabled", false );
+            }
+        }else{
+            $('#addDatasourceCheckBox').prop( "disabled", true );
+            $('#addDatasourceCheckBox').attr('checked', false);
+        }
     }
 
     function loadUsersForSelectedStage(userName){
@@ -248,20 +267,24 @@
 
     function createDatabase(btn){
 	var isBasicDbCreation = true;
+	var createDatasource = false;
         if($('#advancecheckbox').attr('checked') == 'checked'){
             isBasicDbCreation = false;
+//            createDatasource = $('#addDatasourceCheckBox').is(':checked');
 	}
-        $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+        $(btn).attr('disabled','disabled');
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
                     action:"createDatabaseAndAttachUser",
                     applicationKey:$("#applicationKey").attr('value'),
                     databaseName:$("#databaseName").attr('value'),
                     databaseServerInstanceName:$('#rssInstances').val(),
                    // isBasic:$('#extra_fieldset_id').attr('data-hidden'),
-		    isBasic:isBasicDbCreation,
+		   			isBasic:isBasicDbCreation,
                     customPassword:$('#databaseUserPassword').attr('value'),
                     userName:$("#js_db_user").attr('value'),
-                    templateName:$("#js_db_template").attr('value')
+                    templateName:$("#js_db_template").attr('value'),
+                    copyToAll:$('#copyToAll').is(':checked'),
+                    createDatasource:createDatasource
                 },
                 function (result) {
                     /*var parsedResult = jQuery.parseJSON(result);
@@ -283,15 +306,14 @@
 	        			jagg.message({content:'Database Name already exists!', type:'error', id:'databasecreation' });
 	        		} else if(result.indexOf('exists') > -1) {	// check whether user is already exists based on identifying key word call 'exists'
 	        			jagg.message({content:'Template Name already exists!', type:'error', id:'databasecreation' });
-	        		} else {
-	        			jagg.message({content:'Error occurred while creating database with default user and template', type:'error', id:'databasecreation' });
-	        		}
-
-                    $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+	        		}else{
+					jagg.message({content:'Error occured while creating database!' , type:'error', id:'databasecreation'});
+				}
+                    $(btn).removeAttr('disabled');
                     // jagg.message({content:'Database has been created',type:'info' });
                 },
                 function (jqXHR, textStatus, errorThrown) {
-                    $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+                    $(btn).removeAttr('disabled');
                 });
 
         /*} else {
@@ -523,14 +545,21 @@
 
                 }
                 ,function (result) {
-			var result = $.trim(result);
-			if(result=='success'){
+			var result = true;
+			var response= jQuery.parseJSON(result);
+
+			for(var stage in response){
+				if(response[stage]!='success'){
+						result=false;
+						break;
+					}
+			}
+			
+			if(result){
 				var template = templateName+'@'+environment;
 				loadTemplatesForSelectedStage(template);
                 $('#js_db_template').next().hide();
                 		
-			} else if(result.indexOf('exists') > -1) {	// check whether user is already exists based on identifying key word call 'exists'
-				jagg.message({content:'Template Name already exists!', type:'error', id:'databasecreation' });
 			} else {
 				jagg.message({content:'Error occurred while creating Template!', type:'error', id:'databasecreation' });
 			}
@@ -871,7 +900,24 @@
         return validation;
     }
 
+    function getHelpTips(){
+    jagg.post("../blocks/help/ajax/help.jag", {
+            action: "getHelpTips",
+            page: "add-databases",
+        },
+
+        function (result) {
+            helpTips = jQuery.parseJSON(result);
+                 $("#createInAllEnvsHelp").html(helpTips.createInAllEnvsHelp);
+                 $("#createAdvancedHelp").html(helpTips.createAdvancedHelp);
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
+
     $(document).ready(function(){
+	getHelpTips();
         $('.js_cancel_user').click(function(){
             $('#js_db_user').next().hide();
             $('#js_db_user').select2('val','choose_user');
@@ -880,42 +926,44 @@
             $('#js_db_template').next().hide();
             $('#js_db_template').select2('val','choose_template');
         });
-        $('#js_extra_fieldset_on').click(function(){
-            $(this).next().toggle('fast');
-            if($(this).attr('data-down') == 'hidden'){
-		$('input:checkbox[id=advancecheckbox]').attr('checked',true);
-                $('#databaseUserPassword').attr('data-value',$('#databaseUserPassword').val());
-                $('#databaseUserPassword').val('').attr('disabled','disabled');
-                $('#confirmDatabaseUserPassword').attr('data-value',$('#confirmDatabaseUserPassword').val());
-                $('#confirmDatabaseUserPassword').val('').attr('disabled','disabled');
-                $(this).attr('data-down','visible');
-                $('#js_db_template').next().hide();
-                $('#js_db_user').next().hide();
-            }else{
-		$('input:checkbox[id=advancecheckbox]').attr('checked',false);
-                $('#databaseUserPassword').removeAttr('disabled');
-                $('#databaseUserPassword').val($('#databaseUserPassword').attr('data-value'));
-                $('#confirmDatabaseUserPassword').removeAttr('disabled');
-                $('#confirmDatabaseUserPassword').val($('#confirmDatabaseUserPassword').attr('data-value'));
-                $(this).attr('data-down','hidden');
-                $('#js_db_template').next().hide();
+//         $('#js_extra_fieldset_on').click(function(){
+//             $(this).next().next().toggle('fast');
+//             if($(this).attr('data-down') == 'hidden'){
+                
+// 		$('input:checkbox[id=advancecheckbox]').attr('checked',true);
+//                 $('#databaseUserPassword').attr('data-value',$('#databaseUserPassword').val());
+//                 $('#databaseUserPassword').val('').attr('disabled','disabled');
+//                 $('#confirmDatabaseUserPassword').attr('data-value',$('#confirmDatabaseUserPassword').val());
+//                 $('#confirmDatabaseUserPassword').val('').attr('disabled','disabled');
+//                 $(this).attr('data-down','visible');
+//                 $('#js_db_template').next().hide();
+//                 $('#js_db_user').next().hide();
+//             }else{
+                
+// 		$('input:checkbox[id=advancecheckbox]').attr('checked',false);
+//                 $('#databaseUserPassword').removeAttr('disabled');
+//                 $('#databaseUserPassword').val($('#databaseUserPassword').attr('data-value'));
+//                 $('#confirmDatabaseUserPassword').removeAttr('disabled');
+//                 $('#confirmDatabaseUserPassword').val($('#confirmDatabaseUserPassword').attr('data-value'));
+//                 $(this).attr('data-down','hidden');
+//                 $('#js_db_template').next().hide();
 
-            }
-            $('#js_db_user').select2('val','choose_user');
-            $('#js_db_template').select2('val','choose_template');
-        });
-        $('.js_extra_fields_on').on("click", function(event){
-            var $el = $(this);
-            $(this).toggleClass("active");
-            $(this).next(".extra_fields_box").slideToggle(250, function() {
-                if( $el.prev().is(':disabled') == false) {
-                     $el.prev().attr("disabled", "disabled");
-                } else {
-                     $el.prev().removeAttr('disabled');
-                }
-            });
-            event.preventDefault();
-        });
+//             }
+//             $('#js_db_user').select2('val','choose_user');
+//             $('#js_db_template').select2('val','choose_template');
+//         });
+//         $('.js_extra_fields_on').on("click", function(event){
+//             var $el = $(this);
+//             $(this).toggleClass("active");
+//             $(this).next(".extra_fields_box").slideToggle(250, function() {
+//                 if( $el.prev().is(':disabled') == false) {
+//                      $el.prev().attr("disabled", "disabled");
+//                 } else {
+//                      $el.prev().removeAttr('disabled');
+//                 }
+//             });
+//             event.preventDefault();
+//         });
 
         $("#js_permission_template").live("change", "select2-selecting", function(e) {
             if(e.val == 'create_new_template' && $(this).parent().next(".additional_fields_box").css("display") == "none"){
@@ -926,6 +974,54 @@
                 }
             }
         });
+        $('#copyToAll').change(function() {
+            if($(this).is(":checked")) {
+                $('#js_extra_fieldset_on').slideUp('fast');
+                $('#db_env_div').slideUp('fast');
+                
+            }else{
+                $('#js_extra_fieldset_on').slideDown('fast');
+                $('#db_env_div').slideDown('fast');
+                
+
+            }
+        });
+        $('#advancecheckbox').change(function() {
+            if($(this).is(":checked")) {
+                $(this).parent().next().next().slideDown('fast');
+                $('#copyall').slideUp('fast');
+                $('#password_section').slideUp('fast');
+//                $('#createInAllEnvsHelpBlock').slideUp('fast');
+                $('#databaseUserPassword').attr('data-value',$('#databaseUserPassword').val());
+                $('#databaseUserPassword').val('').attr('disabled','disabled');
+                $('#confirmDatabaseUserPassword').attr('data-value',$('#confirmDatabaseUserPassword').val());
+                $('#confirmDatabaseUserPassword').val('').attr('disabled','disabled');
+                $(this).attr('data-down','visible');
+                $('#js_db_template').next().hide();
+                $('#js_db_user').next().hide();
+                //showCreateDSCheckBox();
+                
+                
+            }else{
+                $(this).parent().next().next().slideUp('fast');
+                
+                $('#copyall').slideDown('fast');
+                $('#password_section').slideDown('fast');
+//                $('#createInAllEnvsHelpBlock').slideDown('fast');
+                $('#databaseUserPassword').removeAttr('disabled');
+                $('#databaseUserPassword').val($('#databaseUserPassword').attr('data-value'));
+                $('#confirmDatabaseUserPassword').removeAttr('disabled');
+                $('#confirmDatabaseUserPassword').val($('#confirmDatabaseUserPassword').attr('data-value'));
+                $(this).attr('data-down','hidden');
+                $('#js_db_template').next().hide();
+
+            }
+           
+           
+            $('#js_db_user').select2('val','choose_user');
+            $('#js_db_template').select2('val','choose_template');
+            
+        });
 
     });
     </script>
@@ -935,6 +1031,8 @@
                             <header>
                                 <div>
                                     <% jagg.includeBlock("page/messages", null); %>
+				    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                                    <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
                                 </div>
                                 <div class="content">
                                     <h1>Resources</h1>
@@ -960,24 +1058,37 @@
                                                     <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
                                                     <input type="text" id='databaseName' maxlength="7"/>
                                                 </div>
-                                                <div class="input_row">
+                                                <div class="input_row" id="db_env_div">
                                                     <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
                                                     <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
                                                 </div>
+                                                <%if((isEdit=="false")&&(AllowedAllStages)){%>
+                                                <div class="input_row">
+					                                <legend id="copyall">
+						                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
+						                            </legend>
+						                        </div>
+                        						<%}%>
+                                                <div id="password_section">
                                                 <div class="input_row">
                                                     <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
                                                     <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>                                                      
                                                 </div>
+                                                
                                                 <div class="input_row">
 	                                                <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
 	                                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/> 
                                                 </div>
+                                                </div>
                                            </fieldset>
-                                           <fieldset class="push_top_10">
- 
-						<legend id="js_extra_fieldset_on" data-down="hidden">
-						<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options</legend>
 
+                                       					    <fieldset class="push_top_10">
+                                          
+						<legend id="js_extra_fieldset_on" data-down="hidden">
+    										
+ 						<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
+ 					 </legend>
+						<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
 
                                                 <div class="extra_fieldset hide">
                                                     <div class="input_row">
@@ -1005,7 +1116,7 @@
                                                                     <div class="clearfix"></div>
                                                                 </div>
                                                                 <div class="extra_field_row last" style="padding-top:20px;">
-                                                                    <div class="pw_50">
+                                                                    <div class="pw_100">
                                                                     <label for="permission_template"></label>
                                                                     <!--button class="btn main" onclick="if(validateUser()){createDatabaseUser();}">Create DB User</button-->
                                                                     <input type='button' name='Submit' value='Create DB User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
@@ -1056,7 +1167,7 @@
                                                                 </fieldset>
                                                                 </div>
                                                                 <div class="extra_field_row last" style="padding-top:20px;">
-                                                                    <div class="pw_50">
+                                                                    <div class="pw_100">
                                                                     <label for="permission_template"></label>
                                                                     <!--button class="btn main" onclick="if(validateTemplate()){createTemplate();}"  >Save</button-->
                                                                       <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate();}" class='btn main'/>
@@ -1068,10 +1179,17 @@
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <!--<div class="input_row">
+                                                    <legend>
+                                                    <input type="checkbox" disabled align="left" id="addDatasourceCheckBox"> Add Datasource
+                                                    </legend>
+                                                    </div>-->
                                                 </div>
                                            </fieldset>
 
                                             <div class="buttonrow"> 
+                                            
+                                           
                                                 
 						<input type='button' name='Submit' value="Create Database" class="btn main" onclick="if(validateForm()){createDatabase(this);}"
                                                        class='btn btn-primary'/>
@@ -1088,4 +1206,4 @@
                 </div><!-- /container -->
 
         <%
-    }); %>
+}); %>

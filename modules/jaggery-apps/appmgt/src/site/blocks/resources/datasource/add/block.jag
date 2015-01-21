@@ -16,7 +16,7 @@ jagg.block("resources/datasource/add", {
         var permissionModule = jagg.module("permission");
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var allowedStages = [];
-
+        var hasAccessForAllstages=jagg.module("permission").hasPermissionForAllStages(inputs.applicationKey);
         for (var i = 0; i < deploymentStages.length; i++) {
             var hasResourceCreatePermissionToStage= permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE +deploymentStages[i]);
             if(hasResourceCreatePermissionToStage){
@@ -26,7 +26,8 @@ jagg.block("resources/datasource/add", {
 
         return {
             "allowedStages": allowedStages,
-            "deploymentStages":deploymentStages
+            "deploymentStages":deploymentStages,
+        	"hasAccessForAllstages":hasAccessForAllstages
         };
     }
 });

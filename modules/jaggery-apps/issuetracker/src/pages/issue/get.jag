@@ -8,6 +8,7 @@ var caramel = require('caramel');
     issue = require('/modules/issue.js'),
 
     pkey = request.getParameter('issuePkey');
+    var appkey = request.getParameter('appkey');
     include('/jagg/jagg.jag');
 
 	userName = context.get(LOGGED_IN_USER);
@@ -16,7 +17,7 @@ var caramel = require('caramel');
     caramel.render({
         title  : { text : 'Issue Tracker | View Issue'},
         header : { domain : domain, userName : userName},
-        body   : { data : issue.getIssueByKey(pkey) }
+        body   : { data : issue.getIssueByKey(pkey), appkey: appkey }
     });
 }());
 %>

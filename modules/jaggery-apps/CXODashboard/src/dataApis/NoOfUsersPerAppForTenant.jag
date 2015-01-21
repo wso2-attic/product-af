@@ -1,6 +1,8 @@
 <%
 var userConfig = require('commons/userConfig.js');
 var dbConfig = require('commons/dbConfig.js');
+var util = require('commons/Util.js');
+include("/constants.jag");
 
 var isUserLoggedIn = userConfig.isUserLoggedIn();
 
@@ -12,18 +14,21 @@ var chartData = getData(timePeriod[0], timePeriod[1]);
 function getTimePeriod() {
 
      if (isUserLoggedIn) {
-        var result = [];
-        if (request.getParameter("from") == null || request.getParameter("to") == null) {
+         var result = [0, 0];
+         if (request.getParameter(FROM) == null || request.getParameter(TO) == null) {
 
-            var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM LATEST_APP_USERS WHERE TENANT_ID=" + tenantID + " ;";
-	    var dbResult = dbConfig.queryDb(query);
+             var query = "SELECT MIN(ROUND(TIME_ST/1000)) AS min_time_st, MAX(ROUND(TIME_ST/1000)) AS max_time_st" +
+                         " FROM LATEST_APP_USERS WHERE TENANT_ID=" + tenantID + " ;";
+             var dbResult = dbConfig.queryDb(query);
 
-            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
-            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+             if (util.isValidDbResult(dbResult[0], ['min_time_st', 'max_time_st'])) {
+                 result[0] = dbResult[0]['min_time_st'];
+                 result[1] = dbResult[0]['max_time_st'];
+             }
 	    	
         } else {
-            result[0] = request.getParameter("from");
-            result[1] = request.getParameter("to");
+            result[0] = request.getParameter(FROM);
+            result[1] = request.getParameter(TO);
         }
         return result;
     }
@@ -33,8 +38,13 @@ function getData(from, to) {
 
     if (isUserLoggedIn) {
 
-        var query = "SELECT A.APPLICATION_NAME AS APP, COUNT(*) as COUNT FROM APP_USER A, LATEST_APP_USERS L WHERE A.TIME_ST=L.TIME_ST AND A.APPLICATION_KEY=L.APPLICATION_KEY AND A.USER=L.USER AND A.ACTION!='DELETE' AND L.TENANT_ID=" + tenantID +" AND substr(L.TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) +" GROUP BY A.APPLICATION_NAME";
-	var dbResult = dbConfig.queryDb(query);
+        var query = "SELECT APP_USER.APPLICATION_NAME AS APP, COUNT(*) as COUNT FROM APP_USER, LATEST_APP_USERS " +
+                    "WHERE APP_USER.TIME_ST = LATEST_APP_USERS.TIME_ST AND APP_USER.APPLICATION_KEY = " +
+                    "LATEST_APP_USERS.APPLICATION_KEY AND APP_USER.USER = LATEST_APP_USERS.USER AND APP_USER.ACTION != " +
+                    "'DELETE' AND LATEST_APP_USERS.TENANT_ID=" + tenantID +
+                    " AND ROUND(LATEST_APP_USERS.TIME_ST/1000) " +
+                    "BETWEEN " + parseInt(from) + " AND " + parseInt(to) + " GROUP BY APP_USER.APPLICATION_NAME";
+        var dbResult = dbConfig.queryDb(query);
 
         var respJson = null;
         var colx = "APP";
@@ -72,6 +82,7 @@ if (chartData != null) {
     gen_options["xaxis"]["max"] = chartData[1].ticks.length > 10 ? 10.5 : chartData[1].ticks.length + 1;
     gen_options["xaxis"]["ticks"] = chartData[1].ticks;
     gen_options["xaxis"]["panRange"] = [0.5, chartData[1].ticks.length + 1];
+    gen_options["yaxis"]["axisLabel"]= "Number of Team Members";
     gen_options["series"]["color"] = "#9966CC";
     gen_options["series"]["bars"]["fillColor"] = "#9999CC";
     full_data = {0: {"data": chartData[0].data}, 1: gen_options};

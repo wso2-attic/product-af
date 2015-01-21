@@ -69,11 +69,11 @@ a:hover { color: #EB7067;
    h2.home + .sub_heading { margin: 0 0 0 40px; }
    .sub_heading a { color: #FFF; text-decoration: none; }
    .sub_heading a:hover { color: #B0D1D8;  }
-   .sub_heading img { margin-right: 10px; position: relative; top: -2px; filter:alpha(opacity=70);  -moz-opacity:0.9; -khtml-opacity: 0.9; opacity: 0.9; }
+   .sub_heading img { margin-right: 10px; position: relative; top: -1px; filter:alpha(opacity=70);  -moz-opacity:0.9; -khtml-opacity: 0.9; opacity: 0.9; }
    .sub_heading a:hover img { filter:alpha(opacity=100);  -moz-opacity:1; -khtml-opacity: 1; opacity: 1;  }
    .sub_heading .icon-cog { color: #636871; font-size: 1.42857142857em; position: relative; top: 3px; }
    .sub_heading .icon-cog:hover { color: #B0D1D8;  }
-   .logo { margin: 0 20px 0 0; padding-left: 20px; float: right; border-left: 1px solid #323843; line-height: 60px; vertical-align: middle; }
+   .logo { margin: 20px 20px 0 0; padding-left: 20px; float: right; border-left: 1px solid #323843; line-height: 60px; vertical-align: middle; }
    .logo img { position: relative; top: -2px; }
    
    .user { border-left: 1px solid #323843; border-right: 1px solid #21252C; height: 60px; float: left; } 
@@ -107,7 +107,7 @@ a:hover { color: #EB7067;
 	.wrapper { margin-bottom: 40px; min-width: 768px; } 
 
    /* Navigation */
-	.main_menu { float: left; width: 250px; }
+    .main_menu {position: absolute;top: 60px; width: 250px; }
 	#home .main_menu { float: left; width: 60px; }
 	.main_list { margin: 0; padding: 0;  }
 	.main_list_item { margin: 0; }
@@ -157,15 +157,16 @@ a:hover { color: #EB7067;
    /*
    Repositories and builds page 
    ----------------------------- */
-   #repositories_and_builds_list { margin: 40px 0 0 0;  }
-   #repositories_and_builds_list.current_status  { margin: 0;  }
-   #repositories_and_builds_list .row { margin: 0; padding: 0; list-style: none; width: 840px; float: left; border-bottom: 1px solid #B0D1D8;  }
-   #repositories_and_builds_list .row h2 { margin: 0; padding-bottom: 5px; display: none; border-bottom: 2px solid #B0D1D8; color: #636771; font-size: 0.85714285714em; font-weight: 700; }  
-   #repositories_and_builds_list .row:first-child h2 { display: block; } 
-   #repositories_and_builds_list h2 + .row  h2 { display: block; } 
-   #repositories_and_builds_list .col {   float: left; position: relative; height: 160px; }
-   #repositories_and_builds_list.current_status .col {   height: auto; }
-   #repositories_and_builds_list .row:first-child .col { height: 190px; }
+   .repositories_and_builds_list { margin: 40px 0 0 0;  }
+   .repositories_and_builds_list.current_status  { margin: 0;  }
+   .repositories_and_builds_list .row { margin: 0; padding: 0; list-style: none; width: 840px; float: left; border-bottom: 1px solid #B0D1D8;  }
+   .repositories_and_builds_list .row h2 { margin: 0; padding-bottom: 5px; display: none; border-bottom: 2px solid #B0D1D8; color: #636771; font-size: 0.85714285714em; font-weight: 700; }  
+   .repositories_and_builds_list .row:first-child h2 { display: block; } 
+   .repositories_and_builds_list h2 + .row  h2 { display: block; } 
+   .repositories_and_builds_list .col {   float: left; position: relative; height: 160px; }
+   .repositories_and_builds_list.current_status .col {   height: auto; }
+   .repositories_and_builds_list .row:first-child .col { height: 190px; }
+   
    .last_version { float: left; width: 100%; margin-right: -440px; } 
    .last_build  { width: 240px !important;  } 
    .last_dep { width: 200px !important; }
@@ -182,8 +183,8 @@ a:hover { color: #EB7067;
    .current_status .last_build  { width: 150px !important;  } 
    .current_status .last_dep { width: 140px !important; }
    .current_status .dep_issues  { width: 170px !important;  } 
-   #repositories_and_builds_list p { white-space:normal; word-wrap:break-word; }
-   #repositories_and_builds_list .action { padding: 10px 0 20px 0; width: 100%; height: 60px; position: absolute; bottom: 0; background-color: #F8FBFC; }
+   .repositories_and_builds_list p { white-space:normal; word-wrap:break-word; }
+   .repositories_and_builds_list .action { padding: 10px 0 20px 0; width: 100%; height: 60px; position: absolute; bottom: 0; background-color: #F8FBFC; }
    .version { margin: 20px 10px 10px 10px; } 
    .current_status  .version { margin: 10px 10px 10px 10px; } 
    .version_number { margin-right: 10px; }
@@ -497,7 +498,7 @@ table.basic a { text-decoration: none; }
 /* Message styles
 ================== */
 .sticky-wrapper { position: absolute; width: 100%; }
-.message_box { font-weight: 700;  width: 100%; z-index: 11111;   } 
+.message_box { font-weight: 700;  width: 100%; z-index: 11111;position: fixed; top: 60px   }
 .error_message { background: url(../img/error_bg.png) repeat left top; border-bottom: 1px solid #EB7067; color: #FFF; }
 .info_message { background: url(../img/info_bg.png) repeat left top; border-bottom: 1px solid #FFE; color: #999; }
 .warning_message { background: url(../img/warning_bg.png) repeat left top; border-bottom: 1px solid #F47A20; color: #FFF; }
@@ -689,7 +690,8 @@ header .btn_list { margin: 14px 0 14px 0; }
 .btn_list_list .btn { -webkit-border-radius: 0; -moz-border-radius:  0; border-radius:  0; border-left: 1px solid #F7756D; }
 
 
-.icon_link { display: inline-block;  width: 24px; height: 24px; text-align: center; background-color: #DDEBEE; border: 1px solid #69A6B5; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; text-decoration: none; color: #68A5B4 !important;   }
+.icon_link { display: inline-block;  width: 24px; height: 24px; text-align: center; background-color: #DDEBEE; border: 1px solid #69A6B5; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; text-decoration: none; color: #68A5B4 !important;  padding: 2px }
+.icon_link_small { display: inline-block;  width: 20px; height: 20px; text-align: center; background-color: #DDEBEE; border: 1px solid #69A6B5; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; text-decoration: none; color: #68A5B4 !important;  padding: 2px;font-size: 0.8em }
 button.icon_link { padding-left: 3px; overflow: hidden; }
  .icon_link.disable {  background-color: #F1F7F8; border: 1px solid #C4DCE2; color: #C3DBE1; pointer-events: none; cursor: default;  }
 .icon_link:hover, .icon_link.active {  background-color: #69A6B5; color: #DDEBEE !important;  }
@@ -697,7 +699,7 @@ button.icon_link { padding-left: 3px; overflow: hidden; }
 .branch_icon { border: 1px solid #69A6B5 !important; background: url(../img/brach_icon.png) #DDEBEE no-repeat -1px -1px; width: 24px; height: 24px; }
 .branch_icon:hover, .branch_icon.active { background: url(../img/brach_icon.png) #69A6B5 no-repeat -1px -25px; }
 
-.status {-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; text-decoration: none; font-size: 0.78571428571em; font-weight: 700; text-transform: uppercase; padding: 2px 0; position: relative; top: -2px; }
+.status {-webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; text-decoration: none;font-size: 12px; font-weight: 700; text-transform: uppercase; }
 .success { color: #6EA66C;   } 
 .failed { color: #EB7066;   }
 .aborted { color: #4D535E;   }
@@ -746,7 +748,7 @@ button.icon_link { padding-left: 3px; overflow: hidden; }
 .th_branches {}
 .th_activity { width: 240px; }
 
-	.table_items .app_name { vertical-align: top;  }
+	.table_items .app_name { vertical-align: top; width: 400px  }
 		.table_items .app_name h2 { color: #000; display: inline; margin: 0; padding: 0; font-size: 1.142857142857143em; font-weight: 400;  }
 		.table_items .no_app_image .app_name h2 { display: block; margin: 10px 0 0 60px; }
 	.table_items .app_name img { padding-top: 10px; margin-left: 10px; margin-right: 5px; width: 40px; display:inline-block; font-size: 11px; }
@@ -862,6 +864,7 @@ header.separator { float: none; width: 100%; overflow: auto; }
 .push_right_20 { margin-right: 20px !important; } 
 .push_right_30 { margin-right: 30px !important; } 
 .push_left_10 { margin-left: 10px !important; }
+.push_left_15 { margin-left: 15px !important; }
 .push_left_40 { margin-left: 40px !important;  }
 .push_right_10 { margin-right: 10px !important; }
 .push_left_430 { margin-left: 430px !important; } 
@@ -914,7 +917,7 @@ vertical-align: 0; }
    7) Media Queries
    ========================================================================== */
  
-@media only screen and (max-width: 1024px) {
+@media only screen and (max-width: 1600px) {
 	    .sub_heading .app_name { display: none; }
 		.main_menu { width: 60px; }
 	    .container { margin-left: 60px; }

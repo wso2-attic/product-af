@@ -12,13 +12,14 @@ var caramel;
 	caramel = require('caramel');
 
     include('/jagg/jagg.jag');
+    var appkey = request.getParameter('appkey');
 
 	userName = context.get(LOGGED_IN_USER);
 	domain = context.get(DOMAIN);
 	caramel.render({
 		title  : { text : 'Issue Tracker | Add Issue'},
 		header : { domain : domain, userName : userName},
-		body   : { project: project.getProjectsOfDomain(), users: user.getUsersOfDomain()}
+		body   : { project: project.getProjectsOfDomain(), users: user.getUsersOfApp(), appkey: appkey, isEnabled: 'disabled'}
 	});
 
 }());

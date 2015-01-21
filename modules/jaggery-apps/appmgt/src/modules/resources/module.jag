@@ -56,7 +56,9 @@ jagg.module("resources", {
 	getDatabasesForStage:function () {
 		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getDatabasesForStage.apply(this, arguments);
 	},
-
+	getDatabaseUrl:function () {
+		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getDatabaseUrl.apply(this, arguments);
+	},
     getDbUserTemplateInfoForStage:function() {
 		return jagg.require(jagg.getModulesDir()+"resources/databases/add/add.jag").getDbUserTemplateInfoForStage.apply(this,arguments);
 	},

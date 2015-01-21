@@ -50,7 +50,6 @@ var getSavedKeys = function (applicationId, userName, isSync, envKeyConstants) {
             }
             var keyVals = result.*::["return"];
             var mainDictionary = createDataStructure(keyVals);
-            log.error(mainDictionary[API_MANAGER_PROD].length+ "----------------------------"+ mainDictionary[API_MANAGER_SANDBOX].length);
             //If Sync is needed write the key values to registries
             write(mainDictionary[API_MANAGER_PROD], mainDictionary[API_MANAGER_SANDBOX], applicationId);
         } catch (e) {
@@ -61,10 +60,18 @@ var getSavedKeys = function (applicationId, userName, isSync, envKeyConstants) {
     return readFromRegistry(applicationId, envKeyConstants);
 }	
 var write = function (prodDictionary, sandboxDictionary, applicationId) {
-	log.error(">>>1");
-	resManager.putResourcesForCollectionInStages(sandboxDictionary,"","",applicationId,getProperties(SANDBOX_KEYS_PROPERTY));
-	log.error(">>>2");
-	resManager.putResourcesForCollectionInStages(prodDictionary,"","",applicationId,getProperties(PRODUCTION_KEYS_PROPERTY));
+	try{
+        resManager.putResourcesForCollectionInStages(sandboxDictionary,"","",applicationId,getProperties(SANDBOX_KEYS_PROPERTY));
+        }catch (e) {
+            log.error("Error while saving sandbox keys for " + applicationId + "\n" + e.message);
+        }
+
+        try{
+        resManager.putResourcesForCollectionInStages(prodDictionary,"","",applicationId,getProperties(PRODUCTION_KEYS_PROPERTY));
+        }catch (e) {
+            log.error("Error while saving production keys for " + applicationId + "\n" + e.message);
+        }
+
 }
 
 var writeToRegistry = function(envs, dictonary, appId){
@@ -83,20 +90,21 @@ var readFromRegistry = function (applicationId , envKeyConstants) {
     var mainDictionary = {};
 	for(var stage in envKeyConstants){
 		var keys = envKeyConstants[stage];
-		try {
-	        for (var k in keys) {
-	            var keyName = keys[k];
-	            var commonKeyName = keyName.slice(7,keyName.length);  
-	            if(stage == "Production"){
-	            	commonKeyName = keyName.slice(4,keyName.length);
-	            }
-	            var keyValue = resManager.getPropertyValueInStage(commonKeyName, applicationId, stage);
-	            mainDictionary[keyName] = keyValue;
-	        }
-	    } catch (e) {
-	        log.error("Error while retriving saved keys from registry path " + registryPath + "\n" + e.message);
-	        throw "Error while retriving saved keys from registry path " + registryPath;
-	    }
+        for (var k in keys) {
+            var keyName = keys[k];
+            var commonKeyName = keyName.slice(7,keyName.length);  
+            if(stage == "Production"){
+            	commonKeyName = keyName.slice(4,keyName.length);
+            }
+            var keyValue = "";
+        	try {
+        		keyValue = resManager.getPropertyValueInStage(commonKeyName, applicationId, stage);
+        	} catch (e) {
+        	    log.error("Error while retriving saved keys \n" + e.message);
+        	    continue;
+		    }
+            mainDictionary[keyName] = keyValue;
+        }
 	}
 
     if (log.isDebugEnabled()) {
@@ -128,11 +136,9 @@ var createDataStructure = function (elements) {
         	// Slicing is done to remove "prod" part with the assumption that API-M will keep this as a constant
         	var commonName = object.name.slice(4,length);
         	object.name = commonName;
-	    log.error("XXXXXXXXXXXXXXXXXXXXXXXXXx");
             if (prodDictionary[commonName] == null) {
                 prodDictionary.push("Value");
                 prodDictionary[commonName] = object;
-		log.error("YYYYYYYYYYYYYY" + prodDictionary.length + prodDictionary[commonName]);
             }
         } else if (object.name.indexOf(API_MANAGER_SANDBOX) !== -1) {
         	
@@ -178,6 +184,6 @@ var keysExistsAllInStages = function (applicationId, envKeyConstants) {
 		throw "Error while retriving saved keys from registry path " + registryPath + "\n";
 	}
 	return true;
-}
+};
 
 %>

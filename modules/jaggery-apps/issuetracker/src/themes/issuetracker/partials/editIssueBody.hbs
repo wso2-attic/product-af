@@ -104,10 +104,8 @@
         </fieldset>
 
         <div class="buttonrow">
-            {{#if isSameUser}}
                 <input type="button" value="Update Issue" class="btn main" id='editIssue' />
-            {{/if}}
-            <a href="/issuetracker/index.jag">Cancel</a>
+            <a href="/issuetracker/index.jag?appkey={{appkey}}">Cancel</a>
         </div>
     <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
 
@@ -121,6 +119,10 @@
     var issue_status = document.getElementById('issue_status');
     var severity = document.getElementById('severity');
     var version= document.getElementById('version');
+    var assignee= document.getElementById('assignee');
+
+
+
 
     type.value = "{{issue.type}}";
     project.value = "{{projectKey}}";
@@ -128,7 +130,7 @@
     issue_status.value = "{{issue.status}}";
     severity.value = "{{issue.severity}}";
     version.value = "{{issue.versionId}}";
-
+    assignee.value="{{issue.assignee}}";
 
 </script>
 

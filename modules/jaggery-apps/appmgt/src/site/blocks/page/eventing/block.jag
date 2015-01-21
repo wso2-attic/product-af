@@ -1,0 +1,15 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("page/eventing", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+
+    },
+
+    getOutputs:function (inputs) {
+        return inputs;
+    }
+});
+%>

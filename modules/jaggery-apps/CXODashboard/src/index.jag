@@ -2,14 +2,16 @@
 
 var config = require('/config.json');
 
-var userModule=require('/modules/user.js');
-var user = userModule.current();
+var userModule=require('store').user;
+var serverModule = require('store').server;
+var user = serverModule.current(session);
+
 if (!user) {
     response.sendRedirect('/CXODashboard/login');
 }
 else{
  // Check authorization
- if(!userModule.userHasRole(user, "admin") & !userModule.userHasRole(user, "cxo")) {
+ if(!user.hasRoles(["admin"] && !user.hasRoles(["cxo"]))) {
 	response.sendRedirect('/CXODashboard/login');
  }
 
@@ -31,7 +33,7 @@ var httpUrl = config.server.http;
     <!-- END imports needed for gadget rendering -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
-    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <!--link href="css/bootstrap-responsive.min.css" rel="stylesheet"-->
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/font-awesome-ie7.min.css" rel="stylesheet">
 
@@ -76,46 +78,16 @@ var httpUrl = config.server.http;
 			<div class="nav-collapse collapse">
 				<ul class="nav pull-right">
 
-					<li class="nav-separator">
+					<!--li class="nav-separator">
 
 						<a href="/store?user=<%=session.get('LOGGED_IN_USER')%>" target="_blank"><i class="icon-shopping-cart"></i> Store</a>
 
-					</li>
-
+					</li-->
 					
 					<li>
 
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user"></i> <%= session.get("LOGGED_IN_USER") %> <b class="caret"></b></a>
 						<ul class="dropdown-menu dropdown-account" role="menu" aria-labelledby="dLabel">
-							<li><!--Adding global time slider -->
-<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    height: 52px;
-    left: 15px;
-    position: absolute;
-    right: 0;
-    top: 233px;" data-sizey="1" data-sizex="6"
-    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
-"7" data-prefs="{}" data-title="">
-<div class="grid_header">
-    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
-                        <span class="grid_header_controls">
-                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
-                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
-                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
-                        </span>
-</div>
-<div class="gadget-pref-cont">
-
-</div>
-
-<div class="add-gadget-item">
-
-</div>
-</li>
-<!--End of the global time slider -->
-
-								
 								<a href="/CXODashboard/logout.jag"><i class="icon-signout"></i> Sign out</a>
 								
 
@@ -211,10 +183,10 @@ var httpUrl = config.server.http;
 					<div class="nav-collapse collapse">
 						<ul class="nav pull-right">
 
-							<li class="li-edit-dashboard">
+							<!--li class="li-edit-dashboard">
 								<a href="#" id="btn-exit-view" data-toggle="dropdown" class="dropdown-toggle float-left-link"><i class="icon-magic"></i> Personalize</a>
 								
-							</li>
+							</li-->
 						</ul>
 					</div>
 				</div>
@@ -234,11 +206,11 @@ var httpUrl = config.server.http;
 
         <div class="span12">
 
-<div id="dashboardName"><i class="icon-th-large"></i> <span></span></div>
-<div class="dashboardDesc">
+<div id="dashboardName" style="z-index:4"><i class="icon-th-large"></i> <span></span></div>
+<div class="dashboardDesc" style="z-index:3;">
     <p>The WSO2 App Factory dashboard provides an at-a-glance view of your application portfolio health, team productivity, and organizational efficiency.  The dashboard helps answer common questions; How can I quantify time to value and project agility?  Is my team properly allocated? Who is using WSO2 App Factory to improve DevOps velocity and quality? How efficient is my application portfolio? </p>
 </div>
-<div class="bs-docs-example" style="margin-top:60px;position:relative">
+<div class="bs-docs-example" style="margin-top:60px;position:relative;z-index:1;">
             <ul id="myTab" class="nav nav-tabs" style="position:fixed;z-index:9999;width: 100%;top: 114px; ">
               <li class="active"><a href="#appPortfolio" data-toggle="tab">Application Portfolio</a></li>
               <li><a href="#devOpsQuality" data-toggle="tab">Quality</a></li>
@@ -250,41 +222,41 @@ var httpUrl = config.server.http;
 </div>
 <div id="myTabContent" class="tab-content">
         <div class="tab-pane fade in active" id="appPortfolio">
-        <div id="gridster-cont" class="container-fluid">
-	
-	<div class="layouts_grid" id="layouts_grid">
-		<input type="hidden" id="inp-layout" value="grid">
-		<ul style="margin-top: 58px;">
-		
-            
+
             <div class="dash-intro">
                 <p>This section illustrates how projects are moving through the portfolio pipeline and who owns the projects.</p>
             </div>
 
+        <div id="gridster-cont" class="container-fluid">
+	
+	<div class="layouts_grid" id="layouts_grid">
+		<input type="hidden" id="inp-layout" value="grid">
+		<ul style="margin-top: 20px;">
+            
+<!--Adding global time slider -->
+<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);" data-sizey="1" data-sizex="6" data-col="1" data-row="2"
+    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+"7" data-prefs="{}" data-title="">
+<div class="grid_header">
+    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                                <!--a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a-->
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+</div>
+<div class="gadget-pref-cont">
 
-            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
-                data-url="" data-wid="1" data-prefs="{}" data-title="">
-                <div class="grid_header">
-           			<h3></h3>
-            		<span class="grid_header_controls">
-                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
-                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
-                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
-            		</span>
-        		</div>
-        		<div class="gadget-pref-cont">
+</div>
 
-        		</div>
+<div class="add-gadget-item">
+
+</div>
+</li>
+<!--End of the global time slider -->
 
 
-                 <div class="designer-placeholder">
-
-        		</div>
-
-       			<button class="btn btn-add-gadget">Add Gadget</button>
-
-            </li>
 
             <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
                 data-url="" data-wid="3" data-prefs="{}" data-title="">
@@ -363,7 +335,7 @@ var httpUrl = config.server.http;
 
 
 
-            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="6" data-row="3"
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="6" data-row="2"
                 data-url= <%= httpUrl + "/portal/gadgets/tenantadmin-numberof-apps-by-stage/tenantadmin-numberof-apps-by-stage.xml" %> data-wid="6" data-prefs="{}" data-title="Application Versions per Lifecycle Stage">
             <div class="grid_header">
                 <h3></h3>
@@ -427,20 +399,31 @@ var httpUrl = config.server.http;
 
 
 	    <!------------------------------------------------------>
+</ul>
+</div>
+
+</div>
+<!-- /container -->
+</div>
+
+<div class="tab-pane fade" id="devOpsQuality">
+<div class="dash-intro">
+                <p>Gauge the quality of your DevOps activities and applications.</p>
+            </div>
+              
+<div id="gridster-cont2" class="container-fluid">
+	<div class="layouts_grid" id="layouts_grid">
+		<input type="hidden" id="inp-layout" value="grid">
+		<ul style="margin-top:20px;">
 
 <!--Adding global time slider -->
-<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    height: 52px;
-    left: 15px;
-    position: absolute;
-    right: 0;
-    top: 233px;" data-sizey="1" data-sizex="6"
+<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);" data-sizey="1" data-sizex="6" data-col="1" data-row="2"
     data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
 "7" data-prefs="{}" data-title="">
 <div class="grid_header">
     <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
                         <span class="grid_header_controls">
-                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
+                                <!--a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a-->
                                 <a class="expand-widget"><i class="icon-resize-full"></i></a>
                                 <a class="shrink-widget"><i class="icon-resize-small"></i></a>
                                 <a class="close-widget" href="#"><i class="icon-remove"></i></a>
@@ -454,52 +437,8 @@ var httpUrl = config.server.http;
 
 </div>
 </li>
-<!--End of the global time slider -->
-
-
-</ul>
-</div>
-
-</div>
-<!-- /container -->
-</div>
-
-<div class="tab-pane fade" id="devOpsQuality">
-              
-<div id="gridster-cont2" class="container-fluid">
-	<div class="layouts_grid" id="layouts_grid">
-		<input type="hidden" id="inp-layout" value="grid">
-		<ul style="margin-top: 58px;">
-			<div id="grid-guides"></div>
-
-            <div class="dash-intro">
-                <p>Gauge the quality of your DevOps activities and applications.</p>
-            </div>
-			
-            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
-                data-url="" data-wid="1" data-prefs="{}" data-title="">
-                <div class="grid_header">
-           			<h3></h3>
-            		<span class="grid_header_controls">
-                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
-                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
-                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
-            		</span>
-        		</div>
-        		<div class="gadget-pref-cont">
-        	
-        		</div>
-                
-                
-                 <div class="designer-placeholder">
-
-        		</div>
-
-       			<button class="btn btn-add-gadget">Add Gadget</button>
-         		
-            </li>
-            
+<!--End of the global time slider -->           
+ 
             <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
                 data-url="" data-wid="3" data-prefs="{}" data-title="">
                 <div class="grid_header">
@@ -639,34 +578,6 @@ var httpUrl = config.server.http;
             </li>
 
 	    <!------------------------------------------------------>
-
-		<!--Adding global time slider -->
-	<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    	height: 52px;
-    	left: 15px;
-    	position: absolute;
-    	right: 0;
-    	top: 233px;" data-sizey="1" data-sizex="6"
-    	data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
-		"7" data-prefs="{}" data-title="">
-	<div class="grid_header">
-    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
-                        <span class="grid_header_controls">
-                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
-                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
-                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
-                        </span>
-	</div>
-	<div class="gadget-pref-cont">
-
-	</div>
-
-	<div class="add-gadget-item">
-
-	</div>
-	</li>
-<!--End of the global time slider -->	
 		</ul>
 	</div>
 
@@ -676,40 +587,37 @@ var httpUrl = config.server.http;
 
 
 <div class="tab-pane fade" id="devOpsVelocity">
-              
+         <div class="dash-intro">
+                <p>Gauge the speed at which your factory is running.</p>
+            </div>     
 <div id="gridster-cont2" class="container-fluid">
 	<div class="layouts_grid" id="layouts_grid">
 		<input type="hidden" id="inp-layout" value="grid">
-		<ul style="margin-top: 58px;">
-			<div id="grid-guides"></div>
+		<ul style="margin-top: 20px;">
+		
+<!--Adding global time slider -->
+<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);" data-sizey="1" data-sizex="6" data-col="1" data-row="2"
+    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+"7" data-prefs="{}" data-title="">
+<div class="grid_header">
+    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                                <!--a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a-->
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+</div>
+<div class="gadget-pref-cont">
 
-            <div class="dash-intro">
-                <p>Gauge the speed at which your factory is running.</p>
-            </div>
-			
-            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
-                data-url="" data-wid="1" data-prefs="{}" data-title="">
-                <div class="grid_header">
-            		<span class="grid_header_controls">
-                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
-                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
-                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
-            		</span>
-        		</div>
-        		<div class="gadget-pref-cont">
-        	
-        		</div>
-                
-                
-                 <div class="designer-placeholder">
+</div>
 
-        		</div>
+<div class="add-gadget-item">
 
-       			<button class="btn btn-add-gadget">Add Gadget</button>
-         		
-            </li>
-            
+</div>
+</li>
+<!--End of the global time slider -->	
+          
             <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
                 data-url="" data-wid="3" data-prefs="{}" data-title="">
                 <div class="grid_header">
@@ -829,33 +737,6 @@ var httpUrl = config.server.http;
 
 	    <!------------------------------------------------------>
 
-		<!--Adding global time slider -->
-                <li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    				height: 52px;
-    				left: 15px;
-    				position: absolute;
-    				right: 0;
-    				top: 233px;" data-sizey="1" data-sizex="6"
-                    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
-                	"7" data-prefs="{}" data-title="">
-                <div class="grid_header">
-                    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
-                        <span class="grid_header_controls">
-                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
-                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
-                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
-                        </span>
-                </div>
-                <div class="gadget-pref-cont">
-
-                </div>
-
-                <div class="add-gadget-item">
-
-                </div>
-                </li>
-                <!--End of the global time slider -->	
 		</ul>
 	</div>
 
@@ -864,16 +745,36 @@ var httpUrl = config.server.http;
 </div>
 
         <div class="tab-pane fade" id="organizationalEfficiency">
-
+		<div class="dash-intro">
+                            <p>Gauge if you have the right balance of team members across your portfolio</p>
+                </div>
             <div id="gridster-cont2" class="container-fluid">
                 <div class="layouts_grid" id="layouts_grid">
                     <input type="hidden" id="inp-layout" value="grid">
-                    <ul style="margin-top: 58px;">
-                        <div id="grid-guides"></div>
+                    <ul style="margin-top: 20px;">
 
-                        <div class="dash-intro">
-                            <p>Gauge if you have the right balance of team members across your portfolio</p>
-                        </div>
+<!--Adding global time slider -->
+<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);" data-sizey="1" data-sizex="6" data-col="1" data-row="2"
+    data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
+"7" data-prefs="{}" data-title="">
+<div class="grid_header">
+    <h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
+                        <span class="grid_header_controls">
+                                <!--a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a-->
+                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+                        </span>
+</div>
+<div class="gadget-pref-cont">
+
+</div>
+
+<div class="add-gadget-item">
+
+</div>
+</li>
+<!--End of the global time slider -->
 
                         <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
                             data-url="" data-wid="1" data-prefs="{}" data-title="">
@@ -1066,35 +967,6 @@ var httpUrl = config.server.http;
 
 
                         <!------------------------------------------------------>
-
-					<!--Adding global time slider -->
-						<li class="layout_block " style="box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    						height: 52px;
-    						left: 15px;
-    						position: absolute;
-    						right: 0;
-    						top: 233px;" data-sizey="1" data-sizex="6"
-    						data-url=<%= httpUrl + "/portal/gadgets/time-slider/time-slider.xml" %>  data-wid=
-							"7" data-prefs="{}" data-title="">
-						<div class="grid_header">
-    						<h3 style="font-size:16px;font-weight:normal;margin-bottom: 5px; margin-top: 0px; padding-left: 13px;"></h3>
-                        <span class="grid_header_controls">
-                               	<a class="toggle-timeslider" data-toggled="false">Timeline Settings <i class="icon-chevron-down"></i></a>
-                                <a class="expand-widget"><i class="icon-resize-full"></i></a>
-                                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
-                                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
-                        </span>
-						</div>
-						<div class="gadget-pref-cont">
-
-						</div>
-
-						<div class="add-gadget-item">
-
-						</div>
-						</li>
-				<!--End of the global time slider -->
-
                     </ul>
                 </div>
 

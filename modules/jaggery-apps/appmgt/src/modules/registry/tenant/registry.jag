@@ -53,4 +53,14 @@ var resourceExistsInTenantSpace = function (path) {
     }
 };
 
+var deleteResourceInTenantSpace = function (path) {
+        jagg.module("permission").checkUserAuthenticated();
+        try {
+                var result = registry.remove(path);
+        } catch (e) {
+        log.error("Error while delete tenant space registry resource \n" + e.message);
+        throw "Error while storing tenant space registry resource";
+    }
+};
+
 %>

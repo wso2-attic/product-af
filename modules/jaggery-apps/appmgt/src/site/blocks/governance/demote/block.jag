@@ -15,6 +15,7 @@ jagg.block("governance/demote", {
         var log = new Log();
         var permissionModule = jagg.module("permission");
         var lifecycleModule = jagg.module("lifecycle");
+        var modApplication = jagg.module("application");
 
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var hasDemotePermissions = {};
@@ -25,10 +26,14 @@ jagg.block("governance/demote", {
             hasDemotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + prev);
             
         }
+
+        var appVersions = modApplication.getUserAccess(applicationKey, userName);
+
         var hasRetirePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_RETIRE);
         return {
             "hasDemotePermissions": hasDemotePermissions,
-            "hasRetirePermission": hasRetirePermission
+            "hasRetirePermission": hasRetirePermission,
+            "appVersions" : appVersions
         };
     }
 

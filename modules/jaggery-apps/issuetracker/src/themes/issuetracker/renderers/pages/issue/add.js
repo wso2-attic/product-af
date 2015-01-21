@@ -8,7 +8,10 @@ var render = function (theme, data, meta, require) {
 		],
 		body: [
 			{ partial:'addIssueBody', context: data.body}
-		]
+		],
+        header_mid: [
+            { partial:'headerMid' ,context: {isHome:false,title:"New Issue", appkey:data.body.appkey}}
+        ]
     });
 };
 

@@ -57,7 +57,7 @@ var log = new Log();
         mod = jagg.module("resources");
         var applicationId = request.getParameter("applicationKey");
         var userName = request.getParameter("userName");
-        if (modPermission.hasAPISubscriptionAndKeyGenerationPermission(applicationId, userName)){
+        if (modPermission.hasAppOwnerSpecialPermission(applicationId, userName)){
         	
         	var envKeyConstants = {};
         	var stages = getProperties(DEPLOYMENT_STAGES);

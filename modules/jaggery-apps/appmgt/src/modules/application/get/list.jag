@@ -4,13 +4,12 @@
     include("/jagg/constants.jag");
     include("/jagg/config_reader.jag");
 
-
-
 	var log = new Log("module/application/get/list.jag");
 
     var modManager = jagg.module("manager");
      //var modResource = jagg.module("resource");
     var modApplication = jagg.module("application");
+    var modLifecycle = jagg.module("lifecycle");
     var carbon = require('carbon');
     var server = carbon.server;
     var appfactory = require('appFactory');
@@ -28,9 +27,8 @@
     {
     	return server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty(configElem);
     };
-
     
-//checked - private method 
+    //checked - private method 
     var getAllApps = function(userName){
         // jagg.module("permission").checkUserAuthenticated();
                 var appsOfUser;
@@ -41,9 +39,12 @@
                     context.startTenantFlow();
                     context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
                     context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                    appsOfUser = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').getApplicaitonsOfTheUser(userName);
-                    
-                }finally{
+                    var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService') ;
+                    appsOfUser = service.getApplicaitonsOfTheUser(userName);
+                }catch(e){
+                       log.error(e);
+                }finally {
+
                     context.endTenantFlow();
                 }
         return appsOfUser;
@@ -107,9 +108,10 @@
              }
              return stringify(elementsArray);
          } catch (e) {
+             log.error(e);
              throw "Error while getting application of user" + e;
          }
-  };
+    };
     
     var getAppInfo = function (applicationKey) {
         var result;
@@ -151,10 +153,15 @@
             application.key = resourceContent.id;
             application.owner = resourceContent.owner;
             application.type = resourceContent.type;
+            application.language=getProperty("ApplicationType." + application.type + ".Property.Language");
 
         }
+        
         application.name = resourceContent.name;
         application.description = resourceContent.description;
+        application.repoAccessability = resourceContent.repoAccessability;
+        application.mappedSubDomain = resourceContent.mappedSubDomain;
+
         //TODO
         application.branchCount=resourceContent.branchCount;
         application.typeDisplayName = getProperty("ApplicationType." + application.type + ".Property.DisplayName");
@@ -165,10 +172,10 @@
         return application;
     }
 
-// This funciton get application rxt from registry and populate application object.
-// This is not secured as this is calling from getAllApp method. Any caller of this
-// function need to secure acess. Permission check is removed do reduce the tenant loading.
-   /* var getAppInfoWithoutUserRoles = function(applicationKey)
+    // This funciton get application rxt from registry and populate application object.
+    // This is not secured as this is calling from getAllApp method. Any caller of this
+    // function need to secure acess. Permission check is removed do reduce the tenant loading.
+    /* var getAppInfoWithoutUserRoles = function(applicationKey)
     {
         var path = APPLICATIONS + applicationKey + APP_INFO;
         if (modResource.resourceExists(path)) {
@@ -188,7 +195,8 @@
         return null;
     }
     ;*/
-//checked
+
+    //checked
     var getAllAppVersionsInStage = function(stageName, userName)
     {
         var visibilityPermissionToStage = PERMISSION_VISIBILITY_STAGE + stageName;
@@ -216,7 +224,7 @@
     	return 1;
     };
 
-//Read the application build status 
+    //Read the application build status
     var getLatestBuildSuccessInfo = function(applicationKey, version, stageName)
     {
         var applicatoinPath = APPLICATIONS + applicationKey;
@@ -284,6 +292,7 @@
     	}
     	return result;
     }
+
    /*this mehtod return the information to populate the user home
    * of the user logged in user
    * */
@@ -333,150 +342,59 @@
         return service;
     }
 
-    var getMetaDataForWarAppState = function(applicationKey, version, stage, state, type)
+
+   var getMetaDataForApplicationState = function(applicationKey, version, stage, state, type)
     {
         jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
 
-        var metaDataResult = {};
 
-        var stageURL = getProperty("ApplicationDeployment.DeploymentStage." + stage + ".DeploymentServerURL");
-        var appBaseURL = getProperty("ApplicationDeployment.DeploymentStage." + stage + ".BaseAccessUrl");
-        var fileName;
-
-        if (type == 'jaggery') {
-            fileName = applicationKey + '-' + version;
-            if (version == 'trunk') {
-                fileName = applicationKey + '-default-SNAPSHOT';
-            }
-        } else {
-            fileName = applicationKey + '-' + version + '.war';
-            if (version == 'trunk') {
-                fileName = applicationKey + '-default-SNAPSHOT.war';
-            }
+        var tenantDomain = modManager.getTenantDomain();
+        var loggedInUser = session.get("LOGGED_IN_USER");
+        var userName = "";
+        if (loggedInUser != null) {
+            userName = loggedInUser.split("@")[0];
         }
+        var context = multitenancy.getPrivilegedCarbonContext();
+        var tenantManager = multitenancy.getTenantManager();
+        var status;
+        var url;
+        var accessUrl;
 
-        var ws = require("ws");
-        var repoMgtService = new ws.WSRequest();
-        var options = new Array();
-        options.useSOAP = 1.2;
-
-        var payload = "";
-
-        if (state == "started") {
-            options.action = "urn:getStartedWebapp";
-            payload = '<xsd:getStartedWebapp xmlns:xsd="http://org.apache.axis2/xsd"><xsd:webappFileName>' + fileName + '</xsd:webappFileName></xsd:getStartedWebapp>';
-        } else if (state == "stopped") {
-            options.action = "urn:getStoppedWebapp";
-            payload = '<xsd:getStoppedWebapp xmlns:xsd="http://org.apache.axis2/xsd"><xsd:webappFileName>' + fileName + '</xsd:webappFileName></xsd:getStoppedWebapp>';
-        } else if (state == "faulty") {
-            options.action = "urn:getPagedFaultyWebappsSummary";
-            payload = '<xsd:getPagedFaultyWebappsSummary xmlns:xsd="http://org.apache.axis2/xsd"><xsd:webappSearchString>' + fileName + '</xsd:webappSearchString><xsd:webappType>war</xsd:webappType><xsd:pageNumber>1000</xsd:pageNumber></xsd:getPagedFaultyWebappsSummary>';
-        }
-
-        var endPoint = stageURL + "WebappAdmin";
-        options["HTTPHeaders"] = [{
-        	name : "Cookie", value :modManager.getBackendCookie(stageURL)
-        }];
-
-        var ns = new Namespace("http://org.apache.axis2/xsd");
-        var ax2413 = new Namespace("http://mgt.webapp.carbon.wso2.org/xsd");
         try {
-        	repoMgtService.open(options,endPoint, false);
-        	repoMgtService.send(payload);
-        } catch (e) {
-        	metaDataResult.accessURLMD = "";
-        	metaDataResult.baseURLMD = "";
-        	metaDataResult.appStatusMD = "serverfaulty";
-        	log.error("Get MetaData from " + stage + " Server. Server Problem");
-        	return metaDataResult;
-        }
-        result = repoMgtService.responseE4X;
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            context.getThreadLocalCarbonContext().setUsername(userName);
+            accessUrl = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationUrl(applicationKey, version, stage, tenantDomain);
+            status = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationStatus(applicationKey, version, stage, tenantDomain);
 
+            if(!status){
+                 //fix for APPFAC-2195
+                 //load the tenant
+                 if(accessUrl){
+                   var xhr = new XMLHttpRequest();
+                   xhr.open("GET",accessUrl + "",false);
+                   xhr.send("");
+                   }
 
-        var elements = result.ns::["return"];
-
-        if (state == "started") {
-
-            for (var buildData in
-            elements){
-                var buildInfo = elements[buildData];
-                var appContext = buildInfo.ax2413::["context"].text();
-                if (escape(appContext) == '') {
-                    return getMetaDataForWarAppState(applicationKey, version, stage, "stopped", type);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Get MetaData from " + stage + " Server. WebContext for " + applicationKey + "[" + version + "] is '" + appContext + "'. ");
-                }
-                var servletContext = buildInfo.ax2413::["servletContext"].text();
-
-                metaDataResult.accessURLMD = escape(appContext) + escape(servletContext);
-                metaDataResult.baseURLMD = appBaseURL;
-                metaDataResult.appStatusMD = "started";
-                break;
+               status = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationStatus(applicationKey, version, stage, tenantDomain);
             }
+            if(status){
+               url=accessUrl;
+             }
 
-        } else if (state == "stopped") {
-            for (var buildData in elements){
-                var buildInfo = elements[buildData];
-                var appContext = buildInfo.ax2413::["context"].text();
-                if (escape(appContext) == '') {
-                    return getMetaDataForWarAppState(applicationKey, version, stage, "faulty", type);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Get MetaData from " + stage + " Server. WebContext for " + applicationKey + "[" + version + "] is '" + appContext + "'. ");
-                }
-                var servletContext = buildInfo.ax2413::["servletContext"].text();
-
-                metaDataResult.accessURLMD = escape(appContext) + escape(servletContext);
-                metaDataResult.baseURLMD = appBaseURL;
-                metaDataResult.appStatusMD = "stopped";
-                break;
-            }
-        } else if (state == "faulty") {
-            for (var buildData in
-            elements){
-                var buildInfo = elements[buildData];
-                var webAppRoot = buildInfo.ax2413::["webapps"];
-                var appContext = webAppRoot.ax2413::["context"].text();
-
-                metaDataResult.accessURLMD = "";
-                metaDataResult.baseURLMD = "";
-                if (escape(appContext) != '') {
-                    log.error("Get MetaData from " + stage + " Server. Application is faulty.");
-                    metaDataResult.appStatusMD = "faulty";
-                } else {
-                    log.error("Get MetaData from " + stage + " Server. Application is Not Deployed Yet.");
-                    metaDataResult.appStatusMD = "unknown";
-                }
-                break;
-            }
+        } finally {
+            context.endTenantFlow();
         }
 
-        return metaDataResult;
+        var data = {};
+        data.url = url;
+        data.status = status;
+        data.type = type;
 
-    }
-    ;
-
-
-    var getMetaDataForApplicationState = function(applicationKey, version, stage, state, type)
-    {
-        jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
-        var metaDataResult = {};
-        if (type == undefined || type == null || type == '') {
-            var applicationInfo = getAppInfo(applicationKey);
-            type = applicationInfo.type;
-        }
-
-        if (type == 'bpel' || type == 'dbs') {
-            metaDataResult = getMetaDataForServiceState(applicationKey, version, stage, state, type);
-        } else {
-            metaDataResult = getMetaDataForWarAppState(applicationKey, version, stage, state, type);
-        }
-        metaDataResult.type = type;
-        return metaDataResult;
-    }
-    ;
-
+        return data;
+    };
+   
 
     var listAppsWithDetails = function()
     {
@@ -495,7 +413,7 @@
     var getAllStages = function()
     {
         jagg.module("permission").checkUserAuthenticated();
-        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+        var stages = getProperties(DEPLOYMENT_STAGES);
         if (stages == null) {
             return null;
         }
@@ -516,7 +434,7 @@
     var getBuildableStages = function()
     {
         jagg.module("permission").checkUserAuthenticated();
-        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+        var stages = getProperties(DEPLOYMENT_STAGES);
         if (stages == null) {
             return null;
         }
@@ -590,6 +508,37 @@
     }
     ;
 
+    var getAppVersionInfoByVersion = function(applicationKey, version)
+    {
+      
+        var artifacts;
+        var tenantDomain=modManager.getTenantDomain() ;
+        var context=multitenancy.getPrivilegedCarbonContext();
+        var tenantManager= multitenancy.getTenantManager();
+        try{
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(tenantDomain, applicationKey);
+        }finally{
+            context.endTenantFlow();
+        }
+
+        var artifactsInStage=[];
+
+	    for(index in artifacts) {
+		var element = artifacts[index];
+			if(element['version'] == version) {
+			    artifactsInStage.push(element);
+	            break;
+			}
+	    }
+        
+        var versions = getVersionInfo(applicationKey, artifactsInStage);
+        return versions;
+       
+    };   
+    
     var getAppVersionsInStages = function(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed)
     {
         jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
@@ -648,13 +597,55 @@ var getVersionInfo = function(applicationKey, artifacts) {
                     var element =artifacts[i];
                     versionInfo.version = element['version'];
                     versionInfo.autoDeployment = "true";
-
-		            versionInfo.stage = element['stage'];
+                    versionInfo.stage = element['stage'];
                     versionInfo.isAutoBuild = element['autoBuild'] ? "true" : "false" ;
                     versionInfo.isAutoDeploy = element['autoDeploy'] ? "true" : "false";
                     versionInfo.repoURL = getRepoURL(applicationKey, versionInfo.version, true);
                     versionInfo.lastBuildResult =element['lastBuildStatus']!=null ? element['lastBuildStatus'] : '';
                     versionInfo.currentBuildStatus =element['currentBuildStatus'];
+                    versionInfo.promoteStatus =element['promoteStatus'];
+                    
+                    versionInfo.deployedBuildId = element['lastDeployedId'];
+                    versionInfo.productionMappedDomain = element['productionMappedDomain'];
+                    
+                    versionInfo.isInitialStage = modLifecycle.isInitialLifeCycleStage(versionInfo.stage);
+                    
+                    arrVersions[k] = versionInfo;
+                    k = k + 1;
+                }
+
+                arrVersions.sort(VersionComparator);
+
+                //////applicationInfo.stage = stageName + '';
+                applicationInfo.versions = arrVersions;
+                appVersions[0] = applicationInfo;
+            }
+	        return appVersions;
+        }
+        return null;
+};
+
+var getRepoUserInfo = function(applicationKey, artifacts) {
+        //send the call to the backend
+        if (artifacts != undefined && artifacts.length > 0) {
+            var appVersions = new Array();
+            var applicationInfo = getAppInfo(applicationKey);
+            if (applicationInfo != null && applicationInfo != undefined) {
+                var arrVersions = new Array();
+                var k = 0;
+                for (var i = 0; i < artifacts.length ; i++) {
+                    var versionInfo = {};
+                    var element =artifacts[i];
+                    versionInfo.version = element['version'];
+                    versionInfo.autoDeployment = "true";
+
+		            versionInfo.stage = element['stage'];
+                    versionInfo.isAutoBuild = element['autoBuild'] ? "true" : "false" ;
+                    versionInfo.isAutoDeploy = element['autoDeploy'] ? "true" : "false";
+                    versionInfo.repoURL = element['repoURL'];
+                    versionInfo.lastBuildResult =element['lastBuildStatus']!=null ? element['lastBuildStatus'] : '';
+                    versionInfo.currentBuildStatus =element['currentBuildStatus'];
+                    versionInfo.promoteStatus =element['promoteStatus'];
                     versionInfo.deployedBuildId = element['lastDeployedId'];
                     arrVersions[k] = versionInfo;
                     k = k + 1;
@@ -703,65 +694,6 @@ var getVersionInfo = function(applicationKey, artifacts) {
         return versionArray;
     };
     
-
-
-    var getMetaDataForServiceState = function
-    getMetaDataForServiceState(applicationKey, version, stage, state, type)
-    {
-        var metaDataResult = {};
-
-
-        var stageURL = getProperty("ApplicationDeployment.DeploymentStage." + stage + ".DeploymentServerURL");
-        var appBaseURL = getProperty("ApplicationDeployment.DeploymentStage." + stage + ".BaseAccessUrl");
-        var serviceName;
-        serviceName = applicationKey + '-' + version;
-        if (version == 'trunk') {
-            serviceName = applicationKey + '-SNAPSHOT';
-        }
-        var ws = require("ws");
-        var serviceAdminService = new ws.WSRequest();
-        var options = new Array();
-        options.useSOAP = 1.2;
-        var payload = "";
-
-        options.action = "urn:getServiceData";
-        payload = '<xsd:getServiceData xmlns:xsd="http://org.apache.axis2/xsd"><xsd:serviceName xmlns:xsd="http://org.apache.axis2/xsd">' + serviceName + '</xsd:serviceName></xsd:getServiceData>';
-
-        var endPoint = stageURL + "ServiceAdmin";
-
-        var ns = new Namespace("http://mgt.application.carbon.wso2.org");
-        var ax2413 = new Namespace("http://mgt.application.carbon.wso2.org/xsd");
-        options["HTTPHeaders"] =[{
-        	name:"Cookie", value:modManager.getBackendCookie(stageURL)
-        }];
-        try {
-        	serviceAdminService.open(options,endPoint, false);
-        	serviceAdminService.send(payload);
-        } catch (e) {
-        	metaDataResult.accessURLMD = "";
-        	metaDataResult.baseURLMD = "";
-        	metaDataResult.appStatusMD = "faulty";
-        	log.error("Get MetaData from " + stage + " Server. Server Problem : " + e.toString());
-        	return metaDataResult;
-        }
-        result = serviceAdminService.responseE4X;
-        var elements = result. *::["return"].*::eprs;
-        var urls ="";
-        for (var url in elements){	// iterate elements and only take url which is https, and prepare service URL.
-        	var temUrl = elements[url].text()+"";
-        	if (temUrl.indexOf("https://")==0) {	// as requested, now app types 'bpel' or 'dbs' only supports https://, TODO: based on user requirement need to develop either http or https
-        		temUrl = temUrl.substring(0, temUrl.length-1);	// remove last character and append '?wsdl' to the end of URL
-        		urls = temUrl + "?wsdl";
-        		break;
-        	}
-        }
-        metaDataResult.accessURLMD = urls;
-        metaDataResult.baseURLMD = appBaseURL;
-        metaDataResult.appStatusMD = "started";
-
-        return metaDataResult;
-    };
-    
   //application icon resource read from registry
     var loadAppIcon = function (applicationKey) {
     	 try{
@@ -780,5 +712,62 @@ var getVersionInfo = function(applicationKey, artifacts) {
             log.debug( errMsg );
             throw errMsg;
     	  }
+    };
+
+    var getAppVersionsOfUser = function(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed)
+    {
+        jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
+
+        var applicatoinPath = APPLICATIONS + applicationKey;
+        var artifacts;
+        var tenantDomain=modManager.getTenantDomain() ;
+        var context=multitenancy.getPrivilegedCarbonContext();
+        var tenantManager= multitenancy.getTenantManager();
+        try{
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplicationPerUser(modManager.getTenantDomain(),applicationKey, userName);
+
+
+        }finally{
+            context.endTenantFlow();
+        }
+        //var artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(modManager.getTenantDomain(),applicationKey);
+	    var versions = getRepoUserInfo(applicationKey, artifacts);
+        if(versions !=null) {
+            return stringify(versions);
+        } else {
+            return null;
+        }
+    };
+     var getBuildandDelpoyedStatus= function(applicationKey,version){
+          var buildAndDeployInfo;;
+          var result ={};
+      	  var tenantDomain=modManager.getTenantDomain() ;
+      	  var context=multitenancy.getPrivilegedCarbonContext();
+      	  var tenantManager= multitenancy.getTenantManager();
+      	  try{
+                context.startTenantFlow();
+                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+                 buildAndDeployInfo =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getBuildandDelpoyedStatus(applicationKey,tenantDomain,version);
+                 if(buildAndDeployInfo!=null){
+                 	result.buildId=buildAndDeployInfo['lastBuildId'];
+                 	result.buildStatus=buildAndDeployInfo['lastBuildStatus'];
+                 	result.deployedId=buildAndDeployInfo['lastDeployedId'];
+                 }
+                 
+          }finally{
+                context.endTenantFlow();
+      	   }
+          
+      	  if(result !=null) {
+      	      return stringify(result);
+      	  } else {
+      	      return null;
+      	  }
+      	
+      
     };
 %>

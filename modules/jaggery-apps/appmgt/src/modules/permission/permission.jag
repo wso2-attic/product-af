@@ -101,9 +101,14 @@ var server = carbon.server;
        var username = checkUserAuthenticated();
        var authUser=username.split('@')[0];
        var checkCachedPermission=checkTenantPermissionFromCache(authUser,permission);
-       if(checkCachedPermission!=null | checkCachedPermission!=undefined){
+       if(checkCachedPermission!=null || checkCachedPermission!=undefined){
             return checkCachedPermission;
        }
+       var isUserAuthorized = checkAuthorizationForUser(authUser, permission);
+       cacheTenantLevelPermission(authUser,permission,isUserAuthorized);
+       return isUserAuthorized;
+    };
+    var checkAuthorizationForUser =function (userName , permission) {
        var isUserAuthorized=false;
        var tenantDomain=modManager.getTenantDomain() ;
        var context=multitenancy.getPrivilegedCarbonContext();
@@ -114,8 +119,7 @@ var server = carbon.server;
             context.getThreadLocalCarbonContext().setTenantId(tenantId);
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
-            isUserAuthorized =realmService.getAuthorizationManager().isUserAuthorized(authUser,permission,PERMISSION_EXECUTE);
-            cacheTenantLevelPermission(authUser,permission,isUserAuthorized);
+            isUserAuthorized =realmService.getAuthorizationManager().isUserAuthorized(userName,permission,PERMISSION_EXECUTE);
 
         }finally{
              context.endTenantFlow();
@@ -123,7 +127,7 @@ var server = carbon.server;
         }
 
        if(!isUserAuthorized){
-            var errorMessage = "Un-authorized!!!. User:"+username +" does not have permission:"+permission  ;
+            var errorMessage = "Un-authorized!!!. User:"+userName +" does not have permission:"+permission  ;
             log.debug(errorMessage);
             //throw errorMessage;
             return isUserAuthorized;
@@ -141,8 +145,6 @@ var server = carbon.server;
         if(cachedResult!=null || cachedResult!=undefined){
             return cachedResult;
         }
-
-
         isUserAuthorized =checkUserAuthorization(permission);
         if(isUserAuthorized==false){
              var errorMessage = "Un-authorized!!!. User:"+username +" does not have permission:"+permission  ;
@@ -152,17 +154,13 @@ var server = carbon.server;
              var applications=jagg.module('tenant').getApplicatioinKeysOfUser(authUser);
              for(var app in applications){
                  if(applications[app]==appkey){
-
                      result=true;
+                     break;
                  }
              }
-             //var errorMessage = "Un-authorized!!!. User:"+username +" does not have permission:"+permission  ;
-             //log.error(errorMessage);
-             //throw errorMessage;
         }
          cacheAppLevelPermission(authUser,appkey,permission,isUserAuthorized);
          return result;
-       //return true;
     };
 
     var checkAdminPermission =function () {
@@ -222,13 +220,18 @@ var server = carbon.server;
         return checkUserActionPermissionforApp(appkey,PERMISSION_USER_INVITE);
     };
 
-    var hasAPISubscriptionAndKeyGenerationPermission = function (appkey, username) {
+    var hasAppOwnerSpecialPermission = function (appkey, username) {
         var mod = jagg.module("application");
         var application =  mod.getAppInfo(appkey);
         if(application != null && (application.owner == username)){
             return true;
         }
         return false;
+    };
+    
+    var hasPermissionForAllStages=function(applicationKey){
+    	var result=checkUserActionPermissionforApp(applicationKey,PERMISSION_RESOURCES_CREATE_FOR_ALL_STAGES);
+    	return result;
     };
 
 %>

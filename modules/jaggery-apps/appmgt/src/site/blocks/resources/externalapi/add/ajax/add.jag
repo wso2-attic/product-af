@@ -2,6 +2,8 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+var modPermission = jagg.module("permission");
+var log = new Log();
 
 (function () {
     var mod, obj, result,
@@ -17,6 +19,7 @@ include("/jagg/config_reader.jag");
         var apiName = request.getParameter("apiName");
         var authType = request.getParameter("authType");
         var givenValues = request.getParameter("givenValues");
+        var copyToAll=request.getParameter("copyToAll");
         var propname = "";
         var propcontent = "";
         var targetStages = getProperties(DEPLOYMENT_STAGES);
@@ -26,14 +29,22 @@ include("/jagg/config_reader.jag");
         for (var i = 1; i < stageArray.length; i++) {
             var stageString = stageArray[i];
             var splits = stageString.split(":auth:");
-            var url = splits[0].split(":")[1] + ":" + splits[0].split(":")[2];
+            var regex = new RegExp("http.*");
+            var url = splits[0];
+            url = regex.exec(url);
             var stage = splits[0].split(":")[0];
             
         	if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
+                           
                 var targetStage = [stage];
+                var allowed=jagg.module("manager").checkPermissionforStages(applicationKey,targetStage);
+                if((copyToAll=="true")&&allowed){
+                 	targetStage=targetStages;
+                	
+                }
                 mod.putPropertyCollection(apiName, "ExternalAPI", "External API", applicationKey, targetStage);
                 propname = apiName + "/url";
-                log.debug("Adding *********** url" + propname + " value " + url);
+                log.debug("Adding property:" + propname + " url value: " + url);
                 mod.addPropertyToStages(propname, url, "URL of " + apiName, "Registry", applicationKey, targetStage);
 
                 var auth = splits[1];
@@ -43,12 +54,12 @@ include("/jagg/config_reader.jag");
                 if (auths[0] == 'token') {
                     var param = auths[1];
                     propname = apiName + "/token";
-                    log.debug("Adding *********** token" + propname);
+                    log.debug("Adding token property:" + propname);
                     mod.addPropertyToStages(propname, param, "Token of " + apiName, "Registry", applicationKey, targetStage);
                 } else if (auths[0] == 'oauth') {
                     var param1 = auths[1];
                     var param2 = auths[2];
-                    log.debug("Adding *********** oauth" + param1 + " and " + param2);
+                    log.debug("Adding oauth param:" + param1 + " and " + param2);
                     mod.addPropertyToStages(apiName + "/consumer_key", param1, "Key of " + apiName, "Registry", applicationKey, targetStage);
                     mod.addPropertyToStages(apiName + "/consumer_secret", param2, "Secret of " + apiName, "Registry", applicationKey, targetStage);
                 } else if (auths[0] == 'basic') {
@@ -56,7 +67,7 @@ include("/jagg/config_reader.jag");
                     var param2 = auths[2];
                     mod.addPropertyToStages(apiName + "/username", param1, "Username of " + apiName, "Registry", applicationKey, targetStage);
                     mod.addPropertyToStages(apiName + "/password", param2, "Password of " + apiName, "Registry", applicationKey, targetStage);
-                    log.debug("Adding *********** basic" + param1 + " and " + param2);
+                    log.debug("Adding basic param:" + param1 + " and " + param2);
                 }
                 
             } else {
@@ -85,7 +96,7 @@ include("/jagg/config_reader.jag");
              if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
 	             var targetStage = [stage];
 	             propname = apiName + "/url";
-	             log.debug("Adding *********** url" + propname + " value " + url);
+	             log.debug("Adding  property:" + propname + " value " + url);
 	             mod.addPropertyToStages(propname, url, "URL of " + apiName, "Registry", applicationKey, targetStage);
 	
 	             var auth = splits[1];
@@ -95,12 +106,12 @@ include("/jagg/config_reader.jag");
 	             if (auths[0] == 'token') {
 	                 var param = auths[1];
 	                 propname = apiName + "/token";
-	                 log.debug("Adding *********** token" + propname);
+	                 log.debug("Adding token property:" + propname);
 	                 mod.addPropertyToStages(propname, param, "Token of " + apiName, "Registry", applicationKey, targetStage);
 	             } else if (auths[0] == 'oauth') {
 	                 var param1 = auths[1];
 	                 var param2 = auths[2];
-	                 log.debug("Adding *********** oauth" + param1 + " and " + param2);
+	                 log.debug("Adding oauth param:" + param1 + " and " + param2);
 	                 mod.addPropertyToStages(apiName + "/consumer_key", param1, "Key of " + apiName, "Registry", applicationKey, targetStage);
 	                 mod.addPropertyToStages(apiName + "/consumer_secret", param2, "Secret of " + apiName, "Registry", applicationKey, targetStage);
 	             } else if (auths[0] == 'basic') {
@@ -108,7 +119,7 @@ include("/jagg/config_reader.jag");
 	                 var param2 = auths[2];
 	                 mod.addPropertyToStages(apiName + "/username", param1, "Username of " + apiName, "Registry", applicationKey, targetStage);
 	                 mod.addPropertyToStages(apiName + "/password", param2, "Password of " + apiName, "Registry", applicationKey, targetStage);
-	                 log.debug("Adding *********** basic" + param1 + " and " + param2);
+	                 log.debug("Adding basic param:" + param1 + " and " + param2);
 	             } 
 	             
              } else {
@@ -124,7 +135,7 @@ include("/jagg/config_reader.jag");
         var stage = request.getParameter("stage");
 
         var response = {};
-        if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
+        if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
             try {
             	mod.deletePropertyFromStages(resourceName, applicationKey, [stage]);
             } catch (e) {
@@ -157,4 +168,7 @@ include("/jagg/config_reader.jag");
         throw new Error("No action specified");
     }
 }());
+
+	
+
 %>

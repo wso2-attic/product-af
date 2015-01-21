@@ -32,6 +32,25 @@ $(window).load(function() {
 	});
 });
 
+function getCookie(name) {
+    var cookieValue = $.cookie(name);
+    if (cookieValue == undefined) {
+       cookieValue = 'box_items';
+    }
+    return cookieValue;
+}
+function setCookie(name, value) {
+    $.cookie(name, value);
+}
+function setApplicationListView(style) {
+    var presentStyle = getCookie('item_list_view');
+    if (presentStyle == undefined && style != undefined) {
+        setCookie('item_list_view', style);
+    } else {
+        $('#item_list').removeClass();
+        $('#item_list').addClass(presentStyle);
+    }
+}
 $(document).ready(function() {
 	$('.dropdown-toggle').dropdown();
 
@@ -76,21 +95,24 @@ $(document).ready(function() {
 		event.preventDefault();
 	});
 
-	$('.block_view').on("click", function(event) {
-		$(this).addClass('active');
-		$('.table_view').removeClass('active');
-		$('#item_list').addClass('box_items');
-		$('#item_list').removeClass('table_items');
-		event.preventDefault();
-	});
+    $('.block_view').on("click", function (event) {
+        setCookie('item_list_view', 'box_items');
+        $(this).addClass('active');
+        $('.table_view').removeClass('active');
+        setApplicationListView('box_items')
+        event.preventDefault();
+    });
 
-	$('.table_view').on("click", function(event) {
-		$(this).addClass('active');
-		$('.block_view').removeClass('active');
-		$('#item_list').addClass('table_items');
-		$('#item_list').removeClass('box_items');
-		event.preventDefault();
-	});
+    $('.table_view').on("click", function (event) {
+        console.log('table vie clicked');
+        $(this).addClass('active');
+        setCookie('item_list_view', 'table_items');
+        $('.block_view').removeClass('active');
+        setApplicationListView('table_items');
+        event.preventDefault();
+    });
+
+
 
 	$(".select_list").select2({
 		formatResult : selectBoxOptionFormat,

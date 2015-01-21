@@ -12,7 +12,7 @@ var modManager = jagg.module("manager");
 var set = function (applicationId, stage, version, user, etaFrom, etaTo) {
     jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_APPLICATION_MEMBER);
      if(log.isDebugEnabled()){
-         log.debug("stting ETA value.................................................." + etaFrom + " " + etaTo);
+         log.debug("stting ETA value:" + etaFrom + " " + etaTo);
      }
     var options = new Array();
   	options.useSOAP = 1.1;

@@ -18,9 +18,6 @@ include("/jagg/config_reader.jag");
     	var resourceDescription = request.getParameter("resourceDescription");
     	var deploymentStage = request.getParameter("deploymentStage");
 
-        var response = {};
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        var stages=getAllowedStages(deploymentStages,PERMISSION_RESOURCES_UPDATE_FOR_STAGE,applicationKey);
         try{
             mod.updatePropertyDescriptionInStages(resourceName, resourceDescription,
             applicationKey,[deploymentStage]);

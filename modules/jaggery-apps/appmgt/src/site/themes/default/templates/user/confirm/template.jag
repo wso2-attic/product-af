@@ -1,14 +1,8 @@
 <% jagg.template("user/confirm", function(inputs, outputs, jagg) { %>
  
 <%
-	var userMod = jagg.module("user");
-
-	var confirm = request.getParameter("confirmation");
-	var confirmationObject = userMod.getUserConfirmationObject(confirm);
-
-	if(confirmationObject != null){
-		if(userMod.invokeUserActivationProcess(confirmationObject.admin, confirmationObject.email, confirmationObject.confirmationKey)){
-
+	if(outputs.hasConfirmationObject){
+	    if(outputs.hasUserActivated){
 %>
 	        <div style="margin:20px"/>
 		<div style="margin:40px">You have successfully validated your email address and the contact information associated with your WSO2

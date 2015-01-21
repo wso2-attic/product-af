@@ -1,5 +1,5 @@
 function getUser() {
-    return require('/modules/user.js').current();
+    return require('store').server.current(session);
 }
 
 function isUserLoggedIn() {
@@ -12,14 +12,15 @@ function isUserLoggedIn() {
 
 function getTenantID() {
     if (isUserLoggedIn()) {
-        return getUser().um.tenantId;
+        return getUser().tenantId;
     }
 
 }
 
 function getTenantDomain(){
     var carbon = require('carbon');
-    var tenantDomain = carbon.server.tenantDomainFromUserName(session.get("server.user").username);
+    var tenantId = getTenantID();
+    var tenantDomain = carbon.server.tenantDomain({tenantId : tenantId});
     tenantDomain ='"'+tenantDomain+'"';
     return tenantDomain; 
 }

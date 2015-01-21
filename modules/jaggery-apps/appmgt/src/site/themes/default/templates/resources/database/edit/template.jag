@@ -1,8 +1,11 @@
 <% jagg.template("resources/database/edit", function (inputs, outputs, jagg) { %>
 <%
+var hasDataSourceCreatePermission = outputs.hasCreateResourcePermissions;
+var hasDataSourceDeletePermissionInCurrentStage = outputs.hasDataSourceDeletePermissionInCurrentStage;
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
-
+appInfo=session.get("APP_INFO");
+language=appInfo.language;
 %>
 
 
@@ -223,7 +226,7 @@ var applicationKey = request.getParameter("applicationKey");
                     if(result){
                     	var $table='';
                     	for(var u in users){
-	                    	$table +=	'<li class="list_row_item  ">' +
+	                    	$table +=	'<li class="list_row_item push_top_10 ">' +
 	                    	          		'<ul class="list_row  ">' +
 	                    	             		'<li class="list_col" style="width:44.3%">' +
 	                    	          				'<div class="list_col_content">' +
@@ -232,8 +235,8 @@ var applicationKey = request.getParameter("applicationKey");
 	                    	           			'</li>' +
 	                    	   					'<li class="list_col">' +
 	                    	              			'<div class="list_col_content" >' +
-	                    								'<span onclick=\'showEditUser("' + users[u] + '")\'>Edit Privileges     </span>'+
-	                    	   							'<span onclick=\'detachUser("' + users[u] + '")\'>Detach</span>'+
+	                    								'<span class="btn main push_right_20 push_bottom_10" onclick="showEditUser(\'' + users[u] + '\')">Edit Privileges</span>'+
+	                    	   							'<span class="btn main icon-remove" onclick="detachUser(\'' + users[u] + '\')"></span>'+
 	                    	            			'</div>' +
 	              								'</li>' +
 	                    	  				'</ul>' +
@@ -418,11 +421,13 @@ var applicationKey = request.getParameter("applicationKey");
     }
     
     function deleteDatabase(){
+//earlier deleteDatasource:<%= language=="Java" %> since datasources were created for only java applications
         jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
                     action:"dropDatabase",
                     applicationKey:applicationKey,
                     databaseName:dbName,
-                    rssInstanceName:environment
+                    rssInstanceName:environment,
+                    deleteDatasource:false
                 },
                 function (result) {
                     if(result){
@@ -445,7 +450,9 @@ var applicationKey = request.getParameter("applicationKey");
 <div class="container">
 				<article class="main">
 				        
-                        <header><div><% jagg.includeBlock("page/messages", null); %></div>
+                        <header><div><% jagg.includeBlock("page/messages", null); %>
+                         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
                                 <h1>Resources</h1>
                              </div>
@@ -459,13 +466,15 @@ var applicationKey = request.getParameter("applicationKey");
                                         <li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
                                         <li id="dbNameConatiner"class="breadcrumb_item"></li>
                                     </ol>
+                                    <% if(hasDataSourceDeletePermissionInCurrentStage){ %>
                                     <div class="right btn_list_box">
                                         <ul class="inline_box inline_list btn_list">
-                                            <li class="inline_item"><a id="btn_delete_db" href="#" class="btn main btn_list_first">Delete DB</a>
+                                            <li class="inline_item"><a id="btn_delete_db" href="#" class="btn main btn_list_first">Delete Database</a>
                                             </li>
                                         </ul>
                                         <div class="clearfix"></div>
                                     </div>
+                                    <% } %>
                                 </div>
                             </div>
 
@@ -555,86 +564,93 @@ var applicationKey = request.getParameter("applicationKey");
                                 </div>
                         </section>                                                    
                         <section class="separator clear" id="permission_listing">
-                            <div class="content well">
-                                <div class="left pw_50">
-                                    <h2>DB User</h2>
-                                    <ul class="list big push_bottom">
-                                        <li>
-                                            <label>User Name</label>
-                                            <select id="dbUsersDD" class="select_list half big" name="permission_template">
-                                            	<option value="">Select your option</option>
-                                            </select>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="right pw_50">
-                                    <h2>Template</h2>
-                                    <ul class="list big push_bottom">
-                                        <li><label>Permission Template</label>
-                                            <select id="templateDD" class="select_list half big" name="permission_template" placeholder="Select Template...">
-                                                <option id="templateDefaultValue" value="">Select your option</option>
-                                            </select>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </section>
-                    <div class="content clear well" id="section_template_permissions" style="display:none;">
-                        <div class="form-container">
-
-                            <form class="hold right_label" method="post" action="#">
-                                <fieldset>
-
-                                    <div class="controlset">
-                                        <div class="input_row">
-                                            <label><input type="checkbox" name="permission" id="selectPriv" checked="checked"> SELECT</label><br>
-                                            <label><input type="checkbox" name="permission" id="insertPriv" checked="checked"> INSERT</label><br>
-                                            <label><input type="checkbox" name="permission" id="updatePriv" checked="checked"> UPDATE</label><br>
-                                            <label><input type="checkbox" name="permission" id="deletePriv" checked="checked"> DELETE</label><br>
-                                            <label><input type="checkbox" name="permission" id="createPriv" checked="checked"> CREATE</label><br>
-                                            <label><input type="checkbox" name="permission" id="dropPriv" checked="checked"> DROP</label><br>
-                                            <label><input type="checkbox" name="permission" id="grantPriv" checked="checked"> GRANT</label><br>
-                                            <label><input type="checkbox" name="permission" id="referencesPriv" checked="checked"> REFERENCES</label><br>
-                                            <label><input type="checkbox" name="permission" id="indexPriv" checked="checked"> INDEX</label><br>
-                                            <label><input type="checkbox" name="permission" id="alterPriv" checked="checked"> ALTER</label><br>
-                                            <label><input type="checkbox" name="permission" id="createTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
-                                            <label><input type="checkbox" name="permission" id="lockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
-                                            <label><input type="checkbox" name="permission" id="createViewPriv" checked="checked"> CREATE_VIEW</label><br>
-                                            <label><input type="checkbox" name="permission" id="showViewPriv" checked="checked"> SHOW_VIEW</label><br>
-                                            <label><input type="checkbox" name="permission" id="createRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
-                                            <label><input type="checkbox" name="permission" id="alterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
-                                            <label><input type="checkbox" name="permission" id="executePriv" checked="checked"> EXECUTE</label><br>
-                                            <label><input type="checkbox" name="permission" id="eventPriv" checked="checked"> EVENT</label><br>
-                                            <label><input type="checkbox" name="permission" id="triggerPriv" checked="checked"> TRIGGER</label><br>
+                            <div class="page-content-area">
+                                <div class="af_container">
+                                    <div class="af_row push_bottom_10">
+                                        <div class="col-12">
+                                            <h2>Attach New User</h2>
                                         </div>
                                     </div>
-                                </fieldset>
-                                <input type="hidden" value="app_105" id="applicationKey">
+                                    <div class="af_row">
+                                        <div class="col-12">
+                                            <div class="af_row push_left_15 push_bottom_10">
+                                                <div class="col-3">
+                                                    <label>User Name</label>
+                                                </div>
+                                                <div class="col-9">
+                                                    <select id="dbUsersDD" class="select_list half big" name="permission_template">
+                                                        <option value="">Select your option</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="af_row">
+                                        <div class="col-12">
+                                            <div class="af_row push_left_15  push_bottom_10">
+                                                <div class="col-3">
+                                                    <label>Permission Template</label>
+                                                </div>
+                                                <div class="col-9">
+                                                    <select id="templateDD" class="select_list half big" name="permission_template" placeholder="Select Template...">
+                                                        <option id="templateDefaultValue" value="">Select your option</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="af_row">
+                                        <div class="col-12">
+                                            <div class="content clear well" id="section_template_permissions" style="display:none;">
+                                                <div class="form-container">
 
-                                <div class="buttonrow">
-                                    <input type="button" class="btn main" id="btn_save" value="Attach User" name="Submit">
-                                    <!--a id="btn_cancel">Cancel</a-->
-                                    <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
+                                                    <form class="hold right_label" method="post" action="#">
+                                                        <fieldset>
+
+                                                            <div class="controlset">
+                                                                <div class="input_row">
+                                                                    <label><input type="checkbox" name="permission" id="selectPriv" checked="checked"> SELECT</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="insertPriv" checked="checked"> INSERT</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="updatePriv" checked="checked"> UPDATE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="deletePriv" checked="checked"> DELETE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="createPriv" checked="checked"> CREATE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="dropPriv" checked="checked"> DROP</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="grantPriv" checked="checked"> GRANT</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="referencesPriv" checked="checked"> REFERENCES</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="indexPriv" checked="checked"> INDEX</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="alterPriv" checked="checked"> ALTER</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="createTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="lockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="createViewPriv" checked="checked"> CREATE_VIEW</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="showViewPriv" checked="checked"> SHOW_VIEW</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="createRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="alterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="executePriv" checked="checked"> EXECUTE</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="eventPriv" checked="checked"> EVENT</label><br>
+                                                                    <label><input type="checkbox" name="permission" id="triggerPriv" checked="checked"> TRIGGER</label><br>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                        <input type="hidden" value="app_105" id="applicationKey">
+
+                                                        <div class="buttonrow">
+                                                            <input type="button" class="btn main" id="btn_save" value="Attach User" name="Submit">
+                                                            <!--a id="btn_cancel">Cancel</a-->
+                                                            <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
+                                                        </div>
+
+
+                                                    </form>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-
-
-                            </form>
-
-                        </div>
-                    </div>
-                        <section class="separator clear" >
-                            <div class="content well">
-                                <!--div class="left pw_50">
-                                    <input type="button" value="Add New" id="addNew_permission" class="btn main" />
-                                </div-->
-                                <div class="right pw_50">
-
-                                </div>
-                                <div class="clearfix"></div>
                             </div>
-
+                                <div class="clearfix"></div>
                         </section>
+
 
 
                         <div class="clearfix"></div>

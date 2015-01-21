@@ -1,0 +1,89 @@
+<% jagg.template("page/eventing", function (inputs, outputs, jagg) {
+    var applicationKey = inputs.applicationKey;
+    var pageName = inputs.pageName;
+    var polling_period = outputs.polling_period;
+    if(polling_period==null || polling_period==undefined){
+        polling_period = 10000;
+    }
+%>
+
+<script type="text/javascript">
+   
+   
+function subscribeToTopics() {
+    jagg.post("../blocks/events/subscribe/ajax/subscribe.jag", {
+                action: "subscribe",
+                appId:'<%=applicationKey%>'
+            },
+
+            function (result) {
+                pollMessagesFromTopics();
+            },
+
+            function (jqXHR, textStatus, errorThrown) {
+
+            });
+}
+
+var pollingTryLock = true;
+function pollMessagesFromTopics() {
+    console.info("POLLING messages: pollingTryLock " + pollingTryLock);
+     
+    if(pollingTryLock == true){
+            jagg.post("../blocks/events/subscribe/ajax/subscribe.jag", {
+                action: "poll",
+                appId:'<%=applicationKey%>'
+            },
+
+            function (result) {
+                pollingTryLock = false;
+                var messages = jQuery.parseJSON(result);
+                for(var j = 0; j < messages.length; j++){
+                    var msgs = messages[j];
+                    for (var i = 0; i < msgs.length; i++) {
+                         var message = msgs[i];
+                         jagg.message({
+                                    content: message.messageBody,
+                                    type: 'error'
+                         });
+                         ackMessages(message.id,message.topic);
+                    }
+                }
+                pollingTryLock = true;
+            },
+
+            function (jqXHR, textStatus, errorThrown) {
+
+            });
+            setTimeout(pollMessagesFromTopics, <%=polling_period%>);
+    }
+
+}
+function ackMessages(messageId,topic) {
+    jagg.post("../blocks/events/subscribe/ajax/subscribe.jag", {
+                action: "ack",
+                messageId:messageId,
+                appId:'<%=applicationKey%>',
+                topic:topic
+            },
+
+            function (result) {
+            //    alert('done ack');
+            },
+
+            function (jqXHR, textStatus, errorThrown) {
+
+            });
+            setTimeout(pollMessagesFromTopics, <%=polling_period%>);
+
+}
+   
+   
+
+$(document).ready(function () {
+        subscribeToTopics();
+});
+</script>
+<%
+});
+%>

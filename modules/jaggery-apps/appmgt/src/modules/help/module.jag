@@ -1,0 +1,20 @@
+<%
+jagg.module("help", {
+
+    getHelpMessage:function () {
+        return jagg.require(jagg.getModulesDir() + "help/help.jag").getHelpMessage.apply(this, arguments);
+    },
+    buildHelpLink:function () {
+        return jagg.require(jagg.getModulesDir() + "help/help.jag").buildHelpLink.apply(this, arguments);
+    },
+    local:function () {
+        return jagg.require(jagg.getModulesDir() + "help/help.jag").local.apply(this, arguments);
+    },
+    getHelpTips:function () {
+        return jagg.require(jagg.getModulesDir() + "help/help.jag").getHelpTips.apply(this, arguments);
+    },
+    getWelcomeMessage:function () {
+        return jagg.require(jagg.getModulesDir() + "help/help.jag").getWelcomeMessage.apply(this, arguments);
+    }
+});
+%>

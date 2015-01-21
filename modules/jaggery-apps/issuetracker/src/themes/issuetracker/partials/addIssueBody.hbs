@@ -5,8 +5,8 @@
     <div class="form-container">
         <fieldset>
             <div class="input_row">
-                <label for="projectKey" ><strong>Project</strong> <em>*</em></label>
-                <select id="projectKey" class="select_list half big">
+                <label for="projectKey" ><strong>Application</strong> <em>*</em></label>
+                <select id="projectKey" {{isEnabled}} class="select_list half big">
                 {{#each project}}
                   <option value="{{key}}">{{name}}</option>
                 {{/each}}
@@ -98,7 +98,7 @@
         <div class="buttonrow">
             <input type="button" value="Add Issue" class="btn main" id='saveIssue' />
 
-            <a href="/issuetracker/index.jag">Cancel</a>
+            <a href="/issuetracker/index.jag?appkey={{appkey}}">Cancel</a>
         </div>
     <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
 

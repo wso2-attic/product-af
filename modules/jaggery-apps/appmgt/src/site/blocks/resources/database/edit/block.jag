@@ -1,5 +1,6 @@
 <%
 include('/jagg/constants.jag');
+include("/jagg/util.jag");
 jagg.block("resources/database/edit", {
     initialize: function (data) {
 
@@ -8,7 +9,16 @@ jagg.block("resources/database/edit", {
         return {
             "applicationKey": null
         }
-    }
+    },
+    getOutputs:function (inputs) {
+        var applicationKey = request.getParameter("applicationKey");
+        var permissionModule = jagg.module("permission");
+        var currentStage = request.getParameter("environment");
 
+        return {
+            "hasCreateResourcePermissions": hasUILevelResourceCreationPermission(applicationKey),
+            "hasDataSourceDeletePermissionInCurrentStage": permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + currentStage)
+        };
+    }
 });
 %>

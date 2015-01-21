@@ -2,7 +2,7 @@
     var applicationKey = request.getParameter("applicationKey");
     var applicationName = request.getParameter("applicationName");
     var datasources = outputs.datasources;
-    
+
     var hasCreatePermission = outputs.hasResourceCreatePermissionInAnyEnvironment;
 %>
 <script xmlns="http://www.w3.org/1999/html">
@@ -79,14 +79,12 @@
         var $table='';
         var count = 0;
         for(var ds in printableDS){
-            $table+=constructRow(printableDS[ds]);
+        	$('#content').append(constructRow(printableDS[ds]));
             count++;
         }
         if(count == 0){
-        	$('#contentHeader').html("<div class='noData-message'>Data Sources have not been created yet.</div>");
-        }else{
-        	$('#content').append($table);
-        }	
+        	$('#contentHeader').html("<div class='noData-message'>No Data Sources are created yet.</div>");
+        }
         
         $('.dsLink').click(function(){
             var dsName=$(this).attr('data-dsname');
@@ -201,7 +199,9 @@
  <div class="container">
 				<article class="main">
 				    
-                        <header><div><% jagg.includeBlock("page/messages", null); %></div>
+                        <header><div><% jagg.includeBlock("page/messages", null); %>
+                            <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
                                 <h1>Resources</h1>
                              </div>
@@ -217,12 +217,12 @@
                                         <ul class="inline_box inline_list btn_list">
                                         
                                         	<% var disableTxt = "";
-                                        		if(!hasCreatePermission){
-                                        			disableTxt= 'disabled="disabled"';
-                                        		} 
-                                        		
-                                        	%>
-                                            <li class="inline_item"><button onclick="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="btn main btn_list_first" type="button" <%=disableTxt%>>Create Datasource</button></li>
+    if(!hasCreatePermission){
+        disableTxt= 'disabled="disabled"';
+    }
+
+    %>
+    <li class="inline_item"><button onclick="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="btn main btn_list_first" type="button" <%=disableTxt%>>Add Datasource</button></li>
                                         </ul>
                                         <div class="clearfix"></div>
                                      </div>

@@ -6,7 +6,8 @@ var currentStage = request.getParameter("currentStage");
 var dsName = request.getParameter("dsName");
 var stages = getProperties('ApplicationDeployment.DeploymentStage');
 var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurrentStage;
-
+var hasDataSourceCreatePermission = outputs.hasCreateResourcePermissions;
+var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
 %>
 
 <script type="text/javascript">
@@ -21,12 +22,12 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
             action: "deleteDatasource",
             applicationKey: applicationKey,
             datasourceName: dsName,
-            stage: currentStage
+            stage: currentStage,
         },
 
         function (result) {
             if (result) {
-                location.href = 'listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+                location.href = 'listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
             } else {
                 jagg.message({
                     content: 'Error occurred while deleting datasource.',
@@ -59,7 +60,7 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
 
          function (result) {
              if (result) {
-                 location.href = 'listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+                 location.href = 'listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
              } else {
                  jagg.message({
                      content: 'Error occurred while creating datasource: Datasource already exsist',
@@ -84,7 +85,6 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
         var varDriverName = $("#database_driver").val();
         var varDbUsername = $("#datasource_username_text").val();
         var varDbPassword = $("#datasource_password").val();
-        var stage = $("#stage").attr('value');
         var action = "editDatasource";
 
         update(varDsDesc, varUrl, varDriverName, varDbUsername, varDbPassword, action);
@@ -131,7 +131,6 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
             applicationKey: applicationKey,
             datasourceName: dsName
         }, function (result) {
-
             if (result) {
                 currentLoadedDataSource = jQuery.parseJSON(result);
                 callback(currentLoadedDataSource);
@@ -159,13 +158,20 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
 
     /** -----------------Document Ready -----------------**/
      $(document).ready(function () {
+
+           if(currentStage == null || currentStage == 'null'){
+               var databaseInfoId = $("#database_info_id" );
+               databaseInfoId.empty();
+               databaseInfoId.next().css("display","none");
+	   }
+           $(".breadcrumb_item.name").empty().append("<h2>" +dsName + "</h2>");
+	   $("#datasource_environment").prop("disabled", true);
            var currentDatasource;
            loadEditingDatasource(function(result) {
            if(result!=undefined) {
                 currentDatasource = result[currentStage];
                 if(currentDatasource!=null){
-                    $('#datasource_description').val(currentDatasource.desc);
-
+                    $('#datasource_description').attr("value",currentDatasource.desc);
                     var stageOption = '<option selected="selected" value="' + currentStage + '">' + currentStage + '</option>';
                     $("#stage" ).append(stageOption);
                     $("#stage").select2("val",currentStage);
@@ -278,13 +284,11 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
                             }
                             if(!databaseFound)  {
                                 $("#database_info_id" ).empty();
-                                alert('This datasource is configured with default database created in another environment. Please create a new database in '+currentStage+' and update datasource '+currentDatasource.name+'. You can still test the functionality with configured database.');
 
                             }
 
                             }else{
                                 $("#database_info_id" ).empty();
-                                alert('This datasource is configured with default database created in another environment. Please create a new database in '+currentStage+' and update datasource '+currentDatasource.name+'. You can still test the functionality with configured database.');
                             }
 
 
@@ -300,7 +304,9 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
             	jagg.popMessage({type:'confirm',title:'Delete Datasource',content:'Are you sure you want to delete datasource ' + dsName + '?', okCallback:function(){ deleteDataSource();}, cancelCallback:function(){}});
         	});
 
-
+          $("#datasource_username_select").on('change', function(e) {
+             $("#datasource_username_text").attr("value",$(this).val());
+          });
        });
 
 
@@ -313,7 +319,9 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
 <div class="container">
     <article class="main">
          
-        <header><div> <% jagg.includeBlock("page/messages", null); %></div>
+        <header><div> <% jagg.includeBlock("page/messages", null); %>
+         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
             <div class="content">
                 <h1>Resources</h1>
             </div>
@@ -324,11 +332,11 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
                 <div class="content clear">
                     <ol class="breadcrumb left">
                         <li class="breadcrumb_item"><a
-                                href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>"
+                                href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=inputs.applicationKey%>"
                                 class="breadcrumb_link">Datasources</a></li>
-                        <li class="breadcrumb_item"><h2><%= dsName%></h2></li>
+                        <li class="breadcrumb_item name"></li>
                     </ol>
-                    <% if(hasDataSourceUpdatePermission){ %>
+                    <% if(hasDataSourceDeletePermission){ %>
                         <div class="right btn_group" id="delete_button_div">
                             <div class="right btn_list_box">
                                 <ul class="inline_box inline_list btn_list">
@@ -349,23 +357,21 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
                         <fieldset>
                             <input type="hidden" name="datasource_name" id="datasource_name"
                                    value="<%= dsName%>"/>
+                            <input type="hidden" name="datasource_description" id="datasource_description"
+                                   value=""/>
 
-                            <div class="input_row">
-                            	<label for="datasource_description"><strong>Description</strong></label>
-                            	<textarea name="datasource_description" id="datasource_description" rows="5"
-                            	class="full"></textarea>
-                            </div>
-                            
-                            <hr/>
-
-                            <div class="input_row">
-                                <label for="stage"><strong>Stage</strong> <em>*</em></label>
-                                <select class="select_list half big" id="stage" name="stage">
-
-                                </select>
-                            </div>
+          
 
                             <div id="database_info_id">
+				<div class="input_row">
+                                    <label for="datasource_environment"><strong>Environment</strong> <em>*</em></label>
+                                    <select class="select_list half big" id="datasource_environment"
+                                            name="datasource_environment">
+                                        <option value="<%= currentStage%>"><%= currentStage%></option>
+                                    </select>
+                                </div>
+
+
                                 <div class="input_row">
                                  <div id="datasource_url_select_div">
                                     <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
@@ -377,7 +383,7 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
 
                                 <div class="input_row">
                                     <label for="datasource_password"><strong>&nbsp;&nbsp;&nbsp;</strong></label>
-                                    <input type="text" id="datasource_url_text" class="half" style="display:none;"/>
+                                    <input type="text" id="datasource_url_text" class="full" style="display:none;"/>
                                 </div>
 
                                 <div class="input_row">
@@ -403,7 +409,7 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
 
                                     <div>
                                         <input type="text" style="display:none;" name="datasource_username_text"
-                                               id="datasource_username_text" class="half"/>
+                                               id="datasource_username_text" class="half" value=""/>
                                     </div>
                                 </div>
 
@@ -418,7 +424,7 @@ var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurre
                                         <input type='button' name='Submit' value='Update Datasource'
                                                onclick="if(validateForm()){updateDataSource();}"
                                                class='btn main'/>
-                                        <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
+                                        <a href="listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
                                     </div>
                                   <% } %>
                              </div>

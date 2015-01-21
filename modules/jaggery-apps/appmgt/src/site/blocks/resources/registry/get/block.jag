@@ -11,12 +11,8 @@ jagg.block("resources/registry/get", {
 		var applicationKey = request.getParameter("applicationKey");
 		var permissionModule = jagg.module("permission");
 		var lifeCycleModule = jagg.module("lifecycle");
-                var initialStages= lifeCycleModule.getInitialLifeCycleStages();
-                var stages=getAllowedStages(initialStages,PERMISSION_RESOURCES_CREATE_FOR_STAGE,applicationKey);
-                var hasCreateResourcePermissions=false;
-                if(stages.length>0){
-	        	hasCreateResourcePermissions = true;
-		}
+	    var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
+	    
 		return {
 			"hasCreateResourcePermissions": hasCreateResourcePermissions
 		};

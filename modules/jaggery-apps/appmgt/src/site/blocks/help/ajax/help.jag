@@ -1,0 +1,68 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log=new Log();
+
+(function () {
+    var mod, obj, result,
+    action = request.getParameter("action"),
+    site = require("/site/conf/site.json");
+    var modHelp = jagg.module("help");
+    
+    if (action === "getHelpMessage"){
+        var roles = request.getParameter("roles").split(",");
+        var section = request.getParameter("section");
+        var helpParams = request.getParameter("helpParams");
+        var helpDetails = modHelp.getHelpMessage(section, roles);
+	var helpParamsJson = parse(helpParams);
+        for(var i in helpDetails) {
+            var helpLink = helpDetails[i].link;
+            if(helpLink != null){
+                if(helpLink.keyValuePairs != null) {
+                    helpLink = buildLink(helpLink, helpParamsJson);
+                } else {
+                    helpLink = helpLink.staticStart;
+                }
+                helpDetails[i].link = helpLink;
+            }
+        }
+
+        print(helpDetails);
+    } else if (action === "getHelpTips"){
+	var page = request.getParameter("page");
+	if(log.isDebugEnabled()){
+	log.debug("page " + page);
+	}
+        var helpTips = modHelp.getHelpTips(page);
+	if(log.isDebugEnabled()){
+	log.debug("helptips " + helpTips);
+	}
+	print(helpTips);
+    }else if (action === "getWelcomeMessage"){
+        var page = request.getParameter("page");
+	if(log.isDebugEnabled()){
+        log.debug("getWelcomeMessage " + page);
+	}
+        var welcomeMessage = modHelp.getWelcomeMessage(page);
+	if(log.isDebugEnabled()){
+        log.debug("welcomeMessage " + welcomeMessage);
+	}
+        print(welcomeMessage);
+    }else {
+        throw new Error("No action specified");
+    }
+
+}());
+
+function buildLink(link, helpParams) {
+    var keyValuePairs = link.keyValuePairs;
+    var helpLink = link.staticStart;
+    for(var key in keyValuePairs) {
+        var value = keyValuePairs[key];
+            helpLink += key + helpParams[value];
+	}
+	return helpLink;
+};
+
+%>

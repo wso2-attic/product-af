@@ -27,12 +27,12 @@ var log = new Log();
         var userName=request.getParameter("userName");
         try {
             var result = mod.getUserInfo(userName);
-
-            if (result != null) {
-                print(result);
-            } else {
-                log.error("No user found with the name "+userName);
-            }
+			print(result);
+            //if (result != null) {
+            //    print(result);
+            //} else {
+            //   log.error("No user found with the name "+userName);
+            //}
         } catch(e) {
             log.error("No user found with the name "+userName);
             var result = {};

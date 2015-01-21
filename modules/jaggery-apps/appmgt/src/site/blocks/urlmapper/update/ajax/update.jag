@@ -1,0 +1,78 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var lifeCycleModule = jagg.module("lifecycle");
+var log=new Log();
+var mod = jagg.module("urlmapper");
+var permission = jagg.module("permission");
+
+(function () {
+	var action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	
+    if(action == "updateAppVersionDomainMapping"){	
+		var oldVersion = request.getParameter("oldVersion");
+		var newVersion = request.getParameter("newVersion");
+		var subDomain = request.getParameter("subDomain");
+		var tenantDomain = request.getParameter("tenantDomain");
+		var applicationKey = request.getParameter("applicationKey");
+		var username = request.getParameter("username");
+		var response={};
+		
+		if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+			var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+			
+		    try {
+			   var mappedUrl = subDomain + "." + getProperty("DomainName");
+			   mod.removeDomainMappingsFromStratos(stage, mappedUrl, oldVersion, applicationKey); 
+			   mod.addDomainMappingsToStratos(stage, mappedUrl, newVersion, applicationKey);
+			} catch (e) {
+				var msg = "Error while updating domain " + mappedUrl + " from old version "+ oldVersion +" to new version " + newVersion + " in Stratos in stage "+ stage;
+				log.error(msg+e.message);
+				throw msg;
+			} 
+ 				
+		} else {
+            response.result = 0;
+            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
+            print(response);
+        }
+	}else if(action == "updateDomainMappingForSameAppVersion"){	
+		var oldSubDomain = request.getParameter("oldSubDomain");
+		var newSubDomain = request.getParameter("newSubDomain");
+		var version = request.getParameter("version");
+		var tenantDomain = request.getParameter("tenantDomain");
+		var applicationKey = request.getParameter("applicationKey");
+		var username = request.getParameter("username");
+		var response={};
+		
+		if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+			var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+			
+		    try {
+			   var mappedUrlOld = oldSubDomain + "." + getProperty("DomainName");
+			   var mappedUrlNew = newSubDomain + "." + getProperty("DomainName");
+			   mod.addDomainMappingsToStratos(stage, mappedUrlNew, version, applicationKey);
+			   mod.removeDomainMappingsFromStratos(stage, mappedUrlOld, version, applicationKey);
+			} catch (e) {
+				var msg = "Error while updating old domain "+ mappedUrlOld +" to new domain " + mappedUrlNew + " for application version "+ version +" in App Server of "+ stage;
+				log.error(msg+e.message);
+				throw msg;
+			} 
+ 				
+		} else {
+            response.result = 0;
+            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
+            print(response);
+        }
+	}else {
+		throw new Error("No action specified");
+	}
+}());
+
+
+
+%>
+

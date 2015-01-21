@@ -12,8 +12,6 @@
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
              <link href="{{url "/themes/issuetracker/css/font-awesome.min.css"}}" rel="stylesheet">
-
-            		<!--[if IE 7]>
             		<link href="{{url "/themes/issuetracker/css/font-awesome-ie7.min.css"}}" rel="stylesheet">
             		<![endif]-->
 
@@ -31,66 +29,52 @@
             }
             .issue_id {
                 width: 50px;
-                padding: 2px;
             }
             .issue_type {
                 width: 50px;
-                padding: 2px;
             }
             .issue_project {
                 width: 100px;
-                padding: 2px;
             }
             .issue_status {
                 width: 100px;
-                padding: 2px;
             }
             .issue_priority {
                 width: 100px;
-                padding: 2px;
             }
             .issue_milestone {
                 width: 110px;
-                padding: 2px;
             }
 
             .issue_key{
                 width: 50px;
-                padding: 2px;
             }
             .issue_summary{
                 width: 200px;
-                padding: 2px;
             }
 
             .issue_assignee{
                 width: 100px;
-                padding: 2px;
             }
 
             .issue_version{
                 width: 100px;
-                padding: 2px;
             }
 
             .issue_severity{
                 width: 100px;
-                padding: 2px;
             }
 
             .issue_edit{
                 width: 50px;
-                padding: 2px;
             }
 
             .issue_comment{
                 width: 50px;
-                padding: 2px;
             }
 
             .issue_reporter{
                 width: 100px;
-                padding: 2px;
             }
 
 
@@ -262,8 +246,38 @@ button.close {
     top: -2px;
     right: -21px;
     line-height: 20px;
-  }
+    
 
+  }
+    .help-section-top{
+	/*background-color:#fbe696;*/
+	padding:10px 20px 10px 40px;
+	font-size:14px;
+	margin-left:1px;
+	width:82%;
+	}
+	.help-section-top i{
+	font-size:16px;
+	color:#888;
+	border:solid 1px #888;
+	border-radius:3px;
+	padding:0 3px;
+	}
+	.help-section-bottom {
+	   /* background-color: #FBE696;*/
+	    bottom: 0;
+	    font-size: 11px;
+	    left: 0;
+	    margin-left: 251px;
+	    padding: 10px 20px 10px 40px;
+	    position: fixed;
+	    width:82%;
+}
+ #contextualHelp, #contextualHelp p {
+    color: #666666;
+    font-size: 13px;
+    line-height: 20px;
+    }
 
 		</style>
 	</head>
@@ -290,37 +304,8 @@ button.close {
                         </div>
                     </div>
                 </div>
-					<header class="separator">
-						<div class="content">
-							<div class="left">
-								<h1 class="inline_box">Issues</h1><a href="/issuetracker/issue/add" class="btn main head push_left_40">New Issue</a>
-							</div>
-							<ul class="screen_option right search_form_cont">
-								<form class="right form-container search_form" action="/issuetracker/issue/search" method="post">
-									<li class="screen_option_item">
-										<span>Search</span>
-										<select id="select_search" class="select_list_custom half big" name="searchType">
-											<option value="1">&nbsp;By Project Name</option>
-											<option value="2">&nbsp;By Reporter</option>
-											<option value="3">&nbsp;By Assignee</option>
-											<option value="4" selected="selected">&nbsp;All issues</option>
-										</select>
-
-									</li>
-
-									<li class="screen_option_item">
-										<div class="input_row">
-											<span>for </span>
-											<label for="search_members" class="hide" >Search</label>
-											<input id="search_members" type="text" class="fw_250" name="searchValue" value="{{value}}"  />
-											<input class="btn main"  type="submit" id="searchId" value="Search" />
-										</div>
-
-									</li>
-								</form>
-							</ul>
-						</div>
-					</header>
+                    {{include header_mid}}
+                    {{include helpPane}}
 					 {{include body}}
 
 					<div class="clearfix"></div>

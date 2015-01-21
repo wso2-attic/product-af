@@ -15,6 +15,7 @@ jagg.block("application/get", {
     	var log = new Log();
         var applicationKey = request.getParameter("applicationKey");
     	var lifeCycleModule = jagg.module("lifecycle");
+    	var mod = jagg.module("manager");
     	
     	var hasConfigureAPIManagerPermission = true;//jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
     	var hasRepoReadWritePermission =true;// jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_REPOSITORY_READ_WRITE);
@@ -27,10 +28,25 @@ jagg.block("application/get", {
     		map[stages[index]] = isAllowed ;
     	}
     	
+         var permissionModule = jagg.module("permission");
+    	 var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+
+         var tenantDomain = mod.getTenantDomain();
+         
+         var projUtils = Packages.org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
+		 var applicationType = projUtils.getApplicationType(applicationKey, mod.getTenantDomain());
+		 var isUploadableAppType = getProperty("ApplicationType."+applicationType+".Property.isUploadableAppType");
+	     var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+		 var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
+         
     	return {
+    		"tenantDomain":tenantDomain,
     		"hasConfigureAPIManagerPermission": hasConfigureAPIManagerPermission,
     		"hasRepoReadWritePermission":hasRepoReadWritePermission,
-    		"stagesMap":map
+    		"stagesMap":map,
+    		"isUploadableApp":isUploadableAppType,
+    		"hasDomainMappingPermission":hasDomainMappingPermission,
+    		"fineGrainedDomainMappingAllowedStage": fineGrainedDomainMappingAllowedStage,
     	};
     }
 

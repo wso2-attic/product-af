@@ -1,5 +1,9 @@
 <%
-
+var DOMAIN_NAME = "DomainName";
+var FINE_GRAINED_DOMAIN_MAPPING = "FineGrainedDomainMappingAllowedStage";
+var ISSUETRACKER_SUMMARY_ONLY="IssueTrackerConnector.summaryOnly";
+var REPO_ACCESSABILITY = "EnablePerDeveloperRepos";
+var PER_DEVELOEPR_BUILD = "EnablePerDeveloperBuild";
 // collection names
 var APPLICATIONS = "repository/applications/";
 var USER_APPLICATIONS_MAPPING = "userApplicationMapping/";
@@ -49,6 +53,7 @@ var API_MANAGER_SANDBOX = "sandbox";
 var LIFE_CYCLE_NAME="ApplicationLifecycle";
 var APP_VERSION = "/appversion";
 
+var API_MANAGER_BUTTON = "ApiManager.ButtonLabel";
 var API_MANAGER_SERVER_URL = "ApiManager.Server.Url";
 var API_MANAGER_STORE_URL = "ApiManager.Store.Url";
 var API_MANAGER_SERVICE_NAME = "ApiManager.Service.Name";
@@ -61,6 +66,8 @@ var DASHBOARD_SERVER_URL = "BAM.DashboardServer.Url";
 var PLATFORM_ADMIN_DASHBOARD_PATH = "BAM.Dashboards.PlatformAdminDashboard.Path";
 var TENANT_ADMIN__DASHBOARD_PATH = "BAM.Dashboards.TenantAdminDashboard.Path";
 var TENANT_USERS_DASHBOARD_PATH = "BAM.Dashboards.TenantUserDashboard.Path";
+
+var CLOUDMGT_SERVER_URL = "CloudMgtConfig.Property.Url";
 
 var PREFERRED_REPOSITORY_TYPE = "RepositoryType";
 var SHOW_OTHER_SERVICES_TAB = "OtherServices.ShowOtherServicesTab"
@@ -78,6 +85,7 @@ var LCBUTTON_RETIRE_KEY="LCButton.RetireButton.Key"
 var LCBUTTON_RETIRE_VALUE="LCButton.RetireButton.Value"
 
 var PERMISSION_EXECUTE ="ui.execute";
+var PERMISSION_DOMAIN_MAPPING = "/permission/admin/appfactory/configure/Domainmapping";
 var PERMISSION_RESOURCES_CREATE_FOR_STAGE = "/permission/admin/appfactory/resources/create/"
 var PERMISSION_RESOURCES_READ_FOR_STAGE = "/permission/admin/appfactory/resources/read/"
 var PERMISSION_RESOURCES_UPDATE_FOR_STAGE = "/permission/admin/appfactory/resources/update/"
@@ -102,13 +110,14 @@ var PERMISSION_TASKS_VIEW = "/permission/admin/appfactory/tasks/view";
 var PERMISSION_APPLICATION_MEMBER = "/permission/admin/login";
 var PRODUCTION = "Production";
 var PERMISSION_TENANT_LEVEL_USR_MGT="/permission/admin/tenant/user/mgt";
-var PERMISSION_REPOSITORY_FORK ="/permission/admin/appfactory/repository/fork";
-
+var PERMISSION_DEVELOP ="/permission/admin/appfactory/develop";
+var PERMISSION_RESOURCES_CREATE_FOR_ALL_STAGES="/permission/admin/appfactory/resources/create";
 
 var PERMISSION_CXO_DASHBOARD="/permission/admin/appfactory/ceo/dashboard";
 var PERMISSION_DATASOURCE_CREATE="/permission/admin/appfactory/datasource/create";
 var PERMISSION_CONFIGURATION_RESOURCES_FOR_STAGE = "/permission/admin/appfactory/configure/resources/";
 var PERMISSION_RESOURCES_ACCESS_FOR_STAGE = "/permission/admin/appfactory/access/resources/";
+
 
 var USER_SEARCH_STATUS = "EnableUserSearch";
 
@@ -140,6 +149,7 @@ var SELECT_PRIV = "DatabaseDefaultTemplate.Select";
 var SHOW_VIEW_PRIV = "DatabaseDefaultTemplate.ShowView";
 var TRIGGER_PRIV = "DatabaseDefaultTemplate.Trigger";
 var UPDATE_PRIV = "DatabaseDefaultTemplate.Update";
+var MYSQL_DB_DRIVER = "com.mysql.jdbc.Driver";
 
 var BAM_THRIFT_TCP_URL = "BAM.ThriftTCPURL.Url";
 var BAM_THRIFT_SSL_URL = "BAM.ThriftSSLURL.Url";
@@ -155,6 +165,10 @@ var SC_URL=".TenantMgtUrl";
 var CODENVY_BASE_URL = "Codenvy.Property.Url";
 var CODENVY_API_VERSION = "Codenvy.Property.ApiVersion";
 var CODENVY_VCS_TYPE = "Codenvy.Property.VcsType";
+var CODENVY_API_URL= "Codenvy.Property.ApiUrl";
+var CODENVY_USERNAME = "Codenvy.Property.UserName";
+var CODENVY_PASSWORD = "Codenvy.Property.Password";
+var CODENVY_ORGID = "Codenvy.Property.OrgId";
 
 var SAML_RESPONSE_TOKEN_SESSION_KEY = "SAML_TOKEN";
 var SAML_ASSERTION_TOKEN_SESSION_KEY = "SAML_ASSERTION_TOKEN";
@@ -167,4 +181,19 @@ var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";
 
 var CLOUD_MGT_CONTEXT="/cloudmgt";
 var CLOUD_TYPE="AppCloud";
+var WALL_POLLING_PERIOD="NotificationConfig.Social.PollingPeriod";
+var ERROR_NOTIFICATION_POLLING_PERIOD="NotificationConfig.MessageBroker.PollingPeriod";
+
+var GIT_BASE_URL="RepositoryProviderConfig.git.Property.BaseURL";
+
+var PAGES={
+              APP_HOME : "APP_HOME",
+              USER_HOME : "USER_HOME",               
+              REPOS_AND_BUILDS : "REPOS_AND_BUILDS",
+              LIFE_CYCLE_MGT : "LIFE_CYCLE_MGT",
+              RESOURCES : "RESOURCES",
+              TEAM : "TEAM",
+              SERVER : "SERVER",
+              ISSUES : "ISSUES" 
+            };
 %>

@@ -1,0 +1,34 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+(function () {
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	var log=new Log();
+	mod = jagg.module("resources");
+
+	var modPermission = jagg.module("permission");
+	if (action == "getCreatePermittedEnvironments") {
+		var applicationKey = request.getParameter("applicationKey");
+		var permittedStages = [];
+		var stages = getProperties(DEPLOYMENT_STAGES);
+		log.debug(stages);
+		for (var i = 0; i < stages.length; i++) {
+		        var stage = stages[i];
+		        var result=modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage);
+		        if(result){
+		        	permittedStages.push(stage);
+		        } else {
+		        	var msg = "You don't have permission to create resources in stage " +stage;
+		        log.error(msg);
+		        }
+		}
+		print(permittedStages);
+	}else {
+		throw new Error("No action specified");
+	}
+}());
+%>

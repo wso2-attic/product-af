@@ -3,6 +3,9 @@
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var name = request.getParameter("templateName");
+    var hasDataSourceUpdatePermissionInCurrentStage = outputs.hasDataSourceUpdatePermissionInCurrentStage;
+    var hasDataSourceDeletePermissionInCurrentStage = outputs.hasDataSourceDeletePermissionInCurrentStage;
+
     var templateName = "";
     var environment = "";
 
@@ -14,7 +17,9 @@
     var isEdit = request.getParameter("isEdit");
     if (isEdit == undefined ) {
     	isEdit = false;
-    } 
+    }
+
+    var AllowedAllStages=outputs.hasAccessForAllstages;
     
     
 %>
@@ -42,6 +47,14 @@ $(document).ready(function(){
         jagg.popMessage({type:'confirm',title:'Delete Permission Template',content:'Are you sure you want to delete the tempalte <%=name%> ?', okCallback:function(){dropTemplate();}, cancelCallback:function(){}});
         //dropTemplate()
     });
+    $('#copyToAll').change(function() {
+            if($(this).is(":checked")) {
+                $('#rssInstances').parent().slideUp('fast');
+
+            }else{
+                $('#rssInstances').parent().slideDown('fast');
+            }
+        });
 
 });
 
@@ -84,7 +97,13 @@ function editTemplate(){
     	} else {
     		$('#selectAll').prop('checked', false);
     	}
-    	
+
+    	$("#rssInstances").empty().append('<option><%=environment%></option>');
+        $("#rssInstances").select2({
+            formatResult: selectBoxOptionFormat,
+            minimumResultsForSearch: -1,
+            containerCssClass : "error"
+        });
     	
     }, function (jqXHR, textStatus, errorThrown) { 
     	jagg.message({content:'Get detailed tempated',type:'error', id:'templatecreation', id:'templatecreation' }); 
@@ -95,7 +114,7 @@ function editTemplate(){
   function populateRSSEnvs() {
 	
 	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-        action:"getRSSinstances",
+        action:"getCreatableRSSinstances",
         applicationKey:$("#applicationKey").attr('value')
        }, function (result) {
            if(result != undefined){
@@ -272,7 +291,8 @@ function createTemplate(btn){
  var showViewPriv=(document.getElementById("showViewPriv"));
  var triggerPriv=(document.getElementById("triggerPriv"));
  var updatePriv=(document.getElementById("updatePriv"));
- $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+
+ $(btn).attr('disabled','disabled');
  jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
                                 action:"createTemplate",
                                 applicationKey:$("#applicationKey").attr('value'),
@@ -297,23 +317,31 @@ function createTemplate(btn){
                                 showViewPriv:showViewPriv.checked,
                                 triggerPriv:triggerPriv.checked,
                                 updatePriv:updatePriv.checked,
+                                copyToAll:$('#copyToAll').is(':checked')
 
             }
             ,function (result) {
-            	var result = $.trim(result);
+            	var response =jQuery.parseJSON(result); 
+            	console.log(response);
+            	var success=true;
+            	for(var stage in response){
+					if(response[stage]!=="success"){
+							success=false;
+							break;
+						}
+
+                	}
             	
-		if(result=='success'){
+		if(success){
 			callPreviousPage();
-		} else if(result.indexOf('exists') > -1) {	// check whether user is already exists based on identifying key word call 'exists'
-			jagg.message({content:'Template Name already exists!', type:'error', id:'templatecreation' });
 		} else {
-			jagg.message({content:'Error occurred while creating template!', type:'error', id:'templatecreation' });
+			jagg.message({content:'Error occurred while creating template!  Check whether the template already exists', type:'error', id:'templatecreation' });
 		}
-        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+        $(btn).removeAttr('disabled');
 		
 	},function (jqXHR, textStatus, errorThrown) {
 		    jagg.message({content:'Error occurred while creating role',type:'error', id:'templatecreation' });
-            $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
+            $(btn).removeAttr('disabled');
 	});
 }
 
@@ -330,7 +358,9 @@ function callPreviousPage(){
 				<article class="main">
 				
                             <header>
-                            <div><% jagg.includeBlock("page/messages", null); %></div>
+                            <div><% jagg.includeBlock("page/messages", null); %>
+                             <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                             <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
                                 <h1>Resources</h1>
                              </div>
@@ -344,23 +374,24 @@ function callPreviousPage(){
                                             <li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
                                             <li class="breadcrumb_item">
                                             <% if(isEdit){ %>
-                                                <h2><%=name%></h2>
+                                                <h2><%=templateName%></h2>
                                             <% } else {%>
                                                 <h2>Create New DB Permission Template</h2>
                                             <% } %>
                                             </li>
                                     </ol>
                                     <% if(isEdit){ %>
-                                    <div class="right btn_list_box" >
-                                        <ul class="inline_box inline_list btn_list">
-                                            <li class="inline_item">
-												<span id="deleteSpin" class="icon-spinner icon-spin icon-large" style="margin-right: 10px; display:none;"></span>
-                                                <a id="btn_drop_template" href="#" class="btn main">Delete Template</a>
-						
-                                            </li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                     </div>
+                                    <% if(hasDataSourceDeletePermissionInCurrentStage){ %>
+	                                    <div class="right btn_list_box" >
+	                                        <ul class="inline_box inline_list btn_list">
+	                                            <li class="inline_item">
+													<span id="deleteSpin" class="icon-spinner icon-spin icon-large" style="margin-right: 10px; display:none;"></span>
+	                                                <a id="btn_drop_template" href="#" class="btn main">Delete Template</a>
+	                                            </li>
+	                                        </ul>
+	                                        <div class="clearfix"></div>
+	                                     </div>
+	                                     <% } %>  
                                      <% } %>
                                  </div>
                             </div>
@@ -377,10 +408,23 @@ function callPreviousPage(){
                                                     <input type="text" name="templateName" id="templateName" class="half" maxlength="10"/>
                                                 </div>
                                                 <div class="input_row">
-                                                    <label for="new_db_username"><strong>Environment</strong> <em>*</em></label>
-													<select id='rssInstances' class="select_list half big" name="db_environment"></select>
+                                                  <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
+                                                  <select id='rssInstances' class="select_list half big" name="db_environment"></select>
                                                 </div>
-                                            <% } %>
+                                                <%if((AllowedAllStages)){%>
+                                                <div class="input_row">
+					                                <legend id="copyall">
+						                                <input type="checkbox" align="left" id="copyToAll"> Create Database template in all environments
+						                            </legend>
+						                        </div>
+                        						<%}%>
+                                                <%}else{ %>
+                                                <div class="input_row">
+                                                    <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
+                                                    <select id='rssInstances' class="select_list half big" disabled="disabled"></select>
+                                                </div>
+                        						<%}%>
+
                                             <div class="controlset">
 						
                                                 <div class="input_row">
@@ -413,7 +457,9 @@ function callPreviousPage(){
                                             value='<%=request.getParameter("applicationKey")%>'/>
                                         <% if(isEdit){ %>
                                         <div class="buttonrow">
-                                            <input type='button' name='Submit' value='Save Changes' onclick="editDbTemplate(this)" class='btn main'/>
+                                         	<%if(hasDataSourceUpdatePermissionInCurrentStage){%>
+                                         		<input type='button' name='Submit' value='Save Changes' onclick="editDbTemplate(this)" class='btn main'/>
+                                            <% } %>
                                             <a href="#" onclick="return callPreviousPage();">Cancel</a>
                                         </div>
                                         <% } else { %>

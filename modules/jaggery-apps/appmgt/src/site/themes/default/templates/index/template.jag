@@ -3,7 +3,10 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
-jagg.template("index", function(inputs, outputs, jagg) { %>
+jagg.template("index", function(inputs, outputs, jagg) {
+    var applicationKey = null;
+    var newApp = request.getParameter('newApp');
+%>
 <script type="text/javascript" xmlns="http://www.w3.org/1999/html" charset="utf-8">
 var parsedAppArray = [];
 var filterArray = [];
@@ -11,8 +14,9 @@ var applicationsInProgress = new Array();
 var timer;
 var noOfRequest = 0;
 var isAllAppCreated = true;
+var count = 0;
+var newApp = '<%=newApp%>';
 //var hasTriedOnce = false;
-
 
 function createTable() {
     addTableColumnHeaders();
@@ -22,17 +26,52 @@ function createTable() {
         addTableRow(application);
     }
 
-    //load appicons
+    //load app icons
     for (var index = 0; index < parsedAppArray.length; index++) {
         var application = parsedAppArray[index];
         console.log(application);
         loadAppIcon(application.key);
     }
 
+    if(newApp == "true"){
+    	checkForAppFailure();
+    }
+    
     // If there are any Apps which are in pending state
     if (!isAllAppCreated) {
     	reloadAppsInPendingState();
     }
+}
+
+function removeFailedApps() {
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "failedApps",
+            userName: '<%=userName%>',
+            currentApps: JSON.stringify(parsedAppArray)
+        },
+
+        function (result) {
+        	
+            var failedAppArray = jQuery.parseJSON(result);
+            if(failedAppArray.length == 0){
+            	checkForAppFailure();
+            	return;
+            }
+            for (var i = 0; i < failedAppArray.length; i++) {
+            	var application = failedAppArray[i];
+            	removeTableRow(application.key);
+           	
+            	jagg.message({
+        	        content: 'Application '+ application.name +' creation failed',
+        	        type: 'error',
+        	        id:'failure'
+            	});
+            	hideNotification();
+            }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
 }
 
 function addTableColumnHeaders() {
@@ -49,12 +88,6 @@ function handlePendingApps(application){
 	 var app = getApplicationObj(application.key);
 	 if (app == null) {
 	     applicationsInProgress.push(application);
-	 	jagg.message({
-		    content: 'Application '+ application.name +' creation is In-Progress...',
-		    type: 'success',
-		    id:'inProgress'
-		});
-		hideNotification();
 	 }
 }
 
@@ -67,6 +100,7 @@ function addTableRow(application) {
 
     // This logic is specific to filter
     var displayName = "";
+    var defaultBranchCount = 1;
     if (application.highlightedName === undefined || application.highlightedName === "") {
         displayName = application.name;
     } else {
@@ -85,10 +119,10 @@ function addTableRow(application) {
     theLi += '<a href="' + url + '" title="' + application.name + '"><img id="' + application.key + '_icon" height="50px" width="40px" alt="icon" src="#"></a>';
     theLi += '<h2><a href="' + url + '" title="' + application.name + '">' + displayName + '</a></h2></div>';
     theLi += '<div class="app_type col">' + application.typeDisplayName+ '</div>';
-    if (application.branches > 1) {
+    if (application.branchCount > 1) {
         theLi += '<div class="app_branches col"><h3>' + application.branchCount + ' Branches</h3></div>';
     } else {
-        theLi += '<div class="app_branches col"><h3>' + application.branchCount + ' Branch</h3></div>';
+        theLi += '<div class="app_branches col"><h3>' + defaultBranchCount + ' Branch</h3></div>';
     }
     theLi += '</li>';
     $("#item_list").append(theLi);
@@ -96,7 +130,20 @@ function addTableRow(application) {
 
 function removeTableRow(appKey){
 	var theLi = $('#'+appKey);
-    theLi.empty();
+    theLi.remove();
+}
+
+
+function checkForAppFailure(){
+   if (count == 0) {
+	   count++;
+	   setFailedAppRefreshTimeOut(3000);
+   } else if (count <= 2) {
+	   count++;
+	   setFailedAppRefreshTimeOut(2000);
+   } else if (count == 3) { 
+      return;
+   }
 }
 
 function reloadAppsInPendingState(){
@@ -180,39 +227,6 @@ function loadAppIcon(appKey) {
         });
 }
 
-function createDefaultApplication() {
-	var appName = 'My First App';
-	var userName = '<%=session.get("LOGGED_IN_USER")%>';
-	var appDescription = 'This is my first application';
-	var appType = '<%=getProperties("ApplicationType")[0]%>';
-	var repoType = '<%=getProperties("RepositoryProviderConfig")[0]%>';
-	var userName = userName.replace('@','_').replace('.','_');
-	appKey = userName + 'DefaultApp';
-
-	jagg.post("../blocks/application/add/ajax/add.jag", {
-	        action: "createNewApplication",
-	        applicationName : appName,
-	        applicationKey : appKey,
-	        applicationDescription : appDescription,
-	        applicationType : appType,
-	        userName : '<%=session.get("LOGGED_IN_USER")%>',
-	        repositoryType : repoType
-	    },
-
-	    function (result) {
-	    	populateAppOverview();
-	    },
-
-	    function (jqXHR, textStatus, errorThrown) {
-	    	jagg.message({
-	            content: 'Error occured while creating default application',
-	            type: 'error',
-	            id:'uniqueId8'
-	        });
-	    });
-}
-
-
 function populateCreationCompletedApps() {
     jagg.post("../blocks/application/get/ajax/list.jag", {
             action: "creationCompletedApps",
@@ -225,15 +239,7 @@ function populateCreationCompletedApps() {
             	var application = completedAppArray[i];
             	applicationsInProgress.pop(application);
             	addTableRow(application);
-            	// updateTableRow(application);
             	loadAppIcon(application.key);
-            	
-            	jagg.message({
-        	        content: 'Application '+ application.name +' creation completed',
-        	        type: 'success',
-        	        id:'inProgress'
-            	});
-            	hideNotification();
             }
 
             if(applicationsInProgress.length > 0){
@@ -250,9 +256,6 @@ function populateCreationCompletedApps() {
 
 function init(){
 	createTable();
-
-    // Load icons
-
 }
 
 function populateAppOverview() {
@@ -264,12 +267,9 @@ function populateAppOverview() {
 
         function (result) {
             parsedAppArray = jQuery.parseJSON(result);
-//            if (parsedAppArray.length == 0 && hasTriedOnce == false) {
-//    	    	hasTriedOnce = true;
-//                createDefaultApplication();
-//            }
             parsedAppArray.sort(NameComparator);
             init();
+	        getWelcomeMessage();
             $('#main-spinner').remove();
         },
 
@@ -299,10 +299,10 @@ function checkFirstLogin() {
 
             });
 }
+
 $(document).ready(function () {
     checkFirstLogin();
-	populateAppOverview();
-
+    populateAppOverview();
     /* filtering the application array */
     $("#search").bind("keyup", function () {
         if ($(this).val() === null || $(this).val() === undefined || $(this).val().length === 0) {
@@ -337,6 +337,7 @@ $(document).ready(function () {
 
         }
     });
+    setApplicationListView('box_items');
 });
 
 /** ***********************Utility Methods********************************** */
@@ -357,6 +358,17 @@ function getPendingAppKeys(){
 
 function NameComparator(a, b) {
     return a.name.localeCompare(b.name);
+}
+
+function setFailedAppRefreshTimeOut(intervalTime) {
+	// If timer is not null then clear existing timer
+    if (timer != null)
+        clearTimeout(timer);
+
+    // create new timer with given time interval
+    timer = setTimeout(function () {
+    	removeFailedApps();
+    }, intervalTime);
 }
 
 function setPendingAppRefreshTimeOut(intervalTime) {
@@ -386,11 +398,34 @@ function hideNotification() {
     setTimeout(function () {jagg.removeMessage('inProgress')}, 5000);
 }
 
+function getWelcomeMessage(){
+    jagg.post("../blocks/help/ajax/help.jag", {
+            action: "getWelcomeMessage",
+            page: "userhome",
+        },
+
+        function (result) {
+	    if(parsedAppArray.length == 0){
+	    var parsedWelcomeMessage = jQuery.parseJSON(result);
+	    var welcomeMessage = '<p>' + parsedWelcomeMessage.Msg + '</p>'; 
+	    $("#welcome").html(welcomeMessage);
+	    }else{
+	    $("#welcome").hide();
+	    }
+	},
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
+
+
 </script>
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
  <div class="container">
                 	<article class="main">
                 	    <% jagg.includeBlock("page/messages", null); %>
+                	    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.USER_HOME}); %>
+                	    <% jagg.includeBlock("page/notification-wall", {"wall_name":"My Wall","applicationKey":null,"pageName":PAGES.USER_HOME}); %>
                         <header class="separator">
                         	<div class="content">
                                 <% if (outputs.hasAppCreationPermission) { %>
@@ -427,8 +462,10 @@ function hideNotification() {
 								</ul>
                             </div>
                         </header>
-                        <section class="content push_top_40">
-                            <ul class="box_items" id="item_list"></ul>
+			<div id="welcome" class="help-section-top" style="border-bottom:none;"></div>
+		        <% jagg.includeBlock("page/help", {"section": "userhome"}); %>
+			    <section class="content push_top_40">
+                            <ul class="" id="item_list"></ul>
                             <div class="pagination" id="app-list-footer">
                                 <ul></ul>
                             </div>
@@ -438,52 +475,17 @@ function hideNotification() {
                         <div class="clearfix"></div>
                       </article>
 
-                      <!-- div class="container-fluid space-killer">
-                                <%   if(outputs.hasViewTasksPermission || outputs.hasCEODashboardPermission){  %>
-                                <div class="row-fluid">
-                                    <%   if(outputs.hasCEODashboardPermission){  %>
-                                    <div class="span6 special-link-box1">
-                                        <div class="container-fluid space-killer">
-                                            <div class="row-fluid">
-                                                <div class="span12">
-                                                    <a  onclick="location.href='https://appfactorypreview.wso2.com/dashboard'">Dashboard</a>
-                                                </div>
-                                            </div>
-                                            <div class="row-fluid">
-                                                <div class="span2">
-                                                    <a  onclick="location.href='https://appfactorypreview.wso2.com/dashboard'"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dashboard.png'))%>"  /></a>
-                                                </div>
-                                                <div class="span10">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eros purus, sodales non porttitor quis, hendrerit id
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <% } %>
-                                    <%   if(outputs.hasViewTasksPermission){  %>
-                                    <div class="span6 special-link-box2">
-                                        <div class="container-fluid space-killer">
-                                            <div class="row-fluid">
-                                                <div class="span12">
-                                                    <a  onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/mytasks.jag")%>'">Tasks</a>
-                                                    <a  onclick="location.href='#'">Tasks</a>
-                                                </div>
-                                            </div>
-                                            <div class="row-fluid">
-                                                <div class="span2">
-                                                    <a  onclick="location.href='#'"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/tasks.png'))%>"  /></a>
-                                                    <a  onclick="location.href='<%=jagg.getAbsoluteUrl("/site/pages/mytasks.jag")%>'"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/tasks.png'))%>"  /></a>
-
-                                                    </div>
-                                                <div class="span10">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eros purus, sodales non porttitor quis, hendrerit id
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <% } %>
-                                </div>
-                                <% } %>
-                            </div -->
             </div>
+
+	<style>
+
+</style>
+    <!--<div class="notification-section">
+        <div id="notificationBar" class="notification-container">
+            <h2 class="big">Notifications on Application Creation</h2>
+            <div id="notificationDataDiv"></div>
+        </div>
+    </div>
+	-->
 <% }); %>
+

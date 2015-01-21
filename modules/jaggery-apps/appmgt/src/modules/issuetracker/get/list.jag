@@ -63,18 +63,18 @@
 
     };
     
-    var getOpenIssues = function(applicationKey, applicationVersion)
-    {
+var getOpenIssues = function(applicationKey, applicationVersion){
         jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
         var result;
         var issues = new Array();
 
         try {
             result = getIssuesOfApplicationVersion(applicationKey,applicationVersion);
-
             var resultElems = result.issueResponse;
+        var arrayIndex=0;
             for (var i = 0; i < resultElems.length; i++){
                 var issue =  resultElems[i].issue;
+
                 if(issue.status == "OPEN"){
                     var openIssue = {};
                     openIssue.title = issue.summary;
@@ -82,8 +82,10 @@
                     openIssue.id = issue.key;
                     openIssue.status = issue.status;
                     openIssue.url = getProperty(ISSUETRACKER_URL) + 'issue/get?issuePkey=' + issue.key;
-                    issues[i] = openIssue;
+                    issues[arrayIndex] = openIssue;
+                    arrayIndex++;
                 }
+
             }
         } catch (e) {
             log.error("Error while getting issues of " + applicationKey + "\n" + e.message);
@@ -91,5 +93,5 @@
         }
         return issues;
 
-    };
+};
 %>

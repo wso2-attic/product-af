@@ -1,0 +1,14 @@
+{
+   "sections":{
+      "application":{
+         "addMmember":{"roles":"owner", "details":{ "msg":"Add Members", "subMsg":"You can add members to your application", "link":{ "staticStart":"https://milestones.appfactory.wso2.com:9443/appmgt/site/pages/application-user.jag?", "keyValuePairs":{ "applicationName=":"applicationName", "&applicationKey=":"applicationKey" } } } },
+         "buildApp":{ "owner":"Build you application", "dev":"Build the application and test" },
+         "deployApp":{ "roles":"owner,dev", "details":{ "msg":"Deploy app", "subMsg":"You can deploy your application and test it", "link":{ "staticStart":"https://milestones.appfactory.wso2.com:9443/appmgt/site/pages/reposBuilds.jag?", "keyValuePairs":{ "applicationName=":"applicationName", "&applicationKey=":"applicationKey" } } } },
+         "testlocal":"local" },
+      "build":{
+         "addMmember":{"roles":"owner", "details":{ "msg":"Add Members", "subMsg":"You can add members to your application", "link":{ "staticStart":"https://milestones.appfactory.wso2.com:9443/appmgt/site/pages/application-user.jag?", "keyValuePairs":{ "applicationName=":"applicationName", "&applicationKey=":"applicationKey" } } } },
+         "buildApp":{ "owner":"Build you application", "dev":"Build the application and test" },
+         "deployApp":{ "roles":"owner,dev", "details":{ "msg":"Deploy app", "subMsg":"You can deploy your application and test it", "link":"https://www.google.lk" } },
+         "testlocal":"local" }
+   }
+}

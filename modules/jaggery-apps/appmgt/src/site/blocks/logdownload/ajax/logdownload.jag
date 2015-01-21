@@ -3,29 +3,12 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 (function () {
-    var mod, obj, result,
+    var mod, obj,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
 
     var log = new Log();
-    /*
-     if (action == "downloadFile") {
-     var applicationKey = request.getParameter("applicationKey");
-     var stage = request.getParameter("stage");
-     var version = request.getParameter("version");
 
-     var fileName=stage+'-as.log';
-     mod = jagg.module("logdownload");
-
-     response.contentType = 'application/txt'
-     response.addHeader('Content-Disposition', 'attachment;filename='+fileName.toString());
-     try{
-     print(mod.downloadLogFile(applicationKey, stage));
-     }catch(e){
-     throw "Unable to download logs";
-     }
-     }else if (action == "downloadArchivedLogFile") {
-     */
     if (action == "downloadLogFile") {
 
         var applicationKey = request.getParameter("applicationKey");
@@ -33,13 +16,19 @@ include("/jagg/config_reader.jag");
         var version = request.getParameter("applicationVersion");
         var date = request.getParameter("date");
         var downloadFile = request.getParameter("downloadFile");
+        var pageNumber = request.getParameter("pageNumber");
+
+        if(pageNumber == null || pageNumber == 'null'){
+            pageNumber = -1;
+        }
 
         mod = jagg.module("logdownload");
-        var logDownloadPermissionStage = PERMISSION_DEPLOY_TO + stage;
         var response = {};
-        if (jagg.module("permission").isUserAccessGranted(applicationKey, logDownloadPermissionStage)) {
+
+        var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
+        if (jagg.module("permission").isUserAccessGrantedForPlatform(deployToStagePermission)){
             try {
-                var result = mod.downloadLogFile(applicationKey, stage, version, date);
+                var result = mod.downloadLogFile(applicationKey, stage, version, date, pageNumber);
 
                 if (downloadFile == "true") {
 
@@ -47,7 +36,7 @@ include("/jagg/config_reader.jag");
                     if (date == null || date == "") {
 
                         var d = new Date();
-                        var curr_date = ("0" + d.getDate()).slice(-2)
+                        var curr_date = ("0" + d.getDate()).slice(-2);
 
                         var curr_month = ("0" + (d.getMonth() + 1)).slice(-2); //Months are zero based
                         var curr_year = d.getFullYear();
@@ -55,7 +44,7 @@ include("/jagg/config_reader.jag");
                     } else {
                         fileName = applicationKey + "_" + date + ".log";
                     }
-                    response.contentType = 'application/txt'
+                    response.contentType = 'application/txt';
                     response.addHeader('Content-Disposition', 'attachment;filename=' + fileName.toString());
                 }
                 print(result);
@@ -79,12 +68,12 @@ include("/jagg/config_reader.jag");
         try {
             print(mod.getVersionsOfApplicationInStages(userName, applicationKey));
         } catch (e) {
-            var msg = "Error while retriving App Owner for app key " + applicationKey + "\n";
+            var msg = "Error while retrieving App Owner for app key " + applicationKey + "\n";
             log.error(msg + e.message);
             throw msg;
         }
     } else {
-        log.info("No action specified");
+        log.error("No action specified");
     }
 }());
 

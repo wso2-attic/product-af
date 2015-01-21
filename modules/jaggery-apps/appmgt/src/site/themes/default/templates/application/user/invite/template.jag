@@ -1,3 +1,4 @@
+<% include("/jagg/constants.jag"); %>
 <% jagg.template("application/user/invite", function(inputs, outputs, jagg) { %>
 
 <%
@@ -6,21 +7,21 @@
     jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
     var isOTTenant=outputs.isOTTenant;
-%>
+    %>
 
 
-<script type="text/javascript">
-/*this method fill up the table that depicts the roles and the relevant users */
-var addedUsers=[];
+    <script type="text/javascript">
+    /*this method fill up the table that depicts the roles and the relevant users */
+    var addedUsers=[];
+    var repoAccessability = "";
+    function updateTable() {
 
-function updateTable() {
 
-
-    jagg.post("../blocks/application/users/get/ajax/list.jag", {
-        action: "getUsersOfApplication",
-        applicationKey:$("#applicationKey").attr('value')
-    }, function (result) {
-        appUsers= <%=session.get("appUsers")%>;     //this is put in to the session in the block level /blocks/application/users/get/ajax/list.jag
+        jagg.post("../blocks/application/users/get/ajax/list.jag", {
+            action: "getUsersOfApplication",
+            applicationKey:$("#applicationKey").attr('value')
+        }, function (result) {
+            appUsers= <%=session.get("appUsers")%>;     //this is put in to the session in the block level /blocks/application/users/get/ajax/list.jag
         //$('#btn_nvite_users').removeAttr('disabled').val($('#btn_nvite_users').attr('prev-val'));
     }, function (jqXHR, textStatus, errorThrown) {
         appUsers= <%=session.get("appUsers")%>;
@@ -37,7 +38,7 @@ function sendInvite(users){
             },
 
             function (result) {
-
+		$('#btn_nvite_users').prop('disabled',false);
                 if(result != undefined || result==true){
 
                     window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>");
@@ -54,17 +55,19 @@ function sendInvite(users){
                 updateTable();
 
                  //   window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>");
+		$('#btn_nvite_users').prop('disabled',false);
             });
 
 }
 
+
 /*This method is not removed.kept for future use*/
 function searchUser(autocomplete){
 	<%
-	if(getProperty(USER_SEARCH_STATUS) === "false"){
-		%>return;<%
-	}
-	%>
+    if(getProperty(USER_SEARCH_STATUS) === "false"){
+        %>return;<%
+    }
+    %>
     var userName;
     var searchPara;
     if(autocomplete==true){
@@ -90,11 +93,28 @@ function searchUser(autocomplete){
             });
 
 }
+
+function clear_checkBoxes(){
+    $('.role_checkbox').attr('checked',false);
+}
+function rolePanelSlideUp(){
+    $('#org_user_invitation').slideUp(function(){
+        clear_checkBoxes();
+
+        });
+
+
+
+}
+
 var appUsers={};
 var invitaionArray=[];
 $(document).ready(function(){
+    getHelpTips();
   //  loadAllUsers();
   //  appUsers=sessionStorage.getItem("appUsers");
+    var appKey = '<%= applicationKey %>'
+	loadApplicationInfo(appKey);
     updateTable();//to refresh the session variuable
     //$('#btn_nvite_users').prop("disabled", true);
    // $('#addToListBtn').prop('disabled',true);
@@ -108,13 +128,13 @@ $(document).ready(function(){
         //check whether user is in the app
         if(testUser.length>0){
         if(addedUsers.indexOf(testUser)===-1){
-      //  addedUsers.push(testUser);
+           
            // $('#btn_nvite_users').prop("disabled", false);
 
         if(!isUserIntheApp(testUser)){
             //user in not in the app
             getUserInfo(testUser);
-
+		
         }else{
             //user is in the app
             //show error notificaiton
@@ -131,17 +151,51 @@ $(document).ready(function(){
             });
 
         }
-        $('#allUsersList').val('');
-        }else{
-            jagg.message({
-                content: "User name can not be empty- Enter a valid user name",
-                type: 'warning', id:'inviteMembersForAppPage'
-            });
-
+        
         }
+        $('#close_panel').click(function(){
+			rolePanelSlideUp();
+            });
+         
+        $('#invite_to_org').click(function(){
+          var userName=$('#allUsersList').val();
+          var email=$('#notification_email').val();
+          var roles_to_assign = [];
+          $('#roles input:checked').each(function() {
+               roles_to_assign.push($(this).attr('data-role'));
+          });
+         roles_to_assign.push("app_"+"<%= applicationKey%>");
+            //call block level of cloud app with user name,email,and set of roles to assign 
+            //
+         if(!validateEmail(email)){
+             jagg.message({
+                 content: "Email address invalid- Enter a valid emai address",
+                 type: 'error', id:'inviteMembersForAppPage'
+             });
+         }else{
+             rolePanelSlideUp();
+             var msgString="Invitation has been succesfully posted to "+userName
+             				+"for application <%=applicationName%>"; 
+	             				 jagg.message({
+	             	                 content: msgString,
+	             	                 type: 'success', id:'inviteMembersForAppPage'
+	             	             });
+              $('#allUsersList').val('');
+          }
+          });
     });
-
-    function createUlElementFoUser(User){
+    function validateEmail(sEmail) {
+        var filter = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        if (filter.test(sEmail)) {
+            return true;
+        }
+        else { 
+            return false;
+        }
+    }
+        
+   
+     function createUlElementFoUser(User){
         var userName=User.userName;
         var id=userName.split('@')[0];
         invitaionArray.push(userName);
@@ -181,6 +235,8 @@ $(document).ready(function(){
                 '</li>'+
                 '</ul>'+
                 '</li>'));
+        $('#allUsersList').val('');
+        rolePanelSlideUp();
         $('.assign_roles').click(function(event){
 
             event.stopImmediatePropagation();
@@ -215,7 +271,7 @@ $(document).ready(function(){
 		if($('input[type=checkbox]:checked').size()==0){
 			//$('#btn_nvite_users').prop("disabled", true);
 		}
-		
+
         });
     }
     function getUserInfo (user){
@@ -227,9 +283,18 @@ $(document).ready(function(){
                 function (result) {
 
                     uresult=JSON.parse(result);
-                    if(uresult.error == "true"){
-                     jagg.message({content: uresult.message,
-                        type: 'error', id:'inviteMembersForAppPage'});
+                    console.log(uresult);
+//                     if(uresult==null){
+//                         $('#org_user_invitation').slideDown();
+//                     }
+
+                    if(uresult==null){
+                 //    jagg.message({content: uresult.message,
+                 //       type: 'error', id:'inviteMembersForAppPage'});
+                        jagg.message({
+                            content: "Specified user is not registered - Select a user who is registered",
+                            type: 'warning', id:'inviteMembersForAppPage'
+                        });
                     } else {
                         var uname=uresult.userName;
                         if(uname.length>0){
@@ -237,9 +302,10 @@ $(document).ready(function(){
                                 var roleNum= uresult.roles.length;
                                 if(roleNum>0){
                                     createUlElementFoUser(uresult);
+                                    addedUsers.push(uname);
                                 }else{
                                     jagg.message({
-                                        content: uname+" has not been assigned roles - Assign roles and add user to application",
+                                        content: uname+" is not assigned to roles yet. An admin must assign roles to users before you can add them as members of your team.",
                                         type: 'warning', id:'inviteMembersForAppPage'
                                     });
 
@@ -274,14 +340,36 @@ $(document).ready(function(){
         return false;
     }
 
+ function loadApplicationInfo(applicationKey){
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+	    action:"getAppInfo",
+	    applicationKey:applicationKey
+	},function (result) {
+	    var parsedArray = jQuery.parseJSON(result);
+      	    repoAccessability = parsedArray.repoAccessability;
+	},function (jqXHR, textStatus, errorThrown) {
+	    //jagg.message({content:'Could not load Application information',type:'error' });
+        jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+	});
+}
+
+
+
     $('#btn_nvite_users').click(function(){
 	jagg.removeMessage('inviteMembersForAppPage');
         if(invitaionArray.length>0){
         if(validateInvitees()){
-            inviteAllNew();
+	    $('#btn_nvite_users').prop('disabled',true);
+		var appKey = '<%= applicationKey %>'
+		loadApplicationInfo(appKey);
+           
+		/*if(repoAccessability == "perDevRepo"){
+               forkRepositoryForDevelopers(invitaionArray);
+            }*/
+		inviteAllNew();
             jagg.message({
                 content: "User list is submitted to invite",
-                type: 'info', id:'inviteMembersForAppPage'
+                type: 'success', id:'inviteMembersForAppPage'
             });
             invitaionArray=[];
         }else{
@@ -289,6 +377,7 @@ $(document).ready(function(){
                 content: "Users without roles can be found in the list - Assign roles and continue with invitation process",
                 type: 'warning', id:'inviteMembersForAppPage'
             });
+	    $('#btn_nvite_users').prop('disabled',false);
 
         }
         }else{
@@ -296,6 +385,7 @@ $(document).ready(function(){
                 content: "Empty list of invitees - Add users to the invitation list ",
                 type: 'error', id:'inviteMembersForAppPage'
             });
+	    $('#btn_nvite_users').prop('disabled',false);
 
         }
 
@@ -382,12 +472,57 @@ var loadAllUsers = function(){
                 });
 
 
-}
+};
 
 function validateInvitees(){
    return invitaionArray.length>0;
 }
 
+function doFork(applicationKey, tenantAwareUserNameArray, type, version) {
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+                action:"createFork",
+                applicationKey:applicationKey,
+                userNameArray:tenantAwareUserNameArray.toString(),
+                type:type,
+                version:version
+            }, function (result) {
+                forcePageAppRefresh = true;
+            },
+            function (jqXHR, textStatus, errorThrown) {
+                jagg.message({
+                    content:"Error while forking repository.",
+                    type:'error'
+                });
+            });
+}
+
+function forkRepositoryForDevelopers(invitationArray) {
+    var loggedInUser = '<%=session.get("LOGGED_IN_USER")%>';
+    var appKey = '<%= applicationKey %>';
+    var tenantDomain = loggedInUser.split("@")[1];
+    var tenantAwareUserNameArray = [];
+    for (var i = 0; i < invitationArray.length; i++) {
+        var tenantAwareUserName = invitationArray[i] + "@" + tenantDomain;
+        tenantAwareUserNameArray.push(tenantAwareUserName);
+    }
+    doFork(appKey, tenantAwareUserNameArray, "git", "");
+
+}
+
+function getHelpTips(){
+    jagg.post("../blocks/help/ajax/help.jag", {
+            action: "getHelpTips",
+            page: "memberAddition",
+        },
+
+        function (result) {
+            helpTips = jQuery.parseJSON(result);
+                 $("#addMemberHelp").html(helpTips.addMemberHelp);
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
 
 </script>
 
@@ -396,42 +531,61 @@ function validateInvitees(){
 				<article class="main">
 
 				     <% jagg.includeBlock("page/messages", null); %>
+				     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.TEAM}); %>
+				     <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
                     <header class="separator">
                         <div class="content">
                             <ol class="breadcrumb">
-                                    <li class="breadcrumb_item"><a class="breadcrumb_link" href="<%=jagg.getAbsoluteUrl("/site/pages/user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Home</a></li>
-                                    <li class="breadcrumb_item"><h1>Add Members  for Application <%=applicationName%></h1></li>
+                                    <li class="breadcrumb_item"><a class="breadcrumb_link" href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Team</a></li>
+                                    <li class="breadcrumb_item"><h1>Add Members</h1></li>
                             </ol>
                          </div>
                     </header>
- 					<section class="separator">
+<!-- <% jagg.includeBlock("page/help", {"section": "memberAddition"}); %>-->
+				<section class="separator">
 						<div class="mini_content well">
                             <div class="form-container" name="#">
+                            <div class="help-block"><span class="help-icon">?</span> <span id="addMemberHelp"></span></div>
                             <div id="select_user_box">
-                                <%if(isOTTenant==true){%>
-                            	<label>Email</label><br />
-                                <%}else{%>
-                                <label>User Name</label><br />
+                                <%
+    var header = "User Name";
+    if(isOTTenant==true){%>
+                            	    header = "Email";
                                 <%}%>
                                 <div class="input_row">
                                   <!--  <select class="select_list_custom select2-input" id="allUsersList" type="text"></select>     -->
-                                    <input type="text" class="select2-input" spellcheck="false" id="allUsersList" autocapitilize="off" autocorrect="off" autocomplete="off">
+                                    <input type="text" class="select2-input" spellcheck="false" id="allUsersList" autocapitilize="off" autocorrect="off" autocomplete="off" placeholder="<%=header%>">
                                     <button class="btn sub" id="addToListBtn">Add to List</button>
                                 </div>
+                                <div id="org_user_invitation" style="display:none">
+                                <div class="input_row">
+                                 <p>User doesn't exist in the organization. Select a role and invite</p> 
+                                 </div>
+                                <div class="input_row">
+                                             <label>Email</label><input type="text" id="notification_email" spellcheck="false" id="allUsersList" autocapitilize="off" autocorrect="off" autocomplete="off">            
+                                                             
+                                                   </div>
+                                                  <form class="form-container" id="jsroleAssignPopupForm">
+                                                             <div class="input_row" id="roles">
+                                                                <label class="text-box-overrider" data-role="developer"><input type="checkbox" class="role_checkbox"  data-role="developer"> Developer</label>
+                                                             
+                                                                <label class="text-box-overrider" data-role="devops"><input type="checkbox" class="role_checkbox" data-role="devops" > DevOps</label>
+                                                                                                                     
+                                                                <label class="text-box-overrider" data-role="qa"><input type="checkbox" class="role_checkbox" data-role="qa" > QA</label>
+                                                            
+                                                                 <label class="text-box-overrider" data-role="appowner"><input type="checkbox" class="role_checkbox" data-role="appowner" > Application Owner</label>
+                                                          
+                                                                 <label class="text-box-overrider" data-role="cxo"><input type="checkbox" class="role_checkbox" data-role="cxo" > CXO</label>
+                                                             </div>
+                                                             <div class="input_row">
+                                                                <button class="btn main small" type="button" id="invite_to_org">Invite</button><a id="close_panel" href="#" class="popover_close small">Close</a>
+                                                             </div>
+                                                    </form>
+                                 </div>
                             </div>
 
                             <ul class="list_table" id="userListTable" >
-                            	<li class="list_row_item first_list_row_item">
-                                    <ul class="list_row first_list_row border-remover">
-                                        <li class="list_col first_list_col team_member">
-                                        	<h2 class="list_col_heading">&nbsp;</h2>
-                                        </li>
 
-                                        <li class="list_col last_list_col team_remove">
-                                        	<h2 class="list_col_heading">&nbsp;</h2>
-                                        </li>
-                                     </ul>
-                                </li>
                            	</ul>
                             <div id="action_container" class="push_top_20">
                             	<button type="button" class="btn main" id="btn_nvite_users">Invite</button> <a id="btn_cancel" href="javascript:location.href='/appmgt/site/pages/application-user.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">Cancel</a>

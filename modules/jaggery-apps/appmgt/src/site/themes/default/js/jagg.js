@@ -8,7 +8,7 @@ var messageTimer;
                                data:data,
                                async:true,
                                cache:false,
-                               success:callback,                           
+                               success:callback,
                                error:error
         });
     };
@@ -181,7 +181,7 @@ var messageTimer;
             //show ok and cancel buttons and register callbacks for each.
             $buttonRow = $('<ul class="inline_list">'+
                                 '<li class="inline_item"><a href="#" class="btn sub big modal_cancel" >Cancel</a></li>'+
-                                '<li class="inline_item"><a href="#" class="btn main big modal_action">Ok</a></li>'+
+                                '<li class="inline_item"><a href="#" class="btn main big modal_action">OK</a></li>'+
                             '</ul>');
 
             $('.modal_action',$buttonRow).click(function(){
@@ -266,18 +266,22 @@ var messageTimer;
             });
 
     };
-	
-	
+
+
 
 		var e = jQuery.Event("keyup"); // or keypress/keydown
 		e.keyCode = 27; // for Esc
 		$(document).trigger(e); // trigger it on document
-	
-	
+
+
 	$(document).keyup(function(e) {
 		if (e.keyCode == 27) { // Esc
 			jagg.removeMessage();
 		}
 	});
+	
+	jagg.getConvertedVersion=function(version){
+	    return version.replace(/\./g,'_');
+	};
 
 }());

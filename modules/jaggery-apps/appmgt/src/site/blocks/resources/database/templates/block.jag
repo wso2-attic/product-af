@@ -1,14 +1,33 @@
-
 <%
 include('/jagg/constants.jag');
+include("/jagg/util.jag");
 jagg.block("resources/database/templates", {
-    initialize:function (data) {
+    initialize: function (data) {
 
     },
-    getInputs:function () {
+    getInputs: function () {
         return {
-            "applicationKey":null
+            "applicationKey": null
         }
+    },
+    getOutputs:function (inputs) {
+        var applicationKey = request.getParameter("applicationKey");
+        var permissionModule = jagg.module("permission");
+        var currentStage = request.getParameter("environment");
+        var hasAccessForAllstages=jagg.module("permission").hasPermissionForAllStages(applicationKey);
+
+        return {
+            "hasCreateResourcePermissions": hasUILevelResourceCreationPermission(applicationKey),
+            "hasDataSourceUpdatePermissionInCurrentStage": permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + currentStage),
+            "hasDataSourceDeletePermissionInCurrentStage": permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + currentStage),
+            "hasAccessForAllstages":hasAccessForAllstages
+        };
     }
   });
 %>
+
+
+
+
+
+

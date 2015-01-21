@@ -1,0 +1,40 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "listen") {
+        mod = jagg.module("events");
+        var appMod = jagg.module("application");
+
+        var pageName = request.getParameter("pageName");
+        var userName = request.getParameter("userName");
+        var appId = request.getParameter("appId");
+        var response;
+
+        if (pageName == PAGES.USER_HOME) {
+            var application_list = session.get('application_list');
+            var userApps = parse(application_list);
+            for (var i = 0; i < userApps.length; i++) {
+                var appKey = userApps[i].key;
+                // user home
+                response = mod.listen(userName).concat(mod.listen(appKey + ".fork.users." + userName));
+            }
+            print(response);
+        } else {
+            // app home
+            print(mod.listen(appId));
+        }
+
+
+    } else {
+        throw new Error("Invalid action specified");
+    }
+
+}());
+%>

@@ -1,0 +1,8 @@
+jagg.block("application/delete", {
+    initialize:function (data) {
+
+    }
+
+});
+%>
+

@@ -1,0 +1,17 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("modules/events/buildEvent/buildEvent.jag");
+var modManager = jagg.module("manager");
+var eventModel=require('../event-model.json');
+//todo:implement when needed
+var buildEvent = function (eventTypeId,dataMap) {
+
+	return "{}";
+
+};
+
+
+%>

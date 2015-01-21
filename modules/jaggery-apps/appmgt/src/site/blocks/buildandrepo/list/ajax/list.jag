@@ -6,11 +6,11 @@ var log=new Log();
 
 (function () {
 
-    var mod, obj, result, response,
+    var mod, obj, result,
     action = request.getParameter("action"),
     site = require("/site/conf/site.json");
     var modPermission = jagg.module("permission");
-      
+    var response = [];
     if(action=="getbuildandrepodata"){
 
         var modBuild = jagg.module("build");
@@ -27,7 +27,9 @@ var log=new Log();
         if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)){
             //calling module app
             var x = modApp.getAppVersionsInStages(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed);
-            var appInfo=parse(x);
+            if(x !=null){
+                var appInfo=parse(x);
+            }
 
             var buildableStages=parse(modApp.getBuildableStages());
             var appDetails=[];
@@ -48,7 +50,7 @@ var log=new Log();
                     var build={};
                     var deployment={};
                     var versionElement=versions[index];
-
+                    
                     version.current=versionElement.version;
                     version.stage=versionElement.stage;
                     version.artifactType=elementAppInfo.type;
@@ -58,6 +60,8 @@ var log=new Log();
                     version.isAutoDeploy=versionElement.isAutoDeploy;
                     version.isAutoBuild=versionElement.isAutoBuild;
                     version.currentBuildStatus=versionElement.currentBuildStatus;
+                    version.promoteStatus=versionElement.promoteStatus;
+                    version.productionMappedDomain = versionElement.productionMappedDomain;
 
                     var buildInfo=versionElement.lastBuildResult.split(' ');
                     build.lastBuildId=buildInfo[1];
@@ -90,7 +94,7 @@ var log=new Log();
         var response = {};
         if (modPermission.isUserAccessGrantedForPlatform(PERMISSION_BUILD)){
             var tenantDomain = modManager.getTenantDomain();
-            var jenkinsUrl = getProperty(BASE_URL) + "/t/" + tenantDomain + "/webapps/jenkins";
+            var jenkinsUrl = getProperty(BASE_URL) + "/t/" + tenantDomain + "/webapps/jenkins/";
 
             print(stringify(jenkinsUrl));
         } else {
@@ -109,23 +113,37 @@ var log=new Log();
         var appType = request.getParameter("appType");
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_BUILD)){
 
+
+            /** Need to create a URL like below for the codenvy functioning.
+             *
+             * https://codenvy.com/factory?v=1.2&projectattributes.pname=bizsynergix_project&&vcs=git&
+             * vcsurl=https://git.cloudpreview.wso2.com/git/bizsynergix.com/bizhomepage.git&action=openproject&
+             * projectattributes.ptype=War&vcsinfo=true&vcsbranch=1.0.0
+             * @type {*}
+             */
+
+
             var codeEnvyUrl = getProperty(CODENVY_BASE_URL);
             var codeEnvyApiVersion = getProperty(CODENVY_API_VERSION);
             var projectName = applicationKey + "_project";
-            var workspanceName =  applicationKey + "_workspace";
             var versionControlSystem = getProperty(CODENVY_VCS_TYPE);
             var vcsUrl = gitUrl;
             var action = "openproject";
             var repoType = "Jar";
+            var codeEnvyApiUrl = getProperty(CODENVY_API_URL);
+            var codeEnvyUserName = getProperty(CODENVY_USERNAME);
+            var codeEnvyPassword = getProperty(CODENVY_PASSWORD);
+            var codeEnvyOrgId = getProperty(CODENVY_ORGID);
+
 
             if(appType=="war"){
-                repoType = "War";
+                repoType = "maven";
             }else if(appType=="jaxrs"){
-                repoType = "War"
+                repoType = "maven"
             }else if(appType=="jaxws"){
-                repoType = "War"
+                repoType = "maven"
             }else if(appType=="jaggery"){
-                repoType = "JavaScript";
+                repoType = "maven";
             }else{
                 repoType = "default";
             }
@@ -134,12 +152,57 @@ var log=new Log();
                 version = "master";
             }
 
-            var nonEncodedUrl = codeEnvyUrl + "?v=" + codeEnvyApiVersion + "&pname=" + projectName +
-                    "&wname=" + workspanceName +
-                    "&vcs="+ versionControlSystem + "&vcsurl=" +
-                    vcsUrl + "&action=" + action + "&ptype=" + repoType +
-                    "&vcsinfo=true&vcsbranch="+version;
-            print(nonEncodedUrl);
+            /* ------------------------------- */
+            // Call Codenvy authentication API and Get token
+
+            var loginUrl = codeEnvyApiUrl + '/auth/login';
+            var data = '{"username": "' + codeEnvyUserName + '", "password":"' + codeEnvyPassword + '"}';
+
+            var headers = {"Content-Type":"application/json"};
+            var type = "application/json";
+
+            try{
+                var result = post(loginUrl, data, headers, type);
+                var tokenJson = parse(result.data);
+                var token = tokenJson.value;
+
+                /* ------------------------------- */
+
+                // Get encoded URL using the token
+
+                var factoryUrl = codeEnvyApiUrl + '/factory?token=' + token;
+                var fd = new FormData();
+                log.info("Token: " + token);
+                /**
+                 *
+                 *Need to create form data with factoryUrl like bellow
+                 // factoryUrl={"v":"1.2", "vcs":"git", "vcsurl":"https://git.cloudpreview.wso2.com/git/bizsynergix.com/bizhomepage.git",
+                        "vcsbranch":"1.0.0", "vcsinfo":"true", "action":"openproject","projectattributes":{"pname":"bizsynergix_project", "ptype":"War"}}
+                 */
+
+                var welcomePage = '{"authenticated": {"title": "Welcome to AppFactory","iconurl": "","contenturl": "http://code.cloud.wso2.com"},"nonauthenticated": {"title":"Welcome to AppFactory","iconurl": "","contenturl": "http://code.cloud.wso2.com"}}';
+
+                fd.append("factoryUrl",'{"warnonclose":"true", "v":"' + codeEnvyApiVersion + '", "welcome":' + welcomePage + ',"vcs":"' + versionControlSystem +
+                        '", "vcsurl":"' + vcsUrl + '", "vcsbranch":"' + version +
+                        '", "vcsinfo":"true", "action":"openproject","orgid":"' + codeEnvyOrgId + '","projectattributes":{"pname":"'
+                        + projectName + '", "ptype":"' + repoType + '", "buildername":"maven", "runnername":"JavaWeb", "runnerenvironmentid":"wso2as521"' + '}}');
+
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", factoryUrl);
+                xhr.send(fd);
+
+                var responseText = xhr.responseText;
+                var response = parse(responseText);
+                var encodedUrl = codeEnvyUrl + "?id=" + response.id;
+                /* ------------------------------- */
+                print(encodedUrl);
+
+            } catch(e){
+                response.error="true";
+                response.message = "Failed creating the Codenvy workspace URL!";
+                print(response);
+                log.error("Could not connect to Codenvy.   " + e);
+            }
         } else {
             response.result = 0;
             response.message = "You don't have permission to get the codenvy URL";
@@ -147,6 +210,88 @@ var log=new Log();
         }
 
 
+
+    }else if(action=="getbuildandrepodataforkedrepo"){
+
+        var modBuild = jagg.module("build");
+
+        //gathering request parameters
+        var applicationKey = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        var isRoleBasedPermissionAllowed = request.getParameter("isRoleBasedPermissionAllowed");
+        var metaDataNeed = request.getParameter("metaDataNeed");
+        var buildableforstage = request.getParameter("buildableforstage");
+
+        modApp = jagg.module("application");
+        if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)){
+            //calling module app
+            var x = modApp.getAppVersionsOfUser(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed);
+            if(x!=null){
+                var appInfo=parse(x);
+            }
+            var buildableStages=parse(modApp.getBuildableStages());
+            var appDetails=[];
+
+            for(var appIndex in appInfo ){
+                var elementAppInfo=appInfo[appIndex];
+
+                //Identifying separately whether artifact type is buildable or non-buildable.
+                var isBuildableArtifact = getProperty("ApplicationType." + elementAppInfo.type + ".Property.Buildable");
+
+                var versions=elementAppInfo.versions;
+
+                for(var index in versions){
+                	
+                    var tempAppDetail={};
+                    var version={};
+                    var build={};
+                    var deployment={};
+                    var versionElement=versions[index];
+
+                    version.current=versionElement.version;
+                    version.stage=versionElement.stage;
+                    version.artifactType=elementAppInfo.type;
+                    version.isBuildableArtifact = isBuildableArtifact ;
+                    version.parent=" ";
+                    version.repoURL=versionElement.repoURL;
+                    version.isAutoDeploy=versionElement.isAutoDeploy;
+                    version.isAutoBuild=versionElement.isAutoBuild;
+                    version.currentBuildStatus=versionElement.currentBuildStatus;
+                    version.promoteStatus=versionElement.promoteStatus;
+
+                    var buildInfo=versionElement.lastBuildResult.split(' ');
+                    build.lastBuildId=buildInfo[1];
+                    build.status=buildInfo[2];
+                    build.triggeredBy="";
+                    build.triggeredTime="";
+
+                    deployment.deployedBuildId=versionElement.deployedBuildId;
+                    deployment.triggeredBy="";
+                    deployment.triggeredTime="";
+                    tempAppDetail.type=appInfo[0].type;
+                    tempAppDetail.version=version;
+                    tempAppDetail.build=build;
+                    tempAppDetail.deployment=deployment;
+
+                    appDetails.push(tempAppDetail);
+                }
+            }
+            appDetails.buildableStages=buildableStages;
+            print(appDetails);
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get forked build and repo data";
+            print(response);
+        }
+
+
+    }else if(action=="getBuildAndDeployStatusForVersion"){
+    	var response={};
+    	appKey=request.getParameter("applicationKey");
+    	version=request.getParameter("version");
+    	modApp = jagg.module("application");
+    	response=modApp.getBuildandDelpoyedStatus(appKey,version);
+    	print(response);
     }else {
         throw new Error("No action specified"+action);
     }

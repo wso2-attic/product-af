@@ -1,7 +1,17 @@
 <%
 jagg.block("page/base", {
     initialize:function (data) {
+        var applicationName = request.getParameter("applicationName");
+        var applicationKey = request.getParameter("applicationKey");
+        var params = {
+            applicationName: applicationName, applicationKey: applicationKey
+        };
+        %>
+        <script>
+        var helpParams = <%=stringify(params)%>;
+    </script>
 
+    <%
     },
 
     getInputs:function () {

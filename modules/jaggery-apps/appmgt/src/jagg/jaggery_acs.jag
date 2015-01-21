@@ -44,6 +44,7 @@
             session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
             response.sendRedirect("/appmgt/site/pages/index.jag");
             createTenantInfoObject();
+	    putUserRolesToSession(ssoRelyingParty.getLoggedInUser(sessionId));
         } else {
             // if the saml response is log out request from IDP, we log out from web app.
             ssoRelyingParty.invalidateSessionBySessionId(sessionId);
@@ -73,6 +74,18 @@ function createTenantInfoObject(){
     tenantInfo.tenantId=modManager.getTenantId();
     tenantInfo.isOTTenant=modManager.getOTtenantProperty();
     session.put("TENANT_INFO",tenantInfo);
+}
+
+function putUserRolesToSession(userName){
+    var mod = jagg.module("tenant");
+    var result = mod.getUserInfo(userName.split("@")[0]);
+
+    if(result != undefined){
+    var userRoles = result.roles.toXMLString().split("\n");
+    }
+    session.put("USER_ROLES",userRoles);
+
+    
 }
 
 %>

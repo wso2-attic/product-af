@@ -27,6 +27,9 @@ jagg.module("registry", {
     
     resourceExistsInTenantSpace:function () {
         return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").resourceExistsInTenantSpace.apply(this, arguments);
+    },
+    deleteResourceInTenantSpace:function () {
+        return jagg.require(jagg.getModulesDir() + "registry/tenant/registry.jag").deleteResourceInTenantSpace.apply(this, arguments);
     }
     
 });

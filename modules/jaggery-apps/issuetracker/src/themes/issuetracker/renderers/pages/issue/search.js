@@ -8,7 +8,10 @@ var render = function (theme, data, meta, require) {
         ],
 		body: [
 			{ partial:'issueSearchBody', context: data.body}
-		]
+		],
+        header_mid: [
+            { partial:'headerMid' ,context: {appkey:data.body.appkey}}
+        ]
     });
 };
 

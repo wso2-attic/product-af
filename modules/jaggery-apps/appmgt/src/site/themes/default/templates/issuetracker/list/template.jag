@@ -2,20 +2,37 @@
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
+    var issueCategory = request.getParameter("issueCategory");
+    
+    
+    var summaryOnly = getProperty(ISSUETRACKER_SUMMARY_ONLY);
+    
+    var hiddenSummary = "hidden" ;
+    var hiddenInternal = "" ;
+    
+    if(summaryOnly==="true"){
+		hiddenSummary = "" ;
+		hiddenInternal = "hidden";
+	}else{
+		hiddenSummary = "hidden" ;
+		hiddenInternal = "";
+	}
+    
 %>
 <script type="text/javascript">
-//[cdata[
-        var issuesSummaryJSON = {};
+
+    var issuesSummaryJSON = {};
+    
+  
     $(document).ready(function(){
+
         issuesSummary("<%=applicationKey%>");
         createCurrentStatus();
-        });
+     });
         
-        function reportIssue() {
+    function reportIssue() {
         window.open('<%=outputs.newIssueUrl%>', '_blank');
     }
-
-//]]
 
     function issuesSummary(appKey){
 
@@ -151,20 +168,23 @@
             <div class="container">
                         <article class="main">
                         <% jagg.includeBlock("page/messages", null); %>
+                        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.ISSUES}); %>
+                        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
                         <header class="separator">
                                 <div class="content">
-                                <h1 class="left" style="margin-right:20px;" >Issues</h1>
+                                <!--h1 class="left" style="margin-right:20px;" >Issues</h1-->
                                      <div class="row-fluid">
-<div align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
-<a href="<%=outputs.newIssueUrl%>" style="text-decoration: none" target="_blank">Track Issues</a>
-<a href="<%=outputs.newIssueUrl%>" class="icon_link" target="_blank">
-<span class="icon-globe "></span>
+<div <%=hiddenSummary%> align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
+<!--a href="<%=outputs.newIssueUrl%>" style="text-decoration: none" target="_blank">Track Issues</a-->
+<!--a href="<%=outputs.newIssueUrl%>" class="icon_link" target="_blank"-->
+<!--span class="icon-globe "></span-->
 </a></div>
                                 </div>
                             </div>
                         </header>
-<section class="separator">
-          <section id="item_list_container" class="hide">
+<!--<% jagg.includeBlock("page/help", {"section": "issues"}); %>-->
+<!--section class="separator">
+          <section <%=hiddenSummary%> id="item_list_container" class="hide">
                                                 <div class="content clear well" id="issueTrackerMainHeader">
                                     <ul id="item_list" class="table_items">
                                         <li class="item item_header">
@@ -180,10 +200,13 @@
                                                 <div id="issues_spinner" class="content push_top_40 issueTracker-fix">
                                                         <span class="icon-spinner icon-spin icon-large spin-large"></span>
                                                 </div>
-  </section>
+  </section-->
+<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="90%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>"></iframe>
                         <div class="clearfix"></div>
                       </article>
             </div><!-- /container -->
 
-<% }); %>                                                                                       
+<% }); %>              
+
+
 

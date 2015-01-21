@@ -7,11 +7,11 @@ var log = new Log("module/application/add/add.jag");
 var modLifecycle = jagg.module("lifecycle");
 var modManager = jagg.module("manager");
 
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.EventBuilderUtil;
 
 // creates application in stratos and return svn repository path to application.
 var createApplicationBPEL = function (applicationName, applicationKey, applicationDescription,
-applicationType,repoAccessibility, repositoryType, userName) {
-
+applicationType,repoAccessibility, repositoryType, userName , applicationURL, version) {
     var adminUserName=getProperty(ADMIN_USERNAME);
     jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_CREATE);
     if (repoAccessibility == null) {
@@ -35,6 +35,15 @@ applicationType,repoAccessibility, repositoryType, userName) {
                '</metadata>]]>';
 
                var lifecycleAttribute = null;
+            //Publishing app creation started message to wall
+            var notificationTitle  = applicationName + " creation is in progress.";
+            var notificationDescription = "Creation of application " + applicationName + " is in progress";
+            try{
+                var eventBuilderInstance = EventBuilder.invokeAppCreationStartedEvent(applicationKey, userName, notificationTitle, notificationDescription, "INFO");
+            } catch (e) {
+                log.error("Error while sending notification for application creation \n" + e.message);
+            }
+
 
                modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
 
@@ -42,7 +51,7 @@ applicationType,repoAccessibility, repositoryType, userName) {
                content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
                             '<appversion>'+
                                 '<key>'+applicationKey+'</key>'+
-                                '<version>trunk</version>'+
+                                '<version>'+version+'</version>'+
 	                            '<autodeployment>false</autodeployment>'+
 	                            '<isAutoBuild>true</isAutoBuild>'+
 	                            '<isAutoDeploy>true</isAutoDeploy>'+
@@ -122,7 +131,7 @@ applicationType,repoAccessibility, repositoryType, userName) {
         var endPoint = getProperty(BPS_SERVER_URL) + "CreateApplication";
         //var endPoint =  "http://localhost:8181/services/CreateApplication";
         request.open(options, endPoint, false);
-        log.info("Payload :"+payload);
+        log.debug("Payload :"+payload);
         request.send(payload);
         result = request.responseE4X;
         //var resultNS = new Namespace("http://wso2.org");
@@ -177,36 +186,72 @@ var isApplicationKeyAvailable = function (applicationKey, auth) {
 };
 
 
+var isAppNameAlreadyAvailable = function (applicationName) {
+
+    var ws = require('ws');
+    var request = new ws.WSRequest();
+    var options = new Array();
+    options.useSOAP = 1.1;
+    options.timeout = 1000000;
+    options.action = "urn:isApplicationNameAvailable";
+    options["HTTPHeaders"] = [{
+        name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
+    }];
+    var payload = '<isApplicationNameAvailable xmlns="http://service.mgt.application.appfactory.carbon.wso2.org"><applicationName xmlns="http://service.mgt.application.appfactory.carbon.wso2.org">'+applicationName+'</applicationName></isApplicationNameAvailable>';
+    var result;
+    var status={};
+    try {
+        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+        request.open(options,endPoint, false);
+        request.send(payload);
+        result=request.responseE4X;
+        if (log.isDebugEnabled()) {
+            log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
+        }
+    } catch (e) {
+        log.error("Error while checking for application name \n" + e.message);
+        throw "Error while checking for application name";
+    }
+    status.isAvailable=result.*::["return"].text();
+    return status;
+
+}
 
 var stroreUploadedApplication = function(uploadedApplicationName , file, type){
 
 	   validateUploadedApplication(file, type);
-	   log.info("TODO: Get the tenant here....................." + TMP_UPLOADED_APPLICATIONS_PATH);
+        if (log.isDebugEnabled){
+            log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
+        }
+
+	   var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
+           if(!destinationDir.isExists()){
+                destinationDir.mkdir();
+           }
 	   var tmpFileName = TMP_UPLOADED_APPLICATIONS_PATH + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type);
-	   file.move(tmpFileName); 
-	   
-	   if(log.isDebugEnabled()){	
-	   	log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH); 
+	   file.move(tmpFileName);
+
+	   if(log.isDebugEnabled()){
+	   	log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH);
 	   }
-    
+
 };
 
 function validateUploadedApplication(file, applicationType) {
-	
+
 	var fileRealExtension = getExtenstionByAppType(applicationType);
 	var uploadedFileExtention = file.getName().split('.').pop();
 	if(fileRealExtension != uploadedFileExtention){
 		log.error("Incompatible File Type.");
 		throw new Exception("Incompatible File Type.");
-	}	
+	}
 	log.info("Application extention valided sucessfully");
 
 };
-	
+
 function getExtenstionByAppType(applicationType){
-	
+
 	return getProperty("ApplicationType."+applicationType+".Property.Extension");
 };
-
 
 %>

@@ -94,6 +94,11 @@ var getUserInfo = function getUserInfo(userName) {
         var ns=new Namespace("http://service.mgt.tenant.appfactory.carbon.wso2.org");
         var user = result.ns::["return"];
         var tmpuserName=user.*::["userName"];
+ 
+        if(tmpuserName.length()==0){
+        	return null;
+        }
+
         var tmpemail=user.*::["email"];
         var tmpdisplayName=user.*::["displayName"];
         var tmpfirstName=user.*::["firstName"];

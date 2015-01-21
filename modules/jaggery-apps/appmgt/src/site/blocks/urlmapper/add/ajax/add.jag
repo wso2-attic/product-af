@@ -1,0 +1,48 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var lifeCycleModule = jagg.module("lifecycle");
+var log=new Log();
+var mod = jagg.module("urlmapper");
+var permission = jagg.module("permission");
+
+(function () {
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
+	
+	if(action == "addAppVersionDomainMapping"){	
+		var version = request.getParameter("version");
+		var subDomain = request.getParameter("subDomain");
+		var tenantDomain = request.getParameter("tenantDomain");
+		var applicationKey = request.getParameter("applicationKey");
+		var username = request.getParameter("username");
+		var response={};
+		
+		if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+			var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+		    try {
+			   var mappedUrl = subDomain + "."+getProperty("DomainName");	
+			   mod.addDomainMappingsToStratos(stage, mappedUrl, version, applicationKey);
+			   
+			} catch (e) {
+				var msg = "Error while adding domain "+ mappedUrl +" to Stratos in " + stage;
+				log.error(msg+e.message);
+				throw msg;
+			} 				
+			
+		} else {
+            response.result = 0;
+            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
+            print(response);
+        }	
+	}else {
+		throw new Error("No action specified");
+	}
+}());
+
+
+
+%>
+

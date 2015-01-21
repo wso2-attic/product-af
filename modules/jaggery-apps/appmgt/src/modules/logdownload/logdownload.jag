@@ -8,7 +8,7 @@ var log = new Log("module/logdownload/logdownload.jag");
 
 var modManager = jagg.module("manager");
 
-var downloadLogFile = function (applicationKey, stage, version, date) {
+var downloadLogFile = function (applicationKey, stage, version, date, pageNumber) {
     jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
 
     var appName = "" ;
@@ -19,19 +19,18 @@ var downloadLogFile = function (applicationKey, stage, version, date) {
         appName = applicationKey + "-" + version;
     }
 
-    if(date == null || date == ""){
+    if(!date  || date == ""){
         date = constructCurrentDate();
-        downloadDailyLogs(appName, stage);
+        return downloadDailyLogs(appName, stage, pageNumber);
     }else{
         var currentDate = constructCurrentDate();
         if(currentDate == date){
-            downloadDailyLogs(appName, stage);
+            return downloadDailyLogs(appName, stage, pageNumber);
         }else if(compareDates(currentDate,date)){
             var fileName= date  +'.log';
-            downloadArchivedLogFile(appName, stage, fileName);
+            return downloadArchivedLogFile(appName, stage, fileName);
         }else{
             log.debug("Given date is greater than the current date");
-            return "";
         }
     }
     return "";
@@ -58,8 +57,9 @@ var constructCurrentDate = function(){
     return date;
 };
 
-var downloadDailyLogs = function (appName, stage){
-    log.info("Downloading daily logs");
+//view daily logs
+var downloadDailyLogs = function (appName, stage, pageNumber){
+    log.debug("Downloading daily logs");
 
     var ws = require("ws");
     var applicationMgtService = new ws.WSRequest();
@@ -69,8 +69,11 @@ var downloadDailyLogs = function (appName, stage){
 
     var tenantDomain = modManager.getTenantDomain();
 
+    //We need to make the numbers start from 0
+    pageNumber = pageNumber -1;
+
     var payload ='<xsd:getPaginatedApplicationLogEvents xmlns:xsd="http://org.apache.axis2/xsd">' +
-            '<xsd:pageNumber>0</xsd:pageNumber>' +
+            '<xsd:pageNumber>' + pageNumber + '</xsd:pageNumber>' +
             '<xsd:type></xsd:type>' +
             '<xsd:keyword></xsd:keyword>' +
             '<xsd:applicationName>' + appName + '</xsd:applicationName>' +
@@ -85,16 +88,17 @@ var downloadDailyLogs = function (appName, stage){
 
     try {
         var logViewerEndpoint = cloudEndpoint + "LogViewer";
-        applicationMgtService.open(options, logViewerEndpoint, false);
+	applicationMgtService.open(options, logViewerEndpoint, false);
 
         applicationMgtService.send(payload);
-        result = applicationMgtService.responseE4X;
+        var result = applicationMgtService.responseE4X;
         var allEvents=result.*::["return"];
+        var numberOfPages=allEvents.*::["numberOfPages"].text();
         var logEvents = allEvents.*::["logInfo"];
 
-        //message is comming in reverse order
+        //message is coming in reverse order
+        var logEvent="";
         for(var i=logEvents.length()-1;i>=0;i--){
-            var logEvent="";
             var entry=logEvents[i];
             var serverName=entry.*::serverName;
             var logTime=entry.*::logTime;
@@ -107,15 +111,15 @@ var downloadDailyLogs = function (appName, stage){
             if(serverName.length() == 0){
                 continue;
             }
-            logEvent= "\n" +"["+serverName+"]"+"["+logTime+"]"+"["+logger+"]"+message+"\n"+stacktrace;
+            logEvent= logEvent + "\n" +"["+serverName+"]"+"["+logTime+"]"+"["+logger+"]"+message+"\n"+stacktrace;
             //print it
-            print(logEvent);
         }
         log.info("Log download from "+ stage + " server is successful");
-        //return empty string othervice the returned value is appended to log file
-        return "";
+        //return empty string otherwise the returned value is appended to log file
+        return {numberOfPages : numberOfPages, logEvents : logEvent};
+
     } catch (e) {
-        log.error('Error occured while downloading the logs');
+        log.error('Error occurred while downloading the logs');
         throw "Error while retrieving logs in "+stage+" "+e.toString();
     }
 };
@@ -123,7 +127,7 @@ var downloadDailyLogs = function (appName, stage){
 var downloadArchivedLogFile = function (applicationKey, stage, logFileName) {
     jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_VISIBILITY_STAGE+stage);
 
-    log.info("Downloading archived logs");
+    log.debug("Downloading archived logs");
 
     var ws = require("ws");
     var applicationMgtService = new ws.WSRequest();
@@ -152,7 +156,7 @@ var downloadArchivedLogFile = function (applicationKey, stage, logFileName) {
         applicationMgtService.open(options, logViewerEndpoint, false);
 
         applicationMgtService.send(payload);
-        result = applicationMgtService.responseE4X;
+        var result = applicationMgtService.responseE4X;
 
         if(result != undefined){
 
@@ -161,62 +165,50 @@ var downloadArchivedLogFile = function (applicationKey, stage, logFileName) {
 
             var contentString = new string(content);
 
-            print(contentString)
             log.info("Log download from "+ stage + " server is successful");
-            //return empty string othervice the returned value is appended to log file
+            return contentString;
+            //return empty string otherwise the returned value is appended to log file
         }
         return "";
     } catch (e) {
-        log.error('Error occured while downloading the logs');
+        log.error('Error occurred while downloading the logs');
         throw "Error while retrieving logs in "+stage+" "+e.toString();
     }
 };
 
-//This action returns a json Object as {"stage":"Development" , "versions" : ["trunk", "1.0.0"]}
+//This action returns a json Object as {allVersions : [{"stage" : "Development", "versions" : ["trunk", "1.2.1"]}, {"stage" : "Testing", "versions" : ["1.3.1"]}]}
+
 var getVersionsOfApplicationInStages = function(userName,applicationKey ){
-    var modApplication = jagg.module("application");
-    var applicationResult = parse(modApplication.getAppVersionsInStages(applicationKey, userName));
-    var appVersions = Array();
-    var versions = applicationResult[0].versions;
+	var modApplication = jagg.module("application");
+	var applicationResult = parse(modApplication.getAppVersionsInStages(applicationKey, userName));
+	var appVersions = Array();
+	var stages = {};
+	var versions = applicationResult[0].versions; //JSON Object the represents the versions, stages
 
-    for(var j=0 ; j < versions.length ; j++){
-        var versionObj = versions[j];
-        var stage = versionObj.stage;
+	for(var j=0 ; j < versions.length ; j++) {
+		var versionObj = versions[j];
 
-        if(appVersions.length == 0){
-            appVersions = appVersions.concat({ stage : stage , versions : Array()})
-        }
-        for(var appVersion in appVersions){
-            if(appVersion == "stage" ){
-                continue;
-            }
+		var currentStage = versionObj.stage;
+		if(stages.hasOwnProperty(currentStage)) { //if an already checked stage appened the versions to the versionList
+			var versionList = stages[currentStage];
+			versionList.push(versionObj.version);
+			stages[currentStage] = versionList;
+		}else {
+			var versionList = new Array(); //else new versionList array
+			versionList.push(versionObj.version);
+			stages[currentStage] = versionList ;
+		}	
+	}
 
-            var tempAppVersion = null;
-            if(appVersions.stage == stage){
-                tempAppVersion = appVersions.versions;
-            }else{
-                tempAppVersion = Array();
-            }
-            appVersions = {stage : stage , versions : tempAppVersion.concat(versionObj.version)};
-        }
-    }
-    return {allAppVersions : appVersions};
+	for (var stage in stages) {
+		if(stages.hasOwnProperty(stage)) {
+			appVersions.push({stage : stage , versions : stages[stage] });
+		}
+	}
+	return {allAppVersions : appVersions};
 
-
-/*    // var stages = getProperties('ApplicationDeployment.DeploymentStage');
-    var hasVisibilityPermissions = outputs.hasVisibilityPermissions;
-
-    for (var i = 0; i < stages.length; i++) {
-        var stage = stages[i];
-
-        if (hasVisibilityPermissions[stage]) {
-
-            //we take all versions in this stage and show them in a dropdown
+};
 
 
-    }//End of if statement
-    }//End of loop
-*/
-}
 
 %>

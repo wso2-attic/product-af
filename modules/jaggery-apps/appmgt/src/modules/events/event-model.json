@@ -1,0 +1,15 @@
+{
+    "dataPublisherConnectionInfo":{
+        "port":"7611",
+        "host":"localhost",
+        "username":"admin",
+        "password":"admin"
+    },
+    "applicationEvent":{
+        "type":"info, warn, error",
+        "applicationId":"foo",
+        "summaryMessage":"application creation failed.",
+        "description":"Application creation failed due to stratos servers respond with 500 error."
+
+    }
+}

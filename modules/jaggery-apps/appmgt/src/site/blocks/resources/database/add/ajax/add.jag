@@ -6,36 +6,36 @@ include("/jagg/config_reader.jag");
 
 var log= new Log();
 var response = {};
-
+var allStages=getProperties(DEPLOYMENT_STAGES);
 
 (function () {
 	var mod, obj, result,
 	action = request.getParameter("action"),
-    applicationKey = request.getParameter("applicationKey"),
+	applicationKey = request.getParameter("applicationKey"),
 	site = require("/site/conf/site.json");
     var response = {};
     var modPermission = jagg.module("permission");
 
 	if (action == "createDatabaseWithAttachedUsers") {
-		
+
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseName = request.getParameter("databaseName");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
 		var isDefaultPass = request.getParameter("isDefaultPass");
 		var customPassword = request.getParameter("customPassword");
-		
+
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-		
-		log.info("Modules databaseServerInstanceName "+databaseServerInstanceName);
-		
+				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
+		log.debug("Modules databaseServerInstanceName "+databaseServerInstanceName);
+
 		try {
 			var result = mod.createDatabaseWithAttachedUsers(applicationKey,databaseName,databaseServerInstanceName,isDefaultPass,customPassword);
 			if(result != null & result == 'true') {
@@ -62,79 +62,98 @@ var response = {};
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
 		var customPassword = request.getParameter("customPassword");
 		var isBasic = request.getParameter("isBasic");
-		
+		var createInAll=request.getParameter("copyToAll");
+		var isCreateDatasource= request.getParameter("createDatasource");
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-		
-		var userName;
+				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+		var targetStage=[];
+		targetStage.push(databaseServerInstanceName);
+		var userName=null;
 		var templateName;
 		var isSuccess = true;
-		var actualDBName;
+		var actualDBName=null;
 		var dbResult = "";
 
-        var response = {};
-        try{
-            if(isBasic == "true") {
-                // default user is created with db name
-                userName = databaseName;
-                templateName = databaseName +'@'+ databaseServerInstanceName;
-                userName = mod.createDatabaseUser(applicationKey, customPassword, databaseServerInstanceName, userName);
-                var setPermission = "Y";
-                try{
-                    dbResult = mod.createTemplate(applicationKey,databaseServerInstanceName,templateName,setPermission,setPermission, setPermission,setPermission, setPermission, setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission);
-                }catch(e){
-                    mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
-                }
-                // user name is updated with full qualified user name to attach user to db
-                //var carbon = require('carbon');
-                //var server = carbon.server;
-                //var fullUserName =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getFullyQualifiedDbUsername(userName, applicationKey);
-                //userName = fullUserName;
-            } else {
-                userName = request.getParameter("userName");
-                templateName = request.getParameter("templateName");
-            }
-            try{
-                actualDBName = mod.createDatabase(applicationKey,databaseName,databaseServerInstanceName);
-            }catch(e){
-                if(isBasic == "true") {
-                    mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
-                    mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
-                }
-            }
-            try{
-                dbResult = mod.attachNewUser(applicationKey,databaseServerInstanceName, actualDBName, userName, templateName);
-            }catch(e){
-                if(isBasic == "true") {
-                    mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
-                    mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
-                }
-                mod.dropDatabase(applicationKey,actualDBName,databaseServerInstanceName);
-            }
-        } catch (e) {
-            dbResult = e.javaException.cause;
-        }
-        print(dbResult);
-        
+		var response = {};
+
+		if((createInAll=="true")&&jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
+			targetStage=allStages;
+		}
+		for (var stage in targetStage){
+			databaseServerInstanceName=targetStage[stage];
+			try{
+				if(isBasic == "true") {
+					// default user is created with db name
+					userName = databaseName;
+					templateName = databaseName +'@'+ databaseServerInstanceName;
+					userName = mod.createDatabaseUser(applicationKey, customPassword, databaseServerInstanceName, userName);
+					var setPermission = "Y";
+					try{
+						dbResult = mod.createTemplate(applicationKey,databaseServerInstanceName,templateName,setPermission,setPermission, setPermission,setPermission, setPermission, setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,true);
+					}catch(e){
+						mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
+					}
+					// user name is updated with full qualified user name to attach user to db
+					//var carbon = require('carbon');
+					//var server = carbon.server;
+					//var fullUserName =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getFullyQualifiedDbUsername(userName, applicationKey);
+					//userName = fullUserName;
+				} else {
+					userName = request.getParameter("userName");
+					templateName = request.getParameter("templateName");
+				}
+				try{
+					actualDBName = mod.createDatabase(applicationKey,databaseName,databaseServerInstanceName);
+										
+				}catch(e){
+					if(isBasic == "true") {
+						mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
+						mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
+					}
+				}
+				try{
+					dbResult = mod.attachNewUser(applicationKey,databaseServerInstanceName, actualDBName, userName, templateName);
+				}catch(e){
+					if(isBasic == "true") {
+						mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
+						mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
+					}
+					mod.dropDatabase(applicationKey,actualDBName,databaseServerInstanceName);
+				}
+			} catch (e) {
+				dbResult = e.javaException.cause;
+			}
+			if(actualDBName!=null&&userName!=null && (createInAll=="true" || isCreateDatasource=="true")){
+				var descriptionText="Datasource for database "+actualDBName;
+				var url=mod.getDatabaseUrl(applicationKey,databaseServerInstanceName,actualDBName);
+				var resultDS=createDatasource(applicationKey,actualDBName,databaseServerInstanceName,url,descriptionText,MYSQL_DB_DRIVER,userName,customPassword);
+				if(resultDS[0]=="true"){
+					dbResult="success";
+				}
+			}
+			 
+		}
+		print(dbResult);
+
 	}else if (action == "createDbWithUserAndTemplate") {
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_CREATE_FOR_STAGE + databaseServerInstanceName);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-        
+				PERMISSION_RESOURCES_CREATE_FOR_STAGE + databaseServerInstanceName);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
 		var databaseName = request.getParameter("databaseName");
 		var userName = request.getParameter("userName");
 		var templateName = request.getParameter("templateName");
@@ -158,7 +177,7 @@ var response = {};
 		var showViewPriv=createValue(request.getParameter("showViewPriv"));
 		var triggerPriv=createValue(request.getParameter("triggerPriv"));
 		var updatePriv=createValue(request.getParameter("updatePriv"));
-		log.info("Modules databaseServerInstanceName "+databaseServerInstanceName);
+		log.debug("Modules databaseServerInstanceName "+databaseServerInstanceName);
 		try {
 			var result = mod.createDbWithUserAndTemplate(applicationKey,databaseName,userName,templateName, databaseServerInstanceName,customPassword, alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
 			if(result != null & result == 'true') {
@@ -179,22 +198,22 @@ var response = {};
 			print(returnError);
 		}
 	}else if (action == "createDatabase") {
-		
+
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseName = request.getParameter("databaseName");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
-		log.info("Modules databaseServerInstanceName "+databaseServerInstanceName);
-		
+		log.debug("Modules databaseServerInstanceName "+databaseServerInstanceName);
+
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_CREATE_FOR_STAGE + databaseServerInstanceName);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-		
+				PERMISSION_RESOURCES_CREATE_FOR_STAGE + databaseServerInstanceName);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
 		try {
 			result = mod.createDatabase(applicationKey,databaseName,databaseServerInstanceName);
 			print(result);
@@ -202,181 +221,230 @@ var response = {};
 			throw "Error while creating the database";
 		}
 	} else if (action == "getDatabases") {
-        // this method provides only the database information such as name,url,environment.
-        mod = jagg.module("resources");
-        var applicationKey = request.getParameter("applicationKey");
+		// this method provides only the database information such as name,url,environment.
+		mod = jagg.module("resources");
+		var applicationKey = request.getParameter("applicationKey");
 
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        var infoArray=[];
-        var response = {};
-        for(var i=0;i<deploymentStages.length;i++){
-            //if user has access to stage
-            var hasDBInformationReadPermissionToStage = modPermission.isUserAccessGranted(applicationKey,
-                    PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
-            if(hasDBInformationReadPermissionToStage){
-                try {
-                    result = mod.getDatabasesForStage(applicationKey, deploymentStages[i]);
-                    if (result != null && result.length >0 ) {
-                        infoArray = infoArray.concat(result);
-                    }
-                } catch(e) {
-                    throw "Error while getting the database";
-                }
-            } else {
-            	//do nothing
-            }
-        }
-        print(infoArray);
+		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var infoArray=[];
+		var response = {};
+		for(var i=0;i<deploymentStages.length;i++){
+			//if user has access to stage
+			var hasDBInformationReadPermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+					PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+			if(hasDBInformationReadPermissionToStage){
+				try {
+					result = mod.getDatabasesForStage(applicationKey, deploymentStages[i]);
+					if (result != null && result.length >0 ) {
+						infoArray = infoArray.concat(result);
+					}
+				} catch(e) {
+					throw "Error while getting the database";
+				}
+			} else {
+				//do nothing
+			}
+		}
+		print(infoArray);
 
 
 	}else if(action == "getDatabasesInfoForStages"){
-        var infoArray=[];
+		var infoArray=[];
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
 		//var stage = request.getParameter("stage");
-        for(var i=0;i<deploymentStages.length;i++){
-            //if user has access to stage
-            var hasDBInformationReadPermissionToStage = modPermission.isUserAccessGranted(applicationKey,
-                    PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
-            if(hasDBInformationReadPermissionToStage){
-                try {
-                    result = mod.getDatabasesInfoForStage(applicationKey, deploymentStages[i]);
-                    if(result!=null && result.stage!=null){
-                        // identify custom databases.
-                        var datasources = mod.getDatasources(applicationKey,deploymentStages[i]);
-                        for(var j=0;j<datasources.length;j++){
-                            var datasource = datasources[j];
-                            var isCustomDatabase = true;
-                            for(var k=0;k<result.dbs.length;k++){
-                                var database = result.dbs[k];
-                                if(datasource.url==database.url){
-                                     isCustomDatabase = false;
-                                    break;
-                                }
-                            }
-                            if(isCustomDatabase==true) {
-                                var customDatabase = {};
-                                var splits =  datasource.url.split('/');
-                                if(splits.length>1){
-                                    customDatabase.dbName = splits[splits.length - 1];
-                                }else{
-                                    customDatabase.dbName = "Custom Database";
-                                }
-                                customDatabase.url=datasource.url;
-                                customDatabase.attachedUsers=[datasource.username];
-                                customDatabase.custom=true;
-                                result.dbs.push(customDatabase);
-                            }
-                        }
-                            infoArray.push(result);
-                    }
-                } catch(e) {
-                    throw "Error while getting the database";
-                }
-            } else {
-                //do nothing
-            }
-        }
-        print(infoArray);
+		for(var i=0;i<deploymentStages.length;i++){
+			//if user has access to stage
+			var hasDBInformationReadPermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+					PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+			if(hasDBInformationReadPermissionToStage){
 
-    }else if(action == "getDatabasesForStage"){
+				try {
+					result = mod.getDatabasesInfoForStage(applicationKey, deploymentStages[i]);
+					if(result!=null && result.stage!=null){
+						// identify custom databases.
+						var datasources = mod.getDatasources(applicationKey,deploymentStages[i]);
+						for(var j=0;j<datasources.length;j++){
+							var datasource = datasources[j];
+							var isCustomDatabase = true;
+							for(var k=0;k<result.dbs.length;k++){
+								var database = result.dbs[k];
+								if(datasource.url==database.url){
+									isCustomDatabase = false;
+									break;
+								}
+							}
+							if(isCustomDatabase==true) {
+								var customDatabase = {};
+								var splits =  datasource.url.split('/');
+								if(splits.length>1){
+									customDatabase.dbName = splits[splits.length - 1];
+								}else{
+									customDatabase.dbName = "Custom Database";
+								}
+								customDatabase.url=datasource.url;
+								customDatabase.attachedUsers=[datasource.username];
+								customDatabase.custom=true;
+								result.dbs.push(customDatabase);
+							}
+						}
+						infoArray.push(result);
+					}else{
+
+						var result = {};
+						result.stage = deploymentStages[i];
+						result.dbs = [];
+						// identify custom databases.
+						var datasources = mod.getDatasources(applicationKey,deploymentStages[i]);
+						for(var j=0;j<datasources.length;j++){
+							
+							var datasource = datasources[j];
+							var customDatabase = {};
+							var splits =  datasource.url.split('/');
+							if(splits.length>1){
+								customDatabase.dbName = splits[splits.length - 1];
+							}else{
+								customDatabase.dbName = "Custom Database";
+							}
+							customDatabase.url=datasource.url;
+							customDatabase.attachedUsers=[datasource.username];
+							customDatabase.custom=true;
+						
+							result.dbs.push(customDatabase);
+							
+						}
+						infoArray.push(result);						
+					}
+				} catch(e) {
+					throw "Error while getting the database";
+				}
+			} else {
+				//do nothing
+			}
+		}
+		print(infoArray);
+
+	}else if(action == "getDatabasesForStage"){
 
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var stage = request.getParameter("stage");
 
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_READ_FOR_STAGE +stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
+				PERMISSION_RESOURCES_READ_FOR_STAGE +stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
 
-        try {
-            result = mod.getDatabasesForStage(applicationKey, stage);
-            print(result);
+		try {
+			result = mod.getDatabasesForStage(applicationKey, stage);
+			print(result);
 
-        } catch(e) {
-            throw "Error while getting the database";
-        }
-    } else if(action == "getDbUserTemplateInfoForStages"){
+		} catch(e) {
+			throw "Error while getting the database";
+		}
+	} else if(action == "getDbUserTemplateInfoForStages"){
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
-
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        var infoArray=[];
-        for(var i=0;i<deploymentStages.length;i++){
-            //if user has access to stage
-            var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
-            		PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
-            if(hasDBConfigurePermissionToStage){
-                try {
-                    result = mod.getDbUserTemplateInfoForStage(applicationKey, deploymentStages[i]);
-                    infoArray.push(result);
-                } catch(e) {
-                    throw "Error while getting the database";
-                    log.error(e);
-                }
-            } else {
-                //do nothing
-            }
-        }
+		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var infoArray=[];
+		for(var i=0;i<deploymentStages.length;i++){
+			//if user has access to stage
+			var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+					PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+			if(hasDBConfigurePermissionToStage){
+				try {
+					result = mod.getDbUserTemplateInfoForStage(applicationKey, deploymentStages[i]);
+					infoArray.push(result);
+				} catch(e) {
+					throw "Error while getting the database Templates";
+					log.error(e);
+				}
+			} else {
+				//do nothing
+			}
+		}
 		print(infoArray);
-	}else if(action == "getRSSinstances"){
+		}else if(action == "getCreatableRSSinstances"){
+			mod = jagg.module("resources");
+			var applicationKey = request.getParameter("applicationKey");
+	
+			var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+			var instances=[];
+			for(var i=0;i<deploymentStages.length;i++){
+				//if user has access to stage
+				var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+						PERMISSION_RESOURCES_CREATE_FOR_STAGE + deploymentStages[i]);
+				if(hasDBConfigurePermissionToStage){
+					try {
+						var instance={
+						};
+						instance = mod.getRSSinstanceInStage(applicationKey,deploymentStages[i]);
+						instances.push(instance);
+	
+					} catch(e) {
+						throw "Error while reading the rssInstances";
+					}
+				} else {
+					//do nothing
+				}
+			}
+			print(instances);
+		}else if(action == "getRSSinstances"){
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        var instances=[];
-        for(var i=0;i<deploymentStages.length;i++){
-            //if user has access to stage
-            var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
-            		PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
-            if(hasDBConfigurePermissionToStage){
-                try {
-                var instance={};
-                    instance = mod.getRSSinstanceInStage(applicationKey,deploymentStages[i]);
-                    instances.push(instance);
+		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var instances=[];
+		for(var i=0;i<deploymentStages.length;i++){
+			//if user has access to stage
+			var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+					PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+			if(hasDBConfigurePermissionToStage){
+				try {
+					var instance={
+					};
+					instance = mod.getRSSinstanceInStage(applicationKey,deploymentStages[i]);
+					instances.push(instance);
 
-                } catch(e) {
-                    throw "Error while reading the rssInstances";
-                }
-            } else {
-                //do nothing
-            }
-        }
-           print(instances);
-
-
+				} catch(e) {
+					throw "Error while reading the rssInstances";
+				}
+			} else {
+				//do nothing
+			}
+		}
+		print(instances);
 	}else if(action == "getAttachedUsers"){
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var dbname = request.getParameter("dbname");
 		var rssInstance = request.getParameter("rssInstance");
-		
+
 		var stage = mod.getStageFromRssInstanceName(rssInstance);
-		
+
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
+				PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
 
-        var response = {};
-        try {
-            result = mod.getAttachedUsers(applicationKey, dbname, rssInstance);
-            print(result);
+		var response = {};
+		try {
+			result = mod.getAttachedUsers(applicationKey, dbname, rssInstance);
+			print(result);
 
-        } catch(e) {
-            throw "Error while reading the database";
-        }
-        
+		} catch(e) {
+			throw "Error while reading the database";
+		}
+
 	}else if(action == "attachNewUser"){
 
 		mod = jagg.module("resources");
@@ -385,25 +453,25 @@ var response = {};
 		var rssInstance = request.getParameter("dbServerInstanceName");
 		var users = request.getParameter("users");
 		var templates = request.getParameter("templates");
-		
+
 		var stage = mod.getStageFromRssInstanceName(rssInstance);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-        
-        var response = {};
-        try {
-            result = mod.attachNewUser(applicationKey,rssInstance, dbname, users, templates);
-            print(result);
-        } catch(e) {
-            throw "Error while reading the database";
-        }
-        
+				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
+		var response = {};
+		try {
+			result = mod.attachNewUser(applicationKey,rssInstance, dbname, users, templates);
+			print(result);
+		} catch(e) {
+			throw "Error while reading the database";
+		}
+
 	}else if(action == "detachUser"){
 
 		mod = jagg.module("resources");
@@ -414,22 +482,22 @@ var response = {};
 
 		var stage = mod.getStageFromRssInstanceName(rssInstance);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-        
-        var response = {};
-        try {
-            result = mod.detachUser(applicationKey,rssInstance, dbname, username);
-            print(result);
-        } catch(e) {
-            throw "Error while reading the database";
-        }
-        
+				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
+		var response = {};
+		try {
+			result = mod.detachUser(applicationKey,rssInstance, dbname, username);
+			print(result);
+		} catch(e) {
+			throw "Error while reading the database";
+		}
+
 
 
 	}else if(action == "getUserPrivileges"){
@@ -440,63 +508,63 @@ var response = {};
 		var rssInstance = request.getParameter("rssInstanceName");
 		var username = request.getParameter("username");
 
-		
-        var response = {};
-        var stage = mod.getStageFromRssInstanceName(rssInstance);
-        
-        var stage = mod.getStageFromRssInstanceName(rssInstance);
-		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-        
-        try {
-            result = mod.getUserPrivileges(applicationKey,rssInstance, dbname, username);
-            print(result);
-        } catch(e) {
-            throw "Error while reading permissions";
-        }
-        
-	} else if ( action == "getDatabaseInfoUrl"){
-	   	
-	   	mod = jagg.module("resources");
-	   	var stage = request.getParameter("stage");
 
-        var response = {};
-        var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-        
-        var dbInfoUrl = mod.getDatabaseInfoUrl(stage);
-        print(dbInfoUrl);
-        	   	
+		var response = {};
+		var stage = mod.getStageFromRssInstanceName(rssInstance);
+
+		var stage = mod.getStageFromRssInstanceName(rssInstance);
+		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+				PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
+		try {
+			result = mod.getUserPrivileges(applicationKey,rssInstance, dbname, username);
+			print(result);
+		} catch(e) {
+			throw "Error while reading permissions";
+		}
+
+	} else if ( action == "getDatabaseInfoUrl"){
+	  
+		mod = jagg.module("resources");
+		var stage = request.getParameter("stage");
+
+		var response = {};
+		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+				PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
+		var dbInfoUrl = mod.getDatabaseInfoUrl(stage);
+		print(dbInfoUrl);
+		 
 	} else if(action == "editUserPermissions"){
-		
+
 		var rssInstance = request.getParameter("rssInstanceName");
 		var applicationKey = request.getParameter("applicationKey");
-		
+
 		var stage = mod.getStageFromRssInstanceName(rssInstance);
-        
-		
+
+
 		var stage = mod.getStageFromRssInstanceName(rssInstance);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
-        if( !hasPermission ){
-        	response.error = true;
-        	response.errorMessage = "No permission";
-            print(response);
-            return;
-        }
-        
+				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
+		if( !hasPermission ){
+			response.error = true;
+			response.errorMessage = "No permission";
+			print(response);
+			return;
+		}
+
 
 		mod = jagg.module("resources");
 		var dbname = request.getParameter("databaseName");
@@ -521,14 +589,14 @@ var response = {};
 		var triggerPriv=createValue(request.getParameter("triggerPriv"));
 		var updatePriv=createValue(request.getParameter("updatePriv"));
 
-        var response = {};
-        try {
-            mod.editUserPermissions(applicationKey,dbname,rssInstance,username,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
+		var response = {};
+		try {
+			mod.editUserPermissions(applicationKey,dbname,rssInstance,username,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
 
-        } catch(e) {
-            throw "Error while reading permissions";
-        }
-        
+		} catch(e) {
+			throw "Error while reading permissions";
+		}
+
 	} else {
 		throw new Error("No action specified");
 	}
@@ -543,6 +611,33 @@ var response = {};
 			value="N";
 		}
 		return value;
+
+	}
+
+	function createDatasource(applicationKey,datasourceName,rssInstanceName,url,datasourceDescription,driverName,dbUsername,dbPassword){
+		mod = jagg.module("resources");
+		modPermission=jagg.module("permission");
+		var stage = mod.getStageFromRssInstanceName(rssInstanceName);
+		//if user has access to stage
+		var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
+				PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);
+		if(dataSourceCreatePermission){
+			try {
+				return mod.createDataSource(stage, applicationKey, datasourceName, url,
+						driverName, dbUsername, dbPassword, datasourceDescription);
+			} catch(e) {
+				response.error= true;
+				response.errorMessage = "Error while creating the datasource : " + datasourceName+'; reason:'+ e.message;
+				log.error("Error while creating the datasource due to "+ e.message);
+				return response;
+			}
+		}  else {
+			response.result = true;
+			response.message = "You don't have permission to create datasource in stage:"+stage;
+			log.error("You don't have permission to create datasource in stage:"+stage);
+			return response;
+		}
+
 
 	}
 	%>

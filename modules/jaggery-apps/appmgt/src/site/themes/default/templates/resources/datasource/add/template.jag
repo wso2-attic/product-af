@@ -4,12 +4,15 @@ var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 
 var allowedStages = outputs.allowedStages;
+AllowedAllStages=outputs.hasAccessForAllstages;
+isEdit = request.getParameter("isEdit");
 //  jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_DB_ADMINISTRATION);
 %>
 
 <script type="text/javascript">
     var ck_password = /^[A-Za-z0-9!@#$%^*_]{6,15}$/;
     var allowedStages = <%=allowedStages%>;
+    var AllowedAllStages = <%=AllowedAllStages%>;
     //[cdata[
     function dbCustomUrlSelected() {
         $("#datasource_url_text").show().val("");
@@ -113,7 +116,7 @@ var allowedStages = outputs.allowedStages;
     }
 
     function createDatasource(btn) {
-        $(btn).attr('disabled','disabled').attr('prev-val',$(btn).val()).val('Creating..');
+        $(btn).attr('disabled','disabled');
     	var varDsName = $("#datasource_name").val();
     	var varDsDesc = $("#datasource_description").val();
     	
@@ -123,12 +126,13 @@ var allowedStages = outputs.allowedStages;
         var varDbPassword = $("#datasource_password").val();
         
         create(varDsName, varDsDesc, varUrl, varDriverName, varDbUsername, varDbPassword);
-        $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));    	
+        $(btn).removeAttr('disabled');    	
     }
 
     function create(varDsName, varDsDesc, varUrl, varDriverName, varDbUsername, varDbPassword){
     	 var rssInstancesElement = document.getElementById("rssInstances");
          var rssInstanceName = rssInstancesElement.options[rssInstancesElement.selectedIndex].text;
+         var isAllStages = $("#copyToAll").is(":checked");
          if(allowedStages.indexOf(rssInstanceName) !=-1)  {
              jagg.syncPost("../blocks/resources/datasource/add/ajax/add.jag", {
                  action: "createDatasource",
@@ -139,12 +143,13 @@ var allowedStages = outputs.allowedStages;
                  url: varUrl,
                  driverName: varDriverName,
                  dbUsername: varDbUsername,
-                 dbPassword: varDbPassword
+                 dbPassword: varDbPassword,
+                 copyAll : isAllStages
              },
 
              function (result) {
                  if (result) {
-                     location.href = 'listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+                     location.href = 'listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
                  } else {
                      jagg.message({
                          content: 'Error occurred while creating datasource: Datasource already exsist',
@@ -195,12 +200,13 @@ var allowedStages = outputs.allowedStages;
                     }
                 }
                 
-                if (i == 0) {
+                if (parsedArray.length == 0) {
                     $("#no_users_error").show();
                     $("#datasource_username_div").hide();
                 } else {
                     $("#no_users_error").hide();
                     $("#datasource_username_select").select2("val", parsedArray[0].name);
+		    $("#datasource_username_div").show();
                 }
             }
         },
@@ -289,7 +295,17 @@ var allowedStages = outputs.allowedStages;
     $(document).ready(function () {
         // load rss instances(environments) and populate rssInstances options.
         drawRSSInstances();
-     
+
+       $('#copyToAll').change(function() {
+            if($(this).is(":checked")) {
+                $('#rssInstances').parent().slideUp('fast');
+
+            }else{
+                $('#rssInstances').parent().slideDown('fast');
+
+
+            }
+        });
     });
     //]]
 </script>
@@ -297,7 +313,9 @@ var allowedStages = outputs.allowedStages;
 
 <div class="container">
 				<article class="main">
-                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %></div>
+                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
+                         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
                                 <h1>Resources</h1>
                              </div>
@@ -307,7 +325,7 @@ var allowedStages = outputs.allowedStages;
                             <div class="page_nav">
                                 <div class="content clear">
                                     <ol class="breadcrumb">
-                                            <li class="breadcrumb_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="breadcrumb_link">Datasources</a></li>
+                                            <li class="breadcrumb_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="breadcrumb_link">Datasources</a></li>
                                             <li class="breadcrumb_item"><h2>Create New Datasource</h2></li>
                                     </ol>
                                  </div>
@@ -339,6 +357,13 @@ var allowedStages = outputs.allowedStages;
                                                 	<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
                                                 </div>
                                                 </div>
+                                            <% if(AllowedAllStages){%>
+                                            <div class="input_row">
+                                                <legend id="copyall">
+						                            <input type="checkbox" align="left" id="copyToAll"> Create Datasources in all environments
+						                        </legend>
+                                            </div>
+                                            <%}%>
                                             <div class="input_row">
                                                 <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
                                                 	<div>
@@ -375,9 +400,10 @@ var allowedStages = outputs.allowedStages;
                                                 <input type="hidden" name="stages" id='stages' value='<%=outputs.deploymentStages%>' />
                                             </div>
                                         </fieldset>
+                           
                                          <div class="buttonrow">
                                          	 <input type='submit' name='Submit' value='Create Datasource' onclick="if(validateForm()){createDatasource(this);}" class='btn main'/>
-                                         	 <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
+                                         	 <a href="listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
                                         </div>
 
 

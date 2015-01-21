@@ -1,0 +1,21 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/util.jag");
+jagg.block("resources/registry/list", {
+	initialize:function (data) {
+
+	},
+
+	getOutputs:function (inputs) {
+		var log = new Log();
+		var applicationKey = request.getParameter("applicationKey");
+		var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
+		return {
+			"hasCreateResourcePermissions": hasCreateResourcePermissions,
+			"isNamesOnly":inputs.isNamesOnly
+		};
+	}
+
+
+});
+%>

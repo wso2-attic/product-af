@@ -632,11 +632,12 @@ position:fixed;z-index:9999;width: 100%;padding-top: 10px;
 }
 
 .dash-intro{
-position: absolute;
-
-left: 20px;
-top: 205px !important;
-
+    position: absolute;
+    float: left;
+    position: absolute;
+    top: 102px;
+    z-index: 100;
+    left: 15px
 }
 .dashboardDesc{
 border-left: 1px solid rgba(255, 255, 255, 0.3);
@@ -677,4 +678,13 @@ font-weight:bold;
     right: 0;
     top: 47px;
     z-index: 9998;
+}
+
+.dashboardDesc p{
+    font-size: 12px;
+    height: 55px;
+    margin: 0 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: -1;
 }

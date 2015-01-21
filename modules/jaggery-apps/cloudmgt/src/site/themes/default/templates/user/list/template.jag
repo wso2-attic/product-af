@@ -590,7 +590,7 @@ $('#removeUsers').click(function(){
 
                         }, 300);
                     }
-
+                    enableDisableEditDeleteButtons(false);
                 },
                 function (jqXHR, textStatus, errorThrown) {
                     //jagg.message({content:'Error Occured during the removal process of '+userToDelete:'error' });

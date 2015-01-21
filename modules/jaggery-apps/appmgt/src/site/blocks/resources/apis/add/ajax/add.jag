@@ -13,7 +13,7 @@ include("/jagg/config_reader.jag");
     	var applicationKey = request.getParameter("applicationKey");
     	var username = request.getParameter("username");
         var response = {};
-        if (jagg.module("permission").hasAPISubscriptionAndKeyGenerationPermission(applicationKey, username)){
+        if (jagg.module("permission").hasAppOwnerSpecialPermission(applicationKey, username)){
             try {
                 result = mod.createApplication(applicationKey);
                 if (result != null) {

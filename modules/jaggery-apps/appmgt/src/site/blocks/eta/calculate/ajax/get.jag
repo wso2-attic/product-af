@@ -15,8 +15,7 @@ include("/jagg/config_reader.jag");
         var response = {};
         var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
 
-        if (jagg.module("permission").isUserAccessGranted(applicationId,deployToStagePermission) &&
-                jagg.module("permission").isUserAccessGranted(applicationId,PERMISSION_GOVERNANCE_RETIRE)){
+        if (jagg.module("permission").isUserAccessGranted(applicationId,deployToStagePermission)){
             result = mod.calculate(applicationId, stage, version);
             print(result);
         } else {

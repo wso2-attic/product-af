@@ -1,0 +1,10 @@
+<%
+include('/jagg/constants.jag');
+
+jagg.block("help", {
+    initialize:function (data) {
+
+    }
+});
+%>
+

@@ -95,7 +95,7 @@ var response = {};
         var response = {};
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE + rssInstanceName);
+        		PERMISSION_RESOURCES_CREATE_FOR_STAGE + rssInstanceName);
         if( !hasPermission ){
 	        response.error = true;
 	        response.errorMessage = "No permission";
@@ -106,7 +106,7 @@ var response = {};
             mod.deleteUser(applicationKey, name, rssInstanceName);
 
         } catch(e) {
-            throw "Error while deleting the database";
+            throw "Error while deleting the database user. User might be already attached to a database.";
         }
         
       
@@ -131,7 +131,8 @@ var response = {};
         
         try {
             result = mod.createDatabaseUser(applicationKey, password, rssInstance, username);
-            if(!(result.indexOf('Error while creating database user') > -1)) {
+            if(!(result.indexOf('Error while creating database user') > -1)
+                    && !(result.indexOf('User already exists in the environment') > -1)) {
                 result = "success";
             }
             print(result);

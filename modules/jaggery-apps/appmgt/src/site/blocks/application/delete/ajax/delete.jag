@@ -1,0 +1,30 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log=new Log();
+(function () {
+	var response = {};
+	var message;
+	if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
+		var appKey = request.getParameter("appKey");
+		var userName = request.getParameter("userName");
+		var mod = jagg.module("application");
+		try{
+			mod.deleteApplication(appKey,userName);
+			message = "Application was deleted";
+			response.message = message;
+			response.result = 1;
+			print(response);
+		}catch(e){
+			response.result =0;
+			response.message = "Unexpected error at deleting application";
+		}
+	}else{
+		response.result = 0;
+		response.message = "You don't have permission to delete application";
+		print(response);
+	}
+}());
+%>
+

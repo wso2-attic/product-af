@@ -3,7 +3,11 @@
 <%
     var baseURL = getProperty(BASE_URL);
     var gitURL = null;
-    %>
+    var mod = jagg.module("manager");
+    var tenantDomain = mod.getTenantDomain();
+    var loggedInUser = session.get("LOGGED_IN_USER");
+    var appDomain = getProperty("DomainName");    	
+ %>
     <style>
     .popover_form input.branch-txt-width-fix{
             width:240px;
@@ -20,7 +24,10 @@
     </style>
 
     <script type="text/javascript">
-
+    var latestVersion=null;
+    var applicaitonType = null;
+    var subDomain = null;
+    var domainMappedVersion = null;	
     function drawVersionsList() {
     	var row = '',
             versions = [],
@@ -34,18 +41,23 @@
                 userName:userName,
                 isRoleBasedPermissionAllowed:"false"
             }, function (result) {
-            
+
                 versions = jQuery.parseJSON(result);
                 $("#repositories_and_builds_list").empty();
                 
                 count = versions.length;
-                $theTable=$('<table class="data-table"><thead><tr><th>Date</th><th>Stage</th><th></th><th></th></tr></thead></table>');
-                for (var i = 0; i < count; i++) {
-                    element = versions[i];
-                    $theTable.append(constructRow(element,i));
+                $theTable=$('<table class="data-table"><thead><tr><th>Version</th><th>Stage</th><th></th><th></th></tr></thead></table>');
 
-                }
-              
+		for (var i = 0; i < count; i++) {
+	        element = versions[i];
+	        if(element.version.artifactType == "Uploaded-binary-App-war" && element.version.productionMappedDomain != null && element.version.productionMappedDomain != "" ){
+	     		   domainMappedVersion = element.version.current;
+	   	    }
+	        $theTable.append(constructRow(element,i));
+        }
+             
+		latestVersion=versions[0].version.current;
+
                 	$("#repositories_and_builds_list").append($theTable);
                     $("#repositories_and_builds_list").append($('<div class="clearfix"></div>'));
                                                
@@ -75,17 +87,58 @@
         });
     }
 
+     function loadApplicationInfo(applicationKey){
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action:"getAppInfo",
+            applicationKey:applicationKey
+        },function (result) {
+            var parsedArray = jQuery.parseJSON(result);
+            subDomain = parsedArray.mappedSubDomain;
+            applicaitonType = parsedArray.type;
+        },function (jqXHR, textStatus, errorThrown) {
+            //jagg.message({content:'Could not load Application information',type:'error' });
+        jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+        });
+}
+
 
     $(function () {
             applicationKey = '<%=request.getParameter("applicationKey")%>';
             userName = '<%=session.get("LOGGED_IN_USER")%>';
+	        loadApplicationInfo(applicationKey);
             drawVersionsList();
+	
+	       $('form').ajaxForm({
+                        beforeSend: function() {
+			     $("#appcreation").attr('disabled','disabled');
+			      jagg.message({
+                                    content: "New version deployment in-progress.",
+                                    type: 'info'
+                                 });	
+                        },
+                        complete: function(response) {
+				if(response.status === 200){
+				   var existingVersion = $("#versionInput").val();//existing latest version
+				   var major = Number(existingVersion.split(".")[0]);
+		           var newMajor = ++major;
+    			   var newVersion = newMajor+".0.0";
+				   location.reload();
+					 
+				}else{
+				  jagg.message({
+                                    content: "Error while adding new version.",
+                                    type: 'Error'
+                                 });	
+				}
+                         }
+                 });
                
     });
     
     function uploadNewVersion(){
     	if(validate()){
-    		$("#versionUploadForm").submit();
+		$("#versionInput").attr("value",latestVersion);
+		$("#versionUploadForm").submit();
 	}
 	//return false;
     	
@@ -108,17 +161,16 @@
         var version=element.version.current;
         var stage=element.version.stage;
         var versionForIds=version.replace(/\./g,'_');
-	var timeStampVersion = version;              
-        if (version != "trunk"){
-		timeStampVersion = new Date(parseInt(version));
-	}
-        var $resultRow = $('<tr><td>' + timeStampVersion +'</td><td>' + stage + '</td>' +
-			   '<td><a href="#" class="btn main small deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></td>' +
-                           '<td><a href="#" class="btn main small launch_action" data-version="'+version+'" data-stage="'+stage+'">Test</a></td></tr>');
-
-			
-		
-            return $resultRow;
+    
+        var $resultRow = '<tr><td>' + version +'</td><td>' + stage + '</td>';
+	    if(stage != "Retired"){
+	    	$resultRow +='<td><a href="#" class="btn main small deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></td>' +
+            '<td><a href="#" class="btn main small launch_action" data-version="'+version+'" data-stage="'+stage+'">Launch</a></td>';
+	    }else{
+	    	$resultRow +='<td></td><td></td>';
+	    }
+        $resultRow += '</tr>';
+        return $resultRow;
     }
 
     function doCreateBranch(applicationKey,srcVersion,targetVersion,button){
@@ -199,22 +251,20 @@
                     var resJSON;
                     var msg = "";
                     resJSON = jQuery.parseJSON(result);
-                    var URL="";
-                    if(type==='bpel' || type==='dbs'){         // if app type is either 'bpel' or 'dbs' then take only accessURLMD
-                       URL = resJSON.accessURLMD;
-                    }else if(type ==='jaxws'){
-                        URL=resJSON.baseURLMD + resJSON.accessURLMD +"services" ;
-                    }
+                    var URL= resJSON.url;
 
-                    else	// for other types append baseURLMD and accessURLMD
-                	    URL=resJSON.baseURLMD + resJSON.accessURLMD;
-                    if(URL===""){
+                    if(!URL){
                         jagg.message({
-                            content: "Application is not deployed yet.!",
+                            content: "Application is not deployed yet!",
                             type: 'error'
                         });
-
+                      return;
                     }
+				
+				//Domain mapping
+				if(domainMappedVersion != null && version == domainMappedVersion && subDomain !=null && (subDomain.trim().length > 0)){
+                   URL = "http://" + subDomain + ".<%=appDomain%>";
+                }
                 window.open(URL, '_blank')
             },
                 function (jqXHR, textStatus, errorThrown) {
@@ -263,7 +313,6 @@
             setTimeout(function () {jagg.removeMessage('message_id_success')}, 5000);
         }
 
-
     </script>
     <div class="container">
         <article class="main">
@@ -283,46 +332,50 @@
                 </div>
 
             </header>
-		
-		<section class="content" style="margin-bottom: 20px">
-			
-			<form id="versionUploadForm"
-				action="../blocks/lifecycle/add/ajax/add.jag" enctype="multipart/form-data" method='post'>
-				<input type="hidden" id="action" name="action"
-					value="uploadNewVersionOfExistingApp" />
-				<input type="hidden" id="applicationKey" name="applicationKey" name="applicationKey"
-					value="<%=request.getParameter('applicationKey')%>" />
-				<div class="input_row">
-					<label><strong>Upload New Version</strong></label> 
-					<span id="iconContainer">
-						<input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." />
-					</span> 
-					    <input type="button" value="Upload" class="btn main" id='appcreation' onclick="uploadNewVersion()" />
-				</div>
-			</form>
-			<style>
-				.data-table{
-					border-left:solid 1px #ccc;
-					border-bottom:solid 1px #ccc;
-					width:100%;
-				}
-				.data-table td,.data-table th{
-					padding:5px;
-					margin:0;
-					border-right:solid 1px #ccc;
-					border-top:solid 1px #ccc;
-					text-align:left;
-				}
-			</style>
-			
-		</section>
-		
-		<section id="repositories_and_builds_list" class="content" style="margin-bottom:122px">
-		        <span class="icon-spinner icon-spin icon-large spin-large"></span>
-        </section>
+		<section class="special-message-wrapper"  style="margin-bottom: 20px">
+			 <div class="page-content-area">
+                    <div class="af_container">
+                        <div class="af_row">
+                            <div class="col-12">
+
+                            <form id="versionUploadForm"
+                                action="../blocks/lifecycle/add/ajax/add.jag" enctype="multipart/form-data" method='post'>
+                                <input type="hidden" id="action" name="action"
+                                    value="uploadNewVersionOfExistingApp" />
+
+                                <input type="hidden" id="applicationKey" name="applicationKey"
+                                    value="<%=request.getParameter('applicationKey')%>" />
+                                <input type="hidden" id="versionInput" name="latestVersion" value="123"/>
+                                <input type="hidden" id="userName" name="userName"
+                                                        value="<%=session.get('LOGGED_IN_USER')%>" />
+                               <input type="hidden" id="latestVersion" name="applicationKey"
+                                    value="<%=request.getParameter('applicationKey')%>" />
+				 <div class="input_row">
+                                    <label><strong>Upload New Version</strong></label>
+                                    <span id="iconContainer">
+                                        <input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." />
+                                    </span>
+                                        <input type="button" value="Upload" class="btn main" id='appcreation' onclick="uploadNewVersion()" />
+  
+                            </form>
+
+                            </div>
+                        </div>
+                    </div>
+             </div>
+		    </section>
 
 
-            <!--<div class="clearfix separator"></div>-->
+            <div class="page-content-area">
+                    <div class="af_container">
+                        <div class="af_row">
+                            <div class="col-12" id="repositories_and_builds_list">
+
+
+	                         </div>
+                        </div>
+                    </div>
+               </div>
         </article>
     </div><!-- /container -->
     <%

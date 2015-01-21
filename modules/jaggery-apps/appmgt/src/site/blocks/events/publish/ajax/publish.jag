@@ -1,0 +1,18 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+
+    if (action == "publish") {
+        mod = jagg.module("events");
+        print(mod.publish());
+    } else {
+        throw new Error("Invalid action specified");
+    }
+
+}());
+%>

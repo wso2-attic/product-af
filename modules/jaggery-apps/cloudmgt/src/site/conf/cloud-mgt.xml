@@ -2,8 +2,8 @@
 <cloudmgt>
 	<subscriptions>
 		<type display_name="App Cloud" url="https://milestones.appfactory.wso2.com:9443/appmgt/">app_cloud</type>
-		<type display_name="Integration Cloud" url="https://milestones.appfactory.wso2.com:9443/ipaas/">integration_cloud</type>
-		<type display_name="API Cloud" url="https://milestones.appfactory.wso2.com:9443/apimgt/">api_cloud</type>
+<!--		<type display_name="Integration Cloud" url="https://milestones.appfactory.wso2.com:9443/ipaas/">integration_cloud</type>
+		<type display_name="API Cloud" url="https://milestones.appfactory.wso2.com:9443/apimgt/">api_cloud</type>-->
          </subscriptions>
      <ServerUrls>
         <AppFactory>https://localhost:9443/services/</AppFactory>

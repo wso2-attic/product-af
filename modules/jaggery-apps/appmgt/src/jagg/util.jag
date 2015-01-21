@@ -1,19 +1,38 @@
 <%
 include("/jagg/jagg.jag");
 var log = new Log("jagg/util.jag");
+var permissionModule = jagg.module("permission");
+var lifeCycleModule = jagg.module("lifecycle");
 
 var getAllowedStages= function getAllowedStages(allStages,permissionPrefix,applicationKey){
-var stages=[];
-        for (var i = 0; i < allStages.length ; i++) {
-            if (jagg.module("permission").isUserAccessGranted(applicationKey,
-                permissionPrefix+allStages[i])){
-                stages.push(allStages[i]);
+	var stages=[];
+    for (var i = 0; i < allStages.length ; i++) {
 
-                } else {
-                    log.info("user do not have permission for stage "+allStages[i]+" hence skipping")
-                    continue;
-                }
-                }
-                return stages;
-}
+        if (permissionModule.isUserAccessGranted(applicationKey, permissionPrefix+allStages[i])){
+            stages.push(allStages[i]);
+
+        } else {
+            log.debug("user do not have permission for stage "+ allStages[i] +" hence skipping");
+            continue;
+        }
+    }
+    return stages;
+};
+
+
+var hasUILevelResourceCreationPermission = function hasUILevelResourceCreationPermission(applicationKey){
+	
+	//This always returns one stage
+    var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
+	return permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + initialStage);
+};
+
+var hasUILevelResourceDeletePermission = function hasUILevelResourceDeletePermission(applicationKey, stageOfResource){
+
+        //This always returns one stage
+    var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
+        return permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + initialStage) && permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stageOfResource);
+};
+
+
 %>

@@ -3,31 +3,37 @@ include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 var site = require("/site/conf/site.json");
 
-(function () {
-	
-	session.put('application_list',null);
-	session.put("last_backend_access_time_for_getting_appList",null);
-    session.put('authenticatedCookie',null);
+include("/jagg/constants.jag");
+        include("/jagg/config_reader.jag");
 
-    jagg.render({
-        "name":"page/base",
-        "inputs":{
-            "title":"WSO2 App Factory",
-            "pagePath":"/site/pages/logout.jag",
-            "body":[
-                {
-                    "name":"layout/base",
-                    "inputs":{
-                        "title":"Logout",
-                        "middle":[
-                            {
-                            	"name":"logout"
-                            }
-                        ]
-                    }
-                }
-            ]
+        var security =require("sso");
+        var ssoRelyingParty = new security.SSORelyingParty(getProperty(SSO_NAME));
+        try{
+                var samlLogoutRequest = ssoRelyingParty.getSAMLLogoutRequest(session.get("LOGGED_IN_USER"), session.getId());
+                var encodedRequest = ssoRelyingParty.encode(samlLogoutRequest);
+                var relayState = ssoRelyingParty.getUUID();
+                var idpURL = ssoRelyingParty.getProperty("identityProviderURL");
+        } catch (e) {
+                response.sendRedirect("/" + getProperty(WEB_CONTEXT_ROOT));
         }
-    });
-}());
+
 %>
+
+<div>
+   <p>You are now redirected to Stratos Identity. If the
+   redirection fails, please click the post button.</p>
+
+    <form method="post" action="<%=idpURL%>">
+    <p>
+        <input type="hidden" name="SAMLRequest"
+              value="<%= encodedRequest %>"/>
+        <input type="hidden" name="RelayState" value="<%=relayState%>"/>
+        <button type="submit">POST</button>
+    </p>
+    </form>
+</div>
+
+<script type = "text/javascript" >
+       document.forms[0].submit();
+</script>
+

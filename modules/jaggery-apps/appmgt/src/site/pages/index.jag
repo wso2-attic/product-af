@@ -35,6 +35,7 @@ var site = require("/site/conf/site.json");
         "inputs":{
             "title":"WSO2 App Factory",
             "pagePath":"/site/pages/index.jag",
+            "pageName":"User Home",
             "body":[
                 {
                     "name":"layout/base",

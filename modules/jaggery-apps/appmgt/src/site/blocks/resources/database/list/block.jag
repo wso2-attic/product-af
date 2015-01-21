@@ -1,5 +1,8 @@
 <%
 include('/jagg/constants.jag');
+include("/jagg/config_reader.jag");
+include("/jagg/util.jag");
+
 jagg.block("resources/database/list", {
     initialize: function (data) {
 
@@ -10,13 +13,15 @@ jagg.block("resources/database/list", {
         }
     },
 
-    // getOutputs:function (inputs) {
-    //    var hasConfigureDbAdministrationPermission = jagg.module("permission").isUserAccessGranted
-//(inputs.applicationKey,PERMISSION_CONFIGURATION_DB_ADMINISTRATION);
-    //            return {
-    //          "hasConfigureDbAdministrationPermission":hasConfigureDbAdministrationPermission
-    //     };
-    //  }
+ getOutputs:function (inputs) {
+       var log = new Log();
+       var applicationKey = request.getParameter("applicationKey");
+       var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
+
+       return {
+           "hasCreateResourcePermissions": hasCreateResourcePermissions
+       };
+   }
 
 
 });

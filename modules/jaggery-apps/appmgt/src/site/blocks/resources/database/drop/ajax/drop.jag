@@ -8,26 +8,29 @@ var log= new Log();
 var response = {};
 
 (function () {
-    var mod, obj, result, modPermission
+    var mod, obj, result, modPermission,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
 
     if (action == "dropDatabase") {
         mod = jagg.module("resources");
-            var applicationKey = request.getParameter("applicationKey");
-            var databaseName = request.getParameter("databaseName");
-            var databaseServerInstanceName = request.getParameter("rssInstanceName");
+        var applicationKey = request.getParameter("applicationKey");
+        var databaseName = request.getParameter("databaseName");
+        var databaseServerInstanceName = request.getParameter("rssInstanceName");
+        var deleteDatasource= request.getParameter("deleteDatasource");
 
         var response = {};
         modPermission = jagg.module("permission");
         var stage = mod.getStageFromRssInstanceName(databaseServerInstanceName);
         var hasDbConfigPermission = modPermission.isUserAccessGranted(applicationKey,
-        		PERMISSION_RESOURCES_UPDATE_FOR_STAGE +stage);
+        		PERMISSION_RESOURCES_CREATE_FOR_STAGE +stage);
         
         if(hasDbConfigPermission){
             try {
                 mod.dropDatabase(applicationKey,databaseName,databaseServerInstanceName);
-
+                if(deleteDatasource=="true"){
+                	mod.deleteDatasource(applicationKey, databaseServerInstanceName, databaseName);
+                }
             } catch(e) {
                 throw "Error while deleting the database";
             }

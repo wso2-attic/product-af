@@ -28,6 +28,33 @@ var log=new Log();
             log.error( msg + e.message);
             throw msg;
         }
+	}else if (action === "failedApps") {
+        mod = jagg.module("application");
+        
+        var failedApps = [];
+        var userName = request.getParameter("userName");
+        var currentApplications = parse(request.getParameter("currentApps"));
+        
+        //loads all the applications of the user: from database.
+        var loadedApplications = mod.getUserHomeInfo();      
+
+        for (var exAppIndex in currentApplications) {
+            var exApp = currentApplications[exAppIndex];  
+            var hasAppFailed = true;
+            
+            for (var appIndex in loadedApplications) {
+            	var app = loadedApplications[appIndex];
+                if (exApp.key == app.key) {
+                	hasAppFailed = false;
+                	break;
+                }
+            }
+            
+            if(hasAppFailed){
+            	failedApps.push(exApp);
+            }
+        }
+        print(failedApps);
 	}else if (action === "creationCompletedApps") {
         mod = jagg.module("application");
 
@@ -57,17 +84,6 @@ var log=new Log();
             }
             session.put("pendingApplications", pendingApplications);
         }
-        
-     /*   // Set the icon url
-        var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
-        for (var exAppIndex in completedPendingApps) {
-             var exApp = completedPendingApps[exAppIndex];
-             var info = mod.getBranchInfo(exApp.key);
-        	 exApp.branches = 1; // If this is a newly created app only trunk is exists
-        	 exApp.inProduction = info.production;
-        	 exApp.iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + exApp.key;
-        	 exApp.display = getProperty("ApplicationType." + exApp.type + ".Property.DisplayName");
-        }*/
         print(completedPendingApps);
     }else if (action === "getAllApps") {
         mod = jagg.module("application");
@@ -293,6 +309,8 @@ var log=new Log();
     } else if (action === "getSubscriptions") {
        var domainName = request.getParameter("domainName");
         try {
+           //Lets move this to module level.
+
            var db = new Database("cloud_mgt");
            var aPaaS = db.query("SELECT app_cloud FROM SUBSCRIPTIONS WHERE tenantDomain ='"+domainName+"'")[0].app_cloud;
            var iPaaS = db.query("SELECT integration_cloud FROM SUBSCRIPTIONS WHERE tenantDomain ='"+domainName+"'")[0].integration_cloud;

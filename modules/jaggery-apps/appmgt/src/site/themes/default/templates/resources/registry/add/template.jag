@@ -3,77 +3,37 @@
 <%
 include("/jagg/constants.jag");
 
-var log = new Log();
 var applicationKey = request.getParameter("applicationKey");
 var applicationName = request.getParameter("applicationName");
 var currentStage = request.getParameter("stage");
 var resourceName = request.getParameter("resourceName");
+var AllowedAllStages=outputs.hasAccessForAllstages;
 var isEdit = request.getParameter("isEdit");
 var pagePath = request.getParameter("pagePath");
-var redirectURL = "resources.jag?applicationName="+ applicationName +"&applicationKey="+ applicationKey;
-if(pagePath != null && pagePath.equals("configureenvironment")){
-    redirectURL = "configureenvironment.jag?applicationName=" + applicationName + "&applicationKey=" + applicationKey;
-}
-
-//var hasConfigureResourcePermissions=outputs.hasConfigureResourcePermissions;
-//var dependencies=outputs.dependencies;
-
-var headerMsg = "Add New Property";
-var buttonValue = "Add Property";
-
-// TODO: This can be removed
-var url = "#";
-
-var propertyName = "";
-var propertyType = "";
-var propertyDescription = "";
-var propertyValue = "";
-var modResources = jagg.module("resources");
-var modPermission = jagg.module("permission");
-var stagePermission=[];
-
-var stages = getProperties('ApplicationDeployment.DeploymentStage');
-
-var devStage;
-
-if(stages.length > 0){
-    devStage = stages[0];
-}
-
-for(var stage in stages){
-    if(modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +stages[stage])){
-        stagePermission.push(stages[stage]);
-    }
-
-}
-
-stages=stagePermission;
-if(isEdit != null && isEdit == "true"){
-    headerMsg = resourceName;
-    buttonValue = "Save";
-    var resource = modResources.getDetailedPropertyValueInStage(resourceName, applicationKey, currentStage);
-    if(resource){
-	    propertyName = resource.name;
-	    propertyType  = resource.mediaType;
-	    propertyDescription  = resource.description;
-	    propertyValue = resource.value;
-    }
-}
+var redirectURL = outputs.redirectURL;
+var propertyName = outputs.propertyName;
+var propertyType = outputs.propertyType;
+var propertyDescription = outputs.propertyDescription;
+var propertyValue = outputs.propertyValue;
+var stages = outputs.stages;
+var headerMsg = outputs.headerMsg;
+var isUpdatePermitted = outputs.isUpdatePermitted;
+var hasDeleteResourcePermissions = outputs.hasDeleteResourcePermissions;
+var buttonValue = outputs.buttonValue;
 
 %>
 <script type="text/javascript">
+
 //[cdata[
+var mediaType='Registry';
 
 var validate = true;
 
-function createResource() {
-	var mediaType='';
-	if($("#property_type").attr('value') == "Endpoint"){
-		mediaType = "application/vnd.wso2.endpoint";
-	}	
-	$("#rssInstance").val($("#rssInstances").val());
+function createResource(copyToAll) {
+	
+ 	$("#rssInstance").val($("#rssInstances").val());
 
-    $('#create_button').attr('disabled','disabled').attr('prev-val',$('#create_button').val()).val('Creating..');
+    $('#create_button').attr('disabled','disabled');
     jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
         action: "createResource",
         applicationKey: '<%=applicationKey%>',
@@ -81,11 +41,13 @@ function createResource() {
         resourceDescription: $("#property_description").attr('value'),
         contentValue: $("#property_value").attr('value'),
         stage: $("#rssInstance").val(),
-        resourceMediaType: mediaType
+        resourceMediaType: mediaType,
+        copyToAll:copyToAll
     },
     function (result) {
-      clearForm();
-        $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+        //clearForm();
+
+	setTimeout("pageReload('<%=redirectURL%>')",1500);
       /*TODO
 		 * jagg.message({
           content: "Property successfully added",
@@ -93,48 +55,38 @@ function createResource() {
     },
     function (jqXHR, textStatus, errorThrown) {
     	// alert(jqXHR);
-        $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+        $('#create_button').removeAttr('disabled');
     });
 }
 
 
-
-function drawRSSInstances(){
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-                action:"getRSSinstances",
-                applicationKey:"<%=applicationKey%>"
-            }, function (result) {
-		//alert(result);
-                if(result != undefined){
-                    var parsedArray = jQuery.parseJSON(result);
-                    for(var i = 0; i < parsedArray.length; i++) {
-                        var name = parsedArray[i].name;
-
-                        var row='<option>'+name+'</option>';
-                        $("#rssInstances").append(row);
-                        $("#rssInstances").select2({
-                           formatResult: selectBoxOptionFormat,
-                           minimumResultsForSearch: -1,
-                           containerCssClass : "error" });
-                    }
-                    if(parsedArray.length == 0){
-                        $('#rssInstances').html('<div class="row-fluid"><div class="span12"><div class="alert alert-info">No rssInstances created yet</div></div></div>');
-                    }
-                }
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                $('#rssInstances').html('<div class="row-fluid"><div class="span12"><div class="alert alert-error">Error occurred while reading rssInstances</div></div></div>');
-            });
-    }
+//loading the registry environments permitted
+ 
+function drawStagesForCreatePermittedEnvironments(){
+    jagg.post("../blocks/resources/common/get/ajax/get.jag", {
+            action: "getCreatePermittedEnvironments",
+            applicationKey: '<%=applicationKey%>'
+    },
+    function (result) {
+          var parsedArray = jQuery.parseJSON(result);
+      for(var i = 0; i < parsedArray.length; i++) {
+          var stage = parsedArray[i];
+          var row='<option>'+stage+'</option>';
+          $("#rssInstances").append(row);
+          $("#rssInstances").select2({
+              formatResult: selectBoxOptionFormat,
+              minimumResultsForSearch: -1,
+              containerCssClass : "error" });
+      }
+    },
+    function (jqXHR, textStatus, errorThrown) {
+          $("#property_name").attr('value') 
+    });
+}
 
 
 function updateResource() {
-
-    var mediaType='';
-    if($("#property_type").attr('value') == "Endpoint"){
-        mediaType = "application/vnd.wso2.endpoint";
-    }
-    $('#create_button').attr('disabled','disabled').attr('prev-val',$('#create_button').val()).val('Creating..');
+    $('#create_button').attr('disabled','disabled');
     jagg.post("../blocks/resources/registry/edit/ajax/edit.jag", {
                 action: "updateResource",
                 applicationKey: '<%=applicationKey%>',
@@ -146,17 +98,17 @@ function updateResource() {
             },
             function (result) {
             	
-                clearForm();
+               // clearForm();
                 /*TODO
                  * jagg.message({
                  content: "Property successfully added",
                  type: 'info' });*/
-                $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+		setTimeout("pageReload('<%=redirectURL%>')",1500);
                 
             },
             function (jqXHR, textStatus, errorThrown) {
                 // alert(jqXHR);
-                $('#create_button').removeAttr('disabled').val($('#create_button').attr('prev-val'));
+                $('#create_button').removeAttr('disabled');
 
             });
     
@@ -177,6 +129,7 @@ function deleteResource() {
                 action: "deleteResource",
                 applicationKey: '<%=applicationKey%>',
                 resourceName: $("#property_name").attr('value'),
+                stage: '<%=currentStage%>',
             },
             function (result) {
                 window.location.replace("<%=redirectURL%>");
@@ -211,13 +164,12 @@ function updateUIForStage() {
 
 
 function clearForm(){
-	$("#property_name").val("");
-	$("#property_description").val("");
-	$("#property_value").val("");
+	$("#property_name").attr("value","");
+	$("#property_description").attr("value","");
+	$("#property_value").attr("value","");
 }
 
 function validateMandatoryInputs(){
-	var mediaType = $("#property_type").val();
 	var propName = $("#property_name").val();
 	var propValue = $("#property_value").val();
 	
@@ -250,18 +202,18 @@ function environmentSelected(value) {
 }
 
 $(document).ready(function() {
-	
+    getHelpTips();	
     if('<%=isEdit%>'== 'true'){
         $("#delete-div").show();
-        $("#stage").val('<%=devStage%>');
+        $("#stage").val('<%=outputs.initialStage%>');
 
-        if('<%=propertyType%>'== 'application/vnd.wso2.endpoint'){
-            $("#property_type").val('Endpoint');
-        } else{
-            $("#property_type").val('Registry');
-        }
+        $("#rssInstances").empty().append('<option><%=currentStage%></option>');
+    }else if('<%=isEdit%>'== 'true'){
+         $("#delete_button_div").show();
+         $("#createProp").hide();
+         $("#property_name").prop('value','<%=resourceName%>');
     } else {
-    	drawRSSInstances();
+    	drawStagesForCreatePermittedEnvironments();
         $("#delete_button_div").hide();
 
     }
@@ -277,29 +229,69 @@ $(document).ready(function() {
                     updateResource();
 
                 }else{
-                    createResource();
+		    validatePropertyNameAndCreate();
                 }
             } else{
                 return false;
             }
 
-		},
-        complete: function(result) { // on complete
-            var statusTxt = result.statusText;
-            if(statusTxt == "OK"){
-                setTimeout("pageReload('<%=redirectURL%>')",1500);
-            }
-        }
-
+		}
     });
     $('#deleteResBtn').click(function(){
-            jagg.popMessage({type:'confirm',title:'Delete Value',content:'Are you sure you want to delete value <%=resourceName%>?',cancelCallback:function(){deleteResource()}});
+            jagg.popMessage({type:'confirm',title:'Delete Value',content:'Are you sure you want to delete value <%=resourceName%>?',okCallback:function(){deleteResource()}});
     });
+
+    $('#copyToAll').change(function() {
+            if($(this).is(":checked")) {
+                $('#rssInstances').parent().slideUp('fast');
+
+            }else{
+                $('#rssInstances').parent().slideDown('fast');
+
+
+            }
+        });
 });
 
 function pageReload(redirectURL){
+    $('#create_button').removeAttr('disabled');
 	 window.location.replace(redirectURL);
 }
+
+function getHelpTips(){
+    jagg.post("../blocks/help/ajax/help.jag", {
+            action: "getHelpTips",
+            page: "add-properties"
+        },
+
+        function (result) {
+            helpTips = jQuery.parseJSON(result);
+               //  $("#createInAllEnvsHelp").html(helpTips.createInAllEnvsHelp);
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
+
+function validatePropertyNameAndCreate() {
+    $("#rssInstance").val($("#rssInstances").val());
+    jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
+            action: "propertyExistInStages",
+            applicationKey: '<%=applicationKey%>',
+            propertyName: $("#property_name").attr('value'),
+            givenValues: $("#rssInstance").val(),
+            copyToAll:$('#copyToAll').is(':checked')
+    },
+    function (result) {
+        if(result){
+        jagg.message({type:'error', id:'validation', content: "A resource with the same name exists. Please use a different name"});
+        }else{
+        createResource($('#copyToAll').is(':checked'));
+        }
+    },"json");
+}
+
+
 //]]
 </script>
 
@@ -307,7 +299,10 @@ function pageReload(redirectURL){
             <div class="container">
 				<article class="main">
 				       
-                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %></div>
+                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
+			 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+                         </div>
                         	<div class="content">
                                 <h1>Resources</h1>
                              </div>
@@ -317,15 +312,19 @@ function pageReload(redirectURL){
                             <div class="page_nav">
                                 <div class="content clear">
                                     <ol class="breadcrumb left">
-                                        <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">Endpoint & Registry</a></li>
+                                        <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">Properties</a></li>
+                                        <%if(isEdit!='true'){%>
                                         <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
+                                        <%}else{%>
+                                        <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
+                                        <%}%>
                                     </ol>
                                     <%
-                                      	if(modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +currentStage)){
+                                      	if(isEdit == "true" && hasDeleteResourcePermissions){
                                       %>
                                     <div class="right btn_group" id="delete_button_div">
                                         <ul class="inline_box inline_list btn_group_list">
-                                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Value</a>
+                                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Property</a>
                                             </li>
                                         </ul>
                                         <div class="clearfix"></div>
@@ -349,97 +348,59 @@ function pageReload(redirectURL){
                                             			<!-- label for="property_name" ><strong>Name</strong> <em>*</em></label -->
                                             			<input id="property_name" type="hidden" name="property_name" value="<%=propertyName%>" class="half" />
                                             			
-                                            			<label for="property_type" ><strong>Type</strong> <em>*</em></label>
-                                            			<input id="property_type" type="text" name="property_type" value="<%=propertyType%>" class="half" disabled="disabled"/>
+                                            			<div class="input_row">
+        	                                            	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
+                                                    		<select id='rssInstances' class="select_list half big" name="rssInstance" disabled="disabled"></select>
+        	                                        	</div>
                                             	<%
                                             		}else{
                                             	%>
                                                 		<label for="property_name" ><strong>Name</strong> <em>*</em></label>
-                                                		<input id="property_name" type="text" name="property_name" value="<%=propertyName%>" class="half" required/>
-                                                		<div class="input_row">
-        	                                            	<label for="property_type" ><strong>Type</strong> <em>*</em></label>
-	        	                                            <select class="select_list half big" id="property_type" name="property_type">
-	        	                                                <option disabled="disabled" selected value=''>Select Property Type</option>
-	        	                                                <option value="Registry">Registry</option>
-	        	                                                <option value="Endpoint">Endpoint</option>
-	        	                                            </select>
-        	                                            </div>
+                                                		<input id="property_name" type="text" name="property_name" value="<%=propertyName%>" class="half required" />
+                            
         	                                            <div class="input_row">
         	                                            	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
                                                     		<select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
                                                     		<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
         	                                        	</div>
-                                                
+        	                                        	<%if((AllowedAllStages)){%>
+        	                                        	<div class="input_row">
+											            <legend id="copyAll"><input align="left" type="checkbox" id="copyToAll"> Create property in all environments</legend>
+                        			                    </div>
+                        			                    <%}%>
                                                 <% } %>
                                             </div>
                                             
 	                                        <div class="input_row">
-	                                            <label for="property_description">Description</label>
-	                                            <textarea name="property_description" id="property_description" rows="5"   class="full"/><%=propertyDescription%></textarea>
+	                                            <label for="property_description"><strong>Description</strong></label>
+	                                            <textarea name="property_description" id="property_description" rows="5" <% if((isEdit && isEdit == "true") && !isUpdatePermitted ){ %>disabled<%}%>  class="full"/><%=propertyDescription%></textarea>
 	                                        </div>
 
-                                          <%
-                                            if(isEdit == "true"){
-
-                                          %>
-                                          <hr/>
-                                          <div>
-                                              <label for="stage"><strong>Stage</strong></label>
-                                              <label><%=currentStage%></label>
-                                              <!--select class="select_list half big" id="stage" name="stage"
-                                                      onchange="updateUIForStage()">
-                                                 <option disabled="disabled" selected value=''>Select Stage</option>
-                                                  <%
-
-                                                    for (var i = 0; i < stages.length; i++) {
-                                                    var stage = stages[i];
-                                                    var permissionToStage = false;
-
-                                                    permissionToStage = jagg.module("permission").isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE+stage);
-
-                                                    if(permissionToStage){
-
-                                                    %>
-                                                        <option value=<%=stage%>><%=stage%></option>
-                                                        <script>
-                                                        	permittableStages.push('<%=stage%>');
-                                                        </script>
-                                                    <%
-                                                      }
-                                                    }
-                                                    %>
-                                              </select-->
-                                          </div>
-
-                                          <%
-                                            }
-
-                                          %>
-
-                                            
+                                                                  
                                             <div class="input_row">
                                                 <label for="property_value"><strong>Value</strong> <em>*</em></label>
-                                                <textarea name="property_value" id="property_value" rows="2" class="full" required><%=propertyValue%></textarea>
+                                                <textarea name="property_value" id="property_value" rows="2" class="full<% if((isEdit && isEdit == "true") && !isUpdatePermitted ){ %>" disabled<%}%> required"><%=propertyValue%></textarea>
                                             </div>
 
                                       </fieldset>
                                       	   <div class="buttonrow">  
+
 	                                      <%
-	                                      	if(isEdit != null && isEdit == "true" && modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +currentStage)){
-	                                      %> 
+	                                      	if(isEdit && isEdit == "true" && isUpdatePermitted){
+	                                      %>
 	                                        
 	                                        <!--input type="button" name="submit" value="Create Property" class="btn main" onclick="createResource();"/-->
 	                                        <input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
 
 	                                        <%
-	                                        }else if(!isEdit){
+	                                        }else if(!isEdit || (isEdit && isEdit == "false")){
 	                                        %>
 	                                        	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
-	                                        
+
 	                                        <%
 	                                        }
 	                                        %>
-                                        	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">Cancel</a>
+                                        	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'"><% if(isUpdatePermitted){ %>Cancel<%} else {%>Back<%}%></a>
 										</div>
                                      </form>
 

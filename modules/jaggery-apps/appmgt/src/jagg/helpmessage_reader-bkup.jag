@@ -1,0 +1,9 @@
+<%
+include('constants.jag');
+var helpMessages = require("helpmessages.json");
+
+function getValue(array){
+    return  helpMessages[array[0]][array[1]];
+}
+
+%>

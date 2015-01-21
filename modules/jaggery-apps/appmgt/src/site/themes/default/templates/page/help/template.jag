@@ -1,0 +1,36 @@
+<% jagg.template("page/help", function (inputs, outputs, jagg) { %>
+
+<% var section = inputs.section; 
+   var modHelp = jagg.module("help");
+   var helpDetails = modHelp.getHelpMessage(section);
+%>
+<script type="text/javascript">
+var section = '<%= section %>';
+var helpDetails = '<%= helpDetails %>';
+$(document).ready(function(){
+getHelpMessages();
+});
+
+function getHelpMessages(){
+            var helpText = jQuery.parseJSON(helpDetails);
+            var content = "";
+            for(var i in helpText)
+            {
+                var helpLink = helpText[i].link;
+                if(helpLink != null){
+                    content += '<a href='+helpLink+' style="text-decoration:none;"><strong>'+helpText[i].msg+'</strong></a><p>'+helpText[i].subMsg+'</p>';
+            } else {
+                    content += '<strong>'+helpText[i].msg+'</strong><p>'+helpText[i].subMsg+'</p>';
+                }
+            }
+            $('#contextualHelp').html(content);
+        }
+
+</script>
+
+<section class="help-section-top">
+<div id="contextualHelp"></div>
+</section>
+<input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
+<%
+}); %>

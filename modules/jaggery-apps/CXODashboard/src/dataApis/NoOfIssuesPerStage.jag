@@ -2,6 +2,8 @@
 
 var userConfig = require('commons/userConfig.js');
 var dbConfig = require('commons/dbConfig.js');
+var util = require('commons/Util.js');
+include("/constants.jag");
 
 var isUserLoggedIn = userConfig.isUserLoggedIn();
 
@@ -14,18 +16,22 @@ function getTimePeriod() {
 
     if (isUserLoggedIn) {
 
-        var result = [];
-        if (request.getParameter("from") == null || request.getParameter("to") == null) {
+        var result = [0,0];
+        if (request.getParameter(FROM) == null || request.getParameter(TO) == null) {
 
-            var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM LATEST_APP_VERSIONS WHERE TENANT_ID=" + tenantID + " ;";
+            var query = "SELECT MIN(ROUND(TIME_ST/1000)) AS min_time_st, MAX(ROUND(TIME_ST/1000)) AS max_time_st " +
+                        "FROM LATEST_APP_VERSIONS WHERE TENANT_ID=" + tenantID + " ;";
             var dbResult = dbConfig.queryDb(query);
 
-            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
-            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+            if(util.isValidDbResult(dbResult[0], ['min_time_st', 'max_time_st'])) {
+                result[0] = dbResult[0]['min_time_st'];
+                result[1] = dbResult[0]['max_time_st'];
+            }
+
 	    	
         } else {
-            result[0] = request.getParameter("from");
-            result[1] = request.getParameter("to");
+            result[0] = request.getParameter(FROM);
+            result[1] = request.getParameter(TO);
         }
         return result;
     }
@@ -33,14 +39,22 @@ function getTimePeriod() {
 
 function getData(from, to) {
 
-if (isUserLoggedIn) {
+    if (isUserLoggedIn) {
 
-	var query = "SELECT  A.STAGE, COUNT(I.ISSUE_KEY) AS COUNT FROM LATEST_APP_VERSIONS L, APP_VERSIONS_BY_STAGE A, LATEST_APP_ISSUES I WHERE L.TENANT_ID=" + tenantID + " AND L.APPLICATION_KEY=A.APPLICATION_KEY AND L.APPLICATION_VERSION=A.APPLICATION_VERSION AND L.TENANT_ID=A.TENANT_ID AND L.TIME_ST=A.TIME_ST AND L.APPLICATION_KEY=I.APPLICATION_KEY AND L.APPLICATION_VERSION=I.APPLICATION_VERSION AND L.TENANT_ID=I.TENANT_ID AND substr(L.TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) +" GROUP BY A.STAGE;";
+        var query = "SELECT  APP_VERSIONS_BY_STAGE.STAGE, COUNT(LATEST_APP_ISSUES.ISSUE_KEY) AS COUNT FROM " +
+                    "LATEST_APP_VERSIONS, APP_VERSIONS_BY_STAGE, LATEST_APP_ISSUES WHERE LATEST_APP_VERSIONS.TENANT_ID = "
+                    + tenantID +
+                    " AND LATEST_APP_VERSIONS.APPLICATION_KEY = APP_VERSIONS_BY_STAGE.APPLICATION_KEY AND " +
+                    "LATEST_APP_VERSIONS.APPLICATION_VERSION = APP_VERSIONS_BY_STAGE.APPLICATION_VERSION AND " +
+                    "LATEST_APP_VERSIONS.TENANT_ID = APP_VERSIONS_BY_STAGE.TENANT_ID AND LATEST_APP_VERSIONS.TIME_ST = " +
+                    "APP_VERSIONS_BY_STAGE.TIME_ST AND LATEST_APP_VERSIONS.APPLICATION_KEY = LATEST_APP_ISSUES.APPLICATION_KEY" +
+                    " AND LATEST_APP_VERSIONS.APPLICATION_VERSION = LATEST_APP_ISSUES.APPLICATION_VERSION AND " +
+                    "LATEST_APP_VERSIONS.TENANT_ID = LATEST_APP_ISSUES.TENANT_ID AND ROUND(LATEST_APP_VERSIONS.TIME_ST/1000) " +
+                    "BETWEEN " + parseInt(from) + " AND " + parseInt(to) + " GROUP BY APP_VERSIONS_BY_STAGE.STAGE;";
 
-	var dbResult = dbConfig.queryDb(query);
-
-	return createJSON(dbResult);
-      }	
+        var dbResult = dbConfig.queryDb(query);
+        return createJSON(dbResult);
+    }
 }
 
 	function createJSON(result) {

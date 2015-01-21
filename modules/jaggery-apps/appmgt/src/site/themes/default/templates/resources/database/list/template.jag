@@ -3,13 +3,17 @@
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var isDefaultMode = request.getParameter("isDefaultMode");
+var hasCreateResourcePermissions = outputs.hasCreateResourcePermissions;
+appInfo=session.get("APP_INFO");
+language=appInfo.language;
+
 %>
 
 <script type="text/javascript">
 
 $(document).ready(function(){
 	drawDatabasesTable();
-
+	convertDataSourcesToPrintableFormat()
 });
 
 var inheriteddatabaseName, inheritedrssInstanceName, inheritedusername;
@@ -24,19 +28,140 @@ var _defaults = {
 	    amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
 
 	 };
+function convertDataSourcesToPrintableFormat(){
+	jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
+        action: "getDatasources",
+        applicationKey: "<%=applicationKey%>"
+    }, function (result) {
+        if (result !== undefined) {
+            var datasources = jQuery.parseJSON(result); 
+			constructHTML(datasources);	
+        }
+    }, function (jqXHR, textStatus, errorThrown) {
+    	$('#contentHeader').html("");
+    	jagg.message({content:'Error occurred while reading datasources',type:'error', id:'datasourceoverview' });
+    });
+}
 
+ 
 
+function constructHTML(datasources){
+    var $table='';
+    var count = 0;
+    for(var ds in datasources){
+        count++;
+        $table+=constructRow(datasources[ds],ds);
+   }
+    if(count == 0){
+    	$('#contentHeader').html("<td class='td-12' style='border-bottom: none;padding: 5px 0'><div class='noData-message'>Datasources have not been created yet.</div></td>");
+    }else{
+    	$('#content').append($table);
+    	for(var datasource in datasources){
+		    //tableBodyHTML += '<ul class="list_row first_list_row">'
+			$("#snippet_"+datasource).click(function(){
+				$crtl=$(this);
+ 				$(this).parent().parent().parent().next().slideToggle( "fast", function(){
+  	 				});
+				});
+		}
+		$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false}); 
+    	
+    }	
+    
+    $('.dsLink').click(function(){
+        var dsName=$(this).attr('data-dsname');
+        var stage=$(this).attr('stage');
+        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+    });
+     $('.stage_label').click(function(){
+        var dsName=$(this).attr('data-dsname');
+        var stage=this.innerHTML;
+        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+    });
+
+}
+
+    function constructRow(ds,name){
+        var codeSnippetHTML=codeSnippet.generate("<%=language%>","Datasources","<%=applicationKey%>",name);
+        var snippets=(codeSnippetHTML!=undefined);
+
+        var editURL = "<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+name+"%>";
+
+        var $row='<tr>'+
+                '<td>'+
+                '<div class="list_col_content">'+
+                '<ul class="list">'+name+'</ul>';
+         if(snippets){
+			 $row+= '<span id="snippet_'+name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
+
+         }
+               
+             $row+= '</td>'+
+                '<td>'+
+                '<div class="list_col_content">' +
+                '<dl class="list datasource-description">'+
+                ds.description+
+                '</dl>' +
+                '</div>'+
+                '</td>'+
+                '<td>'+
+                '<div class="list_col_content">'+
+                '<dl class="list">'+
+                getEnviromentParameters(ds.environments,name)+
+                '</dl>'+
+                '</div>'+
+                '</td>'+
+                '</tr>';
+        		$row+= '<tr id="code'+name+'" style="display: none;" class="code"><td colspan="3">';
+              if(snippets){
+                    $row+=codeSnippetHTML;
+              }
+              $row+='</td></tr>';
+        return $row;
+    }
+
+    function getEnviromentParameters(environments,name){
+		var content='';
+		var i=0;
+		for(var environment in environments){
+			var url="<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+name+"&currentStage="+environment;
+			
+		    i++;
+		    content+='<dt><a href="'+url+'" class="tag" style="margin-left:0px">'+
+		    		 environment+
+		    		 '</a></dt>';
+		    		 var params=environments[environment];	
+        for(var param in params){
+          
+        	if(param=="url"){
+			content+='<dd style="padding-left:6px;font-size: 0.857142857em;">'+
+					param+':'+
+					params[param]+
+					'<a id="copy'+i+'" class="icon_link_small copy_link push_left_10 pointer_cursor" title="Copy DB URL " data-clipboard-text="'+params[param]+'"><span class="icon-copy"></span></a>'+
+					'</dd>';
+        	}else if(param!="password"){
+			content+='<dd style="padding-left:6px;font-size: 0.857142857em;">'+
+			param+':'+
+			params[param]+'</dd>';
+		}
+		}
+		}
+		return content;
+      
+    }
+  
+	 
+    
 
 function drawDatabasesTable() {
 
     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
         action: "getDbUserTemplateInfoForStages",
-        applicationKey: $("#applicationKey").val()
+        applicationKey: "<%=applicationKey%>"
     }, function (result) {
 			    if (result !== undefined) {
 
                     var parsedArray = jQuery.parseJSON(result);
-					
                     if (parsedArray.length > 0) {
 
                         var domRSStbl = "";
@@ -48,13 +173,12 @@ function drawDatabasesTable() {
                         var dbcount = 0;
                         for (var index in parsedArray) {
                             var instance = parsedArray[index];
-
                             var dbsli = '';
                             if (instance.dbs != null) {
                                 for (var i = 0; i < instance.dbs.length; i++) {
                                     var db = instance.dbs[i];
                                     var dbsUrl = '<%=jagg.getAbsoluteUrl("/site/pages/editdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dbName=' + db.dbName + '&environment=' + instance.stage;
-                                    dbsli += '<li><a href="' + dbsUrl + '" style="margin-right:10px;">' + db.dbName + '</a> <a id="copy'+(dbcount + i)+'" class="icon_link copy_link" title="Copy DB URL " data-clipboard-text="'+db.url+'"><span class="icon-copy"></span></a></li>';                                   
+                                    dbsli += '<a href="' + dbsUrl + '" style="margin-right:5px;">' + db.dbName + '</a><a id="copy'+(dbcount + i)+'" class="icon_link_small copy_link pointer_cursor" title="Copy DB URL " data-clipboard-text="'+db.url+'"><span class="icon-copy"></span></a> ';
                                 }
                                 if(instance.dbs.length > 0 ){
                                 	zeroDB = false;
@@ -66,7 +190,7 @@ function drawDatabasesTable() {
                                 for (var i = 0; i < instance.users.length; i++) {
                                     var username = instance.users[i].name;
                                     var dbUserUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&user=' + username + '&environment=' + instance.stage;
-                                    usersli += '<li><a href="' + dbUserUrl + '">' + username + '</a></li>';
+                                    usersli += '<a style="margin-right: 20px" href="' + dbUserUrl + '">' + username + '</a> ';
                                 }
                                 if(instance.users.length > 0 ){
                                 	zeroDBUsr = false;
@@ -77,98 +201,40 @@ function drawDatabasesTable() {
                             if (instance.templates != null) {
                                 for (var i = 0; i < instance.templates.length; i++) {
                                     var template = instance.templates[i].name;
-                                    var templateUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&templateName=' + template;
-                                    templateli += '<li><a href="' + templateUrl + '">' + template + '</a></li>';
+                                    var templateUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&templateName=' + template +'&environment=' + instance.stage;
+                                    templateli += '<a style="margin-right: 20px" href="' + templateUrl + '">' + template + '</a> ';
                                 }
                                 if(instance.templates.length > 0 ){
                                 	zeroDBTmp = false;
                                 }
                             }
 
-                    domRSStbl += '<li class="list_row_item  ">'+
-                            '<ul class="list_row  ">'+
-                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                                    '<div class="list_col_content">'+
-                                        '<i class="tag">'+instance.stage+'</i>'+
-                                    '</div>'+
-                                '</li>'+
-                                '<li class="list_col resources_databases_col">'+
-                                    '<div class="list_col_content">'+
-                                        '<ul class="list">'+
-                                            dbsli +
-                                        '</ul>'+
-                                    '</div>'+
-                                '</li>'+
-                                /*'<li class="list_col last_list_col resources_db_users_col">'+
-                                    '<div class="list_col_content">'+
-                                        '<ul class="list">'+
-                                            usersli+
-                                         '</ul>'+
-                                    '</div>'+
-                                '</li>'+
-                                '<li class="list_col last_list_col resources_db_permission_col">'+
-                                    '<div class="list_col_content">'+
-                                        '<ul class="list">'+
-                                           templateli+
-                                         '</ul>'+
-                                    '</div>'+
-                                '</li>'+*/
-                            '</ul>'+
-                       '</li>';
-                    
-                    domRSSUsrtbl += '<li class="list_row_item  ">'+
-                    	'<ul class="list_row  ">'+
-                    		'<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                    			'<div class="list_col_content">'+
-                    				'<i class="tag">'+instance.stage+'</i>'+
-                    			'</div>'+
-                    		'</li>'+
-                    		'<li class="list_col last_list_col resources_db_users_col">'+
-                    			'<div class="list_col_content">'+
-                    				'<ul class="list">'+
-                    					usersli+
-                    				'</ul>'+
-                    			'</div>'+
-                    		'</li>'+
-                    	'</ul>'+
-                    '</li>';
-                    
-                    domRSStemptbl += '<li class="list_row_item  ">'+
-	                	'<ul class="list_row  ">'+
-	                		'<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-	                			'<div class="list_col_content">'+
-	                				'<i class="tag">'+instance.stage+'</i>'+
-	                			'</div>'+
-	                		'</li>'+
-	                		'<li class="list_col last_list_col resources_db_permission_col">'+
-	                			'<div class="list_col_content">'+
-	                				'<ul class="list">'+
-	                					templateli+
-	                				'</ul>'+
-	                			'</div>'+
-	                		'</li>'+
-	                	'</ul>'+
-	                '</li>';
+                    domRSStbl += '<tr>'+
+                                '<td>'+instance.stage+'</td>'+
+                                '<td class="list">'+dbsli +'</td>'+
+                                '</tr>';
 
+                    
+                    domRSSUsrtbl +=   '<tr>'+
+                                '<td>'+instance.stage+'</td>'+
+                                '<td class="list">'+usersli +'</td>'+
+                                '</tr>';
+
+
+
+
+                    
+                    domRSStemptbl +=   '<tr>'+
+                                '<td>'+instance.stage+'</td>'+
+                                '<td class="list">'+templateli +'</td>'+
+                                '</tr>';
 
                 }
                 if(!zeroDB){
-                    $('#dbSection').html('<li class="list_row_item first_list_row_item">'+
-                                                            '<ul class="list_row first_list_row">'+
-                                                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                                                                    '<h2 class="list_col_heading">Environment</h2>'+
-                                                                '</li>'+
-                                                                '<li class="list_col resources_databases_col">'+
-                                                                    '<h2 class="list_col_heading">Databases</h2>'+
-                                                                '</li>'+
-                                                                /*'<li class="list_col last_list_col resources_db_users_col">'+
-                                                                    '<h2 class="list_col_heading">DB Users</h2>'+
-                                                                '</li>'+
-                                                                '<li class="list_col last_list_col resources_db_permission_col">'+
-                                                                    '<h2 class="list_col_heading">DB Permission Templates</h2>'+
-                                                                '</li>'+*/
-                                                            '</ul>'+
-                                                       '</li>');
+                    $('#dbSection').html('<tr>'+
+                                            '<th class="td-3">Environment</th>'+
+                                            '<th>Database Names</th>'+
+                                            '</tr>');
                     $("#dbSection").html($("#dbSection").html()+domRSStbl);
 
                     for (var i = 0; i < dbcount; i++) {
@@ -207,39 +273,26 @@ function drawDatabasesTable() {
                         }
                     });*/
                 }else{
-                    $("#dbSection").html('<div class="noData-message">Databases have not been created yet.</div>');
+                    $("#dbSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
                 }
-                
                 if(!zeroDBUsr){
-                    $('#dbUsrSection').html('<li class="list_row_item first_list_row_item">'+
-                            '<ul class="list_row first_list_row">'+
-                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                                    '<h2 class="list_col_heading">Environment</h2>'+
-                                '</li>'+
-                                '<li class="list_col last_list_col resources_db_users_col">'+
-                                    '<h2 class="list_col_heading">DB Users</h2>'+
-                                '</li>'+
-                            '</ul>'+
-                       '</li>');
+                    $('#dbUsrSection').html('<tr>'+
+                                '<th class="td-3">Environment</th>'+
+                                '<th class="td-3">Database Users</th>'+
+                       '</tr>');
                     $("#dbUsrSection").html($("#dbUsrSection").html()+domRSSUsrtbl);
                 }else{
-                    $("#dbUsrSection").html('<div class="noData-message">DB users have not been created yet.</div>');
+                    $("#dbUsrSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
                 }
                 
                 if(!zeroDBTmp){
-                    $('#dbTempSection').html('<li class="list_row_item first_list_row_item">'+
-                            '<ul class="list_row first_list_row">'+
-                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                                    '<h2 class="list_col_heading">Environment</h2>'+
-                                '</li>'+
-                                '<li class="list_col last_list_col resources_db_permission_col">'+
-                                    '<h2 class="list_col_heading">DB Permission Templates</h2>'+
-                                '</li>'+
-                            '</ul>'+
-                       '</li>');
+                    $('#dbTempSection').html('<tr>'+
+                            '<th class="td-3">Environment</th>'+
+                            '<th>Database Permission Templates</th>'+
+                       '</tr>');
                     $("#dbTempSection").html($("#dbTempSection").html()+domRSStemptbl);
                 }else{
-                    $("#dbTempSection").html('<div class="noData-message">DB Templates have not been created yet.</div>');
+                    $("#dbTempSection").html('<div class="noData-message">Database Templates have not been created yet.</div>');
                 }
 		
             } else {
@@ -256,7 +309,7 @@ function drawDatabasesTable() {
     },
 
     function (jqXHR, textStatus, errorThrown) {
-    	jagg.message({content:'Error occurred while reading databases databaseusers and templates',type:'warning', id:'databaseoverwiew' });
+    	jagg.message({content:'Error occurred while reading databases databaseusers and templates',type:'error', id:'databaseoverwiew' });
         hideSpin();
     });
 
@@ -285,7 +338,26 @@ function dropDatabase(name,rssInstanceName){
 	});
 }
 
+function getHelpTips(){
+    jagg.post("../blocks/help/ajax/help.jag", {
+            action: "getHelpTips",
+            page: "resources-databases"
+        },
+
+        function (result) {
+            helpTips = jQuery.parseJSON(result);
+                 $("#datasourceHelp").html(helpTips.datasourceHelp);
+                 $("#databaseHelp").html(helpTips.databaseHelp);
+                 $("#databaseUserHelp").html(helpTips.databaseUserHelp);
+                 $("#permissionTemplateHelp").html(helpTips.permissionTemplateHelp);
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
+
 $(document).ready(function(){
+    getHelpTips();
     $('#js_extra_fieldset_on').click(function(){
         $(this).next().toggle('fast');
     });
@@ -303,65 +375,141 @@ $(document).ready(function(){
 	});
 });
 </script>
-<input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
-   <div class="container">
-				<article class="main">
-				
-                        <header>
-                        <div><% jagg.includeBlock("page/messages", null); %></div>
-                        	<div class="content">
-                                <h1>Resources</h1>
-                             </div>
-                        </header>
-                        <% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
-                        <section class="separator">
-                            <div class="page_nav">
-                                <div class="content clear">
-                                    <ol class="breadcrumb left">
-                                            <li class="breadcrumb_item"><h2>Database Configurations</h2></li>
-                                    </ol>
-                                    <div class="right btn_group">
-                                        <span class="left btn_group_label">Create New</span>
-                                        <ul class="inline_box inline_list btn_group_list">
-                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn main btn_group_first">Database</a></li>
-                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true" class="btn main">DB User</a></li>
-                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn main btn_group_last">DB Template</a></li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                     </div>
-                                     
-                                </div>
-                            </div>
-                          </section>
-                          <section class="separator">                            
-                            <div class="content clear well">
-                            	<h2 class="big">Databases</h2>
-	                            <ul class="list_table push_top_20" id="dbSection" >
+<input type="hidden" id='applicationKey'
+	value='<%=request.getParameter("applicationKey")%>' />
+<div class="container">
+	<article class="main database-page">
 
-		                         </ul>
-                            </div>
-                          </section>
-                          <section class="separator">                          	
-                            <div class="content clear well">
-                            	<h2 class="big">Database Users</h2>
-	                            <ul class="list_table push_top_20" id="dbUsrSection" >
-	
-	                            </ul>
-                            </div>
-                          </section>
-                          <section class="separator">                          	
-                            <div class="content clear well">
-                            	<h2 class="big">Database Templates</h2>
-	                            <ul class="list_table push_top_20" id="dbTempSection" >
-	
-	                            </ul>
-                            </div>
-                        </section>
-                        <div class="clearfix"></div>
-                 </article>
-            </div><!-- /container -->
+		<header>
+			<div>
+				<% jagg.includeBlock("page/messages", null); %>
+				<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+				<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+			</div>
+			<div class="content">
+				<h1>Resources</h1>
+			</div>
+		</header>
+		<% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
+		<% jagg.includeBlock("page/help", {"section": "resources-databases"}); %>
 
-    <%
+		<% if(language=="Java"){%>
+		<section class="separator push_top_20">
+			<div class="content clear">
+			    <div class="af_container">
+			        <div class="af_row">
+			            <div class="col-6"><h2 class="big">Datasources</h2></div>
+			            <div class="col-6">
+				            <% if(hasCreateResourcePermissions){%>
+	                            <div class="right btn_group resource">
+	                                <ul class="inline_box inline_list">
+	                                    <li class="inline_item"><a
+	                                        href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false'
+	                                        class="btn main btn_group_first">Add New Datasource</a></li>
+	
+	                                </ul>
+	                                <div class="clearfix"></div>
+	                            </div>
+	                        <%}%>
+			            </div>
+			        </div>
+			    </div>
+<div class="help-block"><span class="help-icon">?</span> <span id="datasourceHelp"></span></div>
+                <table class="data-table push_top_20" id="content">
+                    <tr id="contentHeader">
+                        <th class="td-3">Name</th>
+                        <th class="td-3">Description</th>
+                        <th class="td-6">Environments</th>
+                    </tr>
+                </table>
+			</div>
+		</section>
+		<div style="clear:both"></div>
+		<hr />
+		<%}%>
+ 		<section class="separator">
+			<div class="content clear">
+
+			<div class="af_container">
+			        <div class="af_row">
+			            <div class="col-6"><h2 class="big">Databases</h2></div>
+			            <div class="col-6">
+                            <div class="right btn_group resource">
+                                <ul class="inline_box inline_list">
+                                    <li class="inline_item"><a
+                                        href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false'
+                                        class="btn main btn_group_first">Add New Database</a></li>
+
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+			            </div>
+			        </div>
+			    </div>
+			    <div class="help-block"><span class="help-icon">?</span> <span id="databaseHelp"></span></div>
+			    <table class="data-table push_top_20" id="dbSection"></table>
+			</div>
+		</section>
+		<div style="clear:both"></div>
+		<hr />
+ 		<section class="separator">
+			<div class="content clear">
+
+                <div class="af_container">
+                    <div class="af_row">
+                        <div class="col-6"><h2 class="big">Database Users</h2></div>
+                        <div class="col-6">
+                            <div class="right btn_group resource">
+                                <ul class="inline_box inline_list">
+                                        <li class="inline_item"><a
+                                        href='<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true'
+                                        class="btn main">Add New User</a></li>
+
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+				<div class="help-block"><span class="help-icon">?</span> <span id="databaseUserHelp"></span></div>
+				<table class="data-table push_top_20"  id="dbUsrSection"></table>
+			</div>
+		</section>
+		<div style="clear:both"></div>
+		<hr />
+		<section class="separator">
+			<div class="content clear">
+
+
+                <div class="af_container">
+                    <div class="af_row">
+                        <div class="col-6"><h2 class="big">Permission Templates</h2></div>
+                        <div class="col-6">
+                            <div class="right btn_group resource">
+                                <ul class="inline_box inline_list">
+                                        <li class="inline_item"><a
+                                        href='<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'
+                                        class="btn main">Add New Template</a></li>
+
+                                </ul>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+				<div class="help-block"><span class="help-icon">?</span> <span id="permissionTemplateHelp"></span></div>
+				<table class="data-table push_top_20"  id="dbTempSection"></table>
+			</div>
+		</section>
+		<div class="clearfix"></div>
+	</article>
+</div>
+<!-- /container -->
+
+<%
 }); %>
 
 

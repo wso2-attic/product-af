@@ -8,6 +8,9 @@ var render = function (theme, data, meta, require) {
         ],
         body: [
             { partial:'editIssueBody', context: data.body}
+        ],
+        header_mid: [
+            { partial:'headerMid' ,context: {isHome:false,title:"Edit Issue:  " + data.body.issue.summary, appkey:data.body.appkey}}
         ]
     });
 };

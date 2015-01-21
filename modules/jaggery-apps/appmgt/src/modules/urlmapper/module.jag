@@ -1,0 +1,16 @@
+<%
+jagg.module("urlmapper", { 
+	
+    addDomainMappingsToStratos:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").addDomainMappingsToStratos.apply(this, arguments);
+    },
+    
+    removeDomainMappingsFromStratos:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").removeDomainMappingsFromStratos.apply(this, arguments);
+    },
+    
+    checkDomainAvailability:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").checkDomainAvailability.apply(this, arguments);
+    },
+});
+%>

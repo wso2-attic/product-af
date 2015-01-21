@@ -42,8 +42,17 @@ jagg.module("permission", {
     isRoleAuthorized:function () {
         return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). isRoleAuthorized.apply(this, arguments);
     },
-    hasAPISubscriptionAndKeyGenerationPermission:function () {
-        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasAPISubscriptionAndKeyGenerationPermission.apply(this, arguments);
+    invalidateAuthorizationCache:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/remotePermission.jag"). invalidateAuthorizationCache.apply(this, arguments);
+    },
+    hasAppOwnerSpecialPermission:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasAppOwnerSpecialPermission.apply(this, arguments);
+    },
+    checkAuthorizationForUser:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). checkAuthorizationForUser.apply(this, arguments);
+    },
+    hasPermissionForAllStages:function () {
+        return jagg.require(jagg.getModulesDir() + "permission/permission.jag"). hasPermissionForAllStages.apply(this, arguments);
     }
 });
 %>

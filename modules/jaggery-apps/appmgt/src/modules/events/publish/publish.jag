@@ -1,0 +1,26 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log("modules/events/publish/publish.jag");
+var modManager = jagg.module("manager");
+var modEvent = jagg.module("events");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+var socialActivityService;
+var eventModel=require('../event-model.json');
+var result= {};
+
+var publish = function (eventId) {
+    socialActivityService = server.osgiService('org.wso2.carbon.social.core.service.SocialActivityService');
+    socialActivityService.configPublisher(eventModel.dataPublisherConnectionInfo);
+    var isSuccessful = socialActivityService.publish(modEvent.buildEvent(eventId,null));
+    result.eventId =eventId;
+    result.success = Boolean(isSuccessful);
+    return result;
+};
+
+
+%>

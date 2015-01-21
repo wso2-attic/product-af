@@ -82,7 +82,8 @@ $(document).ready(function(){
                                },function (result) {
                                  document.location.reload(true);
                                },function (jqXHR, textStatus, errorThrown) {
-                                                 jagg.message({content:'Error occurred while deleting user',type:'error' });
+                                                 jagg.message({content:'Error occurred while deleting user. ' +
+                                                  'User might be already attached to a database.',type:'error' });
                                });
 
   }

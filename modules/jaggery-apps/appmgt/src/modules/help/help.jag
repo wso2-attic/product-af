@@ -1,0 +1,71 @@
+<%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+//include("/jagg/helpmessage_reader.jag");
+
+var log = new Log("module/help/help.jag");
+
+var modLifecycle = jagg.module("lifecycle");
+var modManager = jagg.module("manager");
+
+var i18n = require("i18n");
+var localeResourcesBasePath="/jagg/";
+i18n.init(request,localeResourcesBasePath);
+var sections = i18n.localize("sections");
+
+
+var getHelpMessage = function (section) {
+    var roles = session.get("USER_ROLES");
+    var helpTextArray = new Array();
+    var helpSection = getHelpText(section);
+    if(roles != null) {
+        for(var subSection in helpSection) {
+	    var alreadyInRoles = false;
+            var permittedRoles = helpSection[subSection]["roles"];
+	    for(var i = 0; i<roles.length ; i++){
+	        if(log.isDebugEnabled()) {
+                    log.debug("----permittedRoles ------"+permittedRoles+"   role  :"+roles[i]);
+                    log.debug("rolesArray:" + roles);
+	        }
+                if(permittedRoles != null && !alreadyInRoles) {
+                    if(permittedRoles.split(",").indexOf(roles[i]) >= 0) {
+		        alreadyInRoles = true;
+                        var helpDetails = helpSection[subSection]["details"];
+                        helpTextArray.push(helpDetails);
+                    }
+                }
+	    }
+        }
+    }
+    return helpTextArray;
+};
+
+var buildHelpLink = function (link) {
+    var helpLink = link.staticStart;
+    var keyValuePairs = link.keyValuePairs;
+    if(keyValuePairs != null) {
+        for(var key in keyValuePairs) {
+            var value = session.get(keyValuePairs[key]);
+            if (value != null) {
+                helpLink += key + value
+            }
+        }
+    }
+};
+
+var getHelpText = function(section) {
+    var helpSection = sections[section];
+    return helpSection;
+};
+
+var getHelpTips = function(page) {
+	var helpTips = getHelpText(page);
+	return helpTips["helpTips"];	
+};
+
+var getWelcomeMessage = function(page) {
+        var helpTips = getHelpText(page);
+        return helpTips["welcomeMessage"];
+};
+
+%>

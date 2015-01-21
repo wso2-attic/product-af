@@ -40,13 +40,17 @@ include("/jagg/config_reader.jag");
                 log.error(msg);
 	        }
         }
+      
          print(externalAPIs);
     } else if (action == "getCreatePermittedEnvironments") {
-        var permittedStages = [];
+    	var applicationKey = request.getParameter("applicationKey");
+    	var permittedStages = [];
         var stages = getProperties(DEPLOYMENT_STAGES);
+        log.debug(stages);
         for (var i = 0; i < stages.length; i++) {
         	var stage = stages[i];
-    		if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
+        	var result=modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage);
+    		if(result){
     			permittedStages.push(stage);
 	        } else {
 	            var msg = "You don't have permission to create resources in stage " +stage;
@@ -57,15 +61,13 @@ include("/jagg/config_reader.jag");
     } else if (action == "getUpdatePermittedData") {
     	var applicationKey = request.getParameter("applicationKey");
     	var resourceName = request.getParameter("resourceName");
-    	var data = [];
-    	
-        var stages = getProperties(DEPLOYMENT_STAGES);
-	    for (var i = 0; i < stages.length; i++) {
-	    	var stage = stages[i];
-			if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
+    	var stage = request.getParameter("stage");
+    	var data = {};
+	    
+			if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage)){
 				var externalAPI = {};
 				var values = mod.getDetailedPropertyValuesInStages(applicationKey + "/" + resourceName, [stage]); 
-				externalAPI['api_stage'] = stage;
+				//externalAPI['api_stage'] = stage;
 				externalAPI['api_name'] = resourceName;
 				
 				// Empty check to avoid adding stages which has no apis/properties
@@ -86,13 +88,13 @@ include("/jagg/config_reader.jag");
 				}
 				
 				if(!isEmpty){
-					data.push(externalAPI);
+					data[stage]=externalAPI;
 				}
 		    } else {
 	            var msg = "You don't have permission to update resources in stage " +stage;
 	            log.error(msg);
 	        }
-	    }   
+	   
 	    print(data);
     } else {
         throw new Error("No action specified");

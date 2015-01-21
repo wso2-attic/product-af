@@ -18,16 +18,15 @@ include("/jagg/config_reader.jag");
         var response = {};
         var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
 
-        if (jagg.module("permission").isUserAccessGranted(applicationId,deployToStagePermission) &&
-                jagg.module("permission").isUserAccessGranted(applicationId,PERMISSION_GOVERNANCE_RETIRE)){
-
+        if (jagg.module("permission").isUserAccessGranted(applicationId,deployToStagePermission)){
+            result = mod.set(applicationId, stage, version, user, etaFrom, etaTo);
+	    print(result);
         } else {
             response.result = 0;
             response.message = "You don't have permission to set the ETA of the application in this stage";
             print(response);
         }
-		result = mod.set(applicationId, stage, version, user, etaFrom, etaTo);
-		print(result);
+	
 	} else {
        throw new Error("Invalid action specified");
     }

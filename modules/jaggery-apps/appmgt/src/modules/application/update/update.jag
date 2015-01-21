@@ -11,53 +11,114 @@ var modManager = jagg.module("manager");
 // update the appinfo txt with the given values
 
 var editAppInfo = function (applicationName, applicationKey, applicationDescription,
-                                  applicationType,repositoryType) {
-    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
-    var path = "/_system/governance/" + APPLICATIONS + applicationKey + APP_INFO;
+        applicationType,repositorytype, subdomain, repoAccessability, branchcount, owner) {
 
-    var key = 'application';
-    var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
-            '<application>'+
-            '<description>'+applicationDescription+'</description>'+
-            '<name>'+applicationName+'</name>'+
-            '<key>'+applicationKey+'</key>'+
-            '<type>'+applicationType+'</type>'+
-            '<repositorytype>'+repositoryType+'</repositorytype>'+
-            '</application>'+
-            '</metadata>]]>';
-
-    var ws = require('ws');
-    var editAppInfoReq = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.action = "urn:editArtifact";
-    options["HTTPHeaders"] =[{
-        name:
-        "Cookie", value:modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-    }];
-    var payload = '<ser:editArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">'+
-                '<ser:path>'+path+'</ser:path>'+
-                '<ser:key>'+key+'</ser:key>'+
-                '<ser:info>'+content+'</ser:info>'+
-                '<ser:lifecycleAttribute></ser:lifecycleAttribute>'+
-                '</ser:editArtifact>';
-
-    var result;
-
-    try {
-    	var endPoint =getProperty(GREG_SERVER_URL) + "ManageGenericArtifactService";
-    	editAppInfoReq.open(options,endPoint, false);
-    	editAppInfoReq.send(payload);
-    	result = editAppInfoReq.responseE4X;
-
-    	if(log.isDebugEnabled()){
-    		log.debug("Invoking service endpoint :"+endPoint+" returned result :"+result);
-    	}
-    	return result;
-    } catch (e) {
-    	log.error("Error in calling manage generic artifact service "+e.toString());
-    	throw "Error in calling manage generic artifact service "+e.toString();
-    }
+	jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+	var path = "/_system/governance/" + APPLICATIONS + applicationKey + APP_INFO;
+	
+	var key = 'application';
+	var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+	'<application>'+
+	'<description>'+applicationDescription+'</description>'+
+	'<name>'+applicationName+'</name>'+
+	'<key>'+applicationKey+'</key>'+
+	'<type>'+applicationType+'</type>'+
+	'<repositorytype>'+repositorytype+'</repositorytype>'+
+	'<repoAccessability>'+repoAccessability+'</repoAccessability>'+
+	'<branchcount>'+branchcount+'</branchcount>'+
+	'<owner>'+owner+'</owner>'+
+	'<mappedsubdomain>'+subdomain+'</mappedsubdomain>'+
+	'</application>'+
+	'</metadata>]]>';
+	
+	var ws = require('ws');
+	var editAppInfoReq = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.1;
+	options.action = "urn:editArtifact";
+	options["HTTPHeaders"] =[{
+	name:
+	"Cookie", value:modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+	}];
+	var payload = '<ser:editArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">'+
+	'<ser:path>'+path+'</ser:path>'+
+	'<ser:key>'+key+'</ser:key>'+
+	'<ser:info>'+content+'</ser:info>'+
+	'<ser:lifecycleAttribute></ser:lifecycleAttribute>'+
+	'</ser:editArtifact>';
+	
+	var result;
+	
+	try {
+		var endPoint =getProperty(GREG_SERVER_URL) + "ManageGenericArtifactService";
+		editAppInfoReq.open(options,endPoint, false);
+		editAppInfoReq.send(payload);
+		result = editAppInfoReq.responseE4X;
+		
+		if(log.isDebugEnabled()){
+			log.debug("Invoking service endpoint :"+endPoint+" returned result :"+result);
+		}
+		return result;
+	} catch (e) {
+		log.error("Error in calling manage generic artifact service "+e.toString());
+		throw "Error in calling manage generic artifact service "+e.toString();
+	}
 };
 
-                                  %>
+var editAppVersionInfo = function (applicationKey, version, subdomain, currentStatus, deployId, lastStatus,promoteStatus) {
+	jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+	var path = "/_system/governance/" + APPLICATIONS + applicationKey + "/" + version;
+	
+	 key = 'appversion';
+	 content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+			     	'<appversion>'+
+				         '<key>'+applicationKey+'</key>'+
+				         '<version>'+ version +'</version>'+
+				         '<prodmappedsubdomain>'+ subdomain +'</prodmappedsubdomain>'+
+				         '<autodeployment>false</autodeployment>'+
+				         '<isAutoBuild>true</isAutoBuild>'+
+				         '<isAutoDeploy>true</isAutoDeploy>'+
+				         '<CurrentBuildStatus>'+currentStatus+'</CurrentBuildStatus>'+
+				         '<PromoteStatus>'+promoteStatus+'</PromoteStatus>'+
+				         '<lastdeployedid>'+deployId+'</lastdeployedid>'+
+				         '<LastBuildStatus>'+lastStatus+'</LastBuildStatus>'+
+			         '</appversion>'+
+			     	'<serviceLifecycle><lifecycleName>'+LIFE_CYCLE_NAME+'</lifecycleName></serviceLifecycle>'+
+			     '</metadata>]]>';
+
+	
+	var ws = require('ws');
+	var editAppInfoReq = new ws.WSRequest();
+	var options = new Array();
+	options.useSOAP = 1.1;
+	options.action = "urn:editArtifact";
+	options["HTTPHeaders"] =[{
+	name:
+	"Cookie", value:modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
+	}];
+	var payload = '<ser:editArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">'+
+	'<ser:path>'+path+'</ser:path>'+
+	'<ser:key>'+key+'</ser:key>'+
+	'<ser:info>'+content+'</ser:info>'+
+	'<ser:lifecycleAttribute>serviceLifecycle_lifecycleName</ser:lifecycleAttribute>'+
+	'</ser:editArtifact>';
+	
+	var result;
+	
+	try {
+		var endPoint =getProperty(GREG_SERVER_URL) + "ManageGenericArtifactService";
+		editAppInfoReq.open(options,endPoint, false);
+		editAppInfoReq.send(payload);
+		result = editAppInfoReq.responseE4X;
+		
+		if(log.isDebugEnabled()){
+			log.debug("Invoking service endpoint :"+endPoint+" returned result :"+result);
+		}
+		return result;
+	} catch (e) {
+		log.error("Error in calling manage generic artifact service "+e.toString());
+		throw "Error in calling manage generic artifact service "+e.toString();
+	}
+};
+
+%>

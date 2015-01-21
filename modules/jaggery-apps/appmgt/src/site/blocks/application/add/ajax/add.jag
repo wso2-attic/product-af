@@ -4,13 +4,14 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
 var modManager = jagg.module("manager");
+var lifeCycleModule = jagg.module("lifecycle");
 var log=new Log();
 
 (function () {
 	var mod, obj, result,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
-	
+
 	if (action == "createNewApplication") {
 		mod = jagg.module("application");
 		var registryMod = jagg.module("registry");
@@ -19,8 +20,9 @@ var log=new Log();
 		var applicationDescription = request.getParameter("applicationDescription");
 		var applicationType = request.getParameter("applicationType");
 		var repositoryType = request.getParameter("repositoryType");
-        var repoAccessibility = request.getParameter("repoAccessibility");
+                var repoAccessibility = request.getParameter("repoAccessibility");
 		var userName = request.getParameter("userName");
+		var applicationURL = request.getParameter("applicationURL");
 		var response = {};
 		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 			try {
@@ -36,7 +38,7 @@ var log=new Log();
 					if (session.get("pendingApplications") != null) {
 						pendingApplications = session.get("pendingApplications");
 					}
-					
+
 					var isDuplicateWithSession = false ;
 					for(var pendApp in pendingApplications){
 						if(pendingApplications[pendApp].app.key === applicationKey){
@@ -47,7 +49,7 @@ var log=new Log();
 					if(!isDuplicateWithSession){
 						var appContainer = {};
 						appContainer.userName = userName;
-	
+
 						var thisApplication = {};
 						thisApplication.key = applicationKey;
 						thisApplication.name = applicationName;
@@ -56,25 +58,25 @@ var log=new Log();
 						thisApplication.type = applicationType;
 						thisApplication.roles = "";
 						thisApplication.isPending = true;
-	
+
 						appContainer.app = thisApplication;
-	
+
 						pendingApplications.push(appContainer);
-	
+
 						session.put("pendingApplications", pendingApplications);
 						// adds to session in 'Pending state', until the application
 						// is created.
-	
+
 						for (var provider in repositoryProviders) {
 							if (repositoryType == repositoryProviders[provider]) {
 
 	                            result = mod.createApplicationBPEL(applicationName, applicationKey,
-    							    applicationDescription, applicationType, repoAccessibility, repositoryType, userName);
+    							    applicationDescription, applicationType, repoAccessibility, repositoryType, userName, applicationURL,'trunk');
 
 								message = "Application was created under Repository type ".concat(repositoryType);
 								response.message = message;
 								response.result = 1;
-	
+
 								try{
 									var appIcon = request.getFile("appIcon");
 									if(appIcon){
@@ -83,7 +85,7 @@ var log=new Log();
 										registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
 									}
 								}catch(e){
-									log.info("No Application Icon found to upload.  " + e);
+									log.warn("No Application Icon found to upload.  " + e);
 									// Just skip when error occured becauyse there
 									// is no file to upload.
 								}
@@ -95,11 +97,11 @@ var log=new Log();
 					response.message = message;
 					response.result = 0;
 				}
-				
+
 				print(response);
-				
+
 			} catch (e) {
-				var err = "Error while creating the application"; 
+				var err = "Error while creating the application";
 				log.error( err + e.message);
 				throw ( err + e.message )
 			}
@@ -111,54 +113,93 @@ var log=new Log();
 		}
 
 	}else if (action == "uploadExistingApplication") {
-		
 		var registryMod = jagg.module("registry");
-		
-		var applicationName = request.getParameter("applicationName");
-		var applicationKey = request.getParameter("applicationKey");
-		var applicationDescription = request.getParameter("applicationDescription");
-		var applicationType = request.getParameter("uploadableAppType");
-		var repoAccessibility = request.getParameter("repoAccessibility");
-		var repositoryType = "git";
-		var userName = request.getParameter("userName");
-		
-		if(log.isDebugEnabled()){
-		    log.debug("Application Creation for Application id " + applicationKey + " is started by uploading existing application with type " + applicationType);
-		}
-		
-		var response = {};
-		try{
-			if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
-				if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType, applicationDescription, applicationType, userName)){
-				    	mod = jagg.module("application");
-		  			mod.stroreUploadedApplication(applicationKey, request.getFile("uploaded_application"), applicationType);
-				        
-					result = mod.createApplicationBPEL(applicationName, applicationKey,
-    							    applicationDescription, applicationType, repoAccessibility, repositoryType, userName);
-	    				uploadApplicationIcon(request.getFile("appIcon"));				    
-					
-					var message = "New application was created with uploaded artifact";
-					response.message = message;
-					response.result = 1;
-					
-				}else{			
-				   response.message = "Another application with same key is in the process of creation right now.";
-				   response.result = 0;
+
+	var applicationName = request.getParameter("applicationName");
+	var applicationKey = request.getParameter("applicationKey");
+	var applicationDescription = request.getParameter("applicationDescription");
+	var applicationType = request.getParameter("uploadableAppType");
+	var repoAccessibility = request.getParameter("repoAccessibility");
+	var repositoryType = getProperty("RepositoryProviderConfig");
+	var userName = request.getParameter("userName");
+	var applicationURL = request.getParameter("applicationURL");
+
+	var response = {};
+	try{
+		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
+			if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType, applicationDescription, applicationType, userName)){
+				mod = jagg.module("application");
+				mod.stroreUploadedApplication(applicationKey + "-1.0.0", request.getFile("uploaded_application"), applicationType);
+				result = mod.createApplicationBPEL(applicationName, applicationKey, applicationDescription, applicationType, repoAccessibility, repositoryType, userName, applicationURL, '1.0.0');
+
+
+				var revision = '0';
+				var build = 'true';
+				var version = '1.0.0';
+				var action = 'Promote';
+				var revision= 'HEAD';
+				var deployAction = 'promote';
+				var path = '/_system/governance/repository/applications/' + applicationKey + '/' + version;
+				var aspect = LIFE_CYCLE_NAME;
+
+
+				var parameters = new Array();
+				parameters[0] = 'version';
+				parameters[1] = version;
+				parameters[2] = 'applicationId';
+				parameters[3] = applicationKey;
+				parameters[4] = 'revision';
+				parameters[5] = revision;
+				parameters[6] = 'build';
+				parameters[7] = build;
+				parameters[8] = 'autodeployment';
+				parameters[9] = 'false';
+				parameters[10] = 'action';
+				parameters[11] = action;
+				parameters[12] = 'user';
+				parameters[13] = userName;
+
+	                	var stages = lifeCycleModule.getAllLifeCycleStages();
+				for(var index in stages){
+					var stageName = stages[index];
+					var targetStage = getProperty("ApplicationDeployment.DeploymentStage."+ stageName +".Promote.TargetStage");
+                                        parameters[14] = 'stage';
+                                        parameters[15] = stageName;
+
+
+                                  if(targetStage != null){
+                                         var items = new Array();
+       	                                 var itemCount = lifeCycleModule.getCheckItemsByPathWithSleep(path).length;
+                                         for (i = 0; i < itemCount; i++) {
+                                            items.push("true");
+                                         }
+					    lifeCycleModule.invokeAspectWithParameter(path, aspect, "itemClick", items, [],stageName);
+				        lifeCycleModule.invokeGovernanceProcess(action, stageName, applicationKey, revision, version,
+                						build, path, aspect, deployAction, items, parameters, "", userName);
+                                   }
 				}
+				uploadApplicationIcon(request.getFile("appIcon"));
+
+				var message = "New application was created with uploaded artifact";
+				response.message = message;
+				response.result = 1;
 			}else{
-				response.message = "You don't have permission to create application";
+				response.message = "Another application with same key is in the process of creation right now.";
 				response.result = 0;
 			}
-			
-			print(response);
-		
+		}else{
+			response.message = "You don't have permission to create application";
+			response.result = 0;
+		}
+		print(response);
+
 		} catch (e) {
-			var err = "Error while creating the application by uploading existing application"; 
+			var err = "Error while creating the application by uploading existing application";
 			log.error( err + e.message);
 			throw ( err + e.message );
-		}	
-	
-		
+		}
+
+
 	} else if (action == "isApplicationKeyAvailable") {
 
 		var applicationKey = request.getParameter("applicationKey");
@@ -178,7 +219,25 @@ var log=new Log();
             print(response);
         }
 
-	} else if(action == "tenantExists"){
+    }  else if (action == "isAppNameAlreadyAvailable") {
+        var appName = request.getParameter("applicationName");
+        var response = {};
+        if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)){
+            mod = jagg.module("application");
+            try {
+                var status = mod.isAppNameAlreadyAvailable(appName);
+                print(status);
+
+            } catch (e) {
+                throw "Error while checking the app name availability";
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to check the application name availability";
+            print(response);
+        }
+
+    } else if(action == "tenantExists"){
 		var applicationKey = request.getParameter("applicationKey");
 		mod = jagg.module("application");
 		try {
@@ -186,32 +245,32 @@ var log=new Log();
 			print(status);
 		} catch (e) {
 			throw "Error while creating repository";
-		} 	
+		}
 	} else {
 		throw new Error("No action specified");
 	}
 }());
 
 function isApplicationDuplicateWithSession(applicationKey, applicationName, repositoryType, description, applicationType, userName){
-	
+
 	var pendingApplications = [];
 	if (session.get("pendingApplications") != null) {
 		pendingApplications = session.get("pendingApplications");
 	}
-					
+
 	var isDuplicateWithSession = false ;
 	for(var pendApp in pendingApplications){
 		if(pendingApplications[pendApp].app.key === applicationKey){
 			isDuplicateWithSession = true ;
 			break;
 		}
-	}	
-	
+	}
+
 	if(!isDuplicateWithSession){
-	
+
 		var appContainer = {};
 		appContainer.userName = userName;
-	
+
 		var thisApplication = {};
 		thisApplication.key = applicationKey;
 		thisApplication.name = applicationName;
@@ -220,17 +279,17 @@ function isApplicationDuplicateWithSession(applicationKey, applicationName, repo
 		thisApplication.type = applicationType;
 		thisApplication.roles = "";
 		thisApplication.isPending = true;
-	
+
 		appContainer.app = thisApplication;
-	
+
 		pendingApplications.push(appContainer);
-	
+
 		// adds to session in 'Pending state', until the application
 		// is created.
 		session.put("pendingApplications", pendingApplications);
-		
-	}	
-	
+
+	}
+
 	return isDuplicateWithSession;
 }
 
@@ -243,7 +302,7 @@ function uploadApplicationIcon(appIcon){
 			registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
 		}
 	}catch(e){
-		log.info("No Application Icon found to upload.  " + e);
+		log.warn("No Application Icon found to upload.  " + e);
 	}
 }
 

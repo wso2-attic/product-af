@@ -1,7 +1,7 @@
 include('/jagg/jagg.jag');
 
 var url_prefix = context.get(ISSUE_TRACKER_URL)+context.get(DOMAIN);
-
+var log = new Log();
 var getAllIssue = function (projectId) {
     if(projectId === undefined || projectId === null){
         projectId = 0;
@@ -26,6 +26,20 @@ var getIssueByKey = function (issueKey) {
     return result.data.issueResponse;
 };
 
+var getIssueByProjectKey = function (projectKey) {
+    var url  = url_prefix+"/issue/"+projectKey;
+    var result = get(url, {} ,"json");
+    var user = context.get(LOGGED_IN_USER);
+    var commentList = result.data.issueResponse.comments;
+    for(var i in commentList){
+        if(user == commentList[i].creator) {
+            commentList[i].isOwner=true
+        } else
+            commentList[i].isOwner=false
+    }
+    return result.data.issueResponse;
+};
+
 var addIssue = function (projectKey, jsonString){
     var user = context.get(LOGGED_IN_USER);
     var jsonObj = parse(jsonString);
@@ -38,7 +52,7 @@ var addIssue = function (projectKey, jsonString){
 
     result = post(url, jsonString, {
             "Content-Type": "application/json"
-        }, 'json');
+        }, 'text');
     return result;
 }
 
@@ -64,6 +78,9 @@ var searchIssue = function (searchType, searchValue) {
     var json = new Object();
     json.searchBean = jsonObj;
     var url  = url_prefix+"/issue/search";
+    
+    
+    
     var jsonString = stringify(json);
     result = post(url, jsonString, {
         "Content-Type": "application/json"

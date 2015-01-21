@@ -83,13 +83,15 @@ var getTenantDomain = function () {
 
     if (session.get(TENANT_DOMAIN_NAME) == null) {
         var username = jagg.getUser();
-        var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
-        if (username.indexOf("@") != -1) {
-            tenantDomain = username.substring(username.lastIndexOf('@') + 1);
-        } else {	// else assume super tenant
-            tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+        if(username){
+            var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+            if (username.indexOf("@") != -1) {
+                tenantDomain = username.substring(username.lastIndexOf('@') + 1);
+            } else {	// else assume super tenant
+                tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+            }
+            session.put(TENANT_DOMAIN_NAME, tenantDomain.toString().toLowerCase());
         }
-        session.put(TENANT_DOMAIN_NAME, tenantDomain.toString().toLowerCase());
     }
     return session.get(TENANT_DOMAIN_NAME);
 };
@@ -161,5 +163,18 @@ var getOTtenantProperty=function(){
     }
      return index>0;
 };
+
+var checkPermissionforStages=function(applicationKey,stages){
+		var result=true;
+		var modPermission = jagg.module("permission");
+		for(var stage in stages){
+			if(!modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stages[stage])){
+				result=false;
+				break;
+			}
+		}
+		return result;
+	};
+
 
 %>

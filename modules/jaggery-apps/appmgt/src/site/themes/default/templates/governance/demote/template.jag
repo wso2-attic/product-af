@@ -27,7 +27,7 @@ for(var demoteStage in hasDemotePermissions){
 }
 %>
 <% 
-	var appVersions = modApplication.getUserAccess(applicationKey, userName);
+	var appVersions = outputs.appVersions;
 	var parsedVersions = parse(appVersions);
 	
 	if (hasNeededDemotePermissions == true) {
@@ -36,7 +36,6 @@ for(var demoteStage in hasDemotePermissions){
 			var issueArray;
 			var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
 			$(document).ready(function() {
-			alert($("#version").attr('value'));
 				jagg.post("../blocks/issuetracker/list/ajax/list.jag", { 
 					action:"getOpenIssues",
 					applicationKey:$("#applicationKey").attr('value'),
@@ -70,7 +69,6 @@ for(var demoteStage in hasDemotePermissions){
 			
 			
 			function doGovernanceActionAjaxIn(actionName, stage, version, tagName, checkItems, comment){
-				
 				jagg.post("../blocks/lifecycle/add/ajax/add.jag", { 
 					action:actionName,
 					applicationKey:$("#applicationKey").attr('value'),

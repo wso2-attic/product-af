@@ -178,4 +178,50 @@ var getRemoteServerServiceURL = function (stage) {
     return remoteServerBaseURL;
 };
 
+var getRemoteAppServerServiceURL = function (stage) {
+    var remoteServerBaseURL = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.DeploymentServerURL');
+    if (!(remoteServerBaseURL)) {
+        throw 'remote server url was not found for stage:' + stage;
+    }
+
+    return remoteServerBaseURL;
+};
+
+var invalidateAuthorizationCache = function(stage) {
+
+    var remoteServerServiceURL = getRemoteAppServerServiceURL(stage);
+    var manager = jagg.module("manager");
+    var cookie = manager.getBackendCookie(remoteServerServiceURL);
+
+    if (!(cookie)) {
+        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
+    }
+
+    var ws = require('ws');
+
+    var cacheInvalidationRequest = new ws.WSRequest();
+    var options = [];
+    options.useSOAP = 1.1;
+    options.action = "urn:invalidateCache";
+    options.mep = "in-only";
+    options["HTTPHeaders"] = [
+        { name: "Cookie", value: cookie }
+    ];
+    var payload = '<aut:invalidateCache xmlns:aut="http://authorization.ext.appfactory.carbon.wso2.org"/>';
+    var result = {};
+    try {
+        cacheInvalidationRequest.open(options, remoteServerServiceURL + 'AuthorizationCacheInvalidationService', false);
+        cacheInvalidationRequest.send(payload);
+
+        result.error = 'false';
+        result.message = 'authorization cache successfully invalidated.';
+    } catch (e) {
+        log.error(e.toString());
+        result.error = 'true';
+        result.message = e.toString();
+    }
+
+    return result;
+};
+
 %>

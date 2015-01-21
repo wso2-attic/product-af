@@ -5,65 +5,119 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var log = new Log();
 (function () {
-    var mod, obj, result,
-            action = request.getParameter("action"),
-            site = require("/site/conf/site.json");
+	var mod, obj, result,
+	action = request.getParameter("action"),
+	site = require("/site/conf/site.json");
 
-    if (action == "getAllDependencies") {
-        var mod = jagg.module("resources");
-        var permissionModule = jagg.module("permission");
-        var dependencies = {};
-        var response = {};
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	if (action == "getAllDependencies") {
+		var mod = jagg.module("resources");
+		var permissionModule = jagg.module("permission");
+		var dependencies = {};
+		var response = {};
+		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var applicationKey = request.getParameter("applicationKey");
+
+		var allStages = getProperties(DEPLOYMENT_STAGES);
+		var allowedStages=getAllowedStages(allStages,PERMISSION_RESOURCES_READ_FOR_STAGE,applicationKey);
+
+		var result={};
+		try {
+			dependencies = mod.getDetailedPropertyValuesInStages(applicationKey,allowedStages);
+			for(var stage in dependencies){
+				var tmpStage=dependencies[stage];
+				for(var regEntry in tmpStage){
+					var tmpRegEntry=tmpStage[regEntry];
+					if(tmpRegEntry.mediaType!="External API" && tmpRegEntry.mediaType=="Registry"){
+						var resultEntry=result[tmpRegEntry.name];
+						if(resultEntry==null){
+							resultEntry=result[tmpRegEntry.name]={
+							};
+							resultEntry.description=tmpRegEntry.description;
+							resultEntry.environments={
+							};
+						}
+						resultEntry.environments[stage]={
+						};
+						resultEntry.environments[stage].value=tmpRegEntry.value;
+					}
+				}
+			}
+			if (result != null) {
+				print(result);
+			} else {
+				throw "Error while getting the resources of application";
+			}
+		} catch (e) {
+			throw "Error while getting dependent resources " + e.toString();
+		}
+	} else if (action == "getResource") {
+
+		var mod = jagg.module("resources");
+		var dependency = {
+		};
+		var applicationKey = request.getParameter("applicationKey");
+		var stage = request.getParameter("stage");
+		var resourceName = request.getParameter("resourceName");
+		var permissionModule = jagg.module("permission");
+
+		var response = {
+		};
+
+		var hasPermissionToStage = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
+		if (hasPermissionToStage) {
+			try {
+				dependency = mod.getDetailedPropertyValueInStage(resourceName, applicationKey, stage);
+				if (dependency != null) {
+					print(dependency);
+				} else {
+					throw "Error while getting the resources of application";
+				}
+			} catch (e) {
+				throw "Error while getting dependent resources " + e.toString();
+			}
+		} else {
+			response.result = 0;
+			response.message = "You don't have permission to get resource";
+			print(response);
+		}
+
+
+	} else if (action == "propertyExistInStages") {
+        mod = jagg.module("resources");
         var applicationKey = request.getParameter("applicationKey");
-
-        var allStages = getProperties(DEPLOYMENT_STAGES);
-        var allowedStages=getAllowedStages(allStages,PERMISSION_RESOURCES_READ_FOR_STAGE,applicationKey);
-
-        try {
-            dependencies = mod.getDetailedPropertyValuesInStages(applicationKey,allowedStages);
-
-            if (dependencies != null) {
-                print(dependencies);
-            } else {
-                throw "Error while getting the resources of application";
-            }
-        } catch (e) {
-            throw "Error while getting dependent resources " + e.toString();
+        var propertyName = request.getParameter("propertyName");
+        var givenValues = request.getParameter("givenValues");
+        var copyToAll = request.getParameter("copyToAll");
+        var stageArray = givenValues.split("::stage:");
+	if(stageArray.length > 1){
+            var stageString = stageArray[1];
+            var splits = stageString.split(":auth:");
+            var stage = splits[0].split(":")[0];
+	}else{
+ 	    var stage = stageArray;
+	}
+        var existInStages = false;
+        if(copyToAll && copyToAll == "true"){
+            var targetStages = getProperties(DEPLOYMENT_STAGES);
+        }else{
+            var targetStages = [stage];
         }
-    } else if (action == "getResource") {
-
-        var mod = jagg.module("resources");
-        var dependency = {
-        };
-        var applicationKey = request.getParameter("applicationKey");
-        var stage = request.getParameter("stage");
-        var resourceName = request.getParameter("resourceName");
-        var permissionModule = jagg.module("permission");
-
-        var response = {};
-
-        var hasPermissionToStage = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
-        if (hasPermissionToStage) {
             try {
-                dependency = mod.getDetailedPropertyValueInStage(resourceName, applicationKey, stage);
-                if (dependency != null) {
-                    print(dependency);
-                } else {
-                    throw "Error while getting the resources of application";
+                for(var i in targetStages){
+                    existInStages = mod.propertyExistsInStages(propertyName, applicationKey, [targetStages[i]]);
+                    if(existInStages){
+                        print(existInStages);
+                        return;
+                    }
                 }
+                log.debug(existInStages);
             } catch (e) {
-                throw "Error while getting dependent resources " + e.toString();
+                log.error(e);
+                throw "Error while reading resources from environments";
             }
-        } else {
-            response.result = 0;
-            response.message = "You don't have permission to get resource";
-            print(response);
-        }
-
-
-    } else {
-        throw new Error("No action specified");
-    }
+        print(existInStages);
+        }else {
+		throw new Error("No action specified");
+	}
 }());
 %>

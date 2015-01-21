@@ -1,7 +1,99 @@
 <%
+include("/jagg/util.jag");
 jagg.block("resources/registry/add", {
     initialize:function (data) {
 
+    },
+    getInputs:function () {
+            return {
+                "applicationKey":null
+            }
+        },
+    getOutputs:function (inputs) {
+
+        var applicationKey = request.getParameter("applicationKey");
+        var applicationName = request.getParameter("applicationName");
+        var currentStage = request.getParameter("stage");
+        var resourceName = request.getParameter("resourceName");
+        var isEdit = request.getParameter("isEdit");
+        var isDelete = request.getParameter("isDelete");
+        var pagePath = request.getParameter("pagePath");
+        var redirectURL = "resources.jag?applicationName="+ applicationName +"&applicationKey="+ applicationKey;
+
+        var hasAccessForAllstages=jagg.module("permission").hasPermissionForAllStages(applicationKey);
+        var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
+	var hasDeleteResourcePermissions= hasUILevelResourceDeletePermission(applicationKey, currentStage);
+
+        if(!hasCreateResourcePermissions && isEdit && isEdit == "false"){
+            throw "Unauthorized Access";
+        }
+
+        if(pagePath != null && pagePath.equals("configureenvironment")){
+            redirectURL = "configureenvironment.jag?applicationName=" + applicationName + "&applicationKey=" + applicationKey;
+        }
+
+        var headerMsg = "Add New Property";
+        var buttonValue = "Add Property";
+
+        // TODO: This can be removed
+        var url = "#";
+
+        var propertyName = "";
+        var propertyType = "";
+        var propertyDescription = "";
+        var propertyValue = "";
+        var modResources = jagg.module("resources");
+        var modPermission = jagg.module("permission");
+        var stagePermission=[];
+
+        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+
+        var initialStage;
+
+        if(stages.length > 0){
+            initialStage = stages[0];
+        }
+
+        for(var stage in stages){
+            if(modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +stages[stage])){
+                stagePermission.push(stages[stage]);
+            }
+
+        }
+
+        stages=stagePermission;
+        if(isEdit != null && isEdit == "true"){
+            headerMsg = resourceName;
+            buttonValue = "Save";
+            var resource = modResources.getDetailedPropertyValueInStage(resourceName, applicationKey, currentStage);
+            if(resource){
+        	    propertyName = resource.name;
+        	    propertyType  = resource.mediaType;
+        	    propertyDescription  = resource.description;
+        	    propertyValue = resource.value;
+            }
+        }
+        if(isDelete != null && isDelete == 'true'){
+            headerMsg = 'Delete Property';
+        }
+
+        var isUpdatePermitted = modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_UPDATE_FOR_STAGE +currentStage);
+
+        return {
+           "hasAccessForAllstages":hasAccessForAllstages,
+           "propertyName":propertyName,
+           "propertyType":propertyType,
+           "propertyDescription":propertyDescription,
+           "propertyValue":propertyValue,
+           "redirectURL":redirectURL,
+           "stages":stages,
+           "initialStage":initialStage,
+           "headerMsg":headerMsg,
+           "isUpdatePermitted":isUpdatePermitted,
+           "hasCreateResourcePermissions":hasCreateResourcePermissions,
+           "buttonValue":buttonValue,
+	   "hasDeleteResourcePermissions":hasDeleteResourcePermissions
+        };
     }
 
 

@@ -1,7 +1,154 @@
 <%
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
 jagg.block("tablinks", {
     initialize:function (data) {
+    },
+    getInputs:function () {
+    },
+    getOutputs:function (inputs) {
+        var userName = session.get("LOGGED_IN_USER");
+    	var dashboardUrl = "";
+	    var cloudMgtUrl = "";
+    	var dashboardPath = "";
+    	var serverUrl = getProperty(DASHBOARD_SERVER_URL);
+    	var mod = jagg.module("manager");
+    	var result = false;
+    	var carbon = require('carbon');
+    	var server = carbon.server;
+    	var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
+    	var tenantDomain = null;
 
+    	var permissionModule = jagg.module("permission");
+    	var tenantID = null;
+    	var rolesArray = null;
+    	var hasTenantLevelUserMgtPermission = null;
+    	var isOTtenant = false;
+    	var hasCXOPermission = null;
+    	var hasCXOPermissionOnApps = false;
+    	var userAdministrationAllowed = null;
+    	var apiManagerConfigurationAllowed = null;
+    	var buildAllowed = false;
+    	var deployAllowed = false;
+    	var promoteAllowed = false;
+    	var demoteAllowed = false;
+    	var dbAdministrationAllowed = false;
+    	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+    	var hasDeployToStagePermission = {
+    	};
+    	var hasPromotePermissions = {
+    	};
+    	var hasDemotePermissions = {
+    	};
+    	var hasConfigureDbAdministrationPermissions = {
+    	};
+    	var configureResourcesAllowed = false;
+    	var retireAllowed = false;
+    	var governanceAllowed = false;
+    	var repositoryOperationsAllowed = false;
+
+    	var projUtils = false;
+    	var applicationType = false;
+    	var isUploadableAppType = false;
+
+    	var isOtherServicesTabAvailable = getProperty(SHOW_OTHER_SERVICES_TAB);
+
+    	var log = new Log();
+
+    	if(userName){
+
+    		if(!inputs.applicationKey){
+    			tenantDomain = mod.getTenantDomain();
+    			tenantID = realmService.getTenantManager().getTenantId(tenantDomain);
+    			rolesArray = realmService.getTenantUserRealm(tenantID).getUserStoreManager().getRoleListOfUser(mod.getDomainlessUserName(userName));
+    			hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
+    			if(session.get("TENANT_INFO")){
+    			    isOTtenant = session.get("TENANT_INFO").isOTTenant;
+    			}
+    			hasCXOPermission = permissionModule.isUserAccessGrantedForPlatform(PERMISSION_CXO_DASHBOARD);
+    			dashboardPath = getProperty(TENANT_ADMIN__DASHBOARD_PATH);
+    			dashboardUrl = serverUrl + dashboardPath;
+			    cloudMgtUrl = getProperty(CLOUDMGT_SERVER_URL);
+		
+    		}else{
+
+    			var applicationKey = inputs.applicationKey;
+    			var applicationName = inputs.applicationName;
+    			userAdministrationAllowed = true; // jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_USER_INVITE);
+    			apiManagerConfigurationAllowed = true; // jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
+    			buildAllowed = true; //jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_BUILD);
+
+    			for (var i = 0; i < deploymentStages.length; i++) {
+
+    				var hasPermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_DEPLOY_TO + deploymentStages[i]);
+    				hasDeployToStagePermission[deploymentStages[i]] = hasPermission;
+    				if (hasPermission) {
+    					deployAllowed = true;
+    				}
+
+    				var hasPromotePermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_GOVERNANCE_PROMOTE_TO + deploymentStages[i]);
+    				hasPromotePermissions[deploymentStages[i]] = hasPromotePermission;
+    				if (hasPromotePermission) {
+    					promoteAllowed = true;
+    				}
+
+    				var hasDemotePermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + deploymentStages[i]);
+    				hasDemotePermissions[deploymentStages[i]] = hasDemotePermission;
+    				if (hasDemotePermission) {
+    					demoteAllowed = true;
+    				}
+    				var hasResourcePermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + deploymentStages[i]);
+    				hasConfigureDbAdministrationPermissions[deploymentStages[i]] = hasResourcePermission;
+    				if (hasResourcePermission) {
+    					dbAdministrationAllowed = true;
+    				}
+    			}
+
+    			configureResourcesAllowed = (dbAdministrationAllowed || apiManagerConfigurationAllowed);
+    			retireAllowed = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_GOVERNANCE_RETIRE);
+    			governanceAllowed = (promoteAllowed || demoteAllowed || retireAllowed);
+    			repositoryOperationsAllowed = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_REPOSITORY_BRANCH);
+                hasCXOPermissionOnApps = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
+                hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
+
+    			projUtils = Packages.org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
+    			applicationType = projUtils.getApplicationType(applicationKey, mod.getTenantDomain());
+    			isUploadableAppType = getProperty("ApplicationType."+applicationType+".Property.isUploadableAppType");
+			
+    			if(isUploadableAppType === 'true'){
+    				configureResourcesAllowed = false;
+    			}
+    		}
+    	}
+        return {
+            "userName":userName,
+            "isOTtenant":isOTtenant,
+            "hasCXOPermission":hasCXOPermission,
+            "hasTenantLevelUserMgtPermission":hasTenantLevelUserMgtPermission,
+            "dashboardUrl":dashboardUrl,
+            "dashboardPath":dashboardPath,
+            "rolesArray":rolesArray,
+            "userAdministrationAllowed":userAdministrationAllowed,
+            "apiManagerConfigurationAllowed":apiManagerConfigurationAllowed,
+            "buildAllowed":buildAllowed,
+            "deployAllowed":deployAllowed,
+            "promoteAllowed":promoteAllowed,
+            "demoteAllowed":demoteAllowed,
+            "dbAdministrationAllowed":dbAdministrationAllowed,
+            "deploymentStages":deploymentStages,
+            "hasDeployToStagePermission":hasDeployToStagePermission,
+            "hasPromotePermissions":hasPromotePermissions,
+            "hasDemotePermissions":hasDemotePermissions,
+            "hasConfigureDbAdministrationPermissions":hasConfigureDbAdministrationPermissions,
+            "configureResourcesAllowed":configureResourcesAllowed,
+            "retireAllowed":retireAllowed,
+            "governanceAllowed":governanceAllowed,
+            "repositoryOperationsAllowed":repositoryOperationsAllowed,
+            "hasCXOPermissionOnApps":hasCXOPermissionOnApps,
+            "applicationType":applicationType,
+            "isUploadableAppType":isUploadableAppType,
+            "isOtherServicesTabAvailable":isOtherServicesTabAvailable
+        };
     }
 });
 %>

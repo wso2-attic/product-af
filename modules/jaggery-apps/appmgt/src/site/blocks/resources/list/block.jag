@@ -1,6 +1,7 @@
 <%
 include('/jagg/constants.jag');
 include('/jagg/config_reader.jag');
+include("/jagg/util.jag");
 jagg.block("resources/list", {
     initialize: function (data) {
 
@@ -38,11 +39,10 @@ jagg.block("resources/list", {
     	}
     	var hasDataSourceCreatePermission =  jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DATASOURCE_CREATE);
     	var hasTenantAdminPermission =  jagg.module("permission").checkUserAuthorization(PERMISSION_TENANT_ADMIN);
-
-    	// var hasConfigureDbAdministrationPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_CONFIGURATION_DB_ADMINISTRATION);
     	var hasConfigureAPIManagerPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
-    	//   var hasConfigureResourcePermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_CONFIGURATION_RESOURCES);
+        var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(inputs.applicationKey);
     	return {
+    	    "hasCreateResourcePermissions": hasCreateResourcePermissions,
     		"hasConfigureDbAdministrationPermission": hasConfigureDbAdministrationPermissions,
     		"hasConfigureAPIManagerPermission": hasConfigureAPIManagerPermission,
     		"hasConfigureResourcePermission": hasConfigureResourcePermissions,

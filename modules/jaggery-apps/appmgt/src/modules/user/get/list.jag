@@ -18,7 +18,7 @@ function login(userName, password){
 	} else {	// else assume super tenant
 		tenantDomain = SUPER_TENANT_DOMAIN_NAME;
 	}
-	log.info("user logs in module called for user " + userName);
+	log.debug("user logs in module called for user " + userName);
 	var ws = require('ws');
 	var finalResult={
 	};

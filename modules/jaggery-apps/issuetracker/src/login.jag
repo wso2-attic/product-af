@@ -31,10 +31,11 @@
 	    var relayState = ssoRelyingParty.getUUID();
 	    ssoRelyingParty.setRelayStateProperty(relayState, requestURI);
 	    var idpURL = ssoRelyingParty.getProperty("identityProviderURL");
-
-	    log.info('encodedRequest ' + encodedRequest);
-	    log.info('relayState ' + relayState);
-	    log.info('sessionId ' + sessionId);
+	    if(log.isDebugEnabled()){
+	    log.debug('encodedRequest ' + encodedRequest);
+	    log.debug('relayState ' + relayState);
+	    log.debug('sessionId ' + sessionId);
+	    }
 %>
 <div>
 

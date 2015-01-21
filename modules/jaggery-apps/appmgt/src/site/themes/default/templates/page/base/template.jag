@@ -11,10 +11,6 @@
         var applicationKey = request.getParameter('applicationKey');
         var applicationName = request.getParameter('applicationName');
 
-        if(session.get("iconsAvailableApps") != null && applicationKey != null){
-	        var iconList = session.get("iconsAvailableApps");
-	        var iconUrl = iconList[applicationKey];
-        }
         %>
 
         <script type="text/javascript">
@@ -29,7 +25,7 @@
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
           })();
 
-          function loadAppIcon(appKey) {
+          function loadBaseAppIcon(appKey) {
               jagg.post("../blocks/application/get/ajax/list.jag", {
                       action: "isAppIconAvailable",
                       applicationKey: appKey
@@ -38,16 +34,20 @@
               function (result) {
                    if(result == 101){
                         $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
-                   }
+                   }else{
+             <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+               var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey="+applicationKey;
+             %>
+         }
+
               },
 
               function (jqXHR, textStatus, errorThrown) {
               });
 
             }
-
             $(document).ready(function () {
-        	  loadAppIcon('<%=applicationKey%>');
+        	  loadBaseAppIcon('<%=applicationKey%>');
         	});
 
         </script>
@@ -64,11 +64,13 @@
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/jquery.qtip.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.cookie.js'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/development.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/custom.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>">
-
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.snippet.css'))%>">
+        
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js'))%>"></script>
 		<link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
 		<link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
@@ -102,9 +104,9 @@
             </div>
 
             <div class="dropdown context_menu">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="icon-reorder"></span></a>
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span title="Other Options" class="icon-reorder"></span></a>
               <ul class="dropdown-menu">
-                   <li><a href="http://wso2.com/support/" target="_blank">Support</a></li>
+                   <li><a href="http://wso2.com/support/" target="_blank" >Support</a></li>
                     <li><a href="https://wso2.org/jira/browse/APPFAC" target="_blank">Feedback</a></li>
                     <li><a href="http://docs.wso2.org/wiki/display/AF100/User+Guide" target="_blank">User Guide</a></li>
                     <li><a href="http://wso2.org/more-downloads/developer-studio" target="_blank">Tooling</a></li>
@@ -113,13 +115,13 @@
             </div>
          </div>
 
-        <h2><a href="<%=jagg.getAbsoluteUrl("/site/pages/")%>" class="icon-home"><span>Home</span></a></h2>
+        <h2><a href="<%=jagg.getAbsoluteUrl("/site/pages/")%>" class="icon-home" title="User Home"><span>Home</span></a></h2>
 
 
         <% if(applicationKey != null && applicationName != null){ %>
         <p class="sub_heading">
+	    <img id="icon" src="<%=iconUrl%>" alt="" height="50px" width="50px" />
             <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-            <img id="icon" src="<%=iconUrl%>" alt="" height="50px" width="40px"/>
             <%=applicationName%></a>
         </p>
         <% } %>
@@ -152,6 +154,9 @@
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/main.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.qtip.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/snippet/jquery.snippet.js'))%>"></script>
+				<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
+		
     </body>
 </html>
 <% }); %>

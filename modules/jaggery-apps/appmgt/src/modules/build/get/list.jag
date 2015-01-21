@@ -200,7 +200,7 @@ var getAllJenkinsBuildsStats = function(applicationKey) {
         	webServiceResponse = buildService.responseE4X;
         	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
         	webServiceResponseText = webServiceResponse.ns::["return"].text();
-        	log.info("webServiceResponseText > "+webServiceResponseText);
+        	log.debug("webServiceResponseText > "+webServiceResponseText);
         } catch (e) {
         	log.error("Error while getting builds information : " + e.message);
         	throw "Error while while getting builds information";
@@ -212,7 +212,7 @@ var getAllJenkinsBuildsStats = function(applicationKey) {
                 var success = 0;
                 var failure = 0;
                 var aborted = 0;
-                log.info(webServiceResponseObject);
+                log.debug(webServiceResponseObject);
                 for (var index in webServiceResponseObject.jobs) {
                     var job = webServiceResponseObject.jobs[index];
                     for (var bIndex in job.builds) {

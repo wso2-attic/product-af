@@ -1,11 +1,13 @@
 <% jagg.template("resources/apis/get", function(inputs, outputs, jagg) { %>
 <%
-var log = new Log();   
+var log = new Log();
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var apiManagerStoreUrl = getProperty(API_MANAGER_STORE_URL);
 var apiManagerServerUrl = getProperty(API_MANAGER_SERVER_URL);
-var modApiManager = jagg.module("resources");
+var apiManagerButton = getProperty(API_MANAGER_BUTTON);
+appInfo=session.get("APP_INFO");
+language=appInfo.language;
 %>
 
 <input type="hidden" value="<%=applicationKey%>" name="applicationKey" id="applicationKey" />
@@ -50,11 +52,12 @@ var modApiManager = jagg.module("resources");
     		}
     		var parsedResult = jQuery.parseJSON(result); 		
     		
-    		var keyValuesExists = true;
+    		var keyValuesExists = false;
     		for(var keyName in parsedResult){
-    			if(parsedResult[keyName] == null){
-    				keyValuesExists = false;
-    				break;
+    			if(parsedResult[keyName] == null || (keyMappins[keyName].indexOf("Token") !== -1)){
+    				delete parsedResult[keyName];
+    			}else{
+    				keyValuesExists = true;
     			}
     		}
 
@@ -63,10 +66,10 @@ var modApiManager = jagg.module("resources");
     	    	$("#keySection").html('<span class="icon-spinner icon-spin icon-large"></span>');
         		var keyTableBodyHTML = '<li class="list_row_item first_list_row_item">'
                     +'<ul class="list_row first_list_row">'
-                        +'<li class="list_col first_list_col resources_apikey_col">'
+                        +'<li class="list_col first_list_col col-3">'
                            +'<h2 class="list_col_heading">Key</h2>'
                         +'</li>'
-                        +'<li class="list_col resources_apivalue_col">'
+                        +'<li class="list_col col-9">'
                             +'<h2 class="list_col_heading">Value</h2>'
                        +'</li>'
                    + '</ul>'
@@ -75,16 +78,16 @@ var modApiManager = jagg.module("resources");
             		$("#keySection").append(keyTableBodyHTML);  
 
             		for(var keyName in parsedResult){
-        				keyTableBodyHTML +='<li class="list_row_item  ">'+
-        				                 '<ul class="list_row  ">'+
-        				                     '<li class="list_col first_list_col resources_apikey_col">'+
+        				keyTableBodyHTML +='<li class="list_row_item ">'+
+        				                 '<ul class="list_row ">'+
+        				                     '<li class="list_col col-3">'+
         				                         '<div class="list_col_content">'+
-        				                             '<span class="prime">' + keyMappins[keyName] + '</span>'+
+        				                             '<span >' + keyMappins[keyName] + '</span>'+
         				                         '</div>'+
         				                     '</li>'+
-        				                     ' <li class="list_col resources_apivalue_col">'+
+        				                     ' <li class="list_col col-9">'+
         				                         '<div class="list_col_content">'+
-        				                             '<span class="prime">' + parsedResult[keyName] + '</span>'+
+        				                             '<span >' + parsedResult[keyName] + '</span>'+
         				                         '</div>'+
         				                     '</li>'+
         				                 '</ul>'+
@@ -109,21 +112,19 @@ var modApiManager = jagg.module("resources");
         jagg.post("../blocks/application/get/ajax/list.jag", {
                     action:"getAppOwner",
                     applicationKey:$("#applicationKey").val()
-             
                 },
                 function (appowner) {
                 	var loggedInuser = $("#userName").val();
                     if(appowner == loggedInuser){
     		          	var url = '<%=apiManagerStoreUrl%>' + "/?tenant=" + loggedInuser.substring(loggedInuser.lastIndexOf('@') + 1);
-    		          	var $elm = $('<a class="btn main" href="'+ url +'" target="_blank">Subscribe to Internal APIs</a>').click(function(){addApi('<%=applicationKey%>')});
+    		            var $elm = $('<a class="btn main" href="'+ url +'" target="_blank"><%=apiManagerButton%></a>').click(function(){addApi('<%=applicationKey%>')});
                         $('#btnItem').append($elm);
                         $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys()" disabled="true">Sync Keys</button>');
-                        // drawAPIsTable();
+                        //drawAPIsTable();
                     }else{
                     	$('#renewbtnContainer').append('<div class="main push_top_20 push_bottom_40"></div>');
                     }
                     getAPIsOfAppOwnerApp(appowner);
-
                 },
                 function (jqXHR, textStatus, errorThrown) {
                     // add the error label in the grid
@@ -140,23 +141,26 @@ var modApiManager = jagg.module("resources");
         function (result) {
         	parsedResult=jQuery.parseJSON(result);
         	if(parsedResult.length == 0){
-        		$("#apiSection").html("<div class='noData-message'>APIs have not been subscribed yet.</div>");
+        		$("#apiSection").empty().append("<div class='noData-message'>APIs have not been subscribed yet.</div>");
         	}
         	else{
         		$("#renewApiBtn").removeAttr("disabled"); 
 	            var tableBodyHTML = '<li class="list_row_item first_list_row_item">'
 	            						+'<ul class="list_row first_list_row">'
-	            							+'<li class="list_col col-3">'
-	            								+'<h2 class="list_col_heading">Name & Version</h2>'   
+	            							+'<li class="list_col col-2">'
+	            								+'<h2 class="list_col_heading">Name</h2>'
+	            							+'</li>'
+	            							+'<li class="list_col col-1">'
+	            								+'<h2 class="list_col_heading">Version</h2>'
 	            							+'</li>'
 							                +'<li class="list_col col-3">'
 							                	+'<h2 class="list_col_heading">Description</h2>'   
 							                +'</li>'
 							                +'<li class="list_col col-3">'
-						                	+'<h2 class="list_col_heading">Endpoints</h2>'   
+						                	+'<h2 class="list_col_heading">Provider</h2>'
 						                    +'</li>'
 							                +'<li class="list_col col-3">'
-							                	+'<h2 class="list_col_heading">Provider</h2>'    
+							                	+'<h2 class="list_col_heading">Endpoints</h2>'
 							                +'</li>'
 							              +'</ul>'
 	                                 +'</li>';
@@ -166,38 +170,35 @@ var modApiManager = jagg.module("resources");
 	        	for(var i=0; i < parsedResult.length;i++){
 	        		var API = parsedResult[i];
 	                	var endpointUrl = ' <%=apiManagerStoreUrl%>'+'/'+API.name+'/'+API.version;
-	            		 tableBodyHTML +='<li class="list_row_item  ">'+
-	                     '<ul class="list_row  ">'+
-	                         '<li class="list_col col-3">'+
+	            		 tableBodyHTML +='<li class="list_row_item first_list_row_item">'+
+	                     '<ul class="list_row first_list_row ">'+
+	                         '<li class="list_col col-2">'+
 	                             '<div class="list_col_content">'+
-	                                 '<ul class="list">'+
-	                                     '<li><a href="#">' + API.name + '</a></li>'+
-	                                     '<li class="small">' + API.version + '</li>'+
-	                                 '</ul>'+
+	                                      API.name +
+	                             '</div>'+
+	                         '</li>'+
+	                         '<li class="list_col col-1">'+
+	                             '<div class="list_col_content">'+
+	                                  API.version +
 	                             '</div>'+
 	                         '</li>'+
 	                         '<li class="list_col col-3">'+
 	                         	'<div class="list_col_content">'+ API.description + '</div>'+
 	                         '</li>'+
 	                         '<li class="list_col col-3">'+
-	                             '<div class="list_col_content css_trim"  title="'+ endpointUrl + '">'+ endpointUrl + '</div>'+
+	                             '<div class="list_col_content">'+
+	                                 '<span>' + API.provider + '</span>'+
+	                             '</div>'+
 	                         '</li>'+
 	                         '<li class="list_col col-3">'+
-	                             '<div class="list_col_content">'+
-	                                 '<span class="prime">' + API.provider + '</span>'+
-	                             '</div>'+
+	                             '<div class="list_col_content css_trim"  title="'+ endpointUrl + '">'+ endpointUrl + '</div>'+
 	                         '</li>'+
 	                     '</ul>'+
 	                '</li>';
 	        	}
 	        	
-	        	$("#apiSection").html($("#apiSection").html()+tableBodyHTML);
-	        	if($("#userName").val() == appowner){
-	        		keysAvailableInRegistry();
-	        	}else{
-	        		saveAndRetrieve(false);
-	        	}
-	        	
+	        	$("#apiSection").empty().append(tableBodyHTML);
+                saveAndRetrieve(false);       	
         	}
         },
         function (jqXHR, textStatus, errorThrown) {
@@ -253,39 +254,44 @@ var modApiManager = jagg.module("resources");
             applicationKey:$("#applicationKey").val()
         },
         function (result) {
+            var elementIds=[];
 			var apiIndex;
 			var resultJson = JSON.parse(result);
-			if(resultJson.length == 0){
-        		$("#externalapi").html("<div class='noData-message'>External APIs have not been created yet.</div>");
+			if(jQuery.isEmptyObject(resultJson)){
+        		$("#externalapi").empty().append("<div class='noData-message'>No External APIs are created yet.</div>");
         	}
 			else
 			{
 				var tableModel = prepareDataModel(resultJson);
-				
+			    var codeSnippetHTML=codeSnippet.generate("<%=language%>","Properties","<%=applicationKey%>",name);
+			    var snippets=(codeSnippetHTML!=undefined);
 				var tableBodyHTML = "";
 				var url = "#";
 				var count = 0;
 				for (var index in tableModel) {
 					tableBodyHTML += '<div class="list_col_content">';
 				    var row = tableModel[index];
-
-				    url = "<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager&isEdit=true&resourceName=" + row.name;
-				    count = 0;
+			        elementIds.push(row.name);
+				    
+				      count = 0;
 				    for (var stageName in row.stages) {
 				        var stageValues = row.stages[stageName];
-				        
+				        url = "<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager&isEdit=true&resourceName=" + row.name+"&environment="+stageName;
 				        if (count++ == 0) {
 				            tableBodyHTML += '<li class="list_row_item first_list_row_item">' + '<ul class="list_row first_list_row">' 
 				            				+ '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
-				            				+ '<li><a href="' + url + '">' + row.name + '</a></li>' + '</ul> </div></li>';
+				            				+ '<li>' + row.name + '</li>' + '</ul>';
+				        if(snippets)   				
+				            tableBodyHTML+='<span id="snippet_'+row.name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;'
+				            				+'<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
 
-				            tableBodyHTML += '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
+				            tableBodyHTML += '</div></li><li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
 				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>';
 
 				            tableBodyHTML += '<li class="col-6">';
 				        }
 				        tableBodyHTML += '<div class="list_col_content"><dl class="list">';
-				        tableBodyHTML += '<dt><i class="tag" style="margin-left:0px">' + stageName + '</i></dt>';
+				        tableBodyHTML += '<dt><a href="' + url + '" class="tag" style="margin-left:0px">' + stageName + '</a></dt>';
 
 				        for (var propName in stageValues) {
 				            var propVal = stageValues[propName];
@@ -294,9 +300,17 @@ var modApiManager = jagg.module("resources");
                             	tableBodyHTML += '<i class="fa fa-pencil-square-o"></i>';
                             }
 				        }
-				        tableBodyHTML += '</dl></div>';
+				        tableBodyHTML += '</dl></div>	';
+				      
 				    }
-				    tableBodyHTML += '</div>';
+				    
+				   		tableBodyHTML+= '</li></ul>';
+				        if(snippets)   							   		
+				   		tableBodyHTML+='<div id="code'+row.name+'" style="display: none;" class="code">'
+										+codeSnippet.generate("Java","Apis","<%=applicationKey%>",row.name,row);       	
+										+'</div>';
+
+						tableBodyHTML+='</div>';
 				}
 				
 				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
@@ -312,7 +326,19 @@ var modApiManager = jagg.module("resources");
 	            			'</li>' +
 	            			'</ul>' +
 	            			'</li>';
-				$("#externalapi").html(initTableTxt + $("#externalapi").html()+ tableBodyHTML);
+				$("#externalapi").empty().append(initTableTxt).append(tableBodyHTML);
+				for (var index in elementIds) {
+				    var name = elementIds[index];
+					
+				    //tableBodyHTML += '<ul class="list_row first_list_row">'
+					$("#snippet_"+name).click(function(){
+						$crtl=$(this);
+		 				$(this).parent().parent().parent().next().slideToggle( "fast", function(){
+		  	 				});
+						});
+				}
+		    
+				$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false}); 
         	}
         },
         function (jqXHR, textStatus, errorThrown) {
@@ -332,6 +358,7 @@ var modApiManager = jagg.module("resources");
         });
     }
     $(document).ready(function(){
+	    getHelpTips();
     	loadKeyNameMappings();
     	loadExternalAPIs();
     	isAppOwner();
@@ -348,12 +375,12 @@ var modApiManager = jagg.module("resources");
    			}
             keyTableBodyHTML +='<li class="list_row_item  ">'+
    	               '<ul class="list_row  ">'+
-   	                   '<li class="list_col first_list_col resources_apikey_col">'+
+   	                   '<li class="list_col first_list_col col-3">'+
    	                       '<div class="list_col_content">'+
    	                           '<span class="prime">' + keyMappins[name] + '</span>'+
    	                       '</div>'+
    	                   '</li>'+
-   	                   ' <li class="list_col resources_apivalue_col">'+
+   	                   ' <li class="list_col col-4">'+
    	                       '<div class="list_col_content">'+
    	                           '<span class="prime">' + value + '</span>'+
    	                       '</div>'+
@@ -385,6 +412,22 @@ var modApiManager = jagg.module("resources");
             });
         });
     }
+
+    function getHelpTips(){
+	jagg.post("../blocks/help/ajax/help.jag", {
+		action: "getHelpTips",
+		page: "resources-apis"
+	},
+
+	function (result) {
+		helpTips = jQuery.parseJSON(result);
+		$("#apiHelp").html(helpTips.apiHelp);
+		$("#enterpriseApiHelp").html(helpTips.enterpriseApiHelp);
+	},
+
+	function (jqXHR, textStatus, errorThrown) {
+	});
+     }
     
 </script>
 
@@ -397,18 +440,22 @@ var modApiManager = jagg.module("resources");
 <div class="container">
 <article class="main">
    <header>
-      <div> <% jagg.includeBlock("page/messages", null); %></div>
+      <div> <% jagg.includeBlock("page/messages", null); %>
+       <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+       <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+       </div>
       <div class="content">
          <h1>Resources</h1>
       </div>
    </header>
    <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
+   <% jagg.includeBlock("page/help", {"section": "resources-apis"}); %>
    <section class="separator">
-      <div class="page_nav">
+      <div class="page_nav" style="border-bottom: 0 ;">
          <div class="content clear">
             <ol class="breadcrumb left">
                <li class="breadcrumb_item">
-                  <h2>Internal APIs</h2>
+                  <h2>Enterprise APIs</h2>
                </li>
             </ol>
             <div class="right btn_list_box">
@@ -419,16 +466,17 @@ var modApiManager = jagg.module("resources");
             </div>
          </div>
       </div>
-      <div class="content clear well">
-         <h2 class="mini no_margin">Saved Keys</h2>
+      <div class="content clear">
+         <h2 class=" no_margin">Saved Keys</h2>
          <ul class="list_table push_top_20" id="keySection">
          </ul>
          <div id="renewbtnContainer"></div>
-         <h2 class="mini">Subscribed APIs</h2>
+         <h2>Subscribed APIs</h2>
+         <div class="help-block"><span class="help-icon">?</span> <span id="enterpriseApiHelp"></span></div>
          <ul class="list_table push_top_20" id="apiSection">
          </ul>
       </div>
-      <div class="page_nav">
+      <div class="page_nav push_top_20" style="border-bottom: 0 ;border-top: 1px solid #B0D1D8 ;">
          <div class="content clear">
             <ol class="breadcrumb left">
                <li class="breadcrumb_item">
@@ -438,16 +486,17 @@ var modApiManager = jagg.module("resources");
             <% if(outputs.hasCreateResourcePermissions){ %>
             <div class="right btn_list_box">
                <ul class="inline_box inline_list btn_list" id="gotoApiManagerbtnContainer">
-                  <li class="inline_item" id="btnItem"><a class="btn main" href="../pages/externalapi.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager">Subscribe to External APIs</a></li>
+                  <li class="inline_item" id="btnItem"><a class="btn main" href="../pages/externalapi.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager">Add External API</a></li>
                </ul>
                <div class="clearfix"></div>
             </div>
             <%}%>
          </div>
       </div>
-      <div class="content clear well">
-         <div id="renewbtnContainer"></div>
-         <h2 class="mini">Subscribed APIs</h2>
+      <div class="content clear">
+         <!--div id="renewbtnContainer"></div-->
+         <h2>Subscribed APIs</h2>
+          <div class="help-block"><span class="help-icon">?</span> <span id="apiHelp"></span></div>
          <ul class="list_table push_top_20" id="externalapi">
          </ul>
       </div>

@@ -6,7 +6,7 @@ include("/jagg/config_reader.jag");
 var log = new Log('modules/resources/databases/drop/drop.jag');
 
 var modManager = jagg.module("manager");
-var wso2_rss_instanceName = 'WSO2_RSS';
+var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
 
 var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceName){
@@ -16,16 +16,14 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 	var dropDatabaseService = new ws.WSRequest();
 	var options = new Array();	
 	options.useSOAP = 1.2;
-	options.action = "urn:dropDatabase";
+	options.action = "urn:removeDatabase";
 	options.mep = "in-only";
-	var payload ='<ser:dropDatabase  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" xmlns:xsd="http://environment.config.core.rssmanager.carbon.wso2.org/xsd">'+
-	'<ser:ctx>' +
-	'<xsd:environmentName>' + databaseServerInstanceName + '</xsd:environmentName>' +
-	'<xsd:rssInstanceName>' + wso2_rss_instanceName + '</xsd:rssInstanceName>' +
-	'</ser:ctx>' +
-	'<ser:databaseName>'+databaseName+'</ser:databaseName></ser:dropDatabase>';
-	var result;
-
+	
+	var payload ='<ser:removeDatabase  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">'+
+	'<ser:environmentName>' + databaseServerInstanceName + '</ser:environmentName>' +
+	'<ser:rssInstanceName>' + wso2_rss_instanceName + '</ser:rssInstanceName>' +
+	'<ser:databaseName>'+databaseName+'</ser:databaseName></ser:removeDatabase>';
+	
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
 	options["HTTPHeaders"] =
 	[{

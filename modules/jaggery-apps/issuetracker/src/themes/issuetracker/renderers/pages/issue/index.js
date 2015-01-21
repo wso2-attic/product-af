@@ -5,6 +5,9 @@ var render = function (theme, data, meta, require) {
 		],
         header: [
             { partial:'header', context: data.header}
+        ],
+        header_mid: [
+            { partial:'headerMid' ,context: {page:'home', appkey:data.body.appkey}}
         ]
     });
 };

@@ -37,6 +37,9 @@ return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getTenan
 },
 getEnvironmentAwareTemplateName:function () {
 return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getEnvironmentAwareTemplateName.apply(this, arguments);
+},
+isDatabaseUserExists:function () {
+return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isDatabaseUserExists.apply(this, arguments);
 }
 });
 %>

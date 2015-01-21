@@ -27,7 +27,7 @@ var addDatabaseTemplate = function (databaseTemplateName, application, environme
         log.debug("Adding database template info to RXT " + databaseTemplateName);
     }
     rssAdapter.addDatabaseUserPermissionTemplate(databaseTemplateName, application, environment, modManager.getTenantDomain());
-}
+};
 var getAllDatabases = function (application, environment, allDatabases) {
     if (log.isDebugEnabled()) {
         log.debug("Getting all database info of " + application + " in " + environment);
@@ -38,9 +38,9 @@ var getAllDatabases = function (application, environment, allDatabases) {
     if (log.isDebugEnabled()) {
         log.debug("Received database info from  RXT " + names);
     }
-    for (name in names) {
+    for (var name in names) {
 
-        for (db in allDatabases) {
+        for (var db in allDatabases) {
 
             if (names[name] == getTenantAwareDBName(allDatabases[db].dbName)) {
                 filteredDBs.push(allDatabases[db]);
@@ -62,7 +62,7 @@ var getAllDatabaseUsers = function (application, environment, allUsers) {
         modManager.getTenantDomain());
     var filteredUsers = [];
     for (var userName in userNames) {
-       for(user in allUsers){
+       for(var user in allUsers){
         if (userNames[userName] == getTenantAwareUserName(allUsers[user].name)) {
 
             filteredUsers.push(allUsers[user]);
@@ -75,15 +75,30 @@ var getAllDatabaseUsers = function (application, environment, allUsers) {
 
 return filteredUsers;
 };
+
+var isDatabaseUserExists = function (application, environment, user) {
+    if (log.isDebugEnabled()) {
+        log.debug("Getting all users of " + application + " in " + environment);
+    }
+    var userNames = rssAdapter.getAllDatabaseUsers(application, environment,
+        modManager.getTenantDomain());
+    for (var userName in userNames) {
+        if (userNames[userName] ==user) {
+            return true;
+        }
+    }
+
+    return false;
+};
 var getAllDatabaseTemplates = function (application, environment, allTemplates) {
     if (log.isDebugEnabled()) {
         log.debug("Getting all template of " + application + " in " + environment);
     }
     var templateNames = rssAdapter.getAllDatabasePrivilegeTemplates(application, environment, modManager.getTenantDomain());
     var filteredTemplates = [];
-    for (templateName in templateNames) {
+    for (var templateName in templateNames) {
 
-        for (template in allTemplates) {
+        for (var template in allTemplates) {
             if (templateNames[templateName] == getEnvironmentAwareTemplateName(allTemplates[template].name)) {
 
                 filteredTemplates.push(allTemplates[template]);
@@ -114,14 +129,14 @@ var deleteDatabaseTemplate = function (databaseTemplateName, application, enviro
     rssAdapter.deleteDatabaseUserPermissionTemplate(databaseTemplateName, application, environment, modManager.getTenantDomain());
 };
 
-var getTenantAwareUserName = function getTenantAwareUserName(fullName) {
+var getTenantAwareUserName = function (fullName) {
     return fullName.substr(0, fullName.lastIndexOf('_'));
 };
 
-var getTenantAwareDBName = function getTenantAwareDBName(fullName) {
+var getTenantAwareDBName = function (fullName) {
     return fullName;
 };
-var getEnvironmentAwareTemplateName = function getEnvironmentAwareTemplateName(fullName) {
+var getEnvironmentAwareTemplateName = function (fullName) {
     return fullName.substr(0, fullName.lastIndexOf('@')).replace('@','..');
 };
 %>

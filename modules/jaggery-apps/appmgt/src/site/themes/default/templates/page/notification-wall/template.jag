@@ -1,0 +1,142 @@
+<% jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
+    var applicationKey = inputs.applicationKey;
+    var pageName = inputs.pageName;
+    var polling_period = outputs.polling_period;
+    var wallName = inputs.wall_name;
+    if(polling_period==null || polling_period==undefined){
+        polling_period = 5000;
+    }
+    %>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
+    <script type="text/javascript">
+    function pollNotifications(){
+    var userName = $("#userName").attr('value');
+        jagg.post("../blocks/events/listen/ajax/listen.jag", {
+            action: "listen",
+            appId:'<%=applicationKey%>',
+        pageName:'<%=pageName%>',
+        userName: userName
+    },
+    function (result) {
+        $("#notificationDataDiv").empty();
+        var obj = jQuery.parseJSON(result);
+        for(var i=obj.length-1;i>-1;i--){
+            var event = jQuery.parseJSON(obj[i]);
+            var category = event.object.category;
+           // alert(event.target.id);
+            if(category==undefined || category=="ERROR" ){
+                $("#notificationDataDiv").append($('<div class="notification-subsection"><div class="notification-error-title">'+
+                event.object.title+'<span class="notification-time">'+new Date(event.published)+
+                '</span></div><div class="notification-content">'+event.object.content+'</div></div>'));
+            }else{
+                $("#notificationDataDiv").append($('<div class="notification-subsection"><div class="notification-info-title">'+
+                event.object.title+'<span class="notification-time">'+new Date(event.published)+
+                '</span></div><div class="notification-content">'+event.object.content+'</div></div>'));
+            }
+        }
+        setTimeout(pollNotifications,'<%=polling_period%>');
+    },
+    function (jqXHR, textStatus, errorThrown) {
+
+    });
+}
+var resizeWall = function(){
+    var  docHeight = $(document).height()-$('.main_header').height()-1;
+
+    //We compute the height of all the inner elements here. If that is less than the doc height, then we set overflow to hidden
+    //This is done to avoid the scroll bar in resources pages, if there are low number of notifications.
+
+    var innerChildHeight = $('.notification-container').outerHeight();
+
+    if(docHeight >= innerChildHeight){
+        $('.notification-container').css('overflow-y','hidden');
+        $('.notification-container').css('min-height',$(window).height()+'px');
+    }else{
+        $('.notification-container').css('overflow-y','auto');
+        $('.notification-container').css('min-height',docHeight+'px');
+    }
+};
+var resizeNotifier = function(){
+    var w = $(document).width();
+    var slideButtonRight = 0;
+    var notification_section_width;
+    if(w <= 1300){
+        notification_section_width = 250;
+        slideButtonRight = 0;
+        $('.notification-section').hide();
+    }else if(w>1300 && w < 1700) {
+        notification_section_width = 250;
+        slideButtonRight = 250;
+        $('.notification-section').show();
+    }else{
+        notification_section_width = 400;
+        slideButtonRight = 400;
+        $('.notification-section').show();
+    }
+    $('.notification-section').width(notification_section_width);
+    $('.notification-slider-container').css('right',slideButtonRight+"px");
+
+};
+$(document).ready(function () {
+    pollNotifications();
+    var $notificationWrapper = $('#notificationWrapper');
+    $(document).scroll(function(){
+	var top = $(document).scrollTop();
+	if (top > 0){
+
+		$notificationWrapper.css('margin-top','-61px');
+	}else{
+		$notificationWrapper.css('margin-top','0');
+	}
+
+    });
+    $(window).resize(function(){
+	    resizeWall();
+	    resizeNotifier();
+    });
+    resizeWall();
+    resizeNotifier();
+    $('#notification-slider-btn').click(function(){
+        var w = $(document).width();
+
+        var slideButtonRight = 0;
+        var notification_section_width;
+        if( w < 1700) {
+            notification_section_width = 250;
+            slideButtonRight = 250;
+        }else{
+            notification_section_width = 400;
+            slideButtonRight = 400;
+        }
+        $('.notification-section').width(notification_section_width);
+
+        if( $('#notificationWrapper').is(":visible")){
+            $(this).parent().animate({right:0},500);
+            $('#notificationWrapper').hide('slow');
+        }else{
+            $('#notification-slider-btn').parent().animate({right:slideButtonRight},500);
+            $('#notificationWrapper').show('slow');
+        }
+    });
+
+});
+</script>
+<input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<div class="notification-section" id="notificationWrapper">
+    <div id="notificationBar" class="notification-container">
+<!--<img src="../../../img-dev/loading-small.gif"/>-->
+        <h2 class="big"><%=wallName%></h2>
+        <div id="notificationDataDiv"></div>
+    </div>
+
+</div>
+<div id="notification-slider-container" class="notification-slider-container">
+    <div id="notification-slider-btn" class="notification-slider-btn">
+        <i class="icon-envelope bigger-150"></i>
+    </div>
+    <!-- /.ace-settings-box -->
+</div>
+
+    <%
+});
+%>

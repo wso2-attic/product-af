@@ -11,9 +11,28 @@ jagg.block("reposBuilds/list", {
     },
 
     getOutputs:function (inputs) {        
+    	var log = new Log();
+        var applicationKey = request.getParameter("applicationKey");
+    	var lifeCycleModule = jagg.module("lifecycle");
+        var mod = jagg.module("manager");
+    	
+    	var hasConfigureAPIManagerPermission = true;//jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
+    	var hasRepoReadWritePermission =true;// jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_REPOSITORY_READ_WRITE);
+    	
+    	var map = {};
+    	var stages = lifeCycleModule.getAllLifeCycleStages();
+    	
+    	for(var index in stages){
+    		var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO+stages[index]);
+    		map[stages[index]] = isAllowed ;
+    	}
+    	
        var hasBranchingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_REPOSITORY_BRANCH);
+       
+       var tenantDomain = mod.getTenantDomain();
        return {
-            "hasBranchingPermission":hasBranchingPermission
+    	    "tenantDomain":tenantDomain,
+            "hasBranchingPermission":hasBranchingPermission,
        };
     }
 

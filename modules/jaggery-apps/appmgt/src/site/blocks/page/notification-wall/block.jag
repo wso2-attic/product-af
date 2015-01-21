@@ -1,0 +1,18 @@
+<%
+include('/jagg/constants.jag');
+jagg.block("page/notification-wall", {
+    initialize:function (data) {
+
+    },
+    getInputs:function () {
+
+    },
+
+    getOutputs:function (inputs) {
+        var polling_period = getProperty(WALL_POLLING_PERIOD);
+        return {
+            "polling_period": polling_period
+        };
+    }
+});
+%>

@@ -1,0 +1,7 @@
+<%
+jagg.block("page/help", {
+    initialize:function (data) {
+
+    }
+});
+%>

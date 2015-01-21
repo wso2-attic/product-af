@@ -47,6 +47,6 @@
         "identityAlias": "wso2carbon",
         "responseSigningEnabled": "true",
         "keyStoreName": "/repository/resources/security/wso2carbon.jks",
-        "appAcs" : "https://ues.milestones.appfactory.wso2.com:9454/CXODashboard/sso.jag",
+        "appAcs" : "https://ues.milestones.appfactory.wso2.com:9454/CXODashboard/acs.jag",
     }
 }

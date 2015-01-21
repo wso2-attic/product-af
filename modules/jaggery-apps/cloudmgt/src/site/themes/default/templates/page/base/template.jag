@@ -94,7 +94,7 @@
               <ul class="dropdown-menu">
                      <!--li><a href="/your_profile">Your Profile</a></li-->
                     <%
-			var logoutUrl = jagg.getCloudAppBasedUrl(request.getParameter('cloudType'),'LogoutContext', '/site/pages/logout.jag');
+			var logoutUrl = jagg.getAfAbsoluteUrl('/site/pages/logout.jag');
 		    %>
                     <li><a href="#" onclick="window.location.href='<%= logoutUrl %>'">Sign Out</a></li>
                </ul>
@@ -115,7 +115,7 @@
             </div>
          </div>
 
-        <h2><a href="<%=jagg.getCloudAppBasedUrl(request.getParameter('cloudType'),'HomePageContext', '/site/pages/index.jag')%>" class="icon-home"><span>Home</span></a></h2>
+        <h2><a href="<%=jagg.getAfAbsoluteUrl('/site/pages/index.jag')%>" class="icon-home"><span>Home</span></a></h2>
 
 
         <% if(applicationKey != null && applicationName != null){ %>

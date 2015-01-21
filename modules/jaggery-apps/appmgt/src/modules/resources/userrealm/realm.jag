@@ -22,6 +22,7 @@ var setUserRealmSupport = function (appId, isSet) {
             } else {
                 permissionModule.denyRole(stage, uniqueAppRoleName, resource, action);
             }
+            permissionModule.invalidateAuthorizationCache(stage);
         }
 
     } catch (e) {

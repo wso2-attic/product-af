@@ -2,6 +2,8 @@
 
 var userConfig = require('commons/userConfig.js');
 var dbConfig = require('commons/dbConfig.js');
+var util = require('commons/Util.js');
+include("/constants.jag");
 
 var isUserLoggedIn = userConfig.isUserLoggedIn();
 
@@ -13,16 +15,21 @@ var chartData = getData(timePeriod[0], timePeriod[1]);
 function getTimePeriod() {
 
     if (isUserLoggedIn) {
-        var result = [];
-        if (request.getParameter("from") == null || request.getParameter("to") == null) {
-	    var query = "SELECT MIN(TIME_ST),MAX(TIME_ST) FROM APP_CREATION_BY_TENANT WHERE TENANT_ID=" + tenantID + " ;";	
+        var result = [0,0];
+        if (request.getParameter(FROM) == null || request.getParameter(TO) == null) {
+
+            var query = "SELECT MIN(ROUND(TIME_ST/1000)) AS min_time_st, MAX(ROUND(TIME_ST/1000)) AS max_time_st " +
+                        "FROM APP_CREATION_BY_TENANT WHERE TENANT_ID=" + tenantID + " ;";
             var dbResult = dbConfig.queryDb(query);
-            result[0] = dbResult[0]['MIN(TIME_ST)'].substr(0,10);
-            result[1] = dbResult[0]['MAX(TIME_ST)'].substr(0,10);
+
+            if (util.isValidDbResult(dbResult[0], ['min_time_st', 'max_time_st'])) {
+                result[0] = dbResult[0]['min_time_st'];
+                result[1] = dbResult[0]['max_time_st'];
+            }
 	    	
         } else {
-            result[0] = request.getParameter("from");
-            result[1] = request.getParameter("to");
+            result[0] = request.getParameter(FROM);
+            result[1] = request.getParameter(TO);
         }
         return result;
     }
@@ -30,8 +37,8 @@ function getTimePeriod() {
 
 function getData(from, to) {
     if (isUserLoggedIn) {
-    var query = "SELECT USER, count(*) AS COUNT FROM APP_CREATION_BY_TENANT WHERE TENANT_ID=" + tenantID + " AND substr(TIME_ST,1,10) BETWEEN " + parseInt(from) + " AND " + parseInt(to) +
-                " GROUP BY USER ;";
+        var query = "SELECT USER, COUNT(*) AS COUNT FROM APP_CREATION_BY_TENANT WHERE TENANT_ID=" + tenantID +
+                    " AND ROUND(TIME_ST/1000) BETWEEN " + parseInt(from) + " AND " + parseInt(to) + " GROUP BY USER ;";
     var dbResult = dbConfig.queryDb(query);
 
     var respJson = null;
@@ -73,6 +80,8 @@ if (chartData != null) {
     gen_options["xaxis"]["max"] = chartData[1].ticks.length > 10 ? 10.5 : chartData[1].ticks.length + 1;
     gen_options["xaxis"]["ticks"] = chartData[1].ticks;
     gen_options["xaxis"]["panRange"] = [0.5, chartData[1].ticks.length + 1];
+    gen_options["xaxis"]["axisLabel"] = "Application Owners"
+    gen_options["yaxis"]["axisLabel"]= "Number of Applications";
     gen_options["series"]["color"] = "#3399FF";
     gen_options["series"]["bars"]["fillColor"] = "#99CCFF";
     full_data = {0: {"data": chartData[0].data}, 1: gen_options};

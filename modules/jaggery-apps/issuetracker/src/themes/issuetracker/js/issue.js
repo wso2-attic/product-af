@@ -34,10 +34,10 @@ $().ready(function() {
             },
             success: function(result){
                 response = result.data;
-                window.location.href = "get?issuePkey="+response;
+                window.location.href = "get?issuePkey="+response + "&appkey=" + getParameterByName('appkey');
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                window.location.href = "/issuetracker";
+                window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
             },
             dataType: 'json',
             async:false
@@ -75,13 +75,13 @@ $().ready(function() {
                 isSuccess = result.data.responseBean.success;
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                window.location.href = "/issuetracker";
+                window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
             },
             dataType: 'json',
             async:false
         });
         if(isSuccess)  {
-            window.location.href = "/issuetracker";
+            window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
         }
 
     });
@@ -111,14 +111,14 @@ $().ready(function() {
                     isSuccess = result.data.responseBean.success;
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    window.location.href = "/issuetracker";
+                    window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
                 },
                 dataType: 'json',
                 async:false
             });
 
             if(isSuccess)  {
-                window.location.href = "get?issuePkey="+issueUniqueKey;
+                window.location.href = "get?issuePkey=" + issueUniqueKey + "&appkey=" + getParameterByName('appkey');
             }
         }
     });
@@ -147,13 +147,13 @@ $().ready(function() {
                 isSuccess = result.data.responseBean.success;
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                window.location.href = "/issuetracker";
+                window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
             },
             dataType: 'json',
             async:false
         });
         if(isSuccess)  {
-            window.location.href = "get?issuePkey="+key;
+            window.location.href = "get?issuePkey="+key + "&appkey=" + getParameterByName('appkey');
         }
     });
 
@@ -181,7 +181,7 @@ $().ready(function() {
 
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    window.location.href = "/issuetracker";
+                    window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
                 },
             dataType: 'json',
             async:false
@@ -209,14 +209,21 @@ function deleteComment(commentId){
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
 
-                window.location.href = "/issuetracker";
+                window.location.href = "/issuetracker?appkey=" + getParameterByName('appkey');
             },
             dataType: 'json',
             async:false
         });
         if(isSuccess)  {
             //alert("Data successfully updated");
-            window.location.href = "get?issuePkey="+issueUniqueKey;
+            window.location.href = "get?issuePkey="+issueUniqueKey + "&appkey=" + getParameterByName('appkey');
         }
     }
+}
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
