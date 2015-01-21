@@ -34,7 +34,8 @@
    <modules>
       <module>modules/service-stubs</module>
       <module>modules/components/appfac</module>
-      <!-- module>modules/features</module>
+      <module>modules/components/authenticators</module>
+      <module>modules/features</module>
       <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
@@ -44,7 +45,7 @@
       <module>modules/jaggery-apps/dashboard</module>
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <module>modules/distribution</module -->
+      <module>modules/distribution</module>
    </modules>
    <profiles>
       <profile>
@@ -661,6 +662,11 @@
             <groupId>com.nimbusds.wso2</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>2.26.1.wso2v2</version>
+        </dependency>
+        <dependency>
+	   <groupId>opensaml.wso2</groupId>
+	   <artifactId>opensaml2</artifactId>
+	   <version>2.4.1.wso2v1</version>
         </dependency>
         <dependency>
             <groupId>com.gitblit.wso2</groupId>
