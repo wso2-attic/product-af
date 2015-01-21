@@ -1,6 +1,6 @@
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://services.core.appfactory.carbon.wso2.org"
-	xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax260="http://beans.common.stratos.carbon.wso2.org/xsd"
+	xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax260="http://dto.core.appfactory.carbon.wso2.org/xsd"
 	xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ax258="http://common.appfactory.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
@@ -9,7 +9,7 @@
 	</wsdl:documentation>
 	<wsdl:types>
 		<xs:schema attributeFormDefault="qualified"
-			elementFormDefault="qualified" targetNamespace="http://beans.common.stratos.carbon.wso2.org/xsd">
+			elementFormDefault="qualified" targetNamespace="http://dto.core.appfactory.carbon.wso2.org/xsd">
 			<xs:complexType name="TenantInfoBean">
 				<xs:sequence>
 					<xs:element minOccurs="0" name="active" type="xs:boolean" />
@@ -38,11 +38,11 @@
 			</xs:complexType>
 		</xs:schema>
 		<xs:schema xmlns:ax259="http://common.appfactory.carbon.wso2.org/xsd"
-			xmlns:ax261="http://beans.common.stratos.carbon.wso2.org/xsd"
+			xmlns:ax261="http://dto.core.appfactory.carbon.wso2.org/xsd"
 			attributeFormDefault="qualified" elementFormDefault="qualified"
 			targetNamespace="http://services.core.appfactory.carbon.wso2.org">
 			<xs:import namespace="http://common.appfactory.carbon.wso2.org/xsd" />
-			<xs:import namespace="http://beans.common.stratos.carbon.wso2.org/xsd" />
+			<xs:import namespace="http://dto.core.appfactory.carbon.wso2.org/xsd" />
 			<xs:element
 				name="AppFactoryTenantInfraStructureInitializerServiceAppFactoryException">
 				<xs:complexType>

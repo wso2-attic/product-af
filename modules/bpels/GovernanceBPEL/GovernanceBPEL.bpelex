@@ -18,11 +18,71 @@
   </extensions>
   <extensions>
     <extendedObject href="GovernanceBPEL.bpel#/"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ProcessExtension" modificationStamp="1386332167000"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ProcessExtension" modificationStamp="1399635458000"/>
   </extensions>
   <extensions>
     <extendedObject href="GovernanceBPEL.bpel#//@variables/@children.2"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@counterName"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.0"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.1"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.2"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.3"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.4"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.5"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.6"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.0/@activity/@activity/@activities.0/@copy.7"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.1"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
   </extensions>
   <extensions>
     <extendedObject href="GovernanceBPEL.bpel#//@variables/@children.3"/>
@@ -33,103 +93,35 @@
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@variables/@children.5"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.3"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@variables/@children.6"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@variables/@children.7"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.0"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2/@copy.0"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.1"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2/@copy.1"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.2"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2/@copy.2"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.3"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2/@copy.3"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.4"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2/@copy.4"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
   <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.5"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CaseExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.0"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.1"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.2"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.3"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.4"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.5"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.6"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@elseIf.0/@activity/@copy.7"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.6"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activity/@activities.0/@activity/@copy.7"/>
+    <extendedObject href="GovernanceBPEL.bpel#//@activity/@activities.1/@activities.2/@copy.5"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
   </extensions>
 </extensionmodel:ExtensionMap>
