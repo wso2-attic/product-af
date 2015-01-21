@@ -24,14 +24,14 @@
         <artifactId>appfactory-feature</artifactId>
         <version>2.1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
-    </parent> 
-
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.appfactory.server.feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - AppFactory Server Feature</name>
     <url>http://wso2.org</url>
+   <version>2.1.0-SNAPSHOT</version>
     <description>This feature contains the core bundles required for AppFactory back end
     </description>
 
@@ -64,6 +64,10 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.common</artifactId>
         </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.email.sender</artifactId>
@@ -72,6 +76,10 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.email.verification</artifactId>
         </dependency>
+	<dependency>
+	      <groupId>org.wso2.carbon</groupId>
+	      <artifactId>org.wso2.carbon.registry.metadata</artifactId>
+    	</dependency>
         <dependency>
             <groupId>plexus-utils.wso2</groupId>
             <artifactId>plexus-utils</artifactId>
@@ -91,6 +99,10 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
         </dependency>
 	<dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -137,7 +149,6 @@
         <dependency>
             <groupId>org.apache.maven.wso2</groupId>
             <artifactId>maven-model</artifactId>
-            <version>3.0.3.wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wso2</groupId>
@@ -147,30 +158,32 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.issuetracking</artifactId>
         </dependency>
-		<dependency>
+	<dependency>
             <groupId>com.gitblit.wso2</groupId>
             <artifactId>gitblit</artifactId>
         </dependency>
-		<dependency>
+	<dependency>
             <groupId>org.eclipse.jgit.wso2</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
         </dependency>
-		<dependency>
+	<dependency>
             <groupId>com.nimbusds.wso2</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>com.gitblit</groupId>
             <artifactId>gitblit</artifactId>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.signedjwt</artifactId>
         </dependency>
+
 
  <!--  Tenant Management -->
         <dependency>
@@ -184,7 +197,6 @@
         </dependency>
 
     </dependencies>
-
 
     <build>
         <plugins>
@@ -277,7 +289,7 @@
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.stratos.listeners.stub</bundleDef>
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.apiManager.integration</bundleDef>
-				                <bundleDef>org.apache.maven.wso2:maven-model</bundleDef>
+                                <bundleDef>org.apache.maven.wso2:maven-model</bundleDef>
                                 <bundleDef>org.apache.maven.wso2:maven-core</bundleDef>
                                 <bundleDef>com.gitblit.wso2:gitblit</bundleDef>
 				<bundleDef>org.eclipse.jgit.wso2:org.eclipse.jgit</bundleDef>
@@ -298,4 +310,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <hostobjects.version>4.2.0</hostobjects.version>
+        <appfactory.version>2.1.0</appfactory.version>
+        <carbon.version>4.2.0</carbon.version>
+        <email.sender.version>2.2.0</email.sender.version>
+        <svnclient.version>1.6.18.wso2v1</svnclient.version>
+    </properties>
 </project>

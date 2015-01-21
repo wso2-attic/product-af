@@ -261,6 +261,11 @@
             <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
             <version>4.2.0</version>
         </dependency>
+	<dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.identity.authenticator.signedjwt</artifactId>
+            <version>4.2.0</version>
+        </dependency>
    	<dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.identity.sso.saml.ui</artifactId>
@@ -580,7 +585,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>${carbon.platform.version}</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
