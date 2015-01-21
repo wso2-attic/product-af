@@ -23,14 +23,14 @@
         <groupId>org.wso2.carbon</groupId>
         <artifactId>appfactory</artifactId>
         <version>2.1.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
+    <artifactId>org.wso2.carbon.appfactory.stratos.listners</artifactId>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 AppFactory S4 Integration</name>
+    <name>WSO2 AppFactory Stratos Listners</name>
     <description>BE component for WSO2 Carbon</description>
     <url>http://www.wso2.com</url>
 
@@ -41,29 +41,38 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
+            <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.wso2.carbon</groupId>
+        	<artifactId>org.wso2.carbon.registry.ws.client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.stratos</groupId>
+            <artifactId>org.apache.stratos.keystore.mgt</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.wso2.carbon</groupId>
+        	<artifactId>org.wso2.carbon.security.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.appfactory.core</artifactId>
+            <artifactId>org.wso2.carbon.adc.mgt</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.gitblit.wso2</groupId>
-            <artifactId>gitblit</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
+            <scope>provided</scope>
         </dependency>
-       	<dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.cli</artifactId>
+            <artifactId>org.apache.stratos.common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        </dependencies>
+    </dependencies>
 
     <build>
         <plugins>
@@ -82,7 +91,7 @@
                         </Bundle-SymbolicName>
                           <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.appfactory.s4.integration.*,
+                            org.wso2.carbon.appfactory.stratos.*,
                         </Export-Package>
                         <Import-Package>org.wso2.carbon.appfactory.common.*</Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
