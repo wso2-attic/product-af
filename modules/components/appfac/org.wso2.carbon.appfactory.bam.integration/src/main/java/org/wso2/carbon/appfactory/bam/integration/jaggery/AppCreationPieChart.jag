@@ -1,0 +1,39 @@
+<%
+var config = {};
+
+        var db = new Database("jdbc:h2:/home/wso2/wso2/wso2bam-2.3.0/repository/database/samples/WSO2CARBON_DB;AUTO_SERVER=TRUE",
+        "wso2carbon", "wso2carbon", config);
+
+var result = db.query("SELECT * FROM NOOFAPPSBYTYPENEW");
+
+db.close();
+
+function createJSON(result) {
+            var len = result.length;
+            var rows = new Array();
+
+		var data = [];
+		var objtemp = {};
+
+            for (var i = 0; i < len; i++) {
+                var obj = result[i];
+		var row = new Array();
+		if(obj == null || obj.length<2){
+			return null;		
+		}		
+		var noOfApps= obj["NOOFAPPS"];
+		var appType = obj["APPTYPE"];
+		
+		objtemp[appType] = {"label":appType,"data":noOfApps};
+		
+		
+
+		//rows.push([appType, noOfApps]);
+            }
+	data.push(objtemp);
+    	return data;
+}
+
+print(createJSON(result));
+
+%>
