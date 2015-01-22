@@ -36,11 +36,11 @@
       <module>modules/components/appfac</module>
       <module>modules/components/authenticators</module>
       <module>modules/features</module>
-      <!--module>modules/maven-archetype</module>
+      <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
       <module>modules/p2-profile-gen</module>
-      <module>modules/jaggery-apps/appmgt</module>
+      <!-- module>modules/jaggery-apps/appmgt</module>
       <module>modules/jaggery-apps/cloudmgt</module>
       <module>modules/jaggery-apps/dashboard</module>
       <module>modules/webapps</module>
