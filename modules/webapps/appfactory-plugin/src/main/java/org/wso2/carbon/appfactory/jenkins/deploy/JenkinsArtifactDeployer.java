@@ -1,15 +1,24 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *    WSO2 Inc. licenses this file to you under the Apache License,
+ *    Version 2.0 (the "License"); you may not use this file except
+ *    in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 package org.wso2.carbon.appfactory.jenkins.deploy;
 
 import hudson.FilePath;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingException;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
@@ -21,13 +30,24 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.deployers.AbstractStratosDeployer;
 import org.wso2.carbon.appfactory.deployers.notify.DeployNotifier;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
+import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
+import org.wso2.carbon.appfactory.eventing.EventNotifier;
+import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
 import org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager;
 import org.wso2.carbon.appfactory.jenkins.api.JenkinsBuildStatusProvider;
 import org.wso2.carbon.appfactory.jenkins.artifact.storage.Utils;
 import org.wso2.carbon.appfactory.jenkins.util.JenkinsUtility;
+
+import javax.naming.NamingException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	private static final Log log = LogFactory.getLog(JenkinsArtifactDeployer.class);
@@ -55,6 +75,8 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		String deployAction = DeployerUtil.getParameter(parameters, AppFactoryConstants.DEPLOY_ACTION);
 		String artifactType = DeployerUtil.getParameter(parameters, AppFactoryConstants.ARTIFACT_TYPE);
 		String version = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_VERSION);
+		String serverDeploymentPath = DeployerUtil.getParameter(parameters, AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
+		log.info("Server deployment path is : " + serverDeploymentPath);
 
 		String jobName = JenkinsUtility.getJobName(applicationId, version);
 
@@ -63,10 +85,11 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		                                                   getTenantDomain());
 
 		File lastSuccess = new File(path);
-
 		if (!lastSuccess.exists()) {
-			log.info("No builds have been triggered for " + jobName + ". Building " + jobName +
-			         " first to deploy the latest built artifact");
+			if(log.isDebugEnabled()) {
+				log.debug("No builds have been triggered for " + jobName + ". Building " + jobName +
+				         " first to deploy the latest built artifact");
+			}
 			String jenkinsUrl = parameters.get("rootPath")[0];
 			String tenantUserName = DeployerUtil.getParameter(parameters, "tenantUserName");
 			String tenantDomain = getTenantDomain();
@@ -77,6 +100,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 			nameValuePairs.add(new NameValuePair("deployStage", stageName));
 			nameValuePairs.add(new NameValuePair("persistArtifact", String.valueOf(false)));
 			nameValuePairs.add(new NameValuePair("tenantUserName", tenantUserName));
+			nameValuePairs.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS, serverDeploymentPath));
 
 			String buildUrl = DeployerUtil.generateTenantJenkinsUrl(jobName, tenantDomain, jenkinsUrl);
 			triggerBuild(jobName, buildUrl, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
@@ -84,17 +108,24 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 			// server, return after triggering the build
 
 		} else {
-			log.info("Deplying Last Sucessful Artifact with job name - " + jobName + " stageName -" + stageName +
+			log.info("Deploying Last Successful Artifact with job name - " + jobName + " stageName -" + stageName +
 			         " deployAction -" + deployAction);
 
-			try {
-				super.deployLatestSuccessArtifact(parameters);
-			} catch (AppFactoryException e) {
-				String msg = "deployment of latest success artifact failed for applicaion " + jobName;
-				handleException(msg, e);
-			}
+            try {
+                //used for eventing
+                String tenantDomain = getTenantDomain();
+                String correlationKey = applicationId + stageName + version + tenantDomain;
 
-		}
+                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.buildApplicationDeployementStartedEvent(applicationId, tenantDomain, "Application deployment started", "", correlationKey));
+                super.deployLatestSuccessArtifact(parameters);
+            } catch (AppFactoryException e) {
+                String msg = "deployment of latest success artifact failed for applicaion " + jobName;
+                handleException(msg, e);
+            } catch (AppFactoryEventException e) {
+                log.error("Failed to notify deployment of latest successful artifact " + e.getMessage(), e);
+            }
+
+        }
 
 	}
 
@@ -152,7 +183,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		}
 	}
 
-	public void labelLastSuccessAsPromoted(String applicationId, String version, String artifactType)
+	public void labelLastSuccessAsPromoted(String applicationId, String version, String artifactType, String extension)
 	                                                                                                 throws AppFactoryException,
 	                                                                                                 IOException,
 	                                                                                                 InterruptedException {
@@ -175,14 +206,10 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 			                                      applicationId + ", version :" + version);
 		}
 
-		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, artifactType);
+		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, extension);
 		for (File lastSucessFile : lastSucessFiles) {
 			FilePath lastSuccessArtifactPath = new FilePath(lastSucessFile);
-			String promotedDestDirPath =
-			                             destDir.getAbsolutePath() +
-			                                     File.separator +
-			                                     getPromotedDestinationPathForApplication(lastSucessFile.getParent(),
-			                                                                              artifactType);
+			String promotedDestDirPath = destDir.getAbsolutePath();
 
 			File promotedDestDir = new File(promotedDestDirPath);
 			FilePath promotedDestDirFilePath = new FilePath(promotedDestDir);
@@ -239,25 +266,25 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 	@Override
 	public String getSuccessfulArtifactTempStoragePath(String applicationId, String applicationVersion,
-	                                                   String artifactType, String stage, String tenantDomain)
-	                                                                                                          throws AppFactoryException {
-		String path = null;
+	                                                    String artifactType, String stage, String tenantDomain)
+														throws AppFactoryException {
+		String jenkinsHome = null;
 		try {
-			String jenkinsHome = DeployerUtil.getJenkinsHome();
-			String jobName = JenkinsUtility.getJobName(applicationId, applicationVersion);
-			path = jenkinsHome + File.separator + "jobs" + File.separator + jobName + File.separator + "lastSuccessful";
-
+			jenkinsHome = DeployerUtil.getJenkinsHome();
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String msg = "Error while reading jenkins home from context";
+			log.error(msg, e);
+			throw new AppFactoryException(msg, e);
 		}
+		String jobName = JenkinsUtility.getJobName(applicationId, applicationVersion);
+		String path = jenkinsHome + File.separator + "jobs" + File.separator + jobName +
+		              File.separator + "lastSuccessful";
 		return path;
 	}
 
 	@Override
 	public String getArtifactStoragePath(String applicationId, String applicationVersion, String artifactType,
 	                                     String stage, String tenantDomain) throws AppFactoryException {
-
 		String jobName = JenkinsUtility.getJobName(applicationId, applicationVersion);
 		String path =
 		              getStoragePath() + File.separator + "PROMOTED" + File.separator + jobName + File.separator +
@@ -283,29 +310,21 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	}
 
 	@Override
-	protected String getBaseRepoUrl(String stage, String appType) throws AppFactoryException {
-		return Utils.getRepositoryProviderProperty(stage, "BaseURL", appType);
+	protected String getBaseRepoUrl() throws AppFactoryException {
+		return AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL);
 	}
 
 	@Override
-	protected String getBaseRepoUrlPattern(String stage, String appType) throws AppFactoryException {
-		return Utils.getRepositoryProviderProperty(stage, "URLPattern", appType);
+	protected String getAdminPassword() throws AppFactoryException {
+		return AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD);
 	}
 
 	@Override
-	protected String getAdminPassword(String stage, String appType) throws AppFactoryException {
-		return Utils.getRepositoryProviderProperty(stage, "AdminUserName", appType);
-	}
-
-	@Override
-	protected String getAdminUserName(String stage, String appType) throws AppFactoryException {
-		return Utils.getRepositoryProviderProperty(stage, "AdminPassword", appType);
-	}
-
-	@Override
-	protected String getServerDeploymentPaths(String appType) throws AppFactoryException {
-		return Utils.getAppFactoryConfigurationProperty("ApplicationType." + appType +
-		                                                ".Property.ServerDeploymentPaths");
+	protected String getAdminUserName() throws AppFactoryException {
+		return AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME);
 	}
 
 	public void deployTaggedArtifact(Map<String, String[]> requestParameters) throws Exception {

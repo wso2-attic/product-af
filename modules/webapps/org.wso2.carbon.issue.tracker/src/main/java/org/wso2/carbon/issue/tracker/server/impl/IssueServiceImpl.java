@@ -1,21 +1,44 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *    WSO2 Inc. licenses this file to you under the Apache License,
+ *    Version 2.0 (the "License"); you may not use this file except
+ *    in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 package org.wso2.carbon.issue.tracker.server.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.common.util.StringUtils;
-import org.wso2.carbon.appfactory.bam.integration.BamDataPublisher;
-import org.wso2.carbon.issue.tracker.bean.*;
+import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
+import org.wso2.carbon.issue.tracker.bean.Comment;
+import org.wso2.carbon.issue.tracker.bean.Issue;
+import org.wso2.carbon.issue.tracker.bean.IssueResponse;
+import org.wso2.carbon.issue.tracker.bean.Project;
+import org.wso2.carbon.issue.tracker.bean.ResponseBean;
+import org.wso2.carbon.issue.tracker.bean.SearchBean;
+import org.wso2.carbon.issue.tracker.bean.SearchResponse;
 import org.wso2.carbon.issue.tracker.dao.CommentDAO;
 import org.wso2.carbon.issue.tracker.dao.IssueDAO;
 import org.wso2.carbon.issue.tracker.dao.SearchDAO;
 import org.wso2.carbon.issue.tracker.delegate.DAODelegate;
 import org.wso2.carbon.issue.tracker.server.IssueService;
 import org.wso2.carbon.issue.tracker.util.Constants;
-import org.wso2.carbon.issue.tracker.util.TenantUtils;
 import org.wso2.carbon.issue.tracker.util.IssueUtils;
+import org.wso2.carbon.issue.tracker.util.TenantUtils;
 import org.wso2.carbon.user.api.UserStoreException;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
@@ -128,7 +151,7 @@ public class IssueServiceImpl implements IssueService {
             responseBean.setSuccess(isInserted);
 
             if (isInserted) {
-                BamDataPublisher publisher = new BamDataPublisher();
+                BamDataPublisher publisher = BamDataPublisher.getInstance();
 
                 String projectKey = IssueUtils.getProjectKey(uniqueKey);
                 Project project = DAODelegate.getProjectInstance().get(projectKey, tenantId);

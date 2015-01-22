@@ -1,38 +1,38 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *    WSO2 Inc. licenses this file to you under the Apache License,
+ *    Version 2.0 (the "License"); you may not use this file except
+ *    in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 package org.wso2.carbon.appfactory.jenkins.artifact.storage;
 
-import hudson.FilePath;
-
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.catalina.util.ParameterMap;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jaxen.JaxenException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager;
 import org.wso2.carbon.appfactory.jenkins.Constants;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Map.Entry;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.ServletException;
-import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Utils {
@@ -93,48 +93,7 @@ public class Utils {
 
         return retMap;
     }
-    
-    public static String getRepositoryProviderProperty(String stage, String propertyName, String appType) 
-    		throws AppFactoryException{
-    	String repoProperty = getAppFactoryConfigurationProperty("ApplicationDeployment.DeploymentStage." + stage + 
-    				".Deployer.ApplicationType." + appType + ".RepositoryProvider.Property." + propertyName);
-		
-    	if ( StringUtils.isBlank(repoProperty)){
-    	    repoProperty = getAppFactoryConfigurationProperty("ApplicationDeployment.DeploymentStage." + stage + 
-					".Deployer.ApplicationType.*.RepositoryProvider.Property." + propertyName);
-    	}
-    	
-		return repoProperty;
-	}
-    
-    public static String getDeployerClassName(String stage, String appType) throws AppFactoryException{
-		String className = getAppFactoryConfigurationProperty("ApplicationDeployment.DeploymentStage." + stage + 
-				".Deployer.ApplicationType." + appType + ".ClassName");
-		
-		if (StringUtils.isBlank(className)){
-		    className = getAppFactoryConfigurationProperty("ApplicationDeployment.DeploymentStage." + stage + 
-		                                       ".Deployer.ApplicationType.*.ClassName");
-		}
-		
-		return className;
-	}
-    
-    /**
-     * NOTE : THIS IS A FLAWED METHOD.
-     * @param stage
-     * @param appType
-     * @return
-     * @throws AppFactoryException
-     */
-    public static boolean isAppTypeExistsInDeployers(String stage, String appType) throws AppFactoryException{
-    	String deployerApptypeContent = Utils.getAppFactoryConfigurationProperty
-				("ApplicationDeployment.DeploymentStage." + stage + ".Deployer.ApplicationType." + appType);
-		if(deployerApptypeContent == null){
-			return false;
-		}
-		return true;
-    }
-    
+
     public static String getEnvironmentVariable(String variableName){
     	String variableValue = null;
     	try {
@@ -146,29 +105,5 @@ public class Utils {
 		}
     	return variableValue;
     }
-    
-    public static String getJobConfigElement(String jobName) throws NamingException, JaxenException, XMLStreamException, FileNotFoundException{
-    	String jenkinsHome = null;
-    	String appType = null;
-    	InitialContext iniCtxt = new InitialContext();
-		Context env = (Context) iniCtxt.lookup("java:comp/env");
-		jenkinsHome = (String) env.lookup(Constants.JENKINS_HOME);    	
-    	String jenkinsJobConfigPath = jenkinsHome + "/jobs/" + jobName + "/config.xml";
-    	OMElement documentElement = new StAXOMBuilder(jenkinsJobConfigPath).getDocumentElement(); 
-		AXIOMXPath xpathExpression = new AXIOMXPath (Constants.JOB_CONFIG_XPATH);
-		OMElement node = (OMElement)xpathExpression.selectSingleNode(documentElement);
-		appType = node.getText();
-		return appType;
-	}
-    
-    public static String getAppFactoryConfigurationProperty(String path) throws AppFactoryException{
-		String property = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(path);
-		return property;
-	}
-    
-    public static String[] getAppFactoryConfigurationProperties(String path) throws AppFactoryException{
-		String[] properties = AppFactoryUtil.getAppfactoryConfiguration().getProperties(path);
-		return properties;
-	}
 
 }

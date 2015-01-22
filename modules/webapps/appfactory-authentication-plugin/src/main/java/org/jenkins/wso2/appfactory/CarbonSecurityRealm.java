@@ -127,14 +127,14 @@ public class CarbonSecurityRealm extends AbstractPasswordBasedSecurityRealm {
     	return userDetails;
     }
 
-    private UserDetails createUserDetails(String username, String password) {
+    protected UserDetails createUserDetails(String username, String password) {
         GrantedAuthority[] authorities =
                 new GrantedAuthority[]{SecurityRealm.AUTHENTICATED_AUTHORITY};
 
         return new CarbonUserDetails(username, password, authorities);
     }
 
-    private boolean isJenkinsSystemUser(String userName) {
+    protected boolean isJenkinsSystemUser(String userName) {
     	String adminUsername = "";
     	try {
     		adminUsername = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(JENKINS_SERVER_ADMIN_USERNAME);
@@ -144,7 +144,7 @@ public class CarbonSecurityRealm extends AbstractPasswordBasedSecurityRealm {
         return adminUsername.equals(userName);
     }
 
-    private boolean authenticateJenkinsSystemUser(String password) {
+    protected boolean authenticateJenkinsSystemUser(String password) {
     	String adminPassword = "";
     	try {
     		adminPassword = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(JENKINS_SERVER_ADMIN_PASSWORD);

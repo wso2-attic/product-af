@@ -9,4 +9,10 @@
    <f:entry title="ApplicationArtifactExtention" field="applicationArtifactExtention">
     <f:textbox />
   </f:entry>
+  <f:entry title="UserName" field="userName">
+    <f:textbox />
+  </f:entry>
+  <f:entry title="RepositoryFrom" field="repositoryFrom">
+    <f:textbox />
+  </f:entry>
 </j:jelly>

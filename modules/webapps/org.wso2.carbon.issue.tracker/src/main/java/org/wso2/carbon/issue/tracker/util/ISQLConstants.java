@@ -18,8 +18,6 @@
  */
 package org.wso2.carbon.issue.tracker.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 /**
  * SQL Queries
@@ -47,7 +45,7 @@ public interface ISQLConstants {
 
     String UPDATE_ISSUE = "UPDATE ISSUE SET DESCRIPTION = ?, " +
             "ISSUE_TYPE = ?, PRIORITY = ?, STATUS = ?, ASSIGNEE = ?, VERSION_ID = ?, " +
-            "UPDATED_TIME = ?, SEVERITY = ? WHERE PKEY = ? AND OWNER = ? AND ORGANIZATION_ID = ?";
+            "UPDATED_TIME = ?, SEVERITY = ? WHERE PKEY = ? AND ORGANIZATION_ID = ?";
 
     String GET_ISSUE_BY_KEY = "SELECT p.PROJECT_KEY, p.PROJECT_NAME, i.ISSUE_ID, i.PKEY, i.PROJECT_ID, i.SUMMARY, i.DESCRIPTION, i.ISSUE_TYPE, i.PRIORITY, i.OWNER, " +
             "i.STATUS, i.ASSIGNEE, i.VERSION_ID, i.CREATED_TIME, i.UPDATED_TIME, i.SEVERITY FROM ISSUE i INNER JOIN PROJECT p ON (i.PROJECT_ID=p.PROJECT_ID)  " +
@@ -90,7 +88,7 @@ public interface ISQLConstants {
             "ON p.PROJECT_ID = i.PROJECT_ID " +
             "LEFT OUTER JOIN VERSION v " +
             "ON p.PROJECT_ID = v.PROJECT_ID AND i.VERSION_ID = v.VERSION_ID " +
-            "WHERE LOWER(p.PROJECT_NAME) LIKE ifnull(?, LOWER(p.PROJECT_NAME)) " +
+            "WHERE LOWER(p.PROJECT_KEY) LIKE ifnull(?, LOWER(p.PROJECT_KEY)) " +
             "AND LOWER(i.STATUS) = ifnull(?, LOWER(i.STATUS)) " +
             "AND LOWER(i.OWNER) LIKE ifnull(?, LOWER(i.OWNER)) " +
             "AND LOWER(i.ASSIGNEE) LIKE ifnull(?, LOWER(i.ASSIGNEE)) " +

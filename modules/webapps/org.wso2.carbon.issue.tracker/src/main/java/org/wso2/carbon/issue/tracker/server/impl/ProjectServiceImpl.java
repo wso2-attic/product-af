@@ -1,17 +1,32 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *    WSO2 Inc. licenses this file to you under the Apache License,
+ *    Version 2.0 (the "License"); you may not use this file except
+ *    in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 package org.wso2.carbon.issue.tracker.server.impl;
-
-import java.sql.SQLException;
-import java.util.List;
-
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.common.util.StringUtils;
-import org.wso2.carbon.issue.tracker.bean.*;
+import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
+import org.wso2.carbon.issue.tracker.bean.Issue;
+import org.wso2.carbon.issue.tracker.bean.IssueResponse;
+import org.wso2.carbon.issue.tracker.bean.Project;
+import org.wso2.carbon.issue.tracker.bean.ResponseBean;
+import org.wso2.carbon.issue.tracker.bean.Version;
 import org.wso2.carbon.issue.tracker.dao.IssueDAO;
 import org.wso2.carbon.issue.tracker.dao.VersionDAO;
 import org.wso2.carbon.issue.tracker.delegate.DAODelegate;
@@ -19,7 +34,17 @@ import org.wso2.carbon.issue.tracker.server.ProjectService;
 import org.wso2.carbon.issue.tracker.util.IssueTrackerException;
 import org.wso2.carbon.issue.tracker.util.TenantUtils;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.appfactory.bam.integration.BamDataPublisher;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
+import java.sql.SQLException;
+import java.util.List;
+
 
 public class ProjectServiceImpl implements ProjectService {
     private static final Log log = LogFactory.getLog(ProjectServiceImpl.class);
@@ -62,7 +87,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
      * @param tenantDomain Domain Name
      * @param projectKey   Project Key
      * @return {@link Response}
@@ -90,9 +114,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
-     * @param tenantDomain  Domain Name
-     * @param project Project Key
+     * @param tenantDomain Domain Name
+     * @param project      Project Key
      * @return {@link Response}
      */
     @Override
@@ -141,10 +164,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
      * @param tenantDomain Domain Name
-     * @param projectKey  Project Key
-     * @param project  {@link Project}
+     * @param projectKey   Project Key
+     * @param project      {@link Project}
      * @return {@link Response}
      */
     @Override
@@ -198,9 +220,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
-     * @param tenantDomain  Domain Name
-     * @param projectKey  Project Key
+     * @param tenantDomain Domain Name
+     * @param projectKey   Project Key
      * @return {@link Response}
      */
     @Override
@@ -236,9 +257,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
-     * @param tenantDomain  Domain Name
-     * @param projectKey  Project Key
+     * @param tenantDomain Domain Name
+     * @param projectKey   Project Key
      * @return {@link Response}
      */
     @Override
@@ -268,7 +288,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Response getAllIssuesOfProjectVersion( String tenantDomain, String projectKey, String version) {
+    public Response getAllIssuesOfProjectVersion(String tenantDomain, String projectKey, String version) {
         Response response = null;
         try {
             int tenantId = TenantUtils.getTenantId(tenantDomain);
@@ -294,10 +314,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
-     * @param tenantDomain  Domain Name
-     * @param projectKey  Project Key
-     * @param issue  {@link Issue}
+     * @param tenantDomain Domain Name
+     * @param projectKey   Project Key
+     * @param issue        {@link Issue}
      * @return {@link Response}
      */
     @Override
@@ -349,7 +368,7 @@ public class ProjectServiceImpl implements ProjectService {
 
             if (issueKey != null) {
                 response.setSuccess(true);
-                BamDataPublisher publisher = new BamDataPublisher();
+                BamDataPublisher publisher = BamDataPublisher.getInstance();
 
                 publisher.PublishIssueEvent(issueKey, project.getName(), projectKey, issue.getVersion(),
                         System.currentTimeMillis(), "" + tenantId, issue.getType(), issue.getPriority(),
@@ -379,10 +398,9 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     *
-     * @param tenantDomain  Domain Name
+     * @param tenantDomain Domain Name
      * @param projectKey   Project Key
-     * @param version    {@link Version}
+     * @param version      {@link Version}
      * @return {@link Response}
      */
     @Override
@@ -437,8 +455,10 @@ public class ProjectServiceImpl implements ProjectService {
         try {
             int tenantId = TenantUtils.getTenantId(tenantDomain);
 
-            DAODelegate.getProjectInstance().delete(projectKey, tenantId);
-            ResponseBean responseBean = new ResponseBean();
+            if (projectKey != null) {
+                DAODelegate.getProjectInstance().delete(projectKey, tenantId);
+                ResponseBean responseBean = new ResponseBean();
+            }
 
            /* if (project != null) {
                 return Response.ok().entity(project).build();

@@ -1,6 +1,21 @@
-/**
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
+ *    WSO2 Inc. licenses this file to you under the Apache License,
+ *    Version 2.0 (the "License"); you may not use this file except
+ *    in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
  */
+
 package org.wso2.carbon.issue.tracker.dao.impl;
 
 import org.apache.log4j.Logger;
@@ -53,7 +68,7 @@ public class ProjectDAOImpl implements ProjectDAO {
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         } finally {
-            if (rs != null){
+            if (rs != null) {
                 rs.close();
             }
             if (preparedStatement != null) {
@@ -148,7 +163,7 @@ public class ProjectDAOImpl implements ProjectDAO {
             logger.error(e.getMessage(), e);
 
         } finally {
-            if (rs != null){
+            if (rs != null) {
                 rs.close();
             }
             if (preparedStatement != null) {
@@ -199,7 +214,7 @@ public class ProjectDAOImpl implements ProjectDAO {
             logger.error(e.getMessage(), e);
 
         } finally {
-            if (rs != null){
+            if (rs != null) {
                 rs.close();
             }
 
@@ -218,7 +233,8 @@ public class ProjectDAOImpl implements ProjectDAO {
 
     /**
      * Delete the project related to given application key with all the versions and issues related to the application
-     * @param key application Key
+     *
+     * @param key      application Key
      * @param tenantId Tenant ID
      * @return
      * @throws SQLException
@@ -237,30 +253,34 @@ public class ProjectDAOImpl implements ProjectDAO {
             dbConnection = DBConfiguration.getDBConnection();
 
             // retrieving the project id which maps to the application key
-            Project project = get(key, tenantId);
-            int projectId = project.getId();
+            if (key != null) {
+                Project project = get(key, tenantId);
+                if (project != null) {
+                    int projectId = project.getId();
 
-            // deleting the comments in the issues related to the given project
-            preparedStatement = dbConnection.prepareStatement(deleteComments);
-            preparedStatement.setString(1, String.valueOf(projectId));
-            preparedStatement.executeUpdate();
+                    // deleting the comments in the issues related to the given project
+                    preparedStatement = dbConnection.prepareStatement(deleteComments);
+                    preparedStatement.setString(1, String.valueOf(projectId));
+                    preparedStatement.executeUpdate();
 
-            // deleting the issues related to the project
-            preparedStatement = dbConnection.prepareStatement(deleteIssues);
-            preparedStatement.setString(1, String.valueOf(projectId));
-            preparedStatement.executeUpdate();
+                    // deleting the issues related to the project
+                    preparedStatement = dbConnection.prepareStatement(deleteIssues);
+                    preparedStatement.setString(1, String.valueOf(projectId));
+                    preparedStatement.executeUpdate();
 
-            // deleting the versions of the project
-            preparedStatement = dbConnection.prepareStatement(deleteVersions);
-            preparedStatement.setString(1, String.valueOf(projectId));
-            preparedStatement.executeUpdate();
+                    // deleting the versions of the project
+                    preparedStatement = dbConnection.prepareStatement(deleteVersions);
+                    preparedStatement.setString(1, String.valueOf(projectId));
+                    preparedStatement.executeUpdate();
 
-            // deleting the project
-            preparedStatement = dbConnection.prepareStatement(deleteProject);
-            preparedStatement.setString(1, key);
-            preparedStatement.setInt(2, tenantId);
+                    // deleting the project
+                    preparedStatement = dbConnection.prepareStatement(deleteProject);
+                    preparedStatement.setString(1, key);
+                    preparedStatement.setInt(2, tenantId);
 
-            affectedRows = preparedStatement.executeUpdate();
+                    affectedRows = preparedStatement.executeUpdate();
+                }
+            }
 
 
         } catch (SQLException e) {
@@ -276,6 +296,6 @@ public class ProjectDAOImpl implements ProjectDAO {
                 dbConnection.close();
             }
         }
-        return affectedRows > 0 ;
+        return affectedRows > 0;
     }
 }

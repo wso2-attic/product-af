@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *    WSO2 Inc. licenses this file to you under the Apache License,
+ *    Version 2.0 (the "License"); you may not use this file except
+ *    in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 package org.wso2.carbon.appfactory.jenkins;
 
 import hudson.Extension;
@@ -15,76 +33,61 @@ import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.addressing.EndpointReference;
-import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
-import org.apache.neethi.PolicyBuilder;
 import org.apache.neethi.PolicyEngine;
-import org.apache.rampart.RampartMessageData;
-import org.jaxen.JaxenException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerAppFactoryExceptionException;
-import org.wso2.carbon.appfactory.jenkins.artifact.storage.Utils;
-import org.wso2.carbon.appfactory.jenkins.build.notify.JenkinsCIBuildStatusReceiverClient;
-import org.wso2.carbon.appfactory.jenkins.build.stub.xsd.BuildStatusBean;
-import org.wso2.carbon.appfactory.jenkins.util.JenkinsUtility;
 import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerStub;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.Deployer;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.jenkins.build.notify.BuildStatusReceiverClient;
+import org.wso2.carbon.appfactory.build.stub.xsd.BuildStatusBean;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.naming.NamingException;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.Serializable;
+import java.io.*;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The plugin for storing build artifact permanently, deploy artifacts and
  * notify appfactory with build status
  */
 public class AppfactoryPluginManager extends Notifier implements Serializable {
+	
     private static final Log log = LogFactory.getLog(AppfactoryPluginManager.class);
+    
     // these are the parameters that we defined in config.jelly
     private final String applicationId;
     private final String applicationVersion;
     private final String applicationArtifactExtension;
+    private final String userName ;
+    private final String repositoryFrom ;
+    private final String BUILDSTATUS_RECEIVER_NAME = "/services/BuildStatusRecieverService";
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public AppfactoryPluginManager(String applicationId, String applicationVersion,
-                                   String applicationArtifactExtension) {
-        this.applicationId = applicationId;
-        this.applicationVersion = applicationVersion;
-        this.applicationArtifactExtension = applicationArtifactExtension;
-    }
+	public AppfactoryPluginManager(String applicationId,
+			String applicationVersion, String applicationArtifactExtension,
+			String userName, String repositoryFrom) {
+		this.applicationId = applicationId;
+		this.applicationVersion = applicationVersion;
+		this.applicationArtifactExtension = applicationArtifactExtension;
+		this.userName = userName ;
+		this.repositoryFrom = repositoryFrom ;
+		log.debug("Construct AppfactoryPluginManager  for : appid="
+				+ applicationId + ",version=" + applicationVersion
+				+ ",applicationArtifactExtension="
+				+ applicationArtifactExtension + ",username=" + userName + ", repoFrom="+repositoryFrom);
+	}
 
-//    {
-//        System.setProperty("javax.net.ssl.trustStore", getDescriptor().getClientTrustStore());
-//        System.setProperty("javax.net.ssl.trustStorePassword", getDescriptor().
-//                getClientTrustStorePassword());
-//    }
 
     /**
      * When the user configures the project and enables this Notifier, when a build is performed
@@ -102,20 +105,29 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
+        logger.append("The build started by " + this.userName + " for " + this.applicationId + " - " +
+                      this.applicationVersion + " in " + this.repositoryFrom + " is notified as " + build.getResult());
 
         final String APPFACTORY_SERVER_URL = getDescriptor().getAppfactoryServerURL();
-        String serviceURL = APPFACTORY_SERVER_URL + "/services/JenkinsCIBuildStatusRecieverService";
-        JenkinsCIBuildStatusReceiverClient client = new JenkinsCIBuildStatusReceiverClient
-                (serviceURL, getDescriptor().getAdminUserName(), getDescriptor().getAdminPassword());
-        BuildStatusBean buildStatus = createBuildStatusBean(build.getNumber());
+        String serviceURL = APPFACTORY_SERVER_URL + BUILDSTATUS_RECEIVER_NAME;
+        BuildStatusReceiverClient client = new BuildStatusReceiverClient(serviceURL, getDescriptor().getAdminUserName(),
+                                                                         getDescriptor().getAdminPassword());
 
-//        Getting the tenant user name from the build parameters because we are sending it from AF
+        //Getting the tenant user name from the build parameters because we are sending it from AF
         String tenantUserName = build.getBuildVariables().get("tenantUserName");
+
+        BuildStatusBean buildStatus = createBuildStatusBean(build.getNumber(),tenantUserName);
 
         if (build.getResult() == Result.SUCCESS) {
             buildStatus.setBuildSuccessful(true);
             buildStatus.setLogMsg("Build Successful");
             client.onBuildCompletion(buildStatus, tenantUserName);
+            
+            //Currently we do not have per developer build. So here we check the repoFrom as a original repository and do the deployment, otherwise ignore the deployment
+            if(this.repositoryFrom!=null && this.repositoryFrom.equals(AppFactoryConstants.FORK_REPOSITORY)){
+            	logger.append("TODO: We are  not going to deploy per developer repository build with this implementation.");
+            	return true ;
+            }
 
             boolean isAutomatic = Boolean.parseBoolean(build.getEnvironment(listener).
                     get("isAutomatic"));
@@ -126,7 +138,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                     // so this is to deploy the app to the relevant stage. so deployAction = deploy
 
                     sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage,
-                            AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT);
+                            AppFactoryConstants.DEPLOY_ACTION_AUTO_DEPLOY, tenantUserName, this.repositoryFrom);
                 } catch (ApplicationDeployerAppFactoryExceptionException e) {
                     logger.append("Error while retrieving the deployment stage of application ")
                             .append(applicationId).append(" in version ").append
@@ -136,21 +148,25 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             }
             //String deployAction = build.getEnvironment(listener).get("doDeploy");
             boolean doDeploy = Boolean.parseBoolean(build.getEnvironment(listener).get("doDeploy"));
+            
             if (doDeploy) {
-                String tagName = build.getEnvironment(listener).get("tagName");
+            
+            	String tagName = build.getEnvironment(listener).get("tagName");
                 String stage = build.getEnvironment(listener).get("deployStage");
-                String deployAction = AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT;
+                String deployAction = AppFactoryConstants.DEPLOY_ACTION_AUTO_DEPLOY;
                 if(tagName != null && tagName != "") {
                     logger.append("sending message to deploy to stage ").append(stage).append(" with tag ").
                             append(tagName);
-                    sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage, deployAction);
+                    sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage, deployAction, tenantUserName, this.repositoryFrom);
                 } else {
                     logger.append("sending message to deploy to stage ").append(stage);
-                    sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage, deployAction);
+                    sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage, deployAction, tenantUserName, this.repositoryFrom);
                 }
+                
             } else {
                 logger.append("DoDeploy is false");
             }
+            
             logger.append("Successfully finished ").append(build.getFullDisplayName());
 
         } else {
@@ -214,11 +230,14 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
         return true;
     }
 
-    private BuildStatusBean createBuildStatusBean(int buildId) {
+    private BuildStatusBean createBuildStatusBean(int buildId, String tenantUserName) {
         BuildStatusBean buildStatus = new BuildStatusBean();
         buildStatus.setApplicationId(applicationId);
         buildStatus.setVersion(applicationVersion);
         buildStatus.setArtifactType(applicationArtifactExtension);
+        buildStatus.setUserName(userName);
+        buildStatus.setTriggeredUser(tenantUserName);
+        buildStatus.setRepoFrom(repositoryFrom);
         buildStatus.setBuildId(String.valueOf(buildId));
         return buildStatus;
     }
@@ -407,58 +426,39 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
      * @param version the version of the application
      * @param revision the revision of the build
      * @param stage stage of the application
-     * @param tagName tag name
+     * @param userName TODO
+     * @param repoFrom TODO
      */
     public void sendMessageToDeploy(final String applicationId,
-                                    final String version, final String revision, final String stage, 
-                                    final String deployAction) {
-        Thread clientCaller=new Thread(new Runnable() {
+                                    final String version, final String revision, final String stage,
+                                    final String deployAction, final String tenantUserName,
+                                    final String repoFrom) {
+        Thread clientCaller = new Thread(new Runnable() {
             public void run() {
-            	String className = null;
-            	String appType = null;
-            	String jobName = JenkinsUtility.getJobName(applicationId, version);
+
+                String applicationDeployerEPR = getDescriptor().getAppfactoryServerURL() +
+                                                "/services/ApplicationDeployer";
+                ApplicationDeployerStub clientStub = null;
                 try {
-                	appType = Utils.getJobConfigElement(jobName);
-                	className = Utils.getDeployerClassName(stage, appType);
-                } catch (AppFactoryException e) {
-                	log.error("Error while calling deploy.",e);
-				} catch (JaxenException e) {
-					log.error("Error while calling deploy.",e);
-				} catch (FileNotFoundException e) {
-					log.error("Error while calling deploy.",e);
-				} catch (NamingException e) {
-					log.error("Error while calling deploy.",e);
-				} catch (XMLStreamException e) {
-					log.error("Error while calling deploy.",e);
-				}
-                Deployer deployer;
-                Map<String, String[]> parameters = new HashMap<String, String[]>();
-                parameters.put(AppFactoryConstants.ARTIFACT_TYPE, new String[]{appType});
-                //parameters.put("jobName", new String[]{jobName});
-                String applicationId = JenkinsUtility.getApplicationId(jobName);
-                String version = JenkinsUtility.getVersion(jobName);
-                parameters.put(AppFactoryConstants.APPLICATION_ID, new String[]{applicationId});
-                parameters.put(AppFactoryConstants.APPLICATION_VERSION, new String[]{version});
-                parameters.put(AppFactoryConstants.DEPLOY_STAGE, new String[]{stage});
-                parameters.put(AppFactoryConstants.DEPLOY_ACTION, new String[]{deployAction});
-            	try {
-                    ClassLoader loader = getClass().getClassLoader();
-                    Class<?> customCodeClass = Class.forName(className, true, loader);
-                    deployer = (Deployer) customCodeClass.newInstance();
-                    //Wait for some time for lastsucessful build symlink appears
+                    clientStub = new ApplicationDeployerStub(applicationDeployerEPR);
+                    ServiceClient deployerClient = clientStub._getServiceClient();
+                    AppFactoryUtil.setAuthHeaders(deployerClient, tenantUserName);
+                    //wait for symlink to appear
                     Thread.sleep(1000);
-                    deployer.deployLatestSuccessArtifact(parameters);
-                } catch (ClassNotFoundException e) {
-                    log.error(e);
-                } catch (InstantiationException e) {
-                    log.error(e);
-                } catch (IllegalAccessException e) {
-                    log.error(e);
-                } catch (Exception e) {
-                    log.error(e);
+                    clientStub.deployArtifact(applicationId, stage, version, "", deployAction);
+                } catch (AxisFault e) {
+                    log.error("Error while creating Application deployerStub " + e.getMessage(), e);
+                } catch (RemoteException e) {
+                    log.error("Error while sending deployment message " + e.getMessage(), e);
+                } catch (ApplicationDeployerAppFactoryExceptionException e) {
+                    log.error("Error while sending deployment message " + e.getMessage(), e);
+                } catch (InterruptedException e) {
+                    log.error("Error while sending deployment message " + e.getMessage(), e);
+                } catch (AppFactoryException e) {
+                    log.error("Error while sending deployment message " + e.getMessage(), e);
                 }
             }
-        }) ;
+        });
         clientCaller.start();
     }
     
@@ -505,7 +505,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                         "\t\t\t\t\t\t<rampart:timestampTTL>300</rampart:timestampTTL>\n" +
                         "\t\t\t\t\t\t<rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>\n" +
                         "\t\t\t\t\t\t<rampart:timestampStrict>false</rampart:timestampStrict>\n" +
-                        "\t\t\t\t\t\t<rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>\n" +
+                        "\t\t\t\t\t\t<rampart:passwordCallbackClass>org.wso2.carbon.appfactory.common.security.PWCBHandler</rampart:passwordCallbackClass>\n" +
                         "\t\t\t\t\t\t<rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>\n" +
                         "\t\t\t\t\t\t<rampart:nonceLifeTime>300</rampart:nonceLifeTime>\n" +
                         "\t\t\t\t\t</rampart:RampartConfig>\n" +
@@ -513,7 +513,8 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                         "\t\t\t</wsp:ExactlyOne>\n" +
                         "\t\t</wsp:Policy>";
 
-        return PolicyEngine.getPolicy(AXIOMUtil.stringToOM(policyString));
+        return PolicyEngine.getPolicy(
+		        org.apache.axiom.om.impl.llom.util.AXIOMUtil.stringToOM(policyString));
     }
 
     private static OMElement getPayload(String applicationId, String version, String revision,

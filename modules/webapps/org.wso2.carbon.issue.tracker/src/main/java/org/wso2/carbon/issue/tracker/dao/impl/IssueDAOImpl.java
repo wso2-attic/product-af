@@ -20,6 +20,8 @@ package org.wso2.carbon.issue.tracker.dao.impl;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.log4j.Logger;
+import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
+import org.wso2.carbon.appfactory.eventing.builder.utils.IssueTrackerEventBuilderUtil;
 import org.wso2.carbon.issue.tracker.bean.Issue;
 import org.wso2.carbon.issue.tracker.bean.IssueResponse;
 import org.wso2.carbon.issue.tracker.dao.IssueDAO;
@@ -27,9 +29,15 @@ import org.wso2.carbon.issue.tracker.util.Constants;
 import org.wso2.carbon.issue.tracker.util.DBConfiguration;
 import org.wso2.carbon.issue.tracker.util.ISQLConstants;
 
+import org.wso2.carbon.appfactory.eventing.EventNotifier;
+import org.wso2.carbon.issue.tracker.util.TenantUtils;
+import org.wso2.carbon.user.api.UserStoreException;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 public class IssueDAOImpl implements IssueDAO {
     Logger logger = Logger.getLogger(IssueDAOImpl.class);
@@ -98,6 +106,18 @@ public class IssueDAOImpl implements IssueDAO {
             }
             closeStatement(st, dbConnection);
         }
+
+        try {
+            String appKey = projectKey.split("-")[0];
+            String issueReporter = issue.getReporter() + "@" + TenantUtils.getTenantDomain(tenantId);
+            String notificationTitle = "Issue " + projectKey +  " created by " + issue.getReporter();
+            EventNotifier.getInstance().notify(IssueTrackerEventBuilderUtil.issueCreatedEvent(appKey, issueReporter, notificationTitle, "", "INFO"));
+        } catch (AppFactoryEventException e) {
+            logger.error("Failed to notify the Service Deploy deployment success event " + e.getMessage(), e);
+        } catch (UserStoreException e) {
+            logger.error("Failed to get the issue reporter " + e.getMessage(), e);
+        }
+
         return issueKey;
     }
 
@@ -129,8 +149,7 @@ public class IssueDAOImpl implements IssueDAO {
             st.setTimestamp(7, getCurrentTimeStamp());
             st.setString(8, issue.getSeverity());
             st.setString(9, issue.getKey());
-            st.setString(10, issue.getReporter());
-            st.setInt(11, tenantId);
+            st.setInt(10, tenantId);
 
             result = st.executeUpdate() == 1 ? true : false;
         } catch (SQLException e) {
