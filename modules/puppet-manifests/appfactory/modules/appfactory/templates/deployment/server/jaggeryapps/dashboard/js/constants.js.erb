@@ -1,0 +1,11 @@
+var resolveHost = function() {
+        //http://<domain>:<port>/
+        //return document.location.protocol + "//" + document.location.host;
+        return "http://<%= @wso2_env_domain %>:<%= @af_port %>";
+}
+
+var gadgetAPIContext = function() {
+        //http://<domain>:<port>/
+        //return document.location.protocol + "//" + document.location.host;
+        return "http://<%= @wso2_env_domain %>:<%= @af_port %>/dashboard/api/";
+}

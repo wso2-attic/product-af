@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<cloudmgt>
+        <subscriptions>
+                <type display_name="App Cloud" url="https://<%= @af_subdomain %>.<%= @wso2_env_domain%>:<%= @af_port %>/appmgt/">app_cloud</type>
+         </subscriptions>
+     <ServerUrls>
+        <AppFactory>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/services/</AppFactory>
+        <cloudmgtURL>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/cloudmgt</cloudmgtURL>
+        <BPS>https://<%= @bps_subdomain%>.<%= @wso2_env_domain %>:<%= @bps_port %>/services/</BPS>
+        <Greg>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/services/</Greg>
+    </ServerUrls>
+    <SSORelyingParty>
+        <Name>APPSERVER</Name>
+        <DashboardName>WSO2 AppFactory Dashboard</DashboardName>
+        <IdentityProviderURL>https://<%= @is_subdomain %>.<%= @wso2_env_domain %>:<%= @is_port %>/samlsso</IdentityProviderURL>
+        <KeyStorePassword><%= @af_keystore_passwd %></KeyStorePassword>
+        <IdentityKeyAlias><%= @af_keystore_alias %></IdentityKeyAlias>
+        <KeyStoreName>../../../../../../resources/security/wso2carbon.jks</KeyStoreName>
+        <CookieRefreshInterval>300000</CookieRefreshInterval>
+         <AdminUserName><%= @adminuser_name %></AdminUserName>
+         <AdminPassword><%= @adminuser_password %></AdminPassword>
+    </SSORelyingParty>
+</cloudmgt>
+

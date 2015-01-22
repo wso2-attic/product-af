@@ -1,0 +1,14 @@
+{
+    "id": "economy",
+    "loadThresholds": {
+      "requestsInFlight": {
+        "average": "300"    
+      },
+      "memoryConsumption": {
+        "average": "800"      
+      },
+      "loadAverage": {
+        "average": "600"    
+      }
+    }  
+}

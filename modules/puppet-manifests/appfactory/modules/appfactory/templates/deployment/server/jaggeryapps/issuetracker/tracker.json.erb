@@ -1,0 +1,11 @@
+{
+    "ssoConfiguration": {
+        "enabled": true,
+        "issuer": "TRACKER",
+        "identityProviderURL": "https://<%= @is_subdomain %>.<%= @wso2_env_domain %>:<%= @is_port %>/samlsso",
+        "keyStorePassword": "wso2carbon",
+        "identityAlias": "wso2carbon",
+        "responseSigningEnabled": "true",
+        "keyStoreName": "/repository/resources/security/wso2carbon.jks"
+    }
+}

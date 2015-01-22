@@ -1,0 +1,52 @@
+<% if @amtype == 'apimanager' %>
+{
+    "theme" : {
+        "base" : "fancy"
+    },
+    "context" : "/store",
+    "request_url":"READ_FROM_REQUEST",
+    "showPublicStoreURL":true,
+    "tagWiseMode" :"false",
+    "tagGroupKey" :"-group",
+    "ssoConfiguration" : {
+        "enabled" : "true",
+        "issuer" : "API_STORE",
+        "responseSigningEnabled":"true",
+        "identityProviderURL" : "https://<%= is_subdomain %>.<%= wso2_env_domain %>:<%= @af_port%>/samlsso",
+        "keyStorePassword" : "<%= apistore_keystore_password %>",
+        "identityAlias" : "<%= apistore_keystore_alias %>",
+        "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
+    },
+    "forum" : {
+        "topicsPerPage" : "5",
+        "repliesPerPage" : "5",
+        "resourceIdentifier" : "common"
+    }
+
+}
+<% else %>
+{
+    "theme" : {
+        "base" : "fancy"
+    },
+    "context" : "/store",
+    "request_url":"READ_FROM_REQUEST",
+    "showPublicStoreURL":true,
+    "tagWiseMode" :"false",
+    "tagGroupKey" :"-group",
+    "ssoConfiguration" : {
+        "enabled" : "true",
+        "issuer" : "API_STORE",
+        "responseSigningEnabled":"true",
+        "identityProviderURL" : "https://<%= is_subdomain %>.<%= wso2_env_domain %>/samlsso",
+        "keyStorePassword" : "<%= apistore_keystore_password %>",
+        "identityAlias" : "<%= apistore_keystore_alias %>",
+        "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
+    },
+    "forum" : {
+        "topicsPerPage" : "5",
+        "repliesPerPage" : "5",
+        "resourceIdentifier" : "common"
+    }    
+}
+<% end %>

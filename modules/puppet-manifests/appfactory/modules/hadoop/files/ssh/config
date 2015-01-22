@@ -1,0 +1,23 @@
+host    hadoop0.cloud.wso2.com   
+        hostname                10.0.20.74
+        identityfile            /root/.ssh/id_rsa
+        user                    root
+        port                    1984
+        serveraliveinterval     15
+        serveralivecountmax     3
+
+host    hadoop1.cloud.wso2.com   
+        hostname                10.0.21.5
+        identityfile            /root/.ssh/id_rsa
+        user                    root
+        port                    1984
+        serveraliveinterval     15
+        serveralivecountmax     3
+
+host    hadoop2.cloud.wso2.com   
+        hostname                10.0.20.63
+        identityfile            /root/.ssh/id_rsa
+        user                    root
+        port                    1984
+        serveraliveinterval     15
+        serveralivecountmax     3

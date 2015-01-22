@@ -1,0 +1,17 @@
+    echo -e "Deploying partition at partition.json"
+    curl -X POST -H "Content-Type: application/json" -d @"partition.json" -k  -u <%=@usrmgt_username %>:<%=@usrmgt_password %> "https://localhost:<%= 9443 + Integer(@offset) %>/stratos/admin/policy/deployment/partition"
+
+    echo -e "Deploying autoscale policy at autoscale-policy.json"
+    curl -X POST -H "Content-Type: application/json" -d @"autoscale-policy.json" -k  -u <%=@usrmgt_username %>:<%=@usrmgt_password %> "https://localhost:<%= 9443 + Integer(@offset) %>/stratos/admin/policy/autoscale"
+
+    echo -e "Deploying deployment policy at deployment-policy.json"
+    curl -X POST -H "Content-Type: application/json" -d @"deployment-policy.json" -k  -u <%=@usrmgt_username %>:<%=@usrmgt_password %> "https://localhost:<%= 9443 + Integer(@offset) %>/stratos/admin/policy/deployment"
+
+
+    curl -X POST -H "Content-Type: application/json" -d @"cartridge-definition.json" -k  -u <%=@usrmgt_username %>:<%=@usrmgt_password %> "https://localhost:<%= 9443 + Integer(@offset) %>/stratos/admin/cartridge/definition"
+
+    echo -e "Deploying Application Service service"
+    curl -X POST -H "Content-Type: application/json" -d @"service-deployment.json" -k -u <%=@usrmgt_username %>:<%=@usrmgt_password %> "https://localhost:<%= 9443 + Integer(@offset) %>/stratos/admin/service/definition"
+
+
+

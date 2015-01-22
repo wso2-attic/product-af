@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<TenantManagers>
+    <TenantManager class="org.wso2.carbon.user.core.tenant.JDBCTenantManager">
+        <Property name="MultiTenantRealmConfigBuilder">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
+    </TenantManager>
+
+	<TenantManager class="<%= @tenant_manager_class %>">
+    <Property name="MultiTenantRealmConfigBuilder"><%= @tenant_realm_builder_class %></Property>
+		<Property name="RootPartition">dc=wso2,dc=org</Property>
+		<Property name="OrganizationalObjectClass">organizationalUnit</Property>
+		<Property name="OrganizationalAttribute">ou</Property>
+		<Property name="OrganizationalSubContextObjectClass">organizationalUnit</Property>
+		<Property name="OrganizationalSubContextAttribute">ou</Property>
+	</TenantManager>
+</TenantManagers>
+

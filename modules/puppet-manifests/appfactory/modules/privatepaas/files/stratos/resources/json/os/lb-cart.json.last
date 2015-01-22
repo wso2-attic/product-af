@@ -1,0 +1,46 @@
+{
+      "type": "lb",
+      "provider": "lb",
+      "host": "lb.ppaas.wso2.com",
+      "displayName": "load balancer",
+      "description": "LB Cartridge",
+      "version": "4",
+      "defaultAutoscalingPolicy": "economyPolicy",
+      "defaultDeploymentPolicy": "deployf",
+      "multiTenant": "false",
+      "portMapping": [
+         {
+      "protocol": "http",
+          "port": "8280",
+          "proxyPort": "8280"
+         },
+         {
+      "protocol": "https",
+          "port": "8243",
+          "proxyPort": "8243"
+         }
+       ],
+      "deployment": {
+        },
+      "iaasProvider": [
+         {
+          "type": "openstack",
+          "imageId": "RegionOne/e73ef74a-84c9-4bcc-8249-0f2ea45a8fd2",
+          "maxInstanceLimit": "4",    
+          "property": [
+            {
+             "name": "instanceType",
+             "value": "RegionOne/3"
+            }
+           ]
+         }
+      ],
+      "loadBalancer": {
+        },
+      "property": [
+        {
+          "name": "load.balancer",
+          "value": "true"
+        }
+      ]
+}

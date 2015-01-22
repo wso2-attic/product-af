@@ -1,0 +1,71 @@
+<SSOIdentityProviderConfig>
+        <LoginPageBannerBaseURL>http://wso2.com/product-ads/stratos/wso2cloud/</LoginPageBannerBaseURL>
+	<TenantRegistrationPage>https://<%= @wso2_env_domain %>/carbon/tenant-register/select_domain.jsp</TenantRegistrationPage>
+        <ServiceProviders>
+                <ServiceProvider>
+                        <Issuer>API_PUBLISHER</Issuer>
+			<AssertionConsumerService>https://<%= @am_subdomain %>.<%= @wso2_env_domain %>/publisher/jagg/jaggery_acs.jag</AssertionConsumerService>
+                        <SignResponse>true</SignResponse>
+                </ServiceProvider>
+		<ServiceProvider>
+			<Issuer>APPSERVER</Issuer>
+			<AssertionConsumerService>https://<%= @cloudmgt_subdomain %>.<%= @wso2_env_domain %>/cloudmgt/jagg/jaggery_acs.jag</AssertionConsumerService>
+                        <SignResponse>true</SignResponse>
+                        <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+	       </ServiceProvider>
+                <ServiceProvider>
+                        <Issuer>API_GATEWAY</Issuer>
+			<AssertionConsumerService>https://gateway.<%= @am_subdomain %>.<%= @wso2_env_domain %>/acs</AssertionConsumerService>
+                        <SignResponse>true</SignResponse>
+                         <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+                </ServiceProvider>
+                <ServiceProvider>
+                        <Issuer>API_STORE</Issuer>
+			<AssertionConsumerService>https://<%= @am_subdomain %>.<%= @wso2_env_domain %>/store/jagg/jaggery_acs.jag</AssertionConsumerService>
+                        <SignResponse>true</SignResponse>
+                         <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+                </ServiceProvider>
+            	<ServiceProvider>
+                       <Issuer>APPFACTORY</Issuer>
+		       <AssertionConsumerService>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/appmgt/jagg/jaggery_acs.jag</AssertionConsumerService>
+                       <SignResponse>true</SignResponse>
+                        <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+         	</ServiceProvider>
+		<ServiceProvider>
+                       <Issuer>ISSUETRACKER</Issuer>
+                       <AssertionConsumerService>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/issuetracker/jagg/jaggery_acs.jag</AssertionConsumerService>
+                       <SignResponse>true</SignResponse>
+                        <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+               </ServiceProvider>
+               <ServiceProvider>
+                       <Issuer>AF_API_STORE</Issuer>
+		       <AssertionConsumerService>https://<%= @am_subdomain %>.<%= @wso2_env_domain %>:<%= @apimgt_port %>/store/jagg/jaggery_acs.jag</AssertionConsumerService>
+                       <SignResponse>true</SignResponse>
+                       <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+               </ServiceProvider>
+               <ServiceProvider>
+                       <Issuer>AF_API_PUBLISHER</Issuer>
+		       <AssertionConsumerService>https://<%= @am_subdomain %>.<%= @wso2_env_domain %>:<%= @apimgt_port %>/publisher/jagg/jaggery_acs.jag</AssertionConsumerService>
+                       <SignResponse>true</SignResponse>
+                       <CustomLoginPage>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/carbon/appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+               </ServiceProvider>
+	       <ServiceProvider>
+                        <Issuer>UserDashboard</Issuer>
+                        <AssertionConsumerService>https://dashboards.<%= @wso2_env_domain %>:9445/UserDashboard/sso.jag</AssertionConsumerService>
+                        <CustomLoginPage>null</CustomLoginPage>
+                </ServiceProvider>
+                <ServiceProvider>
+                        <Issuer>CXODashboard</Issuer>
+                        <AssertionConsumerService>https://dashboards.<%= @wso2_env_domain %>:9445/CXODashboard/sso.jag</AssertionConsumerService>
+                        <CustomLoginPage>null</CustomLoginPage>
+                </ServiceProvider>
+                <ServiceProvider>
+                        <Issuer>PlatformDashboard</Issuer>
+                        <AssertionConsumerService>https://dashboards.<%= @wso2_env_domain %>:9445/PlatformDashboard/sso.jag</AssertionConsumerService>
+                        <CustomLoginPage>null</CustomLoginPage>
+                </ServiceProvider>
+       </ServiceProviders>
+</SSOIdentityProviderConfig>
+
+
+

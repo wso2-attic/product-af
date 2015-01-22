@@ -1,0 +1,45 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+
+<!--
+   The mail to be sent for the tenant registration validation.
+   This mail has the registration validation link to validate the email too.
+  -->
+
+<configuration>
+	<targetEpr>https://<%= af_subdomain %>.<%= wso2_env_domain %>/appmgt/site/pages/confirmemail.jag</targetEpr>
+    <subject>WSO2 AppFactory Registration - Email validation instructions</subject>
+    <body>
+        Hi {first-name},
+
+Thank you for registering an account in WSO2 App Factory.
+
+WSO2 App Factory is a platform for managed application development for the entire lifecycle of applications. Supporting you from cradle to grave, you can create, develop, test, deploy to production and retire applications with a single click. Applications can be web applications to mobile apps that requires any type of middleware to run on including even non-Java and non-WSO2 technologies.
+By integrating to existing tools, WSO2 App Factory provides a complete systems development life cycle (SDLC) toolchain including source control, issue tracker, forums, build management and deployment.
+
+Your User Name: {admin-name}.
+
+Please click the following link to verify your email address.
+    </body>
+    <footer>
+Best Regards,
+WSO2 App Factory Team
+    </footer>
+    <redirectPath>../user-reg/user-registration-activation.jsp</redirectPath>
+</configuration>
+

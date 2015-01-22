@@ -1,0 +1,52 @@
+# Load Average
+define service {
+    use                 generic-service
+    host_name           <%= @fqdn %>
+    service_description LOAD AVERAGE
+    check_command       check_nrpe_1arg!check_load
+}
+
+# memory
+define service {
+    use                 generic-service
+    host_name           <%= @fqdn %>
+    service_description Memory
+    check_command       check_nrpe_1arg!check_memory
+}
+
+# Disk Usage
+#define service {
+#    use                 generic-service
+#    host_name           <%= @fqdn %>
+#    service_description DISK USAGE
+#    check_command       check_nrpe!check_all_disks!10%!5%
+#}
+
+define service {
+    use                 generic-service
+    host_name           <%= @fqdn %>
+    service_description DISK USAGE
+    check_command       check_nrpe_disk
+}
+
+# Procs
+define service{
+    use                 generic-service
+    host_name           <%= @fqdn %>
+    service_description TOTAL PROCS
+    check_command       check_nrpe_1arg!check_total_procs
+}
+
+define service {
+    use                  generic-service
+    host_name            <%= @fqdn %>
+    service_description  MySQL Query Validation - Registry
+    check_command        validate_registry_connection
+}
+
+define service {
+    use                  generic-service
+    host_name            <%= @fqdn %>
+    service_description  MySQL Query Validation - OtherDBs
+    check_command        validate_otherdb_connection
+}

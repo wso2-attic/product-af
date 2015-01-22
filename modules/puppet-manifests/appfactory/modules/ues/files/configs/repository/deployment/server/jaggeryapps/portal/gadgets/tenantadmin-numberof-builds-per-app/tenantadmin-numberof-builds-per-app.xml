@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+    <ModulePrefs title="No of Users per App"
+                 author="WSO2 Gadget Server"
+                 height="230"
+                 scrolling="true"
+                 tags="charts,bar,visualization,data"
+                 description="A generic Bar Chart gadget, that takes a json datasource as an input and shows numbers of users per app. It can be configured to fetch data in defined intervals.">
+        <Require feature="pubsub-2">
+            <Param name="topics">
+                <![CDATA[
+				<Topic title="timeData" name="timeSliderPub"
+				description="Subscribes to time slider" type="object"
+				subscribe="true"/>
+				]]>
+            </Param>
+        </Require>
+    </ModulePrefs>
+    <UserPref name="dataSource"
+              display_name="Data Source"
+              default_value="../../CXODashboard/dataApis/NoOfBuildsByAppBarChart.jag">
+    </UserPref>
+    <UserPref name="updateGraph"
+              display_name="Update Interval (s)"
+              default_value="No">
+    </UserPref>
+    <Content type="html">
+        <![CDATA[
+ <html>
+ <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Bar Chart</title>
+	<link href="../../themes/portal/css/flot-graph.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/jslider.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/jslider.round.plastic.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="../../js/flot/excanvas.min.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/tmpl.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/jquery.dependClass-0.1.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/draggable-0.1.js"></script>
+	<script language="javascript" type="text/javascript" src="../../themes/portal/js/jquery.slider.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.selection.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.resize.js"></script>
+    	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.axislabels.js"></script>
+	<script language="javascript" type="text/javascript" src="js/options-bar.js"></script>
+	<script language="javascript" type="text/javascript" src="js/flot-chart-core.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.navigate.js"></script>
+ </head>
+
+<body>
+	<div id="optionPanel">
+				<div id="optionsLeft">
+					<button class="reset btn btn-mini">reset</button>
+				</div>
+				<div id="optionsRight" class="seriesContainer"></div>
+				
+	</div>
+        <div id="placeholder" class="demo-placeholder" style="height:90%"></div>
+</body>
+</html>
+
+    ]]>
+    </Content>
+</Module>
+
+

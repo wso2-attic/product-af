@@ -1,0 +1,98 @@
+<data name="CloudUserLogin">
+   <config id="CloudStatsDS">
+      <property name="carbon_datasource_name">WSO2_CLOUD_MGT_STATS</property>
+   </config>
+   <config id="CarbonDS">
+      <property name="carbon_datasource_name">WSO2_USERSTORE_DB</property>
+   </config>
+   <query id="selectAll" useConfig="CloudStatsDS">
+      <sql>select username, tenantId, tenantDomain, loginTime from LoginAnalytics order by loginTime, tenantId;</sql>
+      <result element="userLogin" rowName="loginEntry">
+         <element column="username" name="username" xsdType="string"/>
+         <element column="tenantId" name="tenantId" xsdType="string"/>
+         <element column="tenantDomain" name="tenantDomain" xsdType="string"/>
+         <element column="loginTime" name="loginTime" xsdType="string"/>
+      </result>
+   </query>
+   <query id="selectByDate" useConfig="CloudStatsDS">
+      <sql>select username, tenantId, tenantDomain, loginTime from LoginAnalytics where loginTime between date_format(:date, '%Y-%m-%d %H:%i:%s') and date_format(:date, '%Y-%m-%d 23:59:59') order by loginTime, tenantId;</sql>
+      <result element="userLogin" rowName="loginEntry">
+         <element column="username" name="username" xsdType="string"/>
+         <element column="tenantId" name="tenantId" xsdType="string"/>
+         <element column="tenantDomain" name="tenantDomain" xsdType="string"/>
+         <element column="loginTime" name="loginTime" xsdType="string"/>
+      </result>
+      <param name="date" sqlType="STRING"/>
+   </query>
+   <query id="selectByDateRange" useConfig="CloudStatsDS">
+      <sql>select username, tenantId, tenantDomain, loginTime from LoginAnalytics where loginTime between date_format(:startDate, '%Y-%m-%d') and date_format(:endDate, '%Y-%m-%d 23:59:59') order by loginTime, tenantId;</sql>
+      <result element="userLogin" rowName="loginEntry">
+         <element column="username" name="username" xsdType="string"/>
+         <element column="tenantId" name="tenantId" xsdType="string"/>
+         <element column="tenantDomain" name="tenantDomain" xsdType="string"/>
+         <element column="loginTime" name="loginTime" xsdType="string"/>
+      </result>
+      <param name="startDate" sqlType="STRING"/>
+      <param name="endDate" sqlType="STRING"/>
+   </query>
+   <query id="selectByDomain" useConfig="CloudStatsDS">
+      <sql>select username, tenantId, tenantDomain, loginTime from LoginAnalytics where tenantDomain=:domain order by loginTime;</sql>
+      <result element="userLogin" rowName="loginEntry">
+         <element column="username" name="username" xsdType="string"/>
+         <element column="tenantId" name="tenantId" xsdType="string"/>
+         <element column="tenantDomain" name="tenantDomain" xsdType="string"/>
+         <element column="loginTime" name="loginTime" xsdType="string"/>
+      </result>
+      <param name="domain" sqlType="STRING"/>
+   </query>
+   <query id="emailByDomain" useConfig="CarbonDS">
+      <sql>SELECT UM_EMAIL FROM UM_TENANT WHERE UM_DOMAIN_NAME=?</sql>
+      <result element="UserInfo" rowName="Info">
+         <element column="UM_EMAIL" name="Email" xsdType="string"/>
+      </result>
+      <param name="domain" sqlType="STRING"/>
+   </query>
+   <operation name="getAllUserLogin">
+      <call-query href="selectAll"/>
+   </operation>
+   <operation name="getLoginByDate">
+      <call-query href="selectByDate">
+         <with-param name="date" query-param="date"/>
+      </call-query>
+   </operation>
+   <operation name="getLoginByTenantDomain">
+      <call-query href="selectByDomain">
+         <with-param name="domain" query-param="domain"/>
+      </call-query>
+   </operation>
+   <operation name="getLoginByDateRange">
+      <call-query href="selectByDateRange">
+         <with-param name="startDate" query-param="startDate"/>
+         <with-param name="endDate" query-param="endDate"/>
+      </call-query>
+   </operation>
+   <resource method="GET" path="userLogins">
+      <call-query href="selectAll"/>
+   </resource>
+   <resource method="GET" path="loginsByDomain/{domain}">
+      <call-query href="selectByDomain">
+         <with-param name="domain" query-param="domain"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="loginsByDate/{date}">
+      <call-query href="selectByDate">
+         <with-param name="date" query-param="date"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="loginsByDateRange/{startDate}/{endDate}">
+      <call-query href="selectByDateRange">
+         <with-param name="startDate" query-param="startDate"/>
+         <with-param name="endDate" query-param="endDate"/>
+      </call-query>
+   </resource>
+   <resource method="GET" path="email/{domain}">
+      <call-query href="emailByDomain">
+         <with-param name="domain" query-param="domain"/>
+      </call-query>
+   </resource>
+</data>

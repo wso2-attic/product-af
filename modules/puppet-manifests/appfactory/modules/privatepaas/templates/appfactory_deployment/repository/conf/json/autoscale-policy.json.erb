@@ -1,0 +1,20 @@
+{
+    "id": "<%= @autoscale_policy %>",
+    "loadThresholds": {
+      "requestsInFlight": {
+        "average": "300",
+        "gradient": "10",
+        "secondDerivative": "0.2"        
+      },
+      "memoryConsumption": {
+        "average": "80",
+        "gradient": "10",
+        "secondDerivative": "0.2"        
+      },
+      "loadAverage": {
+        "average": "6000",
+        "gradient": "20",
+        "secondDerivative": "0.2"       
+      }
+    }  
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<artifactType type="application/vnd.wso2-repouser+xml" shortName="repouser" singularLabel="repouser"
+             pluralLabel="repousers" hasNamespace="false" iconSet="7">
+   <storagePath>/repository/applications/@{repouser_key}/@{repouser_name}/@{repouser_version}</storagePath>
+   <nameAttribute>repouser_key</nameAttribute>
+   <ui>
+       <list>
+           
+           <column name="Key">
+               <data type="path" value="repouser_key" href="@{storagePath}"/>
+           </column>
+           <column name="Version">
+               <data type="path" value="repouser_version" href="@{storagePath}"/>
+           </column>
+	   <column name="Name">
+               <data type="path" value="repouser_name" href="@{storagePath}"/>
+           </column>
+	   <column name="RepoUrl">
+               <data type="path" value="repouser_url" href="@{storagePath}"/>
+           </column>
+           
+       </list>
+   </ui>
+
+  <content>
+       <table name="repouser">
+           <field type="text" required="true">
+               <name>Key</name>
+           </field>
+	   <field type="text" required="true">
+               <name>Name</name>
+           </field>
+           <field type="text" required="true">
+               <name>Version</name>
+           </field> 
+	   <field type="text" required="true">
+               <name>AutoDeployment</name>
+           </field> 
+           <field type="text" required="true">
+               <name>AutoBuild</name>
+           </field>
+	   <field type="text" required="true">
+               <name>RepoUrl</name>
+           </field>
+	   <field type="text" required="true">
+               <name>LastBuildStatus</name>
+           </field>
+           <field type="text" required="true">
+               <name>LastDeployedId</name>
+           </field>
+           <field type="text" required="true">
+               <name>CurrentBuildStatus</name>
+           </field>
+       </table>
+   </content>
+</artifactType>

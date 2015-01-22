@@ -1,0 +1,768 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<AppFactory xmlns="http://www.wso2.org/appfactory/">
+    <Database>
+        <Datasource>
+            <Name>jdbc/<%= @af_db_name %>
+            </Name>
+        </Datasource>
+    </Database>
+
+    <WebContextRoot>appmgt</WebContextRoot>
+    <AdminUserName><%= @adminuser_name %></AdminUserName>
+    <AdminPassword><%= @adminuser_passwd %></AdminPassword>
+    <AdminEmail></AdminEmail>
+    <JenkinsServerAdminUsername><%= @jenkins_admin_user %></JenkinsServerAdminUsername>
+    <JenkinsServerAdminPassword><%= @jenkins_admin_password %></JenkinsServerAdminPassword>
+    <!-- Application creation delay in queue   -->
+    <ApplicationCreatorDelay><%= @app_creation_delay %></ApplicationCreatorDelay>
+    <!-- How many parellal executor invoke in the application creation processor -->
+    <ApplicationCreationExecutors>2</ApplicationCreationExecutors>
+    <EmailSend>true</EmailSend>
+    <RegistrationLink><%= @af_registration_link %></RegistrationLink>
+    <!--To Register in WSO2 Oxygen Tank
+      <RegistrationLink>http://wso2.org/user/register</RegistrationLink-->
+    <SignUpText>Sign up and start developing</SignUpText>
+    <SignInText>Already a Member? Sign In.</SignInText>
+
+    <!-- Social -->
+    <NotificationConfig>
+        <Social>
+            <!--in milliseconds-->
+            <PollingPeriod>15000</PollingPeriod>
+            <Host><%= @receiver1_url %></Host>
+            <Port><%= @receiver_port %></Port>
+            <ConnectionUser><%= @usrmgt_username %></ConnectionUser>
+            <ConnectionUserPassword><%= @usrmgt_password %></ConnectionUserPassword>
+        </Social>
+        <MessageBroker>
+            <!--in milliseconds-->
+            <PollingPeriod>5000</PollingPeriod>
+            <AcknowledgeDelay>5000</AcknowledgeDelay>
+            <ServerURL>https://<%= @mb_subdomain %>.<%= @wso2_env_domain %>:<%= @mb_port %>/services/</ServerURL>
+            <!--Note that CONNECTION_USER:ACCESS_TOKEN should not be changed as this will be replaced at runtime.-->
+            <TCPConnectionURL>amqp://CONNECTION_USER:ACCESS_TOKEN@carbon/carbon?brokerlist='tcp://<%= @mb_subdomain %>.<%= @wso2_env_domain %>:<%= mb_tcp_port %>'</TCPConnectionURL>
+        </MessageBroker>
+        <Email>
+            <ReceiverMailAddress><%= @mailto_smtp_from %></ReceiverMailAddress>
+            <AdminName><%= @mailto_smtp_user %></AdminName>
+        </Email>
+    </NotificationConfig>
+
+    <EventHandlers>
+        <!-- Prioity of the handlers related to App Factory -->
+        <RepositoryHandler>
+            <priority>60</priority>
+        </RepositoryHandler>
+        <DSApplicationHandler>
+            <priority>35</priority>
+        </DSApplicationHandler>
+        <EnvironmentAuthorizationHandler>
+            <priority>20</priority>
+        </EnvironmentAuthorizationHandler>
+        <ApplicationInfomationChangeListner>
+            <priority>15</priority>
+        </ApplicationInfomationChangeListner>
+        <NonBuildableApplicationEventListner>
+            <priority>25</priority>
+        </NonBuildableApplicationEventListner>
+        <DomainMappingListener>
+         <priority>10</priority>
+        </DomainMappingListener>
+    </EventHandlers>
+
+    <!--
+       In TenantRoles section, we define set of roles to be created in tenant space of AppFactory. Each role consist of a name and a comma separated permissions.
+       When tenant is created above roles are created with given permissions. These permissions are associated with AppFactory controller.
+
+       Permission string is defined as <deny:><resource>:<action>.
+       eg; deny:/_system/governance/dependencies/:REGISTRY_GET, /permission/admin/login, CreateApplication/CreateApplication:invoke-service
+       <deny:> - given permission is denied on given role. If <deny:> is not defined, it is considered as allow.
+       <resource> - permission string
+       <action> - if action is not defined, it is default value is 'ui.execute'. For registry actions, you can use predefined actions(REGISTRY_GET,REGISTRY_PUT,REGISTRY_DELETE)
+
+       When users are registered in AppFactory, all users are added to DefaultUserRoles defined here.You can have multiple DefaultUserRoles.
+
+       DisplayName is used only for rendering roles in AppFactory user interfaces.
+    -->
+    <TenantRoles>
+        <DefaultUserRole name="appfactoryusers">
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/manage/api/subscribe,
+                /permission/admin/manage/api/create,
+                /permission/admin/manage/api/publish,
+                /permission/admin/configure/governance,
+                /permission/admin/manage/resources,
+                /permission/admin/manage/getAccessKey,
+                /permission/admin/manage/queue,
+                /permission/admin/manage/topic
+            </Permission>
+        </DefaultUserRole>
+        <Role name="admin">
+            <Permission>
+                CreateApplication/CreateApplication:invoke-service,
+                /permission/admin/appfactory/ceo/dashboard,
+                /permission/admin/tenant/user/mgt
+                /permission/admin/appfactory/configure/Domainmapping
+            </Permission>
+        </Role>
+        <Role name="cxo">
+            <DisplayName>CXO</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/appfactory/ceo/dashboard
+            </Permission>
+        </Role>
+        <Role name="globalAPIPublisher">
+            <Permission>
+                /_system/governance:REGISTRY_GET,
+                /_system/governance:REGISTRY_PUT,
+                /_system/governance:REGISTRY_DELETE,
+                /permission/admin/configure/governance,
+                /permission/admin/manage/api/create,
+                /permission/admin/manage/api/publish,
+                event/topics:subscribe,
+                event/topics:publish
+            </Permission>
+        </Role>
+        <Role name="developer">
+            <DisplayName>Developer</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/appfactory/develop,
+                /permission/admin/appfactory/logs,
+                /permission/admin/appfactory/repository/readwrite,
+                /permission/admin/appfactory/build,
+                /permission/admin/appfactory/repository/branch,
+                /permission/admin/appfactory/deployTo/Development,
+                /permission/admin/appfactory/resources/create/Development,
+                /permission/admin/appfactory/resources/read/Development,
+                /permission/admin/appfactory/resources/update/Development,
+                /permission/admin/appfactory/resources/read/Testing,
+                /permission/admin/appfactory/promoteTo/Testing,
+                /permission/admin/appfactory/visibility/Development,
+                /permission/admin/appfactory/visibility/Testing,
+                /permission/admin/configure/rssmanager,
+                /permission/admin/appfactory/configuration/apimanager,
+                /permission/admin/manage/rssmanager
+            </Permission>
+        </Role>
+        <Role name="devops">
+            <DisplayName>DevOps</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/appfactory/logs,
+                /permission/admin/appfactory/deployTo/Production,
+                /permission/admin/appfactory/resources/create/Production,
+                /permission/admin/appfactory/resources/read/Production,
+                /permission/admin/appfactory/resources/update/Production,
+                /permission/admin/appfactory/resources/read/Testing,
+                /permission/admin/appfactory/demoteTo/Testing,
+                /permission/admin/appfactory/retire,
+                /permission/admin/appfactory/visibility/Production,
+                /permission/admin/configure/rssmanager,
+                /permission/admin/appfactory/configuration/apimanager,
+                /permission/admin/manage/rssmanager
+            </Permission>
+        </Role>
+        <Role name="qa">
+            <DisplayName>QA</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/appfactory/logs,
+                /permission/admin/appfactory/resources/create/Testing,
+                /permission/admin/appfactory/resources/read/Testing,
+                /permission/admin/appfactory/resources/update/Testing,
+                /permission/admin/appfactory/resources/read/Development,
+                /permission/admin/appfactory/promoteTo/Production,
+                /permission/admin/appfactory/demoteTo/Development,
+                /permission/admin/appfactory/visibility/Development,
+                /permission/admin/appfactory/visibility/Testing,
+                /permission/admin/appfactory/visibility/Production,
+                /permission/admin/appfactory/deployTo/Testing,
+                /permission/admin/configure/rssmanager,
+                /permission/admin/appfactory/configuration/apimanager,
+                /permission/admin/manage/rssmanager
+            </Permission>
+        </Role>
+        <Role name="appowner">
+            <DisplayName>Application Owner</DisplayName>
+            <Permission>
+                /permission/admin/login,
+                /permission/admin/appfactory/develop,
+                /permission/admin/appfactory/logs,
+                /permission/admin/appfactory/application/create,
+                /permission/admin/appfactory/repository/readwrite,
+                /permission/admin/appfactory/build,
+                /permission/admin/appfactory/repository/branch,
+                /permission/admin/appfactory/resources/create/Development,
+                /permission/admin/appfactory/resources/read/Development,
+                /permission/admin/appfactory/resources/update/Development,
+                /permission/admin/appfactory/resources/create/Testing,
+                /permission/admin/appfactory/resources/update/Testing,
+                /permission/admin/appfactory/resources/read/Testing,
+                /permission/admin/appfactory/resources/create/Production,
+                /permission/admin/appfactory/resources/read/Production,
+                /permission/admin/appfactory/resources/update/Production,
+                /permission/admin/appfactory/deployTo/Development,
+                /permission/admin/appfactory/deployTo/Testing,
+                /permission/admin/appfactory/promoteTo/Testing,
+                /permission/admin/appfactory/demoteTo/Development,
+                /permission/admin/appfactory/demoteTo/Testing,
+                /permission/admin/appfactory/visibility/Development,
+                /permission/admin/appfactory/visibility/Testing,
+                /permission/admin/appfactory/visibility/Production,
+                /permission/admin/appfactory/usermgt/invite,
+                /permission/admin/configure/rssmanager,
+                /permission/admin/appfactory/configuration/apimanager,
+                /permission/admin/manage/rssmanager,
+            </Permission>
+        </Role>
+    </TenantRoles>
+
+    <!--SSO relying party configuration.-->
+    <SSORelyingParty>
+        <Name>APPFACTORY</Name>
+        <AssertionConsumerService>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/appmgt/jagg/jaggery_acs.jag</AssertionConsumerService>
+        <DashboardName>WSO2 AppFactory Dashboard</DashboardName>
+        <IdentityProviderURL>https://<%= @is_subdomain %>.<%= @wso2_env_domain %>:<%= @is_port %>/samlsso</IdentityProviderURL>
+        <KeyStorePassword><%= @af_keystore_passwd %></KeyStorePassword>
+        <IdentityKeyAlias><%= @af_keystore_alias %></IdentityKeyAlias>
+        <KeyStoreName><%=@carbon_home%>/repository/resources/security/wso2carbon.jks</KeyStoreName>
+    </SSORelyingParty>
+
+    <!-- Server URLs -->
+    <ServerUrls>
+        <AppFactory>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/services/</AppFactory>
+        <BPS>https://<%= @bps_subdomain %>.<%= @wso2_env_domain %>:<%= @bps_port %>/services/</BPS>
+        <Greg>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/services/</Greg>
+    </ServerUrls>
+
+    <!-- Cloud Management application specific properties-->
+    <CloudMgtConfig>
+        <Property name="Url">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/cloudmgt/</Property>
+    </CloudMgtConfig>
+
+    <!-- Issue tracker connector configs-->
+    <IssueTrackerConnector name="issueTracker" summaryOnly="false">
+        <Property name="Url">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @issue_port %>/issuetracker-2.1.0/</Property>
+        <Property name="FrontUrl">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/issuetracker/</Property>
+        <!-- Bigger number will result in higher priority -->
+        <Property name="ListenerPriority">40</Property>
+    </IssueTrackerConnector>
+
+    <!-- Codenvy base URL -->
+    <Codenvy>
+        <Property name="Url">http://a1.codenvy-dev.com/factory</Property>
+        <Property name="ApiVersion">1.2</Property>
+        <Property name="VcsType">git</Property>
+        <Property name="ApiUrl">http://a1.codenvy-dev.com/api</Property>
+        <Property name="UserName">cloud@wso2.com</Property>
+        <Property name="Password">password</Property>
+        <Property name="OrgId">orgid</Property>
+    </Codenvy>
+
+
+    <ApiManager>
+        <DefaultTier>Unlimited</DefaultTier>
+        <Server>
+            <Url>http://<%= @am_subdomain %>.<%= @wso2_env_domain %>:<%= @apimgt_http_port %></Url>
+        </Server>
+        <Store>
+            <Url>http://<%= @am_subdomain %>.<%= @wso2_env_domain %>:<%= @apimgt_http_port %>/store</Url>
+        </Store>
+        <StoreSubscription>
+            <Url>http://<%= @am_subdomain %>.<%= @wso2_env_domain %>:<%= @apimgt_http_port %>/store/site/pages/subscriptions.jag</Url>
+        </StoreSubscription>
+        <Service>
+            <Name>APIManagerIntegrationService</Name>
+            <Namespace>http://integration.apiManager.appfactory.carbon.wso2.org</Namespace>
+        </Service>
+        <Keys>
+            <Property name="Sandbox">Development</Property>
+            <Property name="Sandbox">Testing</Property>
+            <Property name="Prod">Production</Property>
+        </Keys>
+        <KeyConstants>
+            <Constants name="Development">sandboxConsumerKey:sandboxKey:sandboxConsumerSecret</Constants>
+            <Constants name="Testing">sandboxConsumerKey:sandboxKey:sandboxConsumerSecret</Constants>
+            <Constants name="Production">prodConsumerKey:prodKey:prodConsumerSecret</Constants>
+        </KeyConstants>
+        <ButtonLabel>Go to API Manager</ButtonLabel>
+    </ApiManager>
+
+
+    <!-- BAM integration related configurations -->
+    <BAM>
+        <EnableStatPublishing>true</EnableStatPublishing>
+
+        <!--
+              Server URL of the remote BAM server used to collect statistics. Must
+              be specified in protocol://hostname:port/ format.
+          -->
+        <BAMServerURL>tcp://<%= @bam_subdomain %>.<%= @wso2_env_domain %>:<%= @bam_tcp_port %></BAMServerURL>
+
+        <!--
+                  Administrator username to login to the remote BAM server.
+              -->
+        <BAMUserName><%= @receiver_username %></BAMUserName>
+
+        <!--
+            Administrator password to login to the remote BAM server.
+        -->
+        <BAMPassword><%= @receiver_password %>
+        </BAMPassword>
+
+
+        <DashboardServer>
+            <Url>https://<%= @ues_subdomain %>.<%= @wso2_env_domain %>:<%= @ues_port %>
+            </Url>
+        </DashboardServer>
+
+        <Dashboards>
+            <PlatformAdminDashboard>
+                <Path>/PlatformDashboard</Path>
+            </PlatformAdminDashboard>
+            <TenantAdminDashboard>
+                <Path>/CXODashboard</Path>
+            </TenantAdminDashboard>
+            <TenantUserDashboard>
+                <Path>/UserDashboard</Path>
+            </TenantUserDashboard>
+        </Dashboards>
+        <Property name="ListenerPriority">70</Property>
+    </BAM>
+
+
+    <!--Application repository related configurations-->
+
+    <!--If this value is true, you can select if the app should have per developer repo or share main repo. If this value is false, every app will share the main repo Default value is false  -->
+    <EnablePerDeveloperRepos>true</EnablePerDeveloperRepos>
+    <EnablePerDeveloperBuild>true</EnablePerDeveloperBuild>
+    <EnablePerDeveloperAutoBuild>true</EnablePerDeveloperAutoBuild>
+
+    <RepositoryProviderConfig name="git" enabled="true">
+        <Property name="Class">
+            org.wso2.carbon.appfactory.git.repository.provider.GITBlitBasedGITRepositoryProvider
+        </Property>
+        <Property name="BaseURL">https://git.<%= @wso2_env_domain %>:<%= @gitblit_port %>/</Property>
+        <Property name="AdminUserName"><%= @source_control_git_admin_username %></Property>
+        <Property name="AdminPassword"><%= @source_control_git_admin_password %></Property>
+        <Property name="ReadWritePermission">/permission/admin/appfactory/repository/readwrite</Property>
+        <Property name="DisplayName">Git</Property>
+        <Property name="Provider">git</Property>
+        <Property name="IsVersioningSupported">true</Property>
+        <RepositoryUserPermission>
+            <Role name="developer">V,R,RWC,RWD,RW+,RW</Role>
+            <Role name="qa"></Role>
+            <Role name="devops"></Role>
+            <Role name="appowner">V,R,RWC,RWD,RW+,RW</Role>
+            <Role name="appfactoryusers"></Role>
+            <Role name="admin"></Role>
+            <Role name="cxo"></Role>
+            <Role name="globalAPIPublisher"></Role>
+        </RepositoryUserPermission>
+    </RepositoryProviderConfig>
+
+    <!--<RepositoryProviderConfig name="svn" enabled="true">
+        <Property name="Class">
+            org.wso2.carbon.appfactory.webdavsvn.svn.repository.provider.Apache2WebDAVSVNRepositoryProvider
+        </Property>
+        <Property name="BaseURL">https://AF_HOST:8082</Property>
+        <Property name="BackendURL">http://localhost:8081</Property>
+        <Property name="AdminUserName"><%= @s2git_adminusername %></Property>
+        <Property name="AdminPassword"><%= @s2git_adminpassword %></Property>
+        <Property name="ReadWritePermission">/permission/admin/appfactory/repository/readwrite</Property>
+        <Property name="DisplayName">SVN</Property>
+        <Property name="Provider">svn</Property>
+        <Property name="IsVersioningSupported">false</Property>
+        <Property name="TrunkURLFormat">{@url}/trunk</Property>
+        <Property name="BracnhURLFormat">{@url}/branches/{@version}</Property>
+    </RepositoryProviderConfig-->
+
+
+    <!--This element defines the set of staging servers, where the application applications are deployed. -->
+    <!--Have commented out all the ESB related deployment configs for NOW -->
+    <ApplicationDeployment>
+        <!--
+             In TenantRoles section, we define set of roles to be created in tenant space of Cloud runtime. Each role consist of a name and a comma separated permissions.
+             When tenant is created above roles are created with given permissions. These permissions are associated with Cloud runtime(Development,Testing,Production) defined below.
+
+             Permission string is defined as <deny:><resource>:<action>.
+             eg; deny:/_system/governance/dependencies/:REGISTRY_GET, /permission/admin/login, CreateApplication/CreateApplication:invoke-service
+             <deny:> - given permission is denied on given role. If <deny:> is not defined, it is considered as allow.
+             <resource> - permission string
+             <action> - if action is not defined, it is default value is 'ui.execute'. For registry actions, you can use predefined actions(REGISTRY_GET,REGISTRY_PUT,REGISTRY_DELETE)
+
+             When users are registered in AppFactory, all users are added to DefaultUserRoles defined here.You can have multiple DefaultUserRoles.
+          -->
+
+        <DeploymentStage name="Development">
+            <CanCommit>true</CanCommit>
+            <TenantRoles>
+                <Role name="admin">
+                    <Permission>
+                        CreateApplication/CreateApplication:invoke-service,
+                        /permission/admin/tenant/user/mgt
+                    </Permission>
+                </Role>
+                <Role name="everyone">
+                    <Permission>
+                        deny:/_system/governance/dependencies/:REGISTRY_GET,
+                        deny:/_system/governance/dependencies/:REGISTRY_PUT,
+                        deny:/_system/governance/dependencies/:REGISTRY_DELETE,
+                        deny:/_system/governance/dependencies/:authorize
+                    </Permission>
+                </Role>
+                <Role name="developer">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/modify/webapp,
+                        /permission/admin/configure/rssmanager,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/manage/resources/govern/lifecycles,
+                        /permission/admin/monitor/logging,
+                        /permission/admin/appfactory/resources/create/Development,
+                        /permission/admin/appfactory/resources/read/Development,
+                        /permission/admin/appfactory/resources/update/Development
+                    </Permission>
+                </Role>
+                <Role name="qa">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/appfactory/resources/read/Development,
+                    </Permission>
+                </Role>
+                <Role name="appowner">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/modify/webapp,
+                        /permission/admin/configure/rssmanager,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/manage/resources/govern/lifecycles,
+                        /permission/admin/appfactory/resources/create/Development,
+                        /permission/admin/appfactory/resources/update/Development,
+                        /permission/admin/appfactory/resources/read/Development,
+                        /permission/admin/configure/security,
+                        /permission/admin/monitor/logging
+                    </Permission>
+                </Role>
+            </TenantRoles>
+            <Undeployer>
+               <ApplicationType name="*">
+                        <ClassName>org.wso2.carbon.appfactory.deployers.JenkinsStratosUndeployer</ClassName>
+               </ApplicationType>
+	        </Undeployer>
+            <AllowDomainMapping><%= @allow_dev_domainmapping %></AllowDomainMapping>
+            <StratosLBUrl><%= @domainmapping_stratos_dev_url %></StratosLBUrl>
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <!--if autodeployment is enabled, the selected versions to autodeploy will be built and deployed after every commit-->
+            <AutomaticDeployment enabled="true">
+                <!--time period to poll the repository-->
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+            <DeploymentArtifact>
+                <TriggerBuild>
+                    <ArtifactStoragePolicy>Latest</ArtifactStoragePolicy>
+                    <!-- Latest, Tagged artifact will be deployed -->
+                </TriggerBuild>
+            </DeploymentArtifact>
+            <Promote>
+                <DeploymentPolicy>Latest</DeploymentPolicy>
+                <TargetStage>Testing</TargetStage>
+                <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
+            </Promote>
+            <CreateArtifact>Always</CreateArtifact>
+            <DeploymentServerURL>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %>/services/</LogServerURL>
+            <MountPoint>dev</MountPoint>
+            <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %></BaseAccessUrl>
+            <TenantMgtUrl>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %></TenantMgtUrl>
+            <PAASServicesURL>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %>/services/</PAASServicesURL>
+            <Buildable>true</Buildable>
+            <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
+            <RssName>Development</RssName>
+        </DeploymentStage>
+        <DeploymentStage name="Testing">
+            <CanCommit>false</CanCommit>
+            <TenantRoles>
+                <Role name="admin">
+                    <Permission>
+                        CreateApplication/CreateApplication:invoke-service,
+                        /permission/admin/tenant/user/mgt
+                    </Permission>
+                </Role>
+                <Role name="everyone">
+                    <Permission>
+                        deny:/_system/governance/dependencies/:REGISTRY_GET,
+                        deny:/_system/governance/dependencies/:REGISTRY_PUT,
+                        deny:/_system/governance/dependencies/:REGISTRY_DELETE,
+                        deny:/_system/governance/dependencies/:authorize
+                    </Permission>
+                </Role>
+                <Role name="qa">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/modify/webapp,
+                        /permission/admin/configure/rssmanager,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/manage/resources/govern/lifecycles,
+                        /permission/admin/monitor/logging,
+                        /permission/admin/appfactory/resources/create/Testing,
+                        /permission/admin/appfactory/resources/update/Testing,
+                        /permission/admin/appfactory/resources/read/Testing
+                    </Permission>
+                </Role>
+                <Role name="developer">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/appfactory/resources/read/Testing
+                    </Permission>
+                </Role>
+                <Role name="devops">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/appfactory/resources/read/Testing
+                    </Permission>
+                </Role>
+                <Role name="appowner">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/modify/webapp,
+                        /permission/admin/configure/rssmanager,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/manage/resources/govern/lifecycles,
+                        /permission/admin/appfactory/resources/update/Testing,
+                        /permission/admin/appfactory/resources/create/Testing,
+                        /permission/admin/appfactory/resources/read/Testing,
+                        /permission/admin/configure/security,
+                        /permission/admin/monitor/logging
+                    </Permission>
+                </Role>
+            </TenantRoles>
+            <AllowDomainMapping><%= @allow_test_domainmapping %></AllowDomainMapping>
+            <StratosLBUrl><%= @domainmapping_stratos_test_url %></StratosLBUrl>
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <AutomaticDeployment enabled="false">
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+            <DeploymentArtifact>
+                <TriggerBuild>
+                    <ArtifactStoragePolicy>Tagged</ArtifactStoragePolicy>
+                    <!-- Latest, Marked-->
+                </TriggerBuild>
+            </DeploymentArtifact>
+            <Promote>
+                <DeploymentPolicy>Promoted</DeploymentPolicy>
+                <!-- Latest/Tagged artifact will be deployed to the promoted stage-->
+                <TargetStage>Production</TargetStage>
+            </Promote>
+            <Demote>
+                <TargetStage>Development</TargetStage>
+            </Demote>
+            <CreateArtifact>UserInput</CreateArtifact>
+            <DeploymentServerURL>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %>/services/</LogServerURL>
+            <MountPoint>test</MountPoint>
+            <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %></BaseAccessUrl>
+            <TenantMgtUrl>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %></TenantMgtUrl>
+            <PAASServicesURL>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %>/services/</PAASServicesURL>
+            <Buildable>false</Buildable>
+            <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
+            <RssName>Testing</RssName>
+        </DeploymentStage>
+        <DeploymentStage name="Production">
+            <CanCommit>false</CanCommit>
+            <TenantRoles>
+                <Role name="admin">
+                    <Permission>
+                        CreateApplication/CreateApplication:invoke-service,
+                        /permission/admin/tenant/user/mgt
+                    </Permission>
+                </Role>
+                <Role name="everyone">
+                    <Permission>
+                        deny:/_system/governance/dependencies/:REGISTRY_GET,
+                        deny:/_system/governance/dependencies/:REGISTRY_PUT,
+                        deny:/_system/governance/dependencies/:REGISTRY_DELETE,
+                        deny:/_system/governance/dependencies/:authorize
+                    </Permission>
+                </Role>
+                <Role name="devops">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/manage/modify/webapp,
+                        /permission/admin/configure/rssmanager,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/manage/resources/govern/lifecycles,
+                        /permission/admin/monitor/logging,
+                        /permission/admin/appfactory/resources/create/Production,
+                        /permission/admin/appfactory/resources/update/Production,
+                        /permission/admin/appfactory/resources/read/Production
+                    </Permission>
+                </Role>
+                <Role name="appowner">
+                    <Permission>
+                        /permission/admin/login,
+                        /permission/admin/configure/security,
+                        /permission/admin/configure/datasources,
+                        /permission/admin/manage/resources/ws-api,
+                        /permission/admin/appfactory/resources/create/Production,
+                        /permission/admin/appfactory/resources/read/Production,
+                        /permission/admin/appfactory/resources/update/Production
+                    </Permission>
+                </Role>
+            </TenantRoles>
+            <AllowDomainMapping><%= @allow_prod_domainmapping %></AllowDomainMapping>
+            <StratosLBUrl><%= @domainmapping_stratos_prod_url %></StratosLBUrl>
+
+            <AllowDirectDeploy>true</AllowDirectDeploy>
+            <AutomaticDeployment enabled="false">
+                <PollingPeriod>6</PollingPeriod>
+            </AutomaticDeployment>
+            <DeploymentArtifact>
+                <PersistedArtifacts>Tagged</PersistedArtifacts>
+            </DeploymentArtifact>
+            <Demote>
+                <TargetStage>Testing</TargetStage>
+            </Demote>
+            <CreateArtifact>Never</CreateArtifact>
+            <DeploymentServerURL>https://<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %>/services/</LogServerURL>
+            <MountPoint>prod</MountPoint>
+            <BaseAccessUrl>https:/<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %></BaseAccessUrl>
+            <TenantMgtUrl>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %></TenantMgtUrl>
+            <PAASServicesURL>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %>/services/</PAASServicesURL>
+            <Semantic>Production</Semantic>
+            <Buildable>false</Buildable>
+            <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
+            <RssName>Production</RssName>
+        </DeploymentStage>
+    </ApplicationDeployment>
+
+    <!--Initial Deployment Stage-->
+    <StartStage>Development</StartStage>
+    <!--End Deployment Stage-->
+    <EndStage>Production</EndStage>
+
+    <JNDI>
+        <DomainMapping>
+            <FactoryInitial>com.sun.jndi.dns.DnsContextFactory</FactoryInitial>
+            <DnsTimeOut>5000</DnsTimeOut>
+            <DnsRetries>1</DnsRetries>
+        </DomainMapping>
+    </JNDI>
+
+    <!--URL Mapping configurations. Set the stage to which the fine grained url is required for Applications. -->
+    <DomainName><%= @domainmapping_domain %></DomainName>
+    <!--false|true-->
+    <FineGrainedDomainMappingAllowedStage><%= @domainmapping_allowed_stage %></FineGrainedDomainMappingAllowedStage>
+    <!--Production|Testing|Development-->
+    <StratosLBUrl><%= @stratos_lb_url %></StratosLBUrl>
+    <!-- Set the initial application context to be mapped when initializing a custom url -->
+    <DefaultMappingContext><%= @domain_mapping_default_context %></DefaultMappingContext>
+
+    <!--DNS specific to Amazon, If the IAAS provider is EC2 enable this-->
+    <EnableAWSRoute53><%= @enable_route53 %></EnableAWSRoute53>
+    <!--false|true-->
+    <AWSRoute53AccessKeyId><%= @route53_access_key_id %></AWSRoute53AccessKeyId>
+    <!--If EnableAWSRoute is true set this value-->
+    <AWSRoute53SecretAccessKey><%= @route53_secret_access_key %></AWSRoute53SecretAccessKey>
+    <!--If EnableAWSRoute is true set this value-->
+    <AWSRoute53HostedZoneId><%= @route53_hosted_zone_id %></AWSRoute53HostedZoneId>
+    <!--If EnableAWSRoute is true set this value-->
+
+    <!-- API-Token should be set according to the running instance of Jenkins-->
+    <ContinuousIntegrationProvider name="jenkins" enabled="true">
+        <Property name="BaseURL">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
+        <Property name="Authenticate">true</Property>
+        <Property name="Maven3ConfigName">m3</Property>
+        <Property name="DefaultGlobalRoles">readonly</Property>
+        <Property name="ProjectRolePermissions">hudson.model.Item.Configure,hudson.model.Item.Build,hudson.model.Item.Workspace,hudson.model.Item.Read</Property>
+        <Property name="ListenerPriority">50</Property>
+        <Property name="ResourceUserId">admin</Property>
+        <Property name="API-Token">7ea3f81bbe068aab15690c443ae1ae2c</Property>
+        <Property name="ClientConnectionCount">100</Property>
+    </ContinuousIntegrationProvider>
+    <OtherServices>
+        <Service name="ViewVC">
+            <Link>http://www.viewvc.org/</Link>
+            <Description>Browse the repository, view files, display diffs between versions.</Description>
+            <Title>ViewVC</Title>
+        </Service>
+        <Service name="Forums">
+            <Link>http://www.forums.com/</Link>
+            <Description>Let the app users hold conversations in the form of posted messages.</Description>
+            <Title>Forums</Title>
+        </Service>
+        <ShowOtherServicesTab>false</ShowOtherServicesTab>
+    </OtherServices>
+
+    <LCButton>
+        <PromoteButton>
+            <Key>Promote</Key>
+            <Value>Promote</Value>
+        </PromoteButton>
+        <DemoteButton>
+            <Key>Demote</Key>
+            <Value>Demote</Value>
+        </DemoteButton>
+        <RetireButton>
+            <Key>Retire</Key>
+            <Value>Retire</Value>
+        </RetireButton>
+    </LCButton>
+    <!-- This is used to create an event buffer with this number of elements-->
+    <!-- two buffers will be created with this size to store application and user events-->
+    <EventBufferSize>32</EventBufferSize>
+    <EnableSonar>true</EnableSonar>
+    <SonarURL>http://localhost:9000</SonarURL>
+    <EnableUserSearch>true</EnableUserSearch>
+    <CookieRefreshInterval>300000</CookieRefreshInterval>
+    <DatabaseUserDefaultPassword>root</DatabaseUserDefaultPassword>
+    <STS>
+        <Epr>
+            <serviceslocation>https://<%= @is_subdomain %>.<%= @wso2_env_domain %>:<%= @is_port %>/services
+            </serviceslocation>
+            <servicename>/wso2carbon-sts</servicename>
+            <tenantlocationtemplate>/t/{tenantdomain}</tenantlocationtemplate>
+        </Epr>
+        <STSSubjectConfirmationMethod>b</STSSubjectConfirmationMethod>
+        <STSAllowedUserGroups>appfactoryusers</STSAllowedUserGroups>
+        <ScenarioID>scenario1</ScenarioID>
+        <PolicyFile>sts-policy-ut.xml</PolicyFile>
+        <Cliams>http://wso2.org/claims</Cliams>
+        <ClaimUris>http://wso2.org/claims/givenname,http://wso2.org/claims/emailaddress</ClaimUris>
+        <ClaimNamespace>http://schemas.xmlsoap.org/ws/2005/05/identity</ClaimNamespace>
+    </STS>
+    <PollTimeInterval>30</PollTimeInterval>
+    <TrunkVersioning>
+        <WebappVersioning>
+            <SourceVersionName>trunk</SourceVersionName>
+            <ArtifactVersionName>default-SNAPSHOT</ArtifactVersionName>
+        </WebappVersioning>
+        <ServiceVersioning>
+            <SourceVersionName>trunk</SourceVersionName>
+            <ArtifactVersionName>SNAPSHOT</ArtifactVersionName>
+        </ServiceVersioning>
+    </TrunkVersioning>
+
+    <PAASArtifactStorageRepositoryProvider>
+        <ProviderClass>org.wso2.carbon.appfactory.s4.integration.GITBlitBasedGITRepositoryProvider</ProviderClass>
+        <BaseURL>https://<%= @s2gitblit_server %>:<%= s2gitblit_server_port %>/</BaseURL>
+        <AdminUserName><%= @s2git_adminusername %></AdminUserName>
+        <AdminPassword><%= @s2git_adminpassword %></AdminPassword>
+    </PAASArtifactStorageRepositoryProvider>
+</AppFactory>
+

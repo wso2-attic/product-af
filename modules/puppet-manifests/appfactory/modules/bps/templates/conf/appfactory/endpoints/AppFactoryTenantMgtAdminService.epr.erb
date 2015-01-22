@@ -1,0 +1,15 @@
+<wsa:EndpointReference
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.w3schools.com uep_schema.xsd"
+        xmlns:wsa="http://www.w3.org/2005/08/addressing"
+        xmlns:wsdl11="http://schemas.xmlsoap.org/wsdl/">
+   <wsa:Address>https://<%= @is_subdomain %>.<%= @wso2_env_domain %>:<%= @is_port %>/services/TenantMgtAdminService</wsa:Address>
+   <wsa:Metadata>
+           <id>SInvokeEPR</id>
+           <transport type="http">
+                <authorization-username><%= @adminuser_name %></authorization-username>
+                <authorization-password><%= @adminuser_passwd %></authorization-password>
+           </transport>
+       </wsa:Metadata>
+</wsa:EndpointReference>
+

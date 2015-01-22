@@ -1,0 +1,14 @@
+{
+  	"id": "P1",
+  	"provider": "ec2",
+  	"property": [
+      	{
+        	"name": "region",
+        	"value": "REGION"
+      	},    
+        {
+        	"name": "zone",
+        	"value": "AVAILABILITY_ZONE"
+      	}
+  	]
+}

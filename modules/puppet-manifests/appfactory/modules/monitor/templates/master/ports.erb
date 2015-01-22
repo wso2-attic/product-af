@@ -1,0 +1,12 @@
+# Port check
+
+<% @ports.each do |port| -%>
+
+define service {
+    use                 generic-service
+    host_name           <%= @fqdn %>
+    service_description CHECK PORT <%= port %>
+    check_command       check_nrpe!check_port!<%= port %>
+}
+
+<% end -%>

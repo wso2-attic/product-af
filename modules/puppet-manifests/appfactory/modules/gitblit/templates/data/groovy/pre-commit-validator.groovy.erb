@@ -1,0 +1,267 @@
+/*
+ * Copyright 2005-2014 WSO2, Inc. (http://wso2.com)
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ *
+*
+ * Gitblit Pre-Receive Hook: pre-commit-validator
+ * This hook validates if user has modified the pom.xml entries(artifactId,version or packaging) from its initial values.
+ *
+ * The Pre-Receive hook is executed after an incoming push has been parsed,
+ * validated, and objects have been written but BEFORE the refs are updated.
+ * This is the appropriate point to block a push for some reason.
+ *
+ * This script is only executed when pushing to *Gitblit*, not to other Git
+ * tooling you may be using.
+ * 
+ * If this script is specified in *groovy.preReceiveScripts* of gitblit.properties
+ * or web.xml then it will be executed by any repository when it receives a
+ * push.  If you choose to share your script then you may have to consider
+ * tailoring control-flow based on repository access restrictions.
+ * 
+ * Scripts may also be specified per-repository in the repository settings page.
+ * Shared scripts will be excluded from this list of available scripts.
+ *
+ * This script is dynamically reloaded and it is executed within it's own
+ * exception handler so it will not crash another script nor crash Gitblit.
+ * 
+ * If you want this hook script to fail and abort all subsequent scripts in the
+ * chain, "return false" at the appropriate failure points.
+ *
+ * Bound Variables:
+ *  gitblit			Gitblit Server	 		com.gitblit.GitBlit
+ *  repository		Gitblit Repository		com.gitblit.models.RepositoryModel
+ *  user			Gitblit User			com.gitblit.models.UserModel
+ *  clientLogger	Logs messages to client	com.gitblit.utils.ClientLogger
+ *  commands		JGit commands			Collection<org.eclipse.jgit.transport.ReceiveCommand>
+ *	url				Base url for Gitblit	String
+ *  logger			Logger instance			org.slf4j.Logger
+ *  
+ */
+
+// Indicate we have started the script
+logger.info("pre-commit-validator hook triggered by ${user.username} for ${repository.name}: checking ${commands.size} commands")
+
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.util.List
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.ObjectReader
+import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.transport.ReceiveCommand.Result
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.treewalk.TreeWalk
+import org.eclipse.jgit.treewalk.filter.PathFilter
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.xpath.*
+import org.eclipse.jgit.transport.ReceiveCommand.Type
+import com.gitblit.GitBlit
+import com.gitblit.Keys
+import com.gitblit.models.RepositoryModel
+import com.gitblit.models.UserModel
+import com.gitblit.utils.JGitUtils
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.transport.ReceiveCommand
+import org.eclipse.jgit.transport.ReceiveCommand.Result
+import org.slf4j.Logger
+import java.io.FileInputStream
+import java.security.KeyStore
+import java.security.PrivateKey
+import java.security.cert.Certificate
+import java.io.File
+import java.security.Signature
+import java.security.SignatureException
+import java.util.*
+import org.apache.axiom.util.base64.Base64Utils
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
+import com.nimbusds.jose.JWSSigner
+import com.nimbusds.jose.crypto.RSASSASigner
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
+import java.security.interfaces.RSAPrivateKey
+
+
+def systemUser = gitblit.getString('appfactory.gitblit.admin.username', 'gitblitsystemadmin')
+// if system user, ignore this validation as system is allowed to do version changes on branching
+
+def tmpArr = repository.name.split("/")
+def domainName = tmpArr[0]
+def tmpAppNameArr = tmpArr[1].split(".git")
+def appName = tmpAppNameArr[0]
+def repoFrom = "original"
+
+//if the repo name is for a forked repo
+if(repository.name.contains('~')){
+    domainName = domainName.split("~")[1]
+    appName = tmpArr[2].split(".git")[0]
+    repoFrom = "fork"
+}
+
+logger.info("****************** domainName" + domainName)
+logger.info("******************* appName" + appName)
+def afSecret = gitblit.getString('appfactory.secret', '')
+def repo = gitblit.getRepository(repository.name)
+def git = new Git(repo)
+def fileUtil = new FileUtil()
+def signUtil = new SignUtil()
+if(user.username != systemUser){
+    for (command in commands) {
+        def ref = command.refName
+        if (ref.contains('master')) {                   // if the commit is to master branch
+            ref = 'trunk'
+        } else if (ref.startsWith('refs/heads/')) {     // if the commit is to a other branch
+            ref = ref.substring('refs/heads/'.length())
+        }
+        String requestXML = "";
+        requestXML="<soap:Envelope xmlns:soap='http://www.w3.org/2003/05/soap-envelope' xmlns:rep='http://service.mgt.repository.appfactory.carbon.wso2.org'>";
+        requestXML+="   <soap:Body>";
+        requestXML+="      <rep:canCommit>";
+        requestXML+="         <rep:applicationId>${appName}</rep:applicationId>";
+        requestXML+="         <rep:version>${ref}</rep:version>";
+        requestXML+="      </rep:canCommit>";
+        requestXML+="   </soap:Body>";
+        requestXML+="</soap:Envelope>";
+        def curlCommand = "curl -k --trace-ascii debugdump.txt -X POST --data \""+requestXML+"\" -H \"Authorization: " + signUtil.getAuthHeader("${user.username}", gitblit) + "\" -H \"Content-Type:application/soap+xml;Charset='UTF-8'\" -H SOAPAction:\"urn:canCommit\" https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/services/RepositoryAuthenticationService";
+
+        logger.info("Executing curl command :" + curlCommand);
+        try{
+            def ant = new AntBuilder();
+            ant.exec(outputproperty:"cmdOut",
+                     errorproperty: "cmdErr",
+                     resultproperty:"cmdExit",
+                     failonerror: "true",
+                     executable: 'curl') {
+                arg(line:curlCommand);
+            }
+            def result = "${ant.project.properties.cmdOut}";
+            def soapenvelop = new XmlSlurper().parseText(result).declareNamespace(['soapenv': "http://www.w3.org/2003/05/soap-envelope", 'ns':"http://service.mgt.repository.appfactory.carbon.wso2.org"]);
+            if(!soapenvelop.Body.canCommitResponse.return.toBoolean()){
+                println "Appfactory can commit returend : " + soapenvelop.Body.canCommitResponse.return.toBoolean();
+                command.setResult(Result.REJECTED_OTHER_REASON, "You are not allowed to commit to the current branch.")
+                return
+            }
+        }catch(e){
+            println e;
+        }
+        // we validate only for update and delete, creation is not needed to validate, and creation is not allowed for users other than system user.
+        if(command.getType() == Type.UPDATE || command.getType() == Type.DELETE){
+            def headId = git.getRepository().resolve(command.newId.name() + "^{tree}")
+            def oldId = git.getRepository().resolve(command.oldId.name() + "^{tree}")
+            def reader = git.getRepository().newObjectReader()
+            def oldTreeIter = new CanonicalTreeParser()
+            oldTreeIter.reset(reader, oldId)
+            def newTreeIter = new CanonicalTreeParser()
+            newTreeIter.reset(reader, headId)
+            // get the diff and check if user is trying to modify the pom.xml
+            def diffs= git.diff().setNewTree(newTreeIter).setOldTree(oldTreeIter).call()
+            for(DiffEntry diff : diffs){
+                if(diff.getOldPath().contains("pom.xml")){
+
+                    String changeType = diff.changeType.toString();
+
+                    // if the pom change type is a DELETE operation reject the psuh
+                    // This will block root pom deletion
+                    if (changeType.equals(DiffEntry.ChangeType.DELETE.toString())) {
+                        command.setResult(Result.REJECTED_OTHER_REASON, "You are not allowed to delete the project's root pom.xml")
+                        return
+                    }
+
+                    // load old pom.xml and get artifactId,version and packaging values
+                    def oldFileStream = fileUtil.loadPOMFile(repo,command.oldId.name())
+                    def valuesOfOldPOMFile = fileUtil.getNonModifiableValuesOfPOMFile(oldFileStream)
+                    // load new pom.xml and get artifactId,version and packaging values
+                    def newFileStream = fileUtil.loadPOMFile(repo,command.newId.name())
+                    def valuesOfNewPOMFile = fileUtil.getNonModifiableValuesOfPOMFile(newFileStream)
+                    // if old pom.xml values are not equal to new pom.xml values, reject the push.
+                    if(valuesOfOldPOMFile.get("artifactId")!=valuesOfNewPOMFile.get("artifactId") ||
+                       valuesOfOldPOMFile.get("version")!=valuesOfNewPOMFile.get("version") ||
+                       valuesOfOldPOMFile.get("name")!=valuesOfNewPOMFile.get("name") ||
+                       valuesOfOldPOMFile.get("packaging")!=valuesOfNewPOMFile.get("packaging")){
+                        command.setResult(Result.REJECTED_OTHER_REASON, "You are not allowed to modify artifactId, version, name or packaging in pom.xml")
+                    }
+                }
+            }
+        }
+
+    }
+}
+
+class FileUtil {
+    def loadPOMFile(repo, revision){
+        // a RevWalk allows to walk over commits based on some filtering that is defined
+        def revWalk = new RevWalk(repo)
+        def commit = revWalk.parseCommit(repo.resolve(revision))
+        // and using commit's tree find the path
+        def tree = commit.getTree()
+
+        // now try to find a specific file
+        def treeWalk = new TreeWalk(repo)
+        treeWalk.addTree(tree)
+        treeWalk.setRecursive(true)
+        treeWalk.setFilter(PathFilter.create("pom.xml"))
+        if (!treeWalk.next()) {
+            // this can not be reached as we check the diff first
+            throw new IllegalStateException("Did not find expected file 'pom.xml'")
+        }
+
+        def objectId = treeWalk.getObjectId(0)
+        def loader = repo.open(objectId)
+        // and then one can the loader to read the file
+        def outputStream = new ByteArrayOutputStream()
+        loader.copyTo(outputStream)
+
+        return outputStream
+    }
+    def getNonModifiableValuesOfPOMFile(outputStream){
+        def factory = DocumentBuilderFactory.newInstance()
+        def builder = factory.newDocumentBuilder()
+        def document = builder.parse(new ByteArrayInputStream(outputStream.toByteArray()))
+
+        def xpath = XPathFactory.newInstance().newXPath()
+        def artifactIdExpr = xpath.compile("/project/artifactId/text()")
+        def versionExpr = xpath.compile("/project/version/text()")
+        def packagingExpr = xpath.compile("/project/packaging/text()")
+        def nameExpr = xpath.compile("/project/name/text()")
+
+        def valuesMap = [:]
+        valuesMap.put("artifactId", (String)artifactIdExpr.evaluate(document, XPathConstants.STRING))
+        valuesMap.put("version", (String)versionExpr.evaluate(document, XPathConstants.STRING))
+        valuesMap.put("packaging", (String)packagingExpr.evaluate(document, XPathConstants.STRING))
+        valuesMap.put("name", (String)nameExpr.evaluate(document, XPathConstants.STRING))
+        return valuesMap
+    }
+}
+
+class SignUtil {
+    def getAuthHeader(username, gitblit){
+        def keystoreName = gitblit.getString("appfactory.keystore","")
+        def keystorecredential = gitblit.getString("appfactory.keystore.password","")
+        KeyStore ks = KeyStore.getInstance("jks")
+        ks.load(new FileInputStream(keystoreName), keystorecredential.toCharArray())
+        PrivateKey key = (PrivateKey)ks.getKey(keystorecredential, keystorecredential.toCharArray())
+        JWSSigner signer = new RSASSASigner((RSAPrivateKey) key)
+        JWTClaimsSet claimsSet = new JWTClaimsSet()
+        claimsSet.setClaim("Username", username.trim())
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS512), claimsSet)
+        signedJWT.sign(signer)
+        def header = "Bearer " + Base64Utils.encode(signedJWT.serialize().getBytes())
+        return header
+    }
+}

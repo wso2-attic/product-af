@@ -1,0 +1,38 @@
+<% if @amtype == 'apimanager' %>
+{
+    "theme" : {
+        "base" : "default",
+        "subtheme" : "modern"
+    },
+    "context" : "/publisher",
+    "request_url":"READ_FROM_REQUEST",
+    "ssoConfiguration" : {
+        "enabled" : "true",
+        "issuer" : "API_PUBLISHER",
+        "responseSigningEnabled":"true",
+        "identityProviderURL" : "https://<%= is_subdomain %>.<%= wso2_env_domain %>:<%= @af_port%>/samlsso",
+        "keyStorePassword" : "<%= apipublisher_keystore_password %>",
+        "identityAlias" : "<%= apipublisher_keystore_alias %>",
+        "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
+    }
+}
+<% else %>
+{
+    "theme" : {
+        "base" : "default",
+        "subtheme" : "modern"
+    },
+    "context" : "/publisher",
+    "request_url":"READ_FROM_REQUEST",
+    "ssoConfiguration" : {
+        "enabled" : "true",
+        "issuer" : "API_PUBLISHER",
+        "responseSigningEnabled":"true",
+        "identityProviderURL" : "https://identity.<%= wso2_env_domain %>/samlsso",
+        "keyStorePassword" : "<%= apipublisher_keystore_password %>",
+        "keyStorePassword" : "<%= apipublisher_keystore_password %>",
+        "identityAlias" : "<%= apipublisher_keystore_alias %>",
+        "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
+    }
+}
+<% end %>

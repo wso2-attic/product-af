@@ -1,0 +1,36 @@
+<tasks-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+
+    <!-- 
+      The currently running server mode; possible values are:-
+      STANDALONE, CLUSTERED, REMOTE, AUTO.
+      In AUTO mode, the server startup checks whether clustering is enabled in the system, 
+      if so, CLUSTERED mode will be used, or else, the the server mode will be STANDALONE.
+    -->
+    <taskServerMode><%= @task_server_mode %></taskServerMode>
+    
+    <!-- 
+      To be used in CLUSTERED mode to notify how many servers are there in 
+      the task server cluster, the servers wait till this amount of servers
+      are activated before the tasks are scheduled -->
+    <taskServerCount><%= @task_server_count %></taskServerCount>
+
+    <!-- The location resover class to resolve the location for the task -->
+    <locationResolverClass>org.wso2.carbon.ntask.core.impl.RandomTaskLocationResolver</locationResolverClass>
+    
+    <!-- The address to which the remote task server should dispatch the trigger messages to, 
+      usually this would be an endpoint to a load balancer -->
+    <taskClientDispatchAddress>https://<%= @bam_subdomain %>.<%= @domain %></taskClientDispatchAddress>
+    
+    <!-- The address of the remote task server -->
+    <remoteServerAddress>https://<%= @task_subdomain %>.<%= @domain %>:<%= @task_port %></remoteServerAddress>
+    
+    <!-- The username to authenticate to the remote task server -->
+    <remoteServerUsername><%= @usrmgt_username %></remoteServerUsername>
+    
+    <!-- The password to authenticate to the remote task server -->
+    <remoteServerPassword><%= @usrmgt_password %></remoteServerPassword>
+
+    <!-- Below contain a sample to be used when using with secure vault -->
+    <!--remoteServerPassword svns:secretAlias="remote.task.server.password"></remoteServerPassword-->
+
+</tasks-configuration>

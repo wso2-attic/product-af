@@ -1,0 +1,49 @@
+{
+    "subscriptions": {
+       "type": [{
+         "id": "app_cloud",
+         "name": "App Cloud",
+         "url": "https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/"
+        },{
+         "id": "integration_cloud",
+         "name": "Integration Cloud",
+         "url": "https://apps.cloud.wso2.com/"
+        },{
+         "id": "api_cloud",
+         "name": "API Cloud",
+         "url": "https://<%= @am_subdomain %>.<%= @wso2_env_domain %>/publisher/"
+        }]
+    },
+    "ServerUrls": {
+       "appfactory" :"https://<%= @cloudmgt_subdomain %>.<%= @wso2_env_domain %>/services/",
+       "appfactory_tmp": "https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/services/",
+       "cloudmgt" : "https://<%= @cloudmgt_subdomain %>.<%= @wso2_env_domain %>/cloudmgt",
+       "bps": "https://<%= @bps_subdomain %>.<%= @wso2_env_domain %>/services/",
+       "greg": "https://<%= @af_subdomain %>.<%= @wso2_env_domain %>/services/"
+    },
+    "SSORelyingParty": {
+        "name": "APPSERVER",
+        "dashboardName": "WSO2 Cloud Dashboard",
+        "identityProviderURL":"https://<%= @is_subdomain %>.<%= @wso2_env_domain %>/samlsso",
+        "keyStorePassword" : "wso2carbon",
+        "identityKeyAlias" : "wso2carbon",
+        "keyStoreName" : "<%= @carbon_home %>/repository/resources/security/wso2carbon.jks",
+        "cookieRefreshInterval":300000,
+        "adminUser":"admin",
+        "adminPassword":"admin"
+    },
+    "registrationEmail" : {
+        "from":"<%= @mailto_smtp_from %>",
+        "subject":"WSO2 Cloud Services - Registration completed",
+        "username":"<%= @mailto_smtp_user %>",
+        "password":"<%= @mailto_smtp_passwd %>",
+        "host":"<%= @mailto_smtp_host %>",
+        "port":"<%= @mailto_smtp_port %>",
+        "tls":"<%= @mailto_smtp_tls %>",
+        "targetEpr" :"https://<%= @cloudmgt_subdomain %>.<%= @wso2_env_domain %>/cloudmgt/site/pages/confirm_verification.jag"
+    },
+    "supportContact" : {
+        "to":"cloud@wso2.com"
+    }
+
+}

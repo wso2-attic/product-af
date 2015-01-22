@@ -1,0 +1,56 @@
+<!--
+ ~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<aspect name="UploadableApplicationLifeCycle"
+        class="org.wso2.carbon.governance.registry.extensions.aspects.DefaultLifeCycle">
+    <configuration type="literal">
+        <lifecycle>
+            <scxml xmlns="http://www.w3.org/2005/07/scxml"
+                   version="1.0"
+                   initialstate="Production">
+                <state id="Production">
+                    <datamodel>
+                        <data name="checkItems">
+                            <item name="Verify no one is using the Application*" forEvent=""/>
+                        </data>
+                        <data name="transitionExecution">
+                            <execution forEvent="Retire"
+                                       class="org.wso2.carbon.appfactory.core.governance.lifecycle.AppFactoryLCExecutor">
+                            </execution>
+                        </data>
+                        <data name="transitionScripts">
+                            <js forEvent="Retire">
+                                <console function="doRetire">
+                                    <script type="text/javascript">
+                                        doRetire = function() {
+                                        window.location =
+                                        unescape("../resources/resource.jsp?region=region3%26item=resource_browser_menu%26path=/_system/governance/repository/applications");
+                                        }
+                                    </script>
+                                </console>
+                            </js>
+                        </data>
+                    </datamodel>
+                    <transition event="Retire" target="Retired"/>
+                </state>
+                <state id="Retired">
+                    <datamodel></datamodel>
+                </state>
+            </scxml>
+        </lifecycle>
+    </configuration>
+</aspect>

@@ -1,0 +1,52 @@
+{
+    "server": {
+        "https": "https://ues.<%= @wso2_env_domain %>:<%= @ues_port %>",
+        "http": "http://ues.<%= @wso2_env_domain %>:9774"
+    },
+    "roles": {
+        "portal": {
+            "/permission/admin/login": ["ui.execute"]
+        }
+    },
+    "adminRole": "admin",
+    "user": {
+        "username": "admin",
+        "password": "admin"
+    },
+    "userRoles": ["portal"],
+    "permissions": {
+        "login": {
+            "/permission/admin/login": ["ui.execute"]
+        }
+    },
+    "userSpace": {
+        "space": "CXODashboard",
+        "options": {
+            "type": "registry",
+            "serverUrl": "https://ues.<%= @wso2_env_domain %>:<%= @ues_port %>/admin",
+            "path": "/_system/governance/users",
+            "username": "admin",
+            "password": "admin"
+        }
+    },
+    "storeSpace": {
+        "space": "store",
+        "options": {
+            "type": "registry",
+            "serverUrl": "https://ues.<%= @wso2_env_domain %>:<%= @ues_port %>/admin",
+            "path": "/_system/governance/users",
+            "username": "admin",
+            "password": "admin"
+        }
+    },
+    "ssoConfiguration": {
+        "enabled": true,
+        "issuer": "CXODashboard",
+        "identityProviderURL": "https://apps.<%= @wso2_env_domain %>:<%= @af_port %>/samlsso",
+        "keyStorePassword": "wso2carbon",
+        "identityAlias": "wso2carbon",
+        "responseSigningEnabled": "true",
+        "keyStoreName": "/repository/resources/security/wso2carbon.jks",
+        "appAcs" : "https://ues.<%= @wso2_env_domain %>:<%= @ues_port %>/CXODashboard/acs.jag",
+    }
+}

@@ -1,0 +1,164 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+
+	<providers>
+		<provider>org.wso2.carbon.ndatasource.rdbms.RDBMSDataSourceReader</provider>
+	</providers>
+
+	<datasources>
+        <datasource>
+            <name>WSO2_BAM_CONFIG_DB</name>
+            <description>The datasource used for BAM_CONFIG MySQL database</description>
+            <jndiConfig>
+              <name>jdbc/<%= @config_db -%></name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                   <%- database = @config_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= @config_db %>?autoReconnect=true</url>
+                    <username><%= database[2] %></username>
+                    <password><%= database[3] %></password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive><%= @max_active %></maxActive>
+                    <maxWait><%= @max_wait %></maxWait>
+                    <minIdle>5</minIdle>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                </configuration>
+            </definition>
+        </datasource>
+
+		<datasource>
+			<name>WSO2BAM_DATASOURCE</name>
+			<description>The datasource used for analyzer data</description>
+			<definition type="RDBMS">
+				<configuration>
+					<url>jdbc:h2:repository/database/samples/BAM_STATS_DB;AUTO_SERVER=TRUE</url>
+					<username>wso2carbon</username>
+					<password>wso2carbon</password>
+					<driverClassName>org.h2.Driver</driverClassName>
+					<maxActive>50</maxActive>
+					<maxWait>60000</maxWait>
+					<testOnBorrow>true</testOnBorrow>
+					<validationQuery>SELECT 1</validationQuery>
+					<validationInterval>30000</validationInterval>
+				</configuration>
+			</definition>
+		</datasource>
+
+		<datasource>
+			<name>WSO2BAM_CASSANDRA_DATASOURCE</name>
+			<description>The datasource used for Cassandra data</description>
+			<definition type="RDBMS">
+				<configuration>
+          <url>jdbc:cassandra://<%= @ipaddress %>:<%= @css_port %>/EVENT_KS</url>
+					<username><%= @cassandra_username %></username>
+					<password><%= @cassandra_password %></password>
+				</configuration>
+			</definition>
+		</datasource>
+
+		<datasource>
+			<name>WSO2BAM_UTIL_DATASOURCE</name>
+			<description>The datasource used for BAM utilities, such as message store etc..</description>
+			<definition type="RDBMS">
+				<configuration>
+          <url>jdbc:cassandra://<%= @ipaddress %>:<%= @css_port_unoffset %>/BAM_UTIL_KS</url>
+					<username><%= @cassandra_username %></username>
+					<password><%= @cassandra_password %></password>
+					<dataSourceProps>
+						<property name="externalCassandra">false</property>
+					</dataSourceProps>
+				</configuration>
+			</definition>
+		</datasource>
+
+		<!-- The URL configs are loaded from hector-config.xml -->
+		<datasource>
+			<name>WSO2BAM_HIVE_INCREMENTAL_DATASOURCE</name>
+			<definition type="RDBMS">
+				<configuration>
+					<username>admin</username>
+					<password>admin</password>
+					<dataSourceProps>
+						<property name="replicationFactor">1</property>
+						<property name="strategyClass">org.apache.cassandra.locator.SimpleStrategy</property>
+						<property name="readConsistencyLevel">QUORUM</property>
+						<property name="writeConsistencyLevel">QUORUM</property>
+						<property name="keyspaceName">HIVE_INCREMENTAL_KS</property>
+					</dataSourceProps>
+				</configuration>
+			</definition>
+		</datasource>
+		
+
+  <%- database = @bam_af_stat_db -%>
+  <datasource>
+    <name>WSO2_AF_STAT_DB</name>
+    <description>The datasource used for the issue tracker</description>
+    <jndiConfig>
+      <name>jdbc/af_stats</name>
+    </jndiConfig>
+    <definition type="RDBMS">
+      <configuration>
+        <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %></url>
+        <username><%= database[2] %></username>
+        <password><%= database[3] %></password>
+        <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+        <maxActive>50</maxActive>
+        <maxWait>60000</maxWait>
+        <testOnBorrow>true</testOnBorrow>
+        <validationQuery>SELECT 1</validationQuery>
+        <validationInterval>30000</validationInterval>
+      </configuration>
+    </definition>
+  </datasource>
+
+  <%- database = @bam_apim_stat_db -%>
+  <datasource>
+    <name>WSO2AM_STATS_DB</name>
+    <description>The datasource used to store stats of API Manager</description>
+    <jndiConfig>
+      <name>jdbc/WSO2AM_STATS_DB</name>
+    </jndiConfig>
+    <definition type="RDBMS">
+      <configuration>
+        <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true&amp;relaxAutoCommit=true</url>
+        <username><%= database[2] %></username>
+        <password><%= database[3] %></password>
+        <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+        <maxActive>50</maxActive>
+        <maxWait>60000</maxWait>
+        <testOnBorrow>true</testOnBorrow>
+        <validationQuery>SELECT 1</validationQuery>
+        <validationInterval>30000</validationInterval>
+      </configuration>
+    </definition>
+  </datasource>
+
+  <%- database = @login_analytics_db -%>
+  <datasource>
+    <name>WSO2_CLOUD_MGT_STATS</name>
+    <description>The datasource used to store stats of API Manager</description>
+    <jndiConfig>
+      <name>jdbc/WSO2_CLOUD_MGT_STATS</name>
+    </jndiConfig>
+    <definition type="RDBMS">
+      <configuration>
+        <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true&amp;relaxAutoCommit=true</url>
+        <username><%= database[2] %></username>
+        <password><%= database[3] %></password>
+        <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+        <maxActive>50</maxActive>
+        <maxWait>60000</maxWait>
+        <testOnBorrow>true</testOnBorrow>
+        <validationQuery>SELECT 1</validationQuery>
+        <validationInterval>30000</validationInterval>
+      </configuration>
+    </definition>
+  </datasource>
+
+	</datasources>
+
+</datasources-configuration>
+

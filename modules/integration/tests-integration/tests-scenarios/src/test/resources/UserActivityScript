@@ -1,0 +1,8 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS USER_ACTIVITY
+  (key STRING, item STRING, action STRING, user STRING, tenantId INT, applicationName STRING, applicationKey STRING, applicationVersion STRING)  
+STORED BY
+        'org.apache.hadoop.hive.cassandra.CassandraStorageHandler' WITH SERDEPROPERTIES (
+        "wso2.carbon.datasource.name" = "WSO2BAM_CASSANDRA_DATASOURCE",
+        "cassandra.cf.name" = "org_wso2_carbon_appfactory_userActions",
+        "cassandra.columns.mapping" = ":key, payload_item, payload_action, payload_user, payload_tenantId, payload_applicationName, payload_applicationKey, payload_applicationVersion");
+SELECT * FROM USER_ACTIVITY WHERE item=''{0}'';

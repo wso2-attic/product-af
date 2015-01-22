@@ -1,0 +1,195 @@
+#!/bin/bash
+#
+# This file will install few maven jars required to the appfactory environment.
+# File on /af_maven_archetype_lock.txt (root) works as a lock to ensure one-time 
+# execution of the script.
+#
+# 
+#
+
+MVN=/opt/mvn/bin/mvn
+ECHO=$(which echo)
+RM=$(which rm)
+TOUCH=$(which touch)
+MKDIR=$(which mkdir)
+
+if [ ! -f "/opt/mvn/bin/mvn" ] ;then
+        ${ECHO} -e "Require Maven.";
+        exit 1;
+fi
+
+if [ -z "$APPFACTORY_HOME" ] ; then
+        APPFACTORY_HOME=`pwd`;
+	${ECHO} -e "AppFactory home set to : $APPFACTORY_HOME";
+fi
+
+if [ ! -f ~/af_maven_archetype_lock.txt ]; then
+
+
+        ${MKDIR} -p /tmp/mvn-tmp;
+        cd /tmp/mvn-tmp;
+
+        ${ECHO} -en "Installing webapp-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/webapp-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.webapparchetype \
+                -DartifactId=webapp-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating webappdefault .... ";
+        ${MVN} archetype:generate -DartifactId=webappdefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.webapparchetype \
+                -DarchetypeArtifactId=webapp-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing jaxrs-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/jaxrs-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.jaxrsarchetype \
+                -DartifactId=jaxrs-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating jaxrsdefault .... ";
+        ${MVN} archetype:generate -DartifactId=jaxrsdefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaxrsarchetype \
+                -DarchetypeArtifactId=jaxrs-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing jaxws-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/jaxws-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.jaxwsarchetype \
+                -DartifactId=jaxws-archetype \
+                -Dversion=<%= @archetype_version %> -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating jaxwsdefault .... ";
+	${MVN} archetype:generate -DartifactId=jaxwsdefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaxwsarchetype \
+                -DarchetypeArtifactId=jaxws-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing jaggery-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/jaggery-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.jaggeryarchetype \
+                -DartifactId=jaggery-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating jaggerydefault .... ";
+        ${MVN} archetype:generate -DartifactId=jaggerydefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaggeryarchetype \
+                -DarchetypeArtifactId=jaggery-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing bpel-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/bpel-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.bpelarchetype \
+                -DartifactId=bpel-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating bpeldefault .... ";
+        ${MVN} archetype:generate -DartifactId=bpeldefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.bpelarchetype \
+                -DarchetypeArtifactId=bpel-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing dbs-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/dbs-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.dbsarchetype \
+                -DartifactId=dbs-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating dbsdefault .... ";
+        ${MVN} archetype:generate -DartifactId=dbsdefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.dbsarchetype \
+                -DarchetypeArtifactId=dbs-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing esb-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/esb-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.esbarchetype \
+                -DartifactId=esb-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating esbdefault .... ";
+        ${MVN} archetype:generate -DartifactId=esbdefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.esbarchetype \
+                -DarchetypeArtifactId=esb-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Installing php-archetype jar .... ";
+        ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/php-archetype-<%= @archetype_version %>.jar \
+                -DgroupId=org.wso2.carbon.appfactory.maven.phparchetype \
+                -DartifactId=php-archetype \
+                -Dversion=<%= @archetype_version %> \
+                -Dpackaging=jar > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Generating phpdefault .... ";
+        ${MVN} archetype:generate -DartifactId=phpdefault \
+                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.phparchetype \
+                -DarchetypeArtifactId=php-archetype \
+                -DarchetypeVersion=<%= @archetype_version %> \
+                -DgroupId=org.wso2.af \
+                -Dversion=SNAPSHOT \
+                -DinteractiveMode=false \
+                -DarchetypeCatalog=local > /dev/null;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+	${ECHO} -en "Removing temp files .... "
+	${RM} -rf /tmp/mvn-tmp
+	[ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+
+        ${ECHO} -en "Adding archetype lock .... ";
+        ${TOUCH} ~/af_maven_archetype_lock.txt;
+        [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
+else
+        ${ECHO} "Maven archetypes almost exist.";
+	${ECHO} "Remove \"~/af_maven_archetype_lock.txt\" to re-run the archetype installations."
+        exit 0;
+
+fi

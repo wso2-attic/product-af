@@ -1,0 +1,146 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+    <providers>
+        <provider>org.wso2.carbon.ndatasource.rdbms.RDBMSDataSourceReader</provider>
+    </providers>
+    <datasources>
+        <datasource>
+            <name>WSO2_CARBON_DB</name>
+            <description>The datasource used for registry and user manager</description>
+            <jndiConfig>
+                <name>jdbc/WSO2CarbonDB</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <url>jdbc:h2:<%= @carbon_home %>/repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
+                    <username>wso2carbon</username>
+                    <password><%= @carbon_db_password %></password>
+                    <driverClassName>org.h2.Driver</driverClassName>
+                    <maxActive>150</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                </configuration>
+            </definition>
+        </datasource>
+        <datasource>
+            <name>WSO2_USERSTORE_DB</name>
+            <description>The datasource used for user manager</description>
+            <jndiConfig>
+                <name>jdbc/userstore</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <%- database = @userstore_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
+                    <username><%= database[2] %></username>
+                    <password><%= database[3] %></password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive>150</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <minIdle>5</minIdle>
+                </configuration>
+            </definition>
+        </datasource>
+        <datasource>
+            <name>WSO2_REGISTRY_DB</name>
+            <description>The datasource used for registry</description>
+            <jndiConfig>
+                <name>jdbc/governance</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <%- database = @registry_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
+                    <username><%= database[2] %></username>
+                    <password><%= database[3] %></password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive>150</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <minIdle>5</minIdle>
+                    <removeAbandoned>true</removeAbandoned>
+                    <logAbandoned>true</logAbandoned>
+                    <removeAbandonedTimeout>180</removeAbandonedTimeout>
+                    <jdbcInterceptors>ResetAbandonedTimer</jdbcInterceptors>
+                </configuration>
+            </definition>
+        </datasource>
+
+        <!-- Dev Test Prod registry DBS -->
+
+       <datasource>
+                <name>DevSMDB</name>
+                <description>The datasource used for dev registry</description>
+                <jndiConfig>
+                    <name>jdbc/<%= @dev_registry_db_schema%></name>
+                </jndiConfig>
+                <definition type="RDBMS">
+                    <configuration>
+                        <%- database = @registry_database -%>
+                        <url>jdbc:mysql://<%= database[0] %>:3306/<%= @dev_registry_db_schema%>?autoReconnect=true</url>
+                        <username><%= database[2] %></username>
+                        <password><%= database[3] %></password>
+                        <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                        <maxActive>50</maxActive>
+                        <maxWait>60000</maxWait>
+                        <testOnBorrow>true</testOnBorrow>
+                        <validationQuery>SELECT 1</validationQuery>
+                        <validationInterval>30000</validationInterval>
+                    </configuration>
+                </definition>
+        </datasource>
+
+        <datasource>
+                <name>TestSMDB</name>
+                <description>The datasource used for test registry</description>
+                <jndiConfig>
+                    <name>jdbc/<%= @test_registry_db_schema%></name>
+                </jndiConfig>
+                <definition type="RDBMS">
+                    <configuration>
+                        <%- database = @registry_database -%>
+                        <url>jdbc:mysql://<%= database[0] %>:3306/<%= @test_registry_db_schema%>?autoReconnect=true</url>
+                        <username><%= database[2] %></username>
+                        <password><%= database[3] %></password>
+                        <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                        <maxActive>50</maxActive>
+                        <maxWait>60000</maxWait>
+                        <testOnBorrow>true</testOnBorrow>
+                        <validationQuery>SELECT 1</validationQuery>
+                        <validationInterval>30000</validationInterval>
+                    </configuration>
+                </definition>
+      </datasource>
+
+      <datasource>
+                <name>ProdSMDB</name>
+                <description>The datasource used for prod registry</description>
+                <jndiConfig>
+                    <name>jdbc/<%= @prod_registry_db_schema%></name>
+                </jndiConfig>
+                <definition type="RDBMS">
+                    <configuration>
+                        <%- database = @registry_database -%>
+                        <url>jdbc:mysql://<%= database[0] %>:3306/<%= @prod_registry_db_schema%>?autoReconnect=true</url>
+                        <username><%= database[2] %></username>
+                        <password><%= database[3] %></password>
+                        <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                        <maxActive>50</maxActive>
+                        <maxWait>60000</maxWait>
+                        <testOnBorrow>true</testOnBorrow>
+                        <validationQuery>SELECT 1</validationQuery>
+                        <validationInterval>30000</validationInterval>
+                    </configuration>
+                </definition>
+      </datasource>
+
+    </datasources>
+
+
+</datasources-configuration>

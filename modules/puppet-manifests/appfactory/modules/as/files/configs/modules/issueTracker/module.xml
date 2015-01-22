@@ -1,0 +1,17 @@
+<module name="issueTracker" expose="true" xmlns="http://wso2.org/projects/jaggery/module.xml">
+		<hostObject>
+			<className>org.wso2.carbon.issue.tracker.hostobjects.configuration.IssueTrackerConfigurationReader</className>
+			<name>IssueTrackerConfigurationReader</name>
+		</hostObject>
+		<hostObject>
+			<className>org.wso2.carbon.issue.tracker.hostobjects.configuration.LoadTenantRegistry</className>
+			<name>LoadTenantRegistry</name>
+		</hostObject>
+
+                <script>
+                        <name>multitenancy</name>
+                        <path>scripts/tenant-util.js</path>
+                </script>
+</module>
+
+

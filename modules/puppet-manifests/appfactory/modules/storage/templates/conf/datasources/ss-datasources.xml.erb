@@ -1,0 +1,53 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+    <providers>
+        <provider>org.wso2.carbon.ndatasource.rdbms.RDBMSDataSourceReader</provider>
+    </providers>
+    <datasources>
+        <datasource>
+            <name>WSO2_STORAGE_DB</name>
+            <description>The datasource used for registry and user manager</description>
+            <jndiConfig>
+                <name>jdbc/<%= @config_db %></name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <%- database = @config_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= @config_db %>?autoReconnect=true</url>
+                    <username><%= database[2] %></username>
+                    <password><%= database[3] %></password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <Property name="minIdle">5</Property>
+                </configuration>
+            </definition>
+        </datasource>
+        <datasource>
+            <name>RSS_MGT_Database</name>
+            <description>The datasource used for RSS</description>
+            <jndiConfig>
+                <name>jdbc/RSSMgt</name>
+            </jndiConfig>
+            <definition type="RDBMS">
+                <configuration>
+                    <dataSourceClassName>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</dataSourceClassName>
+                    <dataSourceProps>
+                        <%- database = @rss_mgt_database -%>
+                        <property name="URL">jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</property>
+                        <property name="user"><%= database[2] %></property>
+                        <property name="password"><%= database[3] %></property>
+                    </dataSourceProps>
+                    <maxActive>50</maxActive>
+                    <maxWait>60000</maxWait>
+                    <testOnBorrow>true</testOnBorrow>
+                    <validationQuery>SELECT 1</validationQuery>
+                    <validationInterval>30000</validationInterval>
+                    <Property name="minIdle">5</Property>
+                </configuration>
+            </definition>
+        </datasource>
+    </datasources>
+</datasources-configuration>

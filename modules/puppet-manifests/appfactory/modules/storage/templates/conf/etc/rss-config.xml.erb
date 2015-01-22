@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<RSSConfiguration>
+        <!-- Supported Provider types H2|MYSQL|ORACLE|POSTGRES|SQLSERVER -->
+        <Provider>MYSQL</Provider>
+
+        <!-- RSS database used to store database servers, database instance information, users etc.. -->
+        <ManagementRepository>
+            <DataSourceConfiguration>
+              <JndiLookupDefinition>
+                <Name>jdbc/RSSMgt</Name>
+              </JndiLookupDefinition>
+            </DataSourceConfiguration>
+        </ManagementRepository>
+
+        <!-- WSO2 RSS instances are predefined constant server instances to be used by users,
+        the other type is User Defined RSS instances, 
+        which are defined by individual tenants -->
+    <Environments>
+        <Environment>
+            <Name>Development</Name>
+            <RSSInstances>
+                <RSSInstance>
+                    <Name>Development</Name>
+                    <InstanceType>SYSTEM</InstanceType>
+                    <DbmsType>MYSQL</DbmsType>
+                    <ServerCategory>LOCAL</ServerCategory>
+                    <DataSourceConfiguration>
+                      <Definition>
+		                    <%- database = @rss_dev_database_01 -%>
+		                    <Url>jdbc:mysql://<%= database[0] %>:3306</Url>
+		                    <Username><%= database[2] %></Username>
+		                    <Password><%= database[3] %></Password>
+		                    <DriverClassName>com.mysql.jdbc.Driver</DriverClassName>
+                      </Definition>
+                    </DataSourceConfiguration>
+                </RSSInstance>
+            </RSSInstances>
+        </Environment>
+        <Environment>
+            <Name>Testing</Name>
+            <RSSInstances>
+                <RSSInstance>
+                    <Name>Testing</Name>
+                    <InstanceType>SYSTEM</InstanceType>
+                    <DbmsType>MYSQL</DbmsType>
+                    <ServerCategory>LOCAL</ServerCategory>
+                    <DataSourceConfiguration>
+                      <Definition>
+		                    <%- database = @rss_test_database_01 -%>
+		                    <Url>jdbc:mysql://<%= database[0] %>:3306</Url>
+		                    <Username><%= database[2] %></Username>
+		                    <Password><%= database[3] %></Password>
+		                    <DriverClassName>com.mysql.jdbc.Driver</DriverClassName>
+                      </Definition>
+                    </DataSourceConfiguration>
+                </RSSInstance>
+            </RSSInstances>
+        </Environment>
+        <Environment>
+            <Name>Production</Name>
+            <RSSInstances>
+                <RSSInstance>
+                    <Name>Production</Name>
+                    <InstanceType>SYSTEM</InstanceType>
+                    <DbmsType>MYSQL</DbmsType>
+                    <ServerCategory>LOCAL</ServerCategory>
+                    <DataSourceConfiguration>
+                      <Definition>
+		                    <%- database = @rss_prod_database_01 -%>
+		                    <Url>jdbc:mysql://<%= database[0] %>:3306</Url>
+		                    <Username><%= database[2] %></Username>
+		                    <Password><%= database[3] %></Password>
+		                    <DriverClassName>com.mysql.jdbc.Driver</DriverClassName>
+                      </Definition>
+                    </DataSourceConfiguration>
+                </RSSInstance>
+            </RSSInstances>
+        </Environment>
+    </Environments>
+</RSSConfiguration>

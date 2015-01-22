@@ -1,0 +1,59 @@
+{
+      "type": "<%= @cartridge_type %>",
+      "provider": "wso2",
+      "host": "appserver.<%= @appserver_subdomain %>.<%= @wso2_env_domain %>",
+      "displayName": "AppServer",
+      "description": "AppServer Cartridge",
+      "version": "5.2.1",
+      "multiTenant": "true",
+      "portMapping": [
+         {
+            "protocol": "http",
+            "port": "9763",
+            "proxyPort": "80"
+         },
+         {
+            "protocol": "https",
+            "port": "9443",
+            "proxyPort": "443"
+         }
+       ],
+      "deployment": {
+        },
+       "iaasProvider": [
+        {
+          "type": "openstack",
+          "imageId": "<%= @iaas_region %>/<%= @iaas_cartridge_image %>",
+          "maxInstanceLimit": "1",
+          "property": [
+            {
+             "name": "instanceType",
+             "value": "RegionOne/7"
+            },
+            {
+                "name": "keyPair",
+                "value": "<%= @os_keypair_name %>"
+            }
+          ]
+        }
+      ],
+      "property": [
+        {
+          "name": "PRIMARY",
+          "value": "false"
+        },
+        {
+          "name": "payload_parameter.CLUSTERING",
+          "value": "false"
+        },
+		{
+		"name": "payload_parameter.ENVIRONMENT",
+		"value": "<%= @appserver_subdomain %>"
+		},
+		{
+		"name": "payload_parameter.COMMIT_ENABLED",
+		"value": "false"
+		}
+
+      ]
+}
