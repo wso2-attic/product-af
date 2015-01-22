@@ -7,7 +7,6 @@ var options = {
                 show: true,
                 radius: 2/3,
                 formatter: labelFormatter,
-                threshold: 0.1
             }
         }
     },

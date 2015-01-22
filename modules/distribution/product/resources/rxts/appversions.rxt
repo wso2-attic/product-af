@@ -15,6 +15,9 @@
 	   <column name="LastDeployedId">
                <data type="path" value="appversion_lastdeployedid" href="@{storagePath}"/>
            </column>
+           <column name="ProdMappedSubDomain">
+               <data type="path" value="appversion_productionmappeddomain" href="@{storagePath}"/>
+           </column>
            
        </list>
    </ui>
@@ -32,6 +35,9 @@
            </field> 
            <field type="text" required="true">
                <name>AutoDeployment</name>
+           </field>
+           <field type="text" required="true">
+               <name>ProdMappedSubDomain</name>
            </field>
 
        </table>

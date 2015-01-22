@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
-  ~  Copyright (c) 2005-2010, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+  ~  Copyright 2015 WSO2, Inc. (http://wso2.com)
   ~
   ~  WSO2 Inc. licenses this file to you under the Apache License,
   ~  Version 2.0 (the "License"); you may not use this file except
@@ -25,14 +25,15 @@
         <groupId>org.wso2.appfactory</groupId>
         <artifactId>wso2appfactory-parent</artifactId>
         <version>2.1.0-SNAPSHOT</version>
-        <relativePath>../../../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>appfactory-integration-tests</artifactId>
+    <artifactId>appfactory-integration</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>WSO2 AppFactory - Integration Parent</name>
-    <description>WSO2 AppFactory Integration Parent</description>
+    <name>WSO2 AppFactory - Integration</name>
+    <description>WSO2 AppFactory Integration</description>
 
     <licenses>
         <license>
@@ -42,7 +43,8 @@
     </licenses>
 
     <modules>
-        <module>tests-ui</module>
+        <module>tests-common</module>
+        <module>tests-integration/tests-scenarios</module>
     </modules>
 
     <build>

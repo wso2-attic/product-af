@@ -29,6 +29,9 @@
 	   <column name="BranchCount">
               <data type="path" value="application_branchcount" href="@{storagePath}"/>
            </column>
+           <column name="MappedSubDomain">
+               <data type="path" value="application_mappedsubdomain" href="@{storagePath}"/>
+           </column>  
        </list>
    </ui>
    <content>
@@ -69,7 +72,9 @@
           <field type="text" required="true">
                <name>BranchCount</name>
            </field>
- 
+           <field type="text" required="true">
+               <name>MappedSubDomain</name>
+           </field>
        </table>
 
    </content>

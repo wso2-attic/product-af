@@ -10,7 +10,8 @@
     <!-- Import the client WSDL -->
     <bpel:import namespace="http://services.core.appfactory.carbon.wso2.org" location="AppFactoryTenantInfraStructureInitializerService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
     <bpel:import namespace="http://services.mgt.tenant.carbon.wso2.org" location="TenantMgtAdminService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
-    <bpel:import location="CreateTenantArtifacts.wsdl" namespace="http://wso2.org/bps/sample" importType="http://schemas.xmlsoap.org/wsdl/"/>
+    <bpel:import location="CreateTenantArtifacts.wsdl" namespace="http://wso2.org/bps/sample" 
+	        importType="http://schemas.xmlsoap.org/wsdl/" />
          
     <!-- ================================================================= -->         
     <!-- PARTNERLINKS                                                      -->
@@ -450,8 +451,7 @@
                         </bpel:copy>
                     </bpel:assign>
                     <bpel:invoke name="Invoke-initializeCloudManager-Test" partnerLink="AppFactoryTenantInfraStructureInitializerServicePL" operation="initializeCloudManager" portType="ns0:AppFactoryTenantInfraStructureInitializerServicePortType" inputVariable="AppFactoryTenantInfraStructureInitializerServicePLRequestTest" outputVariable="AppFactoryTenantInfraStructureInitializerServicePLResponseTest"></bpel:invoke>
-                </bpel:sequence>
-<bpel:sequence name="Prod-Sequence"><bpel:assign validate="no" name="Assign-InitializeCloudManager-Prod">
+                </bpel:sequence><bpel:sequence name="Prod-Sequence"><bpel:assign validate="no" name="Assign-InitializeCloudManager-Prod">
                         <bpel:copy>
                             <bpel:from>
                                 <bpel:literal xml:space="preserve"><p:initializeCloudManager xmlns:p="http://services.core.appfactory.carbon.wso2.org">

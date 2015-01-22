@@ -42,4 +42,21 @@ CREATE EXTERNAL TABLE IF NOT EXISTS TENANT_USER
     insert overwrite table LATEST_TENANT_USERS
     SELECT tenantId, user, max(timeSt) as timest FROM TENANT_USERS GROUP BY tenantId, user;
 
+
+    CREATE EXTERNAL TABLE IF NOT EXISTS SLIDER_ENDPOINTS
+     (START_DATE BIGINT, TENANT_ID STRING) STORED BY
+    'org.wso2.carbon.hadoop.hive.jdbc.storage.JDBCStorageHandler'
+    TBLPROPERTIES (
+    'mapred.jdbc.driver.class' = 'com.mysql.jdbc.Driver' ,
+    'wso2.carbon.datasource.name'='WSO2_AF_STAT_DB',
+    'hive.jdbc.update.on.duplicate' = 'true' ,
+    'hive.jdbc.primary.key.fields' = 'TENANT_ID' ,
+    'hive.jdbc.table.create.query' =
+    'CREATE TABLE SLIDER_ENDPOINTS
+    (START_DATE BIGINT, TENANT_ID INT)');                                    
+    
+    
+    insert overwrite table SLIDER_ENDPOINTS
+    SELECT substr(min(timeSt),1,10), tenantId FROM TENANT_USERS GROUP BY tenantId;
+
                                     

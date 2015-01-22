@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.wso2.appfactory</groupId>
         <artifactId>appfactory.bpel.parent</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
+        <version>2.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -18,11 +18,13 @@
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>maven-bpel-plugin</artifactId>
+        <version>2.0.3</version>
         <extensions>true</extensions>
         <configuration />
       </plugin>
       <plugin>
         <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
         <configuration>
           <buildcommands>
             <buildcommand>org.eclipse.wst.common.project.facet.core.builder</buildcommand>
@@ -39,6 +41,27 @@
       </plugin>
     </plugins>
   </build>
+   <repositories>
+    <repository>
+      <releases>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <updatePolicy>daily</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <id>wso2-nexus</id>
+      <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <properties>
     <CApp.type>bpel/workflow</CApp.type>
   </properties>
