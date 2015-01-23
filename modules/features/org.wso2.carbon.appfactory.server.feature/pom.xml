@@ -300,10 +300,6 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.mutualssl</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.s4.integration</bundleDef>
                             </bundles>
-                            <importBundles>
-                            </importBundles>
-                            <importFeatures>
-                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
@@ -311,11 +307,4 @@
         </plugins>
     </build>
 
-    <properties>
-        <hostobjects.version>4.2.0</hostobjects.version>
-        <appfactory.version>2.1.0</appfactory.version>
-        <carbon.version>4.2.0</carbon.version>
-        <email.sender.version>2.2.0</email.sender.version>
-        <svnclient.version>1.6.18.wso2v1</svnclient.version>
-    </properties>
 </project>

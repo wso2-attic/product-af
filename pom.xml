@@ -1087,6 +1087,7 @@
         <!-- Carbon platform version comes here-->
         <carbon.platform.package.export.version>4.3.0-SNAPSHOT</carbon.platform.package.export.version>
         <carbon.platform.package.import.version.range>[4.2.0, 4.3.0-SNAPSHOT)</carbon.platform.package.import.version.range>
+        <imp.pkg.version.javax.servlet>[2.6.0, 3.0.0)</imp.pkg.version.javax.servlet>
    </properties>
 
 
