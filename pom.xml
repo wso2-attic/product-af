@@ -39,22 +39,13 @@
       <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
-      <!--module>modules/p2-profile-gen</module>
+      <module>modules/p2-profile-gen</module>
       <module>modules/jaggery-apps/appmgt</module>
       <module>modules/jaggery-apps/cloudmgt</module>
-      <module>modules/jaggery-apps/CXODashboard</module>
       <module>modules/jaggery-apps/dashboard</module>
-      <module>modules/jaggery-apps/issuetracker</module -->
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <!--module>modules/distribution</module>
-      <module>modules/integration</module>
-      <module>modules/samples/AFHelloWorld</module>
-      <module>modules/samples/API_Invoker</module>
-      <module>modules/samples/CustomerPortal</module>
-      <module>modules/samples/EndpointSample</module>
-      <module>modules/samples/External_API_Invoker</module>
-      <module>modules/samples/UserRealmSample</module-->
+      <module>modules/distribution</module>
    </modules>
    <profiles>
       <profile>
@@ -600,7 +591,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>4.3.0</version>
+            <version>${carbon.platform.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
@@ -974,6 +965,8 @@
          </snapshots>
          <releases>
             <enabled>false</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
          </releases>
       </repository>
    </repositories>
@@ -1050,6 +1043,8 @@
       <jenkins.build.stub.version>1.1.0-SNAPSHOT</jenkins.build.stub.version>
       <jaggeryjs.version>0.9.0.ALPHA3-wso2v6</jaggeryjs.version>
       <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+      <orbit.version.h2.engine>1.2.140.wso2v3</orbit.version.h2.engine>
+      <bouncycastle.version>132</bouncycastle.version>
 
       <!--Stratos-->
       <stratos.version>4.0.0-wso2v1</stratos.version>
