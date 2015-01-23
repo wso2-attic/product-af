@@ -40,12 +40,21 @@
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
       <!--module>modules/p2-profile-gen</module>
-      <module>modules/jaggery-apps/appmgt</module -->
+      <module>modules/jaggery-apps/appmgt</module>
       <module>modules/jaggery-apps/cloudmgt</module>
+      <module>modules/jaggery-apps/CXODashboard</module>
       <module>modules/jaggery-apps/dashboard</module>
+      <module>modules/jaggery-apps/issuetracker</module -->
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <!--module>modules/distribution</module-->
+      <!--module>modules/distribution</module>
+      <module>modules/integration</module>
+      <module>modules/samples/AFHelloWorld</module>
+      <module>modules/samples/API_Invoker</module>
+      <module>modules/samples/CustomerPortal</module>
+      <module>modules/samples/EndpointSample</module>
+      <module>modules/samples/External_API_Invoker</module>
+      <module>modules/samples/UserRealmSample</module-->
    </modules>
    <profiles>
       <profile>
@@ -452,6 +461,11 @@
 	      <artifactId>org.wso2.carbon.registry.core</artifactId>
 	      <version>${carbon.platform.version}</version>
 	    </dependency>
+	    <dependency>
+              <groupId>org.wso2.carbon</groupId>
+              <artifactId>org.wso2.carbon.registry.api</artifactId>
+              <version>${carbon.platform.version}</version>
+            </dependency>
 	    <dependency>
 	      <groupId>org.wso2.carbon</groupId>
 	      <artifactId>org.wso2.carbon.utils</artifactId>
