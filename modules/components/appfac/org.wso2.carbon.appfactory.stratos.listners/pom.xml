@@ -65,10 +65,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.common</artifactId>
         </dependency>
@@ -100,9 +96,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <af.stratos.version>2.2.0</af.stratos.version>
-        <af.stratos.carbon.version>4.2.0</af.stratos.carbon.version>
-    </properties>
-
 </project>
