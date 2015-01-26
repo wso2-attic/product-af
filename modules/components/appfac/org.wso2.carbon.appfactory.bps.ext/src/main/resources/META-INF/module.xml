@@ -1,0 +1,16 @@
+<module name="AppFactoryAuthorizationModule" class="org.wso2.carbon.appfactory.bps.ext.handler.AppFactoryAuthorizationModule">
+    <Description>This module is to set AppFactory authorization headers.</Description>
+
+    <OutFlow>
+        <handler name="OutFlowAppFactoryAuthorizationHandler" class="org.wso2.carbon.appfactory.bps.ext.handler.AppFactoryAuthorizationHandler">
+            <order phase="AppFactoryAuthorizationPhase"/>
+        </handler>
+    </OutFlow>
+
+    <OutFaultFlow>
+        <handler name="FaultOutFlowAppFactoryAuthorizationHandler" class="org.wso2.carbon.appfactory.bps.ext.handler.AppFactoryAuthorizationHandler">
+            <order phase="AppFactoryAuthorizationPhase"/>
+        </handler>
+    </OutFaultFlow>
+</module>
+
