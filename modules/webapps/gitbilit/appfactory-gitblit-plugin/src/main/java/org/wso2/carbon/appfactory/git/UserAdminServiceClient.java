@@ -21,7 +21,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.appfactory.git.util.Util;
-import org.wso2.carbon.user.mgt.stub.ListUsersUserAdminExceptionException;
+import org.wso2.carbon.user.mgt.stub.UserAdminUserAdminException;
 import org.wso2.carbon.user.mgt.stub.UserAdminStub;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -81,7 +81,8 @@ public class UserAdminServiceClient {
 	public List<String> getAllUsers() {
 		String users[];
 		try {
-			users = client.listUsers("*");
+            //Seeting -1 here and need to set 0 in MaxUserNameListLength in user-mgt.xml
+			users = client.listUsers("*",-1);
 			if (users != null) {
 				return Arrays.asList(users);
 			}
@@ -90,7 +91,7 @@ public class UserAdminServiceClient {
 			                  fault.getLocalizedMessage(), fault);
 		} catch (RemoteException e) {
 			log.error("Error while calling UserAdminService:Error is " + e.getLocalizedMessage(), e);
-		} catch (ListUsersUserAdminExceptionException e) {
+		} catch (UserAdminUserAdminException e) {
 			log.error("Error while calling UserAdminService:Error is " + e.getLocalizedMessage(), e);
 		} finally {
 			try {

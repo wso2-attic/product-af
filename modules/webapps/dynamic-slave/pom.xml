@@ -3,7 +3,8 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.509.4</version><!-- which version of Jenkins is this plugin built against? -->
+    <!--version>1.509.4</version--><!-- which version of Jenkins is this plugin built against? -->
+    <version>1.522</version>
   </parent>
 
   <groupId>org.wso2.appfactory</groupId>
@@ -42,5 +43,4 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
-
 </project>

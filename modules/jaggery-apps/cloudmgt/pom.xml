@@ -28,7 +28,7 @@
     <artifactId>cloudmgt</artifactId>
     <name>WSO2 Cloud Management Web Application</name>
     <groupId>org.wso2.cloud.mgt</groupId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <build>
         <plugins>

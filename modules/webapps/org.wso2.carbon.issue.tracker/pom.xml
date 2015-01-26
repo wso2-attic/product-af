@@ -19,7 +19,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <artifactId>org.wso2.carbon.issue.tracker</artifactId>
     <packaging>war</packaging>
     <name>WSO2 Carbon - Issue Tracker BE</name>
@@ -35,81 +35,65 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>4.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.api</artifactId>
-            <version>4.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.mgt</artifactId>
-            <version>4.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.common</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${cxf.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
-            <version>1.1.1</version>
             <scope>provided</scope>
         </dependency>
-
-
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>provided</scope>
-            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-bundle-jaxrs</artifactId>
             <scope>provided</scope>
-            <version>2.6.0</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
-            <version>1.9.12</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.12</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -122,11 +106,9 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-                <version>2.3.2</version>
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.2</version>
                 <configuration>
                     <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
                     <warName>issuetracker-${project.version}</warName>
@@ -134,7 +116,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.9</version>
                 <configuration>
                     <buildcommands>
                         <buildcommand>org.eclipse.jdt.core.javabuilder</buildcommand>
@@ -173,7 +154,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
                         <executions>
                             <execution>
                                 <phase>compile</phase>
@@ -182,8 +162,7 @@
                                 </goals>
                                 <configuration>
                                     <tasks>
-                                        <copy
-                                                todir="${basedir}/../../../repository/deployment/server/jaxwebapps"
+                                        <copy todir="${basedir}/../../../repository/deployment/server/jaxwebapps"
                                                 overwrite="true">
                                             <fileset dir="${basedir}/target">
                                                 <include name="${project.artifactId}.war"/>
@@ -206,7 +185,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
                         <executions>
                             <execution>
                                 <phase>test</phase>
