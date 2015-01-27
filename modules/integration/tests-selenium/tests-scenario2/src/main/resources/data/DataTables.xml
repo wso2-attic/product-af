@@ -1,0 +1,658 @@
+<DataTables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="file://C:/Users/Virtusa_AF_Account/Documents/AppFactory_Virtusa/vTAF_3.0.5.2/VTAF/xsd/DataTables.xsd" >
+	<Table name="dt_Scenario2">
+		<Header>
+			<Column name="IsExecuting" type="Boolean" />
+			<Column name="IsExecuting_AppCreation" type="Boolean" />
+			<Column name="IsExecuting_DevFunctions" type="Boolean" />
+			<Column name="IsExecuting_AppOwnerQaFunctions" type="Boolean" />
+			<Column name="IsExecutingResourceCURD" type="Boolean" />
+			<Column name="IsExecutingUploadApp" type="Boolean" />
+			<Column name="appType" type="String" />
+			<Column name="adminUsername" type="String" />
+			<Column name="domainName" type="String" />
+			<Column name="defaultPassword" type="String" />
+			<Column name="loginErrorMsg" type="String" />
+			<Column name="dbUserPwdErrorMsg" type="String" />
+			<Column name="userListMain" type="String" />
+			<Column name="userListUploadApp" type="String" />
+			<Column name="userListEdit" type="String" />
+			<Column name="userListDelete" type="String" />
+			<Column name="usernames" type="String" />
+			<Column name="userInitials" type="String" />
+			<Column name="wrongPassword" type="String" />
+			<Column name="wrongUsername" type="String" />
+			<Column name="UsernameErrorMsg" type="String" />
+			<Column name="PasswordErrorMsg" type="String" />
+			<Column name="adminPassword" type="String" />
+			<Column name="appName" type="String" />
+			<Column name="appKey" type="String" />
+			<Column name="appDescription" type="String" />
+			<Column name="editDescription" type="String" />
+			<Column name="appImagePath" type="String" />
+			<Column name="editAppImagePath" type="String" />
+			<Column name="appPath" type="String" />
+			<Column name="appCreationMethod" type="String" />
+			<Column name="appCreationMsg" type="String" />
+			<Column name="gitMsg" type="String" />
+			<Column name="jenkinsMsg" type="String" />
+			<Column name="issueTrackerMsg" type="String" />
+			<Column name="cloudMsg" type="String" />
+			<Column name="sameAppKeyErrorMsg" type="String" />
+			<Column name="addMemberMsg" type="String" />
+			<Column name="removeMemberMsg" type="String" />
+			<Column name="wrongDateErrorMsg" type="String" />
+			<Column name="promoteDevTestMsg" type="String" />
+			<Column name="DeployTestMsg" type="String" />
+			<Column name="appStageDev" type="String" />
+			<Column name="appStageTest" type="String" />
+			<Column name="appStagePro" type="String" />
+			<Column name="actionPromote" type="String" />
+			<Column name="actionDemote" type="String" />
+			<Column name="OverviewTabVisibilityDev" type="String" />
+			<Column name="RepoandBuildTabVisibilityDev" type="String" />
+			<Column name="TeamTabVisibilityDev" type="String" />
+			<Column name="databaseTabVisibilityDev" type="String" />
+			<Column name="LifecycleManagementTabVisibilityDev" type="String" />
+			<Column name="ResourceTabVisibilityDev" type="String" />
+			<Column name="IssuesTabVisibilityDev" type="String" />
+			<Column name="LogsTabVisibilityDev" type="String" />
+			<Column name="buildStatus" type="String" />
+			<Column name="deployStatus" type="String" />
+			<Column name="versionnumber" type="String" />
+			<Column name="newVersionNumber" type="String" />
+			<Column name="buildNumber" type="String" />
+			<Column name="buildNumberOne" type="String" />
+			<Column name="buildNumberTwo" type="String" />
+			<Column name="buildNumberThree" type="String" />
+			<Column name="deployNumberTwo" type="String" />
+			<Column name="deployNumberOne" type="String" />
+			<Column name="dbName" type="String" />
+			<Column name="dbEnvironment" type="String" />
+			<Column name="dbAllEnvYes" type="String" />
+			<Column name="dbAllEnvNo" type="String" />
+			<Column name="dsName" type="String" />
+			<Column name="dbDriver" type="String" />
+			<Column name="dsEnv" type="String" />
+			<Column name="dbURL" type="String" />
+			<Column name="dbUsername" type="String" />
+			<Column name="dbPassword" type="String" />
+			<Column name="dsDesc" type="String" />
+			<Column name="dsPassword" type="String" />
+			<Column name="internalAPIName" type="String" />
+			<Column name="internalAPIVersion" type="String" />
+			<Column name="exAPIName" type="String" />
+			<Column name="authAPI" type="String" />
+			<Column name="exAPIURL" type="String" />
+			<Column name="propName" type="String" />
+			<Column name="proDesc" type="String" />
+			<Column name="propRegEnv" type="String" />
+			<Column name="proValue" type="String" />
+			<Column name="issueSummary" type="String" />
+			<Column name="issueDesc" type="String" />
+			<Column name="versionIssueRelatedTo" type="String" />
+			<Column name="issueType" type="String" />
+			<Column name="issueTypeNew" type="String" />
+			<Column name="issueTypeBug" type="String" />
+			<Column name="issuePriority" type="String" />
+			<Column name="issuePriorityNew" type="String" />
+			<Column name="issuePriorityNormal" type="String" />
+			<Column name="issueAsignee" type="String" />
+			<Column name="issueSeverity" type="String" />
+			<Column name="versionToDemote" type="String" />
+			<Column name="demoteComment" type="String" />
+			<Column name="issueStatusInitial" type="String" />
+			<Column name="issueStatusNew" type="String" />
+			<Column name="issueStatusResolved" type="String" />
+			<Column name="issueStatusFinal" type="String" />
+			<Column name="issueStatusClosed" type="String" />
+			<Column name="subDomain" type="String" />
+			<Column name="serviceName" type="String" />
+			<Column name="domain" type="String" />
+			<Column name="lawPauseLevel" type="String" />
+			<Column name="mediumPauseLevel" type="String" />
+			<Column name="highPauseLevel" type="String" />
+			<Column name="sampleText" type="String" />
+			<Column name="waitTimeForAppLoadingInSec" type="Int" />
+			<Column name="appPathNew" type="String" />
+			<Column name="newUploadVersion" type="String" />
+			<Column name="dbTempPrivUnTicked" type="String" />
+			<Column name="dbTempPrivTicked" type="String" />
+			<Column name="dbNOtVisible" type="String" />
+			<Column name="dbVisible" type="String" />
+			<Column name="versionVisibilityTrue" type="String" />
+			<Column name="versionVisibilityFalse" type="String" />
+			<Column name="ETADisability" type="String" />
+			<Column name="StageVisibilityTrue" type="String" />
+			<Column name="StageVisibilityFalse" type="String" />
+			<Column name="addNewBtnVisibilityTrue" type="String" />
+			<Column name="addNewBtnVisibilityFalse" type="String" />
+			<Column name="OverviewTabVisibilityQA" type="String" />
+			<Column name="RepoandBuildTabVisibilityQA" type="String" />
+			<Column name="TeamTabVisibilityQA" type="String" />
+			<Column name="LifecycleManagementTabVisibilityQA" type="String" />
+			<Column name="ResourceTabVisibilityQA" type="String" />
+			<Column name="IssuesTabVisibilityQA" type="String" />
+			<Column name="databaseTabVisibilityQA" type="String" />
+			<Column name="LogsTabVisibilityQA" type="String" />
+			<Column name="OverviewTabVisibilityDEVOPS" type="String" />
+			<Column name="RepoandBuildTabVisibilityDEVOPS" type="String" />
+			<Column name="TeamTabVisibilityDEVOPS" type="String" />
+			<Column name="LifecycleManagementTabVisibilityDEVOPS" type="String" />
+			<Column name="ResourceTabVisibilityDEVOPS" type="String" />
+			<Column name="IssuesTabVisibilityDEVOPS" type="String" />
+			<Column name="databaseTabVisibilityDEVOPS" type="String" />
+			<Column name="LogsTabVisibilityDEVOPS" type="String" />
+			<Column name="ETASaveTestingStageDev" type="String" />
+			<Column name="appLogoSubPath" type="String" />
+			<Column name="appLogoMainPath" type="String" />
+			<Column name="prodKeyVisibilityDev" type="String" />
+			<Column name="prodKeyVisibilityQa" type="String" />
+			<Column name="prodKeyVisibilityDevOps" type="String" />
+			<Column name="prodKeyVisibilityAppOwner" type="String" />
+			<Column name="SandKeyVisibilityDev" type="String" />
+			<Column name="SandKeyVisibilityQa" type="String" />
+			<Column name="SandKeyVisibilityDevOps" type="String" />
+			<Column name="SandKeyVisibilityAppOwner" type="String" />
+			<Column name="DevDBVisibilityDevOps" type="String" />
+			<Column name="DevDBUserVisibilityDevOps" type="String" />
+			<Column name="DevDBTempVisibilityDevOps" type="String" />
+			<Column name="passWord" type="String" />
+		</Header>
+		<Row>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>Java Web Application</Value>
+			<Value>AFTenantAdmin_Name</Value>
+			<Value>AFTenantDomain</Value>
+			<Value>123456</Value>
+			<Value>Login failed. Please recheck the username and password and try again.</Value>
+			<Value>Invalid Password - Use 6 to 15 characters.</Value>
+			<Value>AF_DEV,AF_DevOps,AF_QA,AF_AppOwner</Value>
+			<Value>AF_AppOwner,AF_DevOps</Value>
+			<Value>AF_DEV1</Value>
+			<Value>AF_DEV2</Value>
+			<Value></Value>
+			<Value>user</Value>
+			<Value>12345</Value>
+			<Value>user%^&amp;*</Value>
+			<Value>UserList contains invalid user names. User name should be of length 3-30 in alphanumeric characters</Value>
+			<Value>Password does not match</Value>
+			<Value>AFTenantAdmin_Password</Value>
+			<Value>Test</Value>
+			<Value>test</Value>
+			<Value></Value>
+			<Value>Test Description</Value>
+			<Value></Value>
+			<Value>C:\\AF_Files\\ImagePath\\AF_logo.jpg</Value>
+			<Value>C:\\AF_Files\\AppPath\\exapmle.war</Value>
+			<Value>Create</Value>
+			<Value>creation is in progress.</Value>
+			<Value>Initial GIT repo created for</Value>
+			<Value>Jenkins space created for</Value>
+			<Value>Issue tracker space created for</Value>
+			<Value>is successfully authorized for all Cloud environments</Value>
+			<Value>Invalid Application Key - Create a key which is not duplicated</Value>
+			<Value>invited to the application</Value>
+			<Value>removed from application</Value>
+			<Value>Invalid Estimated End Date - Should not be lesser than the current date</Value>
+			<Value>promoting from Development to Testing.</Value>
+			<Value>deployed in Testing stage</Value>
+			<Value>Development</Value>
+			<Value>Testing</Value>
+			<Value>Production</Value>
+			<Value>Promote</Value>
+			<Value>Demote</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>SUCCESSFUL</Value>
+			<Value>Deployed</Value>
+			<Value>trunk</Value>
+			<Value>1.0.0</Value>
+			<Value>2</Value>
+			<Value>1</Value>
+			<Value>2</Value>
+			<Value>3</Value>
+			<Value>2</Value>
+			<Value>1</Value>
+			<Value>AA</Value>
+			<Value>Development</Value>
+			<Value>YES</Value>
+			<Value>NO</Value>
+			<Value>AA</Value>
+			<Value></Value>
+			<Value></Value>
+			<Value></Value>
+			<Value></Value>
+			<Value>123456</Value>
+			<Value></Value>
+			<Value>123456</Value>
+			<Value>testAPI001</Value>
+			<Value>1.0.0</Value>
+			<Value>Test</Value>
+			<Value>None</Value>
+			<Value>http://www.googl.com</Value>
+			<Value>Test</Value>
+			<Value></Value>
+			<Value></Value>
+			<Value>11</Value>
+			<Value>test</Value>
+			<Value></Value>
+			<Value>1.0.0</Value>
+			<Value>New Feature</Value>
+			<Value>Bug</Value>
+			<Value>BUG</Value>
+			<Value>Highest</Value>
+			<Value>Normal</Value>
+			<Value>NORMAL</Value>
+			<Value></Value>
+			<Value>Minor</Value>
+			<Value>1.0.0</Value>
+			<Value>test</Value>
+			<Value>Open</Value>
+			<Value>Resolved</Value>
+			<Value>RESOLVED</Value>
+			<Value>Closed</Value>
+			<Value>CLOSED</Value>
+			<Value>test</Value>
+			<Value>http</Value>
+			<Value>cloudtest.com </Value>
+			<Value>5000</Value>
+			<Value>10000</Value>
+			<Value>15000</Value>
+			<Value>Hello JSP</Value>
+			<Value>10</Value>
+			<Value>C:\\AF_Files\\AppPath\\exapmle.war</Value>
+			<Value>2.0.0</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>disable</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>C:\\AF_Files\\ImagePath\\AppLogoSub.jpg</Value>
+			<Value>C:\\AF_Files\\ImagePath\\AppLogoMain.jpg</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>123456</Value>
+		</Row>
+
+</Table>
+	<Table name="dt_UploadApp">
+		<Header>
+			<Column name="IsExecuting" type="Boolean" />
+			<Column name="IsExecutingUploadApp" type="Boolean" />
+			<Column name="appType" type="String" />
+			<Column name="adminUsername" type="String" />
+			<Column name="domainName" type="String" />
+			<Column name="defaultPassword" type="String" />
+			<Column name="loginErrorMsg" type="String" />
+			<Column name="dbUserPwdErrorMsg" type="String" />
+			<Column name="userListMain" type="String" />
+			<Column name="userListUploadApp" type="String" />
+			<Column name="userListEdit" type="String" />
+			<Column name="userListDelete" type="String" />
+			<Column name="usernames" type="String" />
+			<Column name="userInitials" type="String" />
+			<Column name="wrongPassword" type="String" />
+			<Column name="wrongUsername" type="String" />
+			<Column name="UsernameErrorMsg" type="String" />
+			<Column name="PasswordErrorMsg" type="String" />
+			<Column name="adminPassword" type="String" />
+			<Column name="appName" type="String" />
+			<Column name="appKey" type="String" />
+			<Column name="appDescription" type="String" />
+			<Column name="editDescription" type="String" />
+			<Column name="appImagePath" type="String" />
+			<Column name="editAppImagePath" type="String" />
+			<Column name="appPath" type="String" />
+			<Column name="appCreationMethod" type="String" />
+			<Column name="appCreationMsg" type="String" />
+			<Column name="gitMsg" type="String" />
+			<Column name="jenkinsMsg" type="String" />
+			<Column name="issueTrackerMsg" type="String" />
+			<Column name="cloudMsg" type="String" />
+			<Column name="sameAppKeyErrorMsg" type="String" />
+			<Column name="addMemberMsg" type="String" />
+			<Column name="removeMemberMsg" type="String" />
+			<Column name="wrongDateErrorMsg" type="String" />
+			<Column name="promoteDevTestMsg" type="String" />
+			<Column name="DeployTestMsg" type="String" />
+			<Column name="appStageDev" type="String" />
+			<Column name="appStageTest" type="String" />
+			<Column name="appStagePro" type="String" />
+			<Column name="actionPromote" type="String" />
+			<Column name="actionDemote" type="String" />
+			<Column name="OverviewTabVisibilityDev" type="String" />
+			<Column name="RepoandBuildTabVisibilityDev" type="String" />
+			<Column name="TeamTabVisibilityDev" type="String" />
+			<Column name="databaseTabVisibilityDev" type="String" />
+			<Column name="LifecycleManagementTabVisibilityDev" type="String" />
+			<Column name="ResourceTabVisibilityDev" type="String" />
+			<Column name="IssuesTabVisibilityDev" type="String" />
+			<Column name="LogsTabVisibilityDev" type="String" />
+			<Column name="buildStatus" type="String" />
+			<Column name="deployStatus" type="String" />
+			<Column name="versionnumber" type="String" />
+			<Column name="newVersionNumber" type="String" />
+			<Column name="buildNumber" type="String" />
+			<Column name="buildNumberOne" type="String" />
+			<Column name="buildNumberTwo" type="String" />
+			<Column name="buildNumberThree" type="String" />
+			<Column name="deployNumberTwo" type="String" />
+			<Column name="deployNumberOne" type="String" />
+			<Column name="dbName" type="String" />
+			<Column name="dbEnvironment" type="String" />
+			<Column name="dbAllEnvYes" type="String" />
+			<Column name="dbAllEnvNo" type="String" />
+			<Column name="dsName" type="String" />
+			<Column name="dbDriver" type="String" />
+			<Column name="dsEnv" type="String" />
+			<Column name="dbURL" type="String" />
+			<Column name="dbUsername" type="String" />
+			<Column name="dbPassword" type="String" />
+			<Column name="dsDesc" type="String" />
+			<Column name="dsPassword" type="String" />
+			<Column name="internalAPIName" type="String" />
+			<Column name="internalAPIVersion" type="String" />
+			<Column name="exAPIName" type="String" />
+			<Column name="authAPI" type="String" />
+			<Column name="exAPIURL" type="String" />
+			<Column name="propName" type="String" />
+			<Column name="proDesc" type="String" />
+			<Column name="propRegEnv" type="String" />
+			<Column name="proValue" type="String" />
+			<Column name="issueSummary" type="String" />
+			<Column name="issueDesc" type="String" />
+			<Column name="versionIssueRelatedTo" type="String" />
+			<Column name="issueType" type="String" />
+			<Column name="issueTypeNew" type="String" />
+			<Column name="issueTypeBug" type="String" />
+			<Column name="issuePriority" type="String" />
+			<Column name="issuePriorityNew" type="String" />
+			<Column name="issuePriorityNormal" type="String" />
+			<Column name="issueAsignee" type="String" />
+			<Column name="issueSeverity" type="String" />
+			<Column name="versionToDemote" type="String" />
+			<Column name="demoteComment" type="String" />
+			<Column name="issueStatusInitial" type="String" />
+			<Column name="issueStatusNew" type="String" />
+			<Column name="issueStatusResolved" type="String" />
+			<Column name="issueStatusFinal" type="String" />
+			<Column name="issueStatusClosed" type="String" />
+			<Column name="subDomain" type="String" />
+			<Column name="serviceName" type="String" />
+			<Column name="domain" type="String" />
+			<Column name="lawPauseLevel" type="String" />
+			<Column name="mediumPauseLevel" type="String" />
+			<Column name="highPauseLevel" type="String" />
+			<Column name="sampleText" type="String" />
+			<Column name="waitTimeForAppLoadingInSec" type="Int" />
+			<Column name="appPathNew" type="String" />
+			<Column name="newUploadVersion" type="String" />
+			<Column name="dbTempPrivUnTicked" type="String" />
+			<Column name="dbTempPrivTicked" type="String" />
+			<Column name="dbNOtVisible" type="String" />
+			<Column name="dbVisible" type="String" />
+			<Column name="versionVisibilityTrue" type="String" />
+			<Column name="versionVisibilityFalse" type="String" />
+			<Column name="ETADisability" type="String" />
+			<Column name="StageVisibilityTrue" type="String" />
+			<Column name="StageVisibilityFalse" type="String" />
+			<Column name="addNewBtnVisibilityTrue" type="String" />
+			<Column name="addNewBtnVisibilityFalse" type="String" />
+			<Column name="OverviewTabVisibilityQA" type="String" />
+			<Column name="RepoandBuildTabVisibilityQA" type="String" />
+			<Column name="TeamTabVisibilityQA" type="String" />
+			<Column name="LifecycleManagementTabVisibilityQA" type="String" />
+			<Column name="ResourceTabVisibilityQA" type="String" />
+			<Column name="IssuesTabVisibilityQA" type="String" />
+			<Column name="databaseTabVisibilityQA" type="String" />
+			<Column name="LogsTabVisibilityQA" type="String" />
+			<Column name="OverviewTabVisibilityDEVOPS" type="String" />
+			<Column name="RepoandBuildTabVisibilityDEVOPS" type="String" />
+			<Column name="TeamTabVisibilityDEVOPS" type="String" />
+			<Column name="LifecycleManagementTabVisibilityDEVOPS" type="String" />
+			<Column name="ResourceTabVisibilityDEVOPS" type="String" />
+			<Column name="IssuesTabVisibilityDEVOPS" type="String" />
+			<Column name="databaseTabVisibilityDEVOPS" type="String" />
+			<Column name="LogsTabVisibilityDEVOPS" type="String" />
+			<Column name="ETASaveTestingStageDev" type="String" />
+			<Column name="appLogoSubPath" type="String" />
+			<Column name="appLogoMainPath" type="String" />
+			<Column name="prodKeyVisibilityDev" type="String" />
+			<Column name="prodKeyVisibilityQa" type="String" />
+			<Column name="prodKeyVisibilityDevOps" type="String" />
+			<Column name="prodKeyVisibilityAppOwner" type="String" />
+			<Column name="SandKeyVisibilityDev" type="String" />
+			<Column name="SandKeyVisibilityQa" type="String" />
+			<Column name="SandKeyVisibilityDevOps" type="String" />
+			<Column name="SandKeyVisibilityAppOwner" type="String" />
+			<Column name="DevDBVisibilityDevOps" type="String" />
+			<Column name="DevDBUserVisibilityDevOps" type="String" />
+			<Column name="DevDBTempVisibilityDevOps" type="String" />
+			<Column name="passWord" type="String" />
+		</Header>
+		<Row>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>WAR</Value>
+			<Value>AFTenantAdmin_Name</Value>
+			<Value>AFTenantDomain</Value>
+			<Value>123456</Value>
+			<Value>Login failed. Please recheck the username and password and try again.</Value>
+			<Value>Invalid Password - Use 6 to 15 characters.</Value>
+			<Value>AF_DEV,AF_DevOps,AF_QA,AF_AppOwner</Value>
+			<Value>AF_AppOwner,AF_DevOps</Value>
+			<Value>AF_DEV1</Value>
+			<Value>AF_DEV2</Value>
+			<Value></Value>
+			<Value>user</Value>
+			<Value>12345</Value>
+			<Value>user%^&amp;*</Value>
+			<Value>UserList contains invalid user names. User name should be of length 3-30 in alphanumeric characters</Value>
+			<Value>Password does not match</Value>
+			<Value>AFTenantAdmin_Password</Value>
+			<Value>Test</Value>
+			<Value>test</Value>
+			<Value></Value>
+			<Value>Test Description</Value>
+			<Value></Value>
+			<Value>C:\\AF_Files\\ImagePath\\AF_logo.jpg</Value>
+			<Value>C:\\AF_Files\\AppPath\\example.war</Value>
+			<Value>Upload</Value>
+			<Value>creation is in progress.</Value>
+			<Value>Initial GIT repo created for</Value>
+			<Value>Jenkins space created for</Value>
+			<Value>Issue tracker space created for</Value>
+			<Value>is successfully authorized for all Cloud environments</Value>
+			<Value>Invalid Application Key - Create a key which is not duplicated</Value>
+			<Value>invited to the application</Value>
+			<Value>removed from application</Value>
+			<Value>Invalid Estimated End Date - Should not be lesser than the current date</Value>
+			<Value>promoting from Development to Testing.</Value>
+			<Value>deployed in Testing stage</Value>
+			<Value>Development</Value>
+			<Value>Testing</Value>
+			<Value>Production</Value>
+			<Value>Promote</Value>
+			<Value>Demote</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>SUCCESSFUL</Value>
+			<Value>Deployed</Value>
+			<Value>trunk</Value>
+			<Value>1.0.0</Value>
+			<Value>2</Value>
+			<Value>1</Value>
+			<Value>2</Value>
+			<Value>3</Value>
+			<Value>2</Value>
+			<Value>1</Value>
+			<Value>AA</Value>
+			<Value>Development</Value>
+			<Value>YES</Value>
+			<Value>NO</Value>
+			<Value>AA</Value>
+			<Value></Value>
+			<Value></Value>
+			<Value></Value>
+			<Value></Value>
+			<Value>123456</Value>
+			<Value></Value>
+			<Value>123456</Value>
+			<Value>testAPI001</Value>
+			<Value>1.0.0</Value>
+			<Value>Test</Value>
+			<Value>None</Value>
+			<Value>http://www.googl.com</Value>
+			<Value>Test</Value>
+			<Value></Value>
+			<Value></Value>
+			<Value>11</Value>
+			<Value>test</Value>
+			<Value></Value>
+			<Value>1.0.0</Value>
+			<Value>New Feature</Value>
+			<Value>Bug</Value>
+			<Value>BUG</Value>
+			<Value>Highest</Value>
+			<Value>Normal</Value>
+			<Value>NORMAL</Value>
+			<Value></Value>
+			<Value>Minor</Value>
+			<Value>1.0.0</Value>
+			<Value>test</Value>
+			<Value>Open</Value>
+			<Value>Resolved</Value>
+			<Value>RESOLVED</Value>
+			<Value>Closed</Value>
+			<Value>CLOSED</Value>
+			<Value>test</Value>
+			<Value>http</Value>
+			<Value>cloudtest.com </Value>
+			<Value>5000</Value>
+			<Value>10000</Value>
+			<Value>15000</Value>
+			<Value>WSO2 Carbon Web Application Examples</Value>
+			<Value>10</Value>
+			<Value>C:\\AF_Files\\AppPath\\example.war</Value>
+			<Value>2.0.0</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>disable</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>C:\\AF_Files\\ImagePath\\AppLogoSub.jpg</Value>
+			<Value>C:\\AF_Files\\ImagePath\\AppLogoMain.jpg</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>true</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>false</Value>
+			<Value>123456</Value>
+		</Row>
+
+</Table>
+	<Table name="initializeTenantLogin">
+		<Header>
+			<Column name="TenantAdminName" type="String" />
+			<Column name="TenantAdminPassword" type="String" />
+			<Column name="TenantDomain" type="String" />
+			<Column name="AppFactoryUserCommonPassword" type="String" />
+			<Column name="mainURL" type="String" />
+			<Column name="defaultPassword" type="String" />
+		</Header>
+		<Row>
+			<Value>admin</Value>
+			<Value>admin</Value>
+			<Value>qaz</Value>
+			<Value>admin</Value>
+			<Value>https://appfactory.private.wso2.com:9443/appmgt/</Value>
+			<Value>admin</Value>
+		</Row>
+
+</Table>
+
+
+
+
+
+
+</DataTables>

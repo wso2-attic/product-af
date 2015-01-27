@@ -1,0 +1,28 @@
+package com.virtusa.isq.vtaf.runtime.pages;
+
+/**
+ *  Class ApplicationLifeCycleManagement implements corresponding UI page
+ *  UI objects in the page are stored in the class.
+ */
+
+public enum ApplicationLifeCycleManagement {
+
+        tf_CompletionDate("//strong[text()='<param_VersionNumber>']/../../../li[3]/div[2]/form/div/input"), ele_Version("//strong[contains(text(), \"<param_VersionNumber>\")]"), btn_Save("//input[@class='btn main small']"), btn_Promote("//td[contains(text(),'<param_VersionNumber>')]/../td[4]/button"), btn_PromoteSub("//button[contains (@onclick,'<param_VersionNumber>')]"), chk_PromoteDropDown("//button[contains (@onclick,'<branch_version>')]/../../div[<checkBoxNoOrder>]/label/input"), lbl_LifecyleState("//strong[contains(text(), \"<param_VersionNumber>\")]/../../../li[2]/div/i "), btn_DemoteTest("//td[contains(text(),'<param_VersionNumber>')]/../td[4]/button[2]"), btn_DemotePro("//td[contains(text(),'<param_VersionNumber>')]/../td[4]/button"), tf_Comment("//div[@class='input_row']/textarea"), btn_DemoteSub("//a[contains(text(),'Cancel')]/../button"), btn_Edit("//strong[contains(text(), \"<param_VersionNumber>\")]/../../../li[3]/div/a"), btn_LifecycleHistory("//td[contains(text(),'<param_VersionNumber>')]/../td[5]/a"), btn_RetireUploadApp("//td[contains(text(),'<param_VersionNumber>')]/../td[4]/button"), btn_RetireCreateApp("//td[contains(text(),'<param_VersionNumber>')]/../td[4]/button[2]"), lbl_VersionHeading("//div[@id='whereItAllGoes']/ul/li/ul/li/h2"), lbl_LifecycleStateHeading("//div[@id='whereItAllGoes']/ul/li/ul/li[2]/h2"), lbl_CompletionDateHeading("//div[@id='whereItAllGoes']/ul/li/ul/li[3]/h2"), btn_Demote("//strong[contains(text(), \"<param_VersionNumber>\")]/../../../li[4]/div/ul/li[2]/button"), lbl_LifecycleHistoryUser("//strong[text()='<param_User>'][1]"), lbl_LifecycleHistoryAction("//div[@class='qtip popover_box issue_down qtip-pos-tl qtip-fixed qtip-focus']/div[2]/div/table/tbody/tr/td[1]/strong[contains(text(),'<param_User>')]/../../td[2]/strong"), lbl_LifecycleHistoryFrom("//div[@class='qtip popover_box issue_down qtip-pos-tl qtip-fixed qtip-focus']/div[2]/div/table/tbody/tr/td[1]/strong[contains(text(),'<param_User>')]/../../td[3]"), lbl_LifecycleHistoryTo("//div[@class='qtip popover_box issue_down qtip-pos-tl qtip-fixed qtip-focus']/div[2]/div/table/tbody/tr/td[1]/strong[contains(text(),'<param_User>')]/../../td[4]"), lbl_LifecycleHistoryState("//table[@class='small_table']/tbody/tr[<rowNo>*3-(1)]/td[<columnName>]"), lbl_DemoteComments("//table[@class='small_table']/tbody/tr[<rowNo>*3+(1)]/td[contains(text(),'<comment>')]"), lbl_LifecycleComment("//div[@class='qtip popover_box issue_down qtip-pos-tl qtip-fixed qtip-focus']/div[2]/div/table/tbody/tr/td[1]/strong[contains(text(),'<param_Username>')]/../../../tr[4]/td"), btn_SaveDisable("//strong[text()='<param_VersionNumber>']/../../../li[3]/div/form/div/button"), lbl_LifeCycleStateVerification("//strong[text()='<param_VersionNumber>']/../../../li[2]/p"), tf_CompletionDateDisabled("//strong[text()='<param_VersionNumber>']/../../../li[3]/div/form/div/input"), lbl_CompletionDate("//strong[text()='<param_VersionNumber>']/../../../li[3]/div/span[text()='<param_Date>']"), chk_CodeCompleted("//td[contains(text(),'<param_Versionnumber>')]/../td[3]/div/label/input"), chk_DesignReviewDone("//td[contains(text(),'<param_Versionnumber>')]/../td[3]/div[2]/label/input"), chk_CodeReviewDone("//td[contains(text(),'<param_Versionnumber>')]/../td[3]/div[3]/label/input"), chk_SmokeTestPassed("//td[contains(text(),'<param_Versionnumber>')]/../td[3]/div/label/input"), chk_TestCasesPassed("//td[contains(text(),'<param_Versionnumber>')]/../td[3]/div[2]/label/input"), ele_ddStage("css=div[id='s2id_stage_selector']>a>div>b"), lbl_Stage("//div[@class='select2-result-label'][contains(text(),'<param_Stage>')]"), lbl_SelectedStage("css=div[id='s2id_stage_selector']>a>span"), lbl_VerisonNumber("//td[contains(text(),'<param_VersionNumber>')]"), lbl_RelatedIssue("//div[@class='qtip popover_box issue_down qtip-pos-tl qtip-fixed qtip-focus']/div[2]/form/div/label[contains(text(),'Related Issue')]"), chk_Issue("//input[@title='<param_IssueSummary>']"), chk_NoOneUsingApp("xpath=(//label[contains(text(),'Verify no one is using the Application')])[2]"), btn_RetireSub("css=button[Onclick=\"doGovernanceAction(this, 'Retire','Production', '<param_VersionNumber>')\"]"), lbl_UploadTypeHistoryTestToPro("//div[@class='qtip-content']/div/table/tbody/tr[2]/td[3][contains(text(),'Testing')]/../td[4][contains(text(),'Production')]"), lbl_UploadTypeHistoryDevToTest("//div[@class='qtip-content']/div/table/tbody/tr[5]/td[3][contains(text(),'Development')]/../td[4][contains(text(),'Testing')]"), lbl_LifecycleHistoryEntry("//div[@class='qtip-content']/div/table/tbody/tr[2]/td[2]/strong[contains(text(),'<param_Action>')]/../../td[3][contains(text(),'<param_ActionFrom>')]/../td[4][contains(text(),'<param_ActionTo>')]"), ele_LifecycleEntriesMultiple("//div[@class='qtip-content']/div/table/tbody/tr[2]/td[2]/strong[contains(text(),'<param_1stAction>')]/../../../tr[5]/td[2]/strong[contains(text(),'<param_2ndAction>')]/../../../tr[8]/td[2]/strong[contains(text(),'<param_3rdAction>')]");
+
+    private String searchPath;
+  
+    /**
+    *  Page ApplicationLifeCycleManagement.
+    */
+    private ApplicationLifeCycleManagement(final String psearchPath) {
+        this.searchPath = psearchPath;
+    }
+    
+    /**
+     *  Get search path.
+     * @param searchPath search path.
+     */
+    public final String getSearchPath() {
+        return searchPath;
+    }
+}

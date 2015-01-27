@@ -1,0 +1,16 @@
+<!--Test_suite xml for running testng test-->
+<suite name="google" verbose="3">
+	<parameter name="selenium.host" value="localhost"></parameter>
+	<parameter name="selenium.port" value="4444"></parameter>
+	<parameter name="selenium.browser" value="*firefox"></parameter>
+	<parameter name="selenium.url" value="http://www.google.com"></parameter>
+	<test name="name2" preserve-order="true">
+		<classes><class name="com.deliverables_scenario1.Phase1_CR1">
+				<methods>
+					<include name="initialization"></include>
+					<include name="tenantAdminScenario1"></include>
+				</methods>
+			</class>
+		</classes>
+	</test>
+</suite>

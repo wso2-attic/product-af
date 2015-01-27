@@ -1,0 +1,217 @@
+
+initialization
+Total Time taken to execute the test case : ,5350
+
+tc_AppCreation
+OPEN : https://appfactory.private.wso2.com:9443/appmgt/,1562
+TYPE :Login.tf_UserName,123
+TYPE :Login.tf_Password,49
+CLICK :Login.btn_SignIn,440
+CHECK OBJECT PROPERTY :Login.lbl_LoginErrorMsg.textContent,32
+OPEN : https://appfactory.private.wso2.com:9443/appmgt/,344
+TYPE :Login.tf_UserName,80
+TYPE :Login.tf_Password,49
+CLICK :Login.btn_SignIn,90
+STORE Value : usereu5_dev String AF_DEV :,23255
+STORE Value : usernp1_devops String AF_DevOps :,23256
+STORE Value : userlf7_qa String AF_QA :,23256
+STORE Value : userqb4_appowner String AF_AppOwner :,23257
+STORE Value : usereu5_dev,usernp1_devops,userlf7_qa,userqb4_appowner String keyUserList :,23258
+RETRIEVE Value : String keyUserList :,23259
+CLICKAT :HomePage.btn_ManageUsers,47
+CLICKAT :ManageMembers.btn_ImportMembers,796
+TYPE :ImportMembers.tf_UserList,443
+TYPE :ImportMembers.tf_DefaultPassword,45
+TYPE :ImportMembers.tf_ConfirmDefaultPassword,45
+CLICKAT :ImportMembers.btn_Import,61
+CLICKAT :ManageMembers.chk_User,69
+CLICKAT :ManageMembers.btn_UserRoleEdit,57
+CLICK :ManageMembers.chk_Developer,70
+STORE Value : Developer String keyRole :,74
+CLICK :ManageMembers.btn_SaveRole,91
+RETRIEVE Value : String keyRole :,2096
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,24
+CLICKAT :ManageMembers.chk_User,55
+CLICKAT :ManageMembers.btn_UserRoleEdit,51
+CLICK :ManageMembers.chk_DevOps,67
+STORE Value : DevOps String keyRole :,68
+CLICK :ManageMembers.btn_SaveRole,65
+RETRIEVE Value : String keyRole :,2070
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,28
+CLICKAT :ManageMembers.chk_User,52
+CLICKAT :ManageMembers.btn_UserRoleEdit,66
+CLICK :ManageMembers.chk_QA,105
+STORE Value : QA String keyRole :,108
+CLICK :ManageMembers.btn_SaveRole,66
+RETRIEVE Value : String keyRole :,2070
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,30
+CLICKAT :ManageMembers.chk_User,53
+CLICKAT :ManageMembers.btn_UserRoleEdit,49
+CLICK :ManageMembers.chk_ApplicationOwner,85
+STORE Value : Application Owner String keyRole :,87
+CLICK :ManageMembers.btn_SaveRole,101
+RETRIEVE Value : String keyRole :,2106
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,24
+STORE Value : userbs1_dev String AF_DEV1 :,25
+STORE Value : userbs1_dev String keyUserList :,31
+RETRIEVE Value : String keyUserList :,31
+CLICKAT :HomePage.btn_ManageUsers,37
+CLICKAT :ManageMembers.btn_ImportMembers,359
+TYPE :ImportMembers.tf_UserList,390
+TYPE :ImportMembers.tf_DefaultPassword,41
+TYPE :ImportMembers.tf_ConfirmDefaultPassword,49
+CLICKAT :ImportMembers.btn_Import,73
+CLICKAT :ManageMembers.chk_User,72
+CLICKAT :ManageMembers.btn_UserRoleEdit,48
+CLICK :ManageMembers.chk_Developer,106
+STORE Value : Developer String keyRole :,109
+CLICK :ManageMembers.btn_SaveRole,69
+RETRIEVE Value : String keyRole :,2073
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,41
+CLICK :ManageMembers.chk_User,93
+CLICK :ManageMembers.btn_UserRoleEdit,90
+CLICK :ManageMembers.chk_Developer,91
+CLICK :ManageMembers.chk_QA,79
+STORE Value : QA String keyRole :,80
+CLICK :ManageMembers.btn_SaveRole,69
+RETRIEVE Value : String keyRole :,70
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,733
+STORE Value : userdy9_dev String AF_DEV2 :,737
+STORE Value : userdy9_dev String keyUserList :,744
+RETRIEVE Value : String keyUserList :,746
+CLICKAT :HomePage.btn_ManageUsers,39
+CLICKAT :ManageMembers.btn_ImportMembers,383
+TYPE :ImportMembers.tf_UserList,368
+TYPE :ImportMembers.tf_DefaultPassword,44
+TYPE :ImportMembers.tf_ConfirmDefaultPassword,42
+CLICKAT :ImportMembers.btn_Import,69
+CLICK :ManageMembers.chk_User,73
+CLICK :ManageMembers.btn_UserDelete,68
+CLICK :ManageMembers.btn_ConfirmDeleteOk,216
+CHECK ELEMENT PRESENT :ManageMembers.ele_lblMemberName,25
+CLICKAT :HomePage.btn_ManageUsers,54
+CLICKAT :ManageMembers.btn_ImportMembers,375
+TYPE :ImportMembers.tf_UserList,399
+TYPE :ImportMembers.tf_DefaultPassword,45
+TYPE :ImportMembers.tf_ConfirmDefaultPassword,49
+CLICKAT :ImportMembers.btn_Import,81
+CHECK OBJECT PROPERTY :ImportMembers.lbl_ErrorMsg.textContent,44
+CLICKAT :HomePage.btn_Home,83
+CLICKAT :HomePage.btn_ManageUsers,538
+CLICKAT :ManageMembers.btn_ImportMembers,475
+TYPE :ImportMembers.tf_UserList,310
+TYPE :ImportMembers.tf_DefaultPassword,41
+TYPE :ImportMembers.tf_ConfirmDefaultPassword,51
+CLICKAT :ImportMembers.btn_Import,50
+CHECK OBJECT PROPERTY :ImportMembers.lbl_PwdErrorMsg.textContent,57
+CLICK :HomePage.lnk_UserName,66
+CLICK :HomePage.lnk_SignOut,121
+CLICK :HomePage.lnk_UserName,67
+CLICK :HomePage.lnk_SignOut,86
+CHECK ELEMENT PRESENT :Login.tf_UserName,413
+RETRIEVE Value : String AF_AppOwner :,416
+OPEN : https://appfactory.private.wso2.com:9443/appmgt/,343
+TYPE :Login.tf_UserName,146
+TYPE :Login.tf_Password,73
+CLICK :Login.btn_SignIn,111
+TYPE :Login.tf_OldPassword,56
+TYPE :Login.tf_NewPassword,45
+TYPE :Login.tf_ConfirmNewPassword,47
+CLICK :Login.btn_Submit,67
+CLICK :HomePage.btn_AddNewApplication,455
+STORE Value : WebApp Testfh2 String keyAppName :,456
+TYPE :AddNewApplication.tf_AppName,63
+TYPE :AddNewApplication.tf_AppKey,99
+STORE Value : testxe4 String keyAppKey :,100
+CLICK :AddNewApplication.rdo_CreateApp,69
+CLICKAT :AddNewApplication.ele_ddCreateAppType,71
+TYPE :AddNewApplication.tf_SearchAppType,121
+CLICKAT :AddNewApplication.ele_ApplicationType,46
+CLICKAT :AddNewApplication.btn_CreateApplication,78
+RETRIEVE Value : String keyAppName :,5079
+RETRIEVE Value : String keyAppKey :,5080
+KEYPRESS :HomePage.btn_Home,1075
+KEYPRESS :HomePage.btn_Home,1055
+CHECK ELEMENT PRESENT :HomePage.ele_ApplicationName,10
+CHECK OBJECT PROPERTY :HomePage.lbl_ApplicationType.textContent,18
+KEYPRESS :HomePage.btn_Home,1061
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,32110
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,32086
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,32095
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,32180
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,32153
+CLICK :HomePage.btn_AddNewApplication,432
+TYPE :AddNewApplication.tf_AppName,54
+TYPE :AddNewApplication.tf_AppKey,74
+FIRE EVENT Command : ,2590
+CHECK OBJECT PROPERTY :AddNewApplication.lbl_AppCreationErrorMsg.textContent,50
+CLICKAT :HomePage.btn_Home,49
+CLICK :HomePage.ele_ApplicationName,700
+CLICKAT :ApplicationHome.lnk_Team,69
+CLICK :ApplicationTeam.btn_AddMembers,998
+TYPE :ApplicationTeam.tf_Usernames,53
+CLICK :ApplicationTeam.btn_AddToList,72
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_TeamAdminMemberName,9
+TYPE :ApplicationTeam.tf_Usernames,49
+CLICK :ApplicationTeam.btn_AddToList,70
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_TeamAdminMemberName,12
+TYPE :ApplicationTeam.tf_Usernames,46
+CLICK :ApplicationTeam.btn_AddToList,67
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_TeamAdminMemberName,13
+STORE Value : usereu5_dev, usernp1_devops, userlf7_qa String keyUserList :,13
+CLICK :ApplicationTeam.btn_Invite,72
+CLICK :ApplicationHome.lnk_Team,84
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_AddedMember,366
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_AddedMember,10
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_AddedMember,12
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_AddedMember,9
+KEYPRESS :HomePage.btn_Home,1050
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,14244
+CLICKAT :ApplicationHome.lnk_Team,66
+CLICK :ApplicationTeam.btn_AddMembers,817
+TYPE :ApplicationTeam.tf_Usernames,55
+CLICK :ApplicationTeam.btn_AddToList,68
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_TeamAdminMemberName,9
+STORE Value : userbs1_dev String keyUserList :,10
+CLICK :ApplicationTeam.btn_Invite,66
+CLICK :ApplicationHome.lnk_Team,90
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_AddedMember,365
+KEYPRESS :HomePage.btn_Home,1065
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,14348
+CLICK :ApplicationHome.lnk_Team,411
+CLICK :ApplicationTeam.chk_User,71
+CLICK :ApplicationTeam.btn_DeleteMember,80
+CLICK :ApplicationTeam.btn_PopUpOk,183
+KEYPRESS :HomePage.btn_Home,1052
+CHECK OBJECT PROPERTY :ApplicationTeam.ele_TeamOtherMemberName.ELEMENTPRESENT,12134
+CHECK ELEMENT PRESENT :Common.lbl_NotificationWallMsg,4184
+CLICKAT :ApplicationHome.lnk_Overview,66
+CLICK :ApplicationOverview.btn_ImgEditPencil,10120
+TYPE :ApplicationOverview.btn_SelectFile,10093
+CHECK IMAGE PRESENT :,18100
+CLICKAT :ApplicationOverview.ele_Desc,52
+CLICK :ApplicationOverview.btn_DescEditPencil,73
+TYPE :ApplicationOverview.tf_Description,66
+CLICKAT :ApplicationOverview.btn_SaveDesc,59
+CHECK OBJECT PROPERTY :ApplicationOverview.lbl_Description.textContent,19
+CLICKAT :HomePage.btn_Home,60
+CHECK IMAGE PRESENT :,5068
+CLICK :HomePage.lnk_UserName,70
+CLICK :HomePage.lnk_SignOut,127
+Total Time taken to execute the test case : ,533674
+
+tc_DevFunctions
+WRITE TO REPORT : ,21212
+Total Time taken to execute the test case : ,4839
+
+tc_AppOwnerQaFunctions
+WRITE TO REPORT : ,29040
+Total Time taken to execute the test case : ,4717
+
+tc_ResourceCURD
+WRITE TO REPORT : ,36625
+Total Time taken to execute the test case : ,4468
+
+tc_UploadApps
+WRITE TO REPORT : ,44135
+Total Time taken to execute the test case : ,4407
