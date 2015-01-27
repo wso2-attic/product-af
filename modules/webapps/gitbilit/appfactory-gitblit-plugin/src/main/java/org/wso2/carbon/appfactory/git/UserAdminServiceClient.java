@@ -81,8 +81,7 @@ public class UserAdminServiceClient {
 	public List<String> getAllUsers() {
 		String users[];
 		try {
-            //Seeting -1 here and need to set 0 in MaxUserNameListLength in user-mgt.xml
-			users = client.listUsers("*",-1);
+			users = client.listUsers("*",100);
 			if (users != null) {
 				return Arrays.asList(users);
 			}
