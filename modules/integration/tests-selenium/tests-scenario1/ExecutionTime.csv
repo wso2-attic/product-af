@@ -1,0 +1,84 @@
+
+initialization
+Total Time taken to execute the test case : ,6287
+
+tenantAdminScenario1
+OPEN : https://apps.appfactory.private.wso2.com:9443/appmgt/,3254
+TYPE :Login.tf_UserName,149
+TYPE :Login.tf_Password,59
+CLICK :Login.btn_SignIn,1224
+STORE Value : Userkm6_DEV String AF_DEV :,9243
+STORE Value : Userkm6_DEV String keyUserList :,9253
+RETRIEVE Value : String keyUserList :,9257
+CLICK :HomePage.btn_ManageUsers,293
+CLICK :ManageMembers.btn_ImportMembers,786
+TYPE :ImportMembers.tf_UserList,85
+TYPE :ImportMembers.tf_DefaultPassword,52
+TYPE :ImportMembers.tf_ConfirmDefaultPassword,49
+CLICK :ImportMembers.btn_Import,68
+CLICK :ManageMembers.chk_User,106
+CLICK :ManageMembers.btn_UserRoleEdit,69
+CLICK :ManageMembers.chk_Developer,285
+STORE Value : Developer String keyRole :,287
+CLICK :ManageMembers.btn_SaveRole,106
+RETRIEVE Value : String keyRole :,107
+CHECK ELEMENT PRESENT :ApplicationTeam.ele_lblUserwithRole,529
+CLICK :HomePage.btn_Home,94
+CLICK :HomePage.btn_AddNewApplication,752
+STORE Value : WebApp Testtk4 String keyAppName :,753
+TYPE :AddNewApplication.tf_AppName,60
+TYPE :AddNewApplication.tf_AppKey,110
+STORE Value : testwl2 String keyAppKey :,111
+CLICK :AddNewApplication.rdo_CreateApp,71
+CLICKAT :AddNewApplication.ele_ddCreateAppType,73
+TYPE :AddNewApplication.tf_SearchAppType,127
+CLICKAT :AddNewApplication.ele_ApplicationType,97
+CLICKAT :AddNewApplication.btn_CreateApplication,89
+RETRIEVE Value : String keyAppName :,10090
+RETRIEVE Value : String keyAppKey :,10091
+CHECK ELEMENT PRESENT :HomePage.ele_ApplicationName,13
+CHECK OBJECT PROPERTY :HomePage.lbl_ApplicationType.textContent,52
+CLICK :HomePage.ele_ApplicationName,415
+CLICKAT :ApplicationHome.lnk_RepoandBuild,66
+CLICKAT :ApplicationReposandBuilds.ele_ddStageList,128
+CLICKAT :ApplicationReposandBuilds.lbl_AppStage,51
+CLICKAT :ApplicationReposandBuilds.ele_ddVersionList,64
+CLICKAT :ApplicationReposandBuilds.lbl_VersionNumber,49
+SET VARIABLE PROPERTY :ApplicationReposandBuilds.ele_AppStage,19
+KEYPRESS :HomePage.btn_Home,1081
+CHECK OBJECT PROPERTY :ApplicationReposandBuilds.lbl_BuildStatus.textContent,19
+KEYPRESS :HomePage.btn_Home,1071
+CHECK OBJECT PROPERTY :ApplicationReposandBuilds.lbl_DeployStatus.textContent,2049
+CLICKAT :ApplicationHome.lnk_RepoandBuild,72
+CLICKAT :ApplicationReposandBuilds.ele_ddStageList,75
+CHECK ELEMENT PRESENT :ApplicationReposandBuilds.lbl_AppStage,13
+CLICKAT :ApplicationReposandBuilds.lbl_AppStage,71
+CLICKAT :ApplicationReposandBuilds.ele_ddVersionList,72
+CLICKAT :ApplicationReposandBuilds.lbl_VersionNumber,50
+CLICKAT :ApplicationReposandBuilds.btn_Launch,212
+SELECT WINDOW :Window.win_NewWindow,10250
+Total Time taken to execute the test case : ,151355
+
+tenantAdminScenario1
+WRITE TO REPORT : ,18290
+Total Time taken to execute the test case : ,4423
+
+tenantAdminScenario1
+WRITE TO REPORT : ,26040
+Total Time taken to execute the test case : ,4664
+
+tenantAdminScenario1
+WRITE TO REPORT : ,33555
+Total Time taken to execute the test case : ,4417
+
+tenantAdminScenario1
+WRITE TO REPORT : ,41357
+Total Time taken to execute the test case : ,4711
+
+tenantAdminScenario1
+WRITE TO REPORT : ,49117
+Total Time taken to execute the test case : ,4677
+
+tenantAdminScenario1
+WRITE TO REPORT : ,56621
+Total Time taken to execute the test case : ,4423
