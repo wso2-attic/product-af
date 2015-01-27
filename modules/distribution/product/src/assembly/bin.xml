@@ -336,75 +336,75 @@
 
         <!--copying runtimes-->
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.version}/lib/runtimes</directory>
+            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.platform.version}/lib/runtimes</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/lib/runtimes/</outputDirectory>
             <includes>
                 <include>*/**</include>
             </includes>
         </fileSet>
-        <!--fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0001</directory>
+        <fileSet>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0001</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0001/*.*</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0002</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0002</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0002/*.*</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0003</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0003</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0003/*.*</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0004</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0004</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0004/*.*</include>
             </includes>
         </fileSet>
 	<fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0005</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0005</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0005/*.*</include>
             </includes>
         </fileSet>
 	<fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0006</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0006</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0006/*.*</include>
             </includes>
         </fileSet>
 	<fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0007</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0007</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0007/*.*</include>
             </includes>
         </fileSet>
 	<fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0008</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0008</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0008/*.*</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/WSO2-CARBON-PATCH-4.2.0-0009</directory>
+            <directory>resources/kernel_patches/WSO2-CARBON-PATCH-4.2.0-0009</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/components/patches/</outputDirectory>
             <includes>
                 <include>**/patch0009/*.*</include>
             </includes>
-        </fileSet-->
+        </fileSet>
         <!-- Copying CXODashboard gadgets-->
      	<fileSet>
              <directory>../../distribution/product/resources/gadgets</directory>
@@ -416,7 +416,7 @@
 
         <!-- Copying social jars-->
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.version}/repository/deployment/server/bam-toolbox</directory>
+            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.platform.version}/repository/deployment/server/bam-toolbox</directory>
             <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/bam-toolbox/</outputDirectory>
             <includes>
                 <include>*/**</include>

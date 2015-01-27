@@ -1,0 +1,57 @@
+END-USER LICENSE AGREEMENT FOR WSO2-CARBON-PATCH-4.2.0-0008 - 07/05/2014
+
+IMPORTANT PLEASE READ THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT CAREFULLY BEFORE CONTINUING WITH THIS PROGRAM INSTALL: WSO2's End-User License Agreement ("EULA") is a legal agreement between you (either an individual or a single entity) and WSO2 for the WSO2 software product(s) identified above which may include associated software components, media, printed materials, and "online" or electronic documentation and source code (the "PATCH") or  a set of two or more PATCHES (“SERVICE PACK”). By installing, copying, or otherwise using this PATCH or SERVICE PACK, you agree to be bound by the terms of this EULA. This license agreement represents the entire agreement concerning the PATCH or SERVICE PACK between you and WSO2, (referred to as li/ce/nser), and it supersedes any prior proposal, representation, or understanding between the parties. If you do not agree to the terms of this EULA, do not install or use the PATCH or SERVICE PACK.
+
+The PATCH or SERVICE PACK is protected by copyright laws and international copyright treaties, as well as other intellectual property laws and treaties. The PATCH or SERVICE PACK is licensed, not sold.
+
+1. GRANT OF LICENSE.
+
+The PATCH or SERVICE PACK is licensed as follows:
+
+(a)    Installation and Use.
+
+WSO2 grants you the right to install and use copies of the PATCH or SERVICE PACK in a SUPPORTED PRODUCT, in a WSO2 product used for the development and maintenance of applications using the SUPPORTED PRODUCT, or in a WSO2 product used solely for the development and testing of applications using a WSO2 product; the PATCH  or SERVICE PACK may not be used in a production system unless the system becomes a SUPPORTED PRODUCT.   A “SUPPORTED PRODUCT” is a product that is covered by a Production Support Agreement between the End User and WSO2 at the time the PATCH or SERVICE PACK is delivered, or that is received from and supported by a vendor which has an agreement with WSO2 to provide support services for the product at the time the PATCH or SERVICE PACK is delivered.
+
+(b)   Backup Copies.
+
+You may also make copies of the PATCH or SERVICE PACK as may be necessary for backup and archival purposes.
+
+
+
+2. DESCRIPTION OF OTHER RIGHTS AND LIMITATIONS.
+
+(a)    Maintenance of Copyright Notices.
+You must not remove or alter any copyright notices on any and all copies of the PATCH or SERVICE PACK.
+
+(b)   Distribution.
+You may not distribute copies of the PATCH or SERVICE PACK to third parties.
+
+(c)    Rental.
+You may not rent, lease, or lend the PATCH or SERVICE PACK.
+
+(d)   Compliance with Applicable Laws.
+You must comply with all applicable laws regarding use of the PATCH or SERVICE PACK.
+
+ 
+
+3. TERMINATION
+
+Without prejudice to any other rights, WSO2 may terminate this EULA if you fail to comply with the terms and conditions of this EULA.  In such event, you must destroy all copies of the PATCH or SERVICE PACK in your possession.  Termination or expiration of this Agreement shall not affect End Users’ rights to use WSO2 Product(s) in accordance with the terms and conditions of the applicable EULA, or to receive Services in accordance with a Production Support Agreement, or other agreement as may be applicable.
+
+ 
+
+4. COPYRIGHT
+
+All title, including but not limited to copyrights, in and to the PATCH or SERVICE PACK and any copies thereof are owned by WSO2 or its suppliers. All title and intellectual property rights in and to the content which may be accessed through use of the PATCH or SERVICE PACK is the property of the respective content owner and may be protected by applicable copyright or other intellectual property laws and treaties. This EULA grants you no rights to use such content. All rights not expressly granted are reserved by WSO2.
+
+ 
+
+5. NO WARRANTIES
+
+WSO2 expressly disclaims any warranty for the PATCH or SERVICE PACK. The PATCH or SERVICE PACK is provided "As Is" without any express or implied warranty of any kind, including but not limited to any warranties of merchantability, non infringement, or fitness of a particular purpose. WSO2 does not warrant or assume responsibility for the accuracy or completeness of any information, text, graphics, links or other items contained within the PATCH or SERVICE PACK. WSO2 makes no warranties respecting any harm that may be caused by the transmission of a computer virus, worm, time bomb, logic bomb, or other such computer program. WSO2 further expressly disclaims any warranty or representation to Authorized Users or to any third party.
+
+ 
+
+6. LIMITATION OF LIABILITY
+
+In no event shall WSO2 be liable for any damages (including, without limitation, lost profits, business interruption, or lost information) rising out of "Authorized Users'" use of or inability to use the PATCH or SERVICE PACK, even if WSO2 has been advised of the possibility of such damages. In no event will WSO2 be liable for loss of data or for indirect, special, incidental, consequential (including lost profit), or other damages based in contract, tort or otherwise. WSO2 shall have no liability with respect to the content of the PATCH or SERVICE PACK or any part thereof, including but not limited to errors or omissions contained therein, libel, infringements of rights of publicity, privacy, trademark rights, business interruption, personal injury, loss of privacy, moral rights or the disclosure of confidential information.
