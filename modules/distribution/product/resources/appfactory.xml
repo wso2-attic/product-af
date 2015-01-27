@@ -9,6 +9,7 @@
     <AdminUserName>admin</AdminUserName>
     <AdminPassword>admin</AdminPassword>
     <AdminEmail></AdminEmail>
+    <AppfactoryVersion>2.1.0 Alpha</AppfactoryVersion>
     <JenkinsServerAdminUsername>jenkinssystemadmin</JenkinsServerAdminUsername>
     <JenkinsServerAdminPassword>admin</JenkinsServerAdminPassword>
     <!--Application creation delay in queue   -->
