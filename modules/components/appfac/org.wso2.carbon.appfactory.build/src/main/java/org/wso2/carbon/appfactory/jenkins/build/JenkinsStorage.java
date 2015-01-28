@@ -55,26 +55,26 @@ public class JenkinsStorage extends Storage {
      * @param stage URLs to which the artifact will be deployed into
      * @throws AppFactoryException
      */
-    public void deployLatestSuccessArtifact(String applicationId, String version, String revision, String artifactType, String stage, 
-    									    String tenantDomain, String userName, String deployAction) throws AppFactoryException{
-    	String jobName =
-                ServiceHolder.getContinuousIntegrationSystemDriver()
-                             .getJobName(applicationId, version, revision);
-	    //If auto deploy deploy the currently created artifact.
-        if(AppFactoryConstants.DEPLOY_ACTION_AUTO_DEPLOY.equals(deployAction)){
-	        connector.deployLatestSuccessArtifact(jobName, artifactType, stage, tenantDomain, userName, AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT);
-	    //If this is a freestyle project deployment is done through a new build otherwise new changes to the repo after last build would not be deployed.
-        }else if(AppFactoryCoreUtil.isFreestyleNonBuilableProject(artifactType) && !AppFactoryCoreUtil.isUplodableAppType(artifactType)){
-	        connector.startBuild(applicationId, version, true, stage, "", tenantDomain, userName, AppFactoryConstants.ORIGINAL_REPOSITORY);
-        }else {
-	        connector.deployLatestSuccessArtifact(jobName, artifactType, stage, tenantDomain, userName, deployAction);
-        }
+    public void deployLatestSuccessArtifact(String applicationId, String version, String revision, String artifactType,
+                                            String stage, String tenantDomain, String userName, String deployAction,
+                                            String repoFrom) throws AppFactoryException {
+
+        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version,
+                                                                                         userName, repoFrom);
+        /*If this is a freestyle project deployment is done through a new build otherwise new changes to the repo after
+        /last build would not be deployed. */
+        connector.deployLatestSuccessArtifact(jobName, artifactType, stage, tenantDomain, userName,
+                                              AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT,repoFrom);
     }
 
-   public void deployPromotedArtifact(String applicationId, String version, String revision,String artifactType, String stage, String tenantDomain, String userName) throws AppFactoryException{
+    public void deployPromotedArtifact(String applicationId, String version, String revision,String artifactType, String stage, String tenantDomain, String userName) throws AppFactoryException{
     	String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
                              .getJobName(applicationId, version, revision);
         connector.deployPromotedArtifact(jobName,artifactType, stage, tenantDomain, userName);
-   }
+    }
+
+    
+   
+   
 
 }
