@@ -56,6 +56,8 @@ import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import com.gitblit.Keys.mail;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -720,8 +722,8 @@ public class RestBasedJenkinsCIConnector {
 		userName = MultitenantUtils.getTenantAwareUsername(userName);
 		String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
 				.getJobName(applicationId, version, userName, repoFrom);
-		String artifactType = ProjectUtils.getApplicationInfo(applicationId,
-				tenantDomain).getType();
+		
+		String artifactType = "war";
 
 		boolean isFreestyle = false;
 		try {
@@ -769,8 +771,7 @@ public class RestBasedJenkinsCIConnector {
 
             if (HttpStatus.SC_NOT_FOUND == httpStatusCode) {
                 RepositoryProvider repoProvider =
-                        Util.getRepositoryProvider(ProjectUtils.getApplicationInfo(applicationId,
-                                tenantDomain).getRepositoryType());
+                        Util.getRepositoryProvider("war");
                 String repoURL;
                 try {
                     repoURL = repoProvider.getAppRepositoryURL(applicationId, tenantDomain);
@@ -810,7 +811,7 @@ public class RestBasedJenkinsCIConnector {
 							ContinousIntegrationEventBuilderUtil.buildTriggerBuildEvent(
                                     applicationId, repoFrom, userName,
                                     errorMsg, ex.getMessage(),
-                                    Event.Category.ERROR, correlationKey));
+                                    Event.Category.ERROR, correlationKey, userName));
 				} catch (AppFactoryEventException e1) {
 					log.error("Failed to notify build triggered event", e1);
 					// do not throw again.
@@ -856,7 +857,7 @@ public class RestBasedJenkinsCIConnector {
 				EventNotifier.getInstance().notify(
 						ContinousIntegrationEventBuilderUtil.buildTriggerBuildEvent(applicationId,
 								repoFrom, userName, infoMessage, "",
-								Event.Category.INFO, correlationKey));
+								Event.Category.INFO, correlationKey, userName));
 			}
 
 		} catch (AppFactoryEventException e) {
@@ -1185,7 +1186,8 @@ public class RestBasedJenkinsCIConnector {
 	 * @throws AppFactoryException
 	 */
 	public void deployLatestSuccessArtifact(String jobName, String artifactType, String stage, String tenantDomain,
-			String userName, String deployAction) throws AppFactoryException {
+	                                        String userName, String deployAction, String repoFrom)
+											throws AppFactoryException {
 		String deployLatestSuccessArtifactUrl = "/plugin/appfactory-plugin/deployLatestSuccessArtifact";
 
 		PostMethod deployLatestSuccessArtifactMethod = null;
@@ -1217,6 +1219,7 @@ public class RestBasedJenkinsCIConnector {
 			parameters.add(new NameValuePair("deployAction", deployAction));
 			parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
 			                                 applicationTypeBean.getExtension()));
+			parameters.add(new NameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
 
 			String tenantUserName = userName + "@" + tenantDomain;
 			parameters.add(new NameValuePair("tenantUserName", tenantUserName));

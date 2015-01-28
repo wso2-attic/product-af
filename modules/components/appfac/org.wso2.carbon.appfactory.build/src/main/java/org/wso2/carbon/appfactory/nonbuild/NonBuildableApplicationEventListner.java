@@ -63,7 +63,7 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 			defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("EndStage");
 		}
 		
-		applicationDeployer.deployArtifact(application.getId(), defaultStage, defaultVersion, "", "deploy");
+		applicationDeployer.deployArtifact(application.getId(), defaultStage, defaultVersion, "", "deploy","");
 
        }
 
@@ -116,7 +116,7 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 
         String defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("StartStage");
         ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-        applicationDeployer.deployArtifact(application.getId(), defaultStage, target.getId(), "", "deploy");
+        applicationDeployer.deployArtifact(application.getId(), defaultStage, target.getId(), "", "deploy","");
 
 	}
 

@@ -61,25 +61,8 @@ public class DefaultRolesCreatorServiceComponent {
     protected void activate(ComponentContext context) {
 
         try {
-           /*DefaultRolesCreatorForTenant rolesCreatorForTenant = new DefaultRolesCreatorForTenant();
-            context.getBundleContext()
-            .registerService(org.wso2.carbon.stratos.common.listeners.TenantMgtListener.class.getName(),
-                             rolesCreatorForTenant, null);*/
-
-//            context.getBundleContext().registerService(TenantMgtListener.class.getName(),
-//                                                       new AppFactoryTenantActivationListener(),
-//                                                       null);
-//            context.getBundleContext().registerService(TenantMgtListener.class.getName(),
-  //                                                     new S2IntegrationTenantActivationListener(5),
-    //                                                   null);
-
-/*            context.getBundleContext().registerService(TenantMgtListener.class.getName(),
-                                                       new AppFactoryTenantMgtListener(),
-                                                       null);*/
         	context.getBundleContext().registerService(TenantMgtListener.class.getName(),
         			new DefaultRolesCreatorForTenant(),null);
-/*        	context.getBundleContext().registerService(TenantCreationNotificationInitializer.class.getName(), 
-        			new AppFactoryTenantStorageManagerInitializer(), null);*/
 
             // active stratos member activated listner
             StratosMemberActivatedListener.getInstance().activate();

@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
@@ -34,8 +35,7 @@ import java.util.Map;
 
 /**
  * This service provides necessary information of the application. Detailed and
- * lightweight methods related to
- * retrieving applications information
+ * lightweight methods related to retrieving applications information
  * 
  * 
  */
@@ -52,7 +52,7 @@ public class ApplicationInfoService {
      */
     private ApplicationInfoBean getBasicApplicationInfo(String applicationKey, String tenantDomain)
                                                                                                    throws AppFactoryException {
-        Application application = ProjectUtils.getApplicationInfo(applicationKey, tenantDomain);
+        Application application = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
         return new ApplicationInfoBean(application);
     }
 
