@@ -113,7 +113,7 @@ public class EventNotifier {
 
 		String userName = CarbonContext.getThreadLocalCarbonContext()
 				.getUsername();
-		if (StringUtils.isBlank(userName)
+		if ((userName == null || StringUtils.isBlank(userName))
 				&& StringUtils.isNotBlank(event.getSender())) {
 			// if user name is not in carbon context this means event was
 			// originated from outside (e.g. Build failed)

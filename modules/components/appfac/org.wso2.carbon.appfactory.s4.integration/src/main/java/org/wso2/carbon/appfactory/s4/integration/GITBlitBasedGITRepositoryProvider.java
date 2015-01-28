@@ -109,6 +109,6 @@ public class GITBlitBasedGITRepositoryProvider implements RepositoryProvider {
     }
 
     public String getAppRepositoryURL() {
-        return baseUrl + REPO_TYPE + "/" + repoName + ".git";
+        return baseUrl +  "r/" + repoName + ".git";
     }
 }

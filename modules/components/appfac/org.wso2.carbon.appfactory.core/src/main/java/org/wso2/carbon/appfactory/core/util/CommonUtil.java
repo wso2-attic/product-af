@@ -20,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.cache.AppTypeCache;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -62,34 +61,23 @@ public class CommonUtil {
      *          If invalid application or application type is not available
      */
     public static String getApplicationType(String applicationId, String tenantDomain) throws AppFactoryException {
-        AppTypeCache appTypeCache = AppTypeCache.getAppTypeCache();
-        String applicationType = appTypeCache.getAppType(tenantDomain, applicationId);
 
-        if (applicationType != null) {
+        GenericArtifactImpl artifact = getApplicationArtifact(applicationId, tenantDomain);
+
+        if (artifact == null) {
+            String errorMsg = String.format("Unable to find application information for id : %s", applicationId);
+            log.error(errorMsg);
+            throw new AppFactoryException(errorMsg);
+        }
+
+        try {
+            String applicationType = artifact.getAttribute("application_type");
             return applicationType;
-        } else {
-            GenericArtifactImpl artifact = getApplicationArtifact(applicationId, tenantDomain);
-
-            if (artifact == null) {
-                String errorMsg =
-                        String.format("Unable to find application information for id : %s",
-                                applicationId);
-                log.error(errorMsg);
-                throw new AppFactoryException(errorMsg);
-            }
-
-            try {
-                applicationType = artifact.getAttribute("application_type");
-                appTypeCache.addToCache(tenantDomain, applicationId, applicationType);
-                return applicationType;
-            } catch (RegistryException e) {
-                String errorMsg =
-                        String.format("Unable to find the application type for application " +
-                                "id: %s",
-                                applicationId);
-                log.error(errorMsg, e);
-                throw new AppFactoryException(errorMsg, e);
-            }
+        } catch (RegistryException e) {
+            String errorMsg =
+                    String.format("Unable to find the application type for application " + "id: %s", applicationId);
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg, e);
         }
     }
 

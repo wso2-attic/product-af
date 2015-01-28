@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.cache.AppTypeCache;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
@@ -61,7 +60,5 @@ public class AppFactorySTSDeploymentListner extends STSDeploymentListener {
     @Override
     public void terminatedConfigurationContext(ConfigurationContext configContext) {
         super.terminatedConfigurationContext(configContext);
-        AppTypeCache appTypeCache = AppTypeCache.getAppTypeCache();
-        appTypeCache.clearCacheForTenantDomain(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
     }
 }
