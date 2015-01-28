@@ -122,12 +122,6 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             buildStatus.setBuildSuccessful(true);
             buildStatus.setLogMsg("Build Successful");
             client.onBuildCompletion(buildStatus, tenantUserName);
-            
-            //Currently we do not have per developer build. So here we check the repoFrom as a original repository and do the deployment, otherwise ignore the deployment
-            if(this.repositoryFrom!=null && this.repositoryFrom.equals(AppFactoryConstants.FORK_REPOSITORY)){
-            	logger.append("TODO: We are  not going to deploy per developer repository build with this implementation.");
-            	return true ;
-            }
 
             boolean isAutomatic = Boolean.parseBoolean(build.getEnvironment(listener).
                     get("isAutomatic"));
@@ -445,7 +439,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                     AppFactoryUtil.setAuthHeaders(deployerClient, tenantUserName);
                     //wait for symlink to appear
                     Thread.sleep(1000);
-                    clientStub.deployArtifact(applicationId, stage, version, "", deployAction);
+                    clientStub.deployArtifact(applicationId, stage, version, "", deployAction, repoFrom);
                 } catch (AxisFault e) {
                     log.error("Error while creating Application deployerStub " + e.getMessage(), e);
                 } catch (RemoteException e) {
