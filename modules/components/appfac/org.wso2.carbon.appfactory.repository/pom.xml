@@ -136,5 +136,9 @@
             <groupId>com.gitblit.wso2</groupId>
             <artifactId>gitblit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
+        </dependency>
     </dependencies>
 </project>
