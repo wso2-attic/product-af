@@ -78,11 +78,10 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		String serverDeploymentPath = DeployerUtil.getParameter(parameters, AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
 		log.info("Server deployment path is : " + serverDeploymentPath);
 
-		String jobName = JenkinsUtility.getJobName(applicationId, version);
+		String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
 
-		String path =
-		              getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
-		                                                   getTenantDomain());
+		String path = getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
+		                                                   getTenantDomain(),jobName);
 
 		File lastSuccess = new File(path);
 		if (!lastSuccess.exists()) {
@@ -183,14 +182,14 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		}
 	}
 
-	public void labelLastSuccessAsPromoted(String applicationId, String version, String artifactType, String extension)
-	                                                                                                 throws AppFactoryException,
-	                                                                                                 IOException,
-	                                                                                                 InterruptedException {
+	public void labelLastSuccessAsPromoted(String applicationId, String version, String artifactType, String extension,
+	                                       String jobName)
+			throws AppFactoryException, IOException, InterruptedException {
+
 		log.info("---------------------------Entering Deploy Procedure --------------------------");
 		String lastSucessBuildFilePath =
 		                                 getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType,
-		                                                                      null, null);
+		                                                                      null, null, jobName);
 		log.debug("Last success build path is :" + lastSucessBuildFilePath);
 
 		String dest = getArtifactStoragePath(applicationId, version, artifactType, null, null);
@@ -266,8 +265,8 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 	@Override
 	public String getSuccessfulArtifactTempStoragePath(String applicationId, String applicationVersion,
-	                                                    String artifactType, String stage, String tenantDomain)
-														throws AppFactoryException {
+	                                                   String artifactType, String stage, String tenantDomain,
+	                                                   String jobName) throws AppFactoryException {
 		String jenkinsHome = null;
 		try {
 			jenkinsHome = DeployerUtil.getJenkinsHome();
@@ -276,7 +275,6 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 			log.error(msg, e);
 			throw new AppFactoryException(msg, e);
 		}
-		String jobName = JenkinsUtility.getJobName(applicationId, applicationVersion);
 		String path = jenkinsHome + File.separator + "jobs" + File.separator + jobName +
 		              File.separator + "lastSuccessful";
 		return path;
