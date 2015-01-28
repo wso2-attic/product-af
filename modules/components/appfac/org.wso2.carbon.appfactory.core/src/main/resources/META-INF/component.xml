@@ -19,7 +19,7 @@
 
     <deployers>
         <deployer>
-            <directory>apptype</directory>
+            <directory>apptypes</directory>
             <extension>apptype</extension>
             <class>org.wso2.carbon.appfactory.core.apptype.ApplicationTypeDeployer</class>
         </deployer>
