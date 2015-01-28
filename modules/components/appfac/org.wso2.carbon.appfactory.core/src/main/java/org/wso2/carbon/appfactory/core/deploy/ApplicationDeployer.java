@@ -202,7 +202,7 @@ public class ApplicationDeployer {
 	 * @throws AppFactoryException
 	 */
 	public ArtifactDeploymentStatusBean[] deployArtifact(String applicationId, String stage, String version,
-	                                                     String tagName, String deployAction)
+	                                                     String tagName, String deployAction, String repoFrom)
 	                                                                                         throws AppFactoryException {
 		// Getting the tenant domain
 		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -235,8 +235,8 @@ public class ApplicationDeployer {
 				         version + " applicationType:" + applicationType + "Stage: " + stage+" in tenant:"+tenantDomain +" by user:"+userName);
 
 
-			storage.deployArtifact(applicationId, version, "", applicationType, stage, tenantDomain,
-				                                    userName, deployAction);
+			storage.deployArtifact(applicationId, version, "", applicationType, stage, tenantDomain, userName,
+			                       deployAction, repoFrom);
 
 		}
 		return null;

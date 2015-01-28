@@ -44,7 +44,7 @@ public class ContinousIntegrationEventBuilderUtil {
      * @return event that will be triggered when the build is started
      */
     public static Event buildTriggerBuildEvent(String appId, String repoForm, String buildTriggeredBy, String title, String description,
-                                               Category category, String correlationKey) {
+                                               Category category, String correlationKey, String userName) {
         Event event = new Event();
         String sender = Util.getSender(buildTriggeredBy);
         Event event1 = getDispatchTypesAndTargetForEvent(category, repoForm, appId, sender);
@@ -59,6 +59,7 @@ public class ContinousIntegrationEventBuilderUtil {
         event.setType(EventingConstants.BUILD);
         event.setState(Event.State.START);
         event.setCorrelationKey(correlationKey);
+        event.setSender(userName);
         return event;
     }
 

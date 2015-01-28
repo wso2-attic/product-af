@@ -28,6 +28,7 @@ import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.git.JGitAgent;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -111,7 +112,8 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
         // Create the temporary directory first. without this we can't proceed
         File tempApptypeDirectory = new File(tempPath + File.separator
-                + stageName + File.separator + appTypeName); // <tempdir>/war ,
+                + stageName + File.separator + StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_"));
+
         // <tempdir>/jaxrs,
         if (!tempApptypeDirectory.exists()) {
             if (!tempApptypeDirectory.mkdirs()) {
@@ -300,8 +302,15 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
                                            AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
                          + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         } else {
+            String repoFrom = DeployerUtil.getParameterValue(metadata,AppFactoryConstants.REPOSITORY_FROM);
+            String preDevRepoNameAppender = "";
+            // append _<username>, if the deployment repo is a forked one
+            if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom))
+                preDevRepoNameAppender = "_" + MultitenantUtils.getTenantAwareUsername(DeployerUtil.getParameterValue(metadata,"tenantUserName"));
+
             gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
-                         + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
+                         + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
+                         + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         }
         gitRepoUrl = gitRepoUrl.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
         if (log.isDebugEnabled()) {

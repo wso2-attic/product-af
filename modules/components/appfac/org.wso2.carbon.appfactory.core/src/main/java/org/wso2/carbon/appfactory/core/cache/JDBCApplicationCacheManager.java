@@ -31,11 +31,14 @@ import javax.cache.Caching;
  * We use this cache to keep application against application key.
  */
 public class JDBCApplicationCacheManager {
+	
     public static final String AF_APPLICATION_CACHE_MANAGER = "af.application.cache.manager";
     public static final String AF_APPLICATION_NAME_CACHE = "af.application.name.cache";
+    
     public static final String AF_APPLICATION_DEPLOY_STATUS_CACHE = "af.application.deploy.status.cache";
     public static final String AF_APPLICATION_BUILD_STATUS_CACHE = "af.application.build.status.cache";
     public static final String AF_APPLICATION_CREATION_STATUS_CACHE = "af.application.creation.status.cache";
+    
     public static final String AF_APPLICATION_DATABASE_ID_CACHE = "af.application.database.id.cache";
 
     // The cache key separator value. This value is used to combine different parameters to generate the cache key

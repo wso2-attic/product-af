@@ -39,14 +39,15 @@ public abstract class Storage {
      * @param userName Name of the use whose doing the deployment
      * @throws AppFactoryException
      */
-	public void deployArtifact(String applicationId, String version, String revision, String artifactType,
-            String stage, String tenantDomain, String userName, String deployAction) throws AppFactoryException {
+    public void deployArtifact(String applicationId, String version, String revision, String artifactType,
+                               String stage, String tenantDomain, String userName, String deployAction, String repoFrom)
+		    throws AppFactoryException {
 		
 	 
 		if (AppFactoryUtil.isInitialLifeCycleStage(stage) || AppFactoryCoreUtil.isUplodableAppType(artifactType)){
 			
 			deployLatestSuccessArtifact(applicationId, version, revision, artifactType, stage, tenantDomain, userName,
-			                            deployAction);
+			                            deployAction, repoFrom);
 		}else {
 			deployPromotedArtifact(applicationId, version, revision, artifactType, stage, tenantDomain, userName);
 		}
@@ -80,9 +81,10 @@ public abstract class Storage {
 	 * @param deployAction
 	 * @throws AppFactoryException
 	 */
-	protected abstract void deployLatestSuccessArtifact(String applicationId, String version, String revision, String artifactType,
-	                                        String stage, String tenantDomain, String userName, String deployAction)
-	                                                                                                                throws AppFactoryException;
+	protected abstract void deployLatestSuccessArtifact(String applicationId, String version, String revision,
+	                                                    String artifactType, String stage, String tenantDomain,
+	                                                    String userName, String deployAction, String repoFrom)
+			throws AppFactoryException;
 	/**
 	 * Deploying promoted artifacts.
 	 * 
