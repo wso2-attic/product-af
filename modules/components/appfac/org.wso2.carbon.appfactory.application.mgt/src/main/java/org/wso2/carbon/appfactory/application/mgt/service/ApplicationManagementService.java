@@ -27,10 +27,10 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
-import org.wso2.carbon.appfactory.core.cache.AppTypeCache;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.*;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
@@ -166,21 +166,23 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
 	/**
-	 * Gets all the applications for tenant
+	 * @deprecated
+     * Gets all the applications for tenant
 	 * @return Application array
 	 * @throws AppFactoryException
 	 */
     public Application[] getAllApplications() throws AppFactoryException {
-        String tenantDomain = getTenantDomain();
-	    List<Application> applications;
-	    try {
-		    applications = ProjectUtils.getAllApplicationInfo(tenantDomain);
-	    } catch (AppFactoryException e) {
-		    String msg = "Error while getting applications";
-		    log.info(msg, e);
-		    throw new AppFactoryException(msg, e);
-	    }
-	    return applications.toArray(new Application[applications.size()]);
+    	return null;
+//        String tenantDomain = getTenantDomain();
+//	    List<Application> applications;
+//	    try {
+//		 //   applications = ProjectUtils.getAllApplicationInfo(tenantDomain);
+//	    } catch (AppFactoryException e) {
+//		    String msg = "Error while getting applications";
+//		    log.info(msg, e);
+//		    throw new AppFactoryException(msg, e);
+//	    }
+//	    return applications.toArray(new Application[applications.size()]);
     }
 
 
@@ -206,26 +208,25 @@ public class ApplicationManagementService extends AbstractAdmin {
 
         clearRealmCache(applicationId);
         domainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        userName = CarbonContext.getThreadLocalCarbonContext().getUsername() +"@"+domainName;
+        String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        String tenantAwareUserName = loggedInUser +"@"+domainName;
         if (log.isDebugEnabled()) {
-            log.debug("Application creation is started by user:" + userName + " in tenant domain:" + domainName);
+            log.debug("Application creation is started by user:" + tenantAwareUserName + " in tenant domain:" + domainName);
         }
         Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
         ApplicationEventsHandler listener = null;
         Application application = null;
+        PrivilegedCarbonContext threadLocalCarbonContext = null;
         try {
+        	PrivilegedCarbonContext.startTenantFlow();
+            threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            threadLocalCarbonContext.setTenantDomain(domainName, true);
+            threadLocalCarbonContext.setUsername(loggedInUser);
+            
             // creates role for application in the ldap to add users of the
-            // application
-
-            // Please see the comment in line:244
-            // Application application1=new Application();
-            // application1.setId(applicationId);
-            // application1.setType(applicationType);
-            // applicationDAO.addApplication(application1);
-
-            createApplicationRole(applicationId, userName, domainName);
+            createApplicationRole(applicationId, tenantAwareUserName, domainName);
             addRegistryWritePermissionToApp(applicationId, domainName);
-            application = ProjectUtils.getApplicationInfo(applicationId, domainName);
+            application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
             if (application == null) {
                 String errorMsg = String.format("Unable to load application information for id %s", applicationId);
                 throw new ApplicationManagementException(errorMsg);
@@ -233,7 +234,6 @@ public class ApplicationManagementService extends AbstractAdmin {
 
             // IMO, we should only add application information to AppFactory DB only if the above condition fails.
             // If there are information in the registry, then only we should add them to DB
-            // Hence moving that code here.
             applicationDAO.addApplication(application);
 
             boolean isUploadableAppType = AppFactoryCoreUtil.isUplodableAppType(application.getType());
@@ -241,11 +241,11 @@ public class ApplicationManagementService extends AbstractAdmin {
             while (appEventListeners.hasNext()) {
                 try {
                     listener = appEventListeners.next();
-                    listener.onCreation(application, userName, domainName, isUploadableAppType);
+                    listener.onCreation(application, tenantAwareUserName, domainName, isUploadableAppType);
                 } catch (Throwable e) {
                     String error = "Error while executing onCreation method of ApplicationEventsListener : " + listener + " due to " + e.getMessage();
                     log.error(error, e);
-                    this.deleteApplication(application, userName, domainName);
+                    this.deleteApplication(application, tenantAwareUserName, domainName);
                     try {
                         String errorMessage = "Error while creating the app " + applicationId;
                         if(error.contains("JenkinsApplicationEventsListener")){
@@ -269,7 +269,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             log.error(errorMsg, ex);
             if (application != null) {
                 try {
-                    this.deleteApplication(application, userName, domainName);
+                    this.deleteApplication(application, tenantAwareUserName, domainName);
                 } catch (AppFactoryException e) {
                     log.error("Failed to delete the application on roll back.", e);
                     // ignore throwing again
@@ -279,14 +279,6 @@ public class ApplicationManagementService extends AbstractAdmin {
         } catch (UserStoreException e) {
             String errorMsg = "Unable to add application role to the userstore: " + e.getMessage();
             log.error(errorMsg, e);
-            if (application != null) {
-                try {
-                    this.deleteApplication(application, userName, domainName);
-                } catch (AppFactoryException e2) {
-                    log.error("Failed to delete the application on roll back.", e2);
-                    // ignore throwing again
-                }
-            }
             try {
                 //   if (errorMsg.con)
                 EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(
@@ -297,6 +289,8 @@ public class ApplicationManagementService extends AbstractAdmin {
                 // do not throw again.
             }
             throw new ApplicationManagementException(errorMsg, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
@@ -314,7 +308,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             applicationDAO.addVersion(applicationId,version);
             Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
 
-            Application application = ProjectUtils.getApplicationInfo(applicationId, domainName);
+            Application application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
 
             Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
@@ -373,7 +367,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
             Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
 
-            Application application = ProjectUtils.getApplicationInfo(applicationId, domainName);
+            Application application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
 
             ApplicationEventsHandler listener = null ;
@@ -585,7 +579,7 @@ public class ApplicationManagementService extends AbstractAdmin {
     public Application getApplication(String applicationId) throws ApplicationManagementException {
         String domainName = getTenantDomain();
         try {
-            return ProjectUtils.getApplicationInfo(applicationId, domainName);
+            return ApplicationManager.getInstance().getApplicationInfo(applicationId);
         } catch (AppFactoryException e) {
             String message = "Failed to read application info for " + applicationId + " in tenant " + domainName;
             log.error(message);
@@ -628,9 +622,6 @@ public class ApplicationManagementService extends AbstractAdmin {
             log.error("Error while deleting the application resource from registry for application " + applicationId, e);
         }
         applicationDAO.deleteApplication(applicationId);
-        //clear applicationtype from cache
-        AppTypeCache appTypeCache = AppTypeCache.getAppTypeCache();
-        appTypeCache.clearCacheForAppId(domainName, applicationId);
 
         String adminEmail = AppFactoryUtil.getAdminEmail();
         new EmailSenderService().sendMail(adminEmail, "application-rollback-notice-email.xml", createUserParams(application));
@@ -675,32 +666,25 @@ public class ApplicationManagementService extends AbstractAdmin {
      * @throws UserStoreException
      */
     private boolean createApplicationRole(String applicationKey, String appOwner, String tenantDomain)
-            throws UserStoreException {
+            throws UserStoreException, AppFactoryException {
         RealmService realmService = Util.getRealmService();
         TenantManager tenantManager = realmService.getTenantManager();
         int tenantId = tenantManager.getTenantId(tenantDomain);
-        PrivilegedCarbonContext threadLocalCarbonContext = null;
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            threadLocalCarbonContext.setTenantId(tenantId, true);
-            UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
-            userStoreManager.addRole(AppFactoryUtil.getRoleNameForApplication(applicationKey),
-                                     new String[] { appOwner.split("@")[0] },
-                                     new org.wso2.carbon.user.core.Permission[] { new org.wso2.carbon.user.core.Permission(
-                                                                                                                           AppFactoryConstants.PER_APP_ROLE_PERMISSION,
-                                                                                                                           CarbonConstants.UI_PERMISSION_ACTION) },
-                                                                                                                           false);
+        String applicationName = null;
+        UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+        userStoreManager.addRole(AppFactoryUtil.getRoleNameForApplication(applicationKey),
+                                 new String[] { appOwner.split("@")[0] },
+                                 new org.wso2.carbon.user.core.Permission[] { new org.wso2.carbon.user.core.Permission(
+                                                                                                                       AppFactoryConstants.PER_APP_ROLE_PERMISSION,
+                                                                                                                       CarbonConstants.UI_PERMISSION_ACTION) },
+                                                                                                                       false);
 
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
+        // Publish user add event to BAM
+        Application app = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
+        applicationName = app.getName();
+            
 
         try {
-            // Publish user add event to BAM
-            Application app = ProjectUtils.getApplicationInfo(applicationKey, tenantDomain);
-            String applicationName = app.getName();
-
             BamDataPublisher publisher = BamDataPublisher.getInstance();
             publisher.PublishUserUpdateEvent(applicationName, applicationKey, System.currentTimeMillis(),
                                              "" + tenantId, appOwner.split("@")[0], AppFactoryConstants.BAM_ADD_DATA);
@@ -741,28 +725,19 @@ public class ApplicationManagementService extends AbstractAdmin {
         return true;
     }
 
-    private void addRegistryWritePermissionToApp(String applicationKey, String tenantDomain) throws UserStoreException {
-        TenantManager tenantManager = Util.getRealmService().getTenantManager();
-        int tenantId = tenantManager.getTenantId(tenantDomain);
-        PrivilegedCarbonContext threadLocalCarbonContext = null;
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            threadLocalCarbonContext.setTenantId(tenantId, true);
-            String roleName = AppFactoryUtil.getRoleNameForApplication(applicationKey);
-
-            AuthorizationManager authMan =
-                    Util.getRealmService().getTenantUserRealm(tenantId)
-                    .getAuthorizationManager();
-            authMan.authorizeRole(roleName, RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                    AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" + applicationKey,
-                    ActionConstants.PUT);
-
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-
-    }
+	private void addRegistryWritePermissionToApp(String applicationKey, String tenantDomain)
+	                                                                                        throws UserStoreException {
+		String roleName = AppFactoryUtil.getRoleNameForApplication(applicationKey);
+		AuthorizationManager authMan =
+		                               Util.getRealmService()
+		                                   .getTenantUserRealm(Util.getRealmService()
+		                                                           .getTenantManager()
+		                                                           .getTenantId(tenantDomain))
+		                                   .getAuthorizationManager();
+		authMan.authorizeRole(roleName, RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
+		                                AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" +
+		                                applicationKey, ActionConstants.PUT);
+	}
 
     private void removeAppFromRegistry(String applicationId, String tenantDomain) throws AppFactoryException, UserStoreException, RegistryException {
         TenantManager tenantManager = Util.getRealmService().getTenantManager();

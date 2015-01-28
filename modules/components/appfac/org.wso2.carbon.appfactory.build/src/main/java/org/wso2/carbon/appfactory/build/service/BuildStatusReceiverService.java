@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
@@ -80,8 +81,10 @@ public class BuildStatusReceiverService {
 
             boolean isFreestyle;
             try {
-                isFreestyle = AppFactoryCoreUtil.isFreestyleNonBuilableProject(ProjectUtils.getApplicationInfo(
-                        buildStatus.getApplicationId(), tenantDomain).getType());
+				isFreestyle =
+				              AppFactoryCoreUtil.isFreestyleNonBuilableProject(ApplicationManager.getInstance()
+				                                                                                 .getApplicationInfo(buildStatus.getApplicationId())
+				                                                                                 .getType());
             } catch (AppFactoryException e) {
                 String msg =
                         "Error occurred while determining whether the application is freestyle for application : " +

@@ -19,8 +19,15 @@ package org.wso2.carbon.appfactory.repository.mgt.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 
@@ -29,11 +36,14 @@ import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEve
 import org.wso2.carbon.appfactory.eventing.builder.utils.RepoCreationEventBuilderUtil;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryManager;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
+import org.wso2.carbon.appfactory.s4.integration.GITBlitBasedGITRepositoryProvider;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -252,17 +262,69 @@ public class RepositoryManagementService extends AbstractAdmin {
      * @throws RepositoryMgtException
      */
     public String createFork(String applicationKey, String userName, String type)
-            throws RepositoryMgtException {
+                  throws RepositoryMgtException, AppFactoryException {
+        PrivilegedCarbonContext threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        int tenantId = threadLocalCarbonContext.getTenantId();
 
         String forkedRepoURL = null;
         try {
             forkedRepoURL = repositoryManager.createFork(applicationKey, userName, type);
+
+            String forkedDeploymentUrl = createDeploymentFork(applicationKey, tenantId, MultitenantUtils.getTenantAwareUsername(userName));
+            if (log.isDebugEnabled()) {
+                log.debug(" Deployment repository created for fork application : " + applicationKey + "for tenant id :"
+                          + tenantId + " with url :" + forkedDeploymentUrl);
+            }
         } catch (RepositoryMgtException e) {
             String msg = "Error while forking for application " + applicationKey;
             log.error(msg, e);
             throw new RepositoryMgtException(msg, e);
         }
         return forkedRepoURL;
+    }
+
+    private String createDeploymentFork(String applicationKey, Integer tenantId, String userName)
+                   throws AppFactoryException {
+        String applicationType = ApplicationManager.getInstance().getApplicationType(applicationKey);
+        ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
+                                                                        .getApplicationTypeBean(applicationType);
+
+        if (applicationTypeBean == null) {
+            throw new AppFactoryException("Application Type details cannot be found for applicationId : " +
+                                          applicationKey + " for user :" + userName);
+        }
+
+        String runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
+        RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtimeNameForAppType);
+
+        if (runtimeBean == null) {
+            throw new AppFactoryException("Runtime details cannot be found for applicationId : " + applicationKey +
+                                          " for user : " + userName);
+        }
+
+        GITBlitBasedGITRepositoryProvider repositoryProvider = new GITBlitBasedGITRepositoryProvider();
+        repositoryProvider.setBaseUrl(AppFactoryUtil.getAppfactoryConfiguration().
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL));
+        repositoryProvider.setAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME));
+        repositoryProvider.setAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD));
+
+        String repoName = runtimeBean.getPaasRepositoryURLPattern().replace("{@stage}", "Development") +
+                          File.separator + Integer.toString(tenantId) + "_" + userName;
+        repositoryProvider.setRepoName(repoName);
+
+        String forkDeploymentUrl = null;
+        try {
+            forkDeploymentUrl = repositoryProvider.createRepository();
+        } catch (AppFactoryException e) {
+            String msg = "Error while creating the deployment repository for fork application: " + applicationKey +
+                         " for user " + userName;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+
+        return forkDeploymentUrl;
     }
 
     /**

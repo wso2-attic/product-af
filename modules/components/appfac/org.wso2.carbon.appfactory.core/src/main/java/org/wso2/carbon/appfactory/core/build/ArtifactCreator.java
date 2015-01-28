@@ -75,7 +75,7 @@ public class ArtifactCreator extends AbstractAdmin {
 			} else {
 				// TODO : check the auto deployment property before deploy
 				ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-				applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy");
+				applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy", repoFrom);
 				log.info("Start a generating artifact job in Appfactory NonBuildable artifact generator to Application ID : " +
                         applicationId + " , version " + version + " by " + tenantDomain) ;
 			}

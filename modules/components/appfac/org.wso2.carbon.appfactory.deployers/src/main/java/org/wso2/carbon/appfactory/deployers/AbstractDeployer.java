@@ -111,20 +111,18 @@ public abstract class AbstractDeployer implements Deployer {
 		String tenantDomain = getTenantDomain();
 		String extension = DeployerUtil.getParameter(parameters,
 		        AppFactoryConstants.APPLICATION_EXTENSION);
+	    String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
 
 		try {
-
-			String path = this.getSuccessfulArtifactTempStoragePath(
-					applicationId, version, artifactType, stageName,
-					tenantDomain);
+			String path = this.getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
+			                                                        tenantDomain, jobName);
 
 			File[] artifactToDeploy = getLastBuildArtifact(path, extension);
 
 			if (AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT.equalsIgnoreCase(deployAction)) {
 				deploy(artifactType, artifactToDeploy, parameters, true);
 				log.debug("Making last successful build as PROMOTED");
-				labelLastSuccessAsPromoted(applicationId, version,
-						artifactType, stageName, tenantDomain, extension);
+				labelLastSuccessAsPromoted(applicationId, version, artifactType, stageName, tenantDomain, extension, jobName);
 			} else {
 				deploy(artifactType, artifactToDeploy, parameters, true);
 			}
@@ -236,13 +234,12 @@ public abstract class AbstractDeployer implements Deployer {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void labelLastSuccessAsPromoted(String applicationId,
-	                                       String version, String artifactType, String stage,
-	                                       String tenantDomain, String extension) throws AppFactoryException, IOException,
-			InterruptedException {
+	public void labelLastSuccessAsPromoted(String applicationId, String version, String artifactType, String stage,
+	                                       String tenantDomain, String extension, String jobName)
+			throws AppFactoryException, IOException, InterruptedException {
 
 		String lastSucessBuildFilePath = getSuccessfulArtifactTempStoragePath(
-				applicationId, version, artifactType, stage, tenantDomain);
+				applicationId, version, artifactType, stage, tenantDomain, jobName);
 		log.debug("Last success build path is :" + lastSucessBuildFilePath);
 
 		String dest = getArtifactStoragePath(applicationId, version,
@@ -335,10 +332,9 @@ public abstract class AbstractDeployer implements Deployer {
 		this.tenantDomain = tenantDomain;
 	}
 
-	public abstract String getSuccessfulArtifactTempStoragePath(
-			String applicationId, String applicationVersion,
-			String artifactType, String stage, String tenantDomain)
-			throws AppFactoryException;
+	public abstract String getSuccessfulArtifactTempStoragePath(String applicationId, String applicationVersion,
+	                                                            String artifactType, String stage, String tenantDomain,
+	                                                            String jobName) throws AppFactoryException;
 
 	public abstract String getArtifactStoragePath(String applicationId,
 			String applicationVersion, String artifactType, String stage,

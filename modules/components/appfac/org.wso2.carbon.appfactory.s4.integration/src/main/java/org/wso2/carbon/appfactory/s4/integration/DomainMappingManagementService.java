@@ -17,11 +17,13 @@ package org.wso2.carbon.appfactory.s4.integration;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -40,6 +42,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+
 import java.util.Collection;
 import java.util.Hashtable;
 
@@ -79,7 +82,7 @@ public class DomainMappingManagementService {
                                       boolean isCustomDomain)
             throws AppFactoryException, DomainMappingVerificationException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String appType = ProjectUtils.getApplicationInfo(appKey, tenantDomain).getType();
+        String appType = ApplicationManager.getInstance().getApplicationInfo(appKey).getType();
         String addSubscriptionDomainEndPoint =
                 DomainMappingUtils.getAddDomainEndPoint(stage, appType);
         synchronized (domain.intern()) {
@@ -360,7 +363,7 @@ public class DomainMappingManagementService {
      */
     public void removeSubscriptionDomain(String stage, String domain, String appKey) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String appType = ProjectUtils.getApplicationInfo(appKey, tenantDomain).getType();
+        String appType = ApplicationManager.getInstance().getApplicationInfo(appKey).getType();
         String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(stage, domain, appType);
         DomainMappingResponse deleteResponse;
         try {

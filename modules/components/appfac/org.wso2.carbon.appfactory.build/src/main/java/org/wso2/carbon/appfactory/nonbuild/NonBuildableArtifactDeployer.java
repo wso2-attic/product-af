@@ -53,6 +53,7 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 		String stageName = DeployerUtil.getParameter(parameters, AppFactoryConstants.DEPLOY_STAGE);
 		String artifactType = DeployerUtil.getParameter(parameters, AppFactoryConstants.ARTIFACT_TYPE);
 		String version = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_VERSION);
+		String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
 
 		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -63,9 +64,8 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 
 		ArtifactGeneratorFactory artifactGeneratorFactory = ArtifactGeneratorFactory.newInstance();
 		
-		String tmpStgPath =
-		                    getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
-		                                                         tenantDomain);
+		String tmpStgPath = getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
+		                                                         tenantDomain,jobName);
 		DeployableArtifact deployableArtifact =
 		                                        artifactGeneratorFactory.generateDeployableArtifact(tmpStgPath,
 		                                                                                            applicationId,
@@ -109,7 +109,7 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
      */
 	@Override
 	public String getSuccessfulArtifactTempStoragePath(String applicationId, String applicationVersion,
-	                                                   String artifactType, String stage, String tenantDomain)
+	                                                   String artifactType, String stage, String tenantDomain, String jobname)
 			throws AppFactoryException {
 		String carbonHome = CarbonUtils.getCarbonHome();
 		String path = carbonHome + File.separator + "nonbuildstorage" + File.separator + "appfactory" + File.separator +

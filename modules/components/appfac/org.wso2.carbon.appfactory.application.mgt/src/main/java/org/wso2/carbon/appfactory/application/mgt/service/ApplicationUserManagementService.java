@@ -31,15 +31,14 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
-
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.UserManagementEventBuilderUtil;
 import org.wso2.carbon.appfactory.tenant.mgt.beans.UserInfoBean;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementException;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -109,7 +108,7 @@ public class ApplicationUserManagementService {
                 ApplicationEventsHandler applicationEventsListener =
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
-                    applicationEventsListener.onUserAddition(ProjectUtils.getApplicationInfo(applicationKey, tenantDomain), new UserInfo(userName), tenantDomain);
+                    applicationEventsListener.onUserAddition(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
 
                 }
             }
@@ -188,7 +187,7 @@ public class ApplicationUserManagementService {
             throw new AppFactoryException(errorMsg, e);
         }
 
-        Application app = ProjectUtils.getApplicationInfo(applicationKey, tenantDomain);
+        Application app = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
         String applicationName = app.getName();
 
         for (String userName : userNames) {
@@ -227,7 +226,7 @@ public class ApplicationUserManagementService {
                 ApplicationEventsHandler applicationEventsListener =
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
-                    applicationEventsListener.onUserDeletion(ProjectUtils.getApplicationInfo(applicationKey, tenantDomain), new UserInfo(userName), tenantDomain);
+                    applicationEventsListener.onUserDeletion(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
                 }
             }
 
@@ -270,40 +269,25 @@ public class ApplicationUserManagementService {
             throw new ApplicationManagementException(message, e);
         }
     }
-/**
- * Returns the list of applications that user belongs to
- * @param userName
- * @return <b>Application</b> Array
- * @throws ApplicationManagementException
- */
-    public Application[] getApplicaitonsOfTheUser(String userName)
-                                                                  throws ApplicationManagementException {
-        CarbonContext context = CarbonContext.getThreadLocalCarbonContext();
-        ArrayList<Application> applications = new ArrayList<Application>();
-        try {
-            String[] roles =
-                             context.getUserRealm().getUserStoreManager()
-                                    .getRoleListOfUser(userName);
-            String tenantDomain = context.getTenantDomain();
-            for (String role : roles) {
-                if (role.startsWith(AppFactoryConstants.APP_ROLE_PREFIX)) {
-                    String appkeyFromPerAppRoleName = AppFactoryUtil.getAppkeyFromPerAppRoleName(role);
-                    applications.add(ProjectUtils.getApplicationInfo(appkeyFromPerAppRoleName,
-                                                                     tenantDomain));
-                }
-            }
-            return applications.toArray(new Application[applications.size()]);
-        } catch (UserStoreException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message,e);
-            throw new ApplicationManagementException(message, e);
-        } catch (AppFactoryException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message,e);
-            throw new ApplicationManagementException(message, e);
-        }
 
+	/**
+	 * Returns the list of applications that user belongs to
+	 * 
+	 * @param userName
+	 * @return <b>Application</b> Array
+	 * @throws ApplicationManagementException
+	 */
+   public Application[] getApplicaitonsOfTheUser(String userName)
+                                                                  throws ApplicationManagementException {
+		try {
+			return ApplicationManager.getInstance().getAllApplicaitonsOfUser(userName);
+		} catch (AppFactoryException e) {
+			String message = "Failed to retrieve applications of the user" + userName;
+			log.error(message, e);
+			throw new ApplicationManagementException(message, e);
+		}
     }
+   
    /**
     * Lightweight method to get application keys of the applications of user 
     * @param userName 

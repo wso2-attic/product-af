@@ -46,8 +46,9 @@ public class NonBuildableStorage extends Storage {
 
 	@Override
 	public void deployLatestSuccessArtifact(String applicationId, String version, String revision, String artifactType,
-	                                        String stage, String tenantDomain, String userName, String deployAction)
-	                                                                                                                throws AppFactoryException {
+	                                        String stage, String tenantDomain, String userName, String deployAction,
+	                                        String repoFrom)
+			throws AppFactoryException {
 
 		try {
             Deployer deployer = new NonBuildableArtifactDeployer();
