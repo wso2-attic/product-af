@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
-import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 
 import javax.xml.namespace.QName;
@@ -42,32 +41,9 @@ import java.util.List;
 public class AppVersionStrategyExecutor {
     public static final Log log = LogFactory.getLog(AppVersionStrategyExecutor.class);
 
-    /**
-     * Common method to do the version for every type of projects
-     *
-     * @param targetVersion   next version of the repository
-     * @param workDir         temp location that use to store the repository.
-     * @param applicationType type of the application ex: war,car, dbs
-     * @return
-     */
-    public boolean doVersion(String applicationId, String currentVersion, String targetVersion, File workDir, String applicationType) {
-
-        if (AppFactoryConstants.FILE_TYPE_DBS.equals(applicationType)) {
-            return doVersionForDBS(targetVersion, workDir);
-        } else if (AppFactoryConstants.FILE_TYPE_BPEL.equals(applicationType)) {
-            return doVersionForBPEL(applicationId, targetVersion, workDir);
-        } else if (AppFactoryConstants.FILE_TYPE_ESB.equals(applicationType)) {
-            return doVersionForESB(currentVersion, targetVersion, workDir);
-        } else if (AppFactoryConstants.FILE_TYPE_PHP.equals(applicationType)) {
-            return doVersionForGenericApplicationType(targetVersion, workDir);
-        } else {
-            return doVersionForMVN(targetVersion, workDir);
-        }
-    }
-
 
     public static boolean doVersionForESB(String currentVersion, String targetVersion, File workDir) {
-        //doVersionOnSynapseXML(currentVersion,targetVersion, workDir);
+        doVersionOnSynapseXML(currentVersion,targetVersion, workDir);
         return true;
     }
 
@@ -367,7 +343,7 @@ public class AppVersionStrategyExecutor {
     }
 
 
-    private void doVersionOnSynapseXML(String currentVersion, String targetVersion, File workDir) {
+    private static void doVersionOnSynapseXML(String currentVersion, String targetVersion, File workDir) {
 
         if (!(currentVersion.equals("trunk") && currentVersion.equals("1.0.0"))) {
             currentVersion = "SNAPSHOT";
