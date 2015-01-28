@@ -51,13 +51,10 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 
 		try {
 			String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-			String applicationExtenstion =
-					ProjectUtils.getApplicationExtenstion(applicationID,
-					                                      tenantDomain);
-			String uploadedFileName =
-					applicationID + "-" + targetVersion + "." +
-							applicationExtenstion;
-	
+			String applicationExtenstion = ProjectUtils.getApplicationExtenstion(applicationID, tenantDomain);
+			String uploadedFileName = applicationID + "-" + targetVersion + "." + applicationExtenstion
+			                          + AppFactoryConstants.UPPLOADABLE_SUFFIX;
+
 	        copyUploadedAppToRepositoryLocation(uploadedFileName, workingDirectory);
 	        
 	        if (log.isDebugEnabled()) {
