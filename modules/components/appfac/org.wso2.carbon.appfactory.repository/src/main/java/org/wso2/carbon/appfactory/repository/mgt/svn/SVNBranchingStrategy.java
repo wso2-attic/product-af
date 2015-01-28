@@ -197,7 +197,15 @@ public class SVNBranchingStrategy implements BranchingStrategy {
         }
         AppfactoryRepositoryClient client = provider.getRepositoryClient();
         client.checkOut(sourceURL, currentRevision, workDir);
-        new AppVersionStrategyExecutor().doVersion(appId, currentVersion, targetVersion, workDir, applicationType);
+        try {
+            ApplicationTypeManager.getInstance().getApplicationTypeBean(applicationType).getProcessor()
+                                  .doVersion(appId, targetVersion, currentVersion, workDir.getAbsolutePath());
+        } catch (AppFactoryException e) {
+            String msg = "Error while applying version information to the application:" + appId + " application type:" +
+                         applicationType + " tenant domain:" + tenantDomain;
+            log.error(msg, e);
+            throw new RepositoryMgtException(msg, e);
+        }
 
         client.tag(sourceURL, targetVersion, null, workDir.getPath(), null);
         try {
