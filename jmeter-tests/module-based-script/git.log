@@ -1,11 +1,10 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERmdmj2Lhbdeveloper%40tom.com:pAlready up-to-date.
-[master 38b4e9c] commit
- 1 file changed, 4 insertions(+), 4 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/tom.com/e28394e5-5b84-4567-a374-bc36944425db/7d92ef3f-4316-4760-af2c-ab20894a4312.java
-8b397-3515-4864-8fa4-1a8522cbc994/APPxQGgMtSrwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERrqEpnDRAdeveloper%40tom.com:pAlready up-to-date.
+ory.private.wso2.com:8443/git/tom.com/APPyY0VhhESwar.git/info/refs
+fatal: HTTP request failed
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/e2714578-b824-4231-b3be-9352583d04ba/APPyY0VhhESwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit dd60fdf14c8f24c5decddea18895a4b660f4fb5b.
+Warning: commit 82da163eaee6584eb3678df960d44e66fa98daa7.
 fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
 
 If no other git process is currently running, this probably means a
