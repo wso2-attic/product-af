@@ -389,8 +389,10 @@ public class AppFactoryConstants {
 	/**
 	 * Constants for other Strings
 	 */
+	public static final String EMPTY_STRING="";
 	public static final String WHITE_SPACE = " ";
 	public static final String DOT_SEPERATOR = ".";
+	public static final String ASTERISK_STRING="*";
     public static final String SUBSCRIPTION_ALIAS_DOT_REPLACEMENT = "dot";
 	public static final String MINUS = "-";
 	public static final String PAAS_REPOSITORY_URL_PATTERN = "paasRepositoryURLPattern";

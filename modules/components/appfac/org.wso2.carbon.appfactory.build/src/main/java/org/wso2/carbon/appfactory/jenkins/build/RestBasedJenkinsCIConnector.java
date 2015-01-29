@@ -76,6 +76,35 @@ public class RestBasedJenkinsCIConnector {
 	private static final Log log = LogFactory
 			.getLog(RestBasedJenkinsCIConnector.class);
 	private static final String UNDEPLOY_ARTIFACT_URL = "/plugin/appfactory-plugin/undeployArtifact";
+	private static final String NAME = "name";
+	private static final String PATTERN = "pattern";
+	private static final String PERMISSION = "permission";
+	private static final String USER_ID = "sid";
+	private static final String PROJECT_ROLE = "projectRole";
+	private static final String GLOBAL_ROLE = "globalRole";
+	private static final String WRAPPER = "wrapper";
+	private static final String XPATH = "xpath";
+	private static final String CARBON_HOME = "carbon.home";
+	private static final String IS_AUTOMATIC = "isAutomatic";
+	private static final String STRING_FALSE = "false";
+	private static final String STRING_TRUE = "true";
+	private static final String DO_DEPLOY = "doDeploy";
+	private static final String REPO_FROM = "repoFrom";
+	private static final String TENANT_USER_NAME = "tenantUserName";
+	private static final String PERSIST_ARTIFACT = "persistArtifact";
+	private static final String MASTER_REPO = "master repo";
+	private static final String FORKED_REPO = "forked repo";
+	private static final String BUILD_STATUS_UNKNOWN = "Unknown";
+	private static final String BUILD_STATUS_BUILDING = "Building";
+	private static final String STRING_ALL = "all";
+	private static final String STRING_TREE = "tree";
+	private static final String STRING_URL = "url";
+	private static final String KIND = "kind";
+	private static final String PASSWORD = "password";
+	private static final String USERNAME_ONE = "username1";
+	private static final String PASSWORD_ONE = "password1";
+	private static final String LOCATION_CONSTANT = "Location";
+	private static final String AT_SIGN_STRING = "@";
 	private static RestBasedJenkinsCIConnector restBasedJenkinsCIConnector;
 
 	static {
@@ -199,10 +228,10 @@ public class RestBasedJenkinsCIConnector {
 		String createRoleUrl = "/descriptorByName/com.michelin.cio.hudson.plugins.rolestrategy"
 				+ ".RoleBasedAuthorizationStrategy/createProjectRoleSubmit";
 		ArrayList<NameValuePair> parameters = new ArrayList<NameValuePair>();
-		parameters.add(new NameValuePair("name", roleName));
-		parameters.add(new NameValuePair("pattern", pattern));
+		parameters.add(new NameValuePair(NAME, roleName));
+		parameters.add(new NameValuePair(PATTERN, pattern));
 		for (String permission : permissions) {
-			parameters.add(new NameValuePair("permission", permission));
+			parameters.add(new NameValuePair(PERMISSION, permission));
 		}
 
 		PostMethod addRoleMethod = createPost(createRoleUrl,
@@ -257,20 +286,20 @@ public class RestBasedJenkinsCIConnector {
 
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		for (String id : userIds) {
-			params.add(new NameValuePair("sid", id));
+			params.add(new NameValuePair(USER_ID, id));
 		}
 
 		if (projectRoleNames != null) {
 
 			for (String role : projectRoleNames) {
-				params.add(new NameValuePair("projectRole", role));
+				params.add(new NameValuePair(PROJECT_ROLE, role));
 			}
 
 		}
 
 		if (globalRoleNames != null) {
 			for (String role : globalRoleNames) {
-				params.add(new NameValuePair("globalRole", role));
+				params.add(new NameValuePair(GLOBAL_ROLE, role));
 			}
 		}
 
@@ -324,10 +353,10 @@ public class RestBasedJenkinsCIConnector {
 
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		for (int i = 0; i < users.length; ++i) {
-			params.add(new NameValuePair("sid", users[i]));
+			params.add(new NameValuePair(USER_ID, users[i]));
 		}
 
-		params.add(new NameValuePair("projectRole", appicationKey));
+		params.add(new NameValuePair(PROJECT_ROLE, appicationKey));
 
 		PostMethod assignRolesMethod = createPost(
 				JenkinsCIConstants.RoleStrategy.UNASSIGN_ROLE_SERVICE,
@@ -397,8 +426,8 @@ public class RestBasedJenkinsCIConnector {
 				: "/*/job/name";
 
 		NameValuePair[] queryParameters = {
-				new NameValuePair("wrapper", wrapperTag),
-				new NameValuePair("xpath", xpathExpression) };
+				new NameValuePair(WRAPPER, wrapperTag),
+				new NameValuePair(XPATH, xpathExpression) };
 
 		GetMethod getJobsMethod = createGet("/view/All/api/xml",
 				queryParameters, tenantDomain);
@@ -465,12 +494,12 @@ public class RestBasedJenkinsCIConnector {
 				throw new AppFactoryException(errorMsg);
 			}
 
-			String carbonHome = System.getProperty("carbon.home"); // TODO find
+			String carbonHome = System.getProperty(CARBON_HOME); // TODO find
 																	// the
 																	// constnat
 
 			String fileName = artifactName.substring(artifactName
-					.lastIndexOf("/") + 1);
+					.lastIndexOf(AppFactoryConstants.URL_SEPERATOR) + 1);
 
 			ins = getArtifactMethod.getResponseBodyAsStream();
 			@SuppressWarnings("UnusedAssignment")
@@ -531,7 +560,7 @@ public class RestBasedJenkinsCIConnector {
 		OMElement jobConfiguration = new JobConfigurator(jobParams)
 				.configure(jobParams
 						.get(JenkinsCIConstants.APPLICATION_EXTENSION));
-		NameValuePair[] queryParams = { new NameValuePair("name", jobName) };
+		NameValuePair[] queryParams = { new NameValuePair(NAME, jobName) };
 		PostMethod createJob = null;
 		boolean jobCreatedFlag = false;
 
@@ -613,8 +642,8 @@ public class RestBasedJenkinsCIConnector {
 
 		final String wrapperTag = "JobNames";
 		NameValuePair[] queryParameters = {
-				new NameValuePair("wrapper", wrapperTag),
-				new NameValuePair("xpath", String.format(
+				new NameValuePair(WRAPPER, wrapperTag),
+				new NameValuePair(XPATH, String.format(
 						"/*/job/name[text()='%s']", jobName)) };
 
 		GetMethod checkJobExistsMethod = createGet("/api/xml", queryParameters,
@@ -734,24 +763,23 @@ public class RestBasedJenkinsCIConnector {
 		}
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-		parameters.add(new NameValuePair("isAutomatic", "false"));
-		parameters
-				.add(new NameValuePair("doDeploy", Boolean.toString(doDeploy)));
-		parameters.add(new NameValuePair("deployStage", stageName));
-		parameters.add(new NameValuePair("repoFrom", repoFrom));
+		parameters.add(new NameValuePair(IS_AUTOMATIC, STRING_FALSE));
+		parameters.add(new NameValuePair(DO_DEPLOY, Boolean.toString(doDeploy)));
+		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stageName));
+		parameters.add(new NameValuePair(REPO_FROM, repoFrom));
 
-		String tenantUserName = userName + "@" + tenantDomain;
+		String tenantUserName = userName + AT_SIGN_STRING + tenantDomain;
 
-		parameters.add(new NameValuePair("tenantUserName", tenantUserName));
+		parameters.add(new NameValuePair(TENANT_USER_NAME, tenantUserName));
 
 		// TODO should get the persistArtifact parameter value from the user and
 		// set here
-		if (tagName != null && !tagName.equals("")) {
-			parameters.add(new NameValuePair("persistArtifact", String
+		if (tagName != null && !tagName.equals(AppFactoryConstants.EMPTY_STRING)) {
+			parameters.add(new NameValuePair(PERSIST_ARTIFACT, String
 					.valueOf(true)));
-			parameters.add(new NameValuePair("tagName", tagName));
+			parameters.add(new NameValuePair(AppFactoryConstants.TAG_NAME, tagName));
 		} else {
-			parameters.add(new NameValuePair("persistArtifact", String
+			parameters.add(new NameValuePair(PERSIST_ARTIFACT, String
 					.valueOf(false)));
 		}
 
@@ -791,9 +819,9 @@ public class RestBasedJenkinsCIConnector {
 		} catch (Exception ex) {
 			String repoType = null;
 			if (EventingConstants.ORIGINAL_REPO_FORM.equals(repoFrom)) {
-				repoType = "master repo";
+				repoType = MASTER_REPO;
 			} else {
-				repoType = "forked repo";
+				repoType = FORKED_REPO;
 			}
 			String errorMsg = "Unable to start build for " + version + " in "
 					+ repoType + " by " + userName;
@@ -843,9 +871,9 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			String repoType = null;
 			if (EventingConstants.ORIGINAL_REPO_FORM.equals(repoFrom)) {
-				repoType = "master repo";
+				repoType = MASTER_REPO;
 			} else {
-				repoType = "forked repo";
+				repoType = FORKED_REPO;
 			}
 
 			// freestyle apps should not be built by user. So notification about
@@ -894,7 +922,7 @@ public class RestBasedJenkinsCIConnector {
 	public String getbuildStatus(String buildUrl, String tenantDomain)
 			throws AppFactoryException {
 
-		String buildStatus = "Unknown";
+		String buildStatus = BUILD_STATUS_UNKNOWN;
 		GetMethod checkJobExistsMethod = createGet(buildUrl, "api/xml", null,
 				tenantDomain);
 
@@ -920,11 +948,11 @@ public class RestBasedJenkinsCIConnector {
 					checkJobExistsMethod.getResponseBodyAsStream());
 			OMElement resultElement = builder.getDocumentElement();
 			if (resultElement != null) {
-				if ("false".equals(getValueUsingXpath(resultElement,
-						"/*/building"))) {
+				if (STRING_FALSE.equals(getValueUsingXpath(resultElement,
+				                                           "/*/building"))) {
 					buildStatus = getValueUsingXpath(resultElement, "/*/result");
 				} else {
-					buildStatus = "Building";
+					buildStatus = BUILD_STATUS_BUILDING;
 				}
 
 			}
@@ -948,8 +976,8 @@ public class RestBasedJenkinsCIConnector {
 
 		final String wrapperTag = "Builds";
 		NameValuePair[] queryParameters = {
-				new NameValuePair("wrapper", wrapperTag),
-				new NameValuePair("xpath", "/*/build/url") };
+				new NameValuePair(WRAPPER, wrapperTag),
+				new NameValuePair(XPATH, "/*/build/url") };
 
 		GetMethod getBuildsMethod = createGet(
 				String.format("/job/%s/api/xml", jobName), queryParameters,
@@ -1063,14 +1091,14 @@ public class RestBasedJenkinsCIConnector {
 		log.info(String.format("getJsonTree - for %s > %s", jobName,
 				treeStructure));
 		if (jobName == null || jobName.isEmpty()
-				|| jobName.equalsIgnoreCase("all") || jobName.equals("*")) {
+				|| jobName.equalsIgnoreCase(STRING_ALL) || jobName.equals(AppFactoryConstants.ASTERISK_STRING)) {
 			buildUrl = this.getJenkinsUrl() + "/";
 		} else {
 			buildUrl = String.format("%s/job/%s/", this.getJenkinsUrl(),
 					jobName);
 		}
 
-		NameValuePair[] queryParameters = { new NameValuePair("tree",
+		NameValuePair[] queryParameters = { new NameValuePair(STRING_TREE,
 				treeStructure) };
 
 		GetMethod getBuildsHistoryMethod = createGet(buildUrl, "api/json",
@@ -1130,10 +1158,10 @@ public class RestBasedJenkinsCIConnector {
 		PostMethod setCredentialsMethod = createPost(setCredentialsURL, null,
 				null, tenantDomain);
 
-		Part[] parts = { new StringPart("url", svnRepo),
-				new StringPart("kind", "password"),
-				new StringPart("username1", userName),
-				new StringPart("password1", password), };
+		Part[] parts = { new StringPart(STRING_URL, svnRepo),
+				new StringPart(KIND, PASSWORD),
+				new StringPart(USERNAME_ONE, userName),
+				new StringPart(PASSWORD_ONE, password), };
 		setCredentialsMethod.setRequestEntity(new MultipartRequestEntity(parts,
 				setCredentialsMethod.getParams()));
 
@@ -1145,7 +1173,7 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatus = getHttpClient()
 					.executeMethod(setCredentialsMethod);
 			Header locationHeader = setCredentialsMethod
-					.getResponseHeader("Location");
+					.getResponseHeader(LOCATION_CONSTANT);
 
 			// if operation completed successfully Jenkins returns http 302,
 			// which location header ending with '..../credentialOK'
@@ -1194,7 +1222,7 @@ public class RestBasedJenkinsCIConnector {
 
 		try {
 			List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-			parameters.add(new NameValuePair("artifactType", artifactType));
+			parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
 			ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
 			                                                                .getApplicationTypeBean(artifactType);
 
@@ -1214,15 +1242,15 @@ public class RestBasedJenkinsCIConnector {
 			                                 Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
 			parameters.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
 			                                 applicationTypeBean.getServerDeploymentPath()));
-			parameters.add(new NameValuePair("jobName", jobName));
-			parameters.add(new NameValuePair("deployStage", stage));
-			parameters.add(new NameValuePair("deployAction", deployAction));
+			parameters.add(new NameValuePair(AppFactoryConstants.JOB_NAME, jobName));
+			parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
+			parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_ACTION, deployAction));
 			parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
 			                                 applicationTypeBean.getExtension()));
 			parameters.add(new NameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
 
-			String tenantUserName = userName + "@" + tenantDomain;
-			parameters.add(new NameValuePair("tenantUserName", tenantUserName));
+			String tenantUserName = userName + AT_SIGN_STRING + tenantDomain;
+			parameters.add(new NameValuePair(TENANT_USER_NAME, tenantUserName));
 
 			addRunTimeParameters(stage, parameters, runtimeBean);
 
@@ -1349,8 +1377,8 @@ public class RestBasedJenkinsCIConnector {
 		}
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-		parameters.add(new NameValuePair("jobName", jobName));
-		parameters.add(new NameValuePair("artifactType", artifactType));
+		parameters.add(new NameValuePair(AppFactoryConstants.JOB_NAME, jobName));
+		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
 
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,runtimeNameForAppType));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
@@ -1359,9 +1387,9 @@ public class RestBasedJenkinsCIConnector {
 		                                 applicationTypeBean.getServerDeploymentPath()));
 		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
 		                                 applicationTypeBean.getExtension()));
-		parameters.add(new NameValuePair("deployStage", stage));
-		String tenantUserName = userName + "@" + tenantDomain;
-		parameters.add(new NameValuePair("tenantUserName", tenantUserName));
+		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
+		String tenantUserName = userName + AT_SIGN_STRING + tenantDomain;
+		parameters.add(new NameValuePair(TENANT_USER_NAME, tenantUserName));
 
 		addRunTimeParameters(stage, parameters, runtimeBean);
 
@@ -1409,9 +1437,9 @@ public class RestBasedJenkinsCIConnector {
 		// job name : <applicationId>-<version>-default
 
 		// removing the '-default' part
-		String temp = jobName.substring(0, jobName.lastIndexOf("-"));
+		String temp = jobName.substring(0, jobName.lastIndexOf(AppFactoryConstants.MINUS));
 		// removing the app version
-		String applicationId = temp.substring(0, temp.lastIndexOf("-"));
+		String applicationId = temp.substring(0, temp.lastIndexOf(AppFactoryConstants.MINUS));
 		return applicationId;
 	}
 
@@ -1429,13 +1457,13 @@ public class RestBasedJenkinsCIConnector {
 		@SuppressWarnings("UnusedAssignment")
 		String[] tagNamesOfPersistedArtifacts = new String[0];
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-		parameters.add(new NameValuePair("jobName", jobName));
+		parameters.add(new NameValuePair(AppFactoryConstants.JOB_NAME, jobName));
 
 		// We are creating the tenant user name using the Carbon Context and
 		// sending it to the Jenkins server
 		String tenantUserName = CarbonContext.getThreadLocalCarbonContext()
-				.getUsername() + "@" + tenantDomain;
-		parameters.add(new NameValuePair("tenantUserName", tenantUserName));
+				.getUsername() + AT_SIGN_STRING + tenantDomain;
+		parameters.add(new NameValuePair(TENANT_USER_NAME, tenantUserName));
 
 		PostMethod getIdsOfPersistArtifactMethod = createPost(
 				getIdentifiersOfArtifactsUrl,
@@ -1665,7 +1693,7 @@ public class RestBasedJenkinsCIConnector {
 	private void setConfiguration(String jobName, OMElement jobConfiguration,
 			String tenantDomain) throws AppFactoryException {
 
-		NameValuePair[] queryParams = { new NameValuePair("name", jobName) };
+		NameValuePair[] queryParams = { new NameValuePair(NAME, jobName) };
 		PostMethod createJob = null;
 		boolean jobCreatedFlag = false;
 
@@ -1789,7 +1817,7 @@ public class RestBasedJenkinsCIConnector {
 	 */
 	private String getJenkinsUrlByTenantDomain(String urlFragment,
 			String tenantDomain) {
-		if (tenantDomain != null && !tenantDomain.equals(""))
+		if (tenantDomain != null && !tenantDomain.equals(AppFactoryConstants.EMPTY_STRING))
 			return getJenkinsUrl() + File.separator + Constants.TENANT_SPACE
 					+ File.separator + tenantDomain + Constants.JENKINS_WEBAPPS
 					+ File.separator + urlFragment;
@@ -1903,9 +1931,9 @@ public class RestBasedJenkinsCIConnector {
 
 			String paramValue = null;
 			if (isAutoDeploy) {
-				paramValue = "true";
+				paramValue = STRING_TRUE;
 			} else {
-				paramValue = "false";
+				paramValue = STRING_TRUE;
 			}
 
 			AXIOMXPath axiomxPath = new AXIOMXPath(
