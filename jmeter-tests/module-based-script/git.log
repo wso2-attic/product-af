@@ -1,14 +1,18 @@
 error: The requested URL returned error: 403 Forbidden while accessing https://USER29RfvPPZdeveloper%40tom.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/tom.com/APPxQGgMtSrwar.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/48ba572a-bd63-4ca1-b188-2f2310b12aee/APPxQGgMtSrwaWarning: fetch updated the current branch head.
+[master 920a05a] commit
+ 1 file changed, 8 insertions(+), 10 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/tom.com/69b818c7-ce9d-4bf3-80cd-c82d876cc9b0/175d1129-0b01-4ab1-9082-bd2c3afe27fc.java
+572a-bd63-4ca1-b188-2f2310b12aee/APPxQGgMtSrwaWarning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit e76ac4443c981c8baf577b9f75a2d25902bb1b9d.
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
+error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
+Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff e76ac4443c981c8baf577b9f75a2d25902bb1b9d
+output, run
+$ git reset --hard
+to recover.
+tinue.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
 $ git diff 26400c3d63bfd375d8d67ae325e104f5469fbbae
