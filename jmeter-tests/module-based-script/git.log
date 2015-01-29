@@ -1,11 +1,10 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERuu7EqQandeveloper%40tom.com:pAlready up-to-date.
-[master 68ee9cb] commit
- 1 file changed, 3 insertions(+), 3 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/tom.com/68336411-faed-4101-8d01-6d599c6a1616/b1ef7176-7331-4335-8592-c14a14429fdb.java
-ef380-5f67-4e68-a50e-d2d8e86f7f7d/APPyY0VhhESwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERpeOVPXrOdeveloper%40tom.com:pAlready up-to-date.
+ory.private.wso2.com:8443/git/tom.com/APPY0dyyVP8war.git/info/refs
+fatal: HTTP request failed
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/f0733c17-16e2-47ee-957e-d6258f3ef511/APPY0dyyVP8war/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 79bc3f646890e63bc5a61f0e710e2f2de6c163f1.
+Warning: commit efd984eca76c9889df34f0aaf636808c2d42150d.
 error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
