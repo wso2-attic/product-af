@@ -169,7 +169,7 @@
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-            <version>${stratos.version}</version>
+            <version>4.0.0-wso2v1</version>
         </dependency>
 	<dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -255,7 +255,7 @@
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.messaging</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${stratos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -506,7 +506,7 @@
 	   <dependency>
 	      <groupId>org.wso2.carbon</groupId>
 	      <artifactId>org.wso2.carbon.registry.metadata</artifactId>
-	      <version>1.0.0-SNAPSHOT</version>
+	      <version>1.0.0-SNAPSHOT</version> <!--Yet to release -->
 	    </dependency>
 	    <dependency>
 	      <groupId>org.wso2.carbon</groupId>
@@ -687,12 +687,12 @@
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.keystore.mgt</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${stratos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.cli</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${stratos.version}</version>
         </dependency>
   	<dependency>
         	<groupId>org.wso2.carbon</groupId>
@@ -707,7 +707,7 @@
        <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.common</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>${stratos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1218,7 +1218,7 @@
       <appfac.version>2.1.0-SNAPSHOT</appfac.version>
 
       <!--Stratos-->
-      <stratos.version>4.0.0-wso2v1</stratos.version>
+      <stratos.version>4.0.0</stratos.version>
       <carbon.platform.stratos.version0>2.2.0</carbon.platform.stratos.version0>
       <carbon.platform.stratos.version1>2.2.1</carbon.platform.stratos.version1>
       <carbon.platform.stratos.version2>2.2.2</carbon.platform.stratos.version2>
@@ -1271,7 +1271,6 @@
       <sonia.scm.version>1.14</sonia.scm.version>
       <jenkins.ci.version>1.479</jenkins.ci.version>
       <junit.version>3.8.1</junit.version>
-      <jenkins.build.stub.version>1.1.0-SNAPSHOT</jenkins.build.stub.version>
       <jaggeryjs.version>0.9.0.ALPHA4.wso2v6</jaggeryjs.version>
       <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
       <orbit.version.h2.engine>1.2.140.wso2v3</orbit.version.h2.engine>
