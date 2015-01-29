@@ -1,21 +1,19 @@
 error: The requested URL returned error: 403 Forbidden while accessing https://USER0l9nRcA3developer%40tom.com:pAlready up-to-date.
-[master f0ad5b0] commit
- 1 file changed, 5 insertions(+), 6 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/tom.com/2c93263d-1c56-4519-b5c0-0e2f710266bc/dd258b4a-ef7a-421f-9ca1-3c029e74ff34.java
+[master 4f6a32d] commit
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/tom.com/b935077f-e769-4e07-b013-78ee93e32358/d0982a25-7af4-4f88-ad02-34473171eebc.java
 5077f-e769-4e07-b013-78ee93e32358/APPyY0VhhESwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit b27e262178a114cacaea8e14f77e0cca4a891b62.
-Your configuration specifies to merge with the ref 'master'
-from the remote, but no such ref was fetched.
-ee.
+Warning: commit d6df328f6d15a0c4ca9ec19a348b1b8224ad627a.
+error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
+Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
-$ git diff e76ac4443c981c8baf577b9f75a2d25902bb1b9d
+$ git diff d6df328f6d15a0c4ca9ec19a348b1b8224ad627a
 output, run
 $ git reset --hard
 to recover.
-tinue.
-Cannot fast-forward your working tree.
+r working tree.
 After making sure that you saved anything precious from
 $ git diff 26400c3d63bfd375d8d67ae325e104f5469fbbae
 output, run
