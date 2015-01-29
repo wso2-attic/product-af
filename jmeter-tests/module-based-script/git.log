@@ -1,7 +1,9 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERzEgkQ5GRdeveloper%40tom.com:password@apps.appfactory.private.wso2.com:8443/git/tom.com/APPyY0VhhESwar.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/69b818c7-ce9d-4bf3-80cd-c82d876cc9b0/APPyY0VhhESwar/: No such file or directory
-rent branch head.
+error: The requested URL returned error: 403 Forbidden while accessing https://USERzEgkQ5GRdeveloper%40tom.com:pAlready up-to-date.
+mit
+ 1 file changed, 27 insertions(+), 3 deletions(-)
+ rewrite jmeter-tests/module-based-script/git.log (82%)
+ create mode 100644 jmeter-tests/module-based-script/tom.com/262e73a3-cab0-44c6-94ce-f35f06532c20/9a4ed94d-1f3b-49c9-8f86-9df96af8f23e.java
+yY0VhhESwaWarning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 26400c3d63bfd375d8d67ae325e104f5469fbbae.
 Your configuration specifies to merge with the ref 'master'
