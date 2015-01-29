@@ -27,7 +27,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.TenantCloudInitializer;
-import org.wso2.carbon.appfactory.core.task.AppFactoryTenantCloudInitializerTask;
+import org.wso2.carbon.appfactory.core.util.CloudConstants;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -60,11 +60,11 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 
 			addTenant(properties);
 
-			String stage = properties.get(AppFactoryTenantCloudInitializerTask.STAGE);
+			String stage = properties.get(CloudConstants.STAGE.getValue());
 			RuntimeBean[] runtimeBeans;
 
 			try {
-				String runtimesJson = properties.get(AppFactoryTenantCloudInitializerTask.RUNTIMES);
+				String runtimesJson = properties.get(CloudConstants.RUNTIMES.getValue());
 				ObjectMapper mapper = new ObjectMapper();
 				runtimeBeans = mapper.readValue(runtimesJson, RuntimeBean[].class);
 			} catch (IOException e) {
@@ -113,7 +113,7 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 		 */
 
 		String serviceEPR = properties
-				.get(AppFactoryTenantCloudInitializerTask.SERVER_URL)
+				.get(CloudConstants.SERVER_URL.getValue())
 				+ "/services/TenantMgtAdminService";
 		try {
 			stub = new TenantMgtAdminServiceStub(ServiceReferenceHolder
@@ -122,9 +122,9 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 			CarbonUtils
 					.setBasicAccessSecurityHeaders(
 							properties
-									.get(AppFactoryTenantCloudInitializerTask.SUPER_TENANT_ADMIN),
+									.get(CloudConstants.SUPER_TENANT_ADMIN.getValue()),
 							properties
-									.get(AppFactoryTenantCloudInitializerTask.SUPER_TENANT_ADMIN_PASSWORD),
+									.get(CloudConstants.SUPER_TENANT_ADMIN_PASSWORD.getValue()),
 							stub._getServiceClient());
 		} catch (AxisFault axisFault) {
 			String msg = "Error while initializing TenantMgt Admin Service Stub ";
@@ -158,32 +158,31 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 		TenantInfoBean tenantInfoBean = new TenantInfoBean();
 		tenantInfoBean.setCreatedDate(Calendar.getInstance());
 		tenantInfoBean.setUsagePlan(properties
-				.get(AppFactoryTenantCloudInitializerTask.TENANT_USAGE_PLAN));
+				.get(CloudConstants.TENANT_USAGE_PLAN.getValue()));
 		tenantInfoBean.setTenantDomain(properties
-				.get(AppFactoryTenantCloudInitializerTask.TENANT_DOMAIN));
+				.get(CloudConstants.TENANT_DOMAIN.getValue()));
 		tenantInfoBean.setSuccessKey(properties
-				.get(AppFactoryTenantCloudInitializerTask.SUCCESS_KEY));
+				.get(CloudConstants.SUCCESS_KEY.getValue()));
 		tenantInfoBean.setActive(true);
 		tenantInfoBean.setAdmin(properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_USERNAME));
+				.get(CloudConstants.ADMIN_USERNAME.getValue()));
 		tenantInfoBean.setAdminPassword(properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_PASSWORD));
+				.get(CloudConstants.ADMIN_PASSWORD.getValue()));
 		tenantInfoBean.setEmail(properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_EMAIL));
+				.get(CloudConstants.ADMIN_EMAIL.getValue()));
 		tenantInfoBean.setFirstname(properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_FIRST_NAME));
+				.get(CloudConstants.ADMIN_FIRST_NAME.getValue()));
 		tenantInfoBean.setLastname(properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_LAST_NAME));
+				.get(CloudConstants.ADMIN_LAST_NAME.getValue()));
 		tenantInfoBean.setOriginatedService(properties
-				.get(AppFactoryTenantCloudInitializerTask.ORIGINATED_SERVICE));
+				.get(CloudConstants.ORIGINATED_SERVICE.getValue()));
 		tenantInfoBean.setTenantId(Integer.parseInt(properties
-				.get(AppFactoryTenantCloudInitializerTask.TENANT_ID)));
+				.get(CloudConstants.TENANT_ID.getValue())));
 		try {
 			stub.addTenant(tenantInfoBean);
 			/* if (log.isDebugEnabled()) { */
 			log.info("Called TenantMgt Admin Service in "
-					+ properties
-							.get(AppFactoryTenantCloudInitializerTask.SERVER_URL)
+					+ properties.get(CloudConstants.SERVER_URL.getValue())
 					+ " with " + tenantInfoBean);
 			/* } */
 
@@ -202,8 +201,8 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 	                                   Map<String, String> properties) throws AppFactoryException {
 		String repoUrl;
 		try {
-			String stage = properties.get(AppFactoryTenantCloudInitializerTask.STAGE);
-			int tenantID = Integer.parseInt(properties.get(AppFactoryTenantCloudInitializerTask.TENANT_ID));
+			String stage = properties.get(CloudConstants.STAGE.getValue());
+			int tenantID = Integer.parseInt(properties.get(CloudConstants.TENANT_ID.getValue()));
 			String repoProviderClassName = AppFactoryUtil.getAppfactoryConfiguration().
 					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME);
 			ClassLoader loader = getClass().getClassLoader();
@@ -248,13 +247,13 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 	private void subscribe(RuntimeBean runtimeBean, String stage, String repoURL, Map<String, String> properties)
 			throws AppFactoryException {
 		String serverURL = properties
-				.get(AppFactoryTenantCloudInitializerTask.SERVER_URL);
+				.get(CloudConstants.SERVER_URL.getValue());
 		String tenantAdmin = properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_USERNAME);
+				.get(CloudConstants.ADMIN_USERNAME.getValue());
 		String tenantAdminPassword = properties
-				.get(AppFactoryTenantCloudInitializerTask.ADMIN_PASSWORD);
+				.get(CloudConstants.ADMIN_PASSWORD.getValue());
 		String tenantDomain = properties
-				.get(AppFactoryTenantCloudInitializerTask.TENANT_DOMAIN);
+				.get(CloudConstants.TENANT_DOMAIN.getValue());
 		String username = tenantAdmin + "@" + tenantDomain;
 
 		restService = new StratosRestService(serverURL, username,
