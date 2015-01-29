@@ -1,3 +1,27 @@
-fatal: https://USERjbYu0yWmdeveloper%40tom.com:password@apps.appfactory.private.wso2.com:8443/git/tom.com/APPGMwAlready up-to-date.
-fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/7057ee85-03e5-4b1b-92d3-25ce5911ead5/APPGMwn2Dllwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERzEgkQ5GRdeveloper%40tom.com:password@apps.appfactory.private.wso2.com:8443/git/tom.com/APPyY0VhhESwar.git/info/refs
+fatal: HTTP request failed
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/69b818c7-ce9d-4bf3-80cd-c82d876cc9b0/APPyY0VhhESwar/: No such file or directory
+rent branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit 26400c3d63bfd375d8d67ae325e104f5469fbbae.
+Your configuration specifies to merge with the ref 'master'
+from the remote, but no such ref was fetched.
+her git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
+Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff 26400c3d63bfd375d8d67ae325e104f5469fbbae
+output, run
+$ git reset --hard
+to recover.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
