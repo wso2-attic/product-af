@@ -608,7 +608,6 @@ public class ApplicationManagementService extends AbstractAdmin {
         }
 
         try{
-            //TODO check existence of this
             removeApplicationRoles(applicationId, userName, domainName);
         } catch (UserStoreException e) {
             log.error("Error while removing the application roles from LDAP for application " + applicationId, e);
@@ -715,7 +714,9 @@ public class ApplicationManagementService extends AbstractAdmin {
             threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             threadLocalCarbonContext.setTenantId(tenantId, true);
             UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
-            userStoreManager.deleteRole(AppFactoryUtil.getRoleNameForApplication(applicationKey));
+            if(userStoreManager.isExistingRole(AppFactoryUtil.getRoleNameForApplication(applicationKey))) {
+                userStoreManager.deleteRole(AppFactoryUtil.getRoleNameForApplication(applicationKey));
+            }
         }  finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
