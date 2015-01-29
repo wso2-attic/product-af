@@ -1,14 +1,12 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERzEgkQ5GRdeveloper%40tom.com:pAlready up-to-date.
-mit
- 1 file changed, 27 insertions(+), 3 deletions(-)
- rewrite jmeter-tests/module-based-script/git.log (82%)
- create mode 100644 jmeter-tests/module-based-script/tom.com/262e73a3-cab0-44c6-94ce-f35f06532c20/9a4ed94d-1f3b-49c9-8f86-9df96af8f23e.java
-yY0VhhESwaWarning: fetch updated the current branch head.
+error: The requested URL returned error: 403 Forbidden while accessing https://USER29RfvPPZdeveloper%40tom.com:pAlready up-to-date.
+ory.private.wso2.com:8443/git/tom.com/APPxQGgMtSrwar.git/info/refs
+fatal: HTTP request failed
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/tom.com/48ba572a-bd63-4ca1-b188-2f2310b12aee/APPxQGgMtSrwaWarning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 26400c3d63bfd375d8d67ae325e104f5469fbbae.
-Your configuration specifies to merge with the ref 'master'
-from the remote, but no such ref was fetched.
-her git process is currently running, this probably means a
+Warning: commit e76ac4443c981c8baf577b9f75a2d25902bb1b9d.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
 Cannot fast-forward your working tree.
