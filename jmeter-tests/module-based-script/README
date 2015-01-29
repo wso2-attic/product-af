@@ -1,5 +1,15 @@
 This provides jmeter scripts for load testing AppFactory setup.
 1. Load the jmeter script(test_plan.jmx) in jmeter.
 2. After opening the step1 script, select workbench. Then merge workbench.jmx by selecting File --> Merge. 
-3. Run sample data generating scripts at sample_data directory. This will generate apps and  users. 
-4. Run the jmeter script.
+3. Run sample data generating scripts at sample_data directory. This will generate apps and  users.
+   ./generate_apps.sh 5 war
+   ./generate_users.sh 50 developer
+   ./generate_users.sh 20 devops
+   ./generate_users.sh 20 qa
+   ./generate_users.sh 1 appowner 
+4. Update below properties
+	working_dir - (jmeter script location) - appfactory/2.0.0/jmeter-tests/module-based-script
+	developer_count, global_ramp_up, appOwner_count,etc depending on your generated user count.
+5. Run the jmeter script.
+	If you have total user count as 100, say 50 developers, 30 qa and 20 devops; set populate users thread group users=50(which means max user count among different groups), ramp up=30, loop=1
+	If you have 5 apps, the populate apps thread group values should be users=5, ramp up=10, loop=1
