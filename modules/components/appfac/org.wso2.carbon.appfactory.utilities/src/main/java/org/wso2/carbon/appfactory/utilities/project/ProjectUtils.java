@@ -230,15 +230,15 @@ public class ProjectUtils {
     public static Version[] getVersions(String applicationId,String domainName) throws AppFactoryException {
         List<Version> versions = new ArrayList<Version>();
         List<Artifact> artifactList;
-        try {
-            artifactList = RxtManager.getInstance().getAppVersionRxtForApplication(domainName, applicationId);
-        } catch (RegistryException e) {
-            String errorMsg =
-                    String.format("Unable to load the application version information for applicaiton id: %s",
-                            applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
+                    try {
+                        artifactList = RxtManager.getInstance().getAppVersionRxtForApplication(domainName, applicationId);
+                    } catch (RegistryException e) {
+                        String errorMsg =
+                                String.format("Unable to load the application version information for applicaiton id: %s",
+                                        applicationId);
+                        log.error(errorMsg, e);
+                        throw new AppFactoryException(errorMsg, e);
+                    }
 
         for (Artifact artifact : artifactList) {
             // extract the name of the resource ( which will be

@@ -76,10 +76,10 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.email.verification</artifactId>
         </dependency>
-	<dependency>
-	      <groupId>org.wso2.carbon</groupId>
-	      <artifactId>org.wso2.carbon.registry.metadata</artifactId>
-    	</dependency>
+	<!--<dependency>-->
+	      <!--<groupId>org.wso2.carbon</groupId>-->
+	      <!--<artifactId>org.wso2.carbon.registry.metadata</artifactId>-->
+    	<!--</dependency>-->
         <dependency>
             <groupId>plexus-utils.wso2</groupId>
             <artifactId>plexus-utils</artifactId>
@@ -279,7 +279,7 @@
 				<bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.deployers</bundleDef>
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.listners</bundleDef> 
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.tenant.mgt</bundleDef>
-				 <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.metadata</bundleDef> 
+				 <!--<bundleDef>org.wso2.carbon:org.wso2.carbon.registry.metadata</bundleDef> -->
 
                                 <!--Repository-mgt-->
                                 <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.repository.mgt.service</bundleDef>

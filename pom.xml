@@ -503,11 +503,11 @@
 	      <artifactId>org.wso2.carbon.governance.api</artifactId>
 	      <version>${carbon.platform.version}</version>
 	    </dependency>
-	   <dependency>
-	      <groupId>org.wso2.carbon</groupId>
-	      <artifactId>org.wso2.carbon.registry.metadata</artifactId>
-	      <version>1.0.0-SNAPSHOT</version> <!--Yet to release -->
-	    </dependency>
+	   <!--<dependency>-->
+	      <!--<groupId>org.wso2.carbon</groupId>-->
+	      <!--<artifactId>org.wso2.carbon.registry.metadata</artifactId>-->
+	      <!--<version>1.0.0-SNAPSHOT</version> &lt;!&ndash;Yet to release &ndash;&gt;-->
+	    <!--</dependency>-->
 	    <dependency>
 	      <groupId>org.wso2.carbon</groupId>
 	      <artifactId>org.wso2.carbon.governance.registry.extensions</artifactId>

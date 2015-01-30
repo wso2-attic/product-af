@@ -44,10 +44,10 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.session.UserRegistry;
-import org.wso2.carbon.registry.metadata.exception.MetadataException;
-import org.wso2.carbon.registry.metadata.models.endpoint.HTTPEndpointV1;
-import org.wso2.carbon.registry.metadata.models.service.HTTPServiceV1;
-import org.wso2.carbon.registry.metadata.models.version.ServiceVersionV1;
+//import org.wso2.carbon.registry.metadata.exception.MetadataException;
+//import org.wso2.carbon.registry.metadata.models.endpoint.HTTPEndpointV1;
+//import org.wso2.carbon.registry.metadata.models.service.HTTPServiceV1;
+//import org.wso2.carbon.registry.metadata.models.version.ServiceVersionV1;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -201,7 +201,7 @@ public class AppFactoryLCExecutor implements Execution {
 
     private void persistApplicationEndpointMetaData(Registry registry, String version, String applicationId,
                                                     String stage, String user) throws AppFactoryException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+      /*  String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String applicationURL = AppFactoryCoreUtil.getApplicationUrl(applicationId, version, stage, tenantDomain);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         //We get the user name from the CC since the parameter user has the tenant aware user name
@@ -255,16 +255,16 @@ public class AppFactoryLCExecutor implements Execution {
                     applicationURL + " in tenant:" + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
-        }
+        }*/
     }
 
-    private void addNewEndpointToServiceVersion(String version, String applicationId, String applicationURL,
-                                                Registry governanceRegistry, ServiceVersionV1 serviceVersionV1)
-            throws MetadataException {
-        HTTPEndpointV1 ep = new HTTPEndpointV1(governanceRegistry, applicationId + "-" + version);
-        ep.setUrl(applicationURL);
-        serviceVersionV1.addEndpoint(ep);
-    }
+//    private void addNewEndpointToServiceVersion(String version, String applicationId, String applicationURL,
+//                                                Registry governanceRegistry, ServiceVersionV1 serviceVersionV1)
+//            throws MetadataException {
+//        HTTPEndpointV1 ep = new HTTPEndpointV1(governanceRegistry, applicationId + "-" + version);
+//        ep.setUrl(applicationURL);
+//        serviceVersionV1.addEndpoint(ep);
+//    }
 
     /**
      * Publish stats to BAM
