@@ -1,6 +1,8 @@
 fatal: https://USERvdbxsoJ6developer%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
-fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/15d7493f-7400-4397-bdbf-c9f43c9bcf61/APPGMwn2Dllwar/: No such file or directory
-Warning: fetch updated the current branch head.
+[master 4d140f3] commit
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+ rewrite jmeter-tests/module-based-script/git.log (82%)
+ create mode 100644 jmeter-tests/module-based-script/man.com/12eae657-810b-4b21-ae42-7c096df2d7bf/06ff7297-772e-43ad-b99d-7c5b6dd83fcc.java
+fetch updated the curWarning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 3ede0a0d9ced57647b7aa23fe2a95bf4c4cd77f8.
+Warning: commit bdbe8cfce3b9a51fc28355f1f5a177d06371ea54.
