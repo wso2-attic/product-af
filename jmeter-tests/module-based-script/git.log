@@ -1,6 +1,8 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERrqEpnDRAdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPyY0VhhESwar.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/bd0a7673-9f15-4612-abaf-9ac28c5bf776/APPyY0VhhESwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERexGAVzYFdeveloper%40now.com:pAlready up-to-date.
+mit
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/now.com/1c5aa07f-7e78-44cf-a447-7a553f376450/50e90310-2860-47cd-a32f-63fa0169b4aa.java
+d-script/now.com/0f0599f0-29c1-4948-9c90-d083e03de88f/APPxQGgMtSrwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 984e511dff7eaaf190ccf57cc495cd34538b6ccb.
