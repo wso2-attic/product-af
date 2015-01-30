@@ -1,14 +1,16 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERzEgkQ5GRdeveloper%40now.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/now.com/APPyY0VhhESwar.git/info/refs
+error: The requested URL returned error: 403 Forbidden while accessing https://USERqeRS9mZ2developer%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPxQGgMtSrwar.git/info/refs
 fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/51f16048-ed2b-4bc1-9ad5-3a6ce2ea9e33/APPyY0VhhESwar/: No such file or directory
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/eadde01c-7d5a-4d32-81e8-6581ccde340e/APPxQGgMtSrwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 58511f27c6cf7f19a6f26af723442fc201341c70.
-bly means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-error: Ref refs/heads/master is at 3bd52cac13348dcb4945d557adcae4b12bee1a70 but expected ffdf02f7234fb33c6680d39b213440e7bf6bbe8b
+Warning: commit 35736ae52ae601799d5a4619c3b5665ee2cf2680.
+error: Entry 'jmeter-tests/module-based-script/git.log' not uptodate. Cannot merge.
+Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff 35736ae52ae601799d5a4619c3b5665ee2cf2680
+output, run
+$ git reset --hard
+to recover.
 fatal: cannot lock HEAD ref
 ree.
 After making sure that you saved anything precious from
