@@ -1,8 +1,7 @@
-fatal: https://USERvdbxsoJ6developer%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
-[master bcd027d] commit
- 1 file changed, 8 insertions(+), 6 deletions(-)
- rewrite jmeter-tests/module-based-script/git.log (67%)
- create mode 100644 jmeter-tests/module-based-script/man.com/62bb1eee-00be-43e9-9133-cdda43378f86/65f89ce1-d5a8-4cc2-ae2b-1ac59ad78bc8.java
+fatal: https://USERhMmsQHYldeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
+fs not found: did you run git update-server-info on the server?
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/36bdc855-5320-443b-963b-73ce0907649a/APPGMwn2Dllwar/: No such file or directory
+bc8.java
 fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 0b790a0748df5ca830844135d130cefdfaa5718e.
