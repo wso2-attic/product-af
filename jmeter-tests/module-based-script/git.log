@@ -1,19 +1,18 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERrcdykTM0developer%40now.com:pAlready up-to-date.
-[master 9457c3a] commit
- 1 file changed, 6 insertions(+), 6 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/now.com/dd0c2c7c-b5de-4013-8c87-b82004fe28ea/1f16862d-413c-436a-9b55-d648ed36f5e4.java
-5dbe9-5f91-4097-9492-35f4f6855fe4/APPUX6P37Gtwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERhMmsQHYldeveloper%40now.com:pAlready up-to-date.
+ory.private.wso2.com:8443/git/now.com/APPY0dyyVP8war.git/info/refs
+fatal: HTTP request failed
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/729014ac-e8eb-4012-9c5c-92ab837beef6/APPY0dyyVP8war/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit c6e21808a06da69295eebbc4f62a0d4b0c1b807f.
-Your configuration specifies to merge with the ref 'master'
-from the remote, but no such ref was fetched.
-her git process is currently running, this probably means a
+Warning: commit 0940cd4fa23a9fb8c595a8e8a69060d8feb9f1ab.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
-$ git diff 984e511dff7eaaf190ccf57cc495cd34538b6ccb
+$ git diff c6e21808a06da69295eebbc4f62a0d4b0c1b807f
 output, run
 $ git reset --hard
 to recover.
@@ -22,8 +21,8 @@ fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.loc
 If no other git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
+error: Ref refs/heads/master is at 4b612b802803bd98b7bf69299cfc18a7357227e4 but expected 9457c3af6b3848721c3ff5997f27227d948060a0
+fatal: cannot lock HEAD ref
+means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
