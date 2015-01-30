@@ -19,13 +19,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.appfactory</groupId>
         <artifactId>appfactory</artifactId>
         <version>2.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>org.wso2.carbon.appfactory</groupId>
     <artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -47,15 +48,15 @@
             <artifactId>org.wso2.carbon.user.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.utilities</artifactId>
         </dependency>
         <dependency>
@@ -63,19 +64,19 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.build</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.listners</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
         </dependency>
         <dependency>
@@ -100,7 +101,7 @@
             <artifactId>rampart-policy</artifactId>
         </dependency>
           <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
         </dependency>
         <dependency>

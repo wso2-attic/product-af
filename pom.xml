@@ -40,10 +40,10 @@
    </licenses>
    <modules>
       <module>modules/service-stubs</module>
-      <module>modules/components/appfac</module>
+      <module>modules/components</module>
       <!--module>modules/components/authenticators</module-->
-      <module>modules/features</module>
-      <module>modules/maven-archetype</module>
+      <!--module>modules/features</module-->
+      <!--module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
       <module>modules/p2-profile-gen</module>
@@ -52,7 +52,7 @@
       <module>modules/jaggery-apps/dashboard</module>
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <module>modules/distribution</module>
+      <module>modules/distribution</module-->
       <!--module>modules/integration</module-->
    </modules>
    <profiles>
@@ -856,18 +856,18 @@
 
       <!--App Factory Components-->
        <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
             <version>${appfac.version}</version>
        </dependency>
        <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.stratos.listners</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.jenkinsext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
@@ -909,78 +909,78 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.ext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
         </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.issuetracking</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.login.ui</artifactId>
             	<version>${appfac.version}</version>
             </dependency>
        	    <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.apiManager.integration</artifactId>
             	<version>${appfac.version}</version>
             </dependency>
             <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.hostobjects.configuration</artifactId>
  		<version>${appfac.version}</version>
             </dependency>
   	    <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
  		<version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.listners</artifactId>
                     <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.build</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.deployers</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.common</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.bam.integration</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
               <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.jenkins.build.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.artifact.storage.stub</artifactId>
 		    <version>${appfac.version}</version>
 	    </dependency>
@@ -990,48 +990,48 @@
 		      <version>${appfac.version}</version>
 	    </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.multitenant.jenkins</artifactId>
 		    <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.application.deployer.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.stratos.listeners.stub</artifactId>
 		      <version>${appfac.version}</version>
 		      <scope>provided</scope>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
  	    <dependency>
-		     <groupId>org.wso2.carbon</groupId>
+		     <groupId>org.wso2.carbon.appfactory</groupId>
 		     <artifactId>org.wso2.carbon.appfactory.core</artifactId>
 		     <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.utilities</artifactId>
 		    <version>${appfac.version}</version>
         </dependency>   
         <dependency>
-		   <groupId>org.wso2.carbon</groupId>
+		   <groupId>org.wso2.carbon.appfactory</groupId>
 		   <artifactId>org.wso2.carbon.appfactory.userstore</artifactId>
                   <version>${appfac.version}</version>
         </dependency>

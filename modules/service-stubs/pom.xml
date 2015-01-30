@@ -20,7 +20,7 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.appfactory</groupId>
 	<artifactId>carbon-service-stubs</artifactId>
 	<packaging>pom</packaging>
 	<name>WSO2 Carbon - Service Stubs - Aggregator Module</name>
