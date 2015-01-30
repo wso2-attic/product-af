@@ -52,11 +52,11 @@
             <artifactId>bcprov-jdk15</artifactId>
         </dependency>
          <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.build.stub</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.multitenant.jenkins</artifactId>
         </dependency>
         <dependency>
@@ -138,29 +138,24 @@
             <type>hpi</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.ext</artifactId>
             <type>jar</type>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.bps.ext</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.stratos.listners</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.appfactory.jenkinsext</artifactId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
+            <artifactId>org.wso2.carbon.appfactory.ext</artifactId>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.cloud.mgt</groupId>
-            <artifactId>cloudmgt</artifactId>
-            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>

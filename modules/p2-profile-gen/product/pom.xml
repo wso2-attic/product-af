@@ -399,7 +399,7 @@
 
                                 <!-- AppFactory related features -->
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.appfactory.server.feature:${appfac.version}
+                                    org.wso2.appfactory:org.wso2.carbon.appfactory.server.feature:${appfac.version}
                                 </featureArtifactDef>
 
                                 <!-- generic features -->

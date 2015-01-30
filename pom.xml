@@ -41,19 +41,17 @@
    <modules>
       <module>modules/service-stubs</module>
       <module>modules/components</module>
-      <!--module>modules/components/authenticators</module-->
-      <!--module>modules/features</module-->
-      <!--module>modules/maven-archetype</module>
+      <module>modules/features</module>
+      <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
       <module>modules/p2-profile-gen</module>
       <module>modules/jaggery-apps/appmgt</module>
-      <module>modules/jaggery-apps/cloudmgt</module>
+      <!--module>modules/jaggery-apps/cloudmgt</module-->
       <module>modules/jaggery-apps/dashboard</module>
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <module>modules/distribution</module-->
-      <!--module>modules/integration</module-->
+      <module>modules/distribution</module>
    </modules>
    <profiles>
       <profile>
@@ -903,7 +901,7 @@
             <type>hpi</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.bps.ext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
@@ -985,7 +983,7 @@
 		    <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.build.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>

@@ -39,19 +39,19 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.artifact.storage.stub</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.build.stub</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.application.deployer.stub</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
@@ -69,7 +69,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
@@ -105,7 +105,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.common</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
@@ -113,28 +113,24 @@
        <!-- need to ship it with plugin  it require maven scm .maven scm depends on pluxes.But
         jenkins also has pluxes but different version.So there was a class loading issue-->
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.deployers</artifactId>
             <version>2.1.0-SNAPSHOT</version>
 	    <exclusions>
 		<exclusion>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
 		</exclusion>
 	    </exclusions>
          </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.core</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>
             <exclusions>
-		 <exclusion>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.registry.metadata</artifactId>
-                </exclusion>
                 <exclusion>
-                    <groupId>org.wso2.carbon</groupId>
+                    <groupId>org.wso2.carbon.appfactory.appfactory</groupId>
                     <artifactId>org.wso2.carbon.ui</artifactId>
                 </exclusion>
                 <exclusion>
@@ -156,7 +152,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <scope>provided</scope>

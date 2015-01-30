@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.appfactory</groupId>
         <artifactId>appfactory-feature</artifactId>
         <version>2.1.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
@@ -41,7 +41,7 @@
             <artifactId>org.wso2.carbon.hostobjects.carbonutil</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.hostobjects.configuration</artifactId>
         </dependency>
         <dependency>
@@ -49,23 +49,23 @@
             <artifactId>org.wso2.carbon.hostobjects.sso</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.listners</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.apiManager.integration</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.common</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>
         </dependency>
         <dependency>
@@ -89,31 +89,31 @@
             <artifactId>maven-invoker</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.login.ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.userstore</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.deployers</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.stratos.listeners.stub</artifactId>
         </dependency>
 	<dependency>
@@ -129,7 +129,7 @@
             <artifactId>org.wso2.carbon.dataservices.fileupload.stub</artifactId>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.build</artifactId>
         </dependency>
       <!--  Repository-Mgt-->
@@ -139,11 +139,11 @@
         </dependency>
              <!--  Repository-Providers-->
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
         </dependency>
          <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.utilities</artifactId>
         </dependency>
         <dependency>
@@ -155,7 +155,7 @@
             <artifactId>maven-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.issuetracking</artifactId>
         </dependency>
 	<dependency>
@@ -179,20 +179,16 @@
             <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
+        <!--dependency>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.identity.authenticator.signedjwt</artifactId>
-        </dependency>
-
-
- <!--  Tenant Management -->
+        </dependency-->
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
         </dependency>
-<!-- S4 Intergration  -->
     	<dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
         </dependency>
 
@@ -251,17 +247,17 @@
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.dataservices.fileupload.stub</bundleDef-->
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.um.ws.api.stub
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.common
+                                <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.common
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.application.mgt.stub
+                                <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.application.mgt.stub
                                 </bundleDef>
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.core
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.core
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.hostobjects.sso
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.application.mgt
+                                <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.application.mgt
                                 </bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.eventing
+                                <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.eventing
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.email.sender</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.email.verification
@@ -271,33 +267,33 @@
                                 <bundleDef>maven-invoker.wso2:maven-invoker</bundleDef>
                                 <bundleDef>plexus-utils.wso2:plexus-utils</bundleDef>
                                 <bundleDef>
-                                    org.wso2.carbon:org.wso2.carbon.appfactory.hostobjects.configuration
+                                    org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.hostobjects.configuration
                                 </bundleDef>
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.login.ui</bundleDef>
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.userstore</bundleDef>
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.build</bundleDef> 
-				<bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.deployers</bundleDef>
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.listners</bundleDef> 
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.tenant.mgt</bundleDef>
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.login.ui</bundleDef>
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.userstore</bundleDef>
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.build</bundleDef> 
+				<bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.deployers</bundleDef>
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.listners</bundleDef> 
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.tenant.mgt</bundleDef>
 				 <!--<bundleDef>org.wso2.carbon:org.wso2.carbon.registry.metadata</bundleDef> -->
 
                                 <!--Repository-mgt-->
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.repository.mgt.service</bundleDef>
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.repository.mgt.service</bundleDef>
                                 <bundleDef> org.apache.maven.scm.wso2:maven-scm</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.utilities</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.stratos.listeners.stub</bundleDef>
-                                <bundleDef> org.wso2.carbon:org.wso2.carbon.appfactory.apiManager.integration</bundleDef>
+				<bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.utilities</bundleDef>
+				<bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</bundleDef>
+				<bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.stratos.listeners.stub</bundleDef>
+                                <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.apiManager.integration</bundleDef>
                                 <bundleDef>org.apache.maven.wso2:maven-model</bundleDef>
                                 <bundleDef>org.apache.maven.wso2:maven-core</bundleDef>
                                 <bundleDef>com.gitblit.wso2:gitblit</bundleDef>
 				<bundleDef>org.eclipse.jgit.wso2:org.eclipse.jgit</bundleDef>
 				<bundleDef>com.nimbusds.wso2:nimbus-jose-jwt</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.issuetracking</bundleDef>
+                                <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.issuetracking</bundleDef>
 
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.signedjwt</bundleDef>
+                                <!--bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.signedjwt</bundleDef-->
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.identity.authenticator.mutualssl</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.appfactory.s4.integration</bundleDef>
+				<bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.s4.integration</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
