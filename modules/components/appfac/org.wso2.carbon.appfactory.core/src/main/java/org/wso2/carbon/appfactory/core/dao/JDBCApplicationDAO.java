@@ -84,7 +84,7 @@ public class JDBCApplicationDAO {
                 if (isUploadableAppType) {
                     version = new Version(SQLParameterConstants.VERSION_1_0_0);
                 }
-                addVersion(applicationID, version, databaseConnection);
+                addVersion(applicationID, version, databaseConnection,application.getId());
                 databaseConnection.commit();
                 return true;
             }
@@ -229,10 +229,12 @@ public class JDBCApplicationDAO {
      * @param applicationID      applicationID of the version
      * @param version            version with version name
      * @param databaseConnection existing db connection
+     * @param applicationKey application key to identify the application
      * @return true if it successful false if it failed
      * @throws AppFactoryException
      */
-    private boolean addVersion(int applicationID, Version version, Connection databaseConnection)
+    private boolean addVersion(int applicationID, Version version, Connection databaseConnection,
+                               String applicationKey)
             throws AppFactoryException {
         PreparedStatement addVersionPreparedStatement = null;
         try {
@@ -242,12 +244,22 @@ public class JDBCApplicationDAO {
             addVersionPreparedStatement.setString(3, version.getLifecycleStage());
             addVersionPreparedStatement.execute();
             int affectedRowCount = addVersionPreparedStatement.getUpdateCount();
+            int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            String applicationAppsBranchCountKey = JDBCApplicationCacheManager
+                    .constructApplicationBranchCountCacheKey(tenantID, applicationKey);
+            Cache<String, Integer> applicationBranchCountCache =
+                    JDBCApplicationCacheManager.getApplicationBranchCountCache();
             if (affectedRowCount > 0) {
-
+                //removing the older cache while adding new version for an app.
+                applicationBranchCountCache.remove(applicationAppsBranchCountKey);
                 //debug log
-                handleDebugLog((new StringBuilder()).append("successfully added application  " + "version ").append
-                        (version.getId()).append(" of ").append(applicationID).append(".Updated ").append
-                        (affectedRowCount).append(" rows").toString());
+                if (log.isDebugEnabled()) {
+                    String msg = "successfully added application of tenant " +
+                                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain() +
+                                 " version " + version.getId() + " of " + applicationID +
+                                 ".Updated " + affectedRowCount + " rows";
+                    log.debug(msg);
+                }
 
                 int versionID = getVersionID(applicationID, version.getId(), databaseConnection);
                 addRepository(versionID, false, null, databaseConnection);
@@ -684,7 +696,7 @@ public class JDBCApplicationDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             int applicationID = getApplicationID(applicationKey, databaseConnection);
-            addVersion(applicationID, version, databaseConnection);
+            addVersion(applicationID, version, databaseConnection,applicationKey);
             databaseConnection.commit();
             return true;
         } catch (SQLException e) {
@@ -894,9 +906,26 @@ public class JDBCApplicationDAO {
     public int getBranchCount(String applicationKey) throws AppFactoryException {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         int branchCount = -1;
+        //create a key for cache
+        String applicationAppsBranchCountKey =
+                JDBCApplicationCacheManager
+                        .constructApplicationBranchCountCacheKey(tenantID, applicationKey);
+        //get the cache
+        Cache<String, Integer> applicationBranchCountCache =
+                JDBCApplicationCacheManager.getApplicationBranchCountCache();
         Connection databaseConnection = null;
         PreparedStatement getAppIDPreparedStatement = null;
         ResultSet application = null;
+
+        //return the result which is already in cache
+        if (applicationBranchCountCache.containsKey(applicationAppsBranchCountKey)) {
+            //debug log  
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieving data from the cache for application key : " + applicationKey);
+            }
+            return applicationBranchCountCache.get(applicationAppsBranchCountKey);
+        }
+
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             getAppIDPreparedStatement = databaseConnection.prepareStatement(SQLConstants
@@ -907,6 +936,10 @@ public class JDBCApplicationDAO {
             application = getAppIDPreparedStatement.executeQuery();
             if (application.next()) {
                 branchCount = application.getInt(SQLParameterConstants.COLUMN_NAME_BRANCH_COUNT);
+                if (branchCount > 0) {
+                    //Add to the cache here 
+                    applicationBranchCountCache.put(applicationAppsBranchCountKey, branchCount);
+                }
             }
         } catch (SQLException e) {
             handleException("Error while getting branch count for " + applicationKey, e);
@@ -1924,5 +1957,12 @@ public class JDBCApplicationDAO {
         String applicationIdCacheKey = JDBCApplicationCacheManager.constructApplicationIdCacheKey(tenantId,
                                                                                                   applicationKey);
         applicationIdCache.remove(applicationIdCacheKey);
+
+        //removing data from application branch count cache
+        Cache<String, Integer> applicationBranchCountCache =
+                JDBCApplicationCacheManager.getApplicationBranchCountCache();
+        String applicationBranchCountCacheKey = JDBCApplicationCacheManager
+                .constructApplicationBranchCountCacheKey(tenantId, applicationKey);
+        applicationBranchCountCache.remove(applicationBranchCountCacheKey);
     }
 }
