@@ -1,21 +1,18 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERrqEpnDRAdeveloper%40man.com:pAlready up-to-date.
-[master 8665283] commit
- 1 file changed, 4 insertions(+), 4 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/man.com/50da598a-7101-4b46-8396-c38d76ed95dc/439f0561-1b78-4493-b5da-5088f2c61fac.java
-b99de-3451-4820-9b76-5be5db750d41/APPyY0VhhESwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERS2GAeuZZdeveloper%40man.com:pAlready up-to-date.
+ory.private.wso2.com:8443/git/man.com/APPUX6P37Gtwar.git/info/refs
+fatal: HTTP request failed
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/2744d021-5e23-401a-83a2-f93d8c5ce26c/APPUX6P37Gtwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit b51a98ef4fdbe58c901c2f762cdefee5823dc64f.
-error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
+Warning: commit 3b4cd8a0dce58b8a3ba9b649753de92739ce37ac.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
-$ git diff 0fea445040a613e07d450a3b2d5f29bac1bd2b56
-output, run
-$ git reset --hard
-to recover.
-r working tree.
-After making sure that you saved anything precious from
-$ git diff 9a37a6c13d253b02a0bda64589929033976eef2b
+$ git diff 3b4cd8a0dce58b8a3ba9b649753de92739ce37ac
 output, run
 $ git reset --hard
 to recover.
