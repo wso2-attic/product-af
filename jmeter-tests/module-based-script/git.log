@@ -1,7 +1,8 @@
 error: The requested URL returned error: 403 Forbidden while accessing https://USERjbYu0yWmdeveloper%40man.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/man.com/APPyY0VhhESwar.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/adf07346-03c4-4dc1-b266-b35c8495504e/APPyY0VhhESwar/: No such file or directory
+[master ca2dd12] commit
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/man.com/3314c541-8fdf-4aac-9b5b-cfe6d388a059/79e9da39-ebff-42dd-8a65-c29b48945fe1.java
+07346-03c4-4dc1-b266-b35c8495504e/APPyY0VhhESwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 4bfb6df7964e4deda0063ac8a32e97dba13edb3d.
