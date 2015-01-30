@@ -1,13 +1,27 @@
-fatal: https://USERzZT3mOnWdeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
+fatal: https://USER0Yk3N73Cdeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
 fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/bd9accbc-abc0-44c9-b3c5-42b6f6c7346a/APPGMwn2Dllwar/: No such file or directory
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/074a472c-ab76-4e08-a463-6f1ce1021a53/APPGMwn2Dllwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 9e3f03d2e4406bd41e386fbd837052f8c383c596.
-error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
+Warning: commit 9a37a6c13d253b02a0bda64589929033976eef2b.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
-$ git diff 0b790a0748df5ca830844135d130cefdfaa5718e
+$ git diff 9a37a6c13d253b02a0bda64589929033976eef2b
 output, run
 $ git reset --hard
 to recover.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
