@@ -18,6 +18,13 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+    	<groupId>org.wso2</groupId>
+    	<artifactId>wso2</artifactId>
+    	<version>1</version>
+   </parent>
+
    <groupId>org.wso2.appfactory</groupId>
    <artifactId>wso2appfactory-parent</artifactId>
    <packaging>pom</packaging>
@@ -503,11 +510,11 @@
 	      <artifactId>org.wso2.carbon.governance.api</artifactId>
 	      <version>${carbon.platform.version}</version>
 	    </dependency>
-	   <!--<dependency>-->
-	      <!--<groupId>org.wso2.carbon</groupId>-->
-	      <!--<artifactId>org.wso2.carbon.registry.metadata</artifactId>-->
-	      <!--<version>1.0.0-SNAPSHOT</version> &lt;!&ndash;Yet to release &ndash;&gt;-->
-	    <!--</dependency>-->
+	   <dependency>
+	      <groupId>org.wso2.carbon</groupId>
+	      <artifactId>org.wso2.carbon.registry.metadata</artifactId>
+	      <version>1.0.0-SNAPSHOT</version> <!--Yet to release -->
+	    </dependency>
 	    <dependency>
 	      <groupId>org.wso2.carbon</groupId>
 	      <artifactId>org.wso2.carbon.governance.registry.extensions</artifactId>
@@ -1104,8 +1111,10 @@
    </dependencyManagement>
 
    <scm>
-      <connection>scm:svn:https://wso2.org/repos/wso2/trunk/appfactory/java</connection>
-      <developerConnection>scm:svn:https://wso2.org/repos/wso2/trunk/appfactory/java</developerConnection>
+       <url>https://github.com/wso2/product-af</url>
+       <developerConnection>scm:git:https://github.com/wso2/product-af</developerConnection>
+       <connection>scm:git:https://github.com/wso2/product-af</connection>
+       <tag>HEAD</tag>
    </scm>
 
    <repositories>
@@ -1189,19 +1198,6 @@
       </pluginRepository>
    </pluginRepositories>
 
-   <distributionManagement>
-      <repository>
-         <id>wso2.releases</id>
-         <name>WSO2 internal Repository</name>
-         <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-      </repository>
-      <snapshotRepository>
-         <id>wso2.snapshots</id>
-         <name>WSO2 Snapshot Repository</name>
-         <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-      </snapshotRepository>
-   </distributionManagement>
-
    <organization>
       <name>WSO2 Inc</name>
       <url>http://wso2.com</url>
@@ -1216,6 +1212,7 @@
 
       <!--App Factory-->
       <appfac.version>2.1.0-SNAPSHOT</appfac.version>
+
 
       <!--Stratos-->
       <stratos.version>4.0.0</stratos.version>
@@ -1359,6 +1356,18 @@
                    <groupId>org.apache.maven.plugins</groupId>
                    <artifactId>maven-compiler-plugin</artifactId>
                    <version>2.3.2</version>
+                 </plugin>
+                 <plugin>
+                   <groupId>org.apache.maven.plugins</groupId>
+                   <artifactId>maven-release-plugin</artifactId>
+                   <configuration>
+                       <preparationGoals>clean install</preparationGoals>
+                       <autoVersionSubmodules>false</autoVersionSubmodules>
+                   </configuration>
+                 </plugin>
+                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
                  </plugin>
 		 <plugin>
 		   <artifactId>maven-eclipse-plugin</artifactId>
