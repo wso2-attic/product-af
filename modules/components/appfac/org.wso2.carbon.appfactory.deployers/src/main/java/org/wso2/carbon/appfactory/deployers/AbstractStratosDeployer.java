@@ -87,21 +87,21 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         boolean subscribeOnDeployment = Boolean.parseBoolean(
                 DeployerUtil.getParameterValue(metadata, AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT));
         String applicationId = DeployerUtil.getParameterValue(metadata,
-                AppFactoryConstants.APPLICATION_ID);
+                                                              AppFactoryConstants.APPLICATION_ID);
 
         int tenantId = getTenantID();
         String gitRepoUrl = generateRepoUrl(applicationId, metadata, tenantId,
-                appTypeName, subscribeOnDeployment);
+                                            appTypeName, subscribeOnDeployment);
         String stageName = DeployerUtil.getParameterValue(metadata,
-                AppFactoryConstants.DEPLOY_STAGE);
-        String username=((String[])metadata.get("tenantUserName"))[0];
+                                                          AppFactoryConstants.DEPLOY_STAGE);
+        String username = ((String[]) metadata.get("tenantUserName"))[0];
         // if subscribeOnDeployment is true create a git repo per application
         if (subscribeOnDeployment) {
             if (log.isDebugEnabled()) {
                 log.debug("SubscribeOnDeployment is true");
             }
             SubscriptionHandler.getInstance().createSubscription(metadata, stageName, username,
-                                                                tenantId, applicationId, getTenantDomain());
+                                                                 tenantId, applicationId, getTenantDomain());
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("SubscribeOnDeployment is false");
@@ -112,160 +112,183 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
         // Create the temporary directory first. without this we can't proceed
         File tempApptypeDirectory = new File(tempPath + File.separator
-                + stageName + File.separator + StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_"));
-
-        // <tempdir>/jaxrs,
-        if (!tempApptypeDirectory.exists()) {
-            if (!tempApptypeDirectory.mkdirs()) {
-                String msg = "Unable to create temp directory : "
-                        + tempApptypeDirectory.getAbsolutePath();
-                handleException(msg);
-            }
-        }
-
-        String appTypeDirectory = null;
-        //
-        if (serverDeploymentPath != null) {
-            appTypeDirectory = tempApptypeDirectory.getAbsolutePath()
-                    + File.separator + serverDeploymentPath; // tempdir/<war>webapps
-            // ,tempdir/jaggery/jaggeryapps,
-            // //tempdir/esb/synapse-config
-        } else {
-            appTypeDirectory = tempApptypeDirectory.getAbsolutePath();
-        }
-
-        String deployableFileName = null;
-
-        if (StringUtils.isBlank(relativePathFragment)) {
-            deployableFileName = appTypeDirectory + File.separator + fileName; // tempdir/webapps/myapp.war
-            // ,
-            // tempdir/jappgeryapps/myapp.war
-        } else {
-            deployableFileName = appTypeDirectory + File.separator
-                    + relativePathFragment + File.separator + fileName; // <tempdir>/synapse-config/proxy-services/MyProxy.xml
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Deployable file name to be git push:"
-                    + deployableFileName);
-        }
-
-        GitRepositoryClient repositoryClient = new GitRepositoryClient(new JGitAgent());
-        try {
-            repositoryClient.init(applicationAdmin, defaultPassword);
-            if (tempApptypeDirectory.isDirectory()
-                    && tempApptypeDirectory.list().length > 0) {
-                    File[] filesToDelete = tempApptypeDirectory.listFiles();
-
-                    if (filesToDelete != null) {
-                        for (File fileToDelete : filesToDelete) {
-                            try {
-                                if (fileToDelete.isDirectory()) {
-                                    FileUtils.deleteDirectory(fileToDelete);
-                                } else {
-                                    FileUtils.forceDelete(fileToDelete);
-                                }
-                            } catch (IOException e) {
-                                String msg = "Unable to delete the file : " + fileToDelete.getAbsolutePath();
-                                throw new AppFactoryException(msg, e);
-                            }
-                        }
-                    }
-                repositoryClient.retireveMetadata(gitRepoUrl, false, tempApptypeDirectory);
-            } else {
-                // this means no files exists, so we straight away check out the
-                // repo
-                repositoryClient.retireveMetadata(gitRepoUrl, false, tempApptypeDirectory);
-            }
-
-            File deployableFile = new File(deployableFileName);
-            if (!deployableFile.getParentFile().exists()) {
-                log.debug("deployableFile.getParentFile() doesn't exist: "
-                        + deployableFile.getParentFile());
-                if (!deployableFile.getParentFile().mkdirs()) {
-                    String msg = "Unable to create parent path of the deployable file "
-                            + deployableFile.getAbsolutePath();
-                    // unable to create <tempdir>/war/webapps,
-                    // <tempdir>/jaggery/jaggeryapps
-                    // or <tempdir>/esb/synapse-config/default/proxy-services
+                                             + stageName + File.separator +
+                                             StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_"));
+        String path = tempPath + File.separator
+                      + stageName + File.separator + StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_");
+        synchronized (path) {
+            log.info("====================Thread name:========"+Thread.currentThread().getName());
+            // <tempdir>/jaxrs,
+            if (!tempApptypeDirectory.exists()) {
+                if (!tempApptypeDirectory.mkdirs()) {
+                    String msg = "Unable to create temp directory : "
+                                 + tempApptypeDirectory.getAbsolutePath();
                     handleException(msg);
                 }
             }
 
-            // If there is a file in repo, we delete it first
-            if (deployableFile.exists()) {
-                repositoryClient.delete(gitRepoUrl, deployableFile,
-                                        "Removing the old file to add the new one", tempApptypeDirectory);
-                // Checking and removing the local file
-                if (deployableFile.exists()) {
-                    deployableFile.delete();
-                }
-                // repositoryClient.checkIn(gitRepoUrl, applicationTempLocation,
-                // "Removing the old file to add the new one");
-
-                try {
-                    deployableFile = new File(deployableFileName);
-                    // check weather directory exists.
-                    if (!deployableFile.getParentFile().isDirectory()) {
-                        log.debug("parent directory : "
-                                + deployableFile.getParentFile()
-                                .getAbsolutePath()
-                                + " doesn't exits creating again");
-                        if (!deployableFile.getParentFile().mkdirs()) {
-                            throw new IOException("Unable to re-create "
-                                    + deployableFile.getParentFile()
-                                    .getAbsolutePath());
-                        }
-
-                    }
-
-                    if(artifacts.isFile()){
-                        if (!deployableFile.createNewFile()) {
-                            throw new IOException(
-                                    "unable re-create the target file : "
-                                            + deployableFile.getAbsolutePath());
-                        }
-                        if (deployableFile.canWrite()) {
-                            log.debug("Successfully re-created a writable file : "
-                                    + deployableFileName);
-                        } else {
-                            String errorMsg = "re-created file is not writable: "
-                                    + deployableFileName;
-                            log.error(errorMsg);
-                            throw new IOException(errorMsg);
-                        }
-                    }
-
-                } catch (IOException e) {
-                    log.error(
-                            "Unable to create the new file after deleting the old: "
-                                    + deployableFile.getAbsolutePath(), e);
-                    throw new AppFactoryException(e);
-                }
+            String appTypeDirectory = null;
+            //
+            if (serverDeploymentPath != null) {
+                appTypeDirectory = tempApptypeDirectory.getAbsolutePath()
+                                   + File.separator + serverDeploymentPath; // tempdir/<war>webapps
+                // ,tempdir/jaggery/jaggeryapps,
+                // //tempdir/esb/synapse-config
+            } else {
+                appTypeDirectory = tempApptypeDirectory.getAbsolutePath();
             }
 
-            copyFilesToGit(artifacts, deployableFile);
+            String deployableFileName = null;
 
-            if (repositoryClient.add(gitRepoUrl, deployableFile, true, false, tempApptypeDirectory)) {
-                if (repositoryClient.commitLocally("Adding the artifact to the repo", true, tempApptypeDirectory)) {
-                    if (!repositoryClient.pushLocalCommits(gitRepoUrl, AppFactoryConstants.MASTER,
-                                                           tempApptypeDirectory)) {
-                        String msg = "Unable to push local commits to git repo. Git repo URL : " + gitRepoUrl +
-                                     "from local directory " + tempApptypeDirectory.getAbsolutePath();
+            if (StringUtils.isBlank(relativePathFragment)) {
+                deployableFileName = appTypeDirectory + File.separator + fileName; // tempdir/webapps/myapp.war
+                // ,
+                // tempdir/jappgeryapps/myapp.war
+            } else {
+                deployableFileName = appTypeDirectory + File.separator
+                                     + relativePathFragment + File.separator +
+                                     fileName; // <tempdir>/synapse-config/proxy-services/MyProxy.xml
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Deployable file name to be git push:"
+                          + deployableFileName);
+            }
+
+            GitRepositoryClient repositoryClient = new GitRepositoryClient(new JGitAgent());
+            try {
+                repositoryClient.init(applicationAdmin, defaultPassword);
+                if (tempApptypeDirectory.isDirectory()
+                    && tempApptypeDirectory.list().length > 0) {
+                    try {
+                        FileUtils.cleanDirectory(tempApptypeDirectory);
+                    } catch (IOException e) {
+                        String msg = "Unable to clean the directory : " + tempApptypeDirectory.getAbsolutePath();
+                        throw new AppFactoryException(msg, e);
+                    }
+//                    File[] filesToDelete = tempApptypeDirectory.listFiles();
+//
+//                    if (filesToDelete != null) {
+//                        for (File fileToDelete : filesToDelete) {
+//                            try {
+//                                if (fileToDelete.isDirectory()) {
+//                                    FileUtils.deleteDirectory(fileToDelete);
+//                                } else {
+//                                    FileUtils.forceDelete(fileToDelete);
+//                                }
+//                            } catch (IOException e) {
+//                                String msg = "Unable to delete the file : " + fileToDelete.getAbsolutePath();
+//                                throw new AppFactoryException(msg, e);
+//                            }
+//                        }
+//                    }
+                    repositoryClient.retireveMetadata(gitRepoUrl, false, tempApptypeDirectory);
+                } else {
+                    // this means no files exists, so we straight away check out the
+                    // repo
+                    repositoryClient.retireveMetadata(gitRepoUrl, false, tempApptypeDirectory);
+                }
+
+                File deployableFile = new File(deployableFileName);
+                if (!deployableFile.getParentFile().exists()) {
+                    log.debug("deployableFile.getParentFile() doesn't exist: "
+                              + deployableFile.getParentFile());
+                    if (!deployableFile.getParentFile().mkdirs()) {
+                        String msg = "Unable to create parent path of the deployable file "
+                                     + deployableFile.getAbsolutePath();
+                        // unable to create <tempdir>/war/webapps,
+                        // <tempdir>/jaggery/jaggeryapps
+                        // or <tempdir>/esb/synapse-config/default/proxy-services
+                        handleException(msg);
+                    }
+                }
+
+                // If there is a file in repo, we delete it first
+                if (deployableFile.exists()) {
+                    repositoryClient.delete(gitRepoUrl, deployableFile,
+                                            "Removing the old file to add the new one", tempApptypeDirectory);
+                    // Checking and removing the local file
+                    if (deployableFile.exists()) {
+                        deployableFile.delete();
+                    }
+                    // repositoryClient.checkIn(gitRepoUrl, applicationTempLocation,
+                    // "Removing the old file to add the new one");
+
+                    try {
+                        deployableFile = new File(deployableFileName);
+                        // check weather directory exists.
+                        if (!deployableFile.getParentFile().isDirectory()) {
+                            log.debug("parent directory : "
+                                      + deployableFile.getParentFile()
+                                    .getAbsolutePath()
+                                      + " doesn't exits creating again");
+                            if (!deployableFile.getParentFile().mkdirs()) {
+                                throw new IOException("Unable to re-create "
+                                                      + deployableFile.getParentFile()
+                                        .getAbsolutePath());
+                            }
+
+                        }
+
+                        if (artifacts.isFile()) {
+                            if (!deployableFile.createNewFile()) {
+                                throw new IOException(
+                                        "unable re-create the target file : "
+                                        + deployableFile.getAbsolutePath());
+                            }
+                            if (deployableFile.canWrite()) {
+                                log.debug("Successfully re-created a writable file : "
+                                          + deployableFileName);
+                            } else {
+                                String errorMsg = "re-created file is not writable: "
+                                                  + deployableFileName;
+                                log.error(errorMsg);
+                                throw new IOException(errorMsg);
+                            }
+                        }
+
+                    } catch (IOException e) {
+                        log.error(
+                                "Unable to create the new file after deleting the old: "
+                                + deployableFile.getAbsolutePath(), e);
+                        throw new AppFactoryException(e);
+                    }
+                }
+
+                copyFilesToGit(artifacts, deployableFile);
+
+                if (repositoryClient.add(gitRepoUrl, deployableFile, true, false, tempApptypeDirectory)) {
+                    if (repositoryClient.commitLocally("Adding the artifact to the repo", true, tempApptypeDirectory)) {
+                        if (!repositoryClient.pushLocalCommits(gitRepoUrl, AppFactoryConstants.MASTER,
+                                                               tempApptypeDirectory)) {
+                            String msg = "Unable to push local commits to git repo. Git repo URL : " + gitRepoUrl +
+                                         "from local directory " + tempApptypeDirectory.getAbsolutePath();
+                            handleException(msg);
+                        }
+                    } else {
+                        String msg =
+                                "Unable to commit files locally to location : " +
+                                tempApptypeDirectory.getAbsolutePath();
                         handleException(msg);
                     }
                 } else {
                     String msg =
-                            "Unable to commit files locally to location : " + tempApptypeDirectory.getAbsolutePath();
+                            "Unable to add file : " + deployableFile.getAbsolutePath() + " to git repo : " + gitRepoUrl;
                     handleException(msg);
                 }
-            } else {
-                String msg = "Unable to add file : " + deployableFile.getAbsolutePath()+" to git repo : " + gitRepoUrl;
-                handleException(msg);
+            } catch (RepositoryMgtException e) {
+                String msg = "Unable to add files to git location.";
+                handleException(msg, e);
+            } finally {
+                if (tempApptypeDirectory.exists()) {
+                    try {
+                        FileUtils.cleanDirectory(tempApptypeDirectory);
+                    } catch (IOException e) {
+                        String msg = "Unable to clean the directory : " + tempApptypeDirectory.getAbsolutePath();
+                        log.warn(msg, e);
+                    }
+                }
             }
-        } catch (RepositoryMgtException e) {
-            String msg = "Unable to add files to git location.";
-            handleException(msg, e);
         }
     }
 
