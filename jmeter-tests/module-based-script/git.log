@@ -1,10 +1,11 @@
 error: The requested URL returned error: 403 Forbidden while accessing https://USERqeRS9mZ2developer%40man.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/man.com/APPyY0VhhESwar.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/8bfaee5a-c5c0-40b3-8bf8-fc09ad2ecd49/APPyY0VhhESwar/: No such file or directory
+[master 538744b] commit
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/man.com/72cedb18-683f-47f1-9783-f092eafbcbf2/ac49eb47-fd74-43e0-a815-f6bd40c01089.java
+aee5a-c5c0-40b3-8bf8-fc09ad2ecd49/APPyY0VhhESwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 9060423eab0aa47cc6ef71afa3f88cec0801b6b2.
+Warning: commit 828abb0396b425e32fd1022f34866f13aa93a4d3.
 Your configuration specifies to merge with the ref 'master'
 from the remote, but no such ref was fetched.
 her git process is currently running, this probably means a
