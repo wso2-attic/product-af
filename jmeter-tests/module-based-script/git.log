@@ -1,16 +1,19 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USEROIBobL96developer%40now.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/now.com/APPY0dyyVP8war.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/484fecfc-d0ce-4cbe-a23d-8a69177874f2/APPY0dyyVP8war/: No such file or directory
-/release-2.1.0 is at 741874673e54864fad37646d7d9a7f3ea2357267 but expected 19f2488141b891860f14b157dae5e60b81a88f47
-From https://github.com/wso2/product-af
+fatal: https://USERYOS7muFrdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPGMwAlready up-to-date.
+[master 05dc3ce] commit
+ 2 files changed, 174 insertions(+), 139 deletions(-)
+ rewrite jmeter-tests/module-based-script/git.log (87%)
+ create mode 100644 jmeter-tests/module-based-script/now.com/512f0db7-8c9a-4323-8359-bf1f30ffc923/9ef57b5b-eceb-4028-824d-3ed904f06998.java
+ create mode 100Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit 154cd6f9fe6669f612b188c3f2e36224ebdc6bef.
+f
  ! 19f2488..7418746  release-2.1.0 -> origin/release-2.1.0  (unable to update local ref)
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
 
 If no other git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
-File exists.
+fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
 
 If no other git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
