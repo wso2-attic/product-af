@@ -1,29 +1,3 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERqeRS9mZ2developer%40man.com:pAlready up-to-date.
-[master 7c0a4d9] commit
- 1 file changed, 5 insertions(+), 4 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/man.com/8bfaee5a-c5c0-40b3-8bf8-fc09ad2ecd49/47721d9b-20ef-4fda-9047-282f9ccf5756.java
-aee5a-c5c0-40b3-8bf8-fc09ad2ecd49/APPyY0VhhESwar/: No such file or directory
-Warning: fetch updated the current branch head.
-Warning: fast-forwarding your working tree from
-Warning: commit 828abb0396b425e32fd1022f34866f13aa93a4d3.
-Your configuration specifies to merge with the ref 'master'
-from the remote, but no such ref was fetched.
-her git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-Cannot fast-forward your working tree.
-After making sure that you saved anything precious from
-$ git diff 3b4cd8a0dce58b8a3ba9b649753de92739ce37ac
-output, run
-$ git reset --hard
-to recover.
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
+fatal: https://USERjx5RVkfddeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
+fs not found: did you run git update-server-info on the server?
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/b8c75d83-e8b1-403b-bbfb-715dc9a27b6e/APPGMwn2Dllwar/: No such file or directory
