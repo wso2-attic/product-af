@@ -1,13 +1,12 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERiLJX7GxNdeveloper%40now.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/now.com/APPxQGgMtSrwar.git/info/refs
+error: The requested URL returned error: 403 Forbidden while accessing https://USERBfScT1eDdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPUX6P37Gtwar.git/info/refs
 fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/94eb7136-eeae-437d-8350-f190d971902a/APPxQGgMtSrwar/: No such file or directory
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/11288745-5811-4594-b2e4-91eb4d85e987/APPUX6P37Gtwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 48f27019c1f588a8c08128cde69f6871b96cd7de.
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
+Your configuration specifies to merge with the ref 'master'
+from the remote, but no such ref was fetched.
+her git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
 Cannot fast-forward your working tree.
