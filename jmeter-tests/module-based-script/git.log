@@ -1,9 +1,11 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERvdbxsoJ6developer%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPyY0VhhESwar.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/a3c635ad-e9e3-45f5-8b33-cc0bc9893fa4/APPyY0VhhESwar/: No such file or directory
+error: The requested URL returned error: 403 Forbidden while accessing https://USERvdbxsoJ6developer%40now.com:pAlready up-to-date.
+mit
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/now.com/729014ac-e8eb-4012-9c5c-92ab837beef6/187f8f46-2dfd-4126-9737-810f315eb3ba.java
+d-script/now.com/a3c635ad-e9e3-45f5-8b33-cc0bc9893fa4/APPyY0VhhESwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 4b612b802803bd98b7bf69299cfc18a7357227e4.
+Warning: commit 39230b92d2fd0e7942c516494b136a362c6e85ce.
 Your configuration specifies to merge with the ref 'master'
 from the remote, but no such ref was fetched.
 her git process is currently running, this probably means a
