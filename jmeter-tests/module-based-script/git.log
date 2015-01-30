@@ -1,8 +1,15 @@
 fatal: https://USERvdbxsoJ6developer%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
-[master 4d140f3] commit
- 1 file changed, 6 insertions(+), 4 deletions(-)
- rewrite jmeter-tests/module-based-script/git.log (82%)
- create mode 100644 jmeter-tests/module-based-script/man.com/12eae657-810b-4b21-ae42-7c096df2d7bf/06ff7297-772e-43ad-b99d-7c5b6dd83fcc.java
-fetch updated the curWarning: fetch updated the current branch head.
+[master bcd027d] commit
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+ rewrite jmeter-tests/module-based-script/git.log (67%)
+ create mode 100644 jmeter-tests/module-based-script/man.com/62bb1eee-00be-43e9-9133-cdda43378f86/65f89ce1-d5a8-4cc2-ae2b-1ac59ad78bc8.java
+fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit bdbe8cfce3b9a51fc28355f1f5a177d06371ea54.
+Warning: commit 0b790a0748df5ca830844135d130cefdfaa5718e.
+error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
+Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff 0b790a0748df5ca830844135d130cefdfaa5718e
+output, run
+$ git reset --hard
+to recover.
