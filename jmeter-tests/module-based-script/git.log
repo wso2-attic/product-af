@@ -1,4 +1,6 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USER5ERqSAmJdeveloper%40man.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/man.com/APPY0dyyVP8war.git/info/refs
-fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/62bb1eee-00be-43e9-9133-cdda43378f86/APPY0dyyVP8war/: No such file or directory
+fatal: https://USERvdbxsoJ6developer%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
+fs not found: did you run git update-server-info on the server?
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/15d7493f-7400-4397-bdbf-c9f43c9bcf61/APPGMwn2Dllwar/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit 3ede0a0d9ced57647b7aa23fe2a95bf4c4cd77f8.
