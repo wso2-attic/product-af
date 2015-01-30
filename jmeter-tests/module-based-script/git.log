@@ -1,9 +1,9 @@
-fatal: https://USERLQ06uqIKdeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
+fatal: https://USERzZT3mOnWdeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
 fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/f8ec8bbe-a9c6-4f40-a449-c43377bbb26b/APPGMwn2Dllwar/: No such file or directory
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/bd9accbc-abc0-44c9-b3c5-42b6f6c7346a/APPGMwn2Dllwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 5df0b7fcef6f25a70b94f1d5775d489a912ef45c.
+Warning: commit 9e3f03d2e4406bd41e386fbd837052f8c383c596.
 error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
