@@ -1,9 +1,9 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERjojPzQhLdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPUX6P37Gtwar.git/info/refs
+error: The requested URL returned error: 403 Forbidden while accessing https://USERrqEpnDRAdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPyY0VhhESwar.git/info/refs
 fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/ada8ce28-d75e-433e-96f1-d857d7cde36e/APPUX6P37Gtwar/: No such file or directory
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/bd0a7673-9f15-4612-abaf-9ac28c5bf776/APPyY0VhhESwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit a8d3d32e039903981f5488828bdcb3adad60db57.
+Warning: commit 984e511dff7eaaf190ccf57cc495cd34538b6ccb.
 Your configuration specifies to merge with the ref 'master'
 from the remote, but no such ref was fetched.
 her git process is currently running, this probably means a
@@ -11,7 +11,7 @@ git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
-$ git diff 562dcfe9e94742ac633abe83c95343dfa7324a48
+$ git diff 984e511dff7eaaf190ccf57cc495cd34538b6ccb
 output, run
 $ git reset --hard
 to recover.
