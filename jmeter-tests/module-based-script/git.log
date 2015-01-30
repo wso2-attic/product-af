@@ -1,10 +1,12 @@
 fatal: https://USERjbYu0yWmdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPGMwAlready up-to-date.
-fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/17f57d79-a0a8-4445-8387-97c9c6709ae4/APPGMwn2Dllwar/: No such file or directory
-r/: No such file or directory
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
+[master 8ac46ed] commit
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/now.com/e0c658a1-2647-4407-87b5-bd3121e54c1a/259c8c5a-da56-4c7f-bc8f-89c484419353.java
+ae4/APPGMwn2Dllwar/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit 3bd52cac13348dcb4945d557adcae4b12bee1a70.
+ currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
 error: Ref refs/heads/master is at 3bd52cac13348dcb4945d557adcae4b12bee1a70 but expected ffdf02f7234fb33c6680d39b213440e7bf6bbe8b
