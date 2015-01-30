@@ -1,10 +1,11 @@
-error: The requested URL returned error: 403 Forbidden while accessing https://USERkDtssr8adeveloper%40man.com:pAlready up-to-date.
-ory.private.wso2.com:8443/git/man.com/APPUX6P37Gtwar.git/info/refs
+error: The requested URL returned error: 403 Forbidden while accessing https://USERQVsnlWrAdeveloper%40man.com:pAlready up-to-date.
+ory.private.wso2.com:8443/git/man.com/APPY0dyyVP8war.git/info/refs
 fatal: HTTP request failed
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/6a69484e-b94a-4d4e-be45-32d02636dfb3/APPUX6P37Gtwar/: No such file or directory
-fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
+./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/18baf8ea-171b-4bb2-9713-209006d14ee8/APPY0dyyVP8war/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit c1e99498884068c07f57758ab5887bae3e538546.
+bly means a
 git process crashed in this repository earlier. Make sure no other git
 process is running and remove the file manually to continue.
 ess crashed in this repository earlier. Make sure no other git
