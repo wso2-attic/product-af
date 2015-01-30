@@ -1,9 +1,10 @@
-fatal: https://USER0Yk3N73Cdeveloper%40man.com:password@apps.appfactory.private.wso2.com:8443/git/man.com/APPGMwAlready up-to-date.
-fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/man.com/074a472c-ab76-4e08-a463-6f1ce1021a53/APPGMwn2Dllwar/: No such file or directory
-Warning: fetch updated the current branch head.
+error: The requested URL returned error: 403 Forbidden while accessing https://USERW6dNezXpdeveloper%40man.com:pAlready up-to-date.
+[master 0fea445] commit
+ 1 file changed, 19 insertions(+), 5 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/man.com/4a7f8d30-916d-4ead-a6d0-0d67b799e51e/df779ec5-f25e-4799-bf6f-cd2fdaea9675.java
+64b8-2c9e-44d8-bf04-f0c7d7806940/APPUX6P37GtwaWarning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 9a37a6c13d253b02a0bda64589929033976eef2b.
+Warning: commit 74fcf27386f280c3a984411b61de2fc80af19938.
 fatal: Unable to create '/home/manjula/source/wso2/git/product-af/.git/index.lock': File exists.
 
 If no other git process is currently running, this probably means a
