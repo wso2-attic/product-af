@@ -1,0 +1,6 @@
+<%
+    //This file is to contain all the constants, used in the "CXODashboard" module
+
+    var FROM = "from";
+    var TO = "to";
+%>
