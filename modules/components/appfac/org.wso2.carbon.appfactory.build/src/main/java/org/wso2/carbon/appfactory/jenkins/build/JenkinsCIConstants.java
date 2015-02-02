@@ -40,6 +40,10 @@ public class JenkinsCIConstants {
             "ContinuousIntegrationProvider.jenkins.Property.ListenerPriority";
     public static final String JENKINS_CLIENT_CONNECTION_COUNT =
             "ContinuousIntegrationProvider.jenkins.Property.ClientConnectionCount";
+    public static final String JENKINS_CLIENT_RETRY_COUNT =
+            "ContinuousIntegrationProvider.jenkins.Property.RetryCount";
+    public static final String JENKINS_CLIENT_RETRY_DELAY =
+            "ContinuousIntegrationProvider.jenkins.Property.RetryDelay";
     public static final String REPOSITORY_TYPE = "repository.type";
     public static final String REPOSITORY_URL = "repository.url";
     public static final String SVN_REPOSITORY_XPATH_SELECTOR =

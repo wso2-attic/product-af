@@ -1951,10 +1951,17 @@ public class RestBasedJenkinsCIConnector {
 	 */
 	private int resendRequest(GetMethod method) throws AppFactoryException {
 		int httpStatusCode = -1;
+		int retryCount = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+				JenkinsCIConstants.JENKINS_CLIENT_RETRY_COUNT));
+		int retryDelay = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+				JenkinsCIConstants.JENKINS_CLIENT_RETRY_DELAY));
+		if (log.isDebugEnabled()) {
+			log.debug("Jenkins client retry count :" + retryCount + " and retry delay in seconds :" + retryDelay);
+		}
 		try {
-			// retry 3 times to process the request
-			for (int i = 0; i < 3; i++) {
-				Thread.sleep(1000 * 10); // sleep 10 seconds, giving jenkins
+			// retry retryCount times to process the request
+			for (int i = 0; i < retryCount; i++) {
+				Thread.sleep(1000 * retryDelay); // sleep retryDelay seconds, giving jenkins
 											// time to load the tenant
 				log.info("Resending request started for GET");
 				method.releaseConnection();
@@ -1991,10 +1998,17 @@ public class RestBasedJenkinsCIConnector {
 	 */
 	private int resendRequest(PostMethod method) throws AppFactoryException {
 		int httpStatusCode = -1;
+		int retryCount = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+				JenkinsCIConstants.JENKINS_CLIENT_RETRY_COUNT));
+		int retryDelay = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+				JenkinsCIConstants.JENKINS_CLIENT_RETRY_DELAY));
+		if (log.isDebugEnabled()) {
+			log.debug("Jenkins client retry count :" + retryCount + " and retry delay in seconds :" + retryDelay);
+		}
 		try {
-			// retry 3 times to process the request
-			for (int i = 0; i < 3; i++) {
-				Thread.sleep(1000 * 10); // sleep 10 seconds, giving jenkins
+			// retry retryCount times to process the request
+			for (int i = 0; i < retryCount; i++) {
+				Thread.sleep(1000 * retryDelay); // sleep retryDelay seconds, giving jenkins
 											// time to load the tenant
 				log.info("Resending request started for POST");
 				method.releaseConnection();
