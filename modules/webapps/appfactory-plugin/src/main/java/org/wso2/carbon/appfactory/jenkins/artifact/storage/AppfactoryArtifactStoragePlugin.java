@@ -42,6 +42,9 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
 
     private static final Log log = LogFactory.getLog(AppfactoryArtifactStoragePlugin.class);
     private static final String UNDEPLOY_ARTIFACT_ACTION="/undeployArtifact";
+    private static final String DEPLOY_PROMOTED_ARTIFACT_ACTION = "/deployPromotedArtifact";
+    private static final String DEPLOY_LATEST_SUCCESS_ARTIFACT_ACTION = "/deployLatestSuccessArtifact";
+
     /**
      * This method serves the requests coming under <jenkins-url>/plugin/<plugin-name>
      * @param req request
@@ -66,43 +69,28 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
             String applicationId = JenkinsUtility.getApplicationId(jobName);
             String version = JenkinsUtility.getVersion(jobName);
 
-            Deployer deployer;
             String runtime = null;
-            
+            String className = null;
+
             try {
                 Map<String, String[]> map = Utils.getParameterMapFromRequest(req);
-
-                String className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME);
-                runtime = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE);
                 map.put(AppFactoryConstants.APPLICATION_ID, new String[] { applicationId });
                 map.put(AppFactoryConstants.APPLICATION_VERSION, new String[] { version });
-
-                if (StringUtils.isEmpty(className)) {
-                    String msg = "Deployer Class name is not passed with parameters.";
-                    log.error(msg);
-                    throw new ServletException(msg);
-                }
-
+                runtime = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE);
                 ClassLoader loader = getClass().getClassLoader();
-                Class<?> customCodeClass = Class.forName(className, true, loader);
-                deployer = (Deployer) customCodeClass.newInstance();
-                if ("/deployLatestSuccessArtifact".equals(action)) {
+
+                if (DEPLOY_LATEST_SUCCESS_ARTIFACT_ACTION.equals(action)) {
+                    className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME);
+                    Deployer deployer = getDeployer(className, loader);
                     deployer.deployLatestSuccessArtifact(map);
-                } else if("/deployPromotedArtifact".equals(action)) {
+                } else if(DEPLOY_PROMOTED_ARTIFACT_ACTION.equals(action)) {
+                    className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME);
+                    Deployer deployer = getDeployer(className, loader);
                     deployer.deployPromotedArtifact(map);
                 } else if (UNDEPLOY_ARTIFACT_ACTION.equals(action)) {
                     className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME);
-                    customCodeClass = Class.forName(className, true, loader);
-                    Object undeployerObj = customCodeClass.newInstance();
-                    if (undeployerObj instanceof Undeployer) {
-                        Undeployer undeployer = (Undeployer) undeployerObj;
-                        undeployer.undeployArtifact(map);
-                    } else {
-                        String msg = "Expected class name for action " + action + " of runtime : " + runtime
-                                     + " in stage : " + stage + " should be a implementation of " + Undeployer.class
-                                     + ", but we found " + className;
-                        throw new ServletException(msg);
-                    }
+                    Undeployer undeployer = getUndeployer(className, loader);
+                    undeployer.undeployArtifact(map);
                 } else {
                     rsp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     throw new ServletException("Invalid action");
@@ -120,7 +108,7 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
             } catch (InstantiationException e) {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
-                             + runtime;
+                             + runtime+".\n Error occurred while getting an instance of the provided class: "+className;
                 throw new ServletException(msg, e);
             } catch (IllegalAccessException e) {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
@@ -136,4 +124,72 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
 
         }
     }
+
+    /**
+     * Get undeployer based on the parameters passed.
+     *
+     * @param className Undeployer class name. Should be an implementation of {@link org.wso2.carbon.appfactory.core.Undeployer}
+     * @param loader    class loader
+     * @return Runtime undeployer object.
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws ServletException
+     */
+    private Undeployer getUndeployer(String className, ClassLoader loader)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, ServletException {
+        Object undeployerObj = getClassInstance(loader, className);
+        if (undeployerObj instanceof Undeployer) {
+            return (Undeployer) undeployerObj;
+        } else {
+            String msg = "Undeployer class name should be a implementation of " + Undeployer.class
+                         + ", but we found " + className;
+            throw new ServletException(msg);
+        }
+    }
+
+    /**
+     * Get deployer based on the parameters passed.
+     *
+     * @param className Deployer class name. Should be an implementation of {@link org.wso2.carbon.appfactory.core.Deployer}
+     * @param loader    class loader
+     * @return Runtime deployer object based on the parameter map
+     * @throws ServletException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
+    private Deployer getDeployer(String className, ClassLoader loader)
+            throws ServletException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Object deployerObject = getClassInstance(loader, className);
+        if (deployerObject instanceof Deployer) {
+            return (Deployer) deployerObject;
+        } else {
+            String msg = "Deployer class name should be a implementation of " + Deployer.class
+                         + ", but we found " + className;
+            throw new ServletException(msg);
+        }
+    }
+
+    /**
+     * Loads the {@code className} in the runtime.
+     *
+     * @param loader    class loader
+     * @param className class name to be loaded
+     * @return Returns a new instance of the class represented by this {@code className} object
+     * @throws ServletException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
+    private Object getClassInstance(ClassLoader loader, String className)
+            throws ServletException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        if (StringUtils.isEmpty(className)) {
+            throw new ServletException("Name of the class to be loaded, is not passed with parameters for " +
+                                       "deployment/undeployment.");
+        }
+        Class<?> customCodeClass = Class.forName(className, true, loader);
+        return customCodeClass.newInstance();
+    }
+
 }

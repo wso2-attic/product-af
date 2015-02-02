@@ -29,7 +29,6 @@ import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsApplicationEventsListener;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 
 /**
  * 
@@ -73,11 +72,6 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
     	if (AppFactoryCoreUtil.isBuildServerRequiredProject(application.getType())) {
 			return;
 		}
-    	
-        // deleting the artifacts deployed
-        ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-        applicationDeployer.undeployAllArtifactsOfAppFromDepSyncGitRepo(application.getId(), application.getType(),
-				ProjectUtils.getVersions(application.getId(), tenantDomain));
 
 		log.info("Successfully undeployed all the artifacts of application : " + application.getId() +
 				" of tenant domain : " + tenantDomain + " from dep sync git repo");

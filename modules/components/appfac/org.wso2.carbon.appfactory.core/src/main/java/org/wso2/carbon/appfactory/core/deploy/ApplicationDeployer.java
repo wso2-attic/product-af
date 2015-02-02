@@ -29,7 +29,6 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.Storage;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -641,101 +640,6 @@ public class ApplicationDeployer {
 			}
 		}
 	}
-
-    /**
-     * This method can be called when we need to delete all the artifacts related to an application
-     * ie: application deletion
-     * @param applicationId
-     * @param applicationType
-     * @param versions
-     * @throws AppFactoryException
-     */
-    public void undeployAllArtifactsOfAppFromDepSyncGitRepo(String applicationId, String applicationType, Version[] versions)
-            throws AppFactoryException {
-
-        String[] deploymentStages = ServiceHolder.getAppFactoryConfiguration().getProperties("ApplicationDeployment.DeploymentStage");
-
-        for(String stage : deploymentStages) {
-            File applicationTempLocation = Files.createTempDir();
-
-            String repoProviderAdminName = getRepositoryProviderAdminUser(applicationType, stage);
-            String repoProviderAdminPassword = getRepositoryProviderAdminPassword(applicationType, stage);
-
-            try {
-                AppfactoryRepositoryClient repositoryClient = new AppfactoryRepositoryClient("git");
-                String gitRepoUrl = getGitRepoUrlForTenant(applicationId, applicationType, stage, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-                repositoryClient.init(repoProviderAdminName, repoProviderAdminPassword);
-                repositoryClient.checkOut(gitRepoUrl, applicationTempLocation);
-
-                // dbs files are copied to multiple server locations
-
-                String[] deployedServerPaths = getServerDeploymentPaths(applicationType);
-
-                for (String serverPath : deployedServerPaths) {
-
-                    File applicationRootLocation = new File(applicationTempLocation, serverPath);
-                    if(log.isDebugEnabled()){
-                        log.debug("applicationRootLocation : " + applicationRootLocation.getAbsolutePath());
-                    }
-                    if (applicationRootLocation.isDirectory()) {
-                        String fileExtension = getFileExtension(applicationType);
-                        Collection<File> filesToDelete = null;
-
-                        for (Version version : versions) {
-                            if(log.isDebugEnabled()){
-                                log.debug("search for a file corresponding to : " + applicationId + " version :" + version.getId() +
-                                        " extension" + fileExtension);
-                            }
-                            Collection<File> toDelete = getFilesToDelete(applicationId, version.getId(),
-                                    applicationRootLocation, fileExtension, applicationType);
-                                if(filesToDelete == null)
-                                    filesToDelete = toDelete;
-                                else
-                                    filesToDelete.addAll(toDelete);
-                        }
-
-                        if(filesToDelete != null) {
-                            for (File f : filesToDelete) {
-                                if(log.isDebugEnabled()) {
-                                    log.debug("git removing the file : " + f.getAbsolutePath());
-                                }
-                                if (!repositoryClient.remove(gitRepoUrl, f, "Undeploying the file : " + f.getName())) {
-                                    if(log.isDebugEnabled()) {
-                                        log.debug("unable to remove the file from git repository" + f.getAbsolutePath());
-                                    }
-                                }
-                            }
-                        } else {
-                            log.info("No files found to be deleted in application " + applicationId);
-                        }
-
-                    } else {
-                        log.error("unable to find correct directory structure in git repository : " +
-                                applicationRootLocation.getAbsolutePath());
-                    }
-                }
-                if(log.isDebugEnabled()){
-                    log.debug("checking in git at : " + applicationTempLocation);
-                }
-                repositoryClient.checkIn(gitRepoUrl, applicationTempLocation, "Undelpoying artifacts");
-            } catch (AppFactoryException e) {
-
-                String msg =
-                        "Undeploying application failed: Unable to delete files from git repository application id: " +
-                                applicationId + " stage : " + stage;
-                handleException(msg, e);
-            }  finally {
-                try {
-                    FileUtils.deleteDirectory(applicationTempLocation);
-                } catch (IOException ioe) {
-                    // we ignore error of not being able to delete temporary
-                    // directory.
-                    log.error("Unable to delete the temporary directory after"
-                            + " application demote operation, error will be ignored", ioe);
-                }
-            }
-        }
-    }
 
 	@SuppressWarnings("unchecked")
 	private Collection<File> getFilesToDelete(String applicationId, String version, File applicationRootLocation,
