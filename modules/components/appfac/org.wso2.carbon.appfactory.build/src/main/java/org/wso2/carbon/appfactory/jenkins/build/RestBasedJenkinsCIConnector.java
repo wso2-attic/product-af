@@ -1295,6 +1295,10 @@ public class RestBasedJenkinsCIConnector {
 		}
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		addRunTimeParameters(stage, parameters, runtimeBean);
+		String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+		String tenantUserName = userName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+		parameters.add(new NameValuePair(AppFactoryConstants.TENANT_USER_NAME, tenantUserName));
 		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_ID, applicationId));
 		parameters.add(new NameValuePair(AppFactoryConstants.APP_TYPE, applicationType));
 		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_VERSION, version));

@@ -254,6 +254,8 @@ public class AppFactoryConstants {
 	public static final String CLOUD_STAGE = "stratos.stage";
     public static final String DB_CONFIG = "Database";
     public static final String DATASOURCE_NAME = DB_CONFIG+".Datasource.Name";
+	public static final String EVN_VAR_TENANT_ID = "TENANT_ID";
+	public static final String EVN_VAR_TENANT_DOMAIN = "TENANT_DOMAIN";
 
     // Rxt keys
     public static final String RXT_KEY_APPINFO_DEFAULT_DOMAIN = "application_mappedsubdomain";

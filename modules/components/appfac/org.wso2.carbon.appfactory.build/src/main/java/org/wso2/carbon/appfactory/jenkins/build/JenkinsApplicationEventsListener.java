@@ -130,20 +130,23 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     public void onDeletion(Application application, String userName, String tenantDomain)
             throws AppFactoryException {
         Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-        String[] deploymentStages = ServiceHolder.getAppFactoryConfiguration()
-                                                 .getProperties(AppFactoryConstants.DEPLOYMENT_STAGES);
         String deployerType = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
                                                     .getProperty(AppFactoryConstants.DEPLOYER_TYPE).toString();
-        for (String stage : deploymentStages) {
-            for (Version version : versions) {
-                String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
-                                              .getJobName(application.getId(), version.getId(), null);
-                RestBasedJenkinsCIConnector.getInstance().undeployArtifact(
-                        deployerType, jobName, application.getId(), application.getType(), version.getId(), stage, tenantDomain);
-                log.info("Successfully undeployed the artifact version : " + version.getId() +
-                        " of the application : " + application.getId() + " in the environment: " + stage +
-                        " from tenant domain : " + tenantDomain + " in jenkins");
-            }
+        JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
+        for (Version version : versions) {
+            String lifecycleStage = version.getLifecycleStage();
+            String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
+                    .getJobName(application.getId(), version.getId(), null);
+            jenkinsCISystemDriver.deleteJob(application.getId(), version.getId(), tenantDomain);
+            log.info("Successfully deleted the jenkins job : " + jobName +
+                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
+                     " from tenant domain : " + tenantDomain + " in jenkins");
+            RestBasedJenkinsCIConnector.getInstance().undeployArtifact(
+                    deployerType, jobName, application.getId(), application.getType(), version.getId(), lifecycleStage, tenantDomain);
+            log.info("Successfully undeployed the artifact version : " + version.getId() +
+                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
+                     " from tenant domain : " + tenantDomain + " from dep sync repo");
+
         }
     }
 
