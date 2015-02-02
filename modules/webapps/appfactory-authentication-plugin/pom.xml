@@ -22,8 +22,8 @@
                 <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
-        </repository>
-        <repository>
+        </pluginRepository>
+        <pluginRepository>
           <snapshots>
             <enabled>false</enabled>
           </snapshots>
