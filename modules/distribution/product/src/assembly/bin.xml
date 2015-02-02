@@ -470,7 +470,6 @@
             <includes>
                 <include>org.jenkins.wso2.appfactory:appfactory-authentication-plugin:hpi</include>
                 <include>org.wso2.carbon.appfactory.jenkins:appfactory-plugin:hpi</include>
-                <include>org.wso2.appfactory:dynamic-slave:hpi</include>
             </includes>
         </dependencySet>
         
