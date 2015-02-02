@@ -70,6 +70,35 @@ public class AppFactoryConstants {
 	public static final String RUNTIME_REPO_PROVIDER_URL="repoProviderUrl";
 	public static final String RUNTIME_NAME_FOR_APPTYPE ="runtimesNameForApptype";
 
+	public static final String ROLE_NAME = "name";
+	public static final String ROLE_PATTERN = "pattern";
+	public static final String ROLE_PERMISSION = "permission";
+	public static final String ASSIGN_USER_ID = "sid";
+	public static final String PROJECT_ROLE = "projectRole";
+	public static final String GLOBAL_ROLE = "globalRole";
+	public static final String WRAPPER_TAG_KEY = "wrapper";
+	public static final String XPATH_EXPRESSION_KEY = "xpath";
+	public static final String IS_AUTOMATIC = "isAutomatic";
+	public static final String STRING_FALSE = "false";
+	public static final String STRING_TRUE = "true";
+	public static final String DO_DEPLOY = "doDeploy";
+	public static final String BUILD_REPO_FROM = "repoFrom";
+	public static final String TENANT_USER_NAME = "tenantUserName";
+	public static final String PERSIST_ARTIFACT = "persistArtifact";
+	public static final String MASTER_REPO = "master repo";
+	public static final String FORKED_REPO = "forked repo";
+	public static final String BUILD_STATUS_UNKNOWN = "Unknown";
+	public static final String BUILD_STATUS_BUILDING = "Building";
+	public static final String ALL_JOB_NAME = "all";
+	public static final String JSON_TREE_STRUCTURE = "tree";
+	public static final String STRING_URL = "url";
+	public static final String SVN_KIND_KEY = "kind";
+	public static final String PASSWORD_STRING = "password";
+	public static final String SVN_USERNAME = "username1";
+	public static final String SVN_PASSWORD = "password1";
+	public static final String LOCATION_HEADER_PARAM = "Location";
+	public static final String JOB_NAME_KEY = "name";
+
 	/*
 	*  constants for cartridge subscription info
 	* */
@@ -394,9 +423,11 @@ public class AppFactoryConstants {
 	/**
 	 * Constants for other Strings
 	 */
+	public static final String EMPTY_STRING = "";
 	public static final String WHITE_SPACE = " ";
 	public static final String DOT_SEPERATOR = ".";
     public static final String SUBSCRIPTION_ALIAS_DOT_REPLACEMENT = "dot";
+	public static final String ASTERISK = "*";
 	public static final String MINUS = "-";
 	public static final String PAAS_REPOSITORY_URL_PATTERN = "paasRepositoryURLPattern";
 	public static final String PROPERTY_VALUE_SEPERATOR =",";
