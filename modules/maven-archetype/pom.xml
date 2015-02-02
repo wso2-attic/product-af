@@ -29,11 +29,9 @@
     <groupId>org.wso2.appfactory</groupId>
     <artifactId>maven-archetype</artifactId>
     <packaging>pom</packaging>
-    <version>2.1.0-SNAPSHOT</version>
     <name>WSO2 AppFactory - Archetype For Applications</name>
 
  <modules>
-        <module>maven-archetype-car</module>
         <module>maven-archetype-jaxrs</module>
         <module>maven-archetype-jaxws</module>
         <module>maven-archetype-jaggery</module>
