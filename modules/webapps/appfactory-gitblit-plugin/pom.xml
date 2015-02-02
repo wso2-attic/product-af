@@ -3,11 +3,11 @@
     <parent>
         <groupId>org.wso2.appfactory</groupId>
         <artifactId>webapps-parent</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>appfactory.gitblit.plugin</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>appfactory.gitblit-plugin</name>
@@ -36,15 +36,15 @@
                                     <pathelement location="${settings.localRepository}/org/apache/ws/commons/axiom/wso2/axiom/${orbit.version.axiom}/axiom-${orbit.version.axiom}.jar" />
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/RepositoryManagementService.wsdl -u -uw -o target/generated-code -p  org.wso2.carbon.appfactory.svn.repository.mgt.service" />
+                                    <arg line="-uri src/main/resources/RepositoryManagementService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.appfactory.svn.repository.mgt.service" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/ApplicationManagementService.wsdl -u -uw -o target/generated-code -p  org.wso2.carbon.appfactory.application.mgt.service" />
+                                    <arg line="-uri src/main/resources/ApplicationManagementService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.appfactory.application.mgt.service" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/RepositoryAuthenticationService.wsdl -u -uw -o target/generated-code -p  org.wso2.carbon.appfactory.repository.mgt.service " />
+                                    <arg line="-uri src/main/resources/RepositoryAuthenticationService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.appfactory.repository.mgt.service " />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>
