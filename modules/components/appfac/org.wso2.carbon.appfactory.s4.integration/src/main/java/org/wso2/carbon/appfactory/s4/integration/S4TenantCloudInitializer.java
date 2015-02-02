@@ -27,6 +27,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.TenantCloudInitializer;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.task.AppFactoryTenantCloudInitializerTask;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -260,10 +261,25 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 		restService = new StratosRestService(serverURL, username,
 				tenantAdminPassword);
 
-		restService.subscribe(runtimeBean.getCartridgeTypePrefix() + stage,
-		                      runtimeBean.getAliasPrefix() + stage + tenantDomain.replace(".", "dot"),
-		                      repoURL, true,
-		                      AppFactoryUtil.getAppfactoryConfiguration().
+		String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+		String cartridgeType = null;
+		if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+			cartridgeType = runtimeBean.getCartridgeTypePrefix()
+			                + stage.toLowerCase();
+		} else {
+			cartridgeType = runtimeBean.getCartridgeTypePrefix();
+		}
+
+		String subscriptionAlias;
+		if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+			subscriptionAlias = runtimeBean.getAliasPrefix() + stage.toLowerCase() + tenantDomain.replace(".", "dot");
+		} else {
+			subscriptionAlias = runtimeBean.getAliasPrefix() + tenantDomain.replace(".", "dot");
+		}
+
+		restService.subscribe(cartridgeType , subscriptionAlias, repoURL, true, AppFactoryUtil.getAppfactoryConfiguration().
 				                      getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME),
 		                      AppFactoryUtil.getAppfactoryConfiguration().
 				                      getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD),

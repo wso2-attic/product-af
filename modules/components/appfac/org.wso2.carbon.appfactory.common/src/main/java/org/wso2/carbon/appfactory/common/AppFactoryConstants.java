@@ -70,6 +70,11 @@ public class AppFactoryConstants {
 	public static final String RUNTIME_REPO_PROVIDER_URL="repoProviderUrl";
 	public static final String RUNTIME_NAME_FOR_APPTYPE ="runtimesNameForApptype";
 
+	/*
+	*  constants for cartridge subscription info
+	* */
+	public static final String APPEND_STAGE_TO_CARTRIDGE_INFO = "AppendStageToCartridgeInfo";
+
     /**
      * Defining archetype related constants
      */
