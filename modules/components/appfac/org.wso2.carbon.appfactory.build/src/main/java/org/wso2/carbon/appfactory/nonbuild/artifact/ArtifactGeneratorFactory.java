@@ -42,8 +42,8 @@ import java.io.File;
  */
 public class ArtifactGeneratorFactory {
 	private static Log log = LogFactory.getLog(ArtifactGeneratorFactory.class);
-	private static final String APPFACTORY_GIT_TEMP_FOLDER = "repository";
-	private static final String DEPLOYABLE_ARTIFACT_FOLDER = "artifact";
+	public static String appfactoryGitTmpFolder = "repository";
+	public static String deployableAtrifactFolder = "artifact";
 
 	private static ArtifactGeneratorFactory artifactGeneratorFactory = null;
 
@@ -82,7 +82,7 @@ public class ArtifactGeneratorFactory {
 
 		DeployableArtifact deployableArtifact = null;
 
-		File filePath = new File(rootPath + File.separator + APPFACTORY_GIT_TEMP_FOLDER);
+		File filePath = new File(rootPath + File.separator + appfactoryGitTmpFolder);
 		if (!filePath.exists()) {
 			if(!filePath.mkdirs()){
                 // try to create directory again.
@@ -144,7 +144,7 @@ public class ArtifactGeneratorFactory {
 	                           String artifactType, String tenantDomain) throws AppFactoryException {
 		try {
 			AppfactoryRepositoryClient appfactoryGitClient =
-					(new RepositoryManager()).getRepositoryProvider(AppFactoryConstants.REPOSITORY_TYPE_GIT).getRepositoryClient();
+					(new RepositoryManager()).getRepositoryProvider("git").getRepositoryClient();
 			AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
 			appfactoryGitClient.init(appfactoryConfiguration.getFirstProperty(
 					                         AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD),
@@ -153,7 +153,7 @@ public class ArtifactGeneratorFactory {
 
 			RepositoryManager repositoryManager = new RepositoryManager();
 			String appfactoryGitRepoURL =
-					repositoryManager.getURLForAppversion(applicationId, version, AppFactoryConstants.REPOSITORY_TYPE_GIT,
+					repositoryManager.getURLForAppversion(applicationId, version, "git",
 					                                      tenantDomain);
 			appfactoryGitClient.checkOut(appfactoryGitRepoURL, version, filePath);
 
