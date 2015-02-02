@@ -20,7 +20,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
@@ -178,5 +181,64 @@ public class CommonUtil {
         return artifactManager;
     }
 
+    /**
+     * Get alias of the subscription
+     *
+     * @param stage the stage of the Stratos SM
+     * @param appType application type
+     * @return alias
+     */
+    public static String getSubscriptionAlias(String stage, String appType) throws AppFactoryException {
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
+        try {
+            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
+            String  appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+                    getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+            String subscriptionAlias;
+            if(Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))){
+                subscriptionAlias =
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + stage.toLowerCase() +
+                        tenantDomain;
+            }else{
+                subscriptionAlias =
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + tenantDomain;
+            }
+            return subscriptionAlias;
+        } catch (AppFactoryException e) {
+            log.error("Error while getting subscription alias stage:" + stage + "application type:" + appType, e);
+            throw new AppFactoryException(
+                    "Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
+        }
+    }
+
+    /**
+     * Get cartridge type
+     *
+     * @param stage the stage of the Stratos SM
+     * @param appType application type
+     * @return cartridge type
+     */
+    public static String getCartridgeType(String stage, String appType) throws AppFactoryException {
+        try {
+            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
+
+            String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+                    getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+            String cartridgeType = null;
+            if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+                cartridgeType = RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeTypePrefix()
+                                + stage.toLowerCase();
+            } else {
+                cartridgeType = RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeTypePrefix();
+            }
+            return cartridgeType;
+        } catch (AppFactoryException e) {
+            log.error("Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
+            throw new AppFactoryException(
+                    "Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
+        }
+    }
 
 }
