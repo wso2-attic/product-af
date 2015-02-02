@@ -22,6 +22,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <version>2.1.0-SNAPSHOT</version>
     <artifactId>gitblit-parent</artifactId>
     <packaging>pom</packaging>
     <name>Gitblit Apps parent</name>
