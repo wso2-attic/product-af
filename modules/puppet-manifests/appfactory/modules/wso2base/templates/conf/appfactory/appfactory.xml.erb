@@ -695,6 +695,11 @@
         <Property name="ResourceUserId">admin</Property>
         <Property name="API-Token">7ea3f81bbe068aab15690c443ae1ae2c</Property>
         <Property name="ClientConnectionCount">100</Property>
+        <!-- Retry count and delay values are used to retry get/post requests made to jenkins when jenkins is not loaded in tenants.
+        If the jenkins tenant loading time is higher, we can increase these values. -->
+        <Property name="RetryCount">4</Property>
+        <!--Retry delay is configured in seconds.-->
+        <Property name="RetryDelay">20</Property>
     </ContinuousIntegrationProvider>
     <OtherServices>
         <Service name="ViewVC">
