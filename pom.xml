@@ -1209,7 +1209,7 @@
    <properties>
 
       <!--App Factory-->
-      <appfac.version>2.1.0</appfac.version>
+      <appfac.version>2.1.0-SNAPSHOT</appfac.version>
 
 
       <!--Stratos-->
