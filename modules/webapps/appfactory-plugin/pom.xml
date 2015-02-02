@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
@@ -11,7 +9,7 @@
 
     <groupId>org.wso2.carbon.appfactory.jenkins</groupId>
     <artifactId>appfactory-plugin</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.0</version>
     <packaging>hpi</packaging>
     <dependencies>
         <dependency>
@@ -41,19 +39,19 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.artifact.storage.stub</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.build.stub</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.application.deployer.stub</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -71,7 +69,7 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -107,7 +105,7 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.common</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
         </dependency>
        <!-- need to ship it with plugin  it require maven scm .maven scm depends on pluxes.But
@@ -115,7 +113,7 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.deployers</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
 	    <exclusions>
 		<exclusion>
 		      <groupId>org.wso2.carbon.appfactory</groupId>
@@ -126,7 +124,7 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.core</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -154,7 +152,7 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
+            <version>2.1.0</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -215,4 +213,8 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
+  <scm>
+    <tag>wso2appfactory-parent-2.1.0</tag>
+  </scm>
 </project>

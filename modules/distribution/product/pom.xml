@@ -15,9 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <properties>
         <maven.build.timestamp.format>dd MMM yyyy</maven.build.timestamp.format>
         <buildNumber>${maven.build.timestamp}</buildNumber>
@@ -26,13 +24,13 @@
     <parent>
         <groupId>org.wso2.appfactory</groupId>
     	<artifactId>wso2appfactory-distribution-parent</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
+        <version>2.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>wso2appfactory</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.0</version>
     <packaging>jar</packaging>
     <name>WSO2 AppFacotry - Distribution</name>
     <description>WSO2 Business Process Server Distribution</description>
@@ -210,58 +208,47 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <echo message="######## Creating BPEL Archives. #########"/>
-                                <property name="tempdir" value="target/samples"/>
-                                <mkdir dir="${tempdir}"/>
+                                <echo message="######## Creating BPEL Archives. #########" />
+                                <property name="tempdir" value="target/samples" />
+                                <mkdir dir="${tempdir}" />
                                 <!--zip destfile="target/samples/CreditRating.zip"
                                      basedir="${basedir}/../samples/src/main/resources/bpel/2.0/CreditRating"/-->
                               
                                 <!--delete dir="${tempdir}"/-->
 
-                                <echo message="######### Copying Samples Services are temporary skipped###########"/>
+                                <echo message="######### Copying Samples Services are temporary skipped###########" />
                                 <!--echo message="######### Copying Samples Services ###########"/-->
                                 <!--copy file="${basedir}/../services/CreditRatingService/target/CreditRatingService-${project.version}.aar"
                                       tofile="target/services/CreditRatingService.aar"/-->
 
                                 <!--path id="derby.classpath">
-                                    <path refid="maven.compile.classpath"/>
+                                    <path refid="maven.compile.classpath" />
                                 </path>
 
-                                <echo
-                                        message="########### Create ODE Derby Database ##############"/>
-                                <sql
-                                        driver="org.apache.derby.jdbc.EmbeddedDriver"
+                                <echo message="########### Create ODE Derby Database ##############" />
+                                <sql driver="org.apache.derby.jdbc.EmbeddedDriver"
                                         url="jdbc:derby:${basedir}/target/database/jpadb;create=true"
                                         userid="sa" password="" autocommit="true"
                                         onerror="continue">
                                     <classpath>
-                                        <path refid="derby.classpath"/>
+                                        <path refid="derby.classpath" />
                                     </classpath>
-                                    <fileset
-                                            file="${basedir}/sql/derby.sql"/>
+                                    <fileset file="${basedir}/sql/derby.sql" />
                                 </sql>
-                                <echo
-                                        message="##################### END ############################"/-->
+                                <echo message="##################### END ############################"/-->
 
                                 <path id="h2.classpath">
-                                    <path refid="maven.compile.classpath"/>
+                                    <path refid="maven.compile.classpath" />
                                 </path>
 
-                                                                <echo
-                                        message="########### Create ODE H2 Database ##############"/>
-                                <sql
-                                        driver="org.h2.Driver"
-                                        url="jdbc:h2:${basedir}/target/database/jpadb;create=true"
-                                        userid="wso2carbon" password="wso2carbon" autocommit="true"
-                                        onerror="continue">
+                                                                <echo message="########### Create ODE H2 Database ##############" />
+                                <sql driver="org.h2.Driver" url="jdbc:h2:${basedir}/target/database/jpadb;create=true" userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
                                     <classpath>
-                                        <path refid="h2.classpath"/>
+                                        <path refid="h2.classpath" />
                                     </classpath>
-                                    <fileset
-										file="${basedir}/resources/bpel/sql/h2.sql"/>
+                                    <fileset file="${basedir}/resources/bpel/sql/h2.sql" />
                                 </sql>
-                                <echo
-                                        message="##################### END ############################"/>
+                                <echo message="##################### END ############################" />
                      
                             </tasks>
                         </configuration>
@@ -275,24 +262,17 @@
                         <configuration>
                             <tasks>
                                 <path id="h2.classpath">
-                                    <path refid="maven.compile.classpath"/>
+                                    <path refid="maven.compile.classpath" />
                                 </path>
 
-                                <echo
-                                        message="########### Create AF H2 Database ##############"/>
-                                <sql
-                                        driver="org.h2.Driver"
-                                        url="jdbc:h2:${basedir}/target/database/WSO2APPFACTORY_DB;create=true"
-                                        userid="wso2carbon" password="wso2carbon" autocommit="true"
-                                        onerror="continue">
+                                <echo message="########### Create AF H2 Database ##############" />
+                                <sql driver="org.h2.Driver" url="jdbc:h2:${basedir}/target/database/WSO2APPFACTORY_DB;create=true" userid="wso2carbon" password="wso2carbon" autocommit="true" onerror="continue">
                                     <classpath>
-                                        <path refid="h2.classpath"/>
+                                        <path refid="h2.classpath" />
                                     </classpath>
-                                    <fileset
-                                            file="${basedir}/resources/dbscripts/appfactory/h2.sql"/>
+                                    <fileset file="${basedir}/resources/dbscripts/appfactory/h2.sql" />
                                 </sql>
-                                <echo
-                                        message="##################### END ############################"/>
+                                <echo message="##################### END ############################" />
 
                             </tasks>
                         </configuration>
@@ -305,79 +285,76 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <property name="tempdir" value="target/docs-temp"/>
-                                <mkdir dir="${tempdir}"/>
+                                <property name="tempdir" value="target/docs-temp" />
+                                <mkdir dir="${tempdir}" />
                                 <unzip dest="${tempdir}">
                                     <fileset dir="target">
-                                        <include name="wso2appfactory-${project.version}.zip"/>
+                                        <include name="wso2appfactory-${project.version}.zip" />
                                     </fileset>
                                 </unzip>
                                 <copy todir="target/wso2carbon-core-${carbon.kernel.version}/repository/components" overwrite="true">
                                     <fileset dir="${tempdir}/wso2appfactory-${project.version}/repository/components">
                                     </fileset>
                                 </copy>
-                                <delete file="target/wso2appfactory-${project.version}.zip"/>
-                                <delete dir="${tempdir}"/>
-                                <mkdir dir="${tempdir}"/>
+                                <delete file="target/wso2appfactory-${project.version}.zip" />
+                                <delete dir="${tempdir}" />
+                                <mkdir dir="${tempdir}" />
                                 <unzip dest="${tempdir}">
-                                    <fileset
-                                            dir="target/wso2carbon-core-${carbon.kernel.version}/repository/components/plugins/">
-                                        <include name="*.ui*.jar"/>
+                                    <fileset dir="target/wso2carbon-core-${carbon.kernel.version}/repository/components/plugins/">
+                                        <include name="*.ui*.jar" />
                                     </fileset>
                                 </unzip>
                                 <move todir="${tempdir}/web/" includeemptydirs="false">
                                     <fileset dir="${tempdir}/web/">
-                                        <exclude name="**/yui/**"/>
-                                        <exclude name="**/ajax/**"/>
-                                        <exclude name="**/WEB-INF/**"/>
-                                        <include name="**/*.html"/>
+                                        <exclude name="**/yui/**" />
+                                        <exclude name="**/ajax/**" />
+                                        <exclude name="**/WEB-INF/**" />
+                                        <include name="**/*.html" />
                                     </fileset>
-                                    <mapper type="glob" from="*.html" to="*.xml"/>
+                                    <mapper type="glob" from="*.html" to="*.xml" />
                                 </move>
-                                <mkdir dir="src/site/xdoc"/>
+                                <mkdir dir="src/site/xdoc" />
                                 <copy todir="src/site/xdoc" overwrite="false" includeemptydirs="false">
                                     <fileset dir="${tempdir}/web">
-                                        <exclude name="**/yui/**"/>
-                                        <exclude name="**/ajax/**"/>
-                                        <exclude name="**/WEB-INF/**"/>
-                                        <exclude name="**/*.html"/>
-                                        <exclude name="**/*.js"/>
-                                        <exclude name="**/*.jsp"/>
-                                        <exclude name="**/*.xsl"/>
-                                        <exclude name="*.*"/>
-                                        <exclude name="**/codepress.xml"/>
-                                        <exclude name="**/template.xml"/>
+                                        <exclude name="**/yui/**" />
+                                        <exclude name="**/ajax/**" />
+                                        <exclude name="**/WEB-INF/**" />
+                                        <exclude name="**/*.html" />
+                                        <exclude name="**/*.js" />
+                                        <exclude name="**/*.jsp" />
+                                        <exclude name="**/*.xsl" />
+                                        <exclude name="*.*" />
+                                        <exclude name="**/codepress.xml" />
+                                        <exclude name="**/template.xml" />
                                     </fileset>
                                 </copy>
                                 <copy todir="src/site" overwrite="false" includeemptydirs="false">
                                     <fileset dir="../../../docs">
- 										<exclude name="**/user-mgt-actdir.xml"/>
-                                        <exclude name="**/user-mgt-jdbc.xml"/>
-                                        <exclude name="**/user-mgt-ldap.xml"/>
+ 										<exclude name="**/user-mgt-actdir.xml" />
+                                        <exclude name="**/user-mgt-jdbc.xml" />
+                                        <exclude name="**/user-mgt-ldap.xml" />
                                     </fileset>       
                                 </copy>
                                 <copy todir="target/site/" overwrite="false" includeemptydirs="false">
                                     <fileset dir="src/site/xdoc/">
-                                        <include name="**/images/*.*"/>
+                                        <include name="**/images/*.*" />
                                     </fileset>
                                 </copy>
-                                <delete dir="${tempdir}"/>
+                                <delete dir="${tempdir}" />
 
                                 <!--property name="shindig.version" value="2.5.0"/-->
-                                <property name="jardir" value="target/jars"/>
+                                <property name="jardir" value="target/jars" />
                                 <!--unzip src="target/shindig/WEB-INF/lib/shindig-common-${shindig.version}.jar"
                                        dest="${jardir}/shindig-common-${shindig.version}">
                                     <patternset>
-                                        <exclude name="**/shindig.properties"/>
+                                        <exclude name="**/shindig.properties" />
                                     </patternset>
                                 </unzip>
-                                <copy file="../product/resources/shindig.properties"
-                                      todir="${jardir}/shindig-common-${shindig.version}"/>
+                                <copy file="../product/resources/shindig.properties" todir="${jardir}/shindig-common-${shindig.version}" />
                                 <delete file="target/shindig/WEB-INF/lib/shindig-common-${shindig.version}.jar"></delete>
-                                <zip destfile="target/shindig/WEB-INF/lib/shindig-common-${shindig.version}.jar"
-                                     basedir="${jardir}/shindig-common-${shindig.version}"/>
+                                <zip destfile="target/shindig/WEB-INF/lib/shindig-common-${shindig.version}.jar" basedir="${jardir}/shindig-common-${shindig.version}" />
                                 <delete>
-                                    <fileset dir="target/shindig/WEB-INF/lib" includes="slf4j*"/>
+                                    <fileset dir="target/shindig/WEB-INF/lib" includes="slf4j*" />
                                 </delete-->
                             </tasks>
                         </configuration>
@@ -390,24 +367,24 @@
                         <!--</goals>-->
                         <!--<configuration>-->
                             <!--<tasks unless="maven.test.skip">-->
-                                <!--<property name="tempdir" value="target/test"/>-->
-                                <!--<mkdir dir="${tempdir}"/>-->
+                                <!--<property name="tempdir" value="target/test" />-->
+                                <!--<mkdir dir="${tempdir}" />-->
                                 <!--&lt;!&ndash; unzip cannot be used since it does not restore file permissions &ndash;&gt;-->
                                 <!--&lt;!&ndash;unzip dest="${tempdir}">-->
                                     <!--<fileset dir="target">-->
-                                        <!--<include name="wso2appfactory-${project.version}.zip"/>-->
+                                        <!--<include name="wso2appfactory-${project.version}.zip" />-->
                                     <!--</fileset>-->
                                 <!--</unzip&ndash;&gt;-->
                                 <!--<exec dir="${tempdir}/" executable="unzip" os="Linux">-->
-                                    <!--<arg line="../wso2appfactory-${project.version}.zip"/>-->
+                                    <!--<arg line="../wso2appfactory-${project.version}.zip" />-->
                                 <!--</exec>-->
                                 <!--<copy todir="${tempdir}/wso2appfactory-${project.version}/repository/deployment/server/bpel/" overwrite="false">-->
                                     <!--<fileset dir="../../samples/product/src/main/resources/bpel/2.0/">-->
                                     <!--</fileset>-->
                                 <!--</copy>-->
-                                <!--<echo message="Starting AppFacotry Server for testing..."/>-->
+                                <!--<echo message="Starting AppFacotry Server for testing..." />-->
                                 <!--<exec dir="${tempdir}/" executable="sh" spawn="false" os="Linux">-->
-                                    <!--<arg line="wso2appfactory-${project.version}/bin/wso2server.sh start"/>-->
+                                    <!--<arg line="wso2appfactory-${project.version}/bin/wso2server.sh start" />-->
                                 <!--</exec>-->
                             <!--</tasks>-->
                         <!--</configuration>-->
@@ -420,12 +397,12 @@
                         <!--</goals>-->
                         <!--<configuration>-->
                             <!--<tasks unless="maven.test.skip">-->
-                                <!--<property name="tempdir" value="target/test"/>-->
-                                <!--<echo message="Shutdown AppFacotry Server..."/>-->
+                                <!--<property name="tempdir" value="target/test" />-->
+                                <!--<echo message="Shutdown AppFacotry Server..." />-->
                                 <!--<exec dir="${tempdir}/" executable="sh" spawn="false">-->
-                                    <!--<arg line="wso2appfactory-${project.version}/bin/wso2server.sh stop"/>-->
+                                    <!--<arg line="wso2appfactory-${project.version}/bin/wso2server.sh stop" />-->
                                 <!--</exec>-->
-                                <!--<delete dir="${tempdir}"/>-->
+                                <!--<delete dir="${tempdir}" />-->
                             <!--</tasks>-->
                         <!--</configuration>-->
                     <!--</execution>-->
@@ -434,15 +411,15 @@
                         <phase>install</phase>
                         <configuration>
                             <tasks>
-                                <delete dir="target/archive-tmp"/>
-                                <delete dir="target/dependency-maven-plugin-markers"/>
-                                <delete dir="target/maven-archiver"/>
-                                <delete dir="target/wso2carbon-core-${carbon.version}"/>
-                                <delete file="target/wso2appfactory-${project.version}.jar"/>
-                                <delete dir="target/sources"/>
-                                <delete dir="target/site"/>
+                                <delete dir="target/archive-tmp" />
+                                <delete dir="target/dependency-maven-plugin-markers" />
+                                <delete dir="target/maven-archiver" />
+                                <delete dir="target/wso2carbon-core-${carbon.version}" />
+                                <delete file="target/wso2appfactory-${project.version}.jar" />
+                                <delete dir="target/sources" />
+                                <delete dir="target/site" />
                                 <!--delete dir="target/shindig"/-->
-                                <delete dir="src/site"/>
+                                <delete dir="src/site" />
                             </tasks>
                         </configuration>
                         <goals>
