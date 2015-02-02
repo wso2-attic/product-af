@@ -34,24 +34,4 @@
        <module>jenkins-tenant-ext</module>
        <module>org.wso2.carbon.issue.tracker</module>
   </modules>
-    <repositories>
-        <repository>
-            <id>maven.scm-manager.org</id>
-            <name>SCM Repository</name>
-            <url>http://maven.scm-manager.org/nexus/content/groups/public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-        <repository>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <id>jenkins-ci.org</id>
-          <name>Jenkins CI Repository</name>
-          <url>http://repo.jenkins-ci.org/public</url>
-        </repository>
-    </repositories>
 </project>
