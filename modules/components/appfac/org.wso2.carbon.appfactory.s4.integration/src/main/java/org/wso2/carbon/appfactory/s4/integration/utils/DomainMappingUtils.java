@@ -31,11 +31,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
+import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.context.CarbonContext;
@@ -295,48 +297,6 @@ public class DomainMappingUtils {
     }
 
     /**
-     * Get alias of the subscription
-     *
-     * @param stage the stage of the Stratos SM
-     * @param appType application type
-     * @return alias
-     */
-    public static String getSubscriptionAlias(String stage, String appType) throws AppFactoryException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
-        try {
-            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
-            String subscriptionAlias =
-                    RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + stage.toLowerCase() +
-                    tenantDomain;
-            return subscriptionAlias;
-        } catch (AppFactoryException e) {
-            log.error("Error while getting subscription alias stage:" + stage + "application type:" + appType, e);
-            throw new AppFactoryException(
-                    "Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
-        }
-    }
-
-    /**
-     * Get cartridge type
-     *
-     * @param stage the stage of the Stratos SM
-     * @param appType application type
-     * @return cartridge type
-     */
-    public static String getCartridgeType(String stage, String appType) throws AppFactoryException {
-        try {
-            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
-            String cartridgeType =
-                    RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeTypePrefix() + stage.toLowerCase();
-            return cartridgeType;
-        } catch (AppFactoryException e) {
-            log.error("Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
-            throw new AppFactoryException(
-                    "Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
-        }
-    }
-
-    /**
      * Publish domain mapping events to registered {@link org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler} instances.
      * {@link org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler} can perform their specific operations such as add DNS entry etc..
      * based on the event.
@@ -573,7 +533,8 @@ public class DomainMappingUtils {
      */
     public static String getDomainAvailableEndPoint(String stage, String domain, String appType)
             throws AppFactoryException {
-        return String.format(DOMAIN_AVAILABLE_END_POINT, getCartridgeType(stage, appType), getSubscriptionAlias(stage, appType), domain);
+        return String.format(DOMAIN_AVAILABLE_END_POINT, CommonUtil.getCartridgeType(stage, appType),
+                             CommonUtil.getSubscriptionAlias(stage, appType), domain);
     }
 
     /**
@@ -584,8 +545,8 @@ public class DomainMappingUtils {
      * @return add domain end point
      */
     public static String getAddDomainEndPoint(String stage, String appType) throws AppFactoryException {
-        return String.format(ADD_DOMAIN_END_POINT, getCartridgeType(stage, appType), getSubscriptionAlias(stage,
-                                                                                                          appType));
+        return String.format(ADD_DOMAIN_END_POINT, CommonUtil.getCartridgeType(stage, appType),
+                             CommonUtil.getSubscriptionAlias(stage, appType));
     }
 
     /**
@@ -598,8 +559,8 @@ public class DomainMappingUtils {
      */
     public static String getRemoveDomainEndPoint(String stage, String domain, String appType)
             throws AppFactoryException {
-        return String.format(REMOVE_DOMAIN_END_POINT, getCartridgeType(stage, appType), getSubscriptionAlias(stage,
-                                                                                                             appType), domain);
+        return String.format(REMOVE_DOMAIN_END_POINT, CommonUtil.getCartridgeType(stage, appType),
+                             CommonUtil.getSubscriptionAlias(stage, appType), domain);
     }
 
     /**
