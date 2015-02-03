@@ -28,7 +28,7 @@
    <groupId>org.wso2.appfactory</groupId>
    <artifactId>wso2appfactory-parent</artifactId>
    <packaging>pom</packaging>
-   <version>2.1.0</version>
+   <version>2.1.1-SNAPSHOT</version>
    <name>WSO2 AppFacotry - Parent</name>
    <url>http://wso2.org/projects/appfactory/java</url>
    <description>WSO2 Business Process Server</description>
@@ -252,7 +252,7 @@
         <dependency>
             <groupId>org.wso2.carbon.appfactory.maven.phparchetype</groupId>
             <artifactId>php-archetype</artifactId>
-            <version>2.1.0</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 
@@ -897,7 +897,7 @@
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>dynamic-slave</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2-SNAPSHOT</version>
             <type>hpi</type>
         </dependency>
         <dependency>
@@ -1209,7 +1209,7 @@
    <properties>
 
       <!--App Factory-->
-      <appfac.version>2.1.0</appfac.version>
+      <appfac.version>2.1.1-SNAPSHOT</appfac.version>
 
 
       <!--Stratos-->
