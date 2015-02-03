@@ -7,7 +7,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example.CreateArtifact</groupId>
   <artifactId>CreateArtifact</artifactId>
   <packaging>bpel/workflow</packaging>
   <name>CreateArtifact</name>
