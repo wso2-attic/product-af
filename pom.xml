@@ -31,7 +31,7 @@
    <version>2.1.0-SNAPSHOT</version>
    <name>WSO2 AppFacotry - Parent</name>
    <url>http://wso2.org/projects/appfactory/java</url>
-   <description>WSO2 Business Process Server</description>
+   <description>WSO2 AppFactory</description>
    <licenses>
       <license>
          <name>Apache License Version 2.0</name>
@@ -196,61 +196,55 @@
 
         <!--ArcheTypes-->
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.dotnetarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>dotnet-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.archetype</groupId>
-            <artifactId>af-archetype</artifactId>
-            <version>2.1.0-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.webapparchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>webapp-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaxrsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxrs-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaxwsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxws-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaggeryarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaggery-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.esbarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>esb-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.bpelarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>bpel-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.dbsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>dbs-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.phparchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>php-archetype</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
@@ -877,13 +871,13 @@
             <type>war</type>
         </dependency>
        <dependency>
-            <groupId>org.jenkins.wso2.appfactory</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-authentication-plugin</artifactId>
             <version>2.1.0-SNAPSHOT</version>
             <type>hpi</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.jenkins</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-plugin</artifactId>
 	    <version>2.1.0-SNAPSHOT</version>
             <type>hpi</type>
@@ -1209,7 +1203,7 @@
    <properties>
 
       <!--App Factory-->
-      <appfac.version>2.1.0</appfac.version>
+      <appfac.version>2.1.0-SNAPSHOT</appfac.version>
 
 
       <!--Stratos-->

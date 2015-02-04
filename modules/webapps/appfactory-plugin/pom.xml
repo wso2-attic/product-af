@@ -11,6 +11,118 @@
     <artifactId>appfactory-plugin</artifactId>
     <version>2.1.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
+
+   <distributionManagement>
+      <repository>
+        <id>nexus-releases</id>
+        <name>WSO2 Release Distribution Repository</name>
+        <url>http://maven.wso2.org/nexus/service/local/staging/deploy/maven2/</url>
+      </repository>
+   </distributionManagement>
+
+
+<repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+      <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+         </releases>
+    </repository>
+     <repository>
+         <id>wso2-nexus</id>
+         <name>WSO2 internal Repository</name>
+         <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+         </releases>
+      </repository>
+      <repository>
+         <id>wso2.releases</id>
+         <name>WSO2 internal Repository</name>
+         <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+         </releases>
+      </repository>
+      <repository>
+         <id>wso2.snapshots</id>
+         <name>WSO2 Snapshot Repository</name>
+         <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+         </snapshots>
+         <releases>
+            <enabled>false</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+         </releases>
+      </repository>
+  </repositories>
+
+
+ <pluginRepositories>
+     <pluginRepository>
+            <id>maven.scm-manager.org</id>
+            <name>SCM Repository</name>
+            <url>http://maven.scm-manager.org/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </pluginRepository>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>http://repo.jenkins-ci.org/public/</url>
+      <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+       </releases>
+    </pluginRepository>
+    <pluginRepository>
+         <id>wso2.releases</id>
+         <name>WSO2 internal Repository</name>
+         <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+         </releases>
+      </pluginRepository>
+      <pluginRepository>
+         <id>wso2.snapshots</id>
+         <name>Apache Snapshot Repository</name>
+         <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+         </snapshots>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
+      </pluginRepository>
+      <pluginRepository>
+         <id>wso2-nexus</id>
+         <name>WSO2 internal Repository</name>
+         <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>ignore</checksumPolicy>
+         </releases>
+      </pluginRepository>
+  </pluginRepositories>
+
+
     <dependencies>
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
@@ -178,24 +290,7 @@
             <scope>provided</scope>
         </dependency>
      </dependencies>
-    <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
-    <repositories>
-        <repository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </repository>
-        <repository>
-            <id>wso2-nexus</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-    </repositories>
-    <build>
+  <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -207,14 +302,4 @@
       </plugin>
     </plugins>
   </build>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>repo.jenkins-ci.org</id>
-            <url>http://repo.jenkins-ci.org/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-  <scm>
-    <tag>wso2appfactory-parent-2.1.0</tag>
-  </scm>
 </project>

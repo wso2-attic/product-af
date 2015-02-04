@@ -449,17 +449,16 @@
         <dependencySet>
             <outputDirectory>wso2appfactory-${pom.version}/resources/archetypes/</outputDirectory>
             <includes>
-                <include>org.wso2.carbon.appfactory.maven.archetype:af-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.webapparchetype:webapp-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.jaxrsarchetype:jaxrs-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.jaxwsarchetype:jaxws-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.jaggeryarchetype:jaggery-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.dbsarchetype:dbs-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.bpelarchetype:bpel-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.esbarchetype:esb-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.phparchetype:php-archetype:jar</include>
-	         <include>org.wso2.carbon.appfactory.maven.dotnetarchetype:dotnet-archetype:jar</include>
-                <include>org.wso2.carbon.appfactory.maven.archetype:maven-archetype-webapp:jar</include>
+                <include>org.wso2.appfactory:webapp-archetype:jar</include>
+                <include>org.wso2.appfactory:jaxrs-archetype:jar</include>
+                <include>org.wso2.appfactory:jaxws-archetype:jar</include>
+                <include>org.wso2.appfactory:jaggery-archetype:jar</include>
+                <include>org.wso2.appfactory:dbs-archetype:jar</include>
+                <include>org.wso2.appfactory:bpel-archetype:jar</include>
+                <include>org.wso2.appfactory:esb-archetype:jar</include>
+                <include>org.wso2.appfactory:php-archetype:jar</include>
+	         <include>org.wso2.appfactory:dotnet-archetype:jar</include>
+                <include>org.wso2.appfactory:maven-archetype-webapp:jar</include>
             </includes>
         </dependencySet>
         
@@ -468,8 +467,8 @@
             <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
             <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/jenkins</outputDirectory>
             <includes>
-                <include>org.jenkins.wso2.appfactory:appfactory-authentication-plugin:hpi</include>
-                <include>org.wso2.carbon.appfactory.jenkins:appfactory-plugin:hpi</include>
+                <include>org.wso2.appfactory:appfactory-authentication-plugin:hpi</include>
+                <include>org.wso2.appfactory:appfactory-plugin:hpi</include>
             </includes>
         </dependencySet>
         
@@ -478,7 +477,7 @@
             <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
             <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/gitblit</outputDirectory>
             <includes>
-                <include>org.wso2.carbon:appfactory.gitblit.plugin:jar</include>
+                <include>org.wso2.appfactory:appfactory.gitblit.plugin:jar</include>
             </includes>
         </dependencySet>
         

@@ -67,52 +67,47 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.archetype</groupId>
-            <artifactId>af-archetype</artifactId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.webapparchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>webapp-archetype</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaxrsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxrs-archetype</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaxwsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxws-archetype</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaggeryarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaggery-archetype</artifactId>
             <type>jar</type>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.esbarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>esb-archetype</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.bpelarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>bpel-archetype</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.dbsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>dbs-archetype</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.phparchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>php-archetype</artifactId>
             <type>jar</type>
         </dependency>
 	 <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.dotnetarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>dotnet-archetype</artifactId>
             <type>jar</type>
         </dependency>
@@ -121,12 +116,12 @@
             <artifactId>el-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jenkins.wso2.appfactory</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-authentication-plugin</artifactId>
             <type>hpi</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.jenkins</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-plugin</artifactId>
             <type>hpi</type>
         </dependency>
