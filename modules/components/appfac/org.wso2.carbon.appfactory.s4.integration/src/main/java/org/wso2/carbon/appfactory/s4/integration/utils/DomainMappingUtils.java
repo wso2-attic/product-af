@@ -31,11 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
-import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
@@ -524,12 +521,15 @@ public class DomainMappingUtils {
     }
 
     /**
-     * Get domain available end point.
+     * Get domain available end point suffix.
      *
-     * @param stage  the stage of the Stratos SM
-     * @param domain domain to be checked for availability
-     * @param appType
-     * @return domain availability end point
+     * @param stage   the stage of the Stratos SM
+     * @param domain  domain to be checked for availability
+     * @param appType application type
+     * @return domain availability end point in the format of
+     * "/stratos/admin/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains/{@code domain}"
+     * <p/>
+     * e.g: /stratos/admin/cartridge/samproduction/subscription/assamdotcom/domains/app1.sam.com
      */
     public static String getDomainAvailableEndPoint(String stage, String domain, String appType)
             throws AppFactoryException {
@@ -538,11 +538,14 @@ public class DomainMappingUtils {
     }
 
     /**
-     * get add domain end point.
+     * Get add domain end point suffix.
      *
-     * @param stage the stage of the Stratos SM
+     * @param stage   the stage of the Stratos SM
      * @param appType application type
-     * @return add domain end point
+     * @return add domain end point in the format of
+     * "/stratos/admin/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains/"
+     * <p/>
+     * e.g: /stratos/admin/cartridge/samproduction/subscription/assamdotcom/domains/
      */
     public static String getAddDomainEndPoint(String stage, String appType) throws AppFactoryException {
         return String.format(ADD_DOMAIN_END_POINT, CommonUtil.getCartridgeType(stage, appType),
@@ -550,12 +553,15 @@ public class DomainMappingUtils {
     }
 
     /**
-     * Get remove domain end point
+     * Get remove domain end point suffix
      *
-     * @param stage  the stage of the Stratos SM
-     * @param domain domain to be removed
+     * @param stage   the stage of the Stratos SM
+     * @param domain  domain to be removed
      * @param appType application type
-     * @return remove domain end point
+     * @return remove domain end point in the format of
+     * "/stratos/admin/cartridge/{cartridgeType}/subscription/{subscriptionAlias}/domains/{@code domain}"
+     * <p/>
+     * e.g /stratos/admin/cartridge/samproduction/subscription/assamdotcom/domains/app1.sam.com
      */
     public static String getRemoveDomainEndPoint(String stage, String domain, String appType)
             throws AppFactoryException {
