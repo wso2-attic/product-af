@@ -936,7 +936,6 @@ public class JDBCApplicationDAO {
             if (application.next()) {
                 branchCount = application.getInt(SQLParameterConstants.COLUMN_NAME_BRANCH_COUNT);
                 if (branchCount > 0) {
-                    //Add to the cache here 
                     applicationBranchCountCache.put(applicationAppsBranchCountKey, branchCount);
                 }
             }
