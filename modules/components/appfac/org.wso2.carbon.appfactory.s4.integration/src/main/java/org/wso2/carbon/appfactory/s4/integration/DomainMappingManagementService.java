@@ -17,7 +17,6 @@ package org.wso2.carbon.appfactory.s4.integration;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
-import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
@@ -33,7 +31,6 @@ import org.wso2.carbon.appfactory.eventing.builder.utils.AppInfoUpdateEventBuild
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingAction;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingResponse;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 
 import javax.naming.NamingEnumeration;
@@ -42,7 +39,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
 import java.util.Collection;
 import java.util.Hashtable;
 
@@ -76,12 +72,15 @@ public class DomainMappingManagementService {
      * @param appKey         application key
      * @param version        version to be mapped, null if map to default page
      * @param isCustomDomain whether {@code domain} is custom domain or not
-     * @throws AppFactoryException
+     * @throws AppFactoryException                if an error occurred during the operation
+     * @throws DomainMappingVerificationException if the requested {@code domain} is not verified, given that it is a
+     *                                            custom domain({@code isCustomDomain} is true). To find more info on
+     *                                            verification method, please refer to {@link
+     *                                            #verifyCustomUrlForApplication}
      */
     public void addSubscriptionDomain(String stage, String domain, String appKey, String version,
                                       boolean isCustomDomain)
             throws AppFactoryException, DomainMappingVerificationException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String appType = ApplicationManager.getInstance().getApplicationInfo(appKey).getType();
         String addSubscriptionDomainEndPoint =
                 DomainMappingUtils.getAddDomainEndPoint(stage, appType);
@@ -358,7 +357,7 @@ public class DomainMappingManagementService {
      *
      * @param stage  mapping stage
      * @param domain e.g: some.organization.org this doesn't require the protocol such as http/https
-     * @param appKey
+     * @param appKey application key
      * @throws AppFactoryException
      */
     public void removeSubscriptionDomain(String stage, String domain, String appKey) throws AppFactoryException {
@@ -536,7 +535,7 @@ public class DomainMappingManagementService {
      *
      * @param stage  mapping stage
      * @param domain e.g: some.organization1.org this doesn't require the protocol such as http/https
-     * @param appType
+     * @param appType application type
      * @return true if domain is available
      */
     private boolean isDomainAvailable(String stage, String domain, String appType) throws AppFactoryException {
