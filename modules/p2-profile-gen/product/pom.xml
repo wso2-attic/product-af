@@ -306,7 +306,7 @@
                                 </featureArtifactDef>
 
                                 <!-- jaggary hosting -->
-                                <featureArtifactDef>
+                                <!--featureArtifactDef>
                                     org.jaggeryjs:org.jaggeryjs.feature:${jaggeryjs.version}
                                 </featureArtifactDef>
                                 <featureArtifactDef>
@@ -323,7 +323,7 @@
                                 </featureArtifactDef>
                                 <featureArtifactDef>
                                     org.jaggeryjs.modules:i18n.feature:${jaggery.extensions.previous.version}
-                                </featureArtifactDef>
+                                </featureArtifactDef-->
 
                                 <!-- registry related features-->
                                 <featureArtifactDef>
@@ -526,7 +526,7 @@
                                 </feature>
 
                                 <!-- Jaggary application -->
-                                <feature>
+                                <!--feature>
                                     <id>org.jaggeryjs.feature.group</id>
                                     <version>${jaggeryjs.version}</version>
                                 </feature>
@@ -549,7 +549,7 @@
                                 <feature>
                                     <id>org.jaggeryjs.modules.i18n.feature.group</id>
                                     <version>${jaggery.extensions.previous.version}</version>
-                                </feature>
+                                </feature-->
                                 <!-- cApp uploading features-->
                                 <feature>
                                     <id>org.wso2.carbon.application.mgt.feature.group</id>
