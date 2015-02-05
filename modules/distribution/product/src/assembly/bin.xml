@@ -463,14 +463,6 @@
         </dependencySet>
         
         <!-- Adding Jenkins related plugins to Appfactory distribution -->
-        <dependencySet>
-            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
-            <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/jenkins</outputDirectory>
-            <includes>
-                <include>org.wso2.appfactory:appfactory-authentication-plugin:hpi</include>
-                <include>org.wso2.appfactory:appfactory-plugin:hpi</include>
-            </includes>
-        </dependencySet>
         
         <!-- Adding git blit related plugins to Appfactory distribution -->
         <dependencySet>

@@ -116,16 +116,6 @@
             <artifactId>el-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.appfactory</groupId>
-            <artifactId>appfactory-authentication-plugin</artifactId>
-            <type>hpi</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.appfactory</groupId>
-            <artifactId>appfactory-plugin</artifactId>
-            <type>hpi</type>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.ext</artifactId>
             <type>jar</type>
