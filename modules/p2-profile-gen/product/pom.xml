@@ -752,10 +752,6 @@
                                     <id>org.wso2.carbon.as.runtimes.cxf.feature.group</id>
                                     <version>${carbon.platform.version}</version>
                                 </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.core.runtime.feature.group</id>
-                                    <version>${carbon.kernel.version}</version>
-                                </feature>
 
                             </features>
                         </configuration>
