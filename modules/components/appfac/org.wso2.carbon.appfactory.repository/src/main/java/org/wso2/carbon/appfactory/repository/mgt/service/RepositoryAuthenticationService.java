@@ -54,26 +54,29 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
 				RegistryType.USER_GOVERNANCE);
 		Registry configRegistry =
 				(Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
-		LifecycleBean lifecycleBean;
 		try {
-			lifecycleBean = LifecycleBeanPopulator.getLifecycleBean(path, usrRegistry, configRegistry);
+			LifecycleBean lifecycleBean = LifecycleBeanPopulator.getLifecycleBean(path, usrRegistry, configRegistry);
+			if (lifecycleBean == null) {
+				log.error("Failed to get lifecycle bean for registry path : " + path + " for application: " +
+				          applicationId + " and version : " + version+". Hence user is not allowed to commit.");
+				return false;
+			}
 			Property[] lifecycleProperties = lifecycleBean.getLifecycleProperties();
 			String stage = null;
 			for (Property lifecycleProp : lifecycleProperties){
-				if(lifecycleProp.getKey().equals(AppFactoryConstants.APPLICATION_LIFECYCLE_STATE_KEY)){
+				if(AppFactoryConstants.APPLICATION_LIFECYCLE_STATE_KEY.equals(lifecycleProp.getKey())){
 					stage = lifecycleProp.getValues()[0];
 					break;
 				}
 			}
-			if(stage != null && !Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
+			if(stage != null && Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
 					getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".CanCommit"))){
-				return false;
+				return true;
 			}
-			return true;
+			return false;
 		} catch (Exception e) {
 			String msg =
-					"Error while retrieving the stage of the version  " +
-					applicationId;
+					"Error while retrieving the stage of application : " + applicationId + " and version : " + version;
 			log.error(msg, e);
 			return false;
 		}
