@@ -309,16 +309,10 @@ public class ProjectUtils {
 
         GenericArtifactImpl artifact = CommonUtil.getApplicationArtifact(applicationId, tenantDomain);
 
-        if (artifact == null) {
-            String errorMsg =
-                    String.format("Unable to find applcation information for id : %s",
-                            applicationId);
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-
         try {
-            return artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_REPO_TYPE);
+	        if (artifact != null) {
+		        return artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_REPO_TYPE);
+	        }
         } catch (RegistryException e) {
             String errorMsg =
                     String.format("Unable to find the repository type for application id: %s",
@@ -326,6 +320,7 @@ public class ProjectUtils {
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
+	    return null;
     }
 
     public static void generateGitIgnore(String absolutePath) throws AppFactoryException {

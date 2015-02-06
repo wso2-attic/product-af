@@ -67,21 +67,19 @@ public class CommonUtil {
 
         GenericArtifactImpl artifact = getApplicationArtifact(applicationId, tenantDomain);
 
-        if (artifact == null) {
-            String errorMsg = String.format("Unable to find application information for id : %s", applicationId);
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-
         try {
-            String applicationType = artifact.getAttribute("application_type");
-            return applicationType;
+	        if (artifact != null) {
+		        return artifact.getAttribute("application_type");
+
+	        }
+
         } catch (RegistryException e) {
             String errorMsg =
                     String.format("Unable to find the application type for application " + "id: %s", applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
+	    return null;
     }
 
     /**
