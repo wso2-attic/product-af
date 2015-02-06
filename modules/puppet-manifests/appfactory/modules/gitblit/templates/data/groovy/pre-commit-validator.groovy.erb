@@ -128,6 +128,8 @@ if(user.username != systemUser){
             ref = 'trunk'
         } else if (ref.startsWith('refs/heads/')) {     // if the commit is to a other branch
             ref = ref.substring('refs/heads/'.length())
+        } else if (ref.startsWith('refs/remotes/origin/')) {     // if the commit is to a other branch
+            ref = ref.substring('refs/remotes/origin/'.length())
         }
         String requestXML = "";
         requestXML="<soap:Envelope xmlns:soap='http://www.w3.org/2003/05/soap-envelope' xmlns:rep='http://service.mgt.repository.appfactory.carbon.wso2.org'>";
