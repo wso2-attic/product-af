@@ -64,7 +64,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/advanced/
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/advanced/
             </directory>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/conf/advanced
@@ -77,7 +77,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/data-bridge/
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/data-bridge/
             </directory>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/conf/data-bridge
@@ -88,7 +88,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/dbscripts/identity/
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/dbscripts/identity/
             </directory>
             <outputDirectory>
                 wso2appfactory-${pom.version}/dbscripts/identity/
@@ -150,7 +150,7 @@
 
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/
             </directory>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
             <includes>
@@ -162,7 +162,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/multitenancy/
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/multitenancy/
             </directory>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/multitenancy</outputDirectory>
             <includes>
@@ -184,7 +184,7 @@
 
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/resources/jaggery-modules
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/resources/jaggery-modules
             </directory>
             <outputDirectory>wso2appfactory-${pom.version}/modules</outputDirectory>
             <includes>
@@ -193,14 +193,14 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/modules
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/modules
             </directory>
             <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/modules
             </outputDirectory>
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/site/blocks
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/site/blocks
             </directory>
             <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/site/blocks
             </outputDirectory>
@@ -208,7 +208,7 @@
 
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/site/themes/default/templates
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/deployment/server/jaggeryapps/components/site/themes/default/templates
             </directory>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/deployment/server/jaggeryapps/appmgt/site/themes/default/templates
@@ -216,7 +216,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/resources/
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/resources/
             </directory>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/resources/
@@ -231,7 +231,7 @@
 
 
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/modules</directory>
+            <directory>../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/modules</directory>
             <outputDirectory>wso2appfactory-${pom.version}/modules</outputDirectory>
         </fileSet>
 
@@ -336,7 +336,7 @@
 
         <!--copying runtimes-->
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.platform.version}/lib/runtimes</directory>
+            <directory>../../p2-profile-gen/target/wso2carbon-core-${carbon.platform.version}/lib/runtimes</directory>
             <outputDirectory>${pom.artifactId}-${pom.version}/lib/runtimes/</outputDirectory>
             <includes>
                 <include>*/**</include>
@@ -416,7 +416,7 @@
 
         <!-- Copying social jars-->
         <fileSet>
-            <directory>../../p2-profile-gen/product/target/wso2carbon-core-${carbon.platform.version}/repository/deployment/server/bam-toolbox</directory>
+            <directory>../../p2-profile-gen/target/wso2carbon-core-${carbon.platform.version}/repository/deployment/server/bam-toolbox</directory>
             <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/bam-toolbox/</outputDirectory>
             <includes>
                 <include>*/**</include>
@@ -590,7 +590,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/identity.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/identity.xml
             </source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/</outputDirectory>
             <filtered>true</filtered>
@@ -598,7 +598,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/email/confirmation-email-config.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/email/confirmation-email-config.xml
             </source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/email/</outputDirectory>
             <filtered>true</filtered>
@@ -606,7 +606,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/appfactory/sts-policy-ut.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/appfactory/sts-policy-ut.xml
             </source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory/</outputDirectory>
             <filtered>true</filtered>
@@ -615,14 +615,14 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/security/saml2.federation.properties
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/security/saml2.federation.properties
             </source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/security</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/webapp-classloading.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/webapp-classloading.xml
             </source>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/conf/tomcat</outputDirectory>
             <filtered>true</filtered>
@@ -630,7 +630,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/webapp-classloading-environments.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/webapp-classloading-environments.xml
             </source>
             <outputDirectory>${pom.artifactId}-${pom.version}/repository/conf/tomcat</outputDirectory>
             <filtered>true</filtered>
@@ -638,7 +638,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/context.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/tomcat/context.xml
             </source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/tomcat</outputDirectory>
             <filtered>true</filtered>
@@ -698,7 +698,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/data/is-default-schema.zip
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/data/is-default-schema.zip
             </source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/data</outputDirectory>
         </file>
@@ -751,7 +751,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml
             </source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/deployment/server/outputeventadaptors/
@@ -762,7 +762,7 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml
             </source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/deployment/server/inputeventadaptors/
@@ -773,7 +773,7 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml
             </source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/conf/cep/default-artifacts/outputeventadaptors/
@@ -784,7 +784,7 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/product/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml
             </source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/conf/cep/default-artifacts/inputeventadaptors/
