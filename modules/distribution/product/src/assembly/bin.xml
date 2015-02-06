@@ -742,7 +742,7 @@
         </file>
         <!-- copying the AF BAM toolbox -->
         <file>
-            <source>../../statistics/target/AF_Analytics.tbox </source>
+            <source>../../statistics/target/AF_Analytics.tbox</source>
             <outputDirectory>wso2appfactory-${pom.version}/resources/toolboxes</outputDirectory>
         </file>
 	    <file>
@@ -751,8 +751,7 @@
         </file>
         <file>
             <source>
-                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml
-            </source>
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml</source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/deployment/server/outputeventadaptors/
             </outputDirectory>
@@ -762,8 +761,7 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml
-            </source>
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml</source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/deployment/server/inputeventadaptors/
             </outputDirectory>
@@ -773,8 +771,7 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml
-            </source>
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/outputeventadaptors/DefaultLoggerOutputAdaptor.xml</source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/conf/cep/default-artifacts/outputeventadaptors/
             </outputDirectory>
@@ -784,8 +781,7 @@
 
         <file>
             <source>
-                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml
-            </source>
+                ../../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/conf/cep/default-artifacts/inputeventadaptors/DefaultWSO2EventInputAdaptor.xml</source>
             <outputDirectory>
                 wso2appfactory-${pom.version}/repository/conf/cep/default-artifacts/inputeventadaptors/
             </outputDirectory>
