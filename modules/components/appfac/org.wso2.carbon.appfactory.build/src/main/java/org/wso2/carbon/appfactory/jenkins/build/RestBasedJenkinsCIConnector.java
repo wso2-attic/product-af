@@ -52,12 +52,9 @@ import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
-import com.gitblit.Keys.mail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,13 +80,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			restBasedJenkinsCIConnector = new RestBasedJenkinsCIConnector();
 		} catch (AppFactoryException e) {
-			String msg = "Error occured while instantiating the RestBasedJenkinsCIConnector";
+			String msg = "Error occurred while instantiating the RestBasedJenkinsCIConnector";
 			log.error(msg, e);
 			throw new RuntimeException(msg, e);
 		}
 	}
-
-	private static Object lockObject = new Object();
 
 	/**
 	 * The http client used to connect jenkins.
@@ -212,11 +207,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			int httpStatusCode = getHttpClient().executeMethod(addRoleMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(addRoleMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to create the role. jenkins returned, "
 								+ "http status : %d", httpStatusCode);
@@ -283,10 +278,10 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					assignRolesMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(assignRolesMethod);
 			}
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to assign roles to given sides. jenkins "
 								+ "returned, http status : %d", httpStatusCode);
@@ -324,8 +319,8 @@ public class RestBasedJenkinsCIConnector {
 		}
 
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		for (int i = 0; i < users.length; ++i) {
-			params.add(new NameValuePair(AppFactoryConstants.ASSIGN_USER_ID, users[i]));
+		for (String user : users) {
+			params.add(new NameValuePair(AppFactoryConstants.ASSIGN_USER_ID, user));
 		}
 
 		params.add(new NameValuePair(AppFactoryConstants.PROJECT_ROLE, appicationKey));
@@ -338,21 +333,20 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					assignRolesMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(assignRolesMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String
 						.format("Unable to un-assign roles to given application. jenkins returned, http status : %d",
-								Integer.valueOf(httpStatusCode));
+						        httpStatusCode);
 				log.error(errorMsg);
 				throw new AppFactoryException(errorMsg);
 			}
 		} catch (Exception e) {
 			String errorMsg = String.format(
-					"Error while un-assining user roles from aplication: %s",
-					new Object[] { e.getMessage() });
+					"Error while un-assining user roles from application:%s", appicationKey);
 			log.error(errorMsg, e);
 			throw new AppFactoryException(errorMsg, e);
 		} finally {
@@ -406,11 +400,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			int httpStatusCode = getHttpClient().executeMethod(getJobsMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getJobsMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to retrieve job names: filter text :%s, "
 								+ "jenkins returned, http status : %d",
@@ -453,11 +447,11 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					getArtifactMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getArtifactMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to retrieve artifact from jenkins. "
 								+ "jenkins returned, http status : %d",
@@ -545,11 +539,11 @@ public class RestBasedJenkinsCIConnector {
 					tenantDomain);
 			int httpStatusCode = getHttpClient().executeMethod(createJob);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(createJob);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to create the job: [%s]. jenkins "
 								+ "returned, http status : %d", jobName,
@@ -628,11 +622,11 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					checkJobExistsMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(checkJobExistsMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				final String errorMsg = String.format(
 						"Unable to check the existance of job: [%s]"
 								+ ". jenkins returned, http status : %d",
@@ -676,11 +670,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			httpStatusCode = getHttpClient().executeMethod(deleteJobMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(deleteJobMethod);
 			}
 
-			if (HttpStatus.SC_FORBIDDEN == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				final String errorMsg = String.format(
 						"Unable to delete: [%s]. jenkins returned, "
 								+ "http status : %d", jobName, httpStatusCode);
@@ -769,7 +763,7 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			httpStatusCode = getHttpClient().executeMethod(startBuildMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(startBuildMethod);
 			}
 
@@ -906,11 +900,11 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					checkJobExistsMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(checkJobExistsMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				final String errorMsg = String.format(
 						"Unable to check the status  of build: [%s]"
 								+ ". jenkins returned, http status : %d",
@@ -961,11 +955,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			int httpStatusCode = getHttpClient().executeMethod(getBuildsMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getBuildsMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to retrieve available build urls from "
 								+ "jenkins for job %s. jenkins returned,"
@@ -1008,11 +1002,11 @@ public class RestBasedJenkinsCIConnector {
 
 			int httpStatusCode = getHttpClient().executeMethod(overallLoad);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(overallLoad);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				final String errorMsg = String.format(
 						"Unable to check the overal load of jenkins"
 								+ ". jenkins returned, http status : %d",
@@ -1085,13 +1079,13 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					getBuildsHistoryMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getBuildsHistoryMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				final String errorMsg = String.format(
-						"Unable to fetch information from Jenkins for : %d",
+						"Unable to fetch information from Jenkins for : %s, %d",
 						getBuildsHistoryMethod.getURI(), httpStatusCode);
 
 				log.error(errorMsg);
@@ -1240,13 +1234,13 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					deployLatestSuccessArtifactMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(deployLatestSuccessArtifactMethod);
 			}
 
 			log.info("status code for deploy latest success artifact : "
 					+ httpStatusCode);
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = "Unable to deploy the latest success artifact. jenkins "
 						+ "returned, http status : " + httpStatusCode;
 				log.error(errorMsg);
@@ -1320,10 +1314,11 @@ public class RestBasedJenkinsCIConnector {
 		}
 		try {
 			int httpStatusCode = getHttpClient().executeMethod(undeployArtifactMethod);
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(undeployArtifactMethod);
 			}
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = "Unable to undeploy the  artifact for job name : " + jobName + " application id : " +
 				                  applicationId + " version : " + version + " stage : " + stage + " tenant domain : " +
 				                  tenantDomain + ". Jenkins returned, http status : " + httpStatusCode;
@@ -1384,13 +1379,11 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatusCode = getHttpClient().executeMethod(
 					deployPromotedArtifactMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(deployPromotedArtifactMethod);
 			}
 
-			log.info("status code for deploy promoted artifact artifact : "
-					+ httpStatusCode);
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = "Unable to deploy the promoted artifact for job "
 						+ jobName
 						+ ". jenkins returned, http status : "
@@ -1408,22 +1401,6 @@ public class RestBasedJenkinsCIConnector {
 		}
 	}
 
-	/**
-	 * Creates the applicationId from the job name
-	 * 
-	 * @param jobName
-	 *            jobName
-	 * @return applicationId
-	 */
-	private String getAppId(String jobName) {
-		// job name : <applicationId>-<version>-default
-
-		// removing the '-default' part
-		String temp = jobName.substring(0, jobName.lastIndexOf("-"));
-		// removing the app version
-		String applicationId = temp.substring(0, temp.lastIndexOf("-"));
-		return applicationId;
-	}
 
 	/**
 	 * This will return the tag names of the persisted artifact of the given job
@@ -1457,11 +1434,11 @@ public class RestBasedJenkinsCIConnector {
 			log.info("status code for getting tag names of persisted artifacts : "
 					+ httpStatusCode);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getIdsOfPersistArtifactMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = "Unable to get the tag names of persisted artifact for job "
 						+ jobName
 						+ ". jenkins returned, http status : "
@@ -1527,11 +1504,11 @@ public class RestBasedJenkinsCIConnector {
 
 			int httpStatusCode = getHttpClient().executeMethod(getFetchMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getFetchMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to retrieve available config urls from "
 								+ "jenkins for job %s. "
@@ -1613,11 +1590,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			int httpStatusCode = getHttpClient().executeMethod(getFetchMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getFetchMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to retrieve available config urls from "
 								+ "jenkins for job %s. "
@@ -1688,11 +1665,11 @@ public class RestBasedJenkinsCIConnector {
 					tenantDomain);
 			int httpStatusCode = getHttpClient().executeMethod(createJob);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(createJob);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to set configuration: [%s]. jenkins "
 								+ "returned, http status : %d", jobName,
@@ -1893,11 +1870,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			int httpStatusCode = getHttpClient().executeMethod(getFetchMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getFetchMethod);
 			}
 
-			if (HttpStatus.SC_OK != httpStatusCode) {
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = String.format(
 						"Unable to retrieve available config urls from "
 								+ "jenkins for job %s. "
@@ -2071,4 +2048,15 @@ public class RestBasedJenkinsCIConnector {
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS,
 		                                 runtimeBean.getDataCartridgeAlias()));
 	}
+
+	/**
+	 * Check if the given status code is in 2xx range.
+	 *
+	 * @param httpStatusCode - status code to be checked
+	 * @return true if status code is in 2xx range
+	 */
+	private boolean isSuccessfulStatusCode(int httpStatusCode) {
+		return (httpStatusCode >= HttpStatus.SC_OK && httpStatusCode < 299);
+	}
+
 }
