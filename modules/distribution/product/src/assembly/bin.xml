@@ -488,32 +488,6 @@
             </includes>
         </dependencySet>
 
-        <dependencySet>
-            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
-            <outputDirectory>wso2appfactory-${pom.version}/resources/jaggery-apps/</outputDirectory>
-            <includes>
-                <include>org.wso2.cloud.mgt:cloudmgt:zip</include>
-            </includes>
-        </dependencySet>
-
-        <dependencySet>
-            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
-            <outputDirectory>wso2appfactory-${pom.version}/repository/deployment/server/webapps</outputDirectory>
-            <includes>
-                <include>org.wso2.appfactory:org.wso2.carbon.issue.tracker:war</include>
-            </includes>
-	    <outputFileNameMapping>
-			issuetracker-2.1.0.war
-      	    </outputFileNameMapping>
-        </dependencySet>
-        <dependencySet>
-            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
-            <outputDirectory>wso2appfactory-${pom.version}/resources/dashboards/</outputDirectory>
-            <includes>
-                <include>org.wso2.appfactory:CXODashboard:zip</include>
-            </includes>
-        </dependencySet>
-
     </dependencySets>
 
     <files>
