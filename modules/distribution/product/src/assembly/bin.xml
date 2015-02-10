@@ -746,6 +746,10 @@
             <outputDirectory>wso2appfactory-${pom.version}/repository/resources/</outputDirectory>
         </file>
         <file>
+            <source>resources/lifecycle-config.xsd</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/resources/</outputDirectory>
+        </file>
+        <file>
             <source>resources/client-truststore.jks</source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/resources/security/</outputDirectory>
             <fileMode>644</fileMode>
