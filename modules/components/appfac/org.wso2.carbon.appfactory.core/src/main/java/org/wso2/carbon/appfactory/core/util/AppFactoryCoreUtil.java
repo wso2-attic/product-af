@@ -187,8 +187,8 @@ public class AppFactoryCoreUtil {
      */
     public static String getApplicationUrl(String applicationId, String version, String stage,
                                            String tenantDomain) throws AppFactoryException {
-	    String type= ApplicationManager.getInstance().getApplicationType(applicationId);
-        try {
+	    String type = ApplicationManager.getInstance().getApplicationType(applicationId);
+	    try {
 	        if(type != null) {
 		        return ApplicationTypeManager.getInstance().getApplicationTypeBean(type)
 		                                     .getProcessor().
