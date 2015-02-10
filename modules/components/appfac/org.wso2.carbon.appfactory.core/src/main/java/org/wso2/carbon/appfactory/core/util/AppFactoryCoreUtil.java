@@ -188,13 +188,17 @@ public class AppFactoryCoreUtil {
                                            String tenantDomain) throws AppFactoryException {
         String type = CommonUtil.getApplicationType(applicationId, tenantDomain);
         try {
-            return ApplicationTypeManager.getInstance().getApplicationTypeBean(type).getProcessor().
-                    getDeployedURL(tenantDomain, applicationId, version, stage);
+	        if (type != null) {
+		        return ApplicationTypeManager.getInstance().getApplicationTypeBean(type)
+		                                     .getProcessor().
+						        getDeployedURL(tenantDomain, applicationId, version, stage);
+	        }
         } catch (NullPointerException e) {
             String msg = "Error while retriving application url";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
+	    return null;
     }
 
     /**
