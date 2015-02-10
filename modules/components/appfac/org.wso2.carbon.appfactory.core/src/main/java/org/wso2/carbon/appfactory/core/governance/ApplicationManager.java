@@ -144,7 +144,7 @@ public class ApplicationManager {
     /**
      * Method to retieve application
      * @param applicationId - Applicaiton ID
-     * @return Information object
+     * @return Information object or null if application by the id is not in registry
      * @throws AppFactoryException
      */
 	private Application getApplication(String applicationId,
@@ -170,24 +170,27 @@ public class ApplicationManager {
 			Resource resource = userRegistry.get(path);
 			
 			GenericArtifact artifact = artifactManager.getGenericArtifact(resource.getUUID());
-		    //GenericArtifact artifact = artifactManager.get().getGenericArtifact(resource.getUUID());
-			Application application = getAppInfoFromRXT(artifact);
+			Application application=null;
+			if(artifact !=null) {
+				application = getAppInfoFromRXT(artifact);
 
-			// TODO Find a proper place for this.Now read runtime information
-			// from DB
-			JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
-			application.setBranchCount(applicationDAO.getBranchCount(application.getId()));
-			// set application creation status, if not found, consider as
-			// completed because previously
-			// created applications does not contain this attribute
-			String applicationCreationStatus = applicationDAO.getApplicationCreationStatus(application.getId())
-			                                                 .name();
-			if (applicationCreationStatus != null) {
-				application.setApplicationCreationStatus(Constants.ApplicationCreationStatus.valueOf(applicationCreationStatus));
-			} else {
-				application.setApplicationCreationStatus(Constants.ApplicationCreationStatus.COMPLETED);
+				// from DB
+				JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
+				application.setBranchCount(applicationDAO.getBranchCount(application.getId()));
+				// set application creation status, if not found, consider as
+				// completed because previously
+				// created applications does not contain this attribute
+				String applicationCreationStatus =
+						applicationDAO.getApplicationCreationStatus(application.getId())
+						              .name();
+				if (applicationCreationStatus != null) {
+					application.setApplicationCreationStatus(
+							Constants.ApplicationCreationStatus.valueOf(applicationCreationStatus));
+				} else {
+					application.setApplicationCreationStatus(
+							Constants.ApplicationCreationStatus.COMPLETED);
+				}
 			}
-
 			return application;
 		} catch (GovernanceException e) {
 			throw new AppFactoryException("Error while getting Application Info service ", e);

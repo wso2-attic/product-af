@@ -33,6 +33,7 @@ import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
@@ -302,23 +303,17 @@ public class ProjectUtils {
      *
      * @param applicationId Id of the application
      * @param tenantDomain  Tenant name of the application
-     * @return Repository Type
+     * @return Repository Type or null if artifact is null for the id and tenant domain in registry)
      * @throws AppFactoryException If Unable to find Application or Repository Type
      */
     public static String getRepositoryType(String applicationId, String tenantDomain) throws AppFactoryException {
 
         GenericArtifactImpl artifact = CommonUtil.getApplicationArtifact(applicationId, tenantDomain);
 
-        if (artifact == null) {
-            String errorMsg =
-                    String.format("Unable to find applcation information for id : %s",
-                            applicationId);
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-
         try {
-            return artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_REPO_TYPE);
+	        if (artifact != null) {
+		        return artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_REPO_TYPE);
+	        }
         } catch (RegistryException e) {
             String errorMsg =
                     String.format("Unable to find the repository type for application id: %s",
@@ -326,6 +321,7 @@ public class ProjectUtils {
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
+	    return null;
     }
 
     public static void generateGitIgnore(String absolutePath) throws AppFactoryException {
@@ -541,7 +537,7 @@ public class ProjectUtils {
     public static String getApplicationExtenstion(String applicationID,
 			String tenantDomain) throws AppFactoryException {
 
-    	String applicationType = CommonUtil.getApplicationType(applicationID, tenantDomain);
+    	String applicationType = ApplicationManager.getInstance().getApplicationType(applicationID);
     	ApplicationTypeBean applicationTypeProcessor = ApplicationTypeManager.getInstance().getApplicationTypeBean(applicationType);
 		return applicationTypeProcessor.getExtension();
 	}

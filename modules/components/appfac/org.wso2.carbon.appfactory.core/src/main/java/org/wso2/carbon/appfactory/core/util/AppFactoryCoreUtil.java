@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
@@ -181,20 +182,24 @@ public class AppFactoryCoreUtil {
      * @param version       Version of the user application
      * @param stage         Current stage of the user application
      * @param tenantDomain  Tenant domain which application belongs to
-     * @return Generated url of the user application
+     * @return Generated url of the user application or null if application type is null for id in registry
      * @throws {@link AppFactoryException} If there is an issue in generating application url
      */
     public static String getApplicationUrl(String applicationId, String version, String stage,
                                            String tenantDomain) throws AppFactoryException {
-        String type = CommonUtil.getApplicationType(applicationId, tenantDomain);
+	    String type= ApplicationManager.getInstance().getApplicationType(applicationId);
         try {
-            return ApplicationTypeManager.getInstance().getApplicationTypeBean(type).getProcessor().
-                    getDeployedURL(tenantDomain, applicationId, version, stage);
+	        if(type != null) {
+		        return ApplicationTypeManager.getInstance().getApplicationTypeBean(type)
+		                                     .getProcessor().
+						        getDeployedURL(tenantDomain, applicationId, version, stage);
+	        }
         } catch (NullPointerException e) {
             String msg = "Error while retriving application url";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
+	    return null;
     }
 
     /**
