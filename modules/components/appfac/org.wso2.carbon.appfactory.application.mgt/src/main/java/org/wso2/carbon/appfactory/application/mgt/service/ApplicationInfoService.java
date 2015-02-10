@@ -123,7 +123,7 @@ public class ApplicationInfoService {
      * @throws AppFactoryException If invalid application or application type is not available
      */
     public String getApplicationType(String applicationId, String tenantDomain) throws AppFactoryException {
-        return CommonUtil.getApplicationType(applicationId, tenantDomain);
+        return ApplicationManager.getInstance().getApplicationType(applicationId);
     }
 
     private String getTenantDomain() {
