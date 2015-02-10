@@ -478,13 +478,13 @@
             <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
             <outputDirectory>wso2appfactory-${pom.version}/resources/extensions/</outputDirectory>
             <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.ext:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.bps.ext:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.stratos.listners:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.jenkinsext:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.multitenant.jenkins:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.application.deployer.stub:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.appfactory.build.stub:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.ext:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.bps.ext:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.stratos.listners:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.jenkinsext:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.multitenant.jenkins:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.application.deployer.stub:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.build.stub:jar</include>
             </includes>
         </dependencySet>
 
