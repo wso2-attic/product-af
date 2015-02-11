@@ -19,6 +19,8 @@ package org.wso2.carbon.appfactory.repository.mgt.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
@@ -44,6 +46,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -372,6 +375,21 @@ public class RepositoryManagementService extends AbstractAdmin {
         String title = gitUserName.split("@")[0] + " committed code to " + branch;
         try {
             EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.buildPostCommitEvents(applicationKey, gitUserName, title, commitMessage));
+            Date date= new java.util.Date();
+            BigDecimal timeValue = new BigDecimal(date.getTime());
+            JSONObject activity = new JSONObject();
+            activity.put("item", "commit");
+            activity.put("action", "commit");
+            activity.put("timestamp", timeValue.toEngineeringString());
+            activity.put("appKey", applicationKey);
+            activity.put("appVersion", branch);
+            String[] activities = new String[1];
+            activities[0] = activity.toString();
+            BamDataPublisher.getInstance().publishUserActivityEvents(CarbonContext.getThreadLocalCarbonContext().getTenantId(), gitUserName, activities);
+        } catch (JSONException e) {
+            log.error("Failed to publish commits of user", e);
+        } catch (AppFactoryException e) {
+            log.error("Failed to publish commits of user", e);
         } catch (AppFactoryEventException exception) {
             log.error("Failed to notify committing code to repository",
                     exception);
