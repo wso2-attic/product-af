@@ -53,7 +53,7 @@
       <module>modules/webapps</module>
       <module>modules/statistics</module>
       <module>modules/distribution</module>
-      <module>modules/integration</module>
+      <!--module>modules/integration</module-->
    </modules>
    <profiles>
       <profile>
