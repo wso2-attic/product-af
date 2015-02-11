@@ -420,7 +420,6 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
      * @param version the version of the application
      * @param revision the revision of the build
      * @param stage stage of the application
-     * @param userName TODO
      * @param repoFrom TODO
      */
     public void sendMessageToDeploy(final String applicationId,
