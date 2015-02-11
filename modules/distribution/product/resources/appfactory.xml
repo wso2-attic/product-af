@@ -751,7 +751,7 @@
         <Property name="Buildable">true</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.webapparchetype
-            -DarchetypeArtifactId=webapp-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=webapp-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT -DinteractiveMode=false
             -DarchetypeCatalog=local
         </Property>
@@ -817,7 +817,7 @@
         <Property name="Buildable">true</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaxrsarchetype
-            -DarchetypeArtifactId=jaxrs-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=jaxrs-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -842,7 +842,7 @@
         <Property name="Buildable">true</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaxwsarchetype
-            -DarchetypeArtifactId=jaxws-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=jaxws-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -868,7 +868,7 @@
         <Property name="Buildable">true</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaggeryarchetype
-            -DarchetypeArtifactId=jaggery-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=jaggery-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -891,7 +891,7 @@
         <Property name="Buildable">false</Property>
         <Property name="BuildJobTemplate">freestyle</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.dbsarchetype
-            -DarchetypeArtifactId=dbs-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=dbs-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -919,7 +919,7 @@
         <Property name="Buildable">false</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.bpelarchetype
-            -DarchetypeArtifactId=bpel-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=bpel-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -938,7 +938,7 @@
         <Property name="Buildable">false</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.phparchetype
-            -DarchetypeArtifactId=php-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=php-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -957,7 +957,7 @@
         <Property name="Buildable">true</Property>
         <Property name="BuildJobTemplate">maven</Property>
         <Property name="MavenArcheTypeRequest">-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.esbarchetype
-            -DarchetypeArtifactId=esb-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+            -DarchetypeArtifactId=esb-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
             -Dversion=default-SNAPSHOT
             -DinteractiveMode=false -DarchetypeCatalog=local
         </Property>
@@ -1043,5 +1043,5 @@
                 <ArtifactVersionName>SNAPSHOT</ArtifactVersionName>
         </ServiceVersioning>
     </TrunkVersioning>
-   <AppendStageToCartridgeInfo>true</AppendStageToCartridgeInfo>
+    <AppendStageToCartridgeInfo>true</AppendStageToCartridgeInfo>
 </AppFactory>

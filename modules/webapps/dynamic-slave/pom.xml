@@ -9,38 +9,11 @@
 
   <groupId>org.wso2.appfactory</groupId>
   <artifactId>dynamic-slave</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1</version>
   <packaging>hpi</packaging>
 
-  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
-  <repositories>
-    <repository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-    </repository>
-      <repository>
-          <id>wso2-nexus</id>
-          <name>WSO2 internal Repository</name>
-          <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-          <releases>
-              <enabled>true</enabled>
-              <updatePolicy>daily</updatePolicy>
-              <checksumPolicy>ignore</checksumPolicy>
-          </releases>
-      </repository>
-  </repositories>
-  <dependencies>
-      <dependency>
-          <groupId>org.wso2.carbon</groupId>
-          <artifactId>org.wso2.carbon.appfactory.common</artifactId>
-          <version>2.1.0-SNAPSHOT</version>
-          <scope>provided</scope>
-      </dependency>
-  </dependencies>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
+
+  <scm>
+    <tag>wso2appfactory-parent-2.1.0</tag>
+  </scm>
 </project>
