@@ -7,7 +7,7 @@
     <Buildable>true</Buildable>
     <BuildJobTemplate>maven</BuildJobTemplate>
     <MavenArcheTypeRequest>-DarchetypeGroupId=org.wso2.carbon.appfactory.maven.webapparchetype
-        -DarchetypeArtifactId=webapp-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.af
+        -DarchetypeArtifactId=webapp-archetype -DarchetypeVersion=2.0.0 -DgroupId=org.wso2.appfactory
         -Dversion=default-SNAPSHOT -DinteractiveMode=false
         -DarchetypeCatalog=local
     </MavenArcheTypeRequest>

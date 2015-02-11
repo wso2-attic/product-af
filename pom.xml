@@ -862,7 +862,7 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.jenkinsext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
