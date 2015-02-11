@@ -39,6 +39,7 @@ import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
 import org.wso2.carbon.appfactory.core.dto.Statistic;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
@@ -71,8 +72,7 @@ import java.util.Map;
  */
 public class RestBasedJenkinsCIConnector {
 
-	private static final Log log = LogFactory
-			.getLog(RestBasedJenkinsCIConnector.class);
+	private static final Log log = LogFactory.getLog(RestBasedJenkinsCIConnector.class);
 	private static final String UNDEPLOY_ARTIFACT_URL = "/plugin/appfactory-plugin/undeployArtifact";
 	private static RestBasedJenkinsCIConnector restBasedJenkinsCIConnector;
 
@@ -102,6 +102,15 @@ public class RestBasedJenkinsCIConnector {
 	private boolean authenticate;
 
 	/**
+	 * User who authenticate with jenkins rest api
+	 */
+	private String username;
+	/**
+	 * API key or password to authenticate user
+	 */
+	private String apiKeyOrPassword;
+
+	/**
 	 * Returns an instance of RestBasedJenkinsCIConnector
 	 * @return instance of RestBasedJenkinsCIConnector
 	 * @throws AppFactoryException when reading from appfactory.xml
@@ -119,10 +128,10 @@ public class RestBasedJenkinsCIConnector {
 		this.authenticate = Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
 				JenkinsCIConstants.AUTHENTICATE_CONFIG_SELECTOR));
 
-		String userName = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+		this.username = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
 				JenkinsCIConstants.JENKINS_SERVER_ADMIN_USERNAME);
 
-		String apiKeyOrpassword = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
+		this.apiKeyOrPassword = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
 				JenkinsCIConstants.JENKINS_SERVER_ADMIN_PASSWORD);
 
 		this.jenkinsUrl = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
@@ -130,8 +139,7 @@ public class RestBasedJenkinsCIConnector {
 
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("Authenticate : %s", this.authenticate));
-			log.debug(String.format("Jenkins user name : %s", userName));
-			log.debug(String.format("Jenkins api key : %s", apiKeyOrpassword));
+			log.debug(String.format("Jenkins user name : %s", this.username));
 			log.debug(String.format("Jenkins url : %s", this.jenkinsUrl));
 		}
 
@@ -141,21 +149,24 @@ public class RestBasedJenkinsCIConnector {
 			throw new IllegalArgumentException(
 					"Jenkins server url is unspecified");
 		}
-
-		if (this.authenticate) {
-			httpClient.getState()
-			          .setCredentials(
-					          AuthScope.ANY,
-					          new UsernamePasswordCredentials(userName,
-					                                          apiKeyOrpassword));
-			httpClient.getParams().setAuthenticationPreemptive(true);
-		}
 	}
 
 	/**
-	 * @return
+	 * Get Authenticated Http Client
+	 *
+	 * @return Http Client
 	 */
-	public HttpClient getHttpClient() {
+	public HttpClient getAuthenticatedHttpClient() {
+		// authentication credentials are set for each request because there were instances where 401 returned from Jenkins
+		// this is to avoid any overrides of params and state in http client.
+		if (this.authenticate) {
+			httpClient.getState()
+					.setCredentials(
+							AuthScope.ANY,
+							new UsernamePasswordCredentials(this.username,
+							                                this.apiKeyOrPassword));
+			httpClient.getParams().setAuthenticationPreemptive(true);
+		}
 		return httpClient;
 	}
 
@@ -205,7 +216,7 @@ public class RestBasedJenkinsCIConnector {
 				parameters.toArray(new NameValuePair[0]), null, tenantDomain);
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(addRoleMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(addRoleMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(addRoleMethod);
@@ -275,7 +286,7 @@ public class RestBasedJenkinsCIConnector {
 				tenantDomain);
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					assignRolesMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -330,7 +341,7 @@ public class RestBasedJenkinsCIConnector {
 				params.toArray(new NameValuePair[params.size()]), null,
 				tenantDomain);
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					assignRolesMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -398,7 +409,7 @@ public class RestBasedJenkinsCIConnector {
 		GetMethod getJobsMethod = createGet("/view/All/api/xml",
 				queryParameters, tenantDomain);
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(getJobsMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getJobsMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getJobsMethod);
@@ -444,7 +455,7 @@ public class RestBasedJenkinsCIConnector {
 		InputStream ins = null;
 		FileOutputStream out = null;
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					getArtifactMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -537,7 +548,7 @@ public class RestBasedJenkinsCIConnector {
 					new StringRequestEntity(jobConfiguration
 							.toStringWithConsume(), "text/xml", "utf-8"),
 					tenantDomain);
-			int httpStatusCode = getHttpClient().executeMethod(createJob);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(createJob);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(createJob);
@@ -619,7 +630,7 @@ public class RestBasedJenkinsCIConnector {
 
 		try {
 			checkJobExistsMethod.setQueryString(queryParameters);
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					checkJobExistsMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -668,7 +679,7 @@ public class RestBasedJenkinsCIConnector {
 				tenantDomain);
 		int httpStatusCode = -1;
 		try {
-			httpStatusCode = getHttpClient().executeMethod(deleteJobMethod);
+			httpStatusCode = getAuthenticatedHttpClient().executeMethod(deleteJobMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(deleteJobMethod);
@@ -761,16 +772,16 @@ public class RestBasedJenkinsCIConnector {
 		                        AppFactoryConstants.MINUS + repoFrom + AppFactoryConstants.MINUS +
 		                        version;
 		try {
-			httpStatusCode = getHttpClient().executeMethod(startBuildMethod);
+			httpStatusCode = getAuthenticatedHttpClient().executeMethod(startBuildMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(startBuildMethod);
 			}
 
             if (HttpStatus.SC_NOT_FOUND == httpStatusCode) {
-                RepositoryProvider repoProvider =
-                        Util.getRepositoryProvider("war");
-                String repoURL;
+	            String repoType = ApplicationManager.getInstance().getApplicationInfo(applicationId).getRepositoryType();
+	            RepositoryProvider repoProvider = Util.getRepositoryProvider(repoType);
+	            String repoURL;
                 try {
                     repoURL = repoProvider.getAppRepositoryURL(applicationId, tenantDomain);
                 } catch (RepositoryMgtException e) {
@@ -877,7 +888,7 @@ public class RestBasedJenkinsCIConnector {
 	public void logout(String tenantDomain) throws AppFactoryException {
 		GetMethod logoutMethod = createGet("/logout", null, tenantDomain);
 		try {
-			getHttpClient().executeMethod(logoutMethod);
+			getAuthenticatedHttpClient().executeMethod(logoutMethod);
 		} catch (Exception ex) {
 			String errorMsg = "Unable to login from jenkins";
 			log.error(errorMsg);
@@ -897,7 +908,7 @@ public class RestBasedJenkinsCIConnector {
 				tenantDomain);
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					checkJobExistsMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -953,7 +964,7 @@ public class RestBasedJenkinsCIConnector {
 				String.format("/job/%s/api/xml", jobName), queryParameters,
 				tenantDomain);
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(getBuildsMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getBuildsMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getBuildsMethod);
@@ -1000,7 +1011,7 @@ public class RestBasedJenkinsCIConnector {
 
 		try {
 
-			int httpStatusCode = getHttpClient().executeMethod(overallLoad);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(overallLoad);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(overallLoad);
@@ -1058,8 +1069,9 @@ public class RestBasedJenkinsCIConnector {
 
 		String buildUrl = null;
 		String buildsInfo = null;
-		log.info(String.format("getJsonTree - for %s > %s", jobName,
-				treeStructure));
+		if (log.isDebugEnabled()) {
+			log.debug(String.format("getJsonTree - for %s > %s", jobName, treeStructure));
+		}
 		if (jobName == null || jobName.isEmpty()
 		    || jobName.equalsIgnoreCase(AppFactoryConstants.ALL_JOB_NAME) ||
 		    jobName.equals(AppFactoryConstants.ASTERISK)) {
@@ -1076,7 +1088,7 @@ public class RestBasedJenkinsCIConnector {
 				queryParameters, tenantDomain);
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					getBuildsHistoryMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -1142,7 +1154,7 @@ public class RestBasedJenkinsCIConnector {
 						+ ".SubversionSCM/credentialOK", jobName);
 
 		try {
-			int httpStatus = getHttpClient()
+			int httpStatus = getAuthenticatedHttpClient()
 					.executeMethod(setCredentialsMethod);
 			Header locationHeader = setCredentialsMethod
 					.getResponseHeader(AppFactoryConstants.LOCATION_HEADER_PARAM);
@@ -1231,15 +1243,15 @@ public class RestBasedJenkinsCIConnector {
 					parameters.toArray(new NameValuePair[parameters.size()]),
 					tenantDomain);
 
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					deployLatestSuccessArtifactMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(deployLatestSuccessArtifactMethod);
 			}
 
-			log.info("status code for deploy latest success artifact : "
-					+ httpStatusCode);
+			log.info("status code for deploy latest success artifact type : " + artifactType + " job name : " +
+			         jobName + " stage : " + stage + " in tenant : " + tenantDomain + " is " + httpStatusCode);
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				String errorMsg = "Unable to deploy the latest success artifact. jenkins "
 						+ "returned, http status : " + httpStatusCode;
@@ -1313,7 +1325,7 @@ public class RestBasedJenkinsCIConnector {
 			          version + " stage : " + stage + " tenant domain : " + tenantDomain);
 		}
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(undeployArtifactMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(undeployArtifactMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(undeployArtifactMethod);
@@ -1376,7 +1388,7 @@ public class RestBasedJenkinsCIConnector {
 				tenantDomain);
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					deployPromotedArtifactMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
@@ -1429,10 +1441,12 @@ public class RestBasedJenkinsCIConnector {
 				parameters.toArray(new NameValuePair[parameters.size()]), null,
 				tenantDomain);
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
 					getIdsOfPersistArtifactMethod);
-			log.info("status code for getting tag names of persisted artifacts : "
-					+ httpStatusCode);
+			if (log.isDebugEnabled()) {
+				log.debug("status code for getting tag names of persisted artifacts with job name : " +
+				          jobName + " is " + httpStatusCode);
+			}
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getIdsOfPersistArtifactMethod);
@@ -1488,9 +1502,9 @@ public class RestBasedJenkinsCIConnector {
 				repositoryType, isAutoBuild, pollingPeriod, tenantDomain);
 		OMElement tmpConfiguration = configuration.cloneOMElement();
 		setConfiguration(jobName, tmpConfiguration, tenantDomain);
-		log.info("Job : " + jobName
-				+ " sccessfully configured for auto building " + isAutoBuild
-				+ " in jenkins");
+		if (log.isDebugEnabled()) {
+			log.debug("Job : " + jobName + " successfully configured for auto building " + isAutoBuild + " in jenkins");
+		}
 	}
 
 	private OMElement getAutoBuildUpdatedConfiguration(String jobName,
@@ -1502,7 +1516,7 @@ public class RestBasedJenkinsCIConnector {
 		OMElement configurations = null;
 		try {
 
-			int httpStatusCode = getHttpClient().executeMethod(getFetchMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getFetchMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getFetchMethod);
@@ -1588,7 +1602,7 @@ public class RestBasedJenkinsCIConnector {
 		OMElement configurations = null;
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(getFetchMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getFetchMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getFetchMethod);
@@ -1663,7 +1677,7 @@ public class RestBasedJenkinsCIConnector {
 					new StringRequestEntity(jobConfiguration
 							.toStringWithConsume(), "text/xml", "utf-8"),
 					tenantDomain);
-			int httpStatusCode = getHttpClient().executeMethod(createJob);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(createJob);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(createJob);
@@ -1853,9 +1867,10 @@ public class RestBasedJenkinsCIConnector {
 				isAutoDeployable, tenantDomain);
 		OMElement tmpConfiguration = configuration.cloneOMElement();
 		setConfiguration(jobName, tmpConfiguration, tenantDomain);
-		log.info("Job : " + jobName
-				+ " sccessfully configured for auto building "
-				+ isAutoDeployable + " in jenkins");
+		if (log.isDebugEnabled()) {
+			log.debug("Job : " + jobName + " successfully configured for auto deploying " + isAutoDeployable +
+			         " in jenkins");
+		}
 	}
 
 	private OMElement getAutoDeployUpdatedConfiguration(String jobName,
@@ -1868,7 +1883,7 @@ public class RestBasedJenkinsCIConnector {
 				tenantDomain);
 
 		try {
-			int httpStatusCode = getHttpClient().executeMethod(getFetchMethod);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getFetchMethod);
 
 			if (!isSuccessfulStatusCode(httpStatusCode)) {
 				httpStatusCode = resendRequest(getFetchMethod);
@@ -1950,18 +1965,23 @@ public class RestBasedJenkinsCIConnector {
 			for (int i = 0; i < retryCount; i++) {
 				Thread.sleep(1000 * retryDelay); // sleep retryDelay seconds, giving jenkins
 											// time to load the tenant
-				log.info("Resending request started for GET");
+				if (log.isDebugEnabled()) {
+					log.debug("Resending request(" + i + ") started for GET");
+				}
 				method.releaseConnection();
-				httpStatusCode = getHttpClient().executeMethod(method);
+				httpStatusCode = getAuthenticatedHttpClient().executeMethod(method);
 				// In the new jenkins release the response is always 201 or 302
 				if (HttpStatus.SC_OK == httpStatusCode
 						|| HttpStatus.SC_CREATED == httpStatusCode
 						|| HttpStatus.SC_MOVED_TEMPORARILY == httpStatusCode) {
-					log.info("Break resending since " + httpStatusCode);
+					if (log.isDebugEnabled()) {
+						log.debug("Break resending since " + httpStatusCode);
+					}
 					break;
 				}
-				log.info("Resent GET request failed with response code "
-						+ httpStatusCode);
+				if (log.isDebugEnabled()) {
+					log.debug("Resent GET request(" + i + ") failed with response code " + httpStatusCode);
+				}
 			}
 		} catch (IOException e) {
 			String errorMsg = "Error while resending the request";
@@ -1997,18 +2017,23 @@ public class RestBasedJenkinsCIConnector {
 			for (int i = 0; i < retryCount; i++) {
 				Thread.sleep(1000 * retryDelay); // sleep retryDelay seconds, giving jenkins
 											// time to load the tenant
-				log.info("Resending request started for POST");
+				if (log.isDebugEnabled()) {
+					log.debug("Resending request(" + i + ") started for POST");
+				}
 				method.releaseConnection();
-				httpStatusCode = getHttpClient().executeMethod(method);
+				httpStatusCode = getAuthenticatedHttpClient().executeMethod(method);
 				// In the new jenkins release the response is always 201 or 302
 				if (HttpStatus.SC_OK == httpStatusCode
 						|| HttpStatus.SC_CREATED == httpStatusCode
 						|| HttpStatus.SC_MOVED_TEMPORARILY == httpStatusCode) {
-					log.info("Break resending since " + httpStatusCode);
+					if (log.isDebugEnabled()) {
+						log.debug("Break resending since " + httpStatusCode);
+					}
 					break;
 				}
-				log.info("Resent POST request failed with response code "
-						+ httpStatusCode);
+				if (log.isDebugEnabled()) {
+					log.debug("Resent POST request(" + i + ") failed with response code " + httpStatusCode);
+				}
 			}
 		} catch (IOException e) {
 			String errorMsg = "Error while resending the request";
