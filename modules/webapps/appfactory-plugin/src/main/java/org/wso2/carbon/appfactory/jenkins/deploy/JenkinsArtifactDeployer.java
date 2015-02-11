@@ -85,10 +85,26 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 		File lastSuccess = new File(path);
 		if (!lastSuccess.exists()) {
-			if(log.isDebugEnabled()) {
+            try {
+                //used for eventing
+                String tenantDomain = getTenantDomain();
+                String correlationKey = applicationId + stageName + version + tenantDomain;
+
+                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.autoDeployStatusChangeEvent(applicationId, tenantDomain, "Application deployment couldn't be done, please try again.", "", correlationKey));
+
+            }catch (AppFactoryEventException e) {
+                log.error("Failed to notify deployment of latest successful artifact " + e.getMessage(), e);
+            }
+
+            //We decided to commit because if the this symlink not generated doesn't means there is no build always. There may be build but not create symlink yet.
+            //So user must know that and redeploy it.
+
+            /*
+            if(log.isDebugEnabled()) {
 				log.debug("No builds have been triggered for " + jobName + ". Building " + jobName +
 				         " first to deploy the latest built artifact");
 			}
+
 			String jenkinsUrl = parameters.get("rootPath")[0];
 			String tenantUserName = DeployerUtil.getParameter(parameters, "tenantUserName");
 			String tenantDomain = getTenantDomain();
@@ -103,6 +119,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 			String buildUrl = DeployerUtil.generateTenantJenkinsUrl(jobName, tenantDomain, jenkinsUrl);
 			triggerBuild(jobName, buildUrl, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
+			*/
 			// since automatic build deploy the latest artifact of successful builds to the
 			// server, return after triggering the build
 
