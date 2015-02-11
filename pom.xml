@@ -31,7 +31,7 @@
    <version>2.1.0-SNAPSHOT</version>
    <name>WSO2 AppFacotry - Parent</name>
    <url>http://wso2.org/projects/appfactory/java</url>
-   <description>WSO2 Business Process Server</description>
+   <description>WSO2 AppFactory</description>
    <licenses>
       <license>
          <name>Apache License Version 2.0</name>
@@ -40,20 +40,15 @@
    </licenses>
    <modules>
       <module>modules/service-stubs</module>
-      <module>modules/components/appfac</module>
-      <module>modules/components/authenticators</module>
+      <module>modules/components</module>
       <module>modules/features</module>
       <module>modules/maven-archetype</module>
       <module>modules/bpels</module>
       <module>modules/humantasks</module>
       <module>modules/p2-profile-gen</module>
-      <module>modules/jaggery-apps/appmgt</module>
-      <module>modules/jaggery-apps/cloudmgt</module>
-      <module>modules/jaggery-apps/dashboard</module>
       <module>modules/webapps</module>
       <module>modules/statistics</module>
       <module>modules/distribution</module>
-      <!--module>modules/integration</module-->
    </modules>
    <profiles>
       <profile>
@@ -196,65 +191,65 @@
 
 	<!--Service stubs-->
 
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>signedjwt-authenticator</artifactId>
+            <version>4.3.3</version>
+        </dependency>
+
         <!--ArcheTypes-->
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.dotnetarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>dotnet-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.archetype</groupId>
-            <artifactId>af-archetype</artifactId>
-            <version>${appfac.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.webapparchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>webapp-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaxrsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxrs-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaxwsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxws-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.jaggeryarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaggery-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 	<dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.esbarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>esb-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.bpelarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>bpel-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.dbsarchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>dbs-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.maven.phparchetype</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>php-archetype</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 
@@ -856,18 +851,18 @@
 
       <!--App Factory Components-->
        <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
             <version>${appfac.version}</version>
        </dependency>
        <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.stratos.listners</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.jenkinsext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
@@ -879,15 +874,15 @@
             <type>war</type>
         </dependency>
        <dependency>
-            <groupId>org.jenkins.wso2.appfactory</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-authentication-plugin</artifactId>
-            <version>${appfac.version}</version>
+            <version>2.1.0-SNAPSHOT</version>
             <type>hpi</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.appfactory.jenkins</groupId>
+            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-plugin</artifactId>
-	    <version>${appfac.version}</version>
+	    <version>2.1.0-SNAPSHOT</version>
             <type>hpi</type>
         </dependency>
         <dependency>
@@ -899,139 +894,139 @@
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>dynamic-slave</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1</version>
             <type>hpi</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.bps.ext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.ext</artifactId>
             <version>${appfac.version}</version>
             <type>jar</type>
         </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.issuetracking</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.login.ui</artifactId>
             	<version>${appfac.version}</version>
             </dependency>
        	    <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.apiManager.integration</artifactId>
             	<version>${appfac.version}</version>
             </dependency>
             <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.hostobjects.configuration</artifactId>
  		<version>${appfac.version}</version>
             </dependency>
   	    <dependency>
-            	<groupId>org.wso2.carbon</groupId>
+            	<groupId>org.wso2.carbon.appfactory</groupId>
             	<artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
  		<version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.tenant.mgt</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.listners</artifactId>
                     <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.build</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.deployers</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.common</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.bam.integration</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
               <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.jenkins.build.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.artifact.storage.stub</artifactId>
 		    <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.build.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.multitenant.jenkins</artifactId>
 		    <version>${appfac.version}</version>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.application.deployer.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
 		    <version>${appfac.version}</version>
             </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.stratos.listeners.stub</artifactId>
 		      <version>${appfac.version}</version>
 		      <scope>provided</scope>
 	    </dependency>
 	    <dependency>
-		      <groupId>org.wso2.carbon</groupId>
+		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>
 		      <version>${appfac.version}</version>
 	    </dependency>
  	    <dependency>
-		     <groupId>org.wso2.carbon</groupId>
+		     <groupId>org.wso2.carbon.appfactory</groupId>
 		     <artifactId>org.wso2.carbon.appfactory.core</artifactId>
 		     <version>${appfac.version}</version>
             </dependency>
             <dependency>
-		    <groupId>org.wso2.carbon</groupId>
+		    <groupId>org.wso2.carbon.appfactory</groupId>
 		    <artifactId>org.wso2.carbon.appfactory.utilities</artifactId>
 		    <version>${appfac.version}</version>
         </dependency>   
         <dependency>
-		   <groupId>org.wso2.carbon</groupId>
+		   <groupId>org.wso2.carbon.appfactory</groupId>
 		   <artifactId>org.wso2.carbon.appfactory.userstore</artifactId>
                   <version>${appfac.version}</version>
         </dependency>
@@ -1114,7 +1109,7 @@
        <url>https://github.com/wso2/product-af</url>
        <developerConnection>scm:git:https://github.com/wso2/product-af</developerConnection>
        <connection>scm:git:https://github.com/wso2/product-af</connection>
-       <tag>HEAD</tag>
+       <tag>wso2appfactory-parent-2.1.0</tag>
    </scm>
 
    <repositories>
@@ -1315,7 +1310,7 @@
                    <artifactId>maven-bpel-plugin</artifactId>
                    <version>2.0.1</version>
                    <extensions>true</extensions>
-                   <configuration/>
+                   <configuration />
                  </plugin>
                  <plugin>
                    <groupId>org.apache.maven.plugins</groupId>
@@ -1362,12 +1357,25 @@
                    <artifactId>maven-release-plugin</artifactId>
                    <configuration>
                        <preparationGoals>clean install</preparationGoals>
-                       <autoVersionSubmodules>false</autoVersionSubmodules>
+                       <autoVersionSubmodules>true</autoVersionSubmodules>
                    </configuration>
                  </plugin>
                  <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
+                 </plugin>
+                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                  </plugin>
 		 <plugin>
 		   <artifactId>maven-eclipse-plugin</artifactId>
@@ -1386,8 +1394,18 @@
 			  </projectnatures>
 			</configuration>
 	       	 </plugin>
+                 <plugin>
+                     <groupId>org.wso2.maven</groupId>
+                     <artifactId>wso2-esb-proxy-plugin</artifactId>
+                     <version>2.0.9</version>
+                 </plugin>
+                 <plugin>
+                     <groupId>org.wso2.maven</groupId>
+                     <artifactId>maven-dataservice-plugin</artifactId>
+                     <version>2.0.9</version>
+                 </plugin>
 	      </plugins>
-	   </pluginManagement>
+            </pluginManagement>
 	</build>
 
 

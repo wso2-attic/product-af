@@ -31,12 +31,12 @@ declare -a STORAGE=("org.wso2.carbon.appfactory.common");
 declare -a JPPSERVER_LIBS=("org.wso2.carbon.appfactory.jenkinsext" "org.wso2.carbon.appfactory.s4.integration" "org.wso2.carbon.appfactory.build.stub" "org.wso2.carbon.appfactory.application.deployer.stub")
 
 ## common jars
-declare -a MB_COMMON=("org.wso2.carbon.identity.authenticator.signedjwt" "nimbus-jose-jwt");
-declare -a SS_COMMON=("org.wso2.carbon.identity.authenticator.signedjwt" "nimbus-jose-jwt");
-declare -a AM_COMMON=("org.wso2.carbon.identity.authenticator.signedjwt" "nimbus-jose-jwt");
-declare -a JPP_COMMON=("org.wso2.carbon.identity.authenticator.signedjwt" "nimbus-jose-jwt");
+declare -a MB_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
+declare -a SS_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
+declare -a AM_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
+declare -a JPP_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 declare -a BPS_COMMON=("nimbus-jose-jwt");
 declare -a GITBLIT_COMMON=("nimbus-jose-jwt");
-declare -a APPSERVER_COMMON=("org.wso2.carbon.identity.authenticator.signedjwt" "nimbus-jose-jwt");
-declare -a SM_COMMON=("org.wso2.carbon.identity.authenticator.signedjwt" "nimbus-jose-jwt");
+declare -a APPSERVER_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
+declare -a SM_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 
