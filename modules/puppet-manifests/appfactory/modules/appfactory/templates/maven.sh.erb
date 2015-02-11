@@ -31,7 +31,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing webapp-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/webapp-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.webapparchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=webapp-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -39,10 +39,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating webappdefault .... ";
         ${MVN} archetype:generate -DartifactId=webappdefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.webapparchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=webapp-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -50,7 +50,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing jaxrs-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/jaxrs-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.jaxrsarchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=jaxrs-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -58,10 +58,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating jaxrsdefault .... ";
         ${MVN} archetype:generate -DartifactId=jaxrsdefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaxrsarchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=jaxrs-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -69,17 +69,17 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing jaxws-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/jaxws-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.jaxwsarchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=jaxws-archetype \
                 -Dversion=<%= @archetype_version %> -Dpackaging=jar > /dev/null;
         [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
 
         ${ECHO} -en "Generating jaxwsdefault .... ";
 	${MVN} archetype:generate -DartifactId=jaxwsdefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaxwsarchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=jaxws-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -87,7 +87,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing jaggery-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/jaggery-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.jaggeryarchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=jaggery-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -95,10 +95,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating jaggerydefault .... ";
         ${MVN} archetype:generate -DartifactId=jaggerydefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.jaggeryarchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=jaggery-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -106,7 +106,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing bpel-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/bpel-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.bpelarchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=bpel-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -114,10 +114,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating bpeldefault .... ";
         ${MVN} archetype:generate -DartifactId=bpeldefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.bpelarchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=bpel-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -125,7 +125,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing dbs-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/dbs-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.dbsarchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=dbs-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -133,10 +133,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating dbsdefault .... ";
         ${MVN} archetype:generate -DartifactId=dbsdefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.dbsarchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=dbs-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -144,7 +144,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing esb-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/esb-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.esbarchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=esb-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -152,10 +152,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating esbdefault .... ";
         ${MVN} archetype:generate -DartifactId=esbdefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.esbarchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=esb-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
@@ -163,7 +163,7 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Installing php-archetype jar .... ";
         ${MVN} install:install-file -Dfile=$APPFACTORY_HOME/resources/archetypes/php-archetype-<%= @archetype_version %>.jar \
-                -DgroupId=org.wso2.carbon.appfactory.maven.phparchetype \
+                -DgroupId=org.wso2.appfactory \
                 -DartifactId=php-archetype \
                 -Dversion=<%= @archetype_version %> \
                 -Dpackaging=jar > /dev/null;
@@ -171,10 +171,10 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
 
         ${ECHO} -en "Generating phpdefault .... ";
         ${MVN} archetype:generate -DartifactId=phpdefault \
-                -DarchetypeGroupId=org.wso2.carbon.appfactory.maven.phparchetype \
+                -DarchetypeGroupId=org.wso2.appfactory \
                 -DarchetypeArtifactId=php-archetype \
                 -DarchetypeVersion=<%= @archetype_version %> \
-                -DgroupId=org.wso2.af \
+                -DgroupId=org.wso2.appfactory \
                 -Dversion=SNAPSHOT \
                 -DinteractiveMode=false \
                 -DarchetypeCatalog=local > /dev/null;
