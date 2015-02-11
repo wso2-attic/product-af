@@ -1043,4 +1043,5 @@
                 <ArtifactVersionName>SNAPSHOT</ArtifactVersionName>
         </ServiceVersioning>
     </TrunkVersioning>
+    <AppendStageToCartridgeInfo>true</AppendStageToCartridgeInfo>
 </AppFactory>
