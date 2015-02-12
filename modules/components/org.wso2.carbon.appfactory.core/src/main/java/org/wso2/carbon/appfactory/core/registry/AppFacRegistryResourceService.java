@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.appfactory.core.registry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -203,6 +204,16 @@ public class AppFacRegistryResourceService {
                             cache.remove(cacheKey);
                             if (log.isDebugEnabled()) {
                                 log.debug("Cache cleared for resource path " + resourcePath);
+                            }
+                        } else {
+                            // delete parent path
+                            String parentPath =
+                                StringUtils.substring(resourcePath, 0, StringUtils.lastIndexOf(resourcePath, "/"));
+                            if (cache.containsKey(cacheKey)) {
+                                cache.remove(cacheKey);
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Cache cleared for parent path " + parentPath);
+                                }
                             }
                         }
                     }
