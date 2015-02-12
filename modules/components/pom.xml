@@ -34,7 +34,7 @@
         <module>org.wso2.carbon.appfactory.userstore</module>
         <module>org.wso2.carbon.appfactory.deployers</module>
         <module>org.wso2.carbon.appfactory.utilities</module>
-	<module>org.wso2.carbon.appfactory.eventing</module>
+        <module>org.wso2.carbon.appfactory.eventing</module>
         <module>org.wso2.carbon.appfactory.repository</module>
         <module>org.wso2.carbon.appfactory.build</module>
         <module>org.wso2.carbon.appfactory.tenant.mgt</module>
@@ -46,7 +46,11 @@
         <module>org.wso2.carbon.appfactory.apimanager.integration</module>
         <module>org.wso2.carbon.appfactory.multitenant.jenkins</module>
         <module>org.wso2.carbon.appfactory.s4.integration</module>
-	<module>org.wso2.carbon.appfactory.ext</module>
+	    <module>org.wso2.carbon.appfactory.ext</module>
         <module>org.wso2.carbon.appfactory.bps.ext</module>
+        <module>org.wso2.carbon.appfactory.logging.service</module>
+        <module>org.wso2.carbon.appfactory.logging.admin.ui</module>
+        <module>org.wso2.carbon.appfactory.logging.view.ui</module>
+        <module>org.wso2.carbon.appfactory.logging.summarizer</module>
     </modules>
 </project>
