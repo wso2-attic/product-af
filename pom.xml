@@ -49,6 +49,7 @@
       <module>modules/webapps</module>
       <module>modules/statistics</module>
       <module>modules/distribution</module>
+      <module>modules/integration</module>
    </modules>
    <profiles>
       <profile>
@@ -1071,7 +1072,7 @@
               <version>${appfac.version}</version>
           </dependency>
           <dependency>
-              <groupId>org.wso2.carbon</groupId>
+              <groupId>org.wso2.carbon.appfactory</groupId>
               <artifactId>org.wso2.carbon.appfactory.createtenant.stub</artifactId>
               <version>${appfac.version}</version>
           </dependency>
@@ -1092,7 +1093,7 @@
               <version>${automation.framework.verion}</version>
           </dependency>
           <dependency>
-              <groupId>org.wso2.carbon</groupId>
+              <groupId>org.wso2.carbon.automationutils</groupId>
               <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
               <version>${automation.framework.utills.version}</version>
           </dependency>
@@ -1333,7 +1334,7 @@
 
        <xalan.version>2.7.1</xalan.version>
        <automation.framework.verion>4.3.1</automation.framework.verion>
-       <automation.framework.utills.version>4.3.0-SNAPSHOT</automation.framework.utills.version>
+       <automation.framework.utills.version>4.3.0</automation.framework.utills.version>
        <json.version>20140107</json.version>
    </properties>
 
