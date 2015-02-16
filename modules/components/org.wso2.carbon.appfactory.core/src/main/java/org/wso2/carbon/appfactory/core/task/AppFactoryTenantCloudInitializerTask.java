@@ -28,21 +28,6 @@ import java.util.Map;
  */
 public class AppFactoryTenantCloudInitializerTask implements Task {
     private static final Log log = LogFactory.getLog(AppFactoryTenantCloudInitializerTask.class);
-    public static final String SERVER_URL = "serverURL";
-    public static final String TENANT_USAGE_PLAN = "usagePlan";
-    public static final String TENANT_DOMAIN = "tenantDomain";
-    public static final String TENANT_ID = "tenantID";
-    public static final String SUCCESS_KEY = "successKey";
-    public static final String ADMIN_USERNAME = "adminUsername";
-    public static final String ADMIN_PASSWORD = "adminPassword";
-    public static final String ADMIN_EMAIL = "email";
-    public static final String ADMIN_FIRST_NAME = "firstName";
-    public static final String ADMIN_LAST_NAME = "lastName";
-    public static final String ORIGINATED_SERVICE = "originatedService";
-    public static final String SUPER_TENANT_ADMIN = "superAdmin";
-    public static final String SUPER_TENANT_ADMIN_PASSWORD = "superAdminPassword";
-    public static final String STAGE = "stage";
-    public static final String RUNTIMES = "runtimes";
 
     private Map<String, String> properties;
 

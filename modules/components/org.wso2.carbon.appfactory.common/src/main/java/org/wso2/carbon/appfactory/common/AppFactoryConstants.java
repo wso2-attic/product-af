@@ -458,6 +458,21 @@ public class AppFactoryConstants {
 			"ContinuousIntegrationProvider.jenkins.Property.BaseURL";
 
 	/**
+	 * MB messege constants
+	 */
+	public static final String RUNTIMES_INFO = "runtimes";
+	public static final String TENANT_INFO = "tenantInfoBean";
+	public static final String STAGE = "stage";
+	public static final String REPO_URL = "repoURL";
+	public static final String TENANT_ADMIN_FOR_REST = "tenantAdminForRest";
+	public static final String SERVER_URL_FOR_REST = "serverURLForRest";
+	public static final String TENANT_ADMIN_PASSWORD_FOR_REST = "tenantAdminPasswordForRest";
+	public static final String ANDES_ICF = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
+	public static final String CF_NAME_PREFIX = "connectionfactory.";
+	public static final String CF_NAME = "qpidConnectionfactory";
+	public static final String TOPIC = "topic";
+
+	/**
 	 * Enum to represent of different application stages.
 	 */
 	public enum ApplicationStage {

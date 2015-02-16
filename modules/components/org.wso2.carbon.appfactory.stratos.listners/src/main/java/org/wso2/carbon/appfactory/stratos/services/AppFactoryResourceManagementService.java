@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.appfactory.stratos.services;
 
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -36,7 +34,9 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserStoreException;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * <p>
@@ -254,7 +254,6 @@ public class AppFactoryResourceManagementService {
 	 * 
 	 * 
 	 * @param applicationId
-	 * @param appFactoryResource
 	 * @return
 	 * @throws AppFactoryException
 	 */

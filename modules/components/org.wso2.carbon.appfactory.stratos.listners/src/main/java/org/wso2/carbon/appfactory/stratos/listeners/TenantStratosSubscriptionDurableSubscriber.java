@@ -21,16 +21,12 @@ package org.wso2.carbon.appfactory.stratos.listeners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.utils.Util;
 
-import javax.jms.JMSException;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
-import javax.jms.TopicSession;
-import javax.jms.TopicSubscriber;
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -42,11 +38,7 @@ import java.util.Properties;
  */
 public class TenantStratosSubscriptionDurableSubscriber {
     private static Log log = LogFactory.getLog(TenantStratosSubscriptionDurableSubscriber.class);
-    private static final String ANDES_ICF = "org.wso2.andes.jndi.PropertiesFileInitialContextFactory";
-    private static final String CF_NAME_PREFIX = "connectionfactory.";
-    private static final String CF_NAME = "qpidConnectionfactory";
-    private static final String TOPIC = "topic";
-    private String subscriptionId = "subcription_id";
+    private String subscriptionId;
     private String topicName;
     TopicConnectionFactory connFactory;
     TopicConnection topicConnection = null;
@@ -74,21 +66,26 @@ public class TenantStratosSubscriptionDurableSubscriber {
      */
     public void subscribe() throws AppFactoryEventException {
         Properties properties = new Properties();
-        properties.put(Context.INITIAL_CONTEXT_FACTORY, ANDES_ICF);
-        properties.put(CF_NAME_PREFIX + CF_NAME, Util.getTCPConnectionURL());
+        properties.put(Context.INITIAL_CONTEXT_FACTORY, AppFactoryConstants.ANDES_ICF);
+        properties.put(AppFactoryConstants.CF_NAME_PREFIX + AppFactoryConstants.CF_NAME, Util.getTCPConnectionURL());
         properties.put(CarbonConstants.REQUEST_BASE_CONTEXT, true);
-        properties.put(TOPIC, topicName);
+        properties.put(AppFactoryConstants.TOPIC, topicName);
         try {
             ctx = new InitialContext(properties);
-            connFactory = (TopicConnectionFactory) ctx.lookup(CF_NAME);
+            connFactory = (TopicConnectionFactory) ctx.lookup(AppFactoryConstants.CF_NAME);
             topicConnection = connFactory.createTopicConnection();
-            topicConnection.start();
             topicSession = topicConnection.createTopicSession(false, TopicSession.CLIENT_ACKNOWLEDGE);
-            Topic topic = topicSession.createTopic(topicName);
+	        Topic topic;
+	        try {
+		        topic = (Topic) ctx.lookup(topicName);
+	        } catch (NamingException e) {
+		        topic = topicSession.createTopic(topicName);
+	        }
             topicSubscriber = topicSession.createDurableSubscriber(topic, subscriptionId);
             topicSubscriber.setMessageListener(new TenantStratosSubscriptionMessageListener(topicConnection,
                                                                                             topicSession,
                                                                                             topicSubscriber));
+	        topicConnection.start();
             if (log.isDebugEnabled()) {
                 log.debug("Durable Subscriber created for topic " + topicName + " with subscription id" +
                           subscriptionId);

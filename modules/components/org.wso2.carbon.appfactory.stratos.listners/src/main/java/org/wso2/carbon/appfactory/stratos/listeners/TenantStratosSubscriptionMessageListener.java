@@ -18,14 +18,35 @@
 
 package org.wso2.carbon.appfactory.stratos.listeners;
 
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.common.beans.TenantInfoBean;
+import org.apache.stratos.common.exception.StratosException;
+import org.apache.stratos.manager.dto.SubscriptionInfo;
+import org.apache.stratos.manager.manager.CartridgeSubscriptionManager;
+import org.apache.stratos.manager.subscription.SubscriptionData;
+import org.apache.stratos.manager.utils.ApplicationManagementUtil;
+import org.apache.stratos.tenant.mgt.core.TenantPersistor;
+import org.apache.stratos.tenant.mgt.util.TenantMgtUtil;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.task.AppFactoryTenantCloudInitializerTask;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.s4.integration.RepositoryProvider;
+import org.wso2.carbon.appfactory.stratos.listeners.dto.RepositoryBean;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
+import org.wso2.carbon.user.core.tenant.Tenant;
+import org.wso2.carbon.utils.ConfigurationContextService;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.jms.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Listens to topic "subscribe_tenant_in_stratos" in the Message Broker and when a new message arrived, executes the
@@ -35,25 +56,11 @@ import javax.jms.*;
 public class TenantStratosSubscriptionMessageListener implements MessageListener {
     Log log = LogFactory.getLog(TenantStratosSubscriptionMessageListener.class);
 
-    private StratosRestService restService;
     private TopicConnection topicConnection;
     private TopicSession topicSession;
     private TopicSubscriber topicSubscriber;
     private int currentMsgCount = 0;
-    public static final String TENANT_DOMAIN = "tenantDomain";
-    private static final String STAGE = "stage";
-    private static final String CARTRIDGE_TYPE_PREFIX = "cartridgeTypePrefix";
-    private static final String ALIAS_PREFIX = "aliasPrefix";
-    private static final String REPO_URL = "repoURL";
-    private static final String ADMIN_USER_NAME = "adminUserName";
-    private static final String ADMIN_PASSWORD = "adminPassword";
-    private static final String DATA_CARTRIDGE_ALIAS = "dataCartridgeAlias";
-    private static final String DATA_CARTRIDGE_TYPE = "dataCartridgeType";
-    private static final String AUTO_SCALE_POLICY = "autoscalePolicy";
-    private static final String DEPLOYMENT_POLICY = "deploymentPolicy";
-    private static final String TENANT_ADMIN_FOR_REST = "tenantAdminForRest";
-    private static final String SERVER_URL_FOR_REST = "serverURLForRest";
-    private static final String TENANT_ADMIN_PASSWORD_FOR_REST = "tenantAdminPasswordForRest";
+	private String REPOSITORY_TYPE = "git";
 
 
     public TenantStratosSubscriptionMessageListener(TopicConnection topicConnection, TopicSession topicSession,
@@ -70,46 +77,74 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
     public void onMessage(Message message) {
         //TODO remove this log
         log.info("message received to topic name : " + topicSubscriber.toString() + ">>>>>>>>>>>>");
-        if (log.isDebugEnabled()) {
-            if (message instanceof MapMessage) {
-                try {
-                    String alias = ((MapMessage) message).getString(ALIAS_PREFIX);
-                    String dataCartridgeType = ((MapMessage) message).getString(DATA_CARTRIDGE_TYPE);
-                    log.debug("Received a message with alias " + alias + "for the data cartridge type " +
-                              dataCartridgeType);
-                } catch (JMSException e) {
-                    log.error("Error while getting message content.", e);
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+
+	    RuntimeBean[] runtimeBeans = null;
+	    TenantInfoBean tenantInfoBean = null;
+
+	    if (message instanceof MapMessage) {
+		    try {
+			    String runtimesJson = ((MapMessage) message).getString(AppFactoryConstants.RUNTIMES_INFO);
+			    String tenantInfoJson = ((MapMessage) message).getString(AppFactoryConstants.TENANT_INFO);
+
+
+			    ObjectMapper mapper = new ObjectMapper();
+			    runtimeBeans = mapper.readValue(runtimesJson, RuntimeBean[].class);
+			    tenantInfoBean = mapper.readValue(tenantInfoJson, TenantInfoBean.class);
+			    if(log.isDebugEnabled()) {
+				    log.debug("Received a message for tenant domain " + tenantInfoBean.getTenantDomain());
+			    }
+		    } catch (JMSException e) {
+			    log.error("Error while getting message content.", e);
+			    throw new RuntimeException(e);
+		    } catch (JsonParseException e) {
+			    log.error("Error while converting the json to object.", e);
+			    throw new RuntimeException(e);
+		    } catch (JsonMappingException e) {
+			    log.error("Error while converting the json to object.", e);
+			    throw new RuntimeException(e);
+		    } catch (IOException e) {
+			    log.error("Error while converting the json to object.", e);
+			    throw new RuntimeException(e);
+		    }
+	    }
         MapMessage mapMessage;
         if (message instanceof MapMessage) {
             mapMessage = (MapMessage) message;
             try {
                 currentMsgCount++;
-                String serverURL = mapMessage.getString(SERVER_URL_FOR_REST);
-                String tenantAdmin = mapMessage.getString(TENANT_ADMIN_FOR_REST);
-                String tenantAdminPassword = mapMessage.getString(TENANT_ADMIN_PASSWORD_FOR_REST);
-                String tenantDomain = mapMessage.getString(AppFactoryTenantCloudInitializerTask.TENANT_DOMAIN);
-                String username = tenantAdmin + "@" + tenantDomain;
-                restService = new StratosRestService(serverURL, username, tenantAdminPassword);
-                restService.subscribe(mapMessage.getString(CARTRIDGE_TYPE_PREFIX) + mapMessage.getString(STAGE),
-                                      mapMessage.getString(ALIAS_PREFIX) + mapMessage.getString(STAGE) +
-                                      tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
-                                                           AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT),
-                                      mapMessage.getString(REPO_URL), true,
-                                      mapMessage.getString(AppFactoryConstants
-                                                                 .PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME),
-                                      mapMessage.getString(AppFactoryConstants
-                                                                   .PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD),
-                                      mapMessage.getString(DATA_CARTRIDGE_TYPE),
-                                      mapMessage.getString(DATA_CARTRIDGE_ALIAS),
-                                      mapMessage.getString(AUTO_SCALE_POLICY),
-                                      mapMessage.getString(DEPLOYMENT_POLICY));
-                //TODO remove this log
-                log.info("subscription done in environment : " + mapMessage
-                        .getString(STAGE) + "of tenant :" + tenantDomain);
+//                //String serverURL = mapMessage.getString(SERVER_URL_FOR_REST);
+//                String tenantAdmin = mapMessage.getString(AppFactoryConstants.TENANT_ADMIN_FOR_REST);
+//                //String tenantAdminPassword = mapMessage.getString(TENANT_ADMIN_PASSWORD_FOR_REST);
+//                String tenantDomain = mapMessage.getString(AppFactoryConstants.TENANT_DOMAIN);
+//	            String stage = mapMessage.getString(AppFactoryConstants.STAGE);
+//                String username = tenantAdmin + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+//	            String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+//			            getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+	            String stage = mapMessage.getString(AppFactoryConstants.STAGE);
+
+	            addTenant(tenantInfoBean);
+
+	            for (RuntimeBean runtimeBean : runtimeBeans) {
+		            RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
+		            subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
+	            }
+
+//                restService = new StratosRestService(serverURL, username, tenantAdminPassword);
+//                restService.subscribe(cartridgeType,
+//                                      subscriptionAlias,
+//                                      mapMessage.getString(REPO_URL), true,
+//                                      mapMessage.getString(AppFactoryConstants
+//                                                                 .PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME),
+//                                      mapMessage.getString(AppFactoryConstants
+//                                                                   .PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD),
+//                                      mapMessage.getString(DATA_CARTRIDGE_TYPE),
+//                                      mapMessage.getString(DATA_CARTRIDGE_ALIAS),
+//                                      mapMessage.getString(AUTO_SCALE_POLICY),
+//                                      mapMessage.getString(DEPLOYMENT_POLICY));
+//                TODO remove this log
+                log.info("subscription done in environment : " + mapMessage.getString(AppFactoryConstants.STAGE)
+                         + "of tenant :" + tenantInfoBean.getTenantDomain());
                 mapMessage.acknowledge();
             } catch (JMSException e) {
                 String msg = "Can not read received map massage at count " + currentMsgCount;
@@ -119,7 +154,162 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
                 String msg = "Can not subscribe to stratos cartridge";
                 log.error(msg, e);
                 throw new RuntimeException(e);
+            } catch (Exception e) {
+	            String msg = "Can not subscribe to stratos cartridge";
+	            log.error(msg, e);
+	            throw new RuntimeException(e);
             }
         }
     }
+
+	private RepositoryBean createGitRepository(RuntimeBean runtimeBean, TenantInfoBean tenantInfoBean, String stage)
+			throws AppFactoryException {
+		RepositoryBean repositoryBean = new RepositoryBean();
+		repositoryBean.setCommitEnabled(true);
+		repositoryBean.setRepositoryType(REPOSITORY_TYPE);
+		repositoryBean.setRepositoryAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
+				(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME));
+		repositoryBean.setRepositoryAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
+				(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD));
+		String repoUrl;
+		try {
+			String repoProviderClassName = AppFactoryUtil.getAppfactoryConfiguration().
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME);
+			ClassLoader loader = getClass().getClassLoader();
+			Class<?> repoProviderClass = Class.forName(repoProviderClassName, true, loader);
+			RepositoryProvider repoProvider = (RepositoryProvider) repoProviderClass.newInstance();
+			repoProvider.setBaseUrl(AppFactoryUtil.getAppfactoryConfiguration().
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL));
+			repoProvider.setAdminUsername(repositoryBean.getRepositoryAdminUsername());
+			repoProvider.setAdminPassword(repositoryBean.getRepositoryAdminPassword());
+			repoProvider.setRepoName(generateRepoUrlFromTemplate(
+					runtimeBean.getPaasRepositoryURLPattern(), tenantInfoBean.getTenantId(), stage));
+
+			repoUrl = repoProvider.createRepository();
+			repositoryBean.setRepositoryURL(repoUrl);
+			log.info("Repo Url : " + repoUrl);
+		} catch (InstantiationException e) {
+			String msg = "Unable to create repository";
+			throw new AppFactoryException(msg, e);
+		} catch (IllegalAccessException e) {
+			String msg = "Unable to create repository";
+			throw new AppFactoryException(msg, e);
+		} catch (AppFactoryException e) {
+			String msg = "Unable to create repository";
+			throw new AppFactoryException(msg, e);
+		} catch (ClassNotFoundException e) {
+			String msg = "PAAS artifact repository provider class not found";
+			throw new AppFactoryException(msg, e);
+		}
+		return repositoryBean;
+	}
+
+	private String generateRepoUrlFromTemplate(String pattern, int tenantId,
+	                                           String stage) {
+		String s = pattern.replace(AppFactoryConstants.STAGE_PLACE_HOLDER , stage) + File.separator
+		           + Integer.toString(tenantId);
+		log.info("Generated repo URL for stage " + stage + " : " + s);
+		return s;
+
+	}
+
+	private static SubscriptionInfo subscribe(RuntimeBean runtimeBean, TenantInfoBean tenantInfoBean,
+	                                          RepositoryBean repositoryBean, ConfigurationContext configurationContext,
+	                                          String stage) throws Exception {
+
+		CartridgeSubscriptionManager cartridgeSubsciptionManager = new CartridgeSubscriptionManager();
+		String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+		String tenantDomain = tenantInfoBean.getTenantDomain();
+
+		String cartridgeType = runtimeBean.getCartridgeTypePrefix();
+		if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+			cartridgeType += stage.toLowerCase();
+		}
+
+		String subscriptionAlias;
+		if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+			subscriptionAlias = runtimeBean.getAliasPrefix() + stage.toLowerCase() +
+			                    tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
+			                                         AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT);
+		} else {
+			subscriptionAlias = runtimeBean.getAliasPrefix() +
+			                    tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
+			                                         AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT);
+		}
+
+		SubscriptionData subscriptionData = new SubscriptionData();
+		subscriptionData.setCartridgeType(cartridgeType);
+		subscriptionData.setCartridgeAlias(subscriptionAlias);
+		subscriptionData.setAutoscalingPolicyName(runtimeBean.getAutoscalePolicy());
+		subscriptionData.setDeploymentPolicyName(runtimeBean.getDeploymentPolicy());
+		subscriptionData.setTenantDomain(tenantDomain);
+		subscriptionData.setTenantId(ApplicationManagementUtil.getTenantId(configurationContext));
+		subscriptionData.setTenantAdminUsername(tenantInfoBean.getAdmin());
+		subscriptionData.setRepositoryType(repositoryBean.getRepositoryType());
+		subscriptionData.setRepositoryURL(repositoryBean.getRepositoryURL());
+		subscriptionData.setRepositoryUsername(repositoryBean.getRepositoryAdminUsername());
+		subscriptionData.setRepositoryPassword(repositoryBean.getRepositoryAdminPassword());
+		subscriptionData.setCommitsEnabled(repositoryBean.isCommitEnabled());
+		return cartridgeSubsciptionManager.subscribeToCartridgeWithProperties(subscriptionData);
+
+	}
+
+	protected ConfigurationContext getConfigContext() {
+
+		// If a tenant has been set, then try to get the ConfigurationContext of that tenant
+		PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+		ConfigurationContextService configurationContextService =
+				(ConfigurationContextService) carbonContext.getOSGiService(ConfigurationContextService.class);
+		ConfigurationContext mainConfigContext = configurationContextService.getServerConfigContext();
+		String domain = carbonContext.getTenantDomain();
+		if (domain != null && !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(domain)) {
+			return TenantAxisUtils.getTenantConfigurationContext(domain, mainConfigContext);
+		} else if (carbonContext.getTenantId() == MultitenantConstants.SUPER_TENANT_ID) {
+			return mainConfigContext;
+		} else {
+			throw new UnsupportedOperationException("Tenant domain unidentified. " +
+			                                        "Upstream code needs to identify & set the tenant domain & tenant ID. " +
+			                                        " The TenantDomain SOAP header could be set by the clients or " +
+			                                        "tenant authentication should be carried out.");
+		}
+	}
+
+	/**
+	 * super admin adds a tenant
+	 *
+	 * @param tenantInfoBean tenant info bean
+	 * @return UUID
+	 * @throws Exception if error in adding new tenant.
+	 */
+	public String addTenant(TenantInfoBean tenantInfoBean) throws Exception {
+		try {
+			PrivilegedCarbonContext.startTenantFlow();
+			PrivilegedCarbonContext.getThreadLocalCarbonContext()
+			                       .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+			Tenant tenant = TenantMgtUtil.initializeTenant(tenantInfoBean);
+			TenantPersistor persistor = new TenantPersistor();
+			// not validating the domain ownership, since created by super tenant
+			int tenantId = persistor.persistTenant(tenant, false, tenantInfoBean.getSuccessKey(),
+			                                       tenantInfoBean.getOriginatedService(), false);
+			tenantInfoBean.setTenantId(tenantId);
+
+			TenantMgtUtil.addClaimsToUserStoreManager(tenant);
+
+			//Notify tenant addition
+			try {
+				TenantMgtUtil.triggerAddTenant(tenantInfoBean);
+			} catch (StratosException e) {
+				String msg = "Error in notifying tenant addition.";
+				log.error(msg, e);
+				throw new Exception(msg, e);
+			}
+
+			TenantMgtUtil.activateTenantInitially(tenantInfoBean, tenantId);
+			return TenantMgtUtil.prepareStringToShowThemeMgtPage(tenant.getId());
+		} finally {
+			PrivilegedCarbonContext.endTenantFlow();
+		}
+	}
 }

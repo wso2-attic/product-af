@@ -21,6 +21,7 @@ package org.wso2.carbon.appfactory.eventing.utils;
 public class EventingConstants {
 
     public static final String CARBON_SUPER = "carbon.super";
+    public static final String ADMIN = "admin";
     public static final String CONNECTION_USER = "CONNECTION_USER";
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
 
