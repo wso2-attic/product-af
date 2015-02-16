@@ -71,7 +71,7 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 			} catch (IOException e) {
 				String msg = "Error while converting the json string to a runtime bean";
 				log.error(msg, e);
-				throw new AppFactoryException(msg, e); //TODO: Do we need to throw this? Discuss...
+				throw new AppFactoryException(msg, e);
 			}
 
 			for (RuntimeBean runtimeBean : runtimeBeans) {
@@ -91,8 +91,8 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 			String stage) {
 		String s = pattern.replace("{@stage}", stage) + File.separator
 				+ Integer.toString(tenantId);
-		log.info("**************************************generated repo URL: "
-				+ s + "******************************");
+		log.info("generated repo URL: " + s + " for tenant Id :" + tenantId + " in stage : " +
+		         stage);
 		return s;
 
 	}
@@ -206,16 +206,16 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 			String stage = properties.get(AppFactoryTenantCloudInitializerTask.STAGE);
 			int tenantID = Integer.parseInt(properties.get(AppFactoryTenantCloudInitializerTask.TENANT_ID));
 			String repoProviderClassName = AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME);
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
 			ClassLoader loader = getClass().getClassLoader();
 			Class<?> repoProviderClass = Class.forName(repoProviderClassName, true, loader);
 			RepositoryProvider repoProvider = (RepositoryProvider) repoProviderClass.newInstance();
 			repoProvider.setBaseUrl(AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL));
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL));
 			repoProvider.setAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME));
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
 			repoProvider.setAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD));
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD));
 			repoProvider.setRepoName(generateRepoUrlFromTemplate(
 					runtimeBean.getPaasRepositoryURLPattern(), tenantID, stage));
 
@@ -280,9 +280,9 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 		}
 
 		restService.subscribe(cartridgeType , subscriptionAlias, repoURL, true, AppFactoryUtil.getAppfactoryConfiguration().
-				                      getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME),
+				                      getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME),
 		                      AppFactoryUtil.getAppfactoryConfiguration().
-				                      getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD),
+				                      getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD),
 		                      runtimeBean.getDataCartridgeType(),
 		                      runtimeBean.getDataCartridgeAlias(),
 		                      runtimeBean.getAutoscalePolicy(),

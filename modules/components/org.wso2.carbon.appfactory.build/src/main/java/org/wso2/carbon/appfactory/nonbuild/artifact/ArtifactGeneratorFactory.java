@@ -147,9 +147,9 @@ public class ArtifactGeneratorFactory {
 					(new RepositoryManager()).getRepositoryProvider("git").getRepositoryClient();
 			AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
 			appfactoryGitClient.init(appfactoryConfiguration.getFirstProperty(
-					                         AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD),
+					                         AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD),
 			                         appfactoryConfiguration.getFirstProperty(
-					                         AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME));
+					                         AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
 
 			RepositoryManager repositoryManager = new RepositoryManager();
 			String appfactoryGitRepoURL =

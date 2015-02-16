@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,7 +31,7 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * This class creates a GIT repository in s4 gitblit for the built artifacts and
+ * This class creates a GIT repository in stratos for the built artifacts and
  * subscribes to the stratos cartridges for "subscription upon deployment" type
  * apps.
  */
@@ -58,7 +58,7 @@ public class SubscriptionHandler {
     }
 
     /**
-     * This methods creates a repo in S4 gitblit and subscribes to the Stratos
+     * This methods creates a repo in stratos and subscribes to the Stratos
      *
      * @param deployerInfo      Metadata map passed for deployment
      * @param stage             stage of the application
@@ -69,7 +69,7 @@ public class SubscriptionHandler {
      * @return                  repo url for the subscription
      * @throws AppFactoryException {@link AppFactoryException} When subscription fails
      */
-    public String createSubscription(Map deployerInfo, String stage, String username, int tenantID,
+    public String createSubscription(Map<String,String> deployerInfo, String stage, String username, int tenantID,
                                      String applicationID, String tenantDomain) throws AppFactoryException {
 
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
@@ -84,13 +84,13 @@ public class SubscriptionHandler {
                 .replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT));
         String repoUrl = null;
         String className = appfactoryConfiguration.getFirstProperty(
-                AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME);
+                AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
         String adminUserName = appfactoryConfiguration.
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME);
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
         String adminPassword = appfactoryConfiguration.
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD);
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
         String baseURL = appfactoryConfiguration.
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL);
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
 
         try {
             String alias = applicationID + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
@@ -122,15 +122,15 @@ public class SubscriptionHandler {
                         deployerInfo, AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS);
                 String deploymentPolicy = DeployerUtil.getParameterValue(
                         deployerInfo, AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY);
-                restService.subscribe(
-                        cartridgeTypePrefix,
-                        aliasPrefix,
-                        repoUrl,
-                        true, adminUserName,adminPassword,
-                        dataCartridgeType,
-                        dataCartridgeAlias,
-                        autoScalePolicy,
-                        deploymentPolicy);
+	            restService.subscribe(
+			            cartridgeTypePrefix,
+			            aliasPrefix,
+			            repoUrl,
+			            true, adminUserName, adminPassword,
+			            dataCartridgeType,
+			            dataCartridgeAlias,
+			            autoScalePolicy,
+			            deploymentPolicy);
             }
 
         } catch (ClassNotFoundException e) {
