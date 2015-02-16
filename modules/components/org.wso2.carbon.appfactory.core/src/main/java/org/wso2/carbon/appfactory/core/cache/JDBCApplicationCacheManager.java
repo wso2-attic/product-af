@@ -41,12 +41,10 @@ public class JDBCApplicationCacheManager {
     
     public static final String AF_APPLICATION_DATABASE_ID_CACHE = "af.application.database.id.cache";
 
-    public static final String AF_APPLICATION_INFO_CACHE = "af.application.info.cache";
+    public static final String AF_APPLICATION_BRANCH_COUNT_CACHE = "af.application.branch.count.cache";
 
     // The cache key separator value. This value is used to combine different parameters to generate the cache key
     public static final String KEY_SEPARATOR = "_";
-    //the cache key value for application app info
-    public static final String APPS_INFO = "apps_info";
 
     public static CacheManager getCacheManager(){
         return Caching.getCacheManager(AF_APPLICATION_CACHE_MANAGER);
@@ -108,7 +106,7 @@ public class JDBCApplicationCacheManager {
     public static Cache<String, Integer> getApplicationBranchCountCache() {
         // This cache holds the AF_APPLICATION branch count against the application key
         // The purpose of this is to reduce the multiple calls that happen to the database to fetch the application id
-        return getCacheManager().getCache(AF_APPLICATION_INFO_CACHE);
+        return getCacheManager().getCache(AF_APPLICATION_BRANCH_COUNT_CACHE);
     }
 
     /**
@@ -210,6 +208,6 @@ public class JDBCApplicationCacheManager {
      */
     public static String constructApplicationBranchCountCacheKey(int tenantId,
                                                                  String ApplicationKey) {
-        return constructCacheKeyPrefix(tenantId, ApplicationKey) + KEY_SEPARATOR + APPS_INFO;
+        return constructCacheKeyPrefix(tenantId, ApplicationKey);
     }
 }

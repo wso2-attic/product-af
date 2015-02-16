@@ -919,10 +919,14 @@ public class JDBCApplicationDAO {
 
         //return the result which is already in cache
         if (applicationBranchCountCache.containsKey(applicationAppsBranchCountKey)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Retrieving data from the cache for application key : " + applicationKey);
-            }
-            return applicationBranchCountCache.get(applicationAppsBranchCountKey);
+	        int applicationBranchCount =
+			        applicationBranchCountCache.get(applicationAppsBranchCountKey);
+	        if (log.isDebugEnabled()) {
+		        log.debug("Retrieving branch count from the cache for application key : " +
+		                  applicationKey + ", Cache key :" + applicationAppsBranchCountKey +
+		                  " and the cached branch count is:" + applicationBranchCount);
+	        }
+            return applicationBranchCount;
         }
 
         try {
@@ -934,10 +938,8 @@ public class JDBCApplicationDAO {
             getAppIDPreparedStatement.setInt(3, 0);
             application = getAppIDPreparedStatement.executeQuery();
             if (application.next()) {
-                branchCount = application.getInt(SQLParameterConstants.COLUMN_NAME_BRANCH_COUNT);
-                if (branchCount > 0) {
-                    applicationBranchCountCache.put(applicationAppsBranchCountKey, branchCount);
-                }
+	            branchCount = application.getInt(SQLParameterConstants.COLUMN_NAME_BRANCH_COUNT);
+	            applicationBranchCountCache.put(applicationAppsBranchCountKey, branchCount);
             }
         } catch (SQLException e) {
             handleException("Error while getting branch count for " + applicationKey, e);
