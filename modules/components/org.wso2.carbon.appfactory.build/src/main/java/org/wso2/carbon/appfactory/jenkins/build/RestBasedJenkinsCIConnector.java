@@ -681,11 +681,11 @@ public class RestBasedJenkinsCIConnector {
 		try {
 			httpStatusCode = getAuthenticatedHttpClient().executeMethod(deleteJobMethod);
 
-			if (!isSuccessfulStatusCode(httpStatusCode)) {
+			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
 				httpStatusCode = resendRequest(deleteJobMethod);
 			}
 
-			if (!isSuccessfulStatusCode(httpStatusCode)) {
+			if (HttpStatus.SC_FORBIDDEN == httpStatusCode) {
 				final String errorMsg = String.format(
 						"Unable to delete: [%s]. jenkins returned, "
 								+ "http status : %d", jobName, httpStatusCode);
