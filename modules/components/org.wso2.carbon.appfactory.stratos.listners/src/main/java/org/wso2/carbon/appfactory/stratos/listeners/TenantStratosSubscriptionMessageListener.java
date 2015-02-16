@@ -127,8 +127,16 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
 
 	            for (RuntimeBean runtimeBean : runtimeBeans) {
 		            RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
-		            subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
-	            }
+		            try {
+			            PrivilegedCarbonContext.startTenantFlow();
+			            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
+					            tenantInfoBean.getTenantDomain(), true);
+			            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
+			            subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
+		            } finally {
+			            PrivilegedCarbonContext.endTenantFlow();
+		            }
+		        }
 
 //                restService = new StratosRestService(serverURL, username, tenantAdminPassword);
 //                restService.subscribe(cartridgeType,
