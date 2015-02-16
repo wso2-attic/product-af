@@ -43,9 +43,25 @@
     </licenses>
 
     <modules>
-        <module>tests-common</module>
+        <module>admin-clients</module>
+        <module>integration-test-utils</module>
         <module>tests-integration/tests-scenarios</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon.automation</groupId>
+            <artifactId>org.wso2.carbon.automation.engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.wso2</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.automationutils</groupId>
+            <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
