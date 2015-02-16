@@ -70,6 +70,9 @@ public class AppFactoryConstants {
 	public static final String RUNTIME_REPO_PROVIDER_URL="repoProviderUrl";
 	public static final String RUNTIME_NAME_FOR_APPTYPE ="runtimesNameForApptype";
 
+	/**
+	 * Constants for RestBasedJenkinsCIConnector
+	 */
 	public static final String ROLE_NAME = "name";
 	public static final String ROLE_PATTERN = "pattern";
 	public static final String ROLE_PERMISSION = "permission";
@@ -429,7 +432,7 @@ public class AppFactoryConstants {
 	public static final String WHITE_SPACE = " ";
 	public static final String DOT_SEPERATOR = ".";
     public static final String SUBSCRIPTION_ALIAS_DOT_REPLACEMENT = "dot";
-	public static final String ASTERISK = "*";
+	public static final String REGEX_ALL = "*";
 	public static final String MINUS = "-";
 	public static final String PAAS_REPOSITORY_URL_PATTERN = "paasRepositoryURLPattern";
 	public static final String PROPERTY_VALUE_SEPERATOR =",";
