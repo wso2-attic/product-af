@@ -115,8 +115,6 @@ public class RuntimeManager {
 					properties.getProperty(AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY));
 			applicationRuntimeBean.setAutoscalePolicy(
 					properties.getProperty(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY));
-			applicationRuntimeBean.setRepoURL(
-					properties.getProperty(AppFactoryConstants.RUNTIME_REPO_URL));
 			applicationRuntimeBean.setDataCartridgeType(
 					properties.getProperty(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE));
 			applicationRuntimeBean.setDataCartridgeAlias(

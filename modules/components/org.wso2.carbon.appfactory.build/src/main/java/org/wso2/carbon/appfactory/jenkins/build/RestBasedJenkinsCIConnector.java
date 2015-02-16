@@ -2066,8 +2066,6 @@ public class RestBasedJenkinsCIConnector {
 		                                 runtimeBean.getDeploymentPolicy()));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY,
 		                                 runtimeBean.getAutoscalePolicy()));
-		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_REPO_URL,
-		                                 runtimeBean.getRepoURL()));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE,
 		                                 runtimeBean.getDataCartridgeType()));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS,

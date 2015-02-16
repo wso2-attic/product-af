@@ -21,8 +21,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.common.listeners.TenantMgtListener;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
-import org.wso2.carbon.appfactory.stratos.listeners.AppFactoryTenantKeyStoreMgtListener;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.stratos.listeners.CloudEnvironmentPermissionListener;
+import org.wso2.carbon.appfactory.stratos.listeners.TenantStratosSubscriptionDurableSubscriber;
 import org.wso2.carbon.appfactory.stratos.util.AppFactoryS4ListenersUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -63,12 +64,18 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class AppFactoryS4ListenersServiceComponent {
     private static Log log = LogFactory.getLog(AppFactoryS4ListenersServiceComponent.class);
+    //private static final String SUBSCRIBER_ID = "subscriber_id";
+    private static final String TENANT_SUBSCRIPTION_TOPIC = "tenant_subscription_topic";
+    private static String stage = System.getProperty(AppFactoryConstants.CLOUD_STAGE);
 
     protected void activate(ComponentContext context) {
 
         try {
         	context.getBundleContext().registerService(TenantMgtListener.class.getName(),
         	                               			new CloudEnvironmentPermissionListener(),null);
+            context.getBundleContext().registerService(TenantStratosSubscriptionDurableSubscriber.class.getName(),
+                                                       new TenantStratosSubscriptionDurableSubscriber
+                                                               (stage + TENANT_SUBSCRIPTION_TOPIC, stage), null);
 
             if (log.isDebugEnabled()) {
                 log.debug("DefaultRolesCreatorServiceComponent Service  bundle is activated");
