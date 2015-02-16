@@ -1211,14 +1211,20 @@ public class RestBasedJenkinsCIConnector {
 			                                                                .getApplicationTypeBean(artifactType);
 
 			if (applicationTypeBean == null) {
-				throw new AppFactoryException("Application Type details cannot be found");
+				throw new AppFactoryException(
+						"Application Type details cannot be found for Artifact Type : " +
+						artifactType + " , Job Name : " + jobName + ", stage : " + stage +
+						" for username: " + userName);
 			}
 
 			String runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
 			RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtimeNameForAppType);
 
 			if (runtimeBean == null) {
-				throw new AppFactoryException("Runtime details cannot be found");
+				throw new AppFactoryException(
+						"Runtime details cannot be found for Artifact Type : " + artifactType +
+						" , Job Name : " + jobName + ", stage : " + stage + " for username: " +
+						userName);
 			}
 
 			parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,runtimeNameForAppType));
@@ -1290,14 +1296,22 @@ public class RestBasedJenkinsCIConnector {
 		                                                                .getApplicationTypeBean(applicationType);
 
 		if (applicationTypeBean == null) {
-			throw new AppFactoryException("Application Type details cannot be found");
+			throw new AppFactoryException(
+					"Application Type details cannot be found for Artifact Type : " +
+					applicationType + ", Job Name : " + jobName + ", stage : " + stage +
+					", application id" + applicationId + " of version " + version +
+					" for tenant domain: " + tenantDomain);
 		}
 
 		String runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
 		RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtimeNameForAppType);
 
 		if (runtimeBean == null) {
-			throw new AppFactoryException("Runtime details cannot be found");
+			throw new AppFactoryException(
+					"Runtime details cannot be found for Artifact Type : " + applicationType +
+					", Job Name : " + jobName + ", stage : " + stage + ", application id" +
+					applicationId + " of version " + version + " for tenant domain: " +
+					tenantDomain);
 		}
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -1369,7 +1383,8 @@ public class RestBasedJenkinsCIConnector {
 		parameters.add(new NameValuePair(AppFactoryConstants.JOB_NAME, jobName));
 		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
 
-		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,runtimeNameForAppType));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,
+		                                 runtimeNameForAppType));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
 		                                 Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
 		parameters.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,

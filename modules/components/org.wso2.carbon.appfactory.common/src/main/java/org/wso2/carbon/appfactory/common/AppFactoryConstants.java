@@ -443,18 +443,18 @@ public class AppFactoryConstants {
 	/**
 	 * PAAS artifact repository configuration path constants
 	 */
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER = "PAASArtifactStorageRepositoryProvider";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".BaseURL";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".ProviderClass";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".AdminPassword";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".AdminUserName";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER = "PAASArtifactStorageRepositoryProvider";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".BaseURL";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".ProviderClass";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".AdminPassword";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".AdminUserName";
 
 
-	public static final String CONTINUOUS_INTEGRATION_PROVIDER_JENKINS_PROPERTY_BASE_URL =
+	public static final String JENKINS_PROPERTYBASE_URL =
 			"ContinuousIntegrationProvider.jenkins.Property.BaseURL";
 
 	/**

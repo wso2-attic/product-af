@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Manage Application type information
+ * Manage Runtime information
  * Singleton class
  */
 public class RuntimeManager {
@@ -76,9 +76,9 @@ public class RuntimeManager {
 				.loadConfigurationFile();
 		if (appRuntimeConfig == null) {
 			throw new AppFactoryException(
-					"Configuration is null. Check the runtime.xml and try again.");
+					"Configuration is null. Check the runtime.xml: "+file.getName()+" and try again.");
 		}
-		initAppRuntimeConfig(appRuntimeConfig);
+		createRuntimeBean(appRuntimeConfig);
 	}
 
 	/**
@@ -87,52 +87,43 @@ public class RuntimeManager {
 	 * @param config map of name value pairs from the content of the runtime.xml
 	 * @throws org.wso2.carbon.appfactory.common.AppFactoryException
 	 */
-	private void initAppRuntimeConfig(Map<String, String> config) throws AppFactoryException {
-
-		String runtimeName = config.get(AppFactoryConstants.RUNTIME);
-		Properties properties = new Properties();
-
-		for (Map.Entry<String, String> entry : config.entrySet()) {
-			properties.setProperty(entry.getKey(),entry.getValue());
-		}
+	private void createRuntimeBean(Map<String, String> config) throws AppFactoryException {
 
 		RuntimeBean applicationRuntimeBean;
 		try {
 
 			applicationRuntimeBean = new RuntimeBean();
+			String runtimeName = config.get(AppFactoryConstants.RUNTIME);
 			applicationRuntimeBean.setRuntimeName(runtimeName);
 			applicationRuntimeBean.setDeployerClassName(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME));
+					config.get(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME));
 			applicationRuntimeBean.setUndeployerClassName(
-					properties.getProperty(AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME));
+					config.get(AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME));
 			applicationRuntimeBean.setPaasRepositoryURLPattern(
-					properties.getProperty(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
+					config.get(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
 			applicationRuntimeBean.setAliasPrefix(
-					properties.getProperty(AppFactoryConstants.RUNTIME_ALIAS_PREFIX));
+					config.get(AppFactoryConstants.RUNTIME_ALIAS_PREFIX));
 			applicationRuntimeBean.setCartridgeTypePrefix(
-					properties.getProperty(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX));
+					config.get(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX));
 			applicationRuntimeBean.setDeploymentPolicy(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY));
+					config.get(AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY));
 			applicationRuntimeBean.setAutoscalePolicy(
-					properties.getProperty(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY));
+					config.get(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY));
 			applicationRuntimeBean.setRepoURL(
-					properties.getProperty(AppFactoryConstants.RUNTIME_REPO_URL));
+					config.get(AppFactoryConstants.RUNTIME_REPO_URL));
 			applicationRuntimeBean.setDataCartridgeType(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE));
+					config.get(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE));
 			applicationRuntimeBean.setDataCartridgeAlias(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS));
-			if (properties.getProperty(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT) != null) {
+					config.get(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS));
+			if (config.get(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT) != null) {
 				applicationRuntimeBean.setSubscribeOnDeployment(
-						Boolean.parseBoolean(properties.getProperty(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT)));
+						Boolean.parseBoolean(config.get(
+								AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT)));
 			} else {
 				applicationRuntimeBean.setSubscribeOnDeployment(false);
 			}
 
 			runtimeManager.getRuntimeBeanMap().put(runtimeName, applicationRuntimeBean);
-		} catch (NullPointerException e) {
-			String msg = "Exception occurred while reading the xml";
-			log.error(msg, e);
-			throw new AppFactoryException(msg, e);
 		} catch (Exception e) {
 			String msg = "Exception occurred while reading the xml";
 			log.error(msg, e);
@@ -145,8 +136,4 @@ public class RuntimeManager {
 		return runtimeBeanMap;
 	}
 
-	public void setRuntimeBeanMap(
-			Map<String, RuntimeBean> runtimeBeanMap) {
-		this.runtimeBeanMap = runtimeBeanMap;
-	}
 }

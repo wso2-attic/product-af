@@ -83,7 +83,7 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 	@Override
 	protected String getBaseRepoUrl() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL);
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
 	}
 
     /**
@@ -92,7 +92,7 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 	@Override
 	protected String getAdminPassword() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD);
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
 	}
 
     /**
@@ -101,7 +101,7 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 	@Override
 	protected String getAdminUserName() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME);
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
 	}
 
     /**
