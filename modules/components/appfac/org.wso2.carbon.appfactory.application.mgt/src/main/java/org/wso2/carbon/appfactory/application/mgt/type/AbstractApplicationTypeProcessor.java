@@ -56,7 +56,7 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
 
 	@Override
 	public String getProperty(String name) {
-		return (String) this.properties.getProperty(name);
+		return this.properties.getProperty(name);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
 	@Override
 	public String getDeployedURL(String tenantDomain, String applicationID,
 	                             String applicationVersion, String stage) throws AppFactoryException{
-		String url = (String) this.properties.getProperty(LAUNCH_URL_PATTERN);
+		String url = this.properties.getProperty(LAUNCH_URL_PATTERN);
 
 		String artifactTrunkVersionName = AppFactoryUtil.getAppfactoryConfiguration().
 				getFirstProperty(AppFactoryConstants.TRUNK_WEBAPP_ARTIFACT_VERSION_NAME);
@@ -81,7 +81,7 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
 		String urlStageValue = "";
 
 		try {
-			urlStageValue = (String) this.properties.getProperty(stage + PARAM_APP_STAGE_NAME_SUFFIX);
+			urlStageValue = this.properties.getProperty(stage + PARAM_APP_STAGE_NAME_SUFFIX);
 		} catch (Exception e){
 			// no need to throw just log and continue
 			log.error("Error while getting the url stage value fo application:" + applicationID, e);
