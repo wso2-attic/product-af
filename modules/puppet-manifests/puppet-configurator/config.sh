@@ -42,13 +42,13 @@ declare -a SM_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 
 ## patches
 declare -a AM_PATCHES=("patch0999");
-declare -a AF_PATCHES=("patch0001" "patch0002" "patch0004" "patch0132" "patch0133" "patch9999");
+declare -a AF_PATCHES=("patch0001" "patch0004" "patch0132" "patch0133" "patch0596");
 declare -a AS_PATCHES=("patch0028" "patch0132" "patch0133" "patch9999");
 declare -a ELB_PATCHES=("patch0001" "patch0027" "patch0236" "patch8000");
 declare -a IS_PATCHES=("patch0031" "patch0137");
 declare -a JPP_PATCHES=("patch0028");
 declare -a PAAS_AS_PATCHES=("patch0004" "patch0276" "patch0277" "patch0318" "patch0400" "patch0889");
-declare -a SS_PATCHES=("patch0209" "patch0260" "patch0274" "patch0298" "patch0320" "patch0350" "patch0999");
-declare -a STRATOS_INSTALLER_PATCHES=("patch0003" "patch0006" "patch0007" "patch0999");
+declare -a SS_PATCHES=("patch0209" "patch0260" "patch0274" "patch0298" "patch0320" "patch0350");
+declare -a STRATOS_INSTALLER_PATCHES=("patch0003" "patch0006" "patch0007");
 declare -a STRATOS_INSTALLER_CONFIG_PATCHES=("patch0900");
 declare -a TASK_SERVER=("patch0097" "patch0113");
