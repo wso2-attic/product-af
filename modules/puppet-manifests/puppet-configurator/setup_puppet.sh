@@ -1,5 +1,5 @@
 #
-# Copyright 2015l WSO2, Inc. (http://wso2.com)
+# Copyright 2015  WSO2, Inc. (http://wso2.com)
 #
 #      Licensed under the Apache License, Version 2.0 (the "License");
 #      you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ CURRENT_DIR=`pwd`
 PUPPET_CONFIG_PATH=/home/ubuntu/product-af/modules/puppet-manifests/appfactory/
 cd $PUPPET_CONFIG_PATH
 sudo git clean -df
-#git pull origin master
 cd $CURRENT_DIR
 
 if [ -f `pwd`/config.sh ]; then
@@ -32,9 +31,20 @@ else
         exit 1
 fi
 
+cd $CURRENT_DIR
+if [ -f `pwd`/copy-jars.sh ]; then
+        echo "Executing copy-jars.sh..."
+        source `pwd`/copy-jars.sh
+else
+        echo "Unable to locate copy-jars.sh"
+        exit 1
+fi
+
+cd $CURRENT_DIR
 if [ -f `pwd`/copy-patches.sh ]; then
+        echo "Executing copy-patches.sh..."
         source `pwd`/copy-patches.sh
 else
-        echo "Unable to locate config.sh"
+        echo "Unable to locate copy-patches.sh"
         exit 1
 fi
