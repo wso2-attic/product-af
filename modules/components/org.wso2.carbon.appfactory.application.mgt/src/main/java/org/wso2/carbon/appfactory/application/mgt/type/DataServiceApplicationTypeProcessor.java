@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Data service application type processor
  */
-public class DataServiceApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
+public class DataServiceApplicationTypeProcessor extends AbstractFreeStyleApplicationTypeProcessor {
 
 	private static final Log log = LogFactory.getLog(DataServiceApplicationTypeProcessor.class);
 
@@ -47,14 +47,14 @@ public class DataServiceApplicationTypeProcessor extends AbstractApplicationType
 
     @Override
     public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
-	    ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
-	                                          ProjectUtils.getArchetypeRequest(applicationId,
-	                                                                           getProperty(MAVEN_ARCHETYPE_REQUEST)));
-	    File pomFile = new File(workingDirectory + File.separator + AppFactoryConstants.DEFAULT_POM_FILE);
-	    boolean result = FileUtils.deleteQuietly(pomFile);
-	    if (!result){
-		    log.warn("Error while deleting pom.xml for application id : " + applicationId);
-	    }
+        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
+                ProjectUtils.getArchetypeRequest(applicationId,
+                        getProperty(MAVEN_ARCHETYPE_REQUEST)));
+        File pomFile = new File(workingDirectory + File.separator + AppFactoryConstants.DEFAULT_POM_FILE);
+        boolean result = FileUtils.deleteQuietly(pomFile);
+        if (!result){
+            log.warn("Error while deleting pom.xml for application id : " + applicationId);
+        }
 	    configureFinalName(workingDirectory, applicationId,
 	                       AppFactoryUtil.getAppfactoryConfiguration().
 			                       getFirstProperty(AppFactoryConstants.PROPERTY_ARTIFACT_VERSION_NAME));
@@ -93,65 +93,7 @@ public class DataServiceApplicationTypeProcessor extends AbstractApplicationType
 		return url;
 	}
 
-	@Override
-	public OMElement configureBuildJob(OMElement jobConfigTemplate, Map<String, String> parameters,
-	                                   String projectType)
-			throws AppFactoryException {
-		if (jobConfigTemplate == null) {
-			String msg =
-					"Class loader is unable to find the jenkins job configuration template for data service application types";
-			log.error(msg);
-			throw new AppFactoryException(msg);
-		}
 
-		String artifactArchiver = null;
-		Object hudsonArtifactArchiver = ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType)
-		                                                      .getProperty(
-				                                                      AppFactoryConstants.HUDSON_ARTIFACT_ARCHIVER);
-		if (hudsonArtifactArchiver != null) {
-			artifactArchiver = hudsonArtifactArchiver.toString();
-		}
-		jobConfigTemplate = configureRepositoryData(jobConfigTemplate, parameters);
-
-		// Support for post build listener residing in jenkins server
-		setValueUsingXpath(jobConfigTemplate,
-		                   AppFactoryConstants.PUBLISHERS_APPFACTORY_POST_BUILD_APP_EXTENSION_XPATH_SELECTOR,
-		                   parameters.get(AppFactoryConstants.APPTYPE_EXTENSION));
-
-		setValueUsingXpath(jobConfigTemplate,
-		                   AppFactoryConstants.PUBLISHERS_APPFACTORY_POST_BUILD_APP_ID_XPATH_SELECTOR,
-		                   parameters.get(AppFactoryConstants.APPLICATION_ID));
-
-		setValueUsingXpath(jobConfigTemplate,
-		                   AppFactoryConstants.PUBLISHERS_APPFACTORY_POST_BUILD_APP_VERSION_XPATH_SELECTOR,
-		                   parameters.get(AppFactoryConstants.APPLICATION_VERSION));
-
-		if (StringUtils.isNotBlank(artifactArchiver)) {
-			setValueUsingXpath(jobConfigTemplate,
-			                   AppFactoryConstants.ARTIFACT_ARCHIVER_CONFIG_NAME_XAPTH_SELECTOR,
-			                   artifactArchiver);
-		}
-
-		if (ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType).isUploadableAppType()) {
-			setValueUsingXpath(jobConfigTemplate, AppFactoryConstants.ARTIFACT_ARCHIVER_CONFIG_NAME_XAPTH_SELECTOR,
-			                   AppFactoryConstants.DEFAULT_ARTIFACT_NAME +
-			                   ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType)
-			                                         .getExtension());
-
-			String repositoryBranchName = parameters.get(AppFactoryConstants.APPLICATION_VERSION);
-			if (AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION.equals(repositoryBranchName)) {
-				setValueUsingXpath(jobConfigTemplate, AppFactoryConstants.GIT_REPOSITORY_VERSION_XPATH_SELECTOR,
-				                   AppFactoryConstants.APPLICATION_VERSION_VALUE_FREESTYLE);
-			}
-		}
-
-		setValueUsingXpath(jobConfigTemplate,
-		                   AppFactoryConstants.APPLICATION_TRIGGER_PERIOD,
-		                   parameters.get(AppFactoryConstants.APPLICATION_POLLING_PERIOD));
-
-		return jobConfigTemplate;
-
-	}
 
 	private void configureFinalName(String path, String appId, String version) {
 		File artifactDir = new File(path);

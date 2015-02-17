@@ -130,7 +130,7 @@
             <artifactId>org.wso2.carbon.analytics.hive.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
             <scope>provided</scope>
             <exclusions>
