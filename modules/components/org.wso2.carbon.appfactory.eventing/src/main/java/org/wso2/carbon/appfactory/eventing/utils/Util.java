@@ -40,16 +40,22 @@ public class Util {
         if (tenantDomain != null && !tenantDomain.equals(EventingConstants.CARBON_SUPER)) {
             currentUser = currentUser + "@" + tenantDomain;
         }
-        try {
+        if (tenantDomain != null && tenantDomain.equals(EventingConstants.CARBON_SUPER)) {
+            currentUser = EventingConstants.ADMIN;
+        }try {
             AppFactoryConfiguration appFactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
             String messageBrokerServerUrl = appFactoryConfiguration.getFirstProperty(EventingConstants.NOTIFICATION_SERVER_URL);
             AndesAdminServiceClient client = new AndesAdminServiceClient(messageBrokerServerUrl);
             AppFactoryUtil.setAuthHeaders(client.getStub()._getServiceClient(), currentUser);
             String accessToken = client.getAccessToken();
             String connectionUrl = appFactoryConfiguration.getFirstProperty(EventingConstants.TCP_CONNECTION_URL);
-            connectionUrl = connectionUrl.replace(EventingConstants.CONNECTION_USER, getCurrentUser()).
-                    replace(EventingConstants.ACCESS_TOKEN, accessToken);
-            return connectionUrl;
+            if (currentUser.equals(EventingConstants.ADMIN)) {
+                connectionUrl = connectionUrl.replace(EventingConstants.CONNECTION_USER, currentUser).
+                        replace(EventingConstants.ACCESS_TOKEN, accessToken);
+            } else {
+                connectionUrl = connectionUrl.replace(EventingConstants.CONNECTION_USER, getCurrentUser()).
+                        replace(EventingConstants.ACCESS_TOKEN, accessToken);
+            }return connectionUrl;
         } catch (AppFactoryException e) {
             String error = "Failed to get tcp connection URL to message broker due to " + e.getMessage();
             log.error(error, e);
