@@ -930,7 +930,7 @@ public class RestBasedJenkinsCIConnector {
 					checkJobExistsMethod.getResponseBodyAsStream());
 			OMElement resultElement = builder.getDocumentElement();
 			if (resultElement != null) {
-				if (Boolean.toString(false).equals(getValueUsingXpath(resultElement,
+				if (Boolean.FALSE.equals(getValueUsingXpath(resultElement,
 				                                                      "/*/building"))) {
 					buildStatus = getValueUsingXpath(resultElement, "/*/result");
 				} else {
@@ -1906,9 +1906,9 @@ public class RestBasedJenkinsCIConnector {
 
 			String paramValue = null;
 			if (isAutoDeploy) {
-				paramValue = Boolean.toString(true);
+				paramValue = Boolean.TRUE;
 			} else {
-				paramValue = Boolean.toString(false);
+				paramValue = Boolean.FALSE;
 			}
 
 			AXIOMXPath axiomxPath = new AXIOMXPath(
