@@ -1074,7 +1074,7 @@ public class RestBasedJenkinsCIConnector {
 			log.debug(String.format("getJsonTree - for %s > %s", jobName, treeStructure));
 		}
 		if (jobName == null || jobName.isEmpty()
-		    || jobName.equalsIgnoreCase(AppFactoryConstants.ALL_JOB_NAME) ||
+		    || AppFactoryConstants.ALL_JOB_NAME.equalsIgnoreCase(jobName) ||
 		    AppFactoryConstants.REGEX_ALL.equals(jobName)) {
 			buildUrl = this.getJenkinsUrl() + AppFactoryConstants.URL_SEPERATOR;
 		} else {
