@@ -16,6 +16,7 @@
 
 
 #!/bin/bash
+PUPPET_MASTER_IP=192.168.18.237
 PACKS_DIR=/var/www/software
 PUPPET_MODULES_HOME=/home/ubuntu/product-af/modules/puppet-manifests/appfactory/modules
 OLD_VERSION="2.1.0"

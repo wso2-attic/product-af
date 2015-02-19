@@ -48,3 +48,10 @@ else
         _echo_red "Unable to locate copy-patches.sh\n"
         exit 1
 fi
+
+#This is avoid manual changes to be done in puppet manifest files. We should be able to just modify single file and run the setup script.
+cd $CURRENT_DIR
+_echo_green "Changing puppet master IP in nodes.pp. Ignore sed: no input files error..."
+grep -rl --exclude-dir="\.git" 192.168.18.237 "$PUPPET_CONFIG_PATH/manifests/nodes.pp" | xargs sed -i "s,192.168.18.237,${PUPPET_MASTER_IP},g"
+grep -rl --exclude-dir="\.git" 192.168.18.250 "$PUPPET_CONFIG_PATH/manifests/nodes.pp" | xargs sed -i "s,192.168.18.250,${PUPPET_MASTER_IP},g"
+   
