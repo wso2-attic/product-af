@@ -1075,7 +1075,7 @@ public class RestBasedJenkinsCIConnector {
 		}
 		if (jobName == null || jobName.isEmpty()
 		    || jobName.equalsIgnoreCase(AppFactoryConstants.ALL_JOB_NAME) ||
-		    jobName.equals(AppFactoryConstants.REGEX_ALL)) {
+		    AppFactoryConstants.REGEX_ALL.equals(jobName)) {
 			buildUrl = this.getJenkinsUrl() + AppFactoryConstants.URL_SEPERATOR;
 		} else {
 			buildUrl = String.format("%s/job/%s/", this.getJenkinsUrl(),
