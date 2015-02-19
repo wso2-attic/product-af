@@ -92,14 +92,6 @@ public class RuntimeBean {
 		this.autoscalePolicy = autoscalePolicy;
 	}
 
-	public String getRepoURL() {
-		return repoURL;
-	}
-
-	public void setRepoURL(String repoURL) {
-		this.repoURL = repoURL;
-	}
-
 	public String getDataCartridgeType() {
 		return dataCartridgeType;
 	}

@@ -25,13 +25,12 @@ import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.core.dto.TenantInfoBean;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
-import org.wso2.carbon.appfactory.core.task.AppFactoryTenantCloudInitializerTask;
-import org.wso2.carbon.appfactory.core.task.AppFactoryTenantCreationNotificationInitializerTask;
 import org.wso2.carbon.appfactory.core.task.AppFactoryTenantRepositoryInitializerTask;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.TaskInfo;
 import org.wso2.carbon.ntask.core.TaskManager;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -136,7 +135,6 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
      * Used to extend Tenant Creation
      *
      * @param bean  with tenant details
-     * @param stage Environment
      * @return true if the operation is success
      * @throws AppFactoryException
      */
@@ -144,17 +142,21 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
         TaskInfo.TriggerInfo triggerInfo = getTriggerWithDalay();
         String taskName = "notification-init-" + bean.getTenantDomain();
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.TENANT_USAGE_PLAN, bean.getUsagePlan());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.TENANT_DOMAIN, bean.getTenantDomain());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.SUCCESS_KEY, bean.getSuccessKey());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.ADMIN_USERNAME, bean.getAdmin());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.ADMIN_PASSWORD, bean.getAdminPassword());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.ADMIN_EMAIL, bean.getEmail());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.ADMIN_FIRST_NAME, bean.getFirstname());
-        properties.put(AppFactoryTenantCreationNotificationInitializerTask.ADMIN_LAST_NAME, bean.getLastname());
+	    ObjectMapper mapper = new ObjectMapper();
+	    String tenantInfoJson;
 
-        TaskInfo taskInfo = new TaskInfo(taskName, AppFactoryTenantInfraStructureInitializerService.TENANT_CREATION_NOTIFICATION_INITIALIZER_TASK,
-                properties, triggerInfo);
+	    try {
+		    tenantInfoJson = mapper.writeValueAsString(bean);
+	    } catch (IOException e) {
+		    String msg = "Error while converting the tenant info bean to a json string";
+		    log.error(msg, e);
+		    throw new AppFactoryException(msg, e);
+	    }
+
+	    properties.put(AppFactoryConstants.TENANT_INFO, tenantInfoJson);
+
+        TaskInfo taskInfo = new TaskInfo(taskName, AppFactoryTenantInfraStructureInitializerService.
+		        TENANT_CREATION_NOTIFICATION_INITIALIZER_TASK, properties, triggerInfo);
         try {
             taskManager.registerTask(taskInfo);
         } catch (TaskException e) {
@@ -184,8 +186,6 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
         AppFactoryConfiguration configuration = ServiceHolder.getAppFactoryConfiguration();
         String serverURL = configuration.getFirstProperty(ENVIRONMENT + "." + stage + "." + "TenantMgtUrl");
 
-        String adminUsername=configuration.getFirstProperty(AppFactoryConstants.SERVER_ADMIN_NAME);
-        String adminPassword=configuration.getFirstProperty(AppFactoryConstants.SERVER_ADMIN_PASSWORD);
         TaskInfo.TriggerInfo triggerInfo = getTriggerWithDalay();
         String taskName = "cloud-init-" + stage + "-" + bean.getTenantDomain();
         Map<String, String> properties = new HashMap<String, String>();
@@ -200,34 +200,28 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
             }
         }
 
-        String json;
+        String runtimeJson;
+	    String tenantInfoJson;
+	    ObjectMapper mapper = new ObjectMapper();
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            json = mapper.writeValueAsString(runtimeBeansArrayList.toArray());
+            runtimeJson = mapper.writeValueAsString(runtimeBeansArrayList.toArray());
         } catch (IOException e) {
             String msg = "Error while converting the runtime bean to a json string";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
-        properties.put(AppFactoryTenantCloudInitializerTask.RUNTIMES, json);
+	    try {
+		    tenantInfoJson = mapper.writeValueAsString(bean);
+	    } catch (IOException e) {
+		    String msg = "Error while converting the tenant info bean to a json string";
+		    log.error(msg, e);
+		    throw new AppFactoryException(msg, e);
+	    }
 
-        properties.put(AppFactoryTenantCloudInitializerTask.TENANT_USAGE_PLAN, bean.getUsagePlan());
-        properties.put(AppFactoryTenantCloudInitializerTask.TENANT_USAGE_PLAN, bean.getUsagePlan());
-        properties.put(AppFactoryTenantCloudInitializerTask.TENANT_DOMAIN, bean.getTenantDomain());
-        properties.put(AppFactoryTenantCloudInitializerTask.TENANT_ID, String.valueOf(bean.getTenantId()));
-        properties.put(AppFactoryTenantCloudInitializerTask.SUCCESS_KEY, bean.getSuccessKey());
-        properties.put(AppFactoryTenantCloudInitializerTask.ADMIN_USERNAME, bean.getAdmin());
-        properties.put(AppFactoryTenantCloudInitializerTask.ADMIN_PASSWORD, bean.getAdminPassword());
-        properties.put(AppFactoryTenantCloudInitializerTask.ADMIN_EMAIL, bean.getEmail());
-        properties.put(AppFactoryTenantCloudInitializerTask.ADMIN_FIRST_NAME, bean.getFirstname());
-        properties.put(AppFactoryTenantCloudInitializerTask.ADMIN_LAST_NAME, bean.getLastname());
-        properties.put(AppFactoryTenantCloudInitializerTask.ORIGINATED_SERVICE,
-                "Apache Stratos Controller");
-
-        properties.put(AppFactoryTenantCloudInitializerTask.SERVER_URL, serverURL);
-        properties.put(AppFactoryTenantCloudInitializerTask.SUPER_TENANT_ADMIN, adminUsername);
-        properties.put(AppFactoryTenantCloudInitializerTask.SUPER_TENANT_ADMIN_PASSWORD,adminPassword);
-        properties.put(AppFactoryTenantCloudInitializerTask.STAGE,stage);
+        properties.put(AppFactoryConstants.RUNTIMES, runtimeJson);
+        properties.put(AppFactoryConstants.TENANT_INFO, tenantInfoJson);
+        properties.put(AppFactoryConstants.STAGE,stage);
+	    properties.put(AppFactoryConstants.SERVER_URL, serverURL);
         TaskInfo taskInfo = new TaskInfo(taskName, AppFactoryTenantInfraStructureInitializerService.CLOUD_INITIALIZER_TASK,
                 properties, triggerInfo);
         try {

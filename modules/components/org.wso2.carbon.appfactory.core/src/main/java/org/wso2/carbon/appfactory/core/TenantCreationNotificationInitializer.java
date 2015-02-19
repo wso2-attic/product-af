@@ -27,7 +27,6 @@ public interface TenantCreationNotificationInitializer {
      * This method will be called during tenant creation
      *
      * @param tenantInfoBean
-     * @param usagePlan
      */
     void onTenantCreation(TenantInfoBean tenantInfoBean);
     
