@@ -18,10 +18,12 @@ package org.wso2.carbon.appfactory.ext.datasource;
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.context.ConfigurationContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.wso2.carbon.appfactory.ext.Util;
 import org.wso2.carbon.appfactory.ext.internal.ServiceHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.ndatasource.common.DataSourceConstants;
@@ -181,6 +183,14 @@ public class ApplicationAwareDataSourceRepository extends DataSourceRepository {
         return getApplicationDatasourceMap(applicationID).values();
     }
 
+    @Override
+    public CarbonDataSource getDataSource(String dsName) {
+        String appId = Util.getCurrentArtifactName();
+        if (!StringUtils.isEmpty(appId)) {
+            return getDataSource(dsName, appId);
+        }
+        return super.getDataSource(dsName);
+    }
 
     public CarbonDataSource getDataSource(String dsName, String applicationID) {
         return getApplicationDatasourceMap(applicationID).get(dsName);
