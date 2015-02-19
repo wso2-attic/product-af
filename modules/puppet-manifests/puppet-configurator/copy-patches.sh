@@ -77,6 +77,7 @@ _update_patches SS_PATCHES[@] storage storage/files/patches/repository/component
 _update_patches STRATOS_INSTALLER_PATCHES[@] stratos-installer privatepaas/files/appfactory_deployment/repository/components/patches
 _update_patches STRATOS_INSTALLER_CONFIG_PATCHES[@] stratos-installer-config privatepaas/files/stratos/stratos-installer/config/all/repository/components/patches
 _update_patches TASK_SERVER[@] taskserver taskserver/files/patches/repository/components/patches
+_update_patches BAM_PATCHES[@] bam bam/files/patches/repository/components/patches
 
 #cleaning the extracted patches folder
 rm -rf ${PATCHES_HOME}
