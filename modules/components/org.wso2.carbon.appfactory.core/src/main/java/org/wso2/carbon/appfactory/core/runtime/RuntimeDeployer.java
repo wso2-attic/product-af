@@ -70,7 +70,7 @@ public class RuntimeDeployer extends AbstractDeployer {
 			return;
 		} else if (isDirectory) {  // Ignore folders
 			if (log.isDebugEnabled()) {
-				log.debug("The available file is a directory" + runtimeFile);
+				log.debug("The available file is a directory" + runtimeFile.getName());
 			}
 			return;
 		}
