@@ -754,7 +754,7 @@ public class RestBasedJenkinsCIConnector {
 
 		// TODO should get the persistArtifact parameter value from the user and
 		// set here
-		if (tagName != null && !tagName.isEmpty()) {
+		if (StringUtils.isNotBlank(tagName)) {
 			parameters.add(new NameValuePair(AppFactoryConstants.PERSIST_ARTIFACT, String
 					.valueOf(true)));
 			parameters.add(new NameValuePair(AppFactoryConstants.TAG_NAME, tagName));
