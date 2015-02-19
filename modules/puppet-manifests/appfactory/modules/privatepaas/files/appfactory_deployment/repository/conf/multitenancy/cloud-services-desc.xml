@@ -17,41 +17,15 @@
   ~ under the License.
   -->
 
-<!--
+<!-- 
      This has the configurations for the cloud services. 
      Label, link, icon, description, and the other similar information for each of the services are
      given here. 
   -->
 <cloudServices xmlns="http://wso2.com/carbon/cloud/mgt/services">
-     <cloudService name="Apache Stratos Controller" default="true">
-	<key>SCC</key>
-        <label>Apache Stratos Controller</label>
-        <link>https://scc.cloud.wso2.com</link>
-        <!--icon>
-            https://localhost:9443/cloud-services-icons/esb.gif
-        </icon-->
-        <productPageURL>http://wso2.com/cloud/stratos</productPageURL>
-        <description>WSO2 stratos controller.</description>
-    </cloudService>
-    <cloudService name="WSO2 Cloud Controller" default="true">
-	<key>CC</key>
-        <label>WSO2 Cloud Controller</label>
-        <link>https://cc.cloud.wso2.com</link>
-        <!--icon>
-            https://localhost:9443/cloud-services-icons/esb.gif
-        </icon-->
-        <productPageURL>http://wso2.com/cloud/stratos</productPageURL>
-        <description>WSO2 Cloud Controller.</description>
-    </cloudService>
-    <cloudService name="WSO2 Stratos Agent" default="true">
-	<key>Agent</key>
-        <label>WSO2 Stratos Agent</label>
-        <link>https://cc.cloud.wso2.com</link>
-        <!--icon>
-            https://localhost:9443/cloud-services-icons/esb.gif
-        </icon-->
-        <productPageURL>http://wso2.com/cloud/stratos</productPageURL>
-        <description>WSO2 Stratos Agent.</description>
+    <cloudService name="WSO2 Stratos Manager">
+        <key>manager</key>
+	<link>https://cloud.wso2.com</link>
     </cloudService>
     <cloudService name="WSO2 Enterprise Service Bus" default="true">
 	<key>ESB</key>
@@ -102,6 +76,26 @@
         </icon>
         <description>Identity in the cloud.</description>
         <productPageURL>http://wso2.com/products/identity-server/</productPageURL>
+    </cloudService>
+    <cloudService name="WSO2 Stratos Identity" default="true">
+        <key>StratosIS</key>
+        <label>WSO2 Identity Server</label>
+        <link>https://identity.cloud.wso2.com</link>
+        <icon>
+            https://localhost:9443/cloud-services-icons/identity.gif
+        </icon>
+        <description>Identity in the cloud.</description>
+        <productPageURL>http://wso2.com/products/identity-server/</productPageURL>
+    </cloudService>
+    <cloudService name="WSO2 Stratos Governance" default="true">
+        <key>StratosGREG</key>
+        <label>Governance</label>
+        <link>https://governance.cloud.wso2.com</link>
+        <description>Governance in the cloud.</description>
+        <icon>
+            https://localhost:9443/cloud-services-icons/governance.gif
+        </icon>
+        <productPageURL>http://wso2.com/products/governance-registry/</productPageURL> 
     </cloudService>
     <cloudService name="WSO2 Business Activity Monitor" default="true">
         <label>Business Activity Monitor</label>
@@ -195,22 +189,11 @@
    <cloudService name="WSO2 App Factory" default="true">
         <key>AF</key>
         <label>WSO2 App Factory</label>
-        <link>https://AF_HOST</link>
+        <link>https://milestones.appfactory.wso2.com</link>
         <icon>
                 https://localhost:9443/cloud-services-icons/af.gif
         </icon>
         <description>WSO2 App Factory.</description>
         <productPageURL>http://wso2.com/cloud/app-factory</productPageURL>
     </cloudService>
-  <cloudService name="WSO2 API Manager" default="true">
-        <key>AM</key>
-        <label>WSO2 API Manager</label>
-        <link>https://apimanager.appfactory.private.wso2.com</link>
-        <icon>
-                https://localhost:9443/cloud-services-icons/af.gif
-        </icon>
-        <description>apimanager.appfactory.private.wso2.com.</description>
-        <productPageURL>http://wso2.com/products/api-manager</productPageURL>
-    </cloudService>
-
 </cloudServices>
