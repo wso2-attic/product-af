@@ -742,7 +742,7 @@ public class RestBasedJenkinsCIConnector {
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new NameValuePair(AppFactoryConstants.IS_AUTOMATIC,
-		                                 Boolean.toString(false)));
+		                                 Boolean.FALSE));
 		parameters
 				.add(new NameValuePair(AppFactoryConstants.DO_DEPLOY, Boolean.toString(doDeploy)));
 		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stageName));
