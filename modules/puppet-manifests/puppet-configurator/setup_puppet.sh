@@ -27,24 +27,24 @@ cd $CURRENT_DIR
 if [ -f `pwd`/config.sh ]; then
         source `pwd`/config.sh
 else
-        echo "Unable to locate config.sh"
+        _echo_red "Unable to locate config.sh\n"
         exit 1
 fi
 
 cd $CURRENT_DIR
 if [ -f `pwd`/copy-jars.sh ]; then
-        echo "Executing copy-jars.sh..."
+        _echo_green "Executing copy-jars.sh...\n"
         source `pwd`/copy-jars.sh
 else
-        echo "Unable to locate copy-jars.sh"
+        _echo_red "Unable to locate copy-jars.sh\n"
         exit 1
 fi
 
 cd $CURRENT_DIR
 if [ -f `pwd`/copy-patches.sh ]; then
-        echo "Executing copy-patches.sh..."
+        _echo_green "Executing copy-patches.sh..."
         source `pwd`/copy-patches.sh
 else
-        echo "Unable to locate copy-patches.sh"
+        _echo_red "Unable to locate copy-patches.sh\n"
         exit 1
 fi

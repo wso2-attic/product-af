@@ -20,12 +20,13 @@
 if [ -f `pwd`/config.sh ]; then
         source `pwd`/config.sh
 else
-        echo "Unable to locate config.sh"
+        _echo_red "\nUnable to locate config.sh"
         exit 1
 fi
 
 AF_SETUP_PATCHES=af_setup_patches-${NEW_VERSION}
 PATCHES_HOME=${PACKS_DIR}/${AF_SETUP_PATCHES}
+ERROR_OCCURED=false
 
 #### Changes beyond this point, do ONLY if you know what you are doing ####
 function _update_patches() {
@@ -40,21 +41,28 @@ function _update_patches() {
         for PATCH_FOLDER in "${LIST[@]}"
         do
                 if [ -d "${PATCHES_HOME}/${PATCH_MODULE_DIR}/${PATCH_FOLDER}" ]; then
-                    echo -e "\n[Patches][${PATCH_MODULE_DIR}] Copying ${PATCH_FOLDER} to ${PUPPET_MODULES_HOME}/${MODULE_DEST}/"
-                    rm -rf ${PUPPET_MODULES_HOME}/${MODULE_DEST}/${PATCH_FOLDER}
-                    cp -f -r ${PATCHES_HOME}/${PATCH_MODULE_DIR}/${PATCH_FOLDER} ${PUPPET_MODULES_HOME}/${MODULE_DEST}/
+                    echo -e "\n${MAGENTA}[Patches][${PATCH_MODULE_DIR}]${RESET_CLR} Copying ${PATCH_FOLDER} to ${PUPPET_MODULES_HOME}/${MODULE_DEST}/"
+                    if [ -d "${PUPPET_MODULES_HOME}/${MODULE_DEST}" ]; then
+                        rm -rf ${PUPPET_MODULES_HOME}/${MODULE_DEST}/${PATCH_FOLDER}
+                        cp -f -r ${PATCHES_HOME}/${PATCH_MODULE_DIR}/${PATCH_FOLDER} ${PUPPET_MODULES_HOME}/${MODULE_DEST}/
+                    else
+                        ERROR_OCCURED=true
+                        _echo_red "\n[Patches][${PATCH_MODULE_DIR}] Destination folder ${PUPPET_MODULES_HOME}/${MODULE_DEST} does not exists."
+                    fi
                 else
-                    echo -e "\nCloudn't find ${PATCH_FOLDER} inside the extracted ${AF_SETUP_PATCHES}/${PATCH_MODULE_DIR}\n"
+                    ERROR_OCCURED=true
+                    _echo_red "\n[Patches][${PATCH_MODULE_DIR}] Cloudn't find ${PATCH_FOLDER} inside the extracted ${AF_SETUP_PATCHES}/${PATCH_MODULE_DIR}."
                 fi
         done
 }
 
 if [ -f  ${PACKS_DIR}/${AF_SETUP_PATCHES}.zip ]; then
         cd ${PACKS_DIR}
-        echo -e "Extracting ${AF_SETUP_PATCHES}.zip at `pwd`\n"
+        _echo_green "Extracting ${AF_SETUP_PATCHES}.zip at `pwd`"
         unzip -q ${AF_SETUP_PATCHES}.zip
 else
-        echo "Couldn't find the source for patch migration :  ${AF_SETUP_PATCHES}.zip"
+        ERROR_OCCURED=true
+        _echo_red "\nCouldn't find the source for patch migration :  ${AF_SETUP_PATCHES}.zip"
         exit 1
 fi
 
@@ -70,8 +78,12 @@ _update_patches STRATOS_INSTALLER_PATCHES[@] stratos-installer privatepaas/files
 _update_patches STRATOS_INSTALLER_CONFIG_PATCHES[@] stratos-installer-config privatepaas/files/stratos/stratos-installer/config/all/repository/components/patches
 _update_patches TASK_SERVER[@] taskserver taskserver/files/patches/repository/components/patches
 
-#cleaning the AF extracted folder
+#cleaning the extracted patches folder
 rm -rf ${PATCHES_HOME}
 
-echo "Done!!"
+if [ ${ERROR_OCCURED} = true ]; then
+    _echo_red "\nError occurred while copying some patches. Please check the logs!"
+else
+    _echo_green "\nSuccessfully copied all the patches!"
+fi
 

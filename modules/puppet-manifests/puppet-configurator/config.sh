@@ -20,6 +20,11 @@ PACKS_DIR=/var/www/software
 PUPPET_MODULES_HOME=/home/ubuntu/product-af/modules/puppet-manifests/appfactory/modules
 OLD_VERSION="2.1.0"
 NEW_VERSION="2.1.0-SNAPSHOT"
+RESET_CLR='\033[00;00m'
+RED="\033[33;31m"
+GREEN="\033[33;32m"
+MAGENTA="\033[33;35m"
+
 
 # appfactory jars
 declare -A APPFAC_EXTS=(["org.wso2.carbon.appfactory.build.stub"]=1 ["org.wso2.carbon.appfactory.multitenant.jenkins"]=1 ["org.wso2.carbon.appfactory.application.deployer.stub"]=1 ["org.wso2.carbon.appfactory.bps.ext"]=1 ["org.wso2.carbon.appfactory.jenkinsext"]=1 ["org.wso2.carbon.appfactory.ext"]=1 ["org.wso2.carbon.appfactory.stratos.listners"]=1)
@@ -52,3 +57,13 @@ declare -a SS_PATCHES=("patch0209" "patch0260" "patch0274" "patch0298" "patch032
 declare -a STRATOS_INSTALLER_PATCHES=("patch0003" "patch0006" "patch0007");
 declare -a STRATOS_INSTALLER_CONFIG_PATCHES=("patch0900");
 declare -a TASK_SERVER=("patch0097" "patch0113");
+
+function _echo_red() {
+    MSG=${1}
+    echo -e "${RED}${MSG}${RESET_CLR}"
+}
+
+function _echo_green() {
+    MSG=${1}
+    echo -e "${GREEN}${MSG}${RESET_CLR}"
+}
