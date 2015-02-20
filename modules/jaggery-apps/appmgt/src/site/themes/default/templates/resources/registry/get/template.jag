@@ -1,4 +1,23 @@
-<% jagg.template("resources/registry/get", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/registry/get", function(inputs, outputs, jagg) { %>
 <%
 var applicationKey = request.getParameter("applicationKey");
 var applicationName = request.getParameter("applicationName");
@@ -9,6 +28,10 @@ appInfo=session.get("APP_INFO");
 language=appInfo.language;
 %>
 
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+<script type="text/javascript">
+  initializeUserActivity("Properties",'<%=applicationKey%>', '<%=applicationName%>');
+</script>
 
             <div class="container">
 				<article class="main">
@@ -17,7 +40,7 @@ language=appInfo.language;
 			 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
                          <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
-                                <h1>Resources</h1>
+                                <h1>Runtime Configs</h1>
                              </div>
                         </header>
                         <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
@@ -31,7 +54,7 @@ language=appInfo.language;
                                     <% if(hasCreateResourcePermissions){ %>
                                     <div class="right btn_list_box">
                                         <ul class="inline_box inline_list btn_list">
-                                            <li class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=resources" class="btn main btn_list_first">Add Property</a></li>
+                                            <li id="addPropertyBtn" name="addPropertyBtn" class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=resources" class="btn main btn_list_first">Add Property</a></li>
                                         </ul>
                                         <div class="clearfix"></div>
                                      </div>

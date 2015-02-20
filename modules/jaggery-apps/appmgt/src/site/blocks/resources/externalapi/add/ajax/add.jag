@@ -1,9 +1,32 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var modPermission = jagg.module("permission");
 var log = new Log();
+
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+
+var loggedInUser = jagg.getUser();
 
 (function () {
     var mod, obj, result,
@@ -11,7 +34,10 @@ var log = new Log();
             site = require("/site/conf/site.json");
     var log = new Log();
     mod = jagg.module("resources");
-
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     var modPermission = jagg.module("permission");
 
     if (action == "createExternalApi") {
@@ -27,13 +53,23 @@ var log = new Log();
 
         var response = {}; 
         for (var i = 1; i < stageArray.length; i++) {
+            var url = "";
+            var stage = "";
             var stageString = stageArray[i];
             var splits = stageString.split(":auth:");
-            var regex = new RegExp("http.*");
-            var url = splits[0];
-            url = regex.exec(url);
-            var stage = splits[0].split(":")[0];
-            
+            if(splits.length > 0){
+                var args =  splits[0].split(":");
+                if (args.length > 1){ // checks whether args have both stage and url
+                    stage = args[0];
+                    url = decodeURIComponent(args[1]);
+                }else{
+                    var msg = "Error while adding external API stage or url not defined properly, Stage:"
+                            + stage + " url:" + url +" Application:" + applicationKey;
+                    log.error(msg);
+                    throw msg;
+                }
+            }
+
         	if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
                            
                 var targetStage = [stage];
@@ -45,6 +81,16 @@ var log = new Log();
                 mod.putPropertyCollection(apiName, "ExternalAPI", "External API", applicationKey, targetStage);
                 propname = apiName + "/url";
                 log.debug("Adding property:" + propname + " url value: " + url);
+
+                try{
+                    var notificationTitle = "Property " + apiName + " creation started";
+                    var correlationKey = applicationKey + "-" + stage + "-property-" + apiName;
+                    var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+                    var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+                }  catch (e) {
+                    log.error("Error while sending database creation start notification \n" + e.message);
+                }
+
                 mod.addPropertyToStages(propname, url, "URL of " + apiName, "Registry", applicationKey, targetStage);
 
                 var auth = splits[1];
@@ -90,7 +136,7 @@ var log = new Log();
          for (var i = 1; i < stageArray.length; i++) {
              var stageString = stageArray[i];
              var splits = stageString.split(":auth:");
-             var url = splits[0].split(":")[1] + ":" + splits[0].split(":")[2];
+             var url = decodeURIComponent(splits[0].split(":")[1]);
              var stage = splits[0].split(":")[0];
              
              if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage)){
@@ -137,7 +183,7 @@ var log = new Log();
         var response = {};
         if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
             try {
-            	mod.deletePropertyFromStages(resourceName, applicationKey, [stage]);
+            	mod.deletePropertyFromStages(resourceName, null, null, null, applicationKey, [stage]);
             } catch (e) {
                 throw "Error while deleting the external API " + resourceName + " from stage " + stage;
             }

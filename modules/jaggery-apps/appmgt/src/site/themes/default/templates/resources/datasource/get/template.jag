@@ -1,10 +1,31 @@
-<% jagg.template("resources/datasource/get", function(inputs, outputs, jagg) {
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/datasource/get", function(inputs, outputs, jagg) {
     var applicationKey = request.getParameter("applicationKey");
     var applicationName = request.getParameter("applicationName");
     var datasources = outputs.datasources;
 
     var hasCreatePermission = outputs.hasResourceCreatePermissionInAnyEnvironment;
 %>
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script xmlns="http://www.w3.org/1999/html">
     var printableDS=[];
     function tabShowHide(obj) {
@@ -14,199 +35,161 @@
 
     }
     $(document).ready(function(){
+    	initializeUserActivity("datasources",'<%=applicationKey%>', '<%=applicationName%>');
         convertDataSourcesToPrintableFormat();
     });
 
-    function convertDataSourcesToPrintableFormat(){
-    	jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
-            action: "getDatasources",
-            applicationKey: "<%=applicationKey%>"
-        }, function (result) {
-            if (result !== undefined) {
-                var datasources = jQuery.parseJSON(result); 
-                printableDS=[];
-                for(var stage in datasources){
-                    var tmpStage=datasources[stage];
-                    for(var ds in tmpStage){
-                        var tmpDs=tmpStage[ds];
-                        var fDs=isInPrinatableDS(tmpDs.name);
-                        if(fDs===null){
-                            //add the ds to printableDs
-                            fDs={};
-                            fDs.name=tmpDs.name;
-                            fDs.type=tmpDs.type;
-                          //  fDs.description=tmpDs.description;
-                            fDs.stages=[];
-                            var objStage={};
-
-                            objStage.name=stage;
-                            objStage.driverClassName=tmpDs.driverClassName;
-                            objStage.Description=tmpDs.description;
-                            objStage.url=tmpDs.url;
-                            fDs.stages.push(objStage);
-                            printableDS.push(fDs);
-
-                        }else{
-                            //add only new stage
-                            var objStage={};
-                            objStage.name=stage;
-                            objStage.driverClassName=tmpDs.driverClassName;
-                            objStage.Description=tmpDs.description;
-                            objStage.url=tmpDs.url;
-                            fDs.stages.push(objStage);
-                        }
-                    }
-                }               
-            }
-            constructHTML();
-        }, function (jqXHR, textStatus, errorThrown) {
-        	$('#contentHeader').html("");
-        	jagg.message({content:'Error occurred while reading datasources',type:'warning', id:'datasourceoverview' });
-        });
-    }
-    
-    function isInPrinatableDS(dsName){
-        for(var ds in printableDS ){
-            if(printableDS[ds].name==dsName){
-                return printableDS[ds];
-                break;
-            }
+function convertDataSourcesToPrintableFormat(){
+    $('#dbSection').show();
+    $('#dbSection').append('<span id="dbSectionSpinner" class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+	jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
+        action: "getAllDatasourcesInfo",
+        applicationKey: "<%=applicationKey%>"
+    }, function (result) {
+        if (result !== undefined) {
+            var datasourcesByName = jQuery.parseJSON(result);
+			constructDSHTML(datasourcesByName);
         }
-        return null;
-    }
+    }, function (jqXHR, textStatus, errorThrown) {
+    	$('#contentHeader').html("");
 
-    function constructHTML(){
-        var $table='';
-        var count = 0;
-        for(var ds in printableDS){
-        	$('#content').append(constructRow(printableDS[ds]));
+    	if (jqXHR.status != 0){
+            jagg.message({content:'Error occurred while reading datasources',type:'error', id:'datasourceoverview' });
+    	}
+
+    });
+}
+
+function constructDSHeaders(){
+    return '<li class="list_row_item first_list_row_item">' +
+						'<ul class="list_row first_list_row">' +
+							'<li class="col-3">' +
+								'<h2 class="list_col_heading">Name</h2>' +
+							'</li>' +
+							'<li class="col-5">' +
+								'<h2 class="list_col_heading">Description</h2>' +
+							'</li>' +
+							'<li class="col-4">' +
+								'<h2 class="list_col_heading">Values</h2>' +
+							'</li>' +
+						'</ul>' +
+					'</li>';
+}
+
+function constructDSHTML(datasourcesByName){
+    var $table='';
+    var count = 0;
+
+    for (var index in datasourcesByName) {
+        var datasources = datasourcesByName[index];
+        if (datasources.length > 0 ) {
+            var stages = [];
+            var description = "";
+            var name = "";
+            for (var i in datasources) {
+                var datasource = datasources[i];
+                if (i == 0) {
+                    description = datasource.description;
+                    name = datasource.name;
+                }
+                stages[i] = datasource.stage;
+            }
             count++;
+            $table += constructDSRow(name, description, stages);
         }
-        if(count == 0){
-        	$('#contentHeader').html("<div class='noData-message'>No Data Sources are created yet.</div>");
-        }
-        
-        $('.dsLink').click(function(){
-            var dsName=$(this).attr('data-dsname');
-            var stage=$(this).attr('stage');
-            window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
-        });
-         $('.stage_label').click(function(){
-            var dsName=$(this).attr('data-dsname');
-            var stage=this.innerHTML;
-            window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
-        });
-
     }
 
-        function constructRow(ds){
-            var $row='<li class="list_row_item  ">'+
-                    '<ul class="list_row  ">'+
-                    '<li class="col-2">'+
-                    '<div class="list_col_content">'+
-                    '<ul class="list">'+generateDataSourceLinks(ds)+
-                   '<li class="small">'+ds.type+'</li>'+
-                    '</ul>'+
-                    '</div>'+
-                    '</li>'+
-                    '<li class="col-2">'+
-                    '<div class="list_col_content">' +
-                    '<dl class="list datasource-description">'+
-                    generatDescriptionforStages(ds.stages)+
-                    '</dl>' +
-                    '</div>'+
-                    '</li>'+
-                    '<li class="col-2">'+
-                    '<div class="list_col_content">'+
-                    '<dl class="list">'+
-                    generateStages(ds) +
-                    '</dl>'+
-                    '</div>'+
-                    '</li>'+
-                    '<li class="col-2">'+
-                    '<div class="list_col_content">'+
-                    '<dl class="list">'+
-                     generatDriversforStages(ds.stages)+
-                    '</dl>'+
-                    '</div>'+
-                    '</li>'+
-                    '<li class="col-4">'+
-                    '<div class="list_col_content">'+
-                    '<dl class="list">'+
-                     generatUrlsforStages(ds.stages)+
-                    '</dl>'+
-                    '</div>'+
-                    '</li>'+
-                    '</ul>'+
-            '</li>' ;
+    $('#dbSectionSpinner').hide();
+    if(count == 0){
+    	$('#contentHeader').html("<div class='noData-message'>Data Sources have not been created yet.</div>");
+    }else{
+    	$('#dbSection').empty().append(constructDSHeaders()).append($table);
+    }
 
-            return $row;
-        }
-        function generateDataSourceLinks(ds){
-            var $links='';
+    $('.dsLink').click(function(){
+        var dsName=$(this).attr('data-dsname');
+        var stage=$(this).attr('stage');
+        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+    });
+     $('.stage_label').click(function(){
+        var dsName=$(this).attr('data-dsname');
+        var stage=this.innerHTML;
+        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+    });
 
-            for(var stage in ds.stages){
-        		var stageName=ds.stages[stage].name;
-        		if(stageName!=undefined){
-        			$links+='<li></li><a href="#" title="View '+ds.name+' on '+stageName+' stage." class="dsLink" stage="'+stageName+'" data-dsname="'+ds.name+'">'+ds.name+'</a></li>';
-        		}
-        	}
-        	return $links;
+	    	ZeroClipboard.setDefaults(_defaults);
+            var clip = new ZeroClipboard($('.copy_link'));
+            clip.on( 'load', function(client) {});
+            clip.on( 'complete', function(client, args) {
+                $('.copy_link').qtip({
+                        content:{
+                                attr: 'data-tooltip'
+                        },
+                        show:{
+                                event:'click',
+                                ready:true
+                        },
+                        hide:{
+                                distance:20
+                        }
+                    });
+            });
+            clip.on( 'mousedown', function(client) { } );
 
-        }
-        function generatDriversforStages(stages){
-        	var $drivers='';
-        	for(var stage in stages){
-        		var classname=stages[stage].driverClassName;
-        		if(classname!=undefined){
-        			$drivers+='<dd style="padding-right:10px;">'+classname+'</dd>';
-        		}
-        	}
-        	return $drivers;
-        }
-        
-        function generateStages(ds){
-        	var $stagesStr='';
-        	for(var stage in ds.stages){
-        		$stagesStr+='<dt style="margin-bottom:7px;"><i data-dsname="'+ds.name+'" class="stage_label tag">'+ds.stages[stage].name+'</i></dt>';
-        	}
-        	return $stagesStr;
-        }
 
-        
-        function generatDescriptionforStages(stages){
-        	var $desc='';
-        	var description=stages[0].Description;
-        	if((description!=undefined)&&(description!='')){
-        		$desc+='<dd style="white-space:normal;">'+description+'</dd>';
-        	}
-        	return $desc;
-        }
+}
 
-        function generatUrlsforStages(stages){
-        	var $urls='';
-        	for(var stage in stages){
-        		var url=stages[stage].url;
-        		if(url!=undefined){
-        			$urls+='<dd title="'+url+'">'+url   +'</dd>'  ;
-        		}
-        	}
-        	return $urls;
+    function constructDSRow(name , description, stages){
+
+        var $row='<li class="list_row_item first_list_row_item">'+
+                '<ul class="list_row first_list_row">'+
+                '<li class="col-3">'+
+                '<div class="list_col_content">'+
+                '<ul class="list"><li>' + name +
+                '</li></ul><br/>'+
+                '</div>'+
+                '</li>'+
+
+                '<li class="col-5 datasources_description_col">'+
+                '<div class="list_col_content">' +
+                '<ul class="list">'+
+                '<li>' +
+                description +
+                '</li>' +
+                '</ul>' +
+                '</div>'+
+                '</li>'+
+
+                '<li class="col-4">'+
+                '<div class="list_col_content">';
+
+        for(var k in stages) {
+            var url = "<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName=" + name + "&currentStage=" + stages[k];
+            $row += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'"><span class="icon-edit"></span></a><span style="padding-left:6px;font-size: 0.857142857em;"> <b>'+ stages[k] +'</b></span></br>';
         }
+        $row += '</div>'+
+                '</li>'+
+
+                '</ul><br/>'+
+                '<div id="code'+name+'" style="display: none;" class="code">'+
+                '</div><div></li>';
+        return $row;
+    }
 
 </script>
 
  <div class="container">
 				<article class="main">
-				    
+
                         <header><div><% jagg.includeBlock("page/messages", null); %>
                             <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
-                                <h1>Resources</h1>
+                                <h1>Runtime Configs</h1>
                              </div>
                         </header>
                         <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+                        <% jagg.includeBlock("page/help", {"section": "resources-datasources"}); %>
                         <section class="separator">
                             <div class="page_nav">
                                 <div class="content clear">
@@ -215,14 +198,11 @@
                                     </ol>
                                     <div class="right btn_list_box">
                                         <ul class="inline_box inline_list btn_list">
-                                        
-                                        	<% var disableTxt = "";
-    if(!hasCreatePermission){
-        disableTxt= 'disabled="disabled"';
-    }
 
-    %>
-    <li class="inline_item"><button onclick="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="btn main btn_list_first" type="button" <%=disableTxt%>>Add Datasource</button></li>
+    <% if(hasCreatePermission) { %>
+        <li class="inline_item"><button onclick="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="btn main btn_list_first" type="button">Add Datasource</button></li>
+    <% } %>
+
                                         </ul>
                                         <div class="clearfix"></div>
                                      </div>
@@ -232,26 +212,7 @@
                             </div>
                             <div class="content clear well" >
                                 <ul class="list_table push_top_20" id="contentHeader">
-                                    <li class="list_row_item first_list_row_item">
-                                        <ul class="list_row first_list_row">
-                                            <li class="col-2">
-                                                <h2 class="list_col_heading">Name</h2>  
-                                            </li>                                              
-                                            <li class="col-2">
-                                                <h2 class="list_col_heading">Description</h2>                                               
-                                            </li>
-                                            <li class="col-2">
-	                                            <h2 class="list_col_heading">Lifecycle State</h2>                                               
-	                                        </li>
-                                            <li class="col-2">
-                                                <h2 class="list_col_heading">DriverClass</h2>                                               
-                                            </li>
-                                            <li class="col-4">
-                                                <h2 class="list_col_heading">URL</h2>                                                
-                                            </li>
-                                        </ul>
-                                   </li>
-                                   <div id="content">
+                                   <div id="dbSection">
                                    </div>
                                 </ul>
                             </div>

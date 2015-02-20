@@ -1,4 +1,23 @@
-<% jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
     var applicationKey = inputs.applicationKey;
     var pageName = inputs.pageName;
     var polling_period = outputs.polling_period;
@@ -6,9 +25,16 @@
     if(polling_period==null || polling_period==undefined){
         polling_period = 5000;
     }
+
+    //event completion timeout is set to 30 mins (=1800s)
+    var stateCompletionTimeoutDuration = 1800;
+
     %>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
     <script type="text/javascript">
+
+
+
     function pollNotifications(){
     var userName = $("#userName").attr('value');
         jagg.post("../blocks/events/listen/ajax/listen.jag", {
@@ -20,18 +46,67 @@
     function (result) {
         $("#notificationDataDiv").empty();
         var obj = jQuery.parseJSON(result);
-        for(var i=obj.length-1;i>-1;i--){
-            var event = jQuery.parseJSON(obj[i]);
-            var category = event.object.category;
-           // alert(event.target.id);
-            if(category==undefined || category=="ERROR" ){
-                $("#notificationDataDiv").append($('<div class="notification-subsection"><div class="notification-error-title">'+
-                event.object.title+'<span class="notification-time">'+new Date(event.published)+
-                '</span></div><div class="notification-content">'+event.object.content+'</div></div>'));
-            }else{
-                $("#notificationDataDiv").append($('<div class="notification-subsection"><div class="notification-info-title">'+
-                event.object.title+'<span class="notification-time">'+new Date(event.published)+
-                '</span></div><div class="notification-content">'+event.object.content+'</div></div>'));
+        var retrievedTime = obj.retrievedTime;
+	    obj = obj.list;
+
+	    if(obj) {
+	    var correlationKeyArray = [];
+            for(var i=obj.length-1;i>-1;i--){
+                var event = jQuery.parseJSON(obj[i]);
+                var category = event.object.category;
+
+                var notificationIconDiv = "notification-info-icon";
+                var notificationIcon = "icon-ok-circle";
+                var notificationTitleDiv = "notification-info-title";
+
+                if(category==undefined || category=="ERROR" ){
+                    notificationIconDiv = "notification-error-icon";
+                    notificationIcon = "icon-remove-circle";
+                    notificationTitleDiv = "notification-error-title";
+                }
+
+		if(event.properties.state == "COMPLETE"){
+                    correlationKeyArray.push(event.properties.correlationKey);
+                }
+
+                if(event.properties.state == "START" && correlationKeyArray.indexOf(event.properties.correlationKey) == -1){
+                    notificationIcon = "icon-spinner icon-spin";
+                    if(eventStateCompletionTimeout(retrievedTime, event.published)){
+                        notificationIcon = "icon-remove-circle";
+                    }
+                }
+
+		if(event.properties.state == "DELETE"){
+                        break;
+                } 	
+
+                   $("#notificationDataDiv").append(
+                    $('<div class="notification-subsection">' +
+                        '<div class="'+notificationIconDiv+'">' +
+                            '<span class="'+notificationIcon+'"'+'></span>' +
+                        '</div>' +
+                        '<div class="notification-div">' +
+                            '<div class="'+notificationTitleDiv+'">'+
+                                event.object.title + getNotificationDetails(event.object.content)+'<br>' +
+                                '<span class="icon-time" style="color:#666;"> </span>' +
+                                '<span class="notification-time">'+
+                                    getTimeDetails(retrievedTime, event.published)+
+                                '</span>' +
+                            '</div>'+
+                        '</div>' +
+                        '<div style="clear:both"></div>' +
+                    '</div>'    //subsection
+                ));
+
+                $('.info-left').qtip({
+                    content: {
+                        attr: 'data-tooltip' // Tell qTip2 to look inside this attr for its content
+                    },
+                    position : {
+                        my: 'top right'
+                    }
+                });
+
             }
         }
         setTimeout(pollNotifications,'<%=polling_period%>');
@@ -62,8 +137,8 @@ var resizeNotifier = function(){
     var notification_section_width;
     if(w <= 1300){
         notification_section_width = 250;
-        slideButtonRight = 0;
-        $('.notification-section').hide();
+        slideButtonRight = 250;
+        $('.notification-section').show();
     }else if(w>1300 && w < 1700) {
         notification_section_width = 250;
         slideButtonRight = 250;
@@ -77,6 +152,7 @@ var resizeNotifier = function(){
     $('.notification-slider-container').css('right',slideButtonRight+"px");
 
 };
+
 $(document).ready(function () {
     pollNotifications();
     var $notificationWrapper = $('#notificationWrapper');
@@ -120,12 +196,50 @@ $(document).ready(function () {
     });
 
 });
+
+        //to get time details
+        function getTimeDetails(retrievedTime, publishedTime){
+            //time Difference in seconds
+	    var timeDiff = Math.round((retrievedTime - publishedTime)/1000);
+
+             if(timeDiff < 60) {
+                return timeDiff + " seconds ago";
+             } else if (timeDiff < (60*60)) {
+                return Math.round(timeDiff/60) + " minutes ago";
+             } else if(timeDiff < (60*60*24)) {
+                return Math.round(timeDiff/(60*60)) + " hours ago";
+             }  else {
+                return Math.round(timeDiff/(60*60*24)) + " days ago";
+             }
+        }
+
+	 //The continuous spinning icon goes away after the configured time interval
+        function eventStateCompletionTimeout(retrievedTime, publishedTime){
+                //time Difference in seconds
+                var timeDiff = Math.round((retrievedTime - publishedTime)/1000);
+
+                //if the timeDifference is greater than the event completion timeout
+                if (timeDiff > '<%=stateCompletionTimeoutDuration%>') {
+                    return true;
+                }
+             }
+
+
+        function getNotificationDetails(eventcontent){
+            var html = "";
+            if(eventcontent){
+               html = '<span class="info-left" data-tooltip="'+eventcontent+'"><i class="icon-info-sign"></i></span> ';
+            }
+            return html;
+        }
+
+
 </script>
-<input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
 <div class="notification-section" id="notificationWrapper">
     <div id="notificationBar" class="notification-container">
 <!--<img src="../../../img-dev/loading-small.gif"/>-->
-        <h2 class="big"><%=wallName%></h2>
+        <h2 class="notification-header"><%=wallName%></h2>
         <div id="notificationDataDiv"></div>
     </div>
 
@@ -140,3 +254,4 @@ $(document).ready(function () {
     <%
 });
 %>
+

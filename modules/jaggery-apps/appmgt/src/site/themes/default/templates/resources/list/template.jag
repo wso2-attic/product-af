@@ -1,4 +1,23 @@
-<% jagg.template("resources/list", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/list", function(inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
@@ -6,29 +25,52 @@
     var log = new Log("site/themes/default/templates/resources/list/template.jag");
 
     var apiManagerStoreUrl = getProperty(API_MANAGER_STORE_URL);
+    var apiMStoreSubscriptionUrl = getProperty(API_MANAGER_STORE_SUBSCRIPTION_URL);
     var apiManagerServerUrl = getProperty(API_MANAGER_SERVER_URL);
     var apiManagerButton = getProperty(API_MANAGER_BUTTON);
 
     var hasCreatePermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DATASOURCE_CREATE);
+    var helpTips = outputs.helpTips;
     %>
 
-    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+    <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
 
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
- 
+
+//this is for zeroclipboard pluging
+     var _defaults = {
+        moviePath:"<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
+        trustedDomains:    undefined,                  // Domains that we should trust (single string or array of strings)
+        hoverClass:        "zeroclipboard-is-hover",   // The class used to hover over the object
+        activeClass:       "zeroclipboard-is-active",  // The class used to set object active
+        allowScriptAccess: "sameDomain",               // SWF outbound scripting policy
+        useNoCache:        true,                       // Include a nocache query parameter on requests for the SWF
+        amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
+
+     };
+     ZeroClipboard.setDefaults(_defaults);
+
+
 //[cdata[
 function convertDataSourcesToPrintableFormat(){
+    $('#dbSection').show();
+    $('#dbSection').append('<span id="dbSectionSpinner" class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
 	jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
-        action: "getDatasources",
+        action: "getAllDatasourcesInfo",
         applicationKey: "<%=applicationKey%>"
     }, function (result) {
         if (result !== undefined) {
-            var datasources = jQuery.parseJSON(result);
-			constructDSHTML(datasources);
+            var datasourcesByName = jQuery.parseJSON(result);
+			constructDSHTML(datasourcesByName);
         }
     }, function (jqXHR, textStatus, errorThrown) {
     	$('#contentHeader').html("");
-    	jagg.message({content:'Error occurred while reading datasources',type:'error', id:'datasourceoverview' });
+
+    	if (jqXHR.status != 0){
+            jagg.message({content:'Error occurred while reading datasources',type:'error', id:'datasourceoverview' });
+    	}
+
     });
 }
 
@@ -36,31 +78,43 @@ function constructDSHeaders(){
     return '<li class="list_row_item first_list_row_item">' +
 						'<ul class="list_row first_list_row">' +
 							'<li class="col-3">' +
-								'<h2 class="list_col_heading">Datasource Name</h2>' +
+								'<h2 class="list_col_heading">Name</h2>' +
 							'</li>' +
 							'<li class="col-4">' +
 								'<h2 class="list_col_heading">Description</h2>' +
-							'</li>' +
-							'<li class="col-5">' +
-								'<h2 class="list_col_heading">Database URLs</h2>' +
 							'</li>' +
 						'</ul>' +
 					'</li>';
 }
 
-function constructDSHTML(datasources){
+function constructDSHTML(datasourcesByName){
     var $table='';
     var count = 0;
 
-    for(var ds in datasources){
-        count++;
-        $table+=constructDSRow(datasources[ds],ds);
-   }
+    for (var index in datasourcesByName) {
+        var datasources = datasourcesByName[index];
+        if (datasources.length > 0 ) {
+            var stages = [];
+            var description = "";
+            var name = "";
+            for (var i in datasources) {
+                var datasource = datasources[i];
+                if (i == 0) {
+                    description = datasource.description;
+                    name = datasource.name;
+                }
+                stages[i] = datasource.stage;
+            }
+            count++;
+            $table += constructDSRow(name, description, stages);
+        }
+    }
+
+    $('#dbSectionSpinner').hide();
     if(count == 0){
     	$('#contentHeader').html("<div class='noData-message'>Data Sources have not been created yet.</div>");
     }else{
     	$('#dbSection').empty().append(constructDSHeaders()).append($table);
-
     }
 
     $('.dsLink').click(function(){
@@ -74,31 +128,49 @@ function constructDSHTML(datasources){
         window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
     });
 
+	    	ZeroClipboard.setDefaults(_defaults);
+            var clip = new ZeroClipboard($('.copy_link'));
+            clip.on( 'load', function(client) {});
+            clip.on( 'complete', function(client, args) {
+                $('.copy_link').qtip({
+                        content:{
+                                attr: 'data-tooltip'
+                        },
+                        show:{
+                                event:'click',
+                                ready:true
+                        },
+                        hide:{
+                                distance:20
+                        }
+                    });
+            });
+            clip.on( 'mousedown', function(client) { } );
+
+
 }
 
-    function constructDSRow(ds,name){
-        var $row='<li class="list_row_item  ">'+
-                '<ul class="list_row  ">'+
+    function constructDSRow(name , description, stages){
+
+        var $row='<li class="list_row_item first_list_row_item">'+
+                '<ul class="list_row first_list_row">'+
                 '<li class="col-3">'+
                 '<div class="list_col_content">'+
-                '<ul class="list">'+name+
-                '</ul>'+
+                '<ul class="list"><li>' + name +
+                '</li></ul>'+
                 '</div>'+
                 '</li>'+
-                '<li class="col-4">'+
+
+                '<li class="col-4 datasources_description_col">'+
                 '<div class="list_col_content">' +
-                '<dl class="list datasource-description">'+
-                ds.description+
-                '</dl>' +
+                '<ul class="list">'+
+                '<li>' +
+                description + '</br></br>' +
+                '</li>' +
+                '</ul>' +
                 '</div>'+
                 '</li>'+
-                '<li class="col-5">'+
-                '<div class="list_col_content">'+
-                '<dl class="list">'+
-                getEnvironmentParameters(ds.environments,name)+
-                '</dl>'+
-                '</div>'+
-                '</li>'+
+
                 '</ul>'+
                 '<div id="code'+name+'" style="display: none;" class="code">'+
                 '</div><div></li>';
@@ -118,7 +190,7 @@ function constructDSHTML(datasources){
 		    		 var params=environments[environment];
             content+='<dd style="padding-left:6px;font-size: 0.857142857em;">'+
                      params.url+
-                     '<a id="copy'+i+'" class="icon_link_small copy_link push_left_10 pointer_cursor" title="Copy DB URL " data-clipboard-text="'+ params.url+'"><span class="icon-copy"></span></a>'+
+                     '<a id="copy'+i+'" class="icon_link_small copy_link push_left_10 pointer_cursor" title="Copy DB URL " data-clipboard-text="'+ params.url+'" data-tooltip="Copied!"><span class="icon-copy"></span></a>'+
                      '</dd>';
 		}
 		return content;
@@ -135,18 +207,20 @@ function isAppOwner() {
             },
             function (appowner) {
             	var loggedInuser = $("#userName").val();
-            	if(appowner == loggedInuser){
-			  		var loggedInuser = '<%= session.get("LOGGED_IN_USER") %>';
-		          	var url = '<%=apiManagerStoreUrl%>' + "/?tenant=" + loggedInuser.substring(loggedInuser.lastIndexOf('@') + 1);
-		          	//var $elm = $('<a class="btn main" href="'+ url +'" target="_blank">Subscribe to APIs</a>').click(function(){addApi('<%=applicationKey%>')});
-                    //$('#subcscribe_btn_container').append($elm);
+            	var isAppOwner = (appowner.trim == loggedInuser.trim)?true:false;
+                var tenant = loggedInuser.substring(loggedInuser.lastIndexOf('@') + 1);
+
+            	if(isAppOwner){
+
+		          	var url =  '<%=apiMStoreSubscriptionUrl%>' + "?tenant=" + tenant;
+
                     var buttonSectionEnterprise='<ul class="list_table push_top_20">'+
                         					'<li class="list_row_item no_bottom_border">'+
                         						'<div>'+
                     							  '<div class="af_container">'+
                             							'<div class="af_row">'+
                                 							'<div class="col-3">'+
-                                    							'<div class="list_col_content">'+
+                                    							'<div class="list_col_content"  id="btnItem">'+
                                         								'<a id="enterpriseAPIButton" class="btn main" href="'+url+'" target="_blank""><%=apiManagerButton%></a>'+
                                     							 '</div>'+
                                 							'</div>'+
@@ -154,7 +228,7 @@ function isAppOwner() {
                             						'<div>'+
                        						 '</div>'+
                     					'</li></ul>';
-          
+
                     $('#subcscribe_btn_container_enterprise').html(buttonSectionEnterprise);
                     $('#enterpriseAPIButton').click(function(){addApi('<%=applicationKey%>')});
                 }
@@ -166,16 +240,16 @@ function isAppOwner() {
 						   <%if(outputs.hasCreateResourcePermissions){%>
 							'<div class="col-3">'+
 								'<div class="list_col_content">'+
-   								'<a class="btn main" href="<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Add External API</a>'+
+   								'<a id="externalAPIBtn" name="externalAPIBtn" class="btn main" href="<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Add External API</a>'+
 									'</div>'+
 							'</div>'+
 							<%}%>
 							'</div>'+
 						'<div>'+
 			 			'</div>'+
-			   '</li></ul>';                     
+			   '</li></ul>';
                 $('#subcscribe_btn_container').html(buttonSectionExternal);
-            	getAPIsOfAppOwnerApp(appowner);
+            	getAPIsOfAppOwnerApp(appowner,tenant,isAppOwner);
             },
             function (jqXHR, textStatus, errorThrown) {
                 //add the error label in the grid
@@ -183,7 +257,9 @@ function isAppOwner() {
             });
 }
 
-function getAPIsOfAppOwnerApp(appowner) {
+function getAPIsOfAppOwnerApp(appowner,tenant, isAppOwner) {
+    $("#apiSection").show();
+    $("#apiSection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
     jagg.post("../blocks/resources/apis/get/ajax/get.jag", {
         action:"getAPIsOfApp",
         applicationKey:$("#applicationKey").val(),
@@ -192,19 +268,21 @@ function getAPIsOfAppOwnerApp(appowner) {
     function (result) {
     	parsedResult=jQuery.parseJSON(result);
 		if(parsedResult.length == 0){
+            if(isAppOwner){
+                var url = '<%=apiManagerStoreUrl%>' + "?tenant=" + tenant;
+                var $elm = $('<a id="enterpriseAPIButton" class="btn main" href="'+ url +'" target="_blank"><%=apiManagerButton%></a>').click(function(){addApi('<%=applicationKey%>')});
+                $('#btnItem').empty().append($elm);
+            }
             $("#apiSection").empty().append("<div class='noData-message'>APIs have not been subscribed to yet.</div>");
             return;
         }
 
     	 var tableBodyHTML = '<li class="list_row_item first_list_row_item">'
 	            						+'<ul class="list_row first_list_row">'
-	            							+'<li class="list_col col-2">'
+	            							+'<li class="list_col col-3">'
 	            								+'<h2 class="list_col_heading">Name</h2>'
 	            							+'</li>'
-	            							+'<li class="list_col col-1">'
-	            								+'<h2 class="list_col_heading">Version</h2>'
-	            							+'</li>'
-							                +'<li class="list_col col-9">'
+							                +'<li class="list_col col-4">'
 							                	+'<h2 class="list_col_heading">Description</h2>'
 							                +'</li>'
 							              +'</ul>'
@@ -217,17 +295,12 @@ function getAPIsOfAppOwnerApp(appowner) {
 	                	var endpointUrl = ' <%=apiManagerStoreUrl%>'+'/'+API.name+'/'+API.version;
 	            		 tableBodyHTML +='<li class="list_row_item first_list_row_item">'+
 	                     '<ul class="list_row first_list_row ">'+
-	                         '<li class="list_col col-2">'+
+	                         '<li class="list_col col-3">'+
 	                             '<div class="list_col_content">'+
 	                                      API.name +
 	                             '</div>'+
 	                         '</li>'+
-	                         '<li class="list_col col-1">'+
-	                             '<div class="list_col_content">'+
-	                                  API.version +
-	                             '</div>'+
-	                         '</li>'+
-	                         '<li class="list_col col-9">'+
+	                         '<li class="list_col col-4">'+
 	                         	'<div class="list_col_content">'+ API.description + '</div>'+
 	                         '</li>'+
 	                     '</ul>'+
@@ -235,12 +308,15 @@ function getAPIsOfAppOwnerApp(appowner) {
 	        	}
 
     	$("#apiSection").empty().append(tableBodyHTML);
-    
+
     },
     function (jqXHR, textStatus, errorThrown) {
-    	 jagg.message({content:'Error occurred while reading API information',type:'error', id:'resourcesoverview' });
-         hideSpin();
-         $("#APITable").hide();
+
+        if (jqXHR.status != 0){
+            jagg.message({content:'Error occurred while reading API information',type:'error', id:'resourcesoverview' });
+        }
+        hideSpin();
+        $("#APITable").hide();
     });
 }
 
@@ -302,6 +378,8 @@ function convertProperties(properties){
     }
 
 function drawApisTable() {
+    $("#externalapi").show();
+    $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
     jagg.post("../blocks/resources/externalapi/get/ajax/list.jag", {
             action:"getExternalAPIs",
             applicationKey:$("#applicationKey").val()
@@ -363,132 +441,6 @@ function hideSpin(){
 	$('div#configlist> span.icon-spinner').remove();
 }
 
-/*
-function drawDatabasesTable() {
-
-    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-        action: "getDbUserTemplateInfoForStages",
-        applicationKey: $("#applicationKey").val()
-    }, function (result) {
-
-        if (result !== undefined) {
-
-            var parsedArray = jQuery.parseJSON(result);
-            var hasData=false;
-
-            for(var j in parsedArray){
-                if(parsedArray[j].dbs.length>0){
-                    hasData=true;
-                    break;
-                }
-            }
-            var tableHeadings=   '<li class="list_row_item first_list_row_item">'+
-                    '<ul class="list_row first_list_row">'+
-                    '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                    '<h2 class="list_col_heading">Environment</h2>'+
-                    '</li>'+
-                    '<li class="list_col resources_databases_col">'+
-                    '<h2 class="list_col_heading">Databases</h2>'+
-                    '</li>'+
-                    //*'<li class="list_col last_list_col resources_db_users_col">'+
-                    '<h2 class="list_col_heading">DB Users</h2>'+
-                    '</li>'+
-                    '<li class="list_col last_list_col resources_db_permission_col">'+
-                    '<h2 class="list_col_heading">DB Permission Templates</h2>'+
-                    '</li>'+*\/
-                    '</ul>'+
-                    '</li>';
-
-            if (hasData) {
-
-                var domRSStbl = tableHeadings;
-
-                for (var index in parsedArray) {
-                    var instance = parsedArray[index];
-
-		    var dbsli = '';
-                     if(instance.dbs != null) {
-                        for(var i = 0; i < instance.dbs.length; i++) {
-                            var db = instance.dbs[i];
-			    var dbsUrl = '<%=jagg.getAbsoluteUrl("/site/pages/editdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dbName='+db.dbName+'&environment='+instance.stage;
-			    dbsli += '<li><a href="'+dbsUrl+'">'+db.dbName+'</a></li>';
-
-
-                        }
-                    }
-		   /* var usersli='';
-                    if(instance.users != null) {
-                        for(var i = 0; i < instance.users.length; i++) {
-                            var username = instance.users[i].name;                   
-			    var dbUserUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&user='+username+'&environment='+instance.stage;
-			    usersli += '<li><a href="'+dbUserUrl+'">'+username+'</a></li>';			    
-                        }
-                    } 
-
-		    var templateli = '';
-                    if(instance.templates != null) {
-                        for(var i = 0; i < instance.templates.length; i++) {
-                            var template = instance.templates[i].name;
-			    var templateUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&templateName='+template;
- 			    	templateli += '<li><a href="'+templateUrl+'">'+template+'</a></li>';
-                        }
-                    } *\/
-
-                    domRSStbl += '<li class="list_row_item  ">'+
-                            '<ul class="list_row  ">'+
-                                '<li class="list_col first_list_col resources_environment_col" style="width: 8.3%;">'+
-                                    '<div class="list_col_content">'+
-                                        '<i class="tag">'+instance.stage+'</i>'+
-                                    '</div>'+
-                                '</li>'+
-                                '<li class="list_col resources_databases_col" >'+
-                                    '<div class="list_col_content">'+
-                                        '<ul class="list">'+
-                                            dbsli +
-                                        '</ul>'+
-                                    '</div>'+
-                                '</li>'+
-                               /* '<li class="list_col last_list_col resources_db_users_col">'+
-                                    '<div class="list_col_content">'+
-                                        '<ul class="list">'+
-                                            usersli+
-                                         '</ul>'+
-                                    '</div>'+
-                                '</li>'+
-                                '<li class="list_col last_list_col resources_db_permission_col">'+
-                                    '<div class="list_col_content">'+
-                                        '<ul class="list">'+
-                                           templateli+
-                                         '</ul>'+
-                                    '</div>'+
-                                '</li>'+*\/
-                            '</ul>'+
-                       '</li>';
-
-
-                }
-                $("#dbSection").html(domRSStbl);
-
-            } else {
-                $('#dbSection').html('<div class="noData-message">Databases have not been created yet.</div>');
-                $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
-                $("#dbTable").hide();
-            }
-	    hideSpin();
-        } else {
-            $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
-            $("#dbTable").hide();
-        }
-
-    },
-
-    function (jqXHR, textStatus, errorThrown) {
-    	jagg.message({content:'Error occurred while reading databases',type:'warning', id:'resourcesoverview' });
-        hideSpin();
-        $("#dbTable").hide();
-    });
-
-}*/
 function toggleEditMode(editBtn) {
     var self = $(editBtn);
     $('.hiddenEditMode', self.parent()).show('fast');
@@ -503,10 +455,10 @@ function toggleEditModeWithCancel(cancel) {
 }
 
 $(document).ready(function(){
+	initializeUserActivity("runtimeConfig", '<%=applicationKey%>', '<%=applicationName%>');
 	isAppOwner();
-    getOverviewHelpTips();
+    setOverviewHelpTips(<%= helpTips %>);
     convertDataSourcesToPrintableFormat();
-    //drawDatabasesTable();
     drawApisTable();
     var hasTenantAdminPermission = ($("#hasTenantAdminPermission").val() === 'true');
     if(hasTenantAdminPermission){
@@ -567,31 +519,17 @@ function addApi(applicationKey) {
     });
 }
 
-function getOverviewHelpTips(){
-    jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getHelpTips",
-            page: "resourcesOverview"
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
-                 $("#databaseHelp").html(helpTips.databaseHelp);
+function setOverviewHelpTips(helpTips){
+                 $("#datasourceHelp").html(helpTips.datasourceHelp);
                  $("#apiHelp").html(helpTips.apiHelp);
                  $('#externalApiHelp').html(helpTips.apiHelp);
                  $("#propertyHelp").html(helpTips.propertyHelp);
                  $("#userRealmHelp").html(helpTips.userRealmHelp);
-                 
-                  
+
+
                  $("#propertiesSection").html('<div class="noData-message">'+helpTips.noProperties+'</div>');
                  $("#externalapi").html('<div class="noData-message">'+helpTips.noAPIs+'</div>');
-                 $("#dbSection").html('<div class="noData-message">'+helpTips.noDatabases+'</div>');
-                 
-                 
-                 
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
+                 $("#dbSection").html('<div class="noData-message">'+helpTips.noDatasources+'</div>');
 }
 
 //]]
@@ -608,7 +546,7 @@ function getOverviewHelpTips(){
 	        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
             <header>
                 <div class="content">
-                    <h1>Resources</h1>
+                    <h1>Runtime Configs</h1>
                  </div>
             </header>
 
@@ -616,9 +554,9 @@ function getOverviewHelpTips(){
             <% jagg.includeBlock("page/help", {"section": "resourcesOverview"}); %>
             <section class="separator">
                 <div class="content clear" >
-                    <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Databases<span class="icon-circle-arrow-right"></span></a></h2>
+                    <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Datasources<span class="icon-circle-arrow-right"></span></a></h2>
 
-			<div class="help-block"><span class="help-icon">?</span> <span id="databaseHelp"></span></div>
+			<div class="help-block"><span class="help-icon">?</span> <span id="datasourceHelp"></span></div>
                     <ul class="list_table push_top_20" id="dbSection" >
 
                      </ul>
@@ -631,14 +569,9 @@ function getOverviewHelpTips(){
                                 <div class="af_container">
                                     <div class="af_row">
                                         <div class="col-3">
-                                            <div class="list_col_content">
-                                                <a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=false'" class="btn main">Add Database</a>
-                                            </div>
-                                        </div>
-                                        <div class="col-3">
                                         <%if(outputs.hasCreateResourcePermissions){%>
                                         <div class="list_col_content">
-                                                <a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=false'" class="btn main">Add Datasource</a>
+                                                <a id="addDS_action" name="addDS_action" href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=false'" class="btn main">Add Datasource</a>
                                             </div>
                                         </div>
                                         <%}%>
@@ -650,7 +583,7 @@ function getOverviewHelpTips(){
                     </ul>
                 </div>
             </section>
-        
+
             <div class="clearfix"></div>
             <hr />
             <section class="separator">
@@ -708,7 +641,7 @@ function getOverviewHelpTips(){
                                     <div class="af_row">
                                         <div class="col-3">
                                 <div class="list_col_content">
-                                    <a class="btn main" href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=configureenvironment">Add Properties</a>
+                                    <a id="addPropertyBtn" name="addPropertyBtn" class="btn main" href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=configureenvironment">Add Properties</a>
                                 </div>
                                 </div>
                                 </div>
@@ -726,7 +659,7 @@ function getOverviewHelpTips(){
             <section class="separator">
                 <div class="content clear">
                 <h2 class="next_page"><a>User Realm Support <span class="icon-circle-arrow-right"></span></a></h2>
-                
+
 			<div class="help-block"><span class="help-icon">?</span> <span id="userRealmHelp"></span></div>
                     <input type="checkbox" name="enable_user_realm" id="enable_user_realm_check"> Enable UserRealm Support</input>
                 </div>
@@ -736,7 +669,7 @@ function getOverviewHelpTips(){
     }
     %>
        </article>
-       <input type="hidden" name="userName"  id="loggeduserName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+       <input type="hidden" name="userName"  id="loggeduserName" value='<%= jagg.getUser() %>'/>
 </div><!-- /container -->
 
 <% }); %>

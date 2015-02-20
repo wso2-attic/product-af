@@ -1,10 +1,31 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
 var log = new Log('modules/resources/apis/add/add.jag');
 
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
 var modManager = jagg.module("manager");
 var permissionModule = jagg.module("permission");
 
@@ -15,40 +36,29 @@ var createApplication = function (applicationKey){
 		log.error("Unauthorized!!! User does not have permission to complete action");
 		return;
 	}
-//    jagg.module("permission").checkUserActionPermissionforApp(applicationKey,PERMISSION.CONFIGURATION.API.MANAGER);
-    var ws = require('ws');
-    var apiManagerIntegration = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.action = "urn:createApplication";
-    options["HTTPHeaders"] = [
-                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
-                              { name : "username", value :session.get("LOGGED_IN_USER") },
-                              { name : "SAMLToken" , value : session.get("SAML_TOKEN") }
-                              ];
-    var namespace = getProperty(API_MANAGER_SERVICE_NAMESPACE);
-    var payload = '<p:createApplication xmlns:p="' + namespace + '"><xs:applicationId xmlns:xs="http://integration.apiManager.appfactory.carbon.wso2.org">'
-                + applicationKey +'</xs:applicationId></p:createApplication>';
-    var result;
+	//    jagg.module("permission").checkUserActionPermissionforApp(applicationKey,PERMISSION.CONFIGURATION.API.MANAGER);
+	var result;
+	var tenantDomain=modManager.getTenantDomain() ;
+	var context=multitenancy.getPrivilegedCarbonContext();
+	var tenantManager= multitenancy.getTenantManager();
+	try{
+		context.startTenantFlow();
+		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+		var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
+		result = service.createApplication(applicationKey, session.get("SAML_TOKEN"));
 
-    try {
-    	var serviceName =getProperty(API_MANAGER_SERVICE_NAME);
-    	var serverUrl = getProperty(APPFACTORY_SERVER_URL);
-
-    	var endPoint = serverUrl + serviceName;
-    	apiManagerIntegration.open(options,endPoint, false);
-    	apiManagerIntegration.send(payload);       
-    	result = apiManagerIntegration.responseE4X;
-
-        if(log.isDebugEnabled()){
-            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
-        }
-        var resultNS=new Namespace(namespace);
-        return output=result.resultNS::["result"].text();
-    } catch (e) {
-        log.error("Error while creating application "+ applicationKey + "\n"+e.message);
-        throw "Error while creating application "+ applicationKey;
-    }
+		if(log.isDebugEnabled()){
+			log.debug("Invoking service "+service+" returned result:"+result);
+		}
+				
+		return result;
+	}catch(e){
+		log.error("Error while retrieving saved keys for " + applicationKey + "\n" + e.message);
+		throw "Error while retrieving saved keys for " + applicationKey;
+	}finally {
+		context.endTenantFlow();
+	}
 };
 
 %>

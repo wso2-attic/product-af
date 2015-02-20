@@ -1,4 +1,22 @@
 <%
+/*
+ *  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
@@ -7,11 +25,12 @@ var log = new Log("module/application/add/add.jag");
 var modLifecycle = jagg.module("lifecycle");
 var modManager = jagg.module("manager");
 
-var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.EventBuilderUtil;
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
+
 
 // creates application in stratos and return svn repository path to application.
 var createApplicationBPEL = function (applicationName, applicationKey, applicationDescription,
-applicationType,repoAccessibility, repositoryType, userName , applicationURL, version) {
+applicationType,repoAccessibility, repositoryType, userName , applicationURL, version, lifecycleName) {
     var adminUserName=getProperty(ADMIN_USERNAME);
     jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_CREATE);
     if (repoAccessibility == null) {
@@ -31,13 +50,14 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
                '<type>'+applicationType+'</type>'+
                '<repoAccessability>'+repoAccessibility+'</repoAccessability>'+
                '<repositorytype>'+repositoryType+'</repositorytype>'+
+ 	           '<applicationCreationStatus>PENDING</applicationCreationStatus>'+
                '</application>'+
                '</metadata>]]>';
 
                var lifecycleAttribute = null;
             //Publishing app creation started message to wall
-            var notificationTitle  = applicationName + " creation is in progress.";
-            var notificationDescription = "Creation of application " + applicationName + " is in progress";
+            var notificationTitle  = "Application " + applicationName + " creation is initiated.";
+            var notificationDescription = "";
             try{
                 var eventBuilderInstance = EventBuilder.invokeAppCreationStartedEvent(applicationKey, userName, notificationTitle, notificationDescription, "INFO");
             } catch (e) {
@@ -56,7 +76,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
 	                            '<isAutoBuild>true</isAutoBuild>'+
 	                            '<isAutoDeploy>true</isAutoDeploy>'+
                             '</appversion>'+
-                            '<serviceLifecycle><lifecycleName>'+LIFE_CYCLE_NAME+'</lifecycleName></serviceLifecycle>'+
+                            '<serviceLifecycle><lifecycleName>'+lifecycleName+'</lifecycleName></serviceLifecycle>'+
                       '</metadata>]]>';
 
                lifecycleAttribute = 'serviceLifecycle_lifecycleName';
@@ -115,7 +135,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
                                                <rampart:timestampTTL>300</rampart:timestampTTL>
                                                <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
                                                <rampart:timestampStrict>false</rampart:timestampStrict>
-                                               <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                                               <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.common.security.PWCBHandler</rampart:passwordCallbackClass>
                                                <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
                                                <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
                                        </rampart:RampartConfig>
@@ -125,11 +145,11 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
 
         var tenantDomain=modManager.getTenantDomain();
 
-
-        var payload = '<p:CreateApplicationRequest xmlns:p="http://wso2.org"><applicationId xmlns="http://wso2.org">' + applicationKey + '</applicationId><userName xmlns="http://wso2.org">' + userName + '</userName><repositoryType xmlns="http://wso2.org">' + repositoryType + '</repositoryType><adminUserName xmlns="http://wso2.org">' + adminUserName + '</adminUserName><domainName xmlns="http://wso2.org">'+ tenantDomain +'</domainName></p:CreateApplicationRequest>';
+	
+        var payload = '<p:CreateApplicationRequest xmlns:p="http://wso2.org"><applicationId xmlns="http://wso2.org">' + applicationKey + '</applicationId>';
+        payload += '<applicationType xmlns="http://wso2.org">' + applicationType + '</applicationType><userName xmlns="http://wso2.org">' + userName + '</userName><repositoryType xmlns="http://wso2.org">' + repositoryType + '</repositoryType><adminUserName xmlns="http://wso2.org">' + adminUserName + '</adminUserName><domainName xmlns="http://wso2.org">'+ tenantDomain +'</domainName></p:CreateApplicationRequest>';
         var result;
         var endPoint = getProperty(BPS_SERVER_URL) + "CreateApplication";
-        //var endPoint =  "http://localhost:8181/services/CreateApplication";
         request.open(options, endPoint, false);
         log.debug("Payload :"+payload);
         request.send(payload);
@@ -162,9 +182,7 @@ var isApplicationKeyAvailable = function (applicationKey, auth) {
 	options.useSOAP = 1.1;
 	options.timeout = 1000000;
 	options.action = "urn:isApplicationIdAvailable";
-	options["HTTPHeaders"] = [{
-		name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-	}];
+	modManager.setAuthHeaders(options);
 	var payload = '<isApplicationIdAvailable xmlns="http://service.mgt.application.appfactory.carbon.wso2.org"><applicationKey xmlns="http://service.mgt.application.appfactory.carbon.wso2.org">'+applicationKey+'</applicationKey></isApplicationIdAvailable>';
 	var result;
 	var status={};
@@ -194,9 +212,7 @@ var isAppNameAlreadyAvailable = function (applicationName) {
     options.useSOAP = 1.1;
     options.timeout = 1000000;
     options.action = "urn:isApplicationNameAvailable";
-    options["HTTPHeaders"] = [{
-        name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-    }];
+    modManager.setAuthHeaders(options);
     var payload = '<isApplicationNameAvailable xmlns="http://service.mgt.application.appfactory.carbon.wso2.org"><applicationName xmlns="http://service.mgt.application.appfactory.carbon.wso2.org">'+applicationName+'</applicationName></isApplicationNameAvailable>';
     var result;
     var status={};
@@ -228,7 +244,7 @@ var stroreUploadedApplication = function(uploadedApplicationName , file, type){
            if(!destinationDir.isExists()){
                 destinationDir.mkdir();
            }
-	   var tmpFileName = TMP_UPLOADED_APPLICATIONS_PATH + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type);
+	   var tmpFileName = TMP_UPLOADED_APPLICATIONS_PATH + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) + UPPLOADABLE_SUFFIX;
 	   file.move(tmpFileName);
 
 	   if(log.isDebugEnabled()){
@@ -250,8 +266,7 @@ function validateUploadedApplication(file, applicationType) {
 };
 
 function getExtenstionByAppType(applicationType){
-
-	return getProperty("ApplicationType."+applicationType+".Property.Extension");
+    return modManager.getApplicationTypeBean(applicationType).getExtension();
 };
 
 %>

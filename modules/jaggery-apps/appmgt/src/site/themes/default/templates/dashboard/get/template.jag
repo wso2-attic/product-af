@@ -1,8 +1,27 @@
-<% jagg.template("dashboard/get", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("dashboard/get", function(inputs, outputs, jagg) { %>
 
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("lib/dojo/dojo/dojo.js"))%>" data-dojo-config="isDebug: 1, async: 1, parseOnLoad: 1"></script>
 <script type="text/javascript">
-    
+
     var applications = new Array();
 
     //fetches all applications information; and generates the UI list.
@@ -26,10 +45,14 @@
             }
         }
     }, function(jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content : 'Error loading all applications',
-            type : 'error'
-        });
+
+        if ( jqXHR.status != 0){
+            jagg.message({
+                content : 'Error loading all applications',
+                type : 'error'
+            });
+        }
+
     });
 
     //get build information
@@ -55,10 +78,14 @@
             }
         }
     }, function(jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content : 'Error loading build information',
-            type : 'error'
-        });
+
+        if (jqXHR.status != 0){
+            jagg.message({
+                content : 'Error loading build information',
+                type : 'error'
+            });
+        }
+
     });
 
     //get applications of user
@@ -126,12 +153,16 @@
                 chart.render();
             });
         }
-        
+
     }, function(jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content : 'Error loading applications for user',
-            type : 'error'
-        });
+
+        if (jqXHR.status != 0){
+            jagg.message({
+                content : 'Error loading applications for user',
+                type : 'error'
+            });
+        }
+
     });
 
     //get versions in lifecycle
@@ -199,12 +230,15 @@
             });
         }
     }, function(jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content : 'Error loading applications for user',
-            type : 'error'
-        });
+
+        if(jqXHR.status != 0){
+            jagg.message({
+                content : 'Error loading applications for user',
+                type : 'error'
+            });
+        }
     });
-	
+
 	/**
     //get applications with versions
     jagg.post("../blocks/dashboard/get/ajax/list.jag", {

@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
@@ -16,21 +34,69 @@ var deleteApplication = function (appKey,userName){
         var tenantManager= multitenancy.getTenantManager();
 	try{
 	    context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            applicationManagementService =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
-       	    var application = applicationManagementService.getApplication(appKey);
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
+        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
+        applicationManagementService = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
+        var application = applicationManagementService.getApplication(appKey);
 	    if(application!=null){
-		log.debug("Application name : "+application.name);
 	    	applicationManagementService.deleteApplication(application,userName,tenantDomain);
-	   	log.debug("Deleting application");
+            addDeletedAppKeyToApplicationContext(appKey);
 	    }
+        log.info("Successfully deleted application:" + appKey +" from tenant: " + tenantDomain);
 	}catch(e){
 	    log.error(e);
-	    throw new Error("Error at deleting application : "+appKey);
+	    throw new Error("Error at deleting application : " + appKey + " from tenant domain : " + tenantDomain);
 	}finally{
 	   context.endTenantFlow();
-        }
-	log.info("Deleted application "+appKey);
+    }
 }
+
+/**
+ * Add {@code appKey} to the deleted app key list of the application context.
+ * Since we are getting user home data from the cache, when application is deleted,
+ * we add the deleted app key to the application context. So when ever we are getting user home info from cache,
+ * first we check the application context for deleted app keys and remove them from the cache and then return the data
+ */
+var addDeletedAppKeyToApplicationContext = function(appKey){
+    var deletedAppKeys = application.get(APP_CTX_DELETED_KEYS);
+    var tenantDomain=modManager.getTenantDomain() ;
+    if(isEmpty(deletedAppKeys)) {
+        deletedAppKeys = {};
+    }
+    if(!deletedAppKeys[tenantDomain]){
+        deletedAppKeys[tenantDomain] = new Array();
+    }
+    deletedAppKeys[tenantDomain].push(appKey);
+    application.put(APP_CTX_DELETED_KEYS,deletedAppKeys);
+};
+
+/**
+ * Remove the app key from deleted app keys list of the application context.
+ * @param appKey app key to be deleted from the deleted app key list
+ */
+var removeDeletedAppKeyFromApplicationContext = function(appKey){
+    var deletedAppKeys = application.get(APP_CTX_DELETED_KEYS);
+    var tenantDomain=modManager.getTenantDomain() ;
+    if(!isEmpty(deletedAppKeys) && deletedAppKeys[tenantDomain]
+            && deletedAppKeys[tenantDomain].length > 0) {
+        var idx = deletedAppKeys[tenantDomain].indexOf(appKey);
+        if (idx != -1) {
+            deletedAppKeys[tenantDomain].splice(idx, 1);
+            application.put(APP_CTX_DELETED_KEYS, deletedAppKeys);
+        }
+    }
+};
+
+/**
+ * Check whether the {@code obj} is empty object({}) or not
+ * @param obj
+ * @returns {boolean}
+ */
+var isEmpty = function(obj){
+    if(!obj){       // if object is null
+        return true;
+    } else {
+        return (Object.getOwnPropertyNames(obj).length === 0);
+    }
+};
 %>

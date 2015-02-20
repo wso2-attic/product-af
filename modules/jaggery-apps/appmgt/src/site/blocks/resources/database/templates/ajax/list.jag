@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -7,13 +25,20 @@ include("/jagg/config_reader.jag");
 var log= new Log();
 var response = {};
 
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+var loggedInUser = jagg.getUser();
+
 (function () {
     var mod, obj, result,
             modPermission = jagg.module("permission"),
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
 
-
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     if(action == "getTemplates"){
     	mod = jagg.module("resources");
     	var applicationKey = request.getParameter("applicationKey");
@@ -77,7 +102,15 @@ var response = {};
 	        print(response);
 	        return;
         }
-        
+        try{
+            var notificationTitle  = "Database template " + name + " delete started ";
+            var notificationMessage = "In environment: " + databaseServerInstanceName;
+            var correlationKey = applicationKey + "-" + environment + "-template-" + name;
+            var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO")
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending delete db template success notification \n" + e.message);
+        }
         name = name + '@' + environment;
         try {
             mod.dropTemplate(applicationKey,environment,name);
@@ -123,7 +156,15 @@ var response = {};
           var triggerPriv=createValue(request.getParameter("triggerPriv"));
           var updatePriv=createValue(request.getParameter("updatePriv"));
 
-
+        var correlationKey = applicationKey + "-" + databaseServerInstanceName + "-template-" + name;
+        try{
+            var notificationTitle  = "Database template " + name + " creation started ";
+            var notificationMessage = "In environment: " + databaseServerInstanceName;
+            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending create db template start notification \n" + e.message);
+        }
         // this is to identify the role name that maps to environment.
         name = getEnvironmentAwareTemplateName(name, databaseServerInstanceName );
         try {
@@ -172,7 +213,18 @@ var response = {};
     	var showViewPriv=createValue(request.getParameter("showViewPriv"));
     	var triggerPriv=createValue(request.getParameter("triggerPriv"));
     	var updatePriv=createValue(request.getParameter("updatePriv"));
-    	
+
+        var correlationKey = applicationKey + "-" + databaseServerInstanceName + "-template-" + name;
+
+        try{
+            var notificationTitle  = "Database template " + name + " modification started ";
+            var notificationMessage = "In environment: " + databaseServerInstanceName;
+            var eventBuilderInstance = EventBuilder.resourceUpdateStartEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending edit db template failure notification \n" + e.message);
+        }
+
 
         var response = {};
         name = name + '@' + databaseServerInstanceName;

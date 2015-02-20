@@ -1,11 +1,31 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var wso2_rss_instanceName = 'SYSTEM';
 
 var log = new Log('modules/resources/databases/users/list.jag');
-
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+var loggedInUser = jagg.getUser();
 var rssFilter=jagg.module("rss-filter");
 var modManager = jagg.module("manager");
 
@@ -37,10 +57,7 @@ var getDatabaseUsersForRssInstance = function(applicationKey, rssInstanceName) {
 	var hasDBConfigurePermissionToStage = permissionModule.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_READ_FOR_STAGE +stage);
 	if(hasDBConfigurePermissionToStage){
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-		options["HTTPHeaders"] =
-		[{
-			name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-		}];
+		modManager.setAuthHeaders(options);
 		getDatabaseUsersService.open(options, storageServerURL+'RSSAdmin', false);
 		getDatabaseUsersService.send(payload);
 		result = getDatabaseUsersService.responseE4X;
@@ -116,28 +133,103 @@ var createDatabaseUser = function (applicationKey, password, rssInstance, userna
 	var result="";
 	try {
 		var storageUrl = getStorageServerUrl(rssInstance);
-		options["HTTPHeaders"] =
-		[{
-			name : "Cookie", value :modManager.getBackendCookie(storageUrl)
-		}];
+		modManager.setAuthHeaders(options);
 		createDatabaseUsersService.open(options, storageUrl+'RSSAdmin', false);
 		createDatabaseUsersService.send(payload);
-		rssFilter.addDatabaseUser(username,applicationKey,stage);
 		result = createDatabaseUsersService.responseE4X;
 		var ns = new Namespace("http://service.core.rssmanager.carbon.wso2.org");
 		var response=result.ns::["return"];
 		var entry = response[0];
 		var ax = new Namespace("http://dto.core.rssmanager.carbon.wso2.org/xsd");
-		result=entry.ax::["username"].text();
+		result = entry.ax::["username"].text();
+		rssFilter.addDatabaseUser(result, applicationKey, stage);
+
+        var correlationKey = applicationKey + "-" + stage + "-dbuser-" + username;
+
+        try{
+            var notificationTitle  = "Database user " + result + " created ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending create database user success notification \n" + e.message);
+        }
 	} catch (e) {
-		result = ""+e.javaException.cause;
-		log.error("Error while creating database user \n" + e.message);
+        try{
+            var notificationTitle  = "Database user " + username + " creation failed ";
+            var notificationMessage = "In environment: " + stage + "due to " + e.javaException.cause;
+            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending create database failure notification \n" + e.message);
+        }
+
+           log.error('Error while creating database user :' + username);
+           log.error(e);
+           throw e;
 	}
 
 	return result;
 };
 
-var validateDatabaseUserName = function (applicationKey, rssInstance, username){
+/**
+ * Get possible username for db user when the given username is exist
+ * @param applicationKey - key of the application
+ * @param rssInstance - rss instance
+ * @param username - db username
+ * @return db username
+ */
+var getPossibleUsername = function (applicationKey, rssInstance, username){
+    var dbUserArray = getDatabaseUsersForRssInstance(applicationKey, rssInstance);
+    var count = 0;
+    var result = username;
+
+    // check db users exist in the system starting with username
+    var isUsersExist = false;
+    for (var i=0; i<dbUserArray.length; i++) {
+        var dbUsername = dbUserArray[i].name;
+        if (dbUsername.startsWith(username)) {
+            isUsersExist = true;
+        }
+    }
+
+    // if users exist, generate new username, try 5 times
+    if (isUsersExist) {
+       result = generateUsername(dbUserArray, username);
+    }
+
+    return result;
+};
+
+
+/**
+ * Generate db username adding 2 digits at the end
+ * @param dbUserArray - array of exisitng db users
+ * @param username - db username
+ * @return db username
+ */
+var generateUsername = function (dbUserArray, username) {
+    var newUsername = username;
+    for(var j=0; j < 5 ; j++){
+        var newUsername = username + Math.floor((Math.random() * 100) + 0);
+        for (var i=0; i<dbUserArray.length; i++) {
+            var dbUsername = dbUserArray[i].name;
+            if (newUsername == dbUsername.substring(0, dbUsername.lastIndexOf('_'))) {
+                break;
+            }
+        }
+    }
+    return newUsername;
+};
+
+/**
+ * Check whether database username exist
+ * @param applicationKey - application key
+ * @param rssInstance - rss instance
+ * @param username - db username
+ * @return true if username exist
+ */
+var validateDatabaseUserName = function (applicationKey, rssInstance, username) {
     var stage = getStageFromRssInstanceName(rssInstance);
 
     var result = rssFilter.isDatabaseUserExists(applicationKey,stage,username);
@@ -151,10 +243,7 @@ var getAvailableUsersToAttachToDatabase = function (applicationKey, dbname, rssI
 	var options = new Array();
 	options.useSOAP = 1.2;
 	options.action = "urn:getAvailableUsers";
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(getStorageServerUrl(rssInstance))
-	}];
+	modManager.setAuthHeaders(options);
 	var payload ='<ser:getAvailableUsers  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">'+
 	             '<ser:environmentName>' + rssInstance + '</ser:environmentName>' +
 	             '<ser:rssInstanceName>' + wso2_rss_instanceName + '</ser:rssInstanceName>' +
@@ -184,10 +273,7 @@ var deleteUser = function (applicationKey, name, rssInstanceName){
 	options.action = "urn:removeDatabaseUser";
 	options.mep = "in-only"; //This will result in ignoring the error
 	options.robust = true;
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(getStorageServerUrl(rssInstanceName))
-	}];
+	modManager.setAuthHeaders(options);
 
 	var payload ='<ser:removeDatabaseUser  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">'+
 	'<ser:environmentName>' + rssInstanceName + '</ser:environmentName>' +
@@ -198,9 +284,26 @@ var deleteUser = function (applicationKey, name, rssInstanceName){
 	try {
 		deleteDatabaseUsersService.open(options, getStorageServerUrl(rssInstanceName)+'RSSAdmin', false);
 		deleteDatabaseUsersService.send(payload);
-		rssFilter.deleteDatabaseUser(rssFilter.getTenantAwareUserName(name), applicationKey,
-		stage);
+		rssFilter.deleteDatabaseUser(name, applicationKey, stage);
+
+        var correlationKey = applicationKey + "-" + stage + "-dbuser-" + name;
+        try{
+            var notificationTitle  = "Database user " + name + " deleted ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending delete database user success notification \n" + e.message);
+        }
 	} catch (e) {
+        try{
+            var notificationTitle  = "Database user " + name + " delete failed ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending delete database user failure notification \n" + e.message);
+        }
 		log.error("Error while deleting user. User might be already attached to a database. \n" + e.message);
 		throw "Error while deleting user";
 	}
@@ -226,10 +329,7 @@ var getDatabaseUsers = function (applicationKey){
 			var options = new Array();
 			options.useSOAP = 1.2;
 			options.action = "urn:getDatabaseUsers";
-			options["HTTPHeaders"] =
-			[{
-				name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-			}];
+			modManager.setAuthHeaders(options);
 
 			var payload ='<ser:getDatabaseUsers  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 			'<ser:environmentName>' + deploymentStages[i] + '</ser:environmentName>' +

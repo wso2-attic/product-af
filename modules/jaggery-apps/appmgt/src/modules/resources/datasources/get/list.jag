@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -7,6 +25,7 @@ var log = new Log('modules/resources/datasources/get/list.jag');
 
 var modManager = jagg.module("manager");
 var permissionModule = jagg.module("permission");
+var rssFilter = jagg.module("rss-filter");
 
 var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
     var ws = require('ws');
@@ -16,10 +35,7 @@ var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
     options.action = "urn:reloadAllDataSources";
     var payload = '<ns:reloadAllDataSources xmlns:ns="http://datasource.ext.appfactory.carbon.wso2.org"/>';
     var result;
-    options["HTTPHeaders"] =[{
-    	name:
-    	"Cookie", value:modManager.getBackendCookie(epr)
-    }];
+    modManager.setAuthHeaders(options);
 
     try {
 		reloadAllDS.open(options, epr + "AppFactoryNDataSourceAdmin", false);
@@ -31,8 +47,10 @@ var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
         
  		return parseResponse(result);
     } catch (e) {
-        log.error("Error while reloading datasources " + "\n"+e.message);
-        throw "Error while relading datasources " + "\n"+e.message;
+        var msg = "Error while reloading datasources for application key: " + applicationKey + " & stage: " + epr;
+        log.error(msg);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -47,9 +65,7 @@ var getDatasources=function (applicationKey, stage){
                     '</p:getAllDataSources>';
 	var result;
 	var endpoint = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.DeploymentServerURL');
-	options["HTTPHeaders"] =[{
-		name:"Cookie", value:modManager.getBackendCookie(endpoint)
-	}];
+	modManager.setAuthHeaders(options);
 	try {
 		reloadAllDataSources(applicationKey, endpoint);
 		ds.open(options, endpoint + "AppFactoryNDataSourceAdmin", false);
@@ -57,7 +73,9 @@ var getDatasources=function (applicationKey, stage){
 	   	result = ds.responseE4X;
 	   	return parseResponse(result);
     } catch (e) {
-    	log.error(e.toString());
+        var msg = "Error while get datasources for application key: " + applicationKey + " & stage: " + stage;
+        log.error(msg);
+        log.error(e);
         throw e;
     }
 };
@@ -70,9 +88,7 @@ var datasourceCount = function (applicationKey, stage){
 	options.useWSA = 1.0;
 	options.action = "urn:getAllDataSources";
 	var endpoint = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.DeploymentServerURL');
-	options["HTTPHeaders"] =[{
-		name: "Cookie", value:modManager.getBackendCookie(endpoint)
-	}];
+	modManager.setAuthHeaders(options);
 	var payload = '<xsd:getAllDataSources xmlns:xsd="http://datasource.ext.appfactory.carbon.wso2.org"/>';
 	var result;
 	
@@ -84,7 +100,10 @@ var datasourceCount = function (applicationKey, stage){
 		
 	   	return dataSources.length();
     } catch (e) {
-    	return 0;
+        var msg = "Error while getting datasource count for application key: " + applicationKey + " & stage: " + stage;
+        log.error(msg);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -135,10 +154,7 @@ var getDataSource = function (applicationId, stageName, dbname) {
     var result;
     try {
         var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.DeploymentServerURL') + 'AppFactoryNDataSourceAdmin';
-        options["HTTPHeaders"] =
-        [{
-        	name : "Cookie", value :modManager.getBackendCookie(getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.DeploymentServerURL'))
-        }];
+        modManager.setAuthHeaders(options);
         getDataSourceService.open(options, endPoint, false);
         getDataSourceService.send(payload);
 
@@ -174,8 +190,10 @@ var getDataSource = function (applicationId, stageName, dbname) {
        return dataSource;
 
     } catch (e) {
-        log.error("Error while getting datasource " + stageName + "\n" + e.message);
-        throw "Error while deleting datasource  " + stageName;
+        var msg = "Error while get datasource for application key: " + applicationId + " & stage: " + stageName + " & dbname: " + dbname;
+        log.error(msg);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -185,5 +203,15 @@ var getDataSourceInfoUrl=function (stage){
 	   var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.DeploymentServerURL');
 	   return endPoint;
 };
+
+/**
+ * Get all datasources info from App Factory database
+ * @param applicationKey - key of the application
+ * @param stage - stage
+ * @return array of datasource information
+ */
+var getAllDatasourcesInfo = function (applicationKey, stage) {
+    return rssFilter.getAllDatasourcesInfo(applicationKey, stage);
+}
 
 %>

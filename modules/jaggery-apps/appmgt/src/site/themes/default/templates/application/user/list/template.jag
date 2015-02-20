@@ -1,12 +1,33 @@
-<% jagg.template("application/user/list", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("application/user/list", function(inputs, outputs, jagg) { %>
 
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     // jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
+    var helpTips = outputs.helpTips;
     %>
 
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 
     <script type="text/javascript">
 
@@ -67,22 +88,6 @@ function enableButton(ischecked){
 	}
 }
  
-function getHelpTips(){
-    jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getHelpTips",
-            page: "team"
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
-//                 $("#addMemberHelp").html(helpTips.addMemberHelp);
-                 $("#listMemberHelp").html(helpTips.listMemberHelp);
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
-}
-
     function updateTable() {
         $('.cleanable').remove();
         var $userListContainer = $('#userDetailsSection');
@@ -205,7 +210,11 @@ var manageUserList = function(){
 
     var  finalUsers=[];//globally declared
 $(document).ready(function(){
-    getHelpTips();
+
+	initializeUserActivity("appUserList", '<%=applicationKey%>', '<%=applicationName%>');
+
+    
+    setHelpTips(<%= helpTips %>);
     updateTable();
     $('#jsroleAssignPopup').each(function() {
 	$(this).qtip({
@@ -550,6 +559,10 @@ $('#removeUsers').click(function(){
 
 });
 
+    function setHelpTips(helpTips){
+	$("#listMemberHelp").html(helpTips.listMemberHelp);	
+    }
+
 </script>
 
 
@@ -635,7 +648,7 @@ $('#removeUsers').click(function(){
     </article>
 </div><!-- /container -->
 
-<input type="hidden" id="userName" value='<%= session.get("LOGGED_IN_USER") %>' />
+<input type="hidden" id="userName" value='<%= jagg.getUser() %>' />
 <input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
 
 

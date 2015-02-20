@@ -1,16 +1,42 @@
 <%
-jagg.module("urlmapper", { 
-	
-    addDomainMappingsToStratos:function () {
-        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").addDomainMappingsToStratos.apply(this, arguments);
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.module("urlmapper", {
+
+    addNewCustomUrl:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").addNewCustomUrl.apply(this, arguments);
     },
-    
-    removeDomainMappingsFromStratos:function () {
-        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").removeDomainMappingsFromStratos.apply(this, arguments);
+
+    updateExistingUnmappedCustomUrl:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").updateExistingUnmappedCustomUrl.apply(this, arguments);
     },
-    
-    checkDomainAvailability:function () {
-        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").checkDomainAvailability.apply(this, arguments);
+
+    mapNewCustomUrlToVersion:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").mapNewCustomUrlToVersion.apply(this, arguments);
     },
+
+    remapDomainToVersion:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").remapDomainToVersion.apply(this, arguments);
+    },
+
+    removeDomainMappingFromApplication:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").removeDomainMappingFromApplication.apply(this, arguments);
+    }
 });
 %>

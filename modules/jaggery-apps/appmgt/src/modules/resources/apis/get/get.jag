@@ -1,63 +1,72 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
 var log = new Log('modules/resources/apis/get/get.jag');
 
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
 var modManager = jagg.module("manager");
 var permissionModule = jagg.module("permission");
 
 var getAPIsOfUserApp = function(appKey, appowner){
-    var ws = require('ws');
-    var apiManagerIntegration = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.action = "urn:getAPIsOfUserApp";
-    options["HTTPHeaders"] = [
-                              { name : "Cookie", value :modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL)) },
-                              { name : "username", value :session.get("LOGGED_IN_USER") },
-                              { name : "SAMLToken" , value : session.get("SAML_TOKEN") }
-                              ];
+	var apis;
+	var tenantDomain=modManager.getTenantDomain() ;
+	var context=multitenancy.getPrivilegedCarbonContext();
+	var tenantManager= multitenancy.getTenantManager();
+	try{
+		context.startTenantFlow();
+		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+		var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
+		apis = service.getAPIsOfUserApp(appKey, appowner, session.get("SAML_TOKEN"));
+			
+		if(log.isDebugEnabled()){
+			log.debug("Invoking service "+service+" returned result:"+apis);
+		}
 
-    var namespace = getProperty(API_MANAGER_SERVICE_NAMESPACE);
-    var payload = '<int:getAPIsOfUserApp xmlns:int="' + namespace+ '"><int:applicationId>' + appKey + '</int:applicationId><int:appOwner>' + appowner + '</int:appOwner></int:getAPIsOfUserApp>';
-    var result;
+		var apisArray = [];
+		for(var i = 0; i < apis.length; i++){
+			var api = apis[i];
+			var apiInfo = {};
+			var apiName = api.apiName;
+			var apiVersion = api.apiVersion;
+			var apiProvider = api.apiProvider;
+			var description = api.description;
 
-    try {
-        var serviceName =getProperty(API_MANAGER_SERVICE_NAME);
-        var serverUrl = getProperty(APPFACTORY_SERVER_URL);
-        var endPoint = serverUrl + serviceName;
-        apiManagerIntegration.open(options,endPoint, false);
-        apiManagerIntegration.send(payload);
-        result = apiManagerIntegration.responseE4X;
-
-        if(log.isDebugEnabled()){
-        	log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
-        }
-        var elements = result.*::["return"];
-        var elementsArray = [];
-        for(var i = 0; i < elements.length(); i++){
-            var entry = elements[i];
-
-            var apiInfo = {};
-          	var apiName = entry.*::apiName.text();
-          	var apiVersion = entry.*::apiVersion.text();
-          	var apiProvider = entry.*::apiProvider.text();
-          	var description = entry.*::description.text();
-          	
-          	apiInfo.name = apiName;
-            apiInfo.version = apiVersion;
-            apiInfo.provider = apiProvider;
-            apiInfo.description = description;
-           	elementsArray.push(apiInfo);
-        }
-        return elementsArray;
-
-    } catch (e) {
-        log.error("Error while getting the list of APIs of appKey "+ applicationKey + "\n"+ e.message);
-        throw "Error while getting the list of APIs of appKey "+ applicationKey;
-    }
+			apiInfo.name = apiName;
+			apiInfo.version = apiVersion;
+			apiInfo.provider = apiProvider;
+			apiInfo.description = description;
+			apisArray.push(apiInfo);
+		}
+		return apisArray;	
+	}catch(e){
+		log.error("Error while getting the list of APIs of appKey "+ applicationKey + "\n"+ e.message);
+		throw "Error while getting the list of APIs of appKey "+ applicationKey;
+	}finally {
+		context.endTenantFlow();
+	}
 }
 
 %>

@@ -1,16 +1,110 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 jagg.block("application/add", {
     initialize:function (data) {
 
+    },
+    getOutputs:function (inputs) {
+        var hasApplicationAccessPermission = jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_MEMBER);
+		var helpTips = jagg.module("help").getHelpTips("addApplication");
+		var modManager = jagg.module("manager");
+		var applicationTypeBeanMap = modManager.getApplicationTypeManager().getApplicationTypeBeanMap();
+		var applicationTypes = applicationTypeBeanMap.keySet().toArray();
+		var mainHTML = "";
+		var supportiveHTML = "";
+		var uploadableAppTypesHTML = "";
+		var uploadableAppExts = [];
+
+        if (!applicationTypes || applicationTypes.length === 0) {
+
+            mainHTML = '<span style="color:#ff0000">No application types are deployed</span>';
+            //supportiveHTML='<span style="color:#ff0000">"Application Types" are not defined!</span>';
+
+        } else {
+
+            mainHTML = '<select id="applicationType" name="applicationType" onChange="selectAppCreationType(this)">';
+            uploadableAppTypesHTML = '<select id="uploadableAppType" name="uploadableAppType">';
+
+            var applicationTypesCount = applicationTypes.length;
+            var isUploadableAppTypeAvailable = false;
+
+            //We need to sort the applications types first. There is no easy way to sort after adding the elements.
+            var tempAppTypeArray = [];
+            for (var i = 0; i < applicationTypesCount; i++) {
+                var applicationTypeBean = modManager.getApplicationTypeBean(applicationTypes[i]);
+                var displayOrder = applicationTypeBean.getDisplayOrder();
+
+                var tempAppType = {};
+                tempAppType.appType=applicationTypes[i];
+                tempAppType.displayOrder=displayOrder;
+                tempAppType.applicationTypeBean=applicationTypeBean;
+                tempAppTypeArray.push(tempAppType)
+            }
+
+            tempAppTypeArray.sort(function(a,b){
+                if(a.displayOrder == b.displayOrder){
+                    return (a.appType > b.appType) ? 1 : -1;
+                }
+                return (a.displayOrder > b.displayOrder) ? 1 : -1;
+            });
+
+            for (var j = 0; j < tempAppTypeArray.length; j++) {
+                var applicationTypeBean = tempAppTypeArray[j].applicationTypeBean;
+                var applicationType = tempAppTypeArray[j].appType;
+                var isUploadableAppType = applicationTypeBean.isUploadableAppType();
+                var SubscriptionAvailability = applicationTypeBean.getProperty("SubscriptionAvailability");
+                var displayName = applicationTypeBean.getDisplayName();
+                var description = applicationTypeBean.getDescription();
+                var enabled = applicationTypeBean.getEnabled();
+                var comment = applicationTypeBean.getComment();
+
+
+                if (comment) {
+                    displayVal = '<option availableSub="' + SubscriptionAvailability + '" value="' + applicationType + '"' + enabled + '>' + displayName + '</option>';
+                } else {
+                    displayVal = '<option availableSub="' + SubscriptionAvailability + '"value="' + applicationType + '"' + enabled + '>' + displayName + '</option>';
+                }
+
+                if (isUploadableAppType != null && isUploadableAppType != undefined && isUploadableAppType == true) {
+                    isUploadableAppTypeAvailable = true;
+                    uploadableAppTypesHTML += displayVal;
+                    uploadableAppExts.push(applicationTypeBean.getExtension());
+                } else {
+                    mainHTML += displayVal;
+                }
+
+                supportiveHTML += '<li>' + applicationType + ':' + description + '</li>';
+            }
+
+            mainHTML += '</select>';
+            uploadableAppTypesHTML += '</select>';
+        }
+
+		return {
+			"mainHTML":mainHTML,
+			"uploadableAppTypesHTML": uploadableAppTypesHTML,
+			"isUploadableAppTypeAvailable":isUploadableAppTypeAvailable,
+			"helpTips":helpTips,
+            "hasApplicationAccessPermission":hasApplicationAccessPermission,
+		    "uploadableAppExts":uploadableAppExts
+		};
     }
-
-
-
-
-
-
-
-
-
 });
 %>

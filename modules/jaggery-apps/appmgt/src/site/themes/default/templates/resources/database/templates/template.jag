@@ -1,4 +1,23 @@
-<% jagg.template("resources/database/templates", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/database/templates", function(inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
@@ -13,15 +32,15 @@
     	templateName = name.substring(0, name.lastIndexOf('@'));
     	environment = name.substring(name.lastIndexOf('@') + 1, name.length);
     }
-    
+
     var isEdit = request.getParameter("isEdit");
     if (isEdit == undefined ) {
     	isEdit = false;
     }
 
     var AllowedAllStages=outputs.hasAccessForAllstages;
-    
-    
+
+
 %>
 <script type="text/javascript">
 var rssEnvs = "";
@@ -34,7 +53,7 @@ $(document).ready(function(){
 	} else {
 
 	}
-	
+
 	$('input[type="checkbox"]').click(function(){
 		if($('#checkArray :checkbox:checked').length == $('input[name="permission[]"]').length){
 			$('#selectAll').prop('checked', true);
@@ -68,7 +87,7 @@ function editTemplate(){
                                 applicationKey:"<%=applicationKey%>",
                                 templateName:"<%=templateName%>",
                                 environment:"<%=environment%>"
-    }, function (result) { 
+    }, function (result) {
     	if(result != undefined){
             var parsedArray = jQuery.parseJSON(result);
             document.getElementById("selectPriv").checked = setValue(parsedArray[0].selectPriv);
@@ -91,7 +110,7 @@ function editTemplate(){
             document.getElementById("eventPriv").checked = setValue(parsedArray[0].eventPriv);
             document.getElementById("triggerPriv").checked = setValue(parsedArray[0].triggerPriv);
     	}
-    	
+
     	if(isAllChecked){
     		$('#selectAll').prop('checked', true);
     	} else {
@@ -104,15 +123,19 @@ function editTemplate(){
             minimumResultsForSearch: -1,
             containerCssClass : "error"
         });
-    	
-    }, function (jqXHR, textStatus, errorThrown) { 
-    	jagg.message({content:'Get detailed tempated',type:'error', id:'templatecreation', id:'templatecreation' }); 
+
+    }, function (jqXHR, textStatus, errorThrown) {
+
+        if (jqXHR.status != 0){
+            jagg.message({content:'Error while getting template details',type:'error', id:'templatecreation', id:'templatecreation' });
+        }
+
     });
 }
 
 
   function populateRSSEnvs() {
-	
+
 	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
         action:"getCreatableRSSinstances",
         applicationKey:$("#applicationKey").attr('value')
@@ -125,7 +148,7 @@ function editTemplate(){
                    rssEnvs = rssEnvs.concat(row);
                }
                $("#rssInstances").append(rssEnvs);
-               
+
                $("#rssInstances").select2({
                    formatResult: selectBoxOptionFormat,
                    minimumResultsForSearch: -1,
@@ -134,7 +157,9 @@ function editTemplate(){
 
            }
        }, function (jqXHR, textStatus, errorThrown) {
-           jagg.message({content:'Error occurred while reading rssInstances',type:'error', id:'templatecreation' });
+           if (jqXHR.status != 0){
+               jagg.message({content:'Error occurred while reading rssInstances',type:'error', id:'templatecreation' });
+           }
        });
 
 }
@@ -179,8 +204,8 @@ function validateTemplate(){
 	if($('#checkArray :checkbox:checked').length == 0){
 		validation = false;
 		jagg.message({content:'Please select at least one Permission to proceed!',type:'error', id:'templatecreation'  });
-	} 
-		
+	}
+
 	return validation;
 }
 
@@ -207,7 +232,11 @@ function dropTemplate() {
 	    	callPreviousPage();
 	    }, function (jqXHR, textStatus, errorThrown) {
 	    	$('span#deleteSpin').hide();
-	    	jagg.message({content:'Error occurred while deleting templates',type:'error', id:'templatecreation' });
+
+	    	if (jqXHR.status != 0){
+	            jagg.message({content:'Error occurred while deleting templates',type:'error', id:'templatecreation' });
+	    	}
+
 	    });
 
 }
@@ -263,7 +292,11 @@ function editDbTemplate(btn){
       callPreviousPage();
       $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
   }, function (jqXHR, textStatus, errorThrown) {
-      jagg.message({content: 'Error occurred while editing roles', type: 'error', id: 'templatecreation' });
+
+      if (jqXHR.status != 0){
+          jagg.message({content: 'Error occurred while editing roles', type: 'error', id: 'templatecreation' });
+      }
+
       $(btn).removeAttr('disabled').val($(btn).attr('prev-val'));
   });
 
@@ -321,7 +354,7 @@ function createTemplate(btn){
 
             }
             ,function (result) {
-            	var response =jQuery.parseJSON(result); 
+            	var response =jQuery.parseJSON(result);
             	console.log(response);
             	var success=true;
             	for(var stage in response){
@@ -331,16 +364,20 @@ function createTemplate(btn){
 						}
 
                 	}
-            	
+
 		if(success){
 			callPreviousPage();
 		} else {
 			jagg.message({content:'Error occurred while creating template!  Check whether the template already exists', type:'error', id:'templatecreation' });
 		}
         $(btn).removeAttr('disabled');
-		
+
 	},function (jqXHR, textStatus, errorThrown) {
-		    jagg.message({content:'Error occurred while creating role',type:'error', id:'templatecreation' });
+
+	        if (jqXHR.status != 0){
+	            jagg.message({content:'Error occurred while creating role',type:'error', id:'templatecreation' });
+	        }
+
             $(btn).removeAttr('disabled');
 	});
 }
@@ -348,7 +385,7 @@ function createTemplate(btn){
 
 function callPreviousPage(){
 	var oldURL = document.referrer;
-	window.location.replace(oldURL);			
+	window.location.replace(oldURL);
 }
 
 </script>
@@ -356,13 +393,13 @@ function callPreviousPage(){
 
   <div class="container">
 				<article class="main">
-				
+
                             <header>
                             <div><% jagg.includeBlock("page/messages", null); %>
                              <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
                              <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
                         	<div class="content">
-                                <h1>Resources</h1>
+                                <h1>Runtime Configs</h1>
                              </div>
                         </header>
                         <% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
@@ -370,7 +407,7 @@ function callPreviousPage(){
                         <section class="separator">
                             <div class="page_nav">
                                 <div class="content clear">
-                                    <ol class="breadcrumb left"> 
+                                    <ol class="breadcrumb left">
                                             <li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
                                             <li class="breadcrumb_item">
                                             <% if(isEdit){ %>
@@ -391,7 +428,7 @@ function callPreviousPage(){
 	                                        </ul>
 	                                        <div class="clearfix"></div>
 	                                     </div>
-	                                     <% } %>  
+	                                     <% } %>
                                      <% } %>
                                  </div>
                             </div>
@@ -426,11 +463,11 @@ function callPreviousPage(){
                         						<%}%>
 
                                             <div class="controlset">
-						
+
                                                 <div class="input_row">
                                                    <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions</label></h2>
 													<fieldset id="checkArray">
-                                                    <label><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />                   
+                                                    <label><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />
                                                     <label><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
                                                     <label><input type="checkbox" name="permission[]" id='updatePriv' checked="checked" /> UPDATE</label></br>
                                                     <label><input type="checkbox" name="permission[]" id='deletePriv' checked="checked" /> DELETE</label></br>
@@ -465,11 +502,11 @@ function callPreviousPage(){
                                         <% } else { %>
                                         <div class="buttonrow">
                                             <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate(this);}" class='btn main'/>
-                                           
+
 					   						<a href="#" onclick="return callPreviousPage();">Cancel</a>
                                         </div>
                                         <% } %>
-					 
+
                                      </form>
 
 								</div>

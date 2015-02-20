@@ -1,19 +1,50 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+include("/jagg/correlationKeys.jag");
 
 
 var log = new Log('modules/resources/databases/add/add.jag');
 
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+
 var modManager = jagg.module("manager");
 var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
+var loggedInUser = jagg.getUser();
 String.prototype.startsWith = function (str){
 	return this.indexOf(str) == 0;
 };
 
-var createDatabase = function (applicationKey,databaseName,databaseServerInstanceName) {
+/**
+ * Create database
+ * @param applicationKey - key of the application
+ * @param databaseName - name of the database
+ * @param databaseServerInstanceName - name of the database server instance
+ * @param databaseDescription - description of the database
+ * @return name of the database.
+ */
+var createDatabase = function (applicationKey, databaseName, databaseServerInstanceName, databaseDescription) {
 	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
 	var ws = require('ws');
 	var createDatabaseService = new ws.WSRequest();
@@ -32,13 +63,10 @@ var createDatabase = function (applicationKey,databaseName,databaseServerInstanc
 	'</ser:database>'+
 	'</ser:addDatabase>';
 	
-	var result;
+
 	try {
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-		options["HTTPHeaders"] =
-		[{
-			name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-		}];
+		modManager.setAuthHeaders(options);
 		createDatabaseService.open(options, storageServerURL+"RSSAdmin", false);
 		createDatabaseService.send(payload);
 		result = createDatabaseService.responseE4X;
@@ -48,11 +76,27 @@ var createDatabase = function (applicationKey,databaseName,databaseServerInstanc
 		var ax = new Namespace("http://dto.core.rssmanager.carbon.wso2.org/xsd");
 		result=entry.ax::["name"].text();
         //result is database name
-        rssFilter.addDatabase(result,applicationKey,stage);
+        rssFilter.addDatabase(result, applicationKey, stage, databaseDescription);
+        try{
+            var notificationTitle  = "Database " + databaseName + " added";
+            var correlationKey = dbCorrelationKey(applicationKey, databaseName, stage);
+            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "" ,correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending create database success notification \n" + e.message);
+        }
 	} catch (e) {
+        try{
+            var notificationTitle  = "Failed to add database " + databaseName;
+            var correlationKey = dbCorrelationKey(applicationKey, stage, databaseName);
+            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey , "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending create database failure notification \n" + e.message);
+        }
 		log.error("Error while creating database "+ "\n" + e.message);
 		//throw "Error while creating database  ";
-		result = ""+e.javaException.cause;
+		result = "" + e.javaException.cause;
 	}
 
 	return result;
@@ -115,10 +159,7 @@ var createDatabaseWithAttachedUsers = function (applicationKey,databaseName,data
 	var result;
 	try {
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-		options["HTTPHeaders"] =
-		[{
-			name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-		}];
+		modManager.setAuthHeaders(options);
 		createDatabaseService.open(options, storageServerURL+"RSSAdmin", false);
 		createDatabaseService.send(payload);
 		result = createDatabaseService.responseE4X;
@@ -183,10 +224,7 @@ var createDbWithUserAndTemplate = function (applicationKey,databaseName,userName
 	var result;
 	try {
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-		options["HTTPHeaders"] =
-		[{
-			name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-		}];
+		modManager.setAuthHeaders(options);
 		createDatabaseService.open(options, storageServerURL+"RSSAdmin", false);
 		createDatabaseService.send(payload);
 		result = createDatabaseService.responseE4X;
@@ -249,10 +287,7 @@ var getAttachedUsers = function (applicationKey, dbname, rssInstance){
 	
 	var result;
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
 	try {
 		getAttachedUsersService.open(options, storageServerURL+'RSSAdmin', false );
 		getAttachedUsersService.send(payload);
@@ -288,10 +323,7 @@ var attachNewUser = function (applicationKey,rssInstance, dbname, users, templat
 	var result="";
 
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
 	try {
 
 		attachUserService.open(options, storageServerURL+'RSSAdmin', false);
@@ -329,10 +361,7 @@ var detachUser = function (applicationKey,rssInstance, dbname, username){
 	var result;
 
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
 	try {
 
 		detachUserService.open(options, storageServerURL+'RSSAdmin', false);
@@ -363,10 +392,7 @@ var getUserPrivileges = function (applicationKey,rssInstance, dbname, username){
 	var result;
 
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
 	try {
 
 		getUserPrivilegesService.open(options, storageServerURL+'RSSAdmin', false);
@@ -425,17 +451,32 @@ var editUserPermissions = function (applicationKey,dbname,rssInstance,username,a
 
 
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
 	try {
 
 		editTemplateService.open(options, storageServerURL+'RSSAdmin', false);
 		editTemplateService.send(payload);
+        var correlationKey = dbPrivilegeCorrelationKey(applicationKey, stage, dbname, username);
+        try{
+            var notificationTitle  = "Privileges updated for database " + dbname ;
+            var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessageDescription, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending database user privilege update success notification \n" + e.message);
+        }
 
 
 	} catch (e) {
+        try{
+            var notificationTitle  = "Privileges update failed for " + dbname ;
+            var notificationMessageDescription = "For user: " + username + " in " + stage + " environment";
+            var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessageDescription, correlationKey, "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending database user privilege update failure notification \n" + e.message);
+        }
+
 		log.error("Error while editing user permissions \n" + e.message);
 		throw "Error while editing user permissions.";
 	}
@@ -454,10 +495,7 @@ var getDatabaseUrl = function (applicationKey,stage,databaseName){
 			var options = new Array();
 			options.useSOAP = 1.2;
 			options.action = "urn:getDatabase";
-			options["HTTPHeaders"] =
-			[{
-				name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-			}];
+			modManager.setAuthHeaders(options);
 			var payload ='<ser:getDatabase  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 			'<ser:environmentName>' + stage + '</ser:environmentName>'  +
 			'<ser:rssInstanceName>' + wso2_rss_instanceName + '</ser:rssInstanceName>'  +
@@ -495,10 +533,7 @@ var getDatabases = function (applicationKey){
 			var options = new Array();
 			options.useSOAP = 1.2;
 			options.action = "urn:getDatabases";
-			options["HTTPHeaders"] =
-			[{
-				name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-			}];
+			modManager.setAuthHeaders(options);
 			var payload ='<ser:getDatabases  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 			'<ser:environmentName>' + deploymentStages[i] + '</ser:environmentName>' +
 			'</ser:getDatabases>';
@@ -535,10 +570,7 @@ var getDatabasesForStage = function (applicationKey, stage){
 	var rssInstancesArray=[];
 	//if user has access to stage
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-		options["HTTPHeaders"] =
-		[{
-			name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-		}];
+		modManager.setAuthHeaders(options);
 		
 		var payload ='<ser:getDatabases  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 		'<ser:environmentName>' + stage + '</ser:environmentName>' +
@@ -565,10 +597,7 @@ var getDatabasesInfoForStage = function(applicationKey, stage) {
     var options = new Array();
     options.useSOAP = 1.2;
     options.action = "urn:getDatabases";
-    options["HTTPHeaders"] =
-            [{
-                name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-            }];
+    modManager.setAuthHeaders(options);
             
     var payload = '<ser:getDatabases xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +	
 	'<ser:environmentName>' + stage + '</ser:environmentName>' +
@@ -617,10 +646,7 @@ var getDbUserTemplateInfoForStage = function(applicationKey, stage) {
 	var options = new Array();
 	options.useSOAP = 1.2;
 	options.action = "urn:getDatabases";
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
 	
 	var payload = '<ser:getDatabases xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +	
 	'<ser:environmentName>' + stage + '</ser:environmentName>' +
@@ -762,4 +788,15 @@ function buildUserPrivilege(result){
 	return databaseObject;
 
 }
+
+
+/**
+ * Get all databases info from App Factory database
+ * @param applicationKey - key of the application
+ * @param stage - stage
+ * @return array of database information
+ */
+var getAllDatabasesInfo = function (applicationKey, stage) {
+    return rssFilter.getAllDatabasesInfo(applicationKey, stage);
+};
 %>

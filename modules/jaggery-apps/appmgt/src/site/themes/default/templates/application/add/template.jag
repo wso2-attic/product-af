@@ -1,15 +1,40 @@
-<% jagg.template("application/add", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("application/add", function (inputs, outputs, jagg) { %>
 
 <%
     var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
     var webContext = getProperty(WEB_CONTEXT_ROOT);
+    var helpTips = outputs.helpTips;
+    var uploadableAppExts = outputs.uploadableAppExts;
     %>
 
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+    
+    
     <script type="text/javascript">
 
         var MAX_APP_KEY_LENGTH = 20;
         var validated = true ;
         var helpTips;
+        var uploadableAppExts  = JSON.parse('<%=stringify(uploadableAppExts)%>') ;
         function validateDuplicateApplicationKey(key) {
             var isKeyValid = validateApplicationKeyContent();
             if(isKeyValid){
@@ -22,13 +47,19 @@
                     }else{
                         isKeyValid = false;
                         validated = validated && false;
+                        $("#appcreation").prop("disabled", false);
                         jagg.message({type:'error',content:'Invalid Application Key - Create a key which is not duplicated', id:'appcreationerrormsg'});
                     }
                 }, function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content:'Error while checking the availability of the application key',
-                        type:'error', id:'appcreationerrormsg'
-                    });
+
+                    if ( jqXHR.status != 0){
+                        $("#appcreation").prop("disabled", false);
+                        jagg.message({
+                            content:'Error while checking the availability of the application key',
+                            type:'error', id:'appcreationerrormsg'
+                        });
+                	}
+
                     isKeyValid = false;
                 });
             }
@@ -42,18 +73,23 @@
             action:"isAppNameAlreadyAvailable",
             applicationName:appName
             }, function (result) {
-                if(result.isAvailable=="false"){
+                if(result.isAvailable=="true"){
                     isNameValid = true;
                 }else{
                     isNameValid = false;
-                    validated = validated && true;
+                    validated = validated && false;
+                    $("#appcreation").prop("disabled", false);
                     jagg.message({type:'error',content:'Invalid Application Name - Create a name which is not duplicated', id:'appcreationerrormsg'});
                 }
             }, function (jqXHR, textStatus, errorThrown) {
-                jagg.message({
-                    content:'Error while checking the availability of the application name',
-                    type:'error', id:'appcreationerrormsg'
-                });
+
+            	if ( jqXHR.status != 0){
+                        jagg.message({
+                            content:'Error while checking the availability of the application name',
+                            type:'error', id:'appcreationerrormsg'
+                        });
+            	}
+
                 isNameValid = false;
             });
             return isNameValid;
@@ -71,41 +107,21 @@
                         validated=true;
                     }else{
                         validated = false;
+                        $("#appcreation").prop("disabled", false);
                         jagg.message({type:'error',content:'Invalid Application Key - Create a key which is not duplicated', id:'appcreationerrormsg'});
                     }
                 }, function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content:'Error while checking the availability of the application key',
-                        type:'error', id:'appcreationerrormsg'
-                    });
+                	if ( jqXHR.status != 0){
+                		jagg.message({
+                			content:'Error while checking the availability of the application key',
+                			type:'error', id:'appcreationerrormsg'
+                		});
+                	}
                 });
             } else {
                 validated = false;
             }
         }
-
-        function getWelcomeMessage(){
-        jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getWelcomeMessage",
-            page: "addApplication",
-        },
-
-        function (result) {
-        var parsedAppArray = [];
-	    if(parsedAppArray.length == 0){
-	    var parsedWelcomeMessage = jQuery.parseJSON(result);
-
-	    var welcomeMessage = '<p>' + parsedWelcomeMessage.Msg + '</p>';
-	    alert(welcomeMessage)
-	    $("#welcome").html(welcomeMessage);
-	    }else{
-	    $("#welcome").hide();
-	    }
-	},
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
-}
 
         function generateApplicationKey() {
             var genKey = Math.floor(Math.random()*1000);
@@ -148,10 +164,17 @@
                 validated = validated && true;
             }
             else {
-                jagg.message({
-                    content: "Invalid image selected for Application Icon - Select a valid image",
-                    type: 'error', id:'appcreationerrormsg'
-                });
+                if(status1 == false){
+                    jagg.message({
+                        content: "Invalid image selected for Application Icon - Select a valid image",
+                        type: 'error', id:'appcreationerrormsg'
+                        });
+                }else{
+                   jagg.message({
+                        content: "Image file should be less than 5MB",
+                        type: 'error', id:'appcreationerrormsg'
+                   });
+                }
                 validated = validated && false;
             }
         }
@@ -159,6 +182,7 @@
         function validateApplicationKeyLength(){
         var appKeyLength = ($("#applicationKey").val()).length;
             if (appKeyLength >= MAX_APP_KEY_LENGTH){
+                $("#appcreation").prop("disabled", false);
                 jagg.message({
                         content: "Invalid Application Key - Create a key which is less than "+MAX_APP_KEY_LENGTH+" characters",
                         type: 'error', id:'appcreationerrormsg'
@@ -181,6 +205,7 @@
             var isUnderScore = patternForUnderscore.test(keyValue);
 
             if (isSpace == true || isInvalidChar == true || isUnderScore == true) {
+                $("#appcreation").prop("disabled", false);
                 jagg.message({
                     content: "Invalid Application Key - Create a key which has only alphanumeric characters", id:'appcreationerrormsg',
                     type: 'error', id:'appcreationerrormsg'
@@ -199,6 +224,7 @@
             var isKeyValid = true;
             var appKeyLength = ($("#applicationKey").val()).length;
             if (appKeyLength == 0){
+                $("#appcreation").prop("disabled", false);
                 jagg.message({
                     content: "Invalid Application Key - Create a key which is not empty",
                     type: 'error', id:'appcreationerrormsg'
@@ -206,6 +232,7 @@
                 validated = validated && false;
                 isKeyValid = false;
             } else if(!isNaN($("#applicationKey").val())){
+                $("#appcreation").prop("disabled", false);
                 jagg.message({
                     content: "Invalid Application Key - Create a key which has does not have only numeric characters",
                     type: 'error', id:'appcreationerrormsg'
@@ -220,8 +247,9 @@
 
         function validateApplicationName() {
             var appNameLength = ($("#applicationName").val()).length;
-            var isNameValid=true;
+            var isNameValid = validateApplicationNameForQuotes();
             if(appNameLength == 0){
+                $("#appcreation").prop("disabled", false);
                 jagg.message({
                     content: "Invalid Application Name - Create a Name which is not empty",
                     type: 'error', id:'appcreationerrormsg'
@@ -229,6 +257,7 @@
               //  validated = validated && false;
                 isNameValid = false;
             } else if (appNameLength > 200) {
+                $("#appcreation").prop("disabled", false);
                 jagg.message({
                     content: "Invalid Application Name - Too Lengthy",
                     type: 'error', id:'appcreationerrormsg'
@@ -239,11 +268,44 @@
             return isNameValid;
         }
 
+        function validateApplicationNameForQuotes() {
+            var appName = $("#applicationName").val();
+            var isNameValid = true;
+            var patternForNonQuotationMarks = /[^\w ]/g;
+            var isInvalidChar = patternForNonQuotationMarks.test(appName);
+
+            if(isInvalidChar == true){
+                $("#appcreation").prop("disabled", false);
+                jagg.message({
+                    content: "Invalid Application Name - Create a name without special characters", id:'appcreationerrormsg',
+                    type: 'error', id:'appcreationerrormsg'
+                });
+                validated = validated && false;
+                isNameValid = false;
+            }  else {
+                isNameValid = true;
+            }
+            return isNameValid;
+        }
+
         function validateUploadedFile(){
         if($("#action").val() == "uploadExistingApplication"){
             if(!$("#uploaded_application").val()){
                jagg.message({
                         content: "File is not provided to upload.",
+                        type: 'error', id:'appcreationerrormsg'
+                    });
+              return false;
+            }
+
+            var appExt = $("#uploaded_application").val().split('.').pop();
+            if(appExt == $("#uploaded_application").val()) {
+             appExt = undefined;
+            }
+
+            if(!(appExt && uploadableAppExts.indexOf(appExt) > -1)){
+             jagg.message({
+                        content: "Invalid file. Please check the extension",
                         type: 'error', id:'appcreationerrormsg'
                     });
               return false;
@@ -264,10 +326,17 @@
             return v> 4 ? v : undef;
         }());
         $(document).ready(function($){
+
+
+        	initializeUserActivity("appCreation", null, null);
+            
+	        $("#progressOverlay").hide();
+	        $("#progressSpinner").hide();
             $(".upload").hide();
             $(".hide_on_upload").show();
-            getHelpTips();
-            getWelcomeMessage();
+	        $("#progressSpinner").css({top:document.body.clientHeight/2 - $("#progressSpinner").height(), left:document.documentElement.clientWidth/2-$("#progressSpinner").width() , position:'absolute'});
+	        $("#progressOverlay").css({height:document.body.clientHeight, width:document.body.clientWidth});
+            setHelpTips(<%= helpTips %>);
             // function get trigger when clear button clicked.
             getSubscriptions();
             $("#clear").click(function(e){
@@ -308,6 +377,8 @@
 
                     validated = validateUploadedFile();
                     if(!validated){
+                        $("#appcreation").removeAttr('disabled');
+			            $("#appupload").removeAttr('disabled');
                         return false;
                     }
 
@@ -318,13 +389,13 @@
                         }
                     }
                     if(!validated){
-			$("#appcreation").removeAttr('disabled');
-			$("#appupload").removeAttr('disabled');
+                        $("#appcreation").removeAttr('disabled');
+                        $("#appupload").removeAttr('disabled');
                         return false;
                     }
                    
                     if($("#action").val() == "uploadExistingApplication"){
- 			 $("#appupload").attr('disabled','disabled');                   	
+ 			            $("#appupload").attr('disabled','disabled');
                     	 jagg.message({
                              content: "Please wait. Application upload in Progress...",
                              type: 'success', id:'inProgress'
@@ -333,7 +404,8 @@
                 },
                 uploadProgress: function(event, position, total, percentComplete) { //on progress
                     $("#appupload").attr('disabled','disabled');
-                    
+		    		$("#progressOverlay").show();
+		    		$("#progressSpinner").show();
                 }, complete: function(result) { // on complete
                 	if($("#action").val() == "uploadExistingApplication"){
                 		jagg.removeMessage('inProgress');
@@ -351,7 +423,9 @@
                         }
                     }
                     $('#appcreation').removeAttr('disabled');
-		    $('#appupload').removeAttr('disabled');
+		    		$('#appupload').removeAttr('disabled');
+		    		$("#progressSpinner").hide();
+		    		$("#progressOverlay").hide();
                 }
             });
 
@@ -376,20 +450,9 @@
 	    $('#applicationName').focusout(function(event) {
 	    	var originalAppKey = $("#applicationKey").attr('value');
 	    	var originalAppName = $("#applicationName").attr('value');
- 		var appkey=originalAppKey;
-// 	    	while(!validateDuplicateApplicationKey(appkey)){
-// 	    		if(!isNaN(appkey)){
-// 				break;
-// 			}
-
-// 			while(validateDuplicateApplicationName(originalAppName)){
-// 	    		if(!isNaN(originalAppName)){
-// 				break;
-// 				}
-// 			}
-
-	    	//}
-		$('#applicationKey').val(appkey);
+	    	validateDuplicateApplicationName(originalAppName);
+ 		    var appkey=originalAppKey;
+		    $('#applicationKey').val(appkey);
 	    });
 
 	    $('#applicationKey').focusout(function(event) {
@@ -472,9 +535,7 @@
 
 
     function format(type) {
-        return "<img class='app-type-icon-list-display' src='<%=
-    jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/apptype/" + type.id + ".png'))
-    %>'/>" + type.text;
+        return "<div class='app-type-icon-list-display' style='background-image: url(<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/apptype/" + type.id + ".png')) %>);' ></div>" + type.text;
     }
 
      function submitCreateAppForm(){
@@ -484,9 +545,11 @@
      }
 
     function submitUploadAppForm(){
-	$("#appupload").attr('disabled','disabled');
-        $("#action").val("uploadExistingApplication");
-        $("#createAppForm").submit();
+        if (checkUploadedApptype()){
+            $("#appupload").attr('disabled','disabled');
+            $("#action").val("uploadExistingApplication");
+            $("#createAppForm").submit();
+        }
     }
 
     function selectAppCreationType(obj){
@@ -499,14 +562,7 @@
         }
     }
 
-    function getHelpTips(){
-        jagg.post("../blocks/help/ajax/help.jag", {
-                action: "getHelpTips",
-                page: "addApplication",
-            },
-
-            function (result) {
-                helpTips = jQuery.parseJSON(result);
+    function setHelpTips(helpTips){
             $("#appKey").html(helpTips.appKey);
             $("#appIcon").html( helpTips.appIcon);
             $(".appType").html(helpTips.appType);
@@ -514,10 +570,22 @@
             $("#appURL").html(helpTips.appURL);
             $("#appUpload").html(helpTips.appUpload);
             $("#appCreateMethod").html(helpTips.appCreateMethod);
-            },
+    }
 
-            function (jqXHR, textStatus, errorThrown) {
-            });
+    function checkUploadedApptype(){
+        var filedetail = $('#uploaded_application');
+        var fileTypeArr = filedetail.val().split(".");
+        var fileType = fileTypeArr[fileTypeArr.length - 1];
+        var apptype = $('#uploadableAppType').val();
+
+        if ((apptype === "Uploaded-binary-App-war" || apptype === "Uploaded-App-Jax-RS" || apptype === "Uploaded-App-Jax-WS") && fileType === "war"){
+            return true;
+        }else if (apptype === "Uploaded-App-Jaggery" && fileType === "zip"){
+            return true;
+        }else{
+            jagg.message({type:'error',content:'Invalid file type, File type does not match with the selected application type', id:'appcreationerrormsg'});
+            return false;
+        }
     }
 
 
@@ -562,61 +630,12 @@
                             <label for="applicationCreationMethod"><strong>Application Creation Method</strong></label>
                             <label style="text-align:left"><input type="radio" name="creation_method" value="create_application" onClick="selectAppCreationType(this)" checked="checked" style="margin-right: 5">Create Application</label>
                             <label style="text-align:left"><input type="radio" name="creation_method" value="upload_war_file" onClick="selectAppCreationType(this)" style="margin-right: 5">Upload Application</label><br>
-                    <div id="appCreateMethod" style="margin-left:215px;font-size:13px;color:#777;"></div>
+                    <div id="appCreateMethod" style="float:left;margin-left:215px;font-size:13px;color:#777;"></div>
                             </div>
              <div class="input_row hide_on_upload">
                                 <label for="application_type"><strong>Application Type</strong> <em>*</em></label>
-                                 <%
-    var applicationTypes = getProperties("ApplicationType");
-    var mainHTML = "";
-    var supportiveHTML = "";
-    var uploadableAppTypesHTML = "";
-    if (applicationTypes === null || applicationTypes === undefined || applicationTypes.length === 0) {
 
-        mainHTML = '<span style="color:#ff0000">"Application Types" are not defined!</span>';
-        //supportiveHTML='<span style="color:#ff0000">"Application Types" are not defined!</span>';
-
-    } else {
-
-        mainHTML = '<select id="applicationType" name="applicationType" onChange="selectAppCreationType(this)">';
-        uploadableAppTypesHTML = '<select id="uploadableAppType" name="uploadableAppType">';
-
-        var applicationTypesCount = applicationTypes.length;
-        var isUploadableAppTypeAvailable = false;
-
-        for (var i = 0; i < applicationTypesCount; i++) {
-
-            var isUploadableAppType = getProperty("ApplicationType." + applicationTypes[i] + ".Property.isUploadableAppType");
-
-            var SubscriptionAvailability = getProperty("ApplicationType." + applicationTypes[i] + ".Property.SubscriptionAvailability");
-
-            var displayName = getProperty("ApplicationType." + applicationTypes[i] + ".Property.DisplayName");
-            var description = getProperty("ApplicationType." + applicationTypes[i] + ".Property.Description");
-            var enabled = getProperty("ApplicationType." + applicationTypes[i] + ".Property.Enable");
-            var comment = getProperty("ApplicationType." + applicationTypes[i] + ".Property.Comment");
-            var applicationType = applicationTypes[i];
-
-            if (comment) {
-                displayVal = '<option availableSub="' + SubscriptionAvailability + '" value="' + applicationType + '"' + enabled + '>' + displayName + '</option>';
-            } else {
-                displayVal = '<option availableSub="' + SubscriptionAvailability + '"value="' + applicationType + '"' + enabled + '>' + displayName + '</option>';
-            }
-
-            if (isUploadableAppType != null && isUploadableAppType != undefined && isUploadableAppType === 'true') {
-                isUploadableAppTypeAvailable = true;
-                uploadableAppTypesHTML += displayVal;
-            } else {
-                mainHTML += displayVal;
-            }
-
-            supportiveHTML += '<li>' + applicationType + ':' + description + '</li>';
-        }
-
-        mainHTML += '</select>';
-        uploadableAppTypesHTML += '</select>';
-    }
-    %>
-    <%=mainHTML%>
+    <%=outputs.mainHTML%>
 				<div class="appType" style="margin-left:215px;font-size:13px;color:#777;"></div>
 
  </div>
@@ -626,19 +645,17 @@
     %>/site/pages/application.jag?applicationName=&applicationKey=</p>
                 </div-->
                 <%
-    if (isUploadableAppTypeAvailable) { %>
+    if (outputs.isUploadableAppTypeAvailable) { %>
 			        <div class="input_row upload">
 			            <label for="uploaded_application_type"><strong>Application Type</strong></label>
-			            <%=
-        uploadableAppTypesHTML
-        %>
+			            <%=outputs.uploadableAppTypesHTML%>
                            <div class="appType" style="margin-left:215px;font-size:13px;color:#777;"></div>
 
                            </div>
 
                        <div class="input_row upload">
                                           <label><strong>Upload Application</strong></label>
-                                                <span id="iconContainer"><input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." /></span>
+                                                <span><input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." onchange="checkUploadedApptype()"/></span>
                             <div id="appUpload" style="margin-left:215px;font-size:13px;color:#777;"></div>
                                        </div>
 
@@ -707,9 +724,11 @@
     <input type="button" value="Upload Application" class="btn main" id='appupload' onclick="submitUploadAppForm()" />
     <a href="#" onclick="location.href='index.jag?'" >Cancel</a>
     </div>
-
+    <div style="background:black;width:100%;height:100%;position:absolute;left:0;top:0;opacity:0.5;z-index:1000;" id="progressOverlay"></div>
+	<span style="z-index:1001;" class="icon-spinner icon-spin icon-large spin-large" id="progressSpinner"></span>
+    </div>
     <input type="hidden" name="userName"  id="userName" value='<%=
-    session.get("LOGGED_IN_USER")
+    jagg.getUser()
     %>'/>
    <input type="hidden" name="aPaaS" id="aPaaS" value='false'/>
    <input type="hidden" name="iPaaS" id="iPaaS" value='false'/>

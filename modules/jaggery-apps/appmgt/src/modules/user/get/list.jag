@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -86,10 +104,7 @@ function validateUser(userName){
     options.useSOAP = 1.2;
     options.useWSA = 1.0;
     options.action = "urn:doesUserExist";
-    options["HTTPHeaders"] =[{
-    	name:
-    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-    }];
+    modManager.setAuthHeaders(options);
     var payload = '<p:doesUserExist xmlns:p="http://services.registration.user.appfactory.carbon.wso2.org"><p:userName>'+userName+'</p:userName></p:doesUserExist>';
     var result;
     var endPoint = getProperty(APPFACTORY_SERVER_URL) + "UserRegistrationService";
@@ -140,10 +155,7 @@ function getAllUsersHavingName(userName) {
     
     options.useSOAP = 1.1;
     options.action = "urn:listUsers";
-    options["HTTPHeaders"] =[{
-    	name:
-    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-    }];
+    modManager.setAuthHeaders(options);
  
     var payload = '<mgt:listUsers xmlns:mgt="http://mgt.user.carbon.wso2.org"><mgt:filter>' + userName + '</mgt:filter></mgt:listUsers>';
     var result;
@@ -179,10 +191,7 @@ function getAllRolesOfUser(userName) {
 
     options.useSOAP = 1.1;
     options.action = "urn:getRolesOfUser";
-    options["HTTPHeaders"] =[{
-    	name:
-    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-    }];
+    modManager.setAuthHeaders(options);
 
     var payload = '<mgt:getRolesOfUser xmlns:mgt="http://mgt.user.carbon.wso2.org"><mgt:userName>' + userName +'</mgt:userName></mgt:getRolesOfUser>';
     var result;
@@ -223,10 +232,7 @@ function getConfirmationObject(secreteKey) {
     var options = [];
     options.useSOAP = 1.2;
     options.action = "urn:confirmUser";
-    options["HTTPHeaders"] =[{
-    	name:
-    		"Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-    }];
+    modManager.setAuthHeaders(options);
 
     var payload = <ser:confirmUser xmlns:ser="http://services.verification.email.carbon.wso2.org"></ser:confirmUser>;
     var ser = new Namespace("http://services.verification.email.carbon.wso2.org");
@@ -254,10 +260,7 @@ function getUserInfoBean(userName) {
 
     options.useSOAP = 1.1;
     options.action = "urn:getUserInfoBean";
-    var cookie=modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL));
-    options["HTTPHeaders"] =[{
-    	name:"Cookie", value:cookie
-    }];
+    modManager.setAuthHeaders(options);
     var payload='<ser:getUserInfoBean xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org"><ser:userName>'+userName+'</ser:userName></ser:getUserInfoBean>';
     var result;
     try {

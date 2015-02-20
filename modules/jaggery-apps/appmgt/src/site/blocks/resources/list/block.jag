@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include('/jagg/constants.jag');
 include('/jagg/config_reader.jag');
 include("/jagg/util.jag");
@@ -38,9 +56,10 @@ jagg.block("resources/list", {
     		datasources = null;
     	}
     	var hasDataSourceCreatePermission =  jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DATASOURCE_CREATE);
-    	var hasTenantAdminPermission =  jagg.module("permission").checkUserAuthorization(PERMISSION_TENANT_ADMIN);
+    	var hasTenantAdminPermission =  jagg.module("permission").hasTenantLevelUserMgtPermission();
     	var hasConfigureAPIManagerPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
         var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(inputs.applicationKey);
+	    var helpTips = jagg.module("help").getHelpTips("resourcesOverview");
     	return {
     	    "hasCreateResourcePermissions": hasCreateResourcePermissions,
     		"hasConfigureDbAdministrationPermission": hasConfigureDbAdministrationPermissions,
@@ -48,7 +67,8 @@ jagg.block("resources/list", {
     		"hasConfigureResourcePermission": hasConfigureResourcePermissions,
     		"hasDataSourceCreatePermission":hasDataSourceCreatePermission,
     		"hasDataSourceModifyPermission":hasDataSourceModifyPermission,
-            "hasTenantAdminPermission":hasTenantAdminPermission
+            "hasTenantAdminPermission":hasTenantAdminPermission,
+	        "helpTips":helpTips
     	};
     }
 

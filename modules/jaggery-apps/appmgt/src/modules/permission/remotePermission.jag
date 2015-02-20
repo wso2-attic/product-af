@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -17,11 +35,6 @@ var authorizeRole = function (stage, role, permission, action) {
 
     var remoteServerServiceURL = getRemoteServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
-
-    if (!(cookie)) {
-        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
-    }
 
     var ws = require('ws');
 
@@ -30,9 +43,7 @@ var authorizeRole = function (stage, role, permission, action) {
     options.useSOAP = 1.1;
     options.action = "urn:authorizeRole";
     options.mep = "in-only";
-    options["HTTPHeaders"] = [
-        { name: "Cookie", value: cookie }
-    ];
+    manager.setAuthHeaders(options);
     var payload =
             '<ser:authorizeRole xmlns:ser="http://service.ws.um.carbon.wso2.org">' +
                     '<ser:roleName>' + role + '</ser:roleName>' +
@@ -68,11 +79,6 @@ var isRoleAuthorized = function (stage, role, permission, action) {
 
     var remoteServerServiceURL = getRemoteServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
-
-    if (!(cookie)) {
-        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
-    }
 
     var ws = require('ws');
 
@@ -81,9 +87,7 @@ var isRoleAuthorized = function (stage, role, permission, action) {
     options.useSOAP = 1.2;
     options.useWSA = 1.0;
     options.action = "urn:isRoleAuthorized";
-    options["HTTPHeaders"] = [
-        { name: "Cookie", value: cookie }
-    ];
+    manager.setAuthHeaders(options);
     var payload = '<ser:isRoleAuthorized xmlns:ser="http://service.ws.um.carbon.wso2.org">' +
             '<ser:roleName>' + role + '</ser:roleName>' +
             '<ser:resourceId>' + permission + '</ser:resourceId>' +
@@ -98,9 +102,11 @@ var isRoleAuthorized = function (stage, role, permission, action) {
         result.error = 'false';
         result.message = remoteAuthorizationMgtRequest.responseE4X.resultNS::["return"].text();
     } catch (e) {
-        log.error(e.toString());
+        if(log.isDebugEnabled()){
+            log.debug(e.toString());
+        }
         result.error = 'true';
-        result.message = e.toString();
+        result.message = 'false';
     }
     return result;
 };
@@ -116,11 +122,6 @@ var denyRole = function (stage, role, permission, action) {
 
     var remoteServerServiceURL = getRemoteServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
-
-    if (!(cookie)) {
-        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
-    }
 
     var ws = require('ws');
 
@@ -130,9 +131,7 @@ var denyRole = function (stage, role, permission, action) {
     options.useWSA = 1.0;
     options.action = "urn:denyRole";
     options.mep = "in-only";
-    options["HTTPHeaders"] = [
-        { name: "Cookie", value: cookie }
-    ];
+    manager.setAuthHeaders(options);
     var payload = '<ser:denyRole xmlns:ser="http://service.ws.um.carbon.wso2.org">' +
             '<ser:roleName>' + role + '</ser:roleName>' +
             '<ser:resourceId>' + permission + '</ser:resourceId>' +
@@ -191,11 +190,6 @@ var invalidateAuthorizationCache = function(stage) {
 
     var remoteServerServiceURL = getRemoteAppServerServiceURL(stage);
     var manager = jagg.module("manager");
-    var cookie = manager.getBackendCookie(remoteServerServiceURL);
-
-    if (!(cookie)) {
-        throw 'failed to get a valid authenticated cookie from backend server of stage:' + stage;
-    }
 
     var ws = require('ws');
 
@@ -204,9 +198,7 @@ var invalidateAuthorizationCache = function(stage) {
     options.useSOAP = 1.1;
     options.action = "urn:invalidateCache";
     options.mep = "in-only";
-    options["HTTPHeaders"] = [
-        { name: "Cookie", value: cookie }
-    ];
+    manager.setAuthHeaders(options);
     var payload = '<aut:invalidateCache xmlns:aut="http://authorization.ext.appfactory.carbon.wso2.org"/>';
     var result = {};
     try {

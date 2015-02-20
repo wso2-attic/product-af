@@ -1,4 +1,23 @@
-<% jagg.template("resources/database/users/add", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/database/users/add", function(inputs, outputs, jagg) { %>
 
 <%
     var applicationName = request.getParameter("applicationName");
@@ -9,14 +28,14 @@
     var hasDataSourceDeletePermissionInCurrentStage = outputs.hasDataSourceDeletePermissionInCurrentStage;
     if (isEdit == undefined ) {
     	isEdit = false;
-    } 
+    }
 %>
 
 <script type="text/javascript">
 
 var MAX_USER_NAME_LENGTH = 8;
-// Password supports special characters and here min length 6 max 20 charters.
-var ck_password = /^[A-Za-z0-9!@#$%^*_]{6,15}$/;
+// Password supports special characters and here min length 6 max 20 characters.
+var ck_password = /^[A-Za-z0-9!@#$%^*_~]{6,15}$/;
 $(document).ready(function(){
 
 	// during formLoad, load 'Database Environment' list and append to #rssInstances.
@@ -24,7 +43,7 @@ $(document).ready(function(){
 		action:"getCreatableRSSinstances",
 		applicationKey:$("#applicationKey").attr('value')
 	}, function (result) {	// if success
-		
+
 		if(result != undefined){
 			var parsedArray = jQuery.parseJSON(result);
 			for(var i = 0; i < parsedArray.length; i++) {
@@ -36,9 +55,9 @@ $(document).ready(function(){
 			var isEdit = '<%=isEdit%>';
 
 			if(isEdit=='true'){
-				$("#Username").val('<%=user%>'); 
+				$("#Username").val('<%=user%>');
 				 $("#Username").prop("disabled",true);
-				
+
 				$("#rssInstances").empty();
 				$("#rssInstances").append('<option><%=environment%></option>');
 				$("#rssInstances").select2("readonly", true);
@@ -47,15 +66,19 @@ $(document).ready(function(){
 				formatResult: selectBoxOptionFormat,
                  minimumResultsForSearch: -1,
                  containerCssClass : "error"
-			});		
-		
+			});
+
 		}
 	},
 	function (jqXHR, textStatus, errorThrown) {	// if failed
-		jagg.message({content:'Error occurred while reading rssInstances',type:'error', id:'dbusercreation' });
+
+	    if (jqXHR.status != 0){
+	        jagg.message({content:'Error occurred while reading rssInstances',type:'error', id:'dbusercreation' });
+	    }
+
 	});
-		
- 
+
+
 	/*$('#Password').focus(function() {
 		jagg.removeMessage('pwdcheck');
 	  	jagg.message({content:'Invalid Password - Capitalization matters. Use 6 to 15 characters. <br/> Use both letters and numbers. <br/> Add special characters (such as !, @, #, $, %, ^, *)',type:'info', id:'pwdcheck' });
@@ -77,19 +100,19 @@ function createDatabaseUser(btn){
 		rssInstance:$("#rssInstances").attr('value'),
 		username:$("#Username").attr('value')
 	},function (result) {	// if it is success, move to previous page.
- 
+
 		var result = $.trim(result);
-  		
-		if(result=='success'){
+
+		if(result=='success') {
 			callPreviousPage();
-		} else if(result.indexOf('exists') > -1) {	// check whether user is already exist based on identifying key word call 'exists'
-			jagg.message({content:'The given user name already exists in the environment!', type:'error', id:'dbusercreation' });
-		} else {
-			jagg.message({content:'Error occurred while creating user!', type:'error', id:'dbusercreation' });	
 		}
         $(btn).removeAttr('disabled');
 	},function (jqXHR, textStatus, errorThrown) {	// if it failed, hide spinner and show error message.
-		jagg.message({content:'Error occurred while creating user',type:'error', id:'dbusercreation' });
+
+	    if (jqXHR.status != 0){
+	        jagg.message({content:jqXHR.responseText, type:'error', id:'dbusercreation' });
+	    }
+
         $(btn).removeAttr('disabled');
 	});
 	$('span#saveSpin').hide();
@@ -99,7 +122,7 @@ function createDatabaseUser(btn){
  /* RULE: password cannot be empty.
   *       password and repeat password show same.
   */
- function validatPassword() {	
+ function validatPassword() {
     var password = $("#Password").val();
     var repeatPassword = $("#repeatPassword").val();
     var validation = true;
@@ -107,7 +130,7 @@ function createDatabaseUser(btn){
     if (password == "") {
 		jagg.message({content:'Password cannot be empty!',type:'error', id:'dbusercreation' });
 		validation=false;
-    } else {    	
+    } else {
     	if(!ck_password.test(password)){
 		validation=false;
 		jagg.message({content:'Capitalization matters. Use 6 to 15 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *, _).',type:'error', id:'dbusercreation' });
@@ -117,14 +140,14 @@ function createDatabaseUser(btn){
     if (password != repeatPassword) {
 	jagg.message({content:'Password does not match!',type:'error', id:'dbusercreation' });
 	validation=false;
-    } 
+    }
     return validation;
 }
 
 // function to call previous page.
 function callPreviousPage(){
 	var oldURL = document.referrer;
-	window.location.replace(oldURL);			
+	window.location.replace(oldURL);
 }
 
  // function to validate username
@@ -133,16 +156,16 @@ function callPreviousPage(){
   */
 function checkUserName() {
     var validation = true;
-    
+
     var userNameLength = ($("#Username").val()).length;
-    
+
     if (userNameLength > MAX_USER_NAME_LENGTH){
 	jagg.message({content:'Username cannot exceed 8 characters!',type:'error', id:'dbusercreation' });
 	validation =false;
     }
 
     var username = $("#Username").val();
-    
+
     if (username == "") {
 	jagg.message({content:'Username cannot be empty!',type:'error', id:'dbusercreation' });
 	validation=false;
@@ -170,7 +193,7 @@ function validateForm() {
 	if(!checkUserName()){
 		validation=false;
 	}
-	
+
 	if(!validatPassword()){
 		validation=false;
 	}
@@ -180,11 +203,11 @@ function validateForm() {
 	if(rssInstance == ""){
 		validation = false;
 		jagg.message({content:'DB Environment cannot be empty!',type:'error', id:'dbusercreation' });
-	} 
-	
+	}
+
     return validation;
 }
- 
+
 /*
  * Delete db user
  *
@@ -195,7 +218,7 @@ function deleteUser(name,rssInstanceName){
 
 function deleteConfirmation(name,rssInstanceName){
 	$('span#deleteSpin').show();
-		
+
 	jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
 		action:"deleteUser",
 		applicationKey:$("#applicationKey").attr('value'),
@@ -205,8 +228,12 @@ function deleteConfirmation(name,rssInstanceName){
 		callPreviousPage();
 	},function (jqXHR, textStatus, errorThrown) {
 		$('span#deleteSpin').hide();
-		jagg.message({content:'Error occurred while deleting user. ' +
-		 'User might be already attached to a database.',type:'error', id:'dbusercreation' });
+
+		if (jqXHR.status != 0){
+	        jagg.message({content:'Error occurred while deleting user. ' +
+	            'User might be already attached to a database.',type:'error', id:'dbusercreation' });
+		}
+
 	});
 }
 </script>
@@ -218,7 +245,7 @@ function deleteConfirmation(name,rssInstanceName){
 	     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 		 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
 			<div class="content">
-				<h1>Resources</h1>
+				<h1>Runtime Configs</h1>
 			</div>
 		</header>
 		<% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
@@ -229,7 +256,7 @@ function deleteConfirmation(name,rssInstanceName){
 						<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
 				    	<li class="breadcrumb_item"><h2> <%  if(isEdit!='true') {%>Create New DB User <%} else { %> <%=user%> <%}%></h2></li>
 				    </ol>
-				    
+
 				    <%if(isEdit=='true') {%>
 				    	<% if(hasDataSourceDeletePermissionInCurrentStage){ %>
 					    	<div class="right btn_list_box" >
@@ -244,44 +271,44 @@ function deleteConfirmation(name,rssInstanceName){
 				    <%}%>
 				</div>
 			</div> <!-- /page_nav -->
-			
+
 			<div class="content clear well">
 				<div class="form-container">
 					<form action="#" method="post" class="hold right_label">
 						<fieldset>
 							<div class="input_row">
 								<label for="Username"><strong>Username<em> *</em></strong></label>
-								<input type="text" id="Username" class="half" maxlength="7"/>
+								<input type="text" id="Username" class="half" maxlength="5"/>
 							</div>
 							<%  if(isEdit!='true') {%>
 								<div class="input_row">
 									<label for="Password"><strong>Password<em> *</em></strong> </label>
 									<input type="password" id="Password" class="half" maxlength="15"/>
 								</div>
-								
+
 								<div class="input_row">
 									<label for="repeatPassword"><strong>Repeat Password <em> *</em></strong> </label>
 									<input type="password" id="repeatPassword" class="half" maxlength="15"/>
 								</div>
 							<%}%>
-							
+
 							<input type="hidden" id='applicationKey' value='<%=applicationKey%>' />
 							<div class="input_row">
 								<label for="rssInstances"><strong>Database Environment <em> *</em></strong> </label>
 								<select id='rssInstances' class="select_list half big"></select>
 							</div>
-							
+
 						</fieldset>
-						
-						
-							<div class="buttonrow">  
+
+
+							<div class="buttonrow">
 								<%  if(isEdit!='true') {%>
 								<input type='button' name='Submit' value='Create DB User' onclick="if(validateForm()){createDatabaseUser(this);}" class='btn main'/>
-								<%}%> 
+								<%}%>
 								<a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
 								<span id="saveSpin" class="icon-spinner icon-spin icon-large" style="margin-left: 10px; display:none;"></span>
 							</div>
-						
+
 					</form>
 				</div>
 			</div><!-- /content clear well -->

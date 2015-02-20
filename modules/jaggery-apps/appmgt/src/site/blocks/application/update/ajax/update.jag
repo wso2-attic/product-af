@@ -1,7 +1,28 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.AppInfoUpdateEventBuilderUtil;
+var loggedInUser = jagg.getUser();
 (function () {
     var mod, obj, result,
             action = request.getParameter("action"),
@@ -9,93 +30,67 @@ include("/jagg/config_reader.jag");
             site = require("/site/conf/site.json");
             mod = jagg.module("application");
             permission = jagg.module("permission");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     if (action == "updateDescription") {
-    	mod = jagg.module("application");
+        mod = jagg.module("application");
         var applicationKey = request.getParameter("applicationKey");
         var newDescription = request.getParameter("newDescription");
 
         //todo get the rest of info and pass
-     
-        var appInfo = mod.getAppInfo(applicationKey);
-            var result = mod.editAppInfo(appInfo.name, applicationKey, newDescription, appInfo.type, appInfo.repositoryType,
-					 appInfo.mappedSubDomain, appInfo.repoAccessability, appInfo.branchCount, appInfo.owner);
+        if(permission.checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER)){
+            var appInfo = mod.getAppInfo(applicationKey);
+            try{
+                var result = mod.editAppInfo(appInfo.name, applicationKey, newDescription, appInfo.type, appInfo.repositoryType,
+                        appInfo.mappedSubDomain, appInfo.repoAccessability, appInfo.branchCount, appInfo.owner);
+                //Notifiying to app wall
+                try {
+                    var updatedUser = jagg.getUser();
+                    var message = "Description updated successfully";
+                    var msgDescription = "Description: " + newDescription;
+                    var eventBuilderInstance = EventBuilder.createDescriptionUpdateCompletedEvent(applicationKey, updatedUser, message, msgDescription, "INFO");
+                } catch (e) {
+                    log.error("Error while sending notification \n" + e.message);
+                }
+            } catch (e1) {
+                //Notifiying to app wall
+                try {
+                    var message = "Failed to update the description. ";
+                    var eventBuilderInstance = EventBuilder.createDescriptionUpdateCompletedEvent(applicationKey, loggedInUser, message, "", "ERROR");
+                } catch (e) {
+                    log.error("Error while sending notification \n" + e.message);
+                }
 
-    }else if(action == "removeFailedPendingApps"){
-    	var appKeys = request.getParameter("pendingAppKeys").split(" ");
+                var err = "Error while updating description of  " + applicationKey;
+                log.error(err + e1.message);
+                throw ( err + e1.message );
+            }
 
-     	if (session.get("pendingApplications") != null) {
-     	    var pendingApplications = session.get("pendingApplications");
-     	    
-     	    for (var i = 0; i < appKeys.length; i++) {
-     	    	var appKey = appKeys[i];
-	     	    for (var appIndex in pendingApplications) {
-	     	        var appContainer = pendingApplications[appIndex];
-	     	        if (appKey === appContainer.app.key) {
-	     	            pendingApplications.splice(appContainer, 1);
-	     	            break;
-	     	        }
-	     	    }
-     	   }
-     	    session.put("pendingApplications", pendingApplications);
-     	}
-    	
-    }else if (action == "updateSubDomain") {
-         var applicationKey = request.getParameter("applicationKey");
-         var username = request.getParameter("username");
-         var mappedSubDomain = request.getParameter("mappedSubDomain");
-         mod = jagg.module("application");
-         
-         var response={};
-         if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
-	         try{
-		         var appInfo = mod.getAppInfo(applicationKey);
-		         var result = mod.editAppInfo(appInfo.name, applicationKey, appInfo.description, appInfo.type, appInfo.repositoryType, 
-		        		 mappedSubDomain, appInfo.repoAccessability, appInfo.branchCount, appInfo.owner);
-	         }catch(e){
-	 	    	var err = "Error while updating subdomain of the "+ applicationKey; 
-	 			log.error( err + e.message);
-	 			throw ( err + e.message )
-	 	    }
-         } else {
-             response.result = 0;
-             response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
-             print(response);
-         }
-    }else if (action == "updateDefaultVersionSubDomain") {
-        var applicationKey = request.getParameter("applicationKey");
-        var version = request.getParameter("version");
-        var username = request.getParameter("username");
-        var subDomain = request.getParameter("subDomain");
-
-        mod = jagg.module("application");
-        var response={};
-        if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
-	         try{
-                  var appInfo = mod.getAppVersionInfoByVersion(applicationKey, version)[0];
-                  var versionInfo = appInfo['versions'][0];
-                  mod.editAppVersionInfo(applicationKey, version, subDomain, versionInfo['currentBuildStatus'], versionInfo['deployedBuildId'], versionInfo['lastBuildResult'],versionInfo['promoteStatus']);
-	         }catch(e){
-	 	    	var err = "Error while updating subdomain of the "+ applicationKey + " version " +version; 
-	 			log.error( err + e.message);
-	 			throw ( err + e.message )
-	 	    }
         } else {
             response.result = 0;
-            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
+            response.message = "You don't have permission to edit the application description";
             print(response);
+        }
+
+
+    }else if(action == "removeFailedPendingApps"){
+        mod = jagg.module("application");
+        var pendingAppKeys = mod.getAppKeysFromUserHomeCache(APPLICATION_CREATION_STATUS.PENDING);
+        if(pendingAppKeys.length > 0) {
+            mod.removeAppsFromUserHomeCache(APPLICATION_CREATION_STATUS.PENDING,pendingAppKeys);
         }
     }else if (action == "updatePromoteStatus") {
         var applicationKey = request.getParameter("applicationKey");
         var version = request.getParameter("version");
-        var username = request.getParameter("username");
-        var promoteStatus = request.getParameter("promoteStatus");
+        var nextStage = request.getParameter("nextStage");
+        var state = request.getParameter("state");
 
         mod = jagg.module("application");
         var response={};
          try{
-              var appInfo = mod.getAppVersionInfoByVersion(applicationKey, version)[0];
-              var versionInfo = appInfo['versions'][0];
-              mod.editAppVersionInfo(applicationKey, version, versionInfo['productionMappedDomain'], versionInfo['currentBuildStatus'], versionInfo['deployedBuildId'], versionInfo['lastBuildResult'], promoteStatus);
+              mod.updatePromoteStatus(applicationKey, nextStage, version, state);
          }catch(e){
  	    	var err = "Error while updating PromoteStatus of the "+ applicationKey + " version " +version; 
  			log.error( err + e.message);
@@ -108,17 +103,16 @@ include("/jagg/config_reader.jag");
         try{
             var appIcon = request.getFile("changeIcon");
             if(appIcon){
-            var regPath = "/_system/governance/repository/applications/"+applicationKey+"/icon";
-            var type = 'image/jpg';
-	    registryMod.deleteResourceInTenantSpace(regPath);
-            registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
+                    var regPath = "/_system/governance/repository/applications/"+applicationKey+"/icon";
+                    var type = 'image/jpg';
+	                registryMod.deleteResourceInTenantSpace(regPath);
+                    registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
             }
 	    var noIconList = session.get("iconsNotAvailableApps");
             if(noIconList[applicationKey] != null){
                 noIconList[applicationKey]=null;
                 session.put("iconsNotAvailableApps", noIconList);
 	    }
-
 	print("<html><script>window.location.replace('/appmgt/site/pages/application.jag?applicationName=" + applicationName + "&applicationKey=" + applicationKey + "');</script><body></body></html>");
         }catch(e){
             log.warn("No Application Icon found to upload.  " + e);

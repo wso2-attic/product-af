@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -9,7 +27,10 @@ include("/jagg/config_reader.jag");
     site = require("/site/conf/site.json");
     var log=new Log();
     mod = jagg.module("resources");
-
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     var modPermission = jagg.module("permission");
     if (action == "getExternalAPIs") {
     	
@@ -36,8 +57,9 @@ include("/jagg/config_reader.jag");
  	                }
  	            }
 	        } else {
-	            var msg = "You don't have permission to get External APIs for stage " +stage;
-                log.error(msg);
+                if(log.isDebugEnabled()){
+                    log.debug("You don't have permission to get External APIs for stage " +stage);
+                }
 	        }
         }
       
@@ -53,8 +75,9 @@ include("/jagg/config_reader.jag");
     		if(result){
     			permittedStages.push(stage);
 	        } else {
-	            var msg = "You don't have permission to create resources in stage " +stage;
-                log.error(msg);
+                if (log.isDebugEnabled()) {
+                    log.debug("You don't have permission to create resources in stage " + stage);
+                }
 	        }
         }
          print(permittedStages);
@@ -91,8 +114,9 @@ include("/jagg/config_reader.jag");
 					data[stage]=externalAPI;
 				}
 		    } else {
-	            var msg = "You don't have permission to update resources in stage " +stage;
-	            log.error(msg);
+                if (log.isDebugEnabled()) {
+                    log.debug("You don't have permission to update resources in stage " + stage);
+                }
 	        }
 	   
 	    print(data);

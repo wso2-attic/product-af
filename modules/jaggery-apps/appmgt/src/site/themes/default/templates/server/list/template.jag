@@ -1,21 +1,46 @@
-<% jagg.template("server/list", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("server/list", function (inputs, outputs, jagg) { %>
 
  	<%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    var helpTips = outputs.helpTips;
+    var appVersionsInStages= outputs.appVersionsInStages;
     %>
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css" />
     <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/pagination.css'))%>" rel="stylesheet" type="text/css" />
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js')) %>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js')) %>"></script>
-
+    
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
     <script type="text/javascript">
         var allVersions;
         var pagerPage = 0;
         var MaxPages = 0;
 
         $(document).ready(function(){
+
+        	initializeUserActivity("logs", '<%=applicationKey%>', '<%=applicationName%>');
+        	
             $('.datepicker').each(function() {
                 $(this).datepick({dateFormat: 'yyyy_mm_dd'});
             });
@@ -30,22 +55,12 @@
                 }
             });
             getAllVersionsInStage();
-            getHelpTips();
+            setHelpTips(<%= helpTips %>);
 
         });
 
-        function getHelpTips(){
-
-            jagg.post("../blocks/help/ajax/help.jag", {
-                action: "getHelpTips",
-                page: "server"
-        },
-            function (result) {
-                helpTips = jQuery.parseJSON(result);
+        function setHelpTips(helpTips){
                 $("#downloadHelpTip").html(helpTips.downloadHelpTip);
-            },
-            function (jqXHR, textStatus, errorThrown) {
-            });
         }
 
         function VersionComparator(a,b) {
@@ -53,19 +68,11 @@
         }
 
         function getAllVersionsInStage(){
-            jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
-            action:"getAppVersionsInStages",
-            userName:$("#userName").attr('value'),
-            applicationKey:'<%=applicationKey%>'
-            },function (result) {
-                var parsedObj = jQuery.parseJSON(result);
+                var parsedObj = jQuery.parseJSON('<%=appVersionsInStages%>');
 		allVersions = parsedObj.allAppVersions;
-
                 var selectedStage = prepareLogDownloadUIStages();
-
                 prepareLogDownloadUIVersions(selectedStage);
-        });
-    }
+    	}
 
     function localComparator(a,b) {
         return a.localeCompare(b);
@@ -76,7 +83,7 @@
         var retString = "";
         var selectedStage;
 
-	console.log(allStages);
+	    //console.log(allStages);
         allStages.sort(localComparator);
 
         for (var i = 0; i < allVersions.length; i++) {
@@ -145,6 +152,8 @@
     }
 
     function viewLogsSubmitAction(pageNumber){
+        $('#btn_view_logs').prop('disabled',true);
+        $('#spinner_container_view_logs').html('<span class="icon-spinner icon-spin" style="font-size: 40px; margin-top: 2px; margin-left: 13px"></span>').show();
     //number starts from one
     //TODO:fix using jquery.
         var applicationStage = $('#download_logs_stage').select2('data').text;
@@ -152,40 +161,55 @@
         var selectedDate = $("#date_of_stage").val();
 
         jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
-        action:"downloadLogFile",
-        applicationKey:'<%=applicationKey%>',
-                applicationStage:applicationStage,
-                applicationVersion:applicationVersion,
-                date:selectedDate,
-                downloadFile:"false",
-                pageNumber : pageNumber
-                },function (result) {
+            action:"downloadLogFile",
+            applicationKey:'<%=applicationKey%>',
+            applicationStage:applicationStage,
+            applicationVersion:applicationVersion,
+            date:selectedDate,
+            downloadFile:"false",
+            pageNumber : pageNumber
+        },function (result) {
 
-                    try {
-                        var resultJson = jQuery.parseJSON(result);
-                        var numPages = resultJson.numberOfPages;
-                    } catch (e) {
-                        displayErrorMessage("Error while downloading logs");
-                    }
-                    if(resultJson.error == true){
-                        displayErrorMessage(resultJson.message);
-                    }
-                    $("#download_logs_content").empty();
-                    $('#page-selection').empty();
-                    $('#page-selection').off();
+            try {
+                var resultJson = jQuery.parseJSON(result);
+                var numPages = resultJson.numberOfPages;
+            } catch (e) {
+                displayErrorMessage("Error while downloading logs");
+            }
+            if(resultJson.error == true){
+                displayErrorMessage(resultJson.message);
+            }
+            $("#download_logs_content").empty();
+            $('#page-selection').empty();
+            $('#page-selection').off();
 
-                    $("#download_logs_content").append(resultJson.logEvents);
-                    if(numPages > 1){
-                        $('#page-selection').bootpag({
-                                total: numPages,
-                                page: pageNumber,
-                                maxVisible: 10
-                            }).on("page", function(event, num){
-                                viewLogsSubmitAction(num)
-                        });
-                    }
+            $("#download_logs_content").append(resultJson.logEvents);
+            if(numPages > 1){
+                $('#page-selection').bootpag({
+                    total: numPages,
+                    page: pageNumber,
+                    maxVisible: 10
+                }).on("page", function(event, num){
+                    viewLogsSubmitAction(num)
                 });
             }
+
+            $('#btn_view_logs').attr('disabled',false);
+        },function (jqXHR, textStatus, errorThrown) {
+
+            if (jqXHR.status != 0){
+                jagg.message({
+                    content: "Error occurred while loading the logs.",
+                    type: 'error',
+                    id:'message_id'
+                });
+            }
+
+
+            $('#btn_view_logs').attr('disabled',false);
+            $('#spinner_container_view_logs').hide();
+        });
+    }
 
             function displayErrorMessage(message){
                 jagg.message({
@@ -195,6 +219,8 @@
             }
 
             function downloadLogs(){
+                $('#btn_download_logs').prop('disabled',true);
+                $('#spinner_container_download_logs').html('<span class="icon-spinner icon-spin" style="font-size: 40px; margin-top: 2px; margin-left: 13px"></span>').show();
                 var applicationStage = document.getElementById("download_logs_stage").value;
                 var applicationVersion = document.getElementById("app_version_of_stage").value;
                 var selectedDate = document.getElementById("date_of_stage").value;
@@ -204,12 +230,14 @@
                 document.getElementById("download_date").value = selectedDate ;
 
                 document.getElementById("logDownloadForm").submit();
+                $('#btn_download_logs').prop('disabled',false);
+                $('#spinner_container_download_logs').hide();
             }
 
              </script>
 
             <input type="hidden" name="userName"  id="userName" value='<%=
-    session.get("LOGGED_IN_USER")
+    jagg.getUser()
     %>'/>
    <div class="container">
        <article class="main" id="server_logs">
@@ -274,7 +302,8 @@
                             </div>
                             <div class="af_row push_top_10">
                                 <div class="col-2">
-                                    <button class="btn main small"  name="download_file" onclick="viewLogsSubmitAction(1)" type="button">View</button>
+                                    <button id="btn_view_logs" class="btn main small"  name="download_file" onclick="viewLogsSubmitAction(1)" type="button">View</button>
+                                    <div id="spinner_container_view_logs"></div>
                                 </div>
                             </div>
                             </div>
@@ -291,7 +320,8 @@
                                     <input id="date_of_stage" type="text" class="datepicker" placeholder="Date" />
                                 </div>
                                 <div class="col-4">
-                                    <button class="btn main small"  name="download_file" onclick="downloadLogs()" type="button">Download</button>
+                                    <button id="btn_download_logs" class="btn main small"  name="download_file" onclick="downloadLogs()" type="button">Download</button>
+                                    <div id="spinner_container_download_logs"></div>
                                 </div>
                             </div>
                             </div>

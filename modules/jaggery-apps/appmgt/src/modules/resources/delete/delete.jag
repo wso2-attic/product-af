@@ -1,0 +1,210 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log('modules/resources/delete/delete.jag');
+var modManager = jagg.module("manager");
+var resourcesMod = jagg.module("resources");
+
+/**
+ * Delete all the resources (databases, db users, db templates, properties, datasources and api related data)
+ * associated with the {@code applicationKey}.
+ *
+ * @param applicationKey application key
+ */
+var deleteAllResourcesOfApplication = function(applicationKey){
+    var tenantDomain=modManager.getTenantDomain();
+    // delete dbs
+    try {
+        deleteAllDbData(applicationKey);
+    } catch(e) {
+        // We are not throwing an exception here since this should not interrupt other operations which is associated
+        // with application deletion process
+        log.error("Error while deleting all dbs from application: "+applicationKey+" tenant: "+tenantDomain +
+                  " "+e.message);
+    }
+
+    // delete registry resources
+    try {
+        deleteAllResources(applicationKey);
+    } catch(e) {
+        // We are not throwing an exception here since this should not interrupt other operations which is associated
+        // with application deletion process
+        log.error("Error while deleting all resources from application: "+applicationKey+" tenant: "+tenantDomain +
+                  " "+e.message);
+    }
+
+    // delete data sources
+    try {
+        deleteAllDataSources(applicationKey);
+    } catch(e) {
+        // We are not throwing an exception here since this should not interrupt other operations which is associated
+        // with application deletion process
+        log.error("Error while deleting all resources from application: "+applicationKey+" tenant: "+tenantDomain +
+                  " "+e.message);
+    }
+
+    // delete application from api manager
+    try {
+        resourcesMod.deleteApplicationFromApiM(applicationKey);
+    } catch(e) {
+        // We are not throwing an exception here since this should not interrupt other operations which is associated
+        // with application deletion process
+        log.error("Error while deleting application: "+applicationKey+" tenant: "+tenantDomain +
+                  " from API Manager "+e.message);
+    }
+
+};
+
+/**
+ * Delete all the registry resources associated with the {@code applicationKey}.
+ * This will remove all the properties and apis related metadata associated with the {@code applicationKey} from all
+ * servers.
+ *
+ * @param applicationKey application key
+ */
+var deleteAllResources = function(applicationKey) {
+    var tenantDomain=modManager.getTenantDomain();
+    try {
+        resourcesMod.deleteAllRegistryResourcesFromAllStages(applicationKey);
+        log.info("Successfully deleted all the registry resources from application: "+applicationKey+
+                 " tenant: "+tenantDomain);
+    } catch(e) {
+        // We are not throwing an exception here since this should not interrupt other operations which is associated
+        // with application deletion process
+        log.error("Error while deleting registry resources from application: "+applicationKey+" tenant: "+tenantDomain +
+                  " "+e.message);
+    }
+
+};
+
+/**
+ * Delete all the datasources associated with the {@code applicationKey}.
+ *
+ * @param applicationKey application key
+ */
+var deleteAllDataSources = function(applicationKey) {
+    var tenantDomain=modManager.getTenantDomain();
+    try {
+        resourcesMod.deleteAllDataSources(applicationKey);
+        log.info("Successfully deleted all the datasources from application: "+applicationKey+" tenant: "+tenantDomain);
+    } catch(e) {
+        // We are not throwing an exception here since this should not interrupt other operations which is associated
+        // with application deletion process
+        log.error("Error while deleting datasources from application: "+applicationKey+" tenant: "+tenantDomain +
+                  " "+e.message);
+    }
+
+};
+
+/**
+ * Delete all databases, db users and db templates associated with the {@code applicationKey}.
+ *
+ * @param applicationKey application key
+ */
+var deleteAllDbData = function(applicationKey) {
+    var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+    var tenantDomain=modManager.getTenantDomain() ;
+    var errOuccered = false;
+
+    for(var i=0;i<deploymentStages.length;i++){ // iterate for all stages
+        try {
+            var dbUserTmeplateInfo = resourcesMod.getDbUserTemplateInfoForStage(applicationKey, deploymentStages[i]);
+            if (dbUserTmeplateInfo) {
+
+                //delete dbs
+                var rssInstanceName = dbUserTmeplateInfo.stage;
+                var dbsInStage = dbUserTmeplateInfo.dbs;
+                if (dbsInStage) {
+                    for (var j = 0; j < dbsInStage.length; j++) {
+                        var db = dbsInStage[j];
+                        try {
+                            if(log.isDebugEnabled()) {
+                                log.debug("Deleting db: "+db.dbName+" application: "+applicationKey+
+                                         "rssInstance: "+rssInstanceName);
+                            }
+                            resourcesMod.dropDatabase(applicationKey, db.dbName, rssInstanceName);
+                        } catch (e) {
+                            // not throwing an exception here since this should not interrupt other operations
+                            log.error("Error while deleting database: " + db.dbName + " for application:" +
+                                      applicationKey + " for tenant:" + tenantDomain+" \nError msg: "+ e.message);
+                            errOuccered = true;
+                        }
+                    }   // end of for loop
+                }   // end of db deletion
+
+                //delete users
+                var usersInStage = dbUserTmeplateInfo.users;
+                if (usersInStage) {
+                    for (var j = 0; j < usersInStage.length; j++) {
+                        var dbUserName = usersInStage[j].name;
+                        try {
+                            if(log.isDebugEnabled()) {
+                                log.debug("Deleting db user "+dbUserName+" from application: "+applicationKey+
+                                         " rssInstance: "+rssInstanceName);
+                            }
+                            resourcesMod.deleteUser(applicationKey, dbUserName, rssInstanceName);
+                        } catch (e) {
+                            // not throwing an exception here since this should not interrupt other operations
+                            log.error("Error while deleting user: " + dbUserName + " for application:" +
+                                      applicationKey + " for tenant:" + tenantDomain+" \nError msg: "+ e.message);
+                            errOuccered = true;
+                        }
+                    }   // end of for loop
+                }   // end of db user deletion
+
+                // delete templates
+                var templatesInStage = dbUserTmeplateInfo.templates;
+                if (templatesInStage) {
+                    for (var j = 0; j < templatesInStage.length; j++) {
+                        var templateName = templatesInStage[j].name;
+                        try {
+                            if(log.isDebugEnabled()) {
+                                log.debug("Deleting db template: "+templateName+" from application: "+applicationKey+
+                                          " rssInstance: "+rssInstanceName);
+                            }
+                            resourcesMod.dropTemplate(applicationKey, rssInstanceName, templateName);
+                        } catch (e) {
+                            // not throwing an exception here since this should not interrupt other operations
+                            log.error("Error while deleting db template: " + templateName + " for application:" +
+                                      applicationKey + " for tenant:" + tenantDomain+" \nError msg: "+ e.message);
+                            errOuccered = true;
+                        }
+                    }   // end of for loop
+                }   // end of db template deletion
+
+            }
+        } catch(e) {
+            // We are not throwing an exception here since this should not interrupt other operations which is associated
+            // with application deletion process
+            log.error("Error while deleting databases for application:" +
+                      applicationKey + " for tenant:" + tenantDomain+" \nError msg: "+ e.message);
+            errOuccered = true;
+        }
+    }
+
+    if(!errOuccered) {
+        log.info("Successfully deleted all the databases from application: "+applicationKey+" tenant:"+tenantDomain);
+    }
+};
+
+
+%>

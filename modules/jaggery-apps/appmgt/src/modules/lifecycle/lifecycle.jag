@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -9,7 +27,8 @@ var log = new Log("module/lifecycle/lifecycle.jag");
 var modApplication = jagg.module("application");
 var modManager = jagg.module("manager");
 //var modResource = jagg.module("resource");
-var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.EventBuilderUtil;
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.GovernanceEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 
 var carbon = require('carbon');
 var server = carbon.server;
@@ -19,7 +38,7 @@ var multitenancy = carbon.multitenancy;
 var invokeCreateArtifact = function invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName, repofrom) {
 	
     var tenantDomain = modManager.getTenantDomain();
-    var loggedInUser = session.get("LOGGED_IN_USER");
+    var loggedInUser = jagg.getUser();
     var userName = "";
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
@@ -57,7 +76,7 @@ var invokeDeployToStage = function invokeDeployToStage(applicationKey, revision,
     var result;
 
     try {
-        var endPoint = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.ProcessEndPoint');
+        var endPoint = getProperty(BPS_SERVER_URL);
         deployApplicationToStageProcess.open(options, endPoint, false);
         deployApplicationToStageProcess.send(payload);
         result = deployApplicationToStageProcess.responseE4X;
@@ -78,12 +97,7 @@ var addGenericArtifact = function addGenericArtifact(key, content, lifecycleAttr
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:addArtifact";
-    options["HTTPHeaders"] =
-            [
-                {
-                    name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-                }
-            ];
+    modManager.setAuthHeaders(options);
     var payload = "";
 
     if (lifecycleAttribute == null) {
@@ -133,12 +147,7 @@ function invokeAspectWithParameter(path, aspect, action, items, parameters, curr
     options.useSOAP = 1.1;
     options.mep = 'in-only';
     options.action = "urn:invokeAspectWithParams";
-    options["HTTPHeaders"] =
-            [
-                {
-                    name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-                }
-            ];
+    modManager.setAuthHeaders(options);
     var payload = '<ser:invokeAspectWithParams' +
             ' xmlns:ser=\'http://services.checklist.lifecycles.custom.governance.carbon.wso2.org\'>' +
             '<ser:path>' + path + '</ser:path>' +
@@ -180,7 +189,7 @@ function invokeAspectWithParameter(path, aspect, action, items, parameters, curr
     }
 };
 
-function invokeDoVersion(applicationKey, srcVersion, targetVersion) {
+function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName) {
     jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_REPOSITORY_BRANCH);
 
 
@@ -212,7 +221,7 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion) {
                 '<isAutoBuild>true</isAutoBuild>' +
                 '<isAutoDeploy>true</isAutoDeploy>' +
                 '</appversion>' +
-                '<serviceLifecycle><lifecycleName>' + LIFE_CYCLE_NAME + '</lifecycleName></serviceLifecycle>' +
+                '<serviceLifecycle><lifecycleName>' + lifecycleName + '</lifecycleName></serviceLifecycle>' +
                 '</metadata>]]>';
         var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
         addGenericArtifact(key, content, lifecycleAttribute);
@@ -225,11 +234,7 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion) {
         var publishVersionAddOptions = new Array();
         publishVersionAddOptions.useSOAP = 1.1;
         publishVersionAddOptions.action = "urn:publishApplicationVersionCreation";
-        publishVersionAddOptions["HTTPHeaders"] = [
-            {
-                name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-            }
-        ];
+        modManager.setAuthHeaders(publishVersionAddOptions);
         var publishVersionAddEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
         publishVersionAddEvent.open(publishVersionAddOptions, publishVersionAddEndpoint, true);
         publishVersionAddEvent.send(versionCreationEventPayload);
@@ -254,10 +259,7 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion) {
  var createArtifactAddOptions = new Array();
  createArtifactAddOptions.useSOAP = 1.1;
  createArtifactAddOptions.action = "urn:createArtifact";
- createArtifactAddOptions["HTTPHeaders"] =[{
- name:
- "Cookie", value:modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
- }];
+ modManager.setAuthHeaders(options);
 
  var payload = '<p:createArtifact xmlns:p="http://build.core.appfactory.carbon.wso2.org">' +
  '<p:applicationId>' + applicationKey + '</p:applicationId>' +
@@ -411,11 +413,7 @@ function getLifeCycleBean(path) {
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:getLifecycleBean";
-    options["HTTPHeaders"] = [
-        {
-            name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-        }
-    ];
+    modManager.setAuthHeaders(options);
 
     var payload = '<ser:getLifecycleBean ' +
             ' xmlns:ser=\'http://services.checklist.lifecycles.custom.governance.carbon.wso2.org\'>' +
@@ -474,11 +472,7 @@ function getLifeCycleHistory(path) {
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:getTextContent";
-    options["HTTPHeaders"] = [
-        {
-            name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-        }
-    ];
+    modManager.setAuthHeaders(options);
 
     var payload = '<ser:getTextContent ' +
             ' xmlns:ser=\'http://services.resource.registry.carbon.wso2.org\'>' +
@@ -547,7 +541,7 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
                     <rampart:timestampTTL>300</rampart:timestampTTL>
                     <rampart:timestampMaxSkew>300</rampart:timestampMaxSkew>
                     <rampart:timestampStrict>false</rampart:timestampStrict>
-                    <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.utilities.security.PWCBHandler</rampart:passwordCallbackClass>
+                    <rampart:passwordCallbackClass>org.wso2.carbon.appfactory.common.security.PWCBHandler</rampart:passwordCallbackClass>
                     <rampart:tokenStoreClass>org.wso2.carbon.security.util.SecurityTokenStore</rampart:tokenStoreClass>
                     <rampart:nonceLifeTime>300</rampart:nonceLifeTime>
                 </rampart:RampartConfig>
@@ -559,14 +553,14 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
             '<p:action>' + action + '</p:action>' +
             '<p:currentStage>' + currentStage + '</p:currentStage>' +
             '<p:applicationID>' + applicationID + '</p:applicationID>' +
-            '<p:revision>' + revision + '</p:revision>' +
+            '<p:state>pending</p:state>' +
             '<p:version>' + version + '</p:version>' +
             '<p:build>' + build + '</p:build>' +
             '<p:currentPath>' + currentPath + '</p:currentPath>' +
             '<p:aspect>' + aspect + '</p:aspect>' +
             '<p:deployAction>' + deployAction + '</p:deployAction>' +
             '<p:checkListItems>' + checkListItems + '</p:checkListItems>' +
-            '<p:userName>' + userName + '</p:userName>';
+            '<p:userName>' + userName + '</p:userName>' ;
 
     if (params.length > 0) {
 //for (var index=0;index<params.length;index++) {
@@ -590,6 +584,18 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
             '</p:GovernanceBPELRequest>';
 
     var result;
+    var toStageString = "";
+    var notificationAction = "promoting";
+    if (action == "Promote") {
+        notificationAction = "promoting";
+        toStageString = " to " + getNextLifeCycleStage(currentStage);
+    } else if (action == "Demote") {
+        notificationAction = "demoting";
+        toStageString = " to " + getPreviousLifeCycleStage(currentStage);
+    } else if (action == "Retire") {
+        notificationAction = "retiring";
+    }
+
     try {
         var endPoint = getProperty('ServerUrls.BPS') + 'GovernanceBPEL';
         governanceProcess.open(options, endPoint, false);
@@ -597,12 +603,12 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
         result = governanceProcess.responseE4X;
 
         //Sending app promote started messages to wall
-        var notificationTitle = applicationID + " promotion process started.";
-        var nextStage = getNextLifeCycleStage(currentStage);
-        var notificationDescription = "Process to promote version " + version +" of application " + applicationID + " from " + currentStage + " to " + nextStage + " started.";
-       
+
+        var notificationTitle = version + " "+notificationAction+" from " + currentStage + toStageString + ".";
+        var notificationDescription = "";
+
         try{
-        	var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, notificationDescription, "INFO");
+        	var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, notificationDescription , "INFO");
         } catch (e) {
         	  log.error("Error while sending notification \n" + e.message);
         }
@@ -612,12 +618,10 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
         }
     } catch (e) {
         //Sending app promote failure messages to wall
-        var notificationTitle =  applicationID + " promotion process failed.";
-        var nextStage = getNextLifeCycleStage(currentStage);
-        var notificationDescription = "Process to promote version " + version +" of application " + applicationID + " from " + currentStage + " to " + nextStage + " failed due to " +  e.message + ".";
-        
+
+        var notificationTitle =  version + " "+notificationAction+" from " + currentStage + toStageString + " failed.";
         try{
-        	var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, notificationDescription, "ERROR");
+        	var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, e.messages, "ERROR");
         } catch (e) {
       	  log.error("Error while sending notification \n" + e.message);
         }
@@ -682,11 +686,7 @@ var setAutoDeployment = function setAutoDeployment(applicationKey, stageName, pr
     var publishVersionADChangeOptions = new Array();
     publishVersionADChangeOptions.useSOAP = 1.1;
     publishVersionADChangeOptions.action = "urn:publishApplicationAutoDeploymentChange";
-    publishVersionADChangeOptions["HTTPHeaders"] = [
-        {
-            name: "Cookie", value: modManager.getBackendCookie(getProperty(APPFACTORY_SERVER_URL))
-        }
-    ];
+    modManager.setAuthHeaders(options);
     try {
         var publishVersionADChangeEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
         publishVersionADChangeEvent.open(publishVersionADChangeOptions, publishVersionADChangeEndpoint, true);
@@ -710,11 +710,7 @@ var editGenericArtifact = function editGenericArtifact(key, content, lifecycleAt
     var options = new Array();
     options.useSOAP = 1.1;
     options.action = "urn:editArtifact";
-    options["HTTPHeaders"] = [
-        {
-            name: "Cookie", value: modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-        }
-    ];
+    modManager.setAuthHeaders(options);
     var payload = "";
 
     if (lifecycleAttribute == null) {
@@ -780,7 +776,7 @@ var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage) {
 
 var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, version, isEnable) {
     var tenantDomain = modManager.getTenantDomain();
-    var loggedInUser = session.get("LOGGED_IN_USER");
+    var loggedInUser = jagg.getUser();
     var userName = "";
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
@@ -797,10 +793,24 @@ var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, versio
         var isBuild = (isEnable == "true" || isEnable == 'true') ? true:false;
         try {
             server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').publishSetApplicationAutoBuild(applicationKey, stageName, version, isBuild);
+            try{
+                var notificationTitle  = "Auto build is " + isBuild + " for version " + version;
+                var eventBuilderInstance = EventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                log.error("Error while sending notification \n" + e.message);
+            }
             return "true";
         } catch (e) {
+            try{
+                var notificationTitle  = "Changing auto build status for version " + version + " failed";
+                var eventBuilderInstance = EventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "ERROR");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                log.error("Error while sending notification \n" + e.message);
+            }
             log.error("Error while setting auto build" + e.message);
-            throw "Error while branching";
+            throw "Error while setting auto build";
         }
     } finally {
         context.endTenantFlow();
@@ -809,7 +819,7 @@ var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, versio
 
 var updateAutoDeployment = function updateAutoDeployment(applicationKey, stageName, version, isEnable) {
     var tenantDomain = modManager.getTenantDomain();
-    var loggedInUser = session.get("LOGGED_IN_USER");
+    var loggedInUser = jagg.getUser();
     var userName = "";
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
@@ -826,10 +836,24 @@ var updateAutoDeployment = function updateAutoDeployment(applicationKey, stageNa
         var isDeploy = (isEnable == "true" || isEnable == 'true') ? true:false;
         try {
             server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').publishSetApplicationAutoDeploy(applicationKey, stageName, version, isDeploy);
+            try{
+                var notificationTitle  = "Auto deploy is " + isDeploy + " for version " + version;
+                var eventBuilderInstance = EventBuilder.autoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "INFO");
+                EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                log.error("Error while sending notification \n" + e.message);
+            }
             return "true";
         } catch (e) {
+            try{
+                var notificationTitle  = "Changing auto deploy status for version " + version + " failed";
+                var eventBuilderInstance = EventBuilder.createAutoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "ERROR");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                log.error("Error while sending notification \n" + e.message);
+            }
             log.error("Error while setting auto deploy" + e.message);
-            throw "Error while branching";
+            throw "Error while setting auto deploy";
         }
     } finally {
         context.endTenantFlow();

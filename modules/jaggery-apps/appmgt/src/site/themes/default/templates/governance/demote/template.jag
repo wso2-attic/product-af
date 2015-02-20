@@ -1,4 +1,23 @@
-<% jagg.template("governance/demote", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("governance/demote", function(inputs, outputs, jagg) { %>
 
 <%
 	var applicationName = request.getParameter("applicationName");
@@ -10,6 +29,9 @@
 	var tagName = request.getParameter("tagName");
 	var checkItems = request.getParameter("checkItems");
 %>
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+ 
 <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
 <input type="hidden" name="applicationName" id="applicationName" value="<%=applicationName%>"/>
 <input type="hidden" name="actionName" id="actionName" value="<%=actionName%>"/>
@@ -26,23 +48,26 @@ for(var demoteStage in hasDemotePermissions){
 	}
 }
 %>
-<% 
+<%
 	var appVersions = outputs.appVersions;
 	var parsedVersions = parse(appVersions);
-	
+
 	if (hasNeededDemotePermissions == true) {
 	%>
 		<script type="text/javascript">
 			var issueArray;
 			var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
 			$(document).ready(function() {
-				jagg.post("../blocks/issuetracker/list/ajax/list.jag", { 
+
+				initializeUserActivity("lifecycleDemote", '<%=applicationKey%>', '<%=applicationName%>');
+				
+				jagg.post("../blocks/issuetracker/list/ajax/list.jag", {
 					action:"getOpenIssues",
 					applicationKey:$("#applicationKey").attr('value'),
 					applicationVersion:$("#version").attr('value')
 				},
 				function (result) {
-					if(result){						
+					if(result){
 						issueArray = jQuery.parseJSON(result);
 						var issuesection = "";
 						if (issueArray.length != 0){
@@ -50,26 +75,29 @@ for(var demoteStage in hasDemotePermissions){
 						}
 						for (var i = 0; i < issueArray.length; i++) {
 							var issue = issueArray[i];
-							issuesection += "<div><label class='checkbox'> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id 
+							issuesection += "<div><label class='checkbox'> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id
 							+ "' type='checkbox' order='0' " + "title='" + issue.title + "' issuetype='" + issue.type + "' issueid='" + issue.id
 							+ "'> [" + issue.type + "] " + issue.title + "</input></label></div>";
 						}
 						$("#issues_section_inner_div").html(issuesection);
-					} 
+					}
 				},
 				function (jqXHR, textStatus, errorThrown) {
-					jagg.message({content:"Error occurred while retrieving issues",type:'info' });
+				    if (jqXHR.status != 0){
+	                    jagg.message({content:"Error occurred while retrieving issues", type:'error', id:'myuniqeid' });
+				    }
+
 				});
-				
+
 				$("#search_text").keypress(function(e){
 					code= (e.keyCode ? e.keyCode : e.which);
 					if (code == 13) search();
 				});
 			});
-			
-			
+
+
 			function doGovernanceActionAjaxIn(actionName, stage, version, tagName, checkItems, comment){
-				jagg.post("../blocks/lifecycle/add/ajax/add.jag", { 
+				jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
 					action:actionName,
 					applicationKey:$("#applicationKey").attr('value'),
 					stageName:stage,
@@ -82,12 +110,16 @@ for(var demoteStage in hasDemotePermissions){
 					location.href='<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
 				},
 				function (jqXHR, textStatus, errorThrown) {
-					jagg.message({content:"Error occurred while performing the governance operation",type:'info' });
+
+				    if (jqXHR.status != 0){
+	                    jagg.message({content:"Error occurred while performing the governance operation", type:'error', id:'myuniqeid' });
+				    }
+
 				});
 			}
-			
-			
-	
+
+
+
 			function doDemote(){
 				var applicationName = "<%=applicationName%>";
 				var comment = "<![CDATA[<span>";
@@ -105,9 +137,9 @@ for(var demoteStage in hasDemotePermissions){
 				}
 				comment += $("#inputComment").val() + "</span>]]>";
 				doGovernanceActionAjaxIn($("#actionName").attr('value'), $("#stage").attr('value'), $("#version").attr('value'), $("#tagName").attr('value'), $("#checkItems").attr('value') , comment);
-				
+
 			}
-			
+
 			function search(){
 				var query = $("#search_text").val();
 				var issuesection = "";
@@ -118,10 +150,10 @@ for(var demoteStage in hasDemotePermissions){
 						continue;
 					}
 					isResults = true;
-					issuesection += "<div><label class='checkbox'> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id 
+					issuesection += "<div><label class='checkbox'> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id
 					+ "' type='checkbox' order='0' " + "title='" + issue.title + "' issuetype='" + issue.type + "' issueid='" + issue.id + "' url='" + issue.url
-					+ "'> [" + issue.type + "] " + issue.title + "</input> <a href=" + issue.url 
-					+ "><i class='icon-share-alt'></i></a></label></div>";				  					
+					+ "'> [" + issue.type + "] " + issue.title + "</input> <a href=" + issue.url
+					+ "><i class='icon-share-alt'></i></a></label></div>";
 				}
 				if (!isResults){
 					$("#issues_section_inner_div").html("No results found");
@@ -129,7 +161,7 @@ for(var demoteStage in hasDemotePermissions){
 				}
 				$("#issues_section_inner_div").html(issuesection);
 			}
-			
+
 		</script>
 	<%
 	}else {
@@ -152,7 +184,7 @@ for(var demoteStage in hasDemotePermissions){
 	<div class="container content-container wrapper">
 		<div class="row">
 			<div class="span12 content-section">
-				<div class="content-data">	
+				<div class="content-data">
 					<div class="form-horizontal">
 						<div class="control-group" id="issues_section_outer_div" style="display:none">
 							<div class="control-group">
@@ -180,8 +212,8 @@ for(var demoteStage in hasDemotePermissions){
 						</div>
 					</div>
 				</div>
-				
+
 			</div>
 		</div>
-	</div>	
+	</div>
 	<% }); %>

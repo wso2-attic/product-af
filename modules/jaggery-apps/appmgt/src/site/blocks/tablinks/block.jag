@@ -1,4 +1,23 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 jagg.block("tablinks", {
@@ -7,7 +26,7 @@ jagg.block("tablinks", {
     getInputs:function () {
     },
     getOutputs:function (inputs) {
-        var userName = session.get("LOGGED_IN_USER");
+        var userName = jagg.getUser();
     	var dashboardUrl = "";
 	    var cloudMgtUrl = "";
     	var dashboardPath = "";
@@ -19,35 +38,23 @@ jagg.block("tablinks", {
     	var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
     	var tenantDomain = null;
 
+        //Tablink permissions
+        var isOverviewAllowed = true;
+        var isTeamAllowed = true;
+        var isReposAndBuildsAllowed = false;
+        var isResourcesAllowed = false;
+        var isIssuesAllowed = true;
+        var isLifecylceAllowed = false;
+        var isLogsAllowed = false;
+
     	var permissionModule = jagg.module("permission");
+        var manager = jagg.module("manager");
     	var tenantID = null;
-    	var rolesArray = null;
     	var hasTenantLevelUserMgtPermission = null;
     	var isOTtenant = false;
     	var hasCXOPermission = null;
-    	var hasCXOPermissionOnApps = false;
-    	var userAdministrationAllowed = null;
-    	var apiManagerConfigurationAllowed = null;
-    	var buildAllowed = false;
-    	var deployAllowed = false;
-    	var promoteAllowed = false;
-    	var demoteAllowed = false;
-    	var dbAdministrationAllowed = false;
     	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-    	var hasDeployToStagePermission = {
-    	};
-    	var hasPromotePermissions = {
-    	};
-    	var hasDemotePermissions = {
-    	};
-    	var hasConfigureDbAdministrationPermissions = {
-    	};
-    	var configureResourcesAllowed = false;
-    	var retireAllowed = false;
-    	var governanceAllowed = false;
-    	var repositoryOperationsAllowed = false;
 
-    	var projUtils = false;
     	var applicationType = false;
     	var isUploadableAppType = false;
 
@@ -60,7 +67,6 @@ jagg.block("tablinks", {
     		if(!inputs.applicationKey){
     			tenantDomain = mod.getTenantDomain();
     			tenantID = realmService.getTenantManager().getTenantId(tenantDomain);
-    			rolesArray = realmService.getTenantUserRealm(tenantID).getUserStoreManager().getRoleListOfUser(mod.getDomainlessUserName(userName));
     			hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
     			if(session.get("TENANT_INFO")){
     			    isOTtenant = session.get("TENANT_INFO").isOTTenant;
@@ -74,50 +80,25 @@ jagg.block("tablinks", {
 
     			var applicationKey = inputs.applicationKey;
     			var applicationName = inputs.applicationName;
-    			userAdministrationAllowed = true; // jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_USER_INVITE);
-    			apiManagerConfigurationAllowed = true; // jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
-    			buildAllowed = true; //jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_BUILD);
 
-    			for (var i = 0; i < deploymentStages.length; i++) {
-
-    				var hasPermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_DEPLOY_TO + deploymentStages[i]);
-    				hasDeployToStagePermission[deploymentStages[i]] = hasPermission;
-    				if (hasPermission) {
-    					deployAllowed = true;
-    				}
-
-    				var hasPromotePermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_GOVERNANCE_PROMOTE_TO + deploymentStages[i]);
-    				hasPromotePermissions[deploymentStages[i]] = hasPromotePermission;
-    				if (hasPromotePermission) {
-    					promoteAllowed = true;
-    				}
-
-    				var hasDemotePermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + deploymentStages[i]);
-    				hasDemotePermissions[deploymentStages[i]] = hasDemotePermission;
-    				if (hasDemotePermission) {
-    					demoteAllowed = true;
-    				}
-    				var hasResourcePermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + deploymentStages[i]);
-    				hasConfigureDbAdministrationPermissions[deploymentStages[i]] = hasResourcePermission;
-    				if (hasResourcePermission) {
-    					dbAdministrationAllowed = true;
-    				}
-    			}
-
-    			configureResourcesAllowed = (dbAdministrationAllowed || apiManagerConfigurationAllowed);
-    			retireAllowed = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_GOVERNANCE_RETIRE);
-    			governanceAllowed = (promoteAllowed || demoteAllowed || retireAllowed);
-    			repositoryOperationsAllowed = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_REPOSITORY_BRANCH);
-                hasCXOPermissionOnApps = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
                 hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
 
-    			projUtils = Packages.org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
-    			applicationType = projUtils.getApplicationType(applicationKey, mod.getTenantDomain());
-    			isUploadableAppType = getProperty("ApplicationType."+applicationType+".Property.isUploadableAppType");
-			
-    			if(isUploadableAppType === 'true'){
-    				configureResourcesAllowed = false;
-    			}
+                // Set tablinks
+                isOverviewAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
+                isTeamAllowed  = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
+                isReposAndBuildsAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission);
+                isResourcesAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
+                isIssuesAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_ISSUES) || hasTenantLevelUserMgtPermission);
+
+                var isLifecylceAllowedDemoteTo = jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO);
+                var isLifecylceAllowedPromoteTo = jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO);
+                isLifecylceAllowed = (isLifecylceAllowedDemoteTo || isLifecylceAllowedPromoteTo || hasTenantLevelUserMgtPermission);
+
+                isLogsAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
+
+                applicationType = manager.getApplicationType(applicationKey);
+    			isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+
     		}
     	}
         return {
@@ -127,27 +108,17 @@ jagg.block("tablinks", {
             "hasTenantLevelUserMgtPermission":hasTenantLevelUserMgtPermission,
             "dashboardUrl":dashboardUrl,
             "dashboardPath":dashboardPath,
-            "rolesArray":rolesArray,
-            "userAdministrationAllowed":userAdministrationAllowed,
-            "apiManagerConfigurationAllowed":apiManagerConfigurationAllowed,
-            "buildAllowed":buildAllowed,
-            "deployAllowed":deployAllowed,
-            "promoteAllowed":promoteAllowed,
-            "demoteAllowed":demoteAllowed,
-            "dbAdministrationAllowed":dbAdministrationAllowed,
             "deploymentStages":deploymentStages,
-            "hasDeployToStagePermission":hasDeployToStagePermission,
-            "hasPromotePermissions":hasPromotePermissions,
-            "hasDemotePermissions":hasDemotePermissions,
-            "hasConfigureDbAdministrationPermissions":hasConfigureDbAdministrationPermissions,
-            "configureResourcesAllowed":configureResourcesAllowed,
-            "retireAllowed":retireAllowed,
-            "governanceAllowed":governanceAllowed,
-            "repositoryOperationsAllowed":repositoryOperationsAllowed,
-            "hasCXOPermissionOnApps":hasCXOPermissionOnApps,
             "applicationType":applicationType,
             "isUploadableAppType":isUploadableAppType,
-            "isOtherServicesTabAvailable":isOtherServicesTabAvailable
+            "isOtherServicesTabAvailable":isOtherServicesTabAvailable,
+            "isOverviewAllowed":isOverviewAllowed,
+            "isTeamAllowed":isTeamAllowed,
+            "isReposAndBuildsAllowed":isReposAndBuildsAllowed,
+            "isResourcesAllowed":isResourcesAllowed,
+            "isIssuesAllowed":isIssuesAllowed,
+            "isLifecylceAllowed":isLifecylceAllowed,
+            "isLogsAllowed":isLogsAllowed
         };
     }
 });

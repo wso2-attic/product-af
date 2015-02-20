@@ -1,45 +1,78 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 jagg.module("rss-filter", {
-addDatabase:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabase.apply(this,
-arguments);
-},
-deleteDatabase:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabase.apply(this,
-arguments);
-},
-addDatabaseUser:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabaseUser.apply(this, arguments);
-},
-deleteDatabaseUser:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabaseUser.apply(this, arguments);
-},
-addDatabaseTemplate:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabaseTemplate.apply(this, arguments);
-},
-deleteDatabaseTemplate:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabaseTemplate.apply(this, arguments);
-},
-getAllDatabases:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabases.apply(this, arguments);
-},
-getAllDatabaseUsers:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabaseUsers.apply(this, arguments);
-},
-getAllDatabaseTemplates:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabaseTemplates.apply(this, arguments);
-},
-getTenantAwareUserName:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getTenantAwareUserName.apply(this, arguments);
-},
-getTenantAwareDBName:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getTenantAwareDBName.apply(this, arguments);
-},
-getEnvironmentAwareTemplateName:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getEnvironmentAwareTemplateName.apply(this, arguments);
-},
-isDatabaseUserExists:function () {
-return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isDatabaseUserExists.apply(this, arguments);
-}
+    addDatabase: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabase.apply(this,
+                arguments);
+    },
+    deleteDatabase: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabase.apply(this,
+                arguments);
+    },
+    addDatabaseUser: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabaseUser.apply(this, arguments);
+    },
+    deleteDatabaseUser: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabaseUser.apply(this, arguments);
+    },
+    addDatabaseTemplate: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatabaseTemplate.apply(this, arguments);
+    },
+    deleteDatabaseTemplate: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatabaseTemplate.apply(this, arguments);
+    },
+    getAllDatabases: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabases.apply(this, arguments);
+    },
+    getAllDatabaseUsers: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabaseUsers.apply(this, arguments);
+    },
+    getAllDatabaseTemplates: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabaseTemplates.apply(this, arguments);
+    },
+    getTenantAwareDBName: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getTenantAwareDBName.apply(this, arguments);
+    },
+    getEnvironmentAwareTemplateName: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getEnvironmentAwareTemplateName.apply(this, arguments);
+    },
+    isDatabaseUserExists: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isDatabaseUserExists.apply(this, arguments);
+    },
+    isDatabaseExist: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isDatabaseExist.apply(this, arguments);
+    },
+    isDataSourceExist: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isDataSourceExist.apply(this, arguments);
+    },
+    getAllDatabasesInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabasesInfo.apply(this, arguments);
+    },
+    getAllDatasourcesInfo: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatasourcesInfo.apply(this, arguments);
+    },
+    addDatasource: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").addDatasource.apply(this, arguments);
+    },
+    deleteDatasource: function () {
+        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").deleteDatasource.apply(this, arguments);
+    }
 });
 %>

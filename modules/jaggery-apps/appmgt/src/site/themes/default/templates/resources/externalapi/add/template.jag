@@ -1,4 +1,23 @@
-<% jagg.template("resources/externalapi/add", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/externalapi/add", function(inputs, outputs, jagg) { %>
 <%
 include("/jagg/constants.jag");
 var applicationKey = request.getParameter("applicationKey");
@@ -9,6 +28,7 @@ env=request.getParameter("environment");
 AllowedAllStages=outputs.hasAccessForAllstages;
 var hasUpdateResourcePermissions = outputs.hasUpdateResourcePermissions;
 var hasDeleteResourcePermissions = outputs.hasDeleteResourcePermissions;
+var isDeleteButtonVisible = outputs.isDeleteButtonVisible;
 
 var pagePath = request.getParameter("pagePath");
 var redirectURL = "configureenvironment.jag?applicationName="+ applicationName +"&applicationKey="+ applicationKey;
@@ -33,6 +53,7 @@ if(!hasUpdateResourcePermissions && isEdit == "true"){
 	disabledText = "disabled=disabled"
 }
 
+var helpTips = outputs.helpTips;
 %>
 
 <script type="text/javascript">
@@ -137,8 +158,31 @@ function updateAuthUI(selectedStage){
 	}
 }
 
+function validateMandatoryInputs(){
+    jagg.removeMessage();
+	var apiName = $("#api_name").attr('value').trim();
+	validate = true;
+	var errorMsg = "";
+
+	if(apiName == '' || apiName.length == 0){
+		validate = false;
+		errorMsg += 'Invalid API name - Enter API name which is not empty';
+	}
+
+    var apiNamePattern = /^[a-zA-Z0-9_]{1,100}$/;
+    if (apiName.length > 0 && !apiNamePattern.test(apiName)) {
+        validate = false;
+        errorMsg += 'Invalid API name - Use maximum 100 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).';
+    }
+
+    if(!validate){
+    	jagg.message({type:'error', id:'validation', content: errorMsg});
+    }
+    return validate;
+}
+
 $(document).ready(function() {
-	 getHelpTips();
+	 setHelpTips(<%= helpTips %>);
 	 if('<%=isEdit%>' == 'null'){
 		 drawStagesForCreatePermittedEnvironments();
 			createAuthUI($("#api_auth option:selected").val(), false);
@@ -159,7 +203,7 @@ $(document).ready(function() {
 		beforeSubmit: function() { //before sending form
 			if('<%=isEdit%>' != null && '<%=isEdit%>' == "true"){
 				updateResource();
-			}else{
+			}else if(validateMandatoryInputs()){
 				validatePropertyNameAndCreate();
 			}
 
@@ -170,13 +214,6 @@ $(document).ready(function() {
 	 $('#deleteResBtn').click(function(){
          jagg.popMessage({type:'confirm',title:'Delete Value',content:'Are you sure you want to delete value <%=resourceName%>?',okCallback:function(){deleteResource()}});
  });
-    $('#copyToAll').change(function() {
-        if($(this).is(":checked")) {
-            $('#api_stage').parent().slideUp('fast');
-        }else{
-           $('#api_stage').parent().slideDown('fast');
-        }
-    });
 
 });
 
@@ -187,7 +224,7 @@ function updateResource() {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "updateExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    apiName: $("#api_name").attr('value'),
+	    apiName: $("#api_name").attr('value').trim(),
 	    authType:$("#api_auth").attr('value'),
 	    givenValues: inputString
     },
@@ -208,7 +245,7 @@ function createResource(copyToAll) {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "createExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    apiName: $("#api_name").attr('value'),
+	    apiName: $("#api_name").attr('value').trim(),
 	    authType:$("#api_auth").attr('value'),
 	    givenValues: inputString,
 	    copyToAll:copyToAll
@@ -242,7 +279,8 @@ function deleteResource() {
 function getInputsAsString() {
 	var authStr = '';
 	var authvalue = $('#api_auth').val();
-	var url = $('#api_url').val().trim();
+	var url_temp = $('#api_url').val().trim();
+    var url = encodeURIComponent(url_temp);
 	if (authvalue == 'token') {
 		authStr = 'auth:token:' + $('#api_token').val().trim();
 	} else if (authvalue == 'oauth') {
@@ -263,19 +301,8 @@ function getInputsAsString() {
 
 }
 
-function getHelpTips(){
-    jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getHelpTips",
-            page: "add-extapis"
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
+function setHelpTips(helpTips){
                  $("#authenticationHelp").html(helpTips.authenticationHelp);
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
 }
 
 function validatePropertyNameAndCreate() {
@@ -284,16 +311,16 @@ function validatePropertyNameAndCreate() {
     jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
             action: "propertyExistInStages",
             applicationKey: '<%=applicationKey%>',
-            propertyName: $("#api_name").attr('value'),
+            propertyName: $("#api_name").attr('value').trim(),
 	    givenValues: inputString,
-	    copyToAll:$('#copyToAll').is(':checked')
+	    copyToAll:false
     },
     function (result) {
 	if(result){
 	$('#create_button').removeAttr('disabled');
 	jagg.message({type:'error', id:'validation', content: "A resource with the same name exists. Please use a different name"});
 	}else{
-	createResource($('#copyToAll').is(':checked'));
+	createResource(false);
 	}
     },"json");
 }
@@ -307,7 +334,7 @@ function validatePropertyNameAndCreate() {
 	 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
          <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
         	<div class="content">
-                <h1>Resources</h1>
+                <h1>Runtime Configs</h1>
              </div>
         </header>
         <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
@@ -317,14 +344,14 @@ function validatePropertyNameAndCreate() {
                 <div class="content clear">
                     <ol class="breadcrumb left">
                         <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">APIs</a></li>
-                       <% if(isEdit==="true" && hasDeleteResourcePermissions){	%>
+                       <% if(isEdit==="true" && isDeleteButtonVisible){	%>
                         <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
 
                           </ol>
                     <div class="right btn_group" id="delete_button_div">
                         <ul class="inline_box inline_list btn_group_list">
 
-                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Value</a>
+                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete External API</a>
                             </li>
                         </ul>
                         <div class="clearfix"></div>
@@ -361,12 +388,7 @@ function validatePropertyNameAndCreate() {
 		                        <label><strong>Environment</strong> <em>*</em></label>
 		                        <select class="select_list half big" id="api_stage" name="api_stage" onchange="updateUIForStage()"></select> 
                             </div>
-                            <%if((!isEdit)&&(AllowedAllStages)){%>
-                                <div class="input_row">
-								<legend id="copyall"><input type="checkbox" id="copyToAll"> Create API in all environments</legend>
-								</div>
-                               <%}%>
-                                      
+
                             <div class="input_row">
                                 <label><strong>Authentication</strong> <em>*</em></label>
                                 <select class="select_list half big" id="api_auth" >

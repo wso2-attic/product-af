@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -10,7 +28,10 @@ include("/jagg/config_reader.jag");
     
     var log = new Log();
     var modPermission = jagg.module("permission");
-
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     if (action == "setBuildDelpymentConfigs") {
     	mod = jagg.module("lifecycle");
         var response = {};
@@ -19,19 +40,19 @@ include("/jagg/config_reader.jag");
 	    var version = request.getParameter("version");
 	    var isAutoBuildEnable = request.getParameter("autoBuild");
 	    var isAutoDeployEnable = request.getParameter("autoDep");
+        var modManager = jagg.module("manager");
         if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_BUILD)){
             try {
                 var autoDep= mod.updateAutoDeployment(applicationKey, stageName, version, isAutoDeployEnable);
                 
-		var autoBuild = "false";
-                var projUtils = Packages.org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
-		var applicationType = projUtils.getApplicationType(applicationKey, jagg.module("manager").getTenantDomain());
-                var isBuildableAppType = getProperty("ApplicationType."+applicationType+".Property.Buildable");
-		if(isBuildableAppType === 'true'){
-		   autoBuild = mod.updateAutoBuild(applicationKey, stageName, version, isAutoBuildEnable);
-		}else{
-		  autoBuild = "true";
-		}
+    	        var autoBuild = "false";
+                var applicationType = modManager.getApplicationType(applicationKey);
+                var isBuildableAppType = modManager.getApplicationTypeBean(applicationType).isBuildable();
+                if(isBuildableAppType === 'true' || isBuildableAppType === true){
+                    autoBuild = mod.updateAutoBuild(applicationKey, stageName, version, isAutoBuildEnable);
+                }else{
+                    autoBuild = "true";
+                }
                 var Result={};
                 Result.autoDeploy=autoDep;
                 Result.autoBuild=autoBuild;
@@ -58,11 +79,8 @@ include("/jagg/config_reader.jag");
         var authorizedUsersToOwnForkedRepos = [];
 
         for(var i =0 ; i< tenantAwareUserNameArray.length ; i++){
-           var isUserAuthorized = modPermission.checkAuthorizationForUser(tenantAwareUserNameArray[i].split("@")[0],PERMISSION_DEVELOP);
-           if(isUserAuthorized){
-        	  //Adding autherized user from the user list to new array.
+       		//Adding autherized user from the user list to new array.
               authorizedUsersToOwnForkedRepos.push(tenantAwareUserNameArray[i]);
-           }
         }
         var response = {};
         //Check the permission for current logged in user whether he is already autherized to do this fork request or not
@@ -90,11 +108,9 @@ include("/jagg/config_reader.jag");
         var authorizedUsersToOwnForkedRepos = [];
 
         for(var i =0 ; i< tenantAwareUserNameArray.length ; i++){
-           var isUserAuthorized = modPermission.checkAuthorizationForUser(tenantAwareUserNameArray[i].split("@")[0],PERMISSION_DEVELOP);
-           if(isUserAuthorized){
-        	   //Adding autherized user from the user list to new array.
+         
+        	//Adding autherized user from the user list to new array.
               authorizedUsersToOwnForkedRepos.push(tenantAwareUserNameArray[i]);
-           }
         }
         var response = {};
         //Check the permission for current logged in user whether he is already autherized to do this fork request or not
