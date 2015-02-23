@@ -43,8 +43,10 @@ class gitblit (
   }
 
   file {
-    "${base_dir}/tmp":
-      ensure => directory,
+    "${gitblit_home}/tmp":
+      ensure  => directory,
+      owner   => $user,
+      group   => $group,
       require => Exec["create_dirs_for_${name}"];
 
     $gitblit_home:
