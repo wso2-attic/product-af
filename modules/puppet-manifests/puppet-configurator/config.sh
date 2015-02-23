@@ -30,7 +30,7 @@ MAGENTA="\033[33;35m"
 # appfactory jars
 declare -A APPFAC_EXTS=(["org.wso2.carbon.appfactory.build.stub"]=1 ["org.wso2.carbon.appfactory.multitenant.jenkins"]=1 ["org.wso2.carbon.appfactory.application.deployer.stub"]=1 ["org.wso2.carbon.appfactory.bps.ext"]=1 ["org.wso2.carbon.appfactory.jenkinsext"]=1 ["org.wso2.carbon.appfactory.ext"]=1 ["org.wso2.carbon.appfactory.stratos.listners"]=1)
 declare -a BPS=("org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.bps.ext");
-declare -a JPPSERVER=("org.wso2.carbon.appfactory.core" "org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.multitenant.jenkins" "org.wso2.carbon.appfactory.repository.mgt.service" );
+declare -a JPPSERVER=("org.wso2.carbon.appfactory.core" "org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.multitenant.jenkins" "org.wso2.carbon.appfactory.repository.mgt.service" "org.wso2.carbon.appfactory.s4.integration");
 declare -a APPSERVER=("org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.ext" "org.wso2.carbon.appfactory.application.mgt.stub");
 declare -a STRATOS_MANAGER=("org.wso2.carbon.appfactory.stratos.listners" "org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.s4.integration");
 declare -a STORAGE=("org.wso2.carbon.appfactory.common");
