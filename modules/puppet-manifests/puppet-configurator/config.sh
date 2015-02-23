@@ -18,7 +18,9 @@
 #!/bin/bash
 PUPPET_MASTER_IP=192.168.18.237
 PACKS_DIR=/var/www/software
-PUPPET_MODULES_HOME=/home/ubuntu/product-af/modules/puppet-manifests/appfactory/modules
+SOURCE_PATH=/home/ubuntu/product-af
+PUPPET_MODULES_HOME=${SOURCE_PATH}/modules/puppet-manifests/appfactory/modules
+PUPPET_CONFIG_PATH=${SOURCE_PATH}/modules/puppet-manifests/appfactory
 OLD_VERSION="2.1.0"
 NEW_VERSION="2.1.0-SNAPSHOT"
 RESET_CLR='\033[00;00m'
