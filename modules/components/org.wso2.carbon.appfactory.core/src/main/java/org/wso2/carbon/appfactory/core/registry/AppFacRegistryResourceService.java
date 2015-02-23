@@ -209,6 +209,7 @@ public class AppFacRegistryResourceService {
                             // delete parent path
                             String parentPath =
                                 StringUtils.substring(resourcePath, 0, StringUtils.lastIndexOf(resourcePath, "/"));
+                            cacheKey = RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, parentPath);
                             if (cache.containsKey(cacheKey)) {
                                 cache.remove(cacheKey);
                                 if (log.isDebugEnabled()) {
