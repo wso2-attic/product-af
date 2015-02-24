@@ -25,7 +25,6 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.ArtifactStorage;
 import org.wso2.carbon.appfactory.utilities.dataservice.DSApplicationListener;
 import org.wso2.carbon.appfactory.utilities.storage.FileArtifactStorage;
-import org.wso2.carbon.appfactory.utilities.sts.AppFactorySTSDeploymentListner;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -77,9 +76,6 @@ public class UtilitiesServiceComponent {
             int listenerPriority = Integer.valueOf(appFactoryConfiguration.getFirstProperty("EventHandlers.DSApplicationHandler.priority"));
             bundleContext.registerService(ApplicationEventsHandler.class.getName(),
                                           new DSApplicationListener("DSApplicationListener", listenerPriority), null);
-            bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(),
-                    new AppFactorySTSDeploymentListner(),
-                    null);
 
 
         } catch (Throwable e) {
