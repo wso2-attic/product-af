@@ -41,6 +41,8 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 
 import javax.cache.Cache;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an OSGi service that enables CRUD operations to work with mounted Startos manager registries to App Factory
@@ -57,7 +59,7 @@ public class AppFacRegistryResourceService {
      * @throws AppFactoryException
      */
     public Dependency[] getAllResources(String resourcePath) throws AppFactoryException {
-        Dependency[] dependencies = new Dependency[0];
+        List<Dependency> dependencyList = new ArrayList<Dependency>();
 
         try {
             UserRegistry registry = getRegistry();
@@ -73,22 +75,22 @@ public class AppFacRegistryResourceService {
                         if (log.isDebugEnabled()) {
                             log.debug("No resources were found as dependencies in resource path : " + resourcePath);
                         }
-                        return dependencies;
+                        return dependencyList.toArray(new Dependency[dependencyList.size()]);
                     }
-
-                    dependencies = new Dependency[children.length];
 
                     for (int i = 0; i < children.length; i++) {
                         String childPath = children[i];
-                        Resource child = registry.get(childPath);
+                        if (registry.resourceExists(childPath)) {
+                            Resource child = registry.get(childPath);
 
-                        Dependency element = new Dependency();
-                        element.setName(RegistryUtils.getResourceName(child.getPath()));
-                        element.setDescription(child.getDescription());
-                        element.setValue(getResourceContent(child));
-                        element.setMediaType(child.getMediaType());
+                            Dependency element = new Dependency();
+                            element.setName(RegistryUtils.getResourceName(child.getPath()));
+                            element.setDescription(child.getDescription());
+                            element.setValue(getResourceContent(child));
+                            element.setMediaType(child.getMediaType());
 
-                        dependencies[i] = element;
+                            dependencyList.add(element);
+                        }
                     }
                 } else {
                     if (log.isDebugEnabled()) {
@@ -102,7 +104,8 @@ public class AppFacRegistryResourceService {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
-        return dependencies;
+
+        return dependencyList.toArray(new Dependency[dependencyList.size()]);
     }
 
     /**
