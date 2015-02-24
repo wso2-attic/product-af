@@ -77,8 +77,7 @@ public class ContinousIntegrationEventBuilderUtil {
             eventDispatchTypes =
                     new Event.EventDispatchType[]{
                             Event.EventDispatchType.SOCIAL_ACTIVITY,
-                            Event.EventDispatchType.GUARANTEED_DELIVERY,
-                            Event.EventDispatchType.EMAIL};
+                            Event.EventDispatchType.GUARANTEED_DELIVERY};
         }
         event.setEventDispatchTypes(eventDispatchTypes);
         String sender = Util.getSender(buildTriggeredBy);
