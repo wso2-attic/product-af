@@ -176,18 +176,18 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
 		repositoryBean.setCommitEnabled(true);
 		repositoryBean.setRepositoryType(REPOSITORY_TYPE);
 		repositoryBean.setRepositoryAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
-				(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME));
+				(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
 		repositoryBean.setRepositoryAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
-				(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD));
+				(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD));
 		String repoUrl;
 		try {
 			String repoProviderClassName = AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME);
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
 			ClassLoader loader = getClass().getClassLoader();
 			Class<?> repoProviderClass = Class.forName(repoProviderClassName, true, loader);
 			RepositoryProvider repoProvider = (RepositoryProvider) repoProviderClass.newInstance();
 			repoProvider.setBaseUrl(AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL));
+					getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL));
 			repoProvider.setAdminUsername(repositoryBean.getRepositoryAdminUsername());
 			repoProvider.setAdminPassword(repositoryBean.getRepositoryAdminPassword());
 			repoProvider.setRepoName(generateRepoUrlFromTemplate(

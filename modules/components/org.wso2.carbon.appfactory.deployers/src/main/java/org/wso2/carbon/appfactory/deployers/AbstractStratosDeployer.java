@@ -355,7 +355,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
     protected abstract String getAdminUserName()
             throws AppFactoryException;
 
-    protected abstract String getAdminPassword()
-            throws AppFactoryException;
+	protected abstract String getAdminPassword()
+			throws AppFactoryException;
 
 }

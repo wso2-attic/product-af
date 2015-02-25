@@ -23,17 +23,29 @@ package org.wso2.carbon.appfactory.common.beans;
  */
 public class RuntimeBean {
 
+	//property which holds the runtime name
 	private String runtimeName;
+	//Fully qualified class name of application deployer.
 	private String deployerClassName;
+	//Defining the artifact storage URL where the application artifacts is stored
 	private String paasRepositoryURLPattern;
+	//Prefix of the cartridge type
 	private String aliasPrefix;
+	//Prefix of the cartridge type
 	private String cartridgeTypePrefix;
+	//Deployment policy is used for subscription
 	private String deploymentPolicy;
+	//Autoscale policy is used for subscription
 	private String autoscalePolicy;
+	//repository URL
 	private String repoURL;
+	//data cartridge type is type of cartridge
 	private String dataCartridgeType;
+	//prefix of data cartridge type
 	private String dataCartridgeAlias;
+	//This is used to define whether subscription is required at the time of deployment
 	private boolean subscribeOnDeployment;
+	//Fully qualified class name of application undeployer
 	private String undeployerClassName;
 
 	public String getRuntimeName() {
