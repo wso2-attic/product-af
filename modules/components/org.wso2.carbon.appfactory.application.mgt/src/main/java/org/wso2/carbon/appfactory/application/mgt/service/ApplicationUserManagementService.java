@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.appfactory.application.mgt.service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
@@ -43,6 +40,9 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ApplicationUserManagementService {
     private static final Log log = LogFactory.getLog(ApplicationUserManagementService.class);
@@ -319,4 +319,21 @@ public class ApplicationUserManagementService {
         }
 
     }
+
+    /**
+     * Returns all the applications created by a particular user.
+     *
+     * @param userName user name of the user with domain eg: user@tenant.com
+     * @return <Application> array
+     * @throws ApplicationManagementException
+     */
+    public Application[] getApplicationsCreatedByUser(String userName) throws ApplicationManagementException {
+        try {
+            return ApplicationManager.getInstance().getAllApplicationsCreatedByUser(userName);
+        } catch (AppFactoryException e) {
+            throw new ApplicationManagementException("Failed to retrieve applications created by the user" +
+                                                     userName, e);
+        }
+    }
+
 }
