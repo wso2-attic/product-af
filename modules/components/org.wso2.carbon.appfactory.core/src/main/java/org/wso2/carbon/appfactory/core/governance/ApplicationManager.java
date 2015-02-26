@@ -37,6 +37,7 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
  * This class is repsonsbile of handling applications. 
@@ -127,7 +128,26 @@ public class ApplicationManager {
             throw new AppFactoryException(message, e);
         }
     }
-    
+
+	/**
+	 * Returns all the applications for a given user(appowner).
+	 *
+	 * @param userName user name of the user eg: user@tenant.com
+	 * @return <Application> array
+	 * @throws AppFactoryException
+	 */
+	public Application[] getAllApplicationsCreatedByUser(String userName) throws AppFactoryException {
+		ArrayList<Application> applicationsCreatedByUser = new ArrayList<Application>();
+		String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+		Application[] applicationsOfUser = getAllApplicaitonsOfUser(tenantAwareUsername);
+		for (Application application : applicationsOfUser) {
+			if (application.getOwner().equals(userName)) {
+				applicationsCreatedByUser.add(application);
+			}
+		}
+		return applicationsCreatedByUser.toArray(new Application[applicationsCreatedByUser.size()]);
+	}
+
     public Application getApplicationInfo(String applicationId) throws AppFactoryException {
     	UserRegistry userRegistry =
                 (UserRegistry) CarbonContext.getThreadLocalCarbonContext()
