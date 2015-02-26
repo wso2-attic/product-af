@@ -90,42 +90,38 @@ public class RuntimeManager {
 	private void initAppRuntimeConfig(Map<String, String> config) throws AppFactoryException {
 
 		String runtimeName = config.get(AppFactoryConstants.RUNTIME);
-		Properties properties = new Properties();
-
-		for (Map.Entry<String, String> entry : config.entrySet()) {
-			properties.setProperty(entry.getKey(),entry.getValue());
-		}
-
 		RuntimeBean applicationRuntimeBean;
 		try {
 
 			applicationRuntimeBean = new RuntimeBean();
 			applicationRuntimeBean.setRuntimeName(runtimeName);
+
 			applicationRuntimeBean.setDeployerClassName(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME));
+					config.remove(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME));
 			applicationRuntimeBean.setUndeployerClassName(
-					properties.getProperty(AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME));
+					config.remove(AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME));
 			applicationRuntimeBean.setPaasRepositoryURLPattern(
-					properties.getProperty(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
+					config.remove(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
 			applicationRuntimeBean.setAliasPrefix(
-					properties.getProperty(AppFactoryConstants.RUNTIME_ALIAS_PREFIX));
+					config.remove(AppFactoryConstants.RUNTIME_ALIAS_PREFIX));
 			applicationRuntimeBean.setCartridgeTypePrefix(
-					properties.getProperty(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX));
+					config.remove(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX));
 			applicationRuntimeBean.setDeploymentPolicy(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY));
+					config.remove(AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY));
 			applicationRuntimeBean.setAutoscalePolicy(
-					properties.getProperty(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY));
+					config.remove(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY));
 			applicationRuntimeBean.setDataCartridgeType(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE));
+					config.remove(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE));
 			applicationRuntimeBean.setDataCartridgeAlias(
-					properties.getProperty(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS));
-			if (properties.getProperty(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT) != null) {
+					config.remove(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS));
+			if (config.remove(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT) != null) {
 				applicationRuntimeBean.setSubscribeOnDeployment(
-						Boolean.parseBoolean(properties.getProperty(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT)));
+						Boolean.parseBoolean(config.remove(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT)));
 			} else {
 				applicationRuntimeBean.setSubscribeOnDeployment(false);
 			}
 
+			applicationRuntimeBean.setProperties(config);
 			runtimeManager.getRuntimeBeanMap().put(runtimeName, applicationRuntimeBean);
 		} catch (NullPointerException e) {
 			String msg = "Exception occurred while reading the xml";
@@ -143,8 +139,7 @@ public class RuntimeManager {
 		return runtimeBeanMap;
 	}
 
-	public void setRuntimeBeanMap(
-			Map<String, RuntimeBean> runtimeBeanMap) {
+	public void setRuntimeBeanMap(Map<String, RuntimeBean> runtimeBeanMap) {
 		this.runtimeBeanMap = runtimeBeanMap;
 	}
 }

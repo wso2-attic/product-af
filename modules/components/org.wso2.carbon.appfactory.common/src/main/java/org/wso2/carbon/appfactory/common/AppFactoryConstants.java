@@ -449,6 +449,7 @@ public class AppFactoryConstants {
 	public static final String CF_NAME_PREFIX = "connectionfactory.";
 	public static final String CF_NAME = "qpidConnectionfactory";
 	public static final String TOPIC = "topic";
+	public static final String SUPPORT_DATASOURCE = "SupportDataSource";
 
 	/**
 	 * Enum to represent of different application stages.

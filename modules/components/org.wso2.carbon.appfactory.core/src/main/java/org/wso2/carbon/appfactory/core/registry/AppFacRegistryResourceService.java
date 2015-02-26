@@ -21,9 +21,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
@@ -224,6 +229,29 @@ public class AppFacRegistryResourceService {
                 }
             }
         }
+    }
+
+
+    /**
+     * Method to check whether this is a application showing data sources
+     * @param applicationId
+     * @return
+     */
+    public boolean checkDataSourceSupport(String applicationId) throws AppFactoryException {
+        String type = ApplicationManager.getInstance().getApplicationType(applicationId);
+        ApplicationTypeBean appType = ApplicationTypeManager.getInstance().getApplicationTypeBean(type);
+        String[] runTimes = appType.getRuntimes();
+        boolean runtimeDS = Boolean.parseBoolean(RuntimeManager.getInstance().getRuntimeBean(runTimes[0]).
+                getProperty(AppFactoryConstants.SUPPORT_DATASOURCE));
+        boolean appTypeDS = false;
+        if (appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE) != null &&
+                appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE).toString() == "true"){
+            appTypeDS = true;
+        }
+        if (runtimeDS && appTypeDS) {
+            return true;
+        }
+        return false;
     }
 }
 

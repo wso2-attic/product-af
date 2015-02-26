@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.appfactory.common.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Bean class to store application runtime data
  */
@@ -47,6 +50,7 @@ public class RuntimeBean {
 	private boolean subscribeOnDeployment;
 	//Fully qualified class name of application undeployer
 	private String undeployerClassName;
+	private Map<String, String> properties = new HashMap<String, String>();
 
 	public String getRuntimeName() {
 		return runtimeName;
@@ -134,5 +138,13 @@ public class RuntimeBean {
 
 	public void setUndeployerClassName(String undeployerClassName) {
 		this.undeployerClassName = undeployerClassName;
+	}
+
+	public void setProperties(Map<String, String> props) {
+		properties = props;
+	}
+
+	public String getProperty(String name) {
+		return properties.get(name);
 	}
 }
