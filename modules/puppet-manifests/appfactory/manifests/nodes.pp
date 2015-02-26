@@ -362,8 +362,8 @@ $route53_secret_access_key    = 'xxxxxxxxxxxxxxxxxxxxxxxx'
 $route53_hosted_zone_id       = 'xxxxxxxxxxxxxxxxxxxxxxxx'
 
 # API Manager
-$am_nio_http_port     = "8280"
-$am_nio_https_port    = "8243"
+$am_nio_http_port     = "8286"
+$am_nio_https_port    = "8249"
 $apimgt_db_user       = "apimgt"
 $apimgt_db_passwd     = "root"
 $apimgt_port          = "9443" # we put this because for minimal deployment we use an standalone api manager
