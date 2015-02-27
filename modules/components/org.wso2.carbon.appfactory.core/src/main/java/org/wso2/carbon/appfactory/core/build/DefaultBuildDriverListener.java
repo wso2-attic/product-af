@@ -40,8 +40,8 @@ public class DefaultBuildDriverListener implements BuildDriverListener {
 
     @Override
     public void onBuildStart(String applicationId, String version, String revision,String userName, String repoFrom, String tenantDomain) {
-    	
-        log.info(applicationId + "-" + version + " build is starting...");
+
+        log.info(applicationId + "-" + version + "from " + repoFrom + " of user " + userName + "  : the build is progressing...");
 
         // updateCurrentBuildStatus(applicationId, version, START, tenantDomain);
         // Publish stats to BAM on start build
@@ -52,7 +52,7 @@ public class DefaultBuildDriverListener implements BuildDriverListener {
     @Override
     public void onBuildSuccessful(String applicationId, String version, String revision, String userName, String repoFrom, String buildId,
                                   String tenantDomain) {
-        log.info(applicationId + "-" + version + " build successfully");
+        log.info(applicationId + "-" + version + "from " + repoFrom + " of user " + userName + " build successfully");
         updateLastBuildStatus(applicationId, version, buildId, SUCCESS, userName,
                 repoFrom, tenantDomain);
         // Publish stats to BAM on success
