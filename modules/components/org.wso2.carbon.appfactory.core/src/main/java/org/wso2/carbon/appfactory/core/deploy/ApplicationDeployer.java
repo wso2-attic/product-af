@@ -218,8 +218,8 @@ public class ApplicationDeployer {
 		if (AppFactoryUtil.checkAuthorizationForUser(AppFactoryConstants.PERMISSION_DEPLOY_TO + stage,
 		                                             AppFactoryConstants.DEFAULT_ACTION) || AppFactoryCoreUtil.isUplodableAppType(applicationType)) {
 		
-			log.info("Deploy artifacti is called...." + applicationId + " ," + stage + " version " + version +
-			         " tagname " + tagName + " deployArtifac " + deployAction +" in tenant:"+tenantDomain + " by user:"+userName);
+			log.info("Deploy artifact is called...." + applicationId + " ," + stage + " version " + version +
+			         " tagname " + tagName + " deployArtifact " + deployAction +" in tenant: "+tenantDomain + " by user:"+userName);
 			
 			boolean appIsBuildServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
 			
