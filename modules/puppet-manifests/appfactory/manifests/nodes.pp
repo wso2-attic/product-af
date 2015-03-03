@@ -523,6 +523,7 @@ $stratos_domain     = "paas.${wso2_env_domain}"
 $iaas                 = "os"
 $iaas_region          = "RegionOne"
 $iaas_cartridge_image = "34dd924f-ef3d-49ae-884a-4784f0330f1b"
+$iaas_instance_flavour= "7"
 
 $os_identity          = "openstackDemo:admin"
 $os_credentials       = "password"
