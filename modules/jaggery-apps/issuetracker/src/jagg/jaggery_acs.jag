@@ -48,7 +48,7 @@
                             }
                         }
                         ssoRelyingParty.setSessionAuthenticated(sessionId, samlResponse);
-                        session.put("showLogin", "false");
+			session.put("showLogin", "false");
                         var user = ssoRelyingParty.getLoggedInUser(sessionId);
 
                         user = user.split("@");

@@ -355,28 +355,6 @@ public class AppFactoryConstants {
 	public static final String FORK_REPOSITORY = "fork";
 	public static final String MASTER_REPOSITORY = "master";
 
-	// STS related constants
-	public static final String SAML_TOKEN_TYPE = "2.0";
-	public static final String SUBJECT_CONFIRMATION_METHOD = "STS.STSSubjectConfirmationMethod";
-	public static final String STS_EPR_SERVICES_LOCATION = "STS.Epr.serviceslocation";
-	public static final String STS_EPR_SERVICE_NAME = "STS.Epr.servicename";
-	public static final String STS_EPR_TENANT_TEMPLATE = "STS.Epr.tenantlocationtemplate";
-	public static final String STS_ALLOWED_GROUPS = "STS.STSAllowedUserGroups";
-	public static final String STS_SCENARIO_ID = "STS.ScenarioID";
-	public static final String STS_EPR_TENANT_TEMPLA_TENANT_DOMAIN_VALUE = "{tenantdomain}";
-	public static final String CLAIM_DIALECT = "STS.Cliams";
-	public static final String CLAIM_URIS = "STS.ClaimUris";
-	public static final String SUBJECT_CONFIRMATION_BEARER = "b";
-	public static final String SUBJECT_CONFIRMATION_HOLDER_OF_KEY = "h";
-	public static final String SAML_TOKEN_TYPE_10 = "1.0";
-	public static final String SAML_TOKEN_TYPE_11 = "1.1";
-	public static final String SAML_TOKEN_TYPE_20 = "2.0";
-	public static final String CLIAM_NAMESPACE = "STS.ClaimNamespace";
-	public static final String CLIAM_TYPE_NAME = "ClaimType";
-	public static final String CLIAM_TYPE_VALUE = "wsid";
-	public static final String CRYPTO_PROVIDER = "org.wso2.carbon.security.util.ServerCrypto";
-	public static final String STS_POLICY_FILE = "STS.PolicyFile";
-
 	// SSO constants
 	public static final String SSO_NAME = "SSORelyingParty.Name";
 	public static final String SSO_ASSERTION_CONSUMER_URL = "SSORelyingParty.AssertionConsumerService";
@@ -443,18 +421,18 @@ public class AppFactoryConstants {
 	/**
 	 * PAAS artifact repository configuration path constants
 	 */
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER = "PAASArtifactStorageRepositoryProvider";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".BaseURL";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".ProviderClass";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".AdminPassword";
-	public static final String PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME =
-			PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER + ".AdminUserName";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER = "PAASArtifactStorageRepositoryProvider";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".BaseURL";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".ProviderClass";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".AdminPassword";
+	public static final String PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME =
+			PAAS_ARTIFACT_REPO_PROVIDER + ".AdminUserName";
 
 
-	public static final String CONTINUOUS_INTEGRATION_PROVIDER_JENKINS_PROPERTY_BASE_URL =
+	public static final String JENKINS_PROPERTYBASE_URL =
 			"ContinuousIntegrationProvider.jenkins.Property.BaseURL";
 
 	/**
@@ -471,6 +449,7 @@ public class AppFactoryConstants {
 	public static final String CF_NAME_PREFIX = "connectionfactory.";
 	public static final String CF_NAME = "qpidConnectionfactory";
 	public static final String TOPIC = "topic";
+	public static final String SUPPORT_DATASOURCE = "SupportDataSource";
 
 	/**
 	 * Enum to represent of different application stages.

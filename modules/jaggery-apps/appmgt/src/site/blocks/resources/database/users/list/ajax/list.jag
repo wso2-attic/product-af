@@ -1,22 +1,47 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+var loggedInUser = jagg.getUser();
 
 var log= new Log();
-var response = {};
+var result = {};
 
 (function () {
 	var mod, obj, result,
 	action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
     var modPermission = jagg.module("permission");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
 	if (action == "getDatabaseUsers") {
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 
-        var response = {};
+        result = {};
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         for(var i=0;i<deploymentStages.length;i++){
             //if user has access to stage
@@ -30,9 +55,9 @@ var response = {};
                     throw "Error while reading the database users";
                 }
             } else {
-                response.result = 0;
-                response.message = "You don't have permission to get database users";
-                print(response);
+                result.result = 0;
+                result.message = "You don't have permission to get database users";
+                print(result);
             }
         }
 
@@ -41,15 +66,15 @@ var response = {};
 		var applicationKey = request.getParameter("applicationKey");
 		var rssInstance = request.getParameter("rssInstance");
 
-        var response = {};
+        result = {};
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + rssInstance);
         
         if( !hasPermission ){
-	        response.error = true;
-	        response.errorMessage = "No permission";
-	        print(response);
+	        result.error = true;
+	        result.errorMessage = "You don't have permission to get database users for rss instance : " + rssInstance;
+	        print(result);
 	        return;
         }
         
@@ -67,15 +92,15 @@ var response = {};
 		var databaseName = request.getParameter("databaseName");
 		var databaseServerInstanceName = request.getParameter("dbServerInstanceName");
 
-        var response = {};
+        result = {};
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + databaseServerInstanceName);
         
         if( !hasPermission ){
-	        response.error = true;
-	        response.errorMessage = "No permission";
-	        print(response);
+	        result.error = true;
+	        result.errorMessage = "You don't have permission to get available users!";
+	        print(result);
 	        return;
         }
         
@@ -92,16 +117,27 @@ var response = {};
 		var name = request.getParameter("name");
 		var rssInstanceName = request.getParameter("rssInstanceName");
 
-        var response = {};
+        result = {};
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_CREATE_FOR_STAGE + rssInstanceName);
         if( !hasPermission ){
-	        response.error = true;
-	        response.errorMessage = "No permission";
-	        print(response);
+	        result.error = true;
+	        result.errorMessage = "You don't have permission to delete user : " + name;
+	        print(result);
 	        return;
         }
+
+        var correlationKey = applicationKey + "-" + rssInstanceName + "-dbuser-" + name;
+        try{
+            var notificationTitle  = "Database user " + name + " delete started ";
+            var notificationMessage = "In environment: " + rssInstanceName;
+            var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser,  notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending delete database user start notification \n" + e.message);
+        }
+
         try {
             mod.deleteUser(applicationKey, name, rssInstanceName);
 
@@ -118,31 +154,59 @@ var response = {};
 		var username = request.getParameter("username");
 		
 		
-        var response = {};
+        result = {};
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + rssInstance);
         
         if( !hasPermission ){
-	        response.error = true;
-	        response.errorMessage = "No permission";
-	        print(response);
+	        result.error = true;
+	        result.errorMessage = "You don't have permission to create a database user!";
+	        print(result);
 	        return;
         }
-        
+
+        var correlationKey = applicationKey + "-" + rssInstance + "-dbuser-" + username;
+        try{
+            var notificationTitle  = "Database user" + username + " create started.";
+            var notificationMessage = "In environment: " + rssInstance;
+            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending create database user start notification \n" + e.message);
+        }
+
         try {
-            result = mod.createDatabaseUser(applicationKey, password, rssInstance, username);
-            if(!(result.indexOf('Error while creating database user') > -1)
-                    && !(result.indexOf('User already exists in the environment') > -1)) {
-                result = "success";
-            }
+            var dbUser = mod.createDatabaseUser(applicationKey, password, rssInstance, username);
+            log.info("Database user " + dbUser + "created successfully!");
+            result = "success";
             print(result);
         } catch(e) {
-            throw "Error while creating the database";
+            var msg = "Error while creating database user : " + username;
+            log.error(msg);
+            log.error(e);
+            response.status=400;
+            // get the cause message from exception itself to make user friendly message
+            var errorMsg = new String(e.javaException.cause);
+            response.content = getActualCause(errorMsg);
         }
-        
-    
 	}  else {
 		throw new Error("No action specified");
 	}
 }());
+
+// The expected format of the received error is "java class name : cause of the error".
+// Get the actual cause from the string by splitting the error.
+// If error is out of expected format, show the error as it is.
+function getActualCause(errorMsg) {
+    if (errorMsg){
+        var errorMsgArray = errorMsg.split(':');
+        if (errorMsgArray.length > 1) {
+            return errorMsgArray[1];
+        } else {
+            return errorMsg;
+        }
+    }
+    return errorMsg;
+};
+
 %>

@@ -1,4 +1,23 @@
-<% jagg.template("resources/datasource/edit", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/datasource/edit", function(inputs, outputs, jagg) { %>
 <%
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
@@ -8,6 +27,7 @@ var stages = getProperties('ApplicationDeployment.DeploymentStage');
 var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurrentStage;
 var hasDataSourceCreatePermission = outputs.hasCreateResourcePermissions;
 var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
+var isDeleteButtonVisible = outputs.isDeleteButtonVisible;
 %>
 
 <script type="text/javascript">
@@ -27,7 +47,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
 
         function (result) {
             if (result) {
-                location.href = 'listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+                location.href = 'listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
             } else {
                 jagg.message({
                     content: 'Error occurred while deleting datasource.',
@@ -39,10 +59,14 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
         },
 
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({
-                content: 'Error occurred while deleting datasource',
-                type: 'error'
-            });
+
+            if (jqXHR.status != 0){
+                jagg.message({
+                    content: 'Error occurred while deleting datasource',
+                    type: 'error'
+                });
+            }
+
         });
     }
     function update(varDsDesc, varUrl, varDriverName, varDbUsername, varDbPassword, action){
@@ -60,7 +84,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
 
          function (result) {
              if (result) {
-                 location.href = 'listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
+                 location.href = 'listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>';
              } else {
                  jagg.message({
                      content: 'Error occurred while creating datasource: Datasource already exsist',
@@ -71,10 +95,14 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
          },
 
          function (jqXHR, textStatus, errorThrown) {
-             jagg.message({
-                 content: 'Error occurred while creating datasource',
-                 type: 'error'
-             });
+
+             if (jqXHR.status != 0){
+                 jagg.message({
+                     content: 'Error occurred while creating datasource',
+                     type: 'error'
+                 });
+             }
+
          });
 
     }
@@ -92,36 +120,45 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
 
     function validateForm() {
 
+        jagg.removeMessage();
         var errorMsg = "";
-        var datasourceName = $("#datasource_name").val();
-        var uiStage = $("#stage").val();
+        var validate = true;
 
-        if (datasourceName == "") {
-        	errorMsg = "Data Source name cannot be empty";
+        var url = $("#datasource_url_text").val().trim();
+        if (url == "" || url.length == 0) {
+        	errorMsg += "<br />Invalid Database Url - Enter valid Database Url which is not empty";
+        	validate = false;
         }
 
-        var url = $("#datasource_url_text").val();
-        if (url == "") {
-        	errorMsg += "<br />Invalid Data Source Url - Enter/Select Valid Data Source Url.";
+        var username = $("#datasource_username_text").val().trim();
+        if (username == "" || username.length == 0) {
+        	errorMsg += "<br />Invalid Username - Enter valid Username which is not empty";
+        	validate = false;
         }
 
-        var username = $("#datasource_username_text").val();
-        if (username == "") {
-        	errorMsg += "<br />Invalid Username - Enter/Select Valid Username.";
+        var usernamePattern = /^[a-zA-Z0-9_]{1,16}$/;
+        if (username.length > 0 && !usernamePattern.test(username)) {
+            errorMsg += "<br/>Invalid Username - Use maximum 16 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).";
+            validate = false;
         }
 
-        var password = $("#datasource_password").val();
-        if (password == "") {
-        	errorMsg += "<br />Invalid Password - Enter Valid Password.";
+        var password = $("#datasource_password").val().trim();
+        if (password == "" || password.length == 0) {
+        	errorMsg += "<br />Invalid Password - Enter valid password which is not empty";
+        	validate = false;
         }
 
-        if(errorMsg.length > 0){
-        	jagg.message({
-        		content: errorMsg,
-        		type: 'error'
-        		});
-        	return false;
+        var passwordPattern = /^[A-Za-z0-9!@#$%^*_~]{6,15}$/;
+        if (password.length > 0 && !passwordPattern.test(password)) {
+            errorMsg += "<br/>Invalid Password - Use 6 to 15 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *, _).";
+            validate = false;
         }
+
+        if (!validate) {
+    	    jagg.message({type:'error', id:'validation', content: errorMsg});
+    	    return false;
+        }
+
         return true;
     }
 
@@ -129,7 +166,8 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
         jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
             action: "getDatasource",
             applicationKey: applicationKey,
-            datasourceName: dsName
+            datasourceName: dsName,
+            stage: currentStage
         }, function (result) {
             if (result) {
                 currentLoadedDataSource = jQuery.parseJSON(result);
@@ -220,6 +258,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
                                                     }else{
                                                          var usernameOption = '<option  value="' + user + '">' + user + '</option>';
                                                          $("#datasource_username_select" ).append(usernameOption);
+                                                         $("#datasource_username_text").val(user);
                                                     }
                                                 }
                                             } else{
@@ -318,12 +357,12 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
 
 <div class="container">
     <article class="main">
-         
+
         <header><div> <% jagg.includeBlock("page/messages", null); %>
          <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
          <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
             <div class="content">
-                <h1>Resources</h1>
+                <h1>Runtime Configs</h1>
             </div>
         </header>
         <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
@@ -332,11 +371,11 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
                 <div class="content clear">
                     <ol class="breadcrumb left">
                         <li class="breadcrumb_item"><a
-                                href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=inputs.applicationKey%>"
+                                href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=inputs.applicationKey%>"
                                 class="breadcrumb_link">Datasources</a></li>
                         <li class="breadcrumb_item name"></li>
                     </ol>
-                    <% if(hasDataSourceDeletePermission){ %>
+                    <% if(isDeleteButtonVisible){ %>
                         <div class="right btn_group" id="delete_button_div">
                             <div class="right btn_list_box">
                                 <ul class="inline_box inline_list btn_list">
@@ -360,7 +399,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
                             <input type="hidden" name="datasource_description" id="datasource_description"
                                    value=""/>
 
-          
+
 
                             <div id="database_info_id">
 				<div class="input_row">
@@ -418,15 +457,14 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
                                     <input type="password" name="datasource_password" id="datasource_password"
                                            class="half"/>
                                 </div>
-
+                                <div class="buttonrow">
                                  <% if(hasDataSourceUpdatePermission){ %>
-                                    <div class="buttonrow">
                                         <input type='button' name='Submit' value='Update Datasource'
                                                onclick="if(validateForm()){updateDataSource();}"
                                                class='btn main'/>
-                                        <a href="listdatabases.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
-                                    </div>
                                   <% } %>
+                                  <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
+                                  </div>
                              </div>
                             <hr/>
                             <div class="controlset">

@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 
@@ -7,22 +25,24 @@ var log = new Log('modules/permission/permission.jag');
 var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
+var TABLINK_PERM_CACHE = "tablinkPermCache";
+var TENANT_PERM_CACHE = "tenantPermCache";
 
     var cacheAppLevelPermission=function(userName,applicationKey,permission,isAuthorized){
-          var permissionCache=session.get("PERMISSION_CACHE");
-          var appPermissionCache;
-          if(permissionCache!=null || permissionCache!=undefined){
-            var userCache=permissionCache[userName];
-            appPermissionCache=userCache[applicationKey];
-            if(appPermissionCache==null || appPermissionCache==undefined){
+        var permissionCache=session.get("PERMISSION_CACHE");
+        var appPermissionCache;
+        if(permissionCache!=null || permissionCache!=undefined){
+            var userCache = permissionCache[userName];
+            appPermissionCache = userCache[applicationKey];
+            if(appPermissionCache==null || appPermissionCache == undefined){
                 appPermissionCache={};
-                }
-                appPermissionCache[permission]=isAuthorized;
-                userCache[applicationKey]=appPermissionCache;
-                permissionCache[userName]=userCache;
-                session.put("PERMISSION_CACHE",permissionCache);
+            }
+            appPermissionCache[permission]=isAuthorized;
+            userCache[applicationKey]=appPermissionCache;
+            permissionCache[userName]=userCache;
+            session.put("PERMISSION_CACHE",permissionCache);
 
-          }else{
+        }else{
             var userCache={};
             permissionCache={};
             appPermissionCache={};
@@ -30,137 +50,161 @@ var server = carbon.server;
             userCache[applicationKey]=appPermissionCache;
             permissionCache[userName]=userCache;
             session.put("PERMISSION_CACHE",permissionCache);
-          }
+        }
     };
 
     var cacheTenantLevelPermission=function(userName,permission,isAuthorized){
-          var permissionCache=session.get("PERMISSION_CACHE");
-          if(permissionCache!=null || permissionCache!=undefined){
+        var permissionCache=session.get("PERMISSION_CACHE");
+        if(permissionCache!=null || permissionCache!=undefined){
             var userCache=permissionCache[userName];
-            var tenantPermissionCache=userCache['tenantPermCache'];
+            var tenantPermissionCache=userCache[TENANT_PERM_CACHE];
             if(tenantPermissionCache==null || tenantPermissionCache==undefined){
                 tenantPermissionCache={};
-                }
-                tenantPermissionCache[permission]=isAuthorized;
-                userCache['tenantPermCache']=tenantPermissionCache;
-                permissionCache[userName]=userCache;
-                session.put("PERMISSION_CACHE",permissionCache);
+            }
+            tenantPermissionCache[permission]=isAuthorized;
+            userCache[TENANT_PERM_CACHE]=tenantPermissionCache;
+            permissionCache[userName]=userCache;
+            session.put("PERMISSION_CACHE",permissionCache);
 
-          }else{
+        }else{
             var userCache={};
             permissionCache={};
             tenantPermissionCache={};
             tenantPermissionCache[permission]=isAuthorized;
-            userCache['tenantPermCache']=tenantPermissionCache;
+            userCache[TENANT_PERM_CACHE]=tenantPermissionCache;
             permissionCache[userName]=userCache;
             session.put("PERMISSION_CACHE",permissionCache);
-          }
+        }
     };
 
     var checkPermissionFromCache=function(userName,appkey,permission){
-          var permissionCache=session.get("PERMISSION_CACHE");
-           if(permissionCache!=null || permissionCache!=undefined){
-               var userCache=permissionCache[userName];
+        var permissionCache = session.get("PERMISSION_CACHE");
+        if(permissionCache!=null || permissionCache!=undefined){
+            var userCache=permissionCache[userName];
             var appPermissionCache=userCache[appkey];
             if(appPermissionCache!=null || appPermissionCache!=undefined){
                 return appPermissionCache[permission];
             }
-           }
-           return null;
+        }
+        return null;
     };
 
-    var checkTenantPermissionFromCache=function(userName,permission){
-           var permissionCache=session.get("PERMISSION_CACHE");
-           if(permissionCache!=null || permissionCache!=undefined){
-           var userCache=permissionCache[userName];
-           var tenantPermissionCache=userCache['tenantPermCache'];
-            if(tenantPermissionCache!=null || tenantPermissionCache!=undefined){
-
-
-                return tenantPermissionCache[permission];
+    var checkUserPermissionForAppInCache = function(userName, appKey){
+        var applicationsCache = session.get("APPLICATION_CACHE");
+        if(applicationsCache != null || applicationsCache != undefined){
+            var userApplicationsCache = applicationsCache[userName];
+            var isAppAuthorized = userApplicationsCache[appKey];
+            if(isAppAuthorized != null || isAppAuthorized != undefined){
+                return isAppAuthorized;
             }
-           }
-           return null;
+        }
+        return null;
+    }
+
+    var checkTenantPermissionFromCache = function(userName,permission){
+        permission =  permission.toLowerCase();
+        var permissionCache = session.get("PERMISSION_CACHE");
+        if(permissionCache!=null || permissionCache!=undefined){
+            var userCache = permissionCache[userName];
+            var tenantPermissionCache = userCache[TENANT_PERM_CACHE];
+
+            if(tenantPermissionCache != null || tenantPermissionCache != undefined){
+                var isAuthorized = tenantPermissionCache[permission];
+                if(isAuthorized != null || isAuthorized != undefined){
+                    return isAuthorized;
+                }
+
+                for (var tenantPermission in tenantPermissionCache ){
+                    if (permission.lastIndexOf(tenantPermission) === 0 && tenantPermissionCache[tenantPermission]) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return null;
     };
+
   var checkUserAuthenticated =function () {
      var username =jagg.getUser();
             if(! username){
                 var errorMessage = "User is not authenticated. User should login first.";
-                log.error(errorMessage);
+                log.debug(errorMessage);
                 throw errorMessage;
             }
             return username;
     };
 
-
    var checkUserActionPermission =function (permission) {
        var username = checkUserAuthenticated();
        return true;
     };
+
     var checkUserAuthorization =function (permission) {
-       var username = checkUserAuthenticated();
-       var authUser=username.split('@')[0];
-       var checkCachedPermission=checkTenantPermissionFromCache(authUser,permission);
-       if(checkCachedPermission!=null || checkCachedPermission!=undefined){
-            return checkCachedPermission;
-       }
-       var isUserAuthorized = checkAuthorizationForUser(authUser, permission);
-       cacheTenantLevelPermission(authUser,permission,isUserAuthorized);
-       return isUserAuthorized;
-    };
-    var checkAuthorizationForUser =function (userName , permission) {
-       var isUserAuthorized=false;
-       var tenantDomain=modManager.getTenantDomain() ;
-       var context=multitenancy.getPrivilegedCarbonContext();
-       var tenantManager= multitenancy.getTenantManager();
-       var tenantId=tenantManager.getTenantId(tenantDomain);
-       try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantId);
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
-            isUserAuthorized =realmService.getAuthorizationManager().isUserAuthorized(userName,permission,PERMISSION_EXECUTE);
-
-        }finally{
-             context.endTenantFlow();
-
-        }
-
-       if(!isUserAuthorized){
-            var errorMessage = "Un-authorized!!!. User:"+userName +" does not have permission:"+permission  ;
-            log.debug(errorMessage);
-            //throw errorMessage;
-            return isUserAuthorized;
-       }else{
-            return isUserAuthorized;
-       }
-    };
-    var checkUserActionPermissionforApp =function (appkey,permission) {
         var username = checkUserAuthenticated();
         var authUser=username.split('@')[0];
-        var isUserAuthorized=false;
-        var result=false;
-        var cachedResult=checkPermissionFromCache(authUser,appkey,permission);
+        var checkCachedPermission = checkTenantPermissionFromCache(authUser,permission);
+        if(checkCachedPermission){
+            return checkCachedPermission;
+        }
+        var isUserAuthorized = checkAuthorizationForUser(authUser, permission);
+        cacheTenantLevelPermission(authUser,permission,isUserAuthorized);
+        return isUserAuthorized;
+        };
+
+var checkAuthorizationForUser =function (userName , permission) {
+    var isUserAuthorized=false;
+    var tenantDomain=modManager.getTenantDomain() ;
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    var tenantId=tenantManager.getTenantId(tenantDomain);
+    try{
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantId);
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
+        isUserAuthorized =realmService.getAuthorizationManager().isUserAuthorized(userName,permission,PERMISSION_EXECUTE);
+    }finally{
+        context.endTenantFlow();
+    }
+    return isUserAuthorized;
+};
+
+    var checkUserActionPermissionforApp =function (appkey,permission) {
+
+        var username = checkUserAuthenticated();
+        var authUser=username.split('@')[0];
+        var isUserAuthorized = false;
+
+        var cachedResult = checkPermissionFromCache(authUser,appkey,permission);
+
         //checking in cache
         if(cachedResult!=null || cachedResult!=undefined){
             return cachedResult;
         }
-        isUserAuthorized =checkUserAuthorization(permission);
+
+        isUserAuthorized = checkUserAuthorization(permission);
         if(isUserAuthorized==false){
-             var errorMessage = "Un-authorized!!!. User:"+username +" does not have permission:"+permission  ;
-             log.debug(errorMessage);
-             //throw errorMessage;
+            var errorMessage = "Un-authorized!!!. User:"+username +" does not have permission:"+permission  ;
+            log.debug(errorMessage);
+            //throw errorMessage;
         }else{
-             var applications=jagg.module('tenant').getApplicatioinKeysOfUser(authUser);
-             for(var app in applications){
-                 if(applications[app]==appkey){
-                     result=true;
-                     break;
-                 }
-             }
+            //check the user is authorized for this app in the cache
+            var isAppAuthorized = checkUserPermissionForAppInCache(authUser, appkey);
+            if(isAppAuthorized != null){
+                isUserAuthorized = isAppAuthorized;
+            }else{
+                isUserAuthorized = false;
+                var applications = jagg.module('tenant').getApplicatioinKeysOfUser(authUser);
+                for(var app in applications){
+                    if(applications[app]== appkey){
+                        isUserAuthorized = true;
+                        break;
+                    }
+                }
+            }
         }
          cacheAppLevelPermission(authUser,appkey,permission,isUserAuthorized);
-         return result;
+         return isUserAuthorized;
     };
 
     var checkAdminPermission =function () {
@@ -217,7 +261,12 @@ var server = carbon.server;
     };
 
     var hasApplevelUserMgtPermission=function(appkey){
-        return checkUserActionPermissionforApp(appkey,PERMISSION_USER_INVITE);
+    	try{
+    	     return checkUserActionPermissionforApp(appkey,PERMISSION_USER_INVITE);
+    	 }catch (e){
+             return false;
+         }
+    	 return true;
     };
 
     var hasAppOwnerSpecialPermission = function (appkey, username) {
@@ -228,10 +277,210 @@ var server = carbon.server;
         }
         return false;
     };
-    
+
     var hasPermissionForAllStages=function(applicationKey){
     	var result=checkUserActionPermissionforApp(applicationKey,PERMISSION_RESOURCES_CREATE_FOR_ALL_STAGES);
     	return result;
+    };
+
+    /**
+     * Check whether user is granted for tablink permission or not
+     *
+     * @param applicationKey - application key
+     * @param permission - tablink permission string
+     *
+     * @return boolean - whether permission is granted or not.
+     */
+    var isUserAccessGrantedForTablink =function (applicationKey, permission) {
+        try{
+            return checkUserTablinkPermission(applicationKey,permission);
+        }catch (errorMessage){
+            log.debug(errorMessage);
+            return false;
+        }
+        return false;
+    };
+
+    /**
+     * Check tablink permission for logged in user
+     *
+     * @param permission - permission string
+     *
+     * @return boolean - whether permission is granted or not.
+     */
+    var checkUserTablinkPermission =function (appkey ,permission) {
+        var username = checkUserAuthenticated();
+        var authUser=username.split('@')[0];
+        var isUserAuthorized=false;
+
+        // checkin in tablink cache
+        var cachedResult=checkTablinkPermissionFromCache(authUser, permission);
+
+        if(cachedResult!=null || cachedResult!=undefined){  // tablink cache hit
+            return cachedResult;
+        }
+
+        // checkin in app level cache
+        var appPermissionCache = getUserCache(authUser ,appkey);
+        var isAppLevelCacheHit = checkHierarchicalPermission(appPermissionCache , permission);
+
+        // if not found in app level cache
+        if (isAppLevelCacheHit == null || !isAppLevelCacheHit) {
+            // checkin tenant level cache
+            var tenantPermissionCache = getUserCache(authUser ,TENANT_PERM_CACHE);
+            var isTenantLevelCacheHit = checkHierarchicalPermission(tenantPermissionCache , permission);
+        }
+
+        if( ((isAppLevelCacheHit != null) && (isAppLevelCacheHit) )||
+                ((isTenantLevelCacheHit != null) && (isTenantLevelCacheHit)) ){     // permission found in cache
+            isUserAuthorized = true;
+        } else {
+
+            // call backend and check for permissions
+            var optimizedPermissions = [];
+            optimizedPermissions = getOptimizedPermissions(permission);
+
+            var length = optimizedPermissions.length;
+            if(length > 0){                                                     //  permission found in the backend
+                isUserAuthorized = true;
+
+                // cache  the results in app cache
+                for (var i=length; i--;){
+                    cacheAppLevelPermission(authUser,appkey,optimizedPermissions[i],isUserAuthorized);
+                }
+            } else {
+                isUserAuthorized = false;
+            }
+        }
+
+        // cache the result in tablinks
+        cacheTablinksPermission(authUser ,permission, isUserAuthorized );
+        return isUserAuthorized;
+    };
+
+    /**
+     * Get user cache
+     *
+     * @param userName - user name
+     * @paran cacheType - cache type
+     *
+     * @return {cacheObject}/null - cache if found , null if cache is not found
+     */
+    var getUserCache =function(userName,cacheType){
+        var cache = null;
+        var permissionCache=session.get("PERMISSION_CACHE");
+        if(permissionCache!=null || permissionCache!=undefined){
+            var userCache=permissionCache[userName];
+            var cache=userCache[cacheType];
+        }
+        return cache;
+    }
+
+    /**
+     * Check tablink permission from cache
+     *
+     * @param userName - user name
+     * @param permission - permission string
+     *
+     * @return boolean or null - whether permission is granted or not. null if the request is cache a miss.
+     */
+    var checkTablinkPermissionFromCache=function(userName,permission){
+        var permissionCache=session.get("PERMISSION_CACHE");
+        if(permissionCache!=null || permissionCache!=undefined){
+            var userCache=permissionCache[userName];
+            var tablinksPermissionCache=userCache[TABLINK_PERM_CACHE];
+
+            // if tablink cache hit
+            if(tablinksPermissionCache!=null || tablinksPermissionCache!=undefined){
+                return tablinksPermissionCache[permission];
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Check for hierarchical permission inside cache
+     *
+     * @param cache - cache
+     * @param permission - permission string
+     *
+     * @return boolean/null - whether access granted hierarchical permission found or not. null if cache miss
+     *
+     */
+    var checkHierarchicalPermission = function (cache ,permission) {
+        var result = null;
+        if(cache!=null || cache!=undefined){
+            for (key in cache) {
+                if (key.indexOf(permission, 0)  !== -1 ) {  // found in cache
+                    if(cache[key]){                         // permission granted in the cache
+                        return true;
+                    }
+                    result  = false;
+                }
+            }
+        }
+        return result;
+    };
+
+    /**
+     * Get all optimized permissions for user
+     *
+     * @param permissionRootPath - permission root path for resources, null to get all the resources
+     *
+     * @return [string] - string array of optimized permissions
+     */
+    var getOptimizedPermissions  =function (permissionRootPath) {
+        var username = checkUserAuthenticated();
+        var authUser=username.split('@')[0];
+
+        var resources = [];
+        var tenantDomain=modManager.getTenantDomain() ;
+        var context=multitenancy.getPrivilegedCarbonContext();
+        var tenantManager= multitenancy.getTenantManager();
+        var tenantId=tenantManager.getTenantId(tenantDomain);
+        try{
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantId);
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
+            resources =realmService.getAuthorizationManager().getAllowedUIResourcesForUser(authUser , permissionRootPath);
+
+        }finally{
+            context.endTenantFlow();
+
+        }
+        return resources;
+    };
+
+    /**
+     * Cache tablinks permissions
+     *
+     * @param userName - user name
+     * @param permission - Permission string
+     * @param isAuthorized - whether this permission is granted or not
+     */
+    var cacheTablinksPermission=function(userName,permission,isAuthorized){
+        // get permission cahce
+        var permissionCache=session.get("PERMISSION_CACHE");
+        if(permissionCache!=null || permissionCache!=undefined){
+            var userCache=permissionCache[userName];                                    // user cache
+            var tablinksPermissionCache=userCache[TABLINK_PERM_CACHE];                  // tablinks cache
+            if(tablinksPermissionCache==null || tablinksPermissionCache==undefined){
+                tablinksPermissionCache={};
+            }
+            tablinksPermissionCache[permission]=isAuthorized;
+            userCache[TABLINK_PERM_CACHE]=tablinksPermissionCache;
+            permissionCache[userName]=userCache;
+            session.put("PERMISSION_CACHE",permissionCache);
+        }else{
+            var userCache={};
+            permissionCache={};
+            tablinksPermissionCache={};
+            tablinksPermissionCache[permission]=isAuthorized;
+            userCache[TABLINK_PERM_CACHE]=tablinksPermissionCache;
+            permissionCache[userName]=userCache;
+            session.put("PERMISSION_CACHE",permissionCache);
+        }
     };
 
 %>

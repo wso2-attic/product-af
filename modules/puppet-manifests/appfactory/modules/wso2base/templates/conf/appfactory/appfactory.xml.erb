@@ -11,7 +11,7 @@
     <AdminUserName><%= @adminuser_name %></AdminUserName>
     <AdminPassword><%= @adminuser_passwd %></AdminPassword>
     <AdminEmail></AdminEmail>
-    <AppfactoryVersion>2.1.0 Beta</AppfactoryVersion>
+    <AppfactoryVersion>2.1.0 RC1</AppfactoryVersion>
     <JenkinsServerAdminUsername><%= @jenkins_admin_user %></JenkinsServerAdminUsername>
     <JenkinsServerAdminPassword><%= @jenkins_admin_password %></JenkinsServerAdminPassword>
     <!-- Application creation delay in queue   -->
@@ -25,7 +25,7 @@
     <SignUpText>Sign up and start developing</SignUpText>
     <SignInText>Already a Member? Sign In.</SignInText>
 
-    <!-- Social -->
+    
     <NotificationConfig>
         <Social>
             <!--in milliseconds-->
@@ -213,6 +213,8 @@
                 /permission/admin/appfactory/promoteTo/Testing,
                 /permission/admin/appfactory/demoteTo/Development,
                 /permission/admin/appfactory/demoteTo/Testing,
+		        /permission/admin/appfactory/retire,
+		        /permission/admin/appfactory/promoteTo/Production,
                 /permission/admin/appfactory/visibility/Development,
                 /permission/admin/appfactory/visibility/Testing,
                 /permission/admin/appfactory/visibility/Production,
@@ -302,7 +304,9 @@
 
         <!--
               Server URL of the remote BAM server used to collect statistics. Must
-              be specified in protocol://hostname:port/ format.
+              be specified in protocol://hostname:port/ format. Can specify multiple URLs by 
+            comma separated list 
+            i.e: tcp://localhost:7613,tcp://localhost:7614
           -->
         <BAMServerURL>tcp://<%= @bam_subdomain %>.<%= @wso2_env_domain %>:<%= @bam_tcp_port %></BAMServerURL>
 
@@ -338,12 +342,12 @@
     </BAM>
 
 
-    <!--Application repository related configurations-->
-
-    <!--If this value is true, you can select if the app should have per developer repo or share main repo. If this value is false, every app will share the main repo Default value is false  -->
+    <!--Application Per-Developer repository related configurations-->   
+    <!--If this value is true, you can select if the app should have per developer repo or share main repo. If this value is false, every app will share the main repo. Default value is false  -->
     <EnablePerDeveloperRepos>true</EnablePerDeveloperRepos>
     <EnablePerDeveloperBuild>true</EnablePerDeveloperBuild>
     <EnablePerDeveloperAutoBuild>true</EnablePerDeveloperAutoBuild>
+    <!--End Per-Developer Config -->
 
     <RepositoryProviderConfig name="git" enabled="true">
         <Property name="Class">
@@ -356,6 +360,17 @@
         <Property name="DisplayName">Git</Property>
         <Property name="Provider">git</Property>
         <Property name="IsVersioningSupported">true</Property>
+        
+        <!-- 
+        	These are the combination that GITBLIT provide as permission model.
+        	
+	        V (view in web ui, RSS feeds, download zip)
+			R (clone)
+			RW (clone and push)
+			RWC (clone and push with ref creation)
+			RWD (clone and push with ref creation, deletion)
+			RW+ (clone and push with ref creation, deletion, rewind)
+         -->
         <RepositoryUserPermission>
             <Role name="developer">V,R,RWC,RWD,RW+,RW</Role>
             <Role name="qa"></Role>

@@ -1,4 +1,23 @@
-    <% jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
     <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
@@ -11,7 +30,7 @@
 
     <script type="text/javascript">
     var MAX_USER_NAME_LENGTH = 8;
-    var ck_password = /^[A-Za-z0-9!@#$%^*_]{6,15}$/;
+    var ck_password = /^[A-Za-z0-9!@#$%^*_~]{6,15}$/;
     var eventRegisted_permTemp = false;
     var eventRegisted_user = false;
     $(document).ready(function(){
@@ -97,9 +116,9 @@
 	  	jagg.message({content:'Capitalization matters. Use 6 to 15 characters. <br/> Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *)',type:'info', id:'pwdcheck' });
 	});*/
 
-	$('input[type="checkbox"]').click(function(){	
+	$('input[type="checkbox"]').click(function(){
 	    if($('#checkArray :checkbox:checked').length == $('input[name="permission[]"]').length){
-		$('#selectAll').prop('checked', true);	 
+		$('#selectAll').prop('checked', true);
 	    } else {
 		$('#selectAll').prop('checked', false);
 	    }
@@ -127,7 +146,7 @@
         });
     }
 
-    function selectAllOptions() { 
+    function selectAllOptions() {
         var selectAll = document.getElementById('selectAll');
         var c = $('input[name="permission[]"]');
         if (selectAll.checked) {
@@ -181,17 +200,17 @@
                             for(var i = 0; i < parsedArray.length; i++) {
                                     var name = parsedArray[i].name;
                                     var row='<option value="' + name + '">'+name+'</option>';
-                                    $("#js_db_user").append(row);  
+                                    $("#js_db_user").append(row);
 								    if(userName!=undefined && name.indexOf(userName+'_')>-1){
 										userName=name;
 								    }
                             }
                     }
-	
+
                      $("#js_db_user").select2();
                      if(userName!=undefined && userName!='')
                      	 $('#js_db_user').select2('val', userName);
-                     	
+
                      if(!eventRegisted_user){
                         eventRegisted_user = true;
                      }else{
@@ -211,7 +230,9 @@
 
             },
             function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({content:'Error occurred while reading users.',type:'error', id:'databasecreation' });
+                    if ( jqXHR.status != 0){
+                        jagg.message({content:'Error occurred while reading users.',type:'error', id:'databasecreation' });
+                    }
             });
 
             }
@@ -234,12 +255,12 @@
                         }
                 }
  				$("#js_db_template").select2();
-		 
+
                 if(selectionValue!==undefined){
 					$('#js_db_template').select2('val', selectionValue);
                 }
 
-                
+
 
                 if(!eventRegisted_permTemp){
                     eventRegisted_permTemp = true;
@@ -255,13 +276,17 @@
                         $(this).next(".extra_fields_box").slideToggle(250);
                     }
                 }
-                    
-                    
+
+
              });
 
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'Error occurred while reading templates',type:'error', id:'databasecreation' });
+
+            if ( jqXHR.status != 0){
+                jagg.message({content:'Error occurred while reading templates',type:'error', id:'databasecreation' });
+            }
+
         });
     }
 
@@ -276,15 +301,16 @@
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
                     action:"createDatabaseAndAttachUser",
                     applicationKey:$("#applicationKey").attr('value'),
-                    databaseName:$("#databaseName").attr('value'),
+                    databaseName:$("#databaseName").attr('value').trim(),
                     databaseServerInstanceName:$('#rssInstances').val(),
                    // isBasic:$('#extra_fieldset_id').attr('data-hidden'),
 		   			isBasic:isBasicDbCreation,
-                    customPassword:$('#databaseUserPassword').attr('value'),
+                    customPassword:$('#databaseUserPassword').attr('value').trim(),
                     userName:$("#js_db_user").attr('value'),
                     templateName:$("#js_db_template").attr('value'),
                     copyToAll:$('#copyToAll').is(':checked'),
-                    createDatasource:createDatasource
+                    createDatasource:createDatasource,
+                    databaseDescription:$("#database_description").val().trim()
                 },
                 function (result) {
                     /*var parsedResult = jQuery.parseJSON(result);
@@ -324,7 +350,7 @@
                     databaseName:$("#databaseName").attr('value'),
                     databaseServerInstanceName:$('#rssInstances').val()
                 },
-                function (result) {                      
+                function (result) {
                 	// database creation success
 	                if(result=='success'){
 	                	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
@@ -361,12 +387,12 @@
 
     function callPreviousPage(){
 		var oldURL = document.referrer;
-		window.location.replace(oldURL);			
+		window.location.replace(oldURL);
     }
 
 
     function validateUser() {
-	jagg.removeMessage();
+	    jagg.removeMessage();
         var validation = true;
 
         if(!checkUserName()){
@@ -390,41 +416,40 @@
     function checkUserName() {
         var validation = true;
 
-        var userNameLength = ($("#db_username").attr('value')).length;
+        var username = $("#db_username").attr('value').trim();
 
-        if (userNameLength >= MAX_USER_NAME_LENGTH){
-            jagg.message({content:'Username cannot exceed 8 characters!',type:'error', id:'databasecreation' });
-            validation =false;
-        }
- 
-        var username = $("#db_username").attr('value');
-
-        if (username == "") {
+        if (username == "" || username.length == 0) {
             jagg.message({content:'Username cannot be empty!',type:'error', id:'databasecreation' });
+            validation=false;
+        }
+
+        var usernamePattern = /^[a-zA-Z0-9_]{1,7}$/;
+        if (username.length > 0 && !usernamePattern.test(username)) {
+            jagg.message({content:'Invalid Username - Use maximum 7 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).',type:'error', id:'databasecreation' });
             validation=false;
         }
 
         return validation;
     }
-    
+
     function validatePwdPattern(pwdId){
     	var validation = true;
-    	var password = $("#"+pwdId).attr('value');
-    	if (password == "") {
+    	var password = $("#"+pwdId).attr('value').trim();
+    	if (password == "" || password.length == 0) {
             jagg.message({content:'Password cannot be empty!',type:'error', id:'databasecreation' });
             validation=false;
         } else {
-			if(!ck_password.test(password)){ 
+			if(!ck_password.test(password)){
 				validation=false;
-				jagg.message({content:'Invalid Password - Capitalization matters. Use 6 to 15 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *, _).',type:'error', id:'databasecreation' });
+				jagg.message({content:'Invalid Password - Use 6 to 15 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *, _).',type:'error', id:'databasecreation' });
 			}
 		}
 		return validation;
     }
 
-    function validatePassword() {    	
-    	var repeatPassword = $("#new_user_repeat_password").val();
-    	var password = $("#new_user_password").attr('value');
+    function validatePassword() {
+    	var repeatPassword = $("#new_user_repeat_password").val().trim();
+    	var password = $("#new_user_password").attr('value').trim();
     	var validation = validatePwdPattern("new_user_password");
 
     	if (validation && password != repeatPassword) {
@@ -434,10 +459,10 @@
 
     	return validation;
     }
-    
-    function validateDefaultPassword() {    	
-    	var repeatPassword = $("#confirmDatabaseUserPassword").val();
-    	var password = $("#databaseUserPassword").attr('value');
+
+    function validateDefaultPassword() {
+    	var repeatPassword = $("#confirmDatabaseUserPassword").val().trim();
+    	var password = $("#databaseUserPassword").val().trim();
     	var validation = validatePwdPattern("databaseUserPassword");
 
     	if (validation && password != repeatPassword) {
@@ -453,41 +478,47 @@
         jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {		// call backend
             action:"createDatabaseUser",
             applicationKey:$("#applicationKey").val(),
-            password:$("#new_user_password").attr('value'),
+            password:$("#new_user_password").attr('value').trim(),
             rssInstance:$("#rssInstances").attr('value'),
-            username:$("#db_username").attr('value')
+            username:$("#db_username").attr('value').trim()
         },function (result) {
-        
+
         	var result = $.trim(result);
-        	if(result=='success'){
+        	if(result=='success') {
         		loadUsersForSelectedStage($("#db_username").attr('value'));
-            		$('#js_db_user').next().hide();
-			} else if(result.indexOf('exists') > -1) {	// check whether user is already exists based on identifying key word call 'exists'
-				jagg.message({content:'DB User already exists!', type:'error', id:'databasecreation' });
-			} else {
-				jagg.message({content:'Error occurred while creating user, Please try different Username!', type:'error', id:'databasecreation' });
-			}
+                $('#js_db_user').next().hide();
+            }
 
         },function (jqXHR, textStatus, errorThrown) {	// if it failed, hide spinner and show error message.
-            jagg.message({content:'Error occurred while creating user',type:'error', id:'databasecreation' });
+
+            if ( jqXHR.status != 0){
+                jagg.message({content:jqXHR.responseText, type:'error', id:'databasecreation' });
+            }
+
         });
      }
 
      function validateTemplate(){
-	jagg.removeMessage();
-        var templateName = $("#template_name").attr('value');
+	    jagg.removeMessage();
+        var templateName = $("#template_name").attr('value').trim();
         var validation = false;
-        if(templateName == ""){
+        if(templateName == "" || templateName.length == 0){
             jagg.message({content:'Template name cannot be empty!',type:'error', id:'databasecreation' });
-        } else{
+        }
+
+        var templateNamePattern = /^[a-zA-Z0-9_]{1,10}$/;
+        if (templateName.length > 0 && !templateNamePattern.test(templateName)) {
+            jagg.message({content:'Invalid Template name - Use maximum 10 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).',
+            type:'error', id:'databasecreation' });
+            validation =false;
+        } else {
             validation = true;
         }
 
-			 
 		if($('#checkArray :checkbox:checked').length == 0){
 			validation = false;
 			jagg.message({content:'Please select at least one Permission to proceed!',type:'error', id:'databasecreation'  });
-		} 
+		}
 
 
         return validation;
@@ -515,7 +546,7 @@
      var triggerPriv=(document.getElementById("triggerPriv"));
      var updatePriv=(document.getElementById("updatePriv"));
 
-     var templateName=$("#template_name").val();
+     var templateName=$("#template_name").val().trim();
      var environment=$("#rssInstances").val();
 
      jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
@@ -554,17 +585,21 @@
 						break;
 					}
 			}
-			
+
 			if(result){
 				var template = templateName+'@'+environment;
 				loadTemplatesForSelectedStage(template);
                 $('#js_db_template').next().hide();
-                		
+
 			} else {
 				jagg.message({content:'Error occurred while creating Template!', type:'error', id:'databasecreation' });
 			}
 		},function (jqXHR, textStatus, errorThrown) {
-			jagg.message({content:'Error occurred while creating role',type:'error', id:'databasecreation' });
+
+		    if (jqXHR.status != 0){
+	            jagg.message({content:'Error occurred while creating role',type:'error', id:'databasecreation' });
+		    }
+
 		});
     }
 
@@ -617,7 +652,11 @@
             }
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'Error occurred while creating database',type:'error', id:'databasecreation' });
+
+            if (jqXHR.status != 0){
+                jagg.message({content:'Error occurred while creating database',type:'error', id:'databasecreation' });
+            }
+
         });
 
         jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
@@ -635,7 +674,11 @@
             }
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'Error occurred while reading templates',type:'error', id:'databasecreation' });
+
+            if (jqXHR.status != 0){
+                jagg.message({content:'Error occurred while reading templates',type:'error', id:'databasecreation' });
+            }
+
         });
 
         jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
@@ -655,7 +698,11 @@
             }
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'Error occurred while reading users',type:'error', id:'databasecreation' });
+
+            if (jqXHR.status != 0){
+                jagg.message({content:'Error occurred while reading users',type:'error', id:'databasecreation' });
+            }
+
         });
     }
 
@@ -749,7 +796,10 @@
         },
         function (jqXHR, textStatus, errorThrown) {
 
-            jagg.message({content:'Error occurred while reading templates',type:'error', id:'databasecreation' });
+            if (jqXHR.status != 0){
+                jagg.message({content:'Error occurred while reading templates',type:'error', id:'databasecreation' });
+            }
+
         });
 
     }
@@ -839,17 +889,12 @@
 
     function validateDbNameAlphaNumeric(){
     		var isDbNameValid=true;
-        	var dbName = $("#databaseName").val();
-
-            var patternForSpace = / /g;
-            var isSpace = patternForSpace.test(dbName);
-
-            var patternForNonAlphaNumericChars = /[^\w\s]/gi;
-            var isInvalidChar = patternForNonAlphaNumericChars.test(dbName);
-
-            if (isSpace == true || isInvalidChar == true) {
+        	var dbName = $("#databaseName").val().trim();
+            var databaseNamePattern = /^[a-zA-Z0-9_]{1,5}$/;
+            if (dbName.length > 0 && !databaseNamePattern.test(dbName)) {
             	jagg.message({
-                    content: "Invalid Database Name - Create a database which has only alphanumeric characters", id:'dbcreationerrormsg',
+                    content: "Invalid Database name - Use maximum 5 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).",
+                    id:'dbcreationerrormsg',
                     type: 'error', id:'dbcreationerrormsg'
                 });
             	validated = validated && false;
@@ -860,64 +905,51 @@
             }
     		return isDbNameValid;
         }
-	
+
 	// form submition validation
     function validateForm() {
-	jagg.removeMessage();	
+	    jagg.removeMessage();
         var validation = true;
-        var dbname = $("#databaseName").val();
-        if(dbname == ""){
-            validation = false; 
+        var dbname = $("#databaseName").val().trim();
+        if(dbname == "" || dbname.length == 0){
+            validation = false;
             jagg.message({content:'Database name cannot be empty!',type:'error', id:'databasecreation'  });
-        }else{
+        } else {
             validation = validateDbNameAlphaNumeric();
         }
- 
+
+        if(!validation) {
+            return validation;
+        }
+
         if($("#advancecheckbox").is(':checked')){
         	var rssInstance = $("#rssInstances").attr('value');
         	if(rssInstance == ''){
         		validation = false;
         		jagg.message({content:'Database Environment cannot be empty!',type:'error', id:'databasecreation'  });
         	}
-        	
-        	var user = $("#js_db_user").attr('value');		 
+
+        	var user = $("#js_db_user").attr('value');
         	if(user=="create_new_user" || user=="choose_user"){
         		validation = false;
         		jagg.message({content:'Select valid User!',type:'error', id:'databasecreation'  });
         	}
-        	
+
         	var template = $("#js_db_template").attr('value');
         	if(template=="create_new_template" || template=="choose_template"){
         		validation = false;
         		jagg.message({content:'Select valid Permission Template!',type:'error', id:'databasecreation'  });
         	}
- 
+
 
         } else {
         	validation = validateDefaultPassword("databaseUserPassword");
         }
-        
+
         return validation;
     }
 
-    function getHelpTips(){
-    jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getHelpTips",
-            page: "add-databases",
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
-                 $("#createInAllEnvsHelp").html(helpTips.createInAllEnvsHelp);
-                 $("#createAdvancedHelp").html(helpTips.createAdvancedHelp);
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
-}
-
     $(document).ready(function(){
-	getHelpTips();
         $('.js_cancel_user').click(function(){
             $('#js_db_user').next().hide();
             $('#js_db_user').select2('val','choose_user');
@@ -929,7 +961,7 @@
 //         $('#js_extra_fieldset_on').click(function(){
 //             $(this).next().next().toggle('fast');
 //             if($(this).attr('data-down') == 'hidden'){
-                
+
 // 		$('input:checkbox[id=advancecheckbox]').attr('checked',true);
 //                 $('#databaseUserPassword').attr('data-value',$('#databaseUserPassword').val());
 //                 $('#databaseUserPassword').val('').attr('disabled','disabled');
@@ -939,7 +971,7 @@
 //                 $('#js_db_template').next().hide();
 //                 $('#js_db_user').next().hide();
 //             }else{
-                
+
 // 		$('input:checkbox[id=advancecheckbox]').attr('checked',false);
 //                 $('#databaseUserPassword').removeAttr('disabled');
 //                 $('#databaseUserPassword').val($('#databaseUserPassword').attr('data-value'));
@@ -978,11 +1010,11 @@
             if($(this).is(":checked")) {
                 $('#js_extra_fieldset_on').slideUp('fast');
                 $('#db_env_div').slideUp('fast');
-                
+
             }else{
                 $('#js_extra_fieldset_on').slideDown('fast');
                 $('#db_env_div').slideDown('fast');
-                
+
 
             }
         });
@@ -1000,11 +1032,11 @@
                 $('#js_db_template').next().hide();
                 $('#js_db_user').next().hide();
                 //showCreateDSCheckBox();
-                
-                
+
+
             }else{
                 $(this).parent().next().next().slideUp('fast');
-                
+
                 $('#copyall').slideDown('fast');
                 $('#password_section').slideDown('fast');
 //                $('#createInAllEnvsHelpBlock').slideDown('fast');
@@ -1016,29 +1048,28 @@
                 $('#js_db_template').next().hide();
 
             }
-           
-           
+
+
             $('#js_db_user').select2('val','choose_user');
             $('#js_db_template').select2('val','choose_template');
-            
+
         });
 
     });
     </script>
 
-       <div class="container">
+        <div class="container">
                     <article class="main">
-                            <header>
+                            <header class="separator">
                                 <div>
                                     <% jagg.includeBlock("page/messages", null); %>
-				    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+				                    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
                                     <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
                                 </div>
                                 <div class="content">
-                                    <h1>Resources</h1>
+                                    <h1>Databases</h1>
                                  </div>
                             </header>
-                            <% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
                             <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
                             <section class="separator">
                                 <div class="page_nav">
@@ -1056,7 +1087,7 @@
                                           <fieldset>
                                                 <div class="input_row">
                                                     <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
-                                                    <input type="text" id='databaseName' maxlength="7"/>
+                                                    <input type="text" id='databaseName' maxlength="5"/>
                                                 </div>
                                                 <div class="input_row" id="db_env_div">
                                                     <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
@@ -1069,23 +1100,27 @@
 						                            </legend>
 						                        </div>
                         						<%}%>
+                                                <div class="input_row">
+                                                    <label for="database_description"><strong>Description</strong></label>
+                                                    <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
+                                                </div>
                                                 <div id="password_section">
                                                 <div class="input_row">
                                                     <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
-                                                    <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>                                                      
+                                                    <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
                                                 </div>
-                                                
+
                                                 <div class="input_row">
 	                                                <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
-	                                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/> 
+	                                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
                                                 </div>
                                                 </div>
                                            </fieldset>
 
                                        					    <fieldset class="push_top_10">
-                                          
+
 						<legend id="js_extra_fieldset_on" data-down="hidden">
-    										
+
  						<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
  					 </legend>
 						<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
@@ -1097,7 +1132,7 @@
 
                                                         <div class="extra_fields_box hide" >
                                                             <div class="extra_fields">
-                                                                 
+
                                                                 <div class="extra_field_row">
                                                                     <div class="pw_50">
                                                                     <label for="db_username"><strong>Username:</strong></label>
@@ -1134,7 +1169,7 @@
                                                         </select>
                                                          <div class="extra_fields_box hide" >
                                                             <div class="extra_fields">
-                                                                 
+
                                                                 <div class="extra_field_row">
                                                                     <div class="pw_50">
                                                                     <label for="template_name"><strong>Template Name:</strong></label>
@@ -1143,7 +1178,7 @@
                                                                 </div>
                                                                 <div class="extra_field_row">
                                                                 <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions </label></h2><br/><br/>
-                                                                                                                                
+
                                                                 <fieldset id="checkArray">
                                                                     <label style="width:100%"><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />
                                                                     <label style="width:100%"><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
@@ -1187,10 +1222,10 @@
                                                 </div>
                                            </fieldset>
 
-                                            <div class="buttonrow"> 
-                                            
-                                           
-                                                
+                                            <div class="buttonrow">
+
+
+
 						<input type='button' name='Submit' value="Create Database" class="btn main" onclick="if(validateForm()){createDatabase(this);}"
                                                        class='btn btn-primary'/>
                                                <a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>

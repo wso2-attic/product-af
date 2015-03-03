@@ -105,7 +105,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
-        logger.append("The build started by " + this.userName + " for " + this.applicationId + " - " +
+           logger.append("The build started by " + this.userName + " for " + this.applicationId + " - " +
                       this.applicationVersion + " in " + this.repositoryFrom + " is notified as " + build.getResult());
 
         final String APPFACTORY_SERVER_URL = getDescriptor().getAppfactoryServerURL();

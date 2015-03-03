@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -10,6 +28,10 @@ var log=new Log();
     var applicationKey = request.getParameter("applicationKey");
     var deploymentStages = getProperties(DEPLOYMENT_STAGES);
     var response = {};
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     if (action == "datasourceCount") {
         mod = jagg.module("resources");
         var dsCount = 0;
@@ -69,31 +91,30 @@ var log=new Log();
     	var permissionModule = jagg.module("permission");
     	var datasourceModule = jagg.module("resources");
     	var datasourceName = request.getParameter("datasourceName");
-    	var datasources = {};
+    	var stage = request.getParameter("stage");
+    	var datasource = {};
         var response = {};
     	var isDataSourceRetrieveSucceeded = false;
-    	for (var i = 0; i < deploymentStages.length; i++) {
-    		var hasResourceReadPermissionToStage= permissionModule.isUserAccessGranted(applicationKey,
-                    PERMISSION_RESOURCES_READ_FOR_STAGE +deploymentStages[i]);
-    		if(hasResourceReadPermissionToStage){
-    			try {
-    				datasources[deploymentStages[i]] = datasourceModule.getDataSource(applicationKey,
-                            deploymentStages[i],datasourceName);
-    				isDataSourceRetrieveSucceeded = true;
-    			}
-    			catch (e){
-    				log.error("Error reading datasources in the Deployment Stage " + deploymentStages[i] +
+    	var hasResourceReadPermissionToStage= permissionModule.isUserAccessGranted(applicationKey,
+                    PERMISSION_RESOURCES_READ_FOR_STAGE +stage);
+    	if(hasResourceReadPermissionToStage){
+    	    try {
+    			datasource[stage] = datasourceModule.getDataSource(applicationKey, stage, datasourceName);
+    			isDataSourceRetrieveSucceeded = true;
+    		} catch (e) {
+    			log.error("Error reading datasources in the Deployment Stage " + stage +
                             " Exception : " + e.toString());
-    			}
-    		} else {
+    			log.error(e);
+    		}
+    	} else {
                 // do nothing
-            }
-    	}
+        }
+    	
     	if(!isDataSourceRetrieveSucceeded){
     		throw new Error("Error reading datasources");
     	}
        
-    	print(datasources);
+    	print(datasource);
     } else if ( action == "getDataSourceInfoUrl"){
     	var stage = request.getParameter("stage");
     	var datasourceModule = jagg.module("resources");
@@ -109,6 +130,35 @@ var log=new Log();
             print(response);
         }
 
+    } else if (action == "getAllDatasourcesInfo") {
+        var resourceModule = jagg.module("resources");
+        var permissionModule = jagg.module("permission");
+        var datasourcesByName = {};
+        for (var i = 0; i < deploymentStages.length; i++) {
+            var hasResourceReadPermissionToStage = permissionModule.isUserAccessGranted(
+                    applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+            if (hasResourceReadPermissionToStage) {
+                try {
+                    result = resourceModule.getAllDatasourcesInfo(applicationKey, deploymentStages[i]);
+                    for (var j in result) {
+                        var datasourceRow = result[j];
+                        var datasources = datasourcesByName[datasourceRow.name];
+                        if (!datasources) {
+                            datasources = [];
+                        }
+                        datasources.push(datasourceRow);
+                        datasourcesByName[datasourceRow.name] = datasources;
+                    }
+                } catch (e) {
+                    var msg = "Error while getting datasource info for the application : " + applicationKey +
+                        " & stage : " + deploymentStages[i];
+                    log.error(msg);
+                    log.error(e);
+                    throw e;
+                }
+            }
+        }
+        print(datasourcesByName);
     } else {
     	throw new Error("No action specified");
     }

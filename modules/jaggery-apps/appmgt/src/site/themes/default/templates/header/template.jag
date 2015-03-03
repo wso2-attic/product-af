@@ -1,4 +1,21 @@
-<% 
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
 
 include("/jagg/config_reader.jag");
 include("/jagg/constants.jag");
@@ -14,8 +31,7 @@ jagg.template("header", function(inputs, outputs, jagg) {
 	var ssoRelyingParty = new security.SSORelyingParty(getProperty(SSO_NAME));
 	var sessionId = session.getId();
 	var isAuthenticated = ssoRelyingParty.isSessionAuthenticated(sessionId);
-	session.put("LOGGED_IN_USER",ssoRelyingParty.getLoggedInUser(sessionId));
-	
+    jagg.setUser(ssoRelyingParty.getLoggedInUser(sessionId));
 	var requestURI = request.getRequestURI();
 	var checkSSO = true;
 	
@@ -25,7 +41,7 @@ jagg.template("header", function(inputs, outputs, jagg) {
 		checkSSO = false;
 	}
 
-	
+
 	if (checkSSO && !Boolean(isAuthenticated)) {
 	    log.debug("User is not authenticated, redirecting to identity server for authentication.");
 	

@@ -1,4 +1,21 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
@@ -7,6 +24,8 @@ var log = new Log("module/application/update/update.jag");
 
 var modLifecycle = jagg.module("lifecycle");
 var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
 
 // update the appinfo txt with the given values
 
@@ -36,10 +55,7 @@ var editAppInfo = function (applicationName, applicationKey, applicationDescript
 	var options = new Array();
 	options.useSOAP = 1.1;
 	options.action = "urn:editArtifact";
-	options["HTTPHeaders"] =[{
-	name:
-	"Cookie", value:modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-	}];
+	modManager.setAuthHeaders(options);
 	var payload = '<ser:editArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">'+
 	'<ser:path>'+path+'</ser:path>'+
 	'<ser:key>'+key+'</ser:key>'+
@@ -92,10 +108,7 @@ var editAppVersionInfo = function (applicationKey, version, subdomain, currentSt
 	var options = new Array();
 	options.useSOAP = 1.1;
 	options.action = "urn:editArtifact";
-	options["HTTPHeaders"] =[{
-	name:
-	"Cookie", value:modManager.getBackendCookie(getProperty(GREG_SERVER_URL))
-	}];
+	modManager.setAuthHeaders(options);
 	var payload = '<ser:editArtifact xmlns:ser="http://services.generic.governance.carbon.wso2.org">'+
 	'<ser:path>'+path+'</ser:path>'+
 	'<ser:key>'+key+'</ser:key>'+
@@ -120,5 +133,26 @@ var editAppVersionInfo = function (applicationKey, version, subdomain, currentSt
 		throw "Error in calling manage generic artifact service "+e.toString();
 	}
 };
+
+
+var updatePromoteStatus = function (appKey, nextStage, version, state){
+    jagg.module("permission").checkUserActionPermission(appKey,PERMISSION_APPLICATION_MEMBER);
+	var tenantDomain=modManager.getTenantDomain() ;
+	var applicationManagementService;
+	var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+	try{
+	        context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            applicationManagementService =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
+       	    applicationManagementService.updateRxtWithPromoteState(appKey,nextStage,version,"Promote",state);
+	}catch(e){
+	    log.error(e);
+	    throw new Error("Error while updating promote status for : "+ appKey + " in stage: " + nextStage);
+	}finally{
+	   context.endTenantFlow();
+    }
+}
 
 %>

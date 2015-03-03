@@ -77,9 +77,8 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		String version = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_VERSION);
 		String serverDeploymentPath = DeployerUtil.getParameter(parameters, AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
 		log.info("Server deployment path is : " + serverDeploymentPath);
-
 		String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
-
+		String repositoryFrom = DeployerUtil.getParameter(parameters, AppFactoryConstants.REPOSITORY_FROM);
 		String path = getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
 		                                                   getTenantDomain(),jobName);
 
@@ -129,11 +128,16 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
             try {
                 //used for eventing
-                String tenantDomain = getTenantDomain();
-                String correlationKey = applicationId + stageName + version + tenantDomain;
-
-                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.buildApplicationDeployementStartedEvent(applicationId, tenantDomain, "Application deployment started", "", correlationKey));
-                super.deployLatestSuccessArtifact(parameters);
+	            if (!AppFactoryConstants.FORK_REPOSITORY.equals(repositoryFrom)) {
+		            String tenantDomain = getTenantDomain();
+		            String correlationKey = applicationId + stageName + version + tenantDomain;
+		            EventNotifier.getInstance().notify(
+				            ContinousIntegrationEventBuilderUtil
+						            .buildApplicationDeployementStartedEvent(applicationId, tenantDomain,
+						                                                     "Application deployment started", null,
+						                                                     correlationKey));
+		            super.deployLatestSuccessArtifact(parameters);
+	            }
             } catch (AppFactoryException e) {
                 String msg = "deployment of latest success artifact failed for applicaion " + jobName;
                 handleException(msg, e);
@@ -327,19 +331,19 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	@Override
 	protected String getBaseRepoUrl() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL);
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
 	}
 
 	@Override
 	protected String getAdminPassword() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD);
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
 	}
 
 	@Override
 	protected String getAdminUserName() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME);
+				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
 	}
 
 	public void deployTaggedArtifact(Map<String, String[]> requestParameters) throws Exception {

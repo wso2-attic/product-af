@@ -1,21 +1,49 @@
-<% jagg.template("resources/apis/get", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/apis/get", function(inputs, outputs, jagg) { %>
 <%
 var log = new Log();
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var apiManagerStoreUrl = getProperty(API_MANAGER_STORE_URL);
+var apiMStoreSubscriptionUrl = getProperty(API_MANAGER_STORE_SUBSCRIPTION_URL);
+
 var apiManagerServerUrl = getProperty(API_MANAGER_SERVER_URL);
 var apiManagerButton = getProperty(API_MANAGER_BUTTON);
-appInfo=session.get("APP_INFO");
-language=appInfo.language;
+var appInfo = session.get("APP_INFO");
+var language;
+if (appInfo) {
+	language = appInfo.language;
+}
+var helpTips = outputs.helpTips;
 %>
 
 <input type="hidden" value="<%=applicationKey%>" name="applicationKey" id="applicationKey" />
-<input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
 <!-- adding script elements here -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
+	var MAX_URL_LENGTH = 20;
+	var URL_SUFFIX = '...';
     var keyMappins={};
-    
+
 	function loadKeyNameMappings(){
 		keyMappins['sandboxKey']="Sandbox Access Token";
 		keyMappins['sandboxConsumerKey']="Sandbox Consumer Key";
@@ -24,7 +52,7 @@ language=appInfo.language;
 		keyMappins['prodConsumerKey']="Production Consumer Key";
 		keyMappins['prodConsumerSecret']="Production Consumer Secret";
 	}
-	
+
 	function addApi(applicationKey) {
         jagg.post("../blocks/resources/apis/add/ajax/add.jag", {
             action:"createApplication",
@@ -34,6 +62,8 @@ language=appInfo.language;
     }
 
     function saveAndRetrieve(isSyncNeeded){
+        $("#keySection").show();
+    	$("#keySection").html('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
     	jagg.post("../blocks/resources/apis/key/ajax/key.jag", {
     		action:"getSavedKeys",
     		applicationKey:$("#applicationKey").val(),
@@ -50,8 +80,8 @@ language=appInfo.language;
                 });
     			return;
     		}
-    		var parsedResult = jQuery.parseJSON(result); 		
-    		
+    		var parsedResult = jQuery.parseJSON(result);
+
     		var keyValuesExists = false;
     		for(var keyName in parsedResult){
     			if(parsedResult[keyName] == null || (keyMappins[keyName].indexOf("Token") !== -1)){
@@ -62,7 +92,7 @@ language=appInfo.language;
     		}
 
     		if(keyValuesExists){
-    			$("#keySection").show(); 
+    			$("#keySection").show();
     	    	$("#keySection").html('<span class="icon-spinner icon-spin icon-large"></span>');
         		var keyTableBodyHTML = '<li class="list_row_item first_list_row_item">'
                     +'<ul class="list_row first_list_row">'
@@ -75,7 +105,7 @@ language=appInfo.language;
                    + '</ul>'
                 + '</li>';
             		$("#keySection").empty();
-            		$("#keySection").append(keyTableBodyHTML);  
+            		$("#keySection").append(keyTableBodyHTML);
 
             		for(var keyName in parsedResult){
         				keyTableBodyHTML +='<li class="list_row_item ">'+
@@ -91,20 +121,25 @@ language=appInfo.language;
         				                         '</div>'+
         				                     '</li>'+
         				                 '</ul>'+
-        				               '</li>';		
-        	    	}    		
-        			$("#keySection").append(keyTableBodyHTML);  
+        				               '</li>';
+        	    	}
+        			$("#keySection").append(keyTableBodyHTML);
     		}else{
     	 		$("#keySection").html("<div class='noData-message'>Keys yet are not generated for current API subscription. Please contact the application owner.</div>");
     		}
     	},
-    	function (jqXHR, textStatus, errorThrown) {  
+    	function (jqXHR, textStatus, errorThrown) {
     		$("#keySection").hide();
-    		jagg.message({
-                content: 'Error occurred while retriving Keys',
-                type: 'error',
-                id:'uniqueId1'
-            });
+
+    		if (jqXHR.status != 0){
+    	           jagg.message({
+    	                content: 'Error occurred while retriving Keys',
+    	                type: 'error',
+    	                id:'uniqueId1'
+    	            });
+    		}
+
+
     	});
     }
 
@@ -115,8 +150,11 @@ language=appInfo.language;
                 },
                 function (appowner) {
                 	var loggedInuser = $("#userName").val();
-                    if(appowner == loggedInuser){
-    		          	var url = '<%=apiManagerStoreUrl%>' + "/?tenant=" + loggedInuser.substring(loggedInuser.lastIndexOf('@') + 1);
+                	var isAppOwner = (appowner.trim() == loggedInuser.trim())?true:false;
+                	var tenant = loggedInuser.substring(loggedInuser.lastIndexOf('@') + 1);
+
+                    if(isAppOwner){
+    		          	var url = '<%=apiMStoreSubscriptionUrl%>' + "?tenant=" + tenant;
     		            var $elm = $('<a class="btn main" href="'+ url +'" target="_blank"><%=apiManagerButton%></a>').click(function(){addApi('<%=applicationKey%>')});
                         $('#btnItem').append($elm);
                         $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys()" disabled="true">Sync Keys</button>');
@@ -124,15 +162,17 @@ language=appInfo.language;
                     }else{
                     	$('#renewbtnContainer').append('<div class="main push_top_20 push_bottom_40"></div>');
                     }
-                    getAPIsOfAppOwnerApp(appowner);
+                    getAPIsOfAppOwnerApp(appowner, tenant, isAppOwner);
                 },
                 function (jqXHR, textStatus, errorThrown) {
                     // add the error label in the grid
 
                 });
     }
-    
-    function getAPIsOfAppOwnerApp(appowner) {
+
+    function getAPIsOfAppOwnerApp(appowner, tenant, isAppOwner) {
+        $("#apiSection").show();
+        $("#apiSection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
     	jagg.post("../blocks/resources/apis/get/ajax/get.jag", {
             action:"getAPIsOfApp",
             applicationKey:$("#applicationKey").val(),
@@ -141,10 +181,15 @@ language=appInfo.language;
         function (result) {
         	parsedResult=jQuery.parseJSON(result);
         	if(parsedResult.length == 0){
+                if(isAppOwner){
+                    var url = '<%=apiManagerStoreUrl%>' + "?tenant=" + tenant;
+                    var $elm = $('<a class="btn main" href="'+ url +'" target="_blank"><%=apiManagerButton%></a>').click(function(){addApi('<%=applicationKey%>')});
+                    $('#btnItem').empty().append($elm);
+                }
         		$("#apiSection").empty().append("<div class='noData-message'>APIs have not been subscribed yet.</div>");
         	}
         	else{
-        		$("#renewApiBtn").removeAttr("disabled"); 
+        		$("#renewApiBtn").removeAttr("disabled");
 	            var tableBodyHTML = '<li class="list_row_item first_list_row_item">'
 	            						+'<ul class="list_row first_list_row">'
 	            							+'<li class="list_col col-2">'
@@ -154,7 +199,7 @@ language=appInfo.language;
 	            								+'<h2 class="list_col_heading">Version</h2>'
 	            							+'</li>'
 							                +'<li class="list_col col-3">'
-							                	+'<h2 class="list_col_heading">Description</h2>'   
+							                	+'<h2 class="list_col_heading">Description</h2>'
 							                +'</li>'
 							                +'<li class="list_col col-3">'
 						                	+'<h2 class="list_col_heading">Provider</h2>'
@@ -164,9 +209,7 @@ language=appInfo.language;
 							                +'</li>'
 							              +'</ul>'
 	                                 +'</li>';
-	            
-	        	
-	            
+
 	        	for(var i=0; i < parsedResult.length;i++){
 	        		var API = parsedResult[i];
 	                	var endpointUrl = ' <%=apiManagerStoreUrl%>'+'/'+API.name+'/'+API.version;
@@ -196,27 +239,30 @@ language=appInfo.language;
 	                     '</ul>'+
 	                '</li>';
 	        	}
-	        	
+
 	        	$("#apiSection").empty().append(tableBodyHTML);
-                saveAndRetrieve(false);       	
+                saveAndRetrieve(false);
         	}
         },
         function (jqXHR, textStatus, errorThrown) {
-        	jagg.message({
-                content: 'Error occurred while reading API information',
-                type: 'error',
-                id:'uniqueId1'
-            });
+
+            if (jqXHR.status != 0){
+                jagg.message({
+                    content: 'Error occurred while reading API information',
+                    type: 'error',
+                    id:'uniqueId1'
+                });
+            }
         });
     }
-   
+
     function syncKeys(){
 	jagg.removeMessage('uniqueId1');
     	saveAndRetrieve(true);
     }
 
 // ////////////// External api
-    
+
     function prepareDataModel(resultJson){
     	var tableModel = {};
 		var j = 0;
@@ -237,10 +283,10 @@ language=appInfo.language;
 						}else{
 							stageModel[data.name] = data.value;
 						}
-						
+
 					}
 					stages[envName]	= stageModel;
-				}	
+				}
 			}
 			 tableRowModel['stages']= stages;
 			 tableModel[j++] = tableRowModel;
@@ -248,7 +294,21 @@ language=appInfo.language;
 		return tableModel;
     }
 
+	/**
+	 * Get MAX_URL_LENGTH url if the url length exceeds MAX_URL_LENGTH
+	 * @param value url
+	 * @returns MAX_URL_LENGTH url
+	 */
+    function formatUrlValue(value) {
+        if(value.length > MAX_URL_LENGTH) {
+            value = value.substring(0, (MAX_URL_LENGTH - URL_SUFFIX.length)) + URL_SUFFIX;
+        }
+        return value;
+    }
+
     function loadExternalAPIs(apiName, apiVersion, apiProvider) {
+        $("#externalapi").show();
+        $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
         jagg.post("../blocks/resources/externalapi/get/ajax/list.jag", {
             action:"getExternalAPIs",
             applicationKey:$("#applicationKey").val()
@@ -272,56 +332,47 @@ language=appInfo.language;
 					tableBodyHTML += '<div class="list_col_content">';
 				    var row = tableModel[index];
 			        elementIds.push(row.name);
-				    
+
 				      count = 0;
 				    for (var stageName in row.stages) {
 				        var stageValues = row.stages[stageName];
 				        url = "<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager&isEdit=true&resourceName=" + row.name+"&environment="+stageName;
 				        if (count++ == 0) {
-				            tableBodyHTML += '<li class="list_row_item first_list_row_item">' + '<ul class="list_row first_list_row">' 
-				            				+ '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
+				            tableBodyHTML += '<li class="list_row_item first_list_row_item">' + '<ul class="list_row first_list_row">'
+				            				+ '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">'
 				            				+ '<li>' + row.name + '</li>' + '</ul>';
-				        if(snippets)   				
+				        if(snippets)
 				            tableBodyHTML+='<span id="snippet_'+row.name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;'
 				            				+'<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
 
-				            tableBodyHTML += '</div></li><li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">' 
+				            tableBodyHTML += '</div></li><li class="col-5">' + '<div class="list_col_content">' + '<ul class="list">'
 				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>';
 
-				            tableBodyHTML += '<li class="col-6">';
+				            tableBodyHTML += '<li class="col-4">';
 				        }
-				        tableBodyHTML += '<div class="list_col_content"><dl class="list">';
-				        tableBodyHTML += '<dt><a href="' + url + '" class="tag" style="margin-left:0px">' + stageName + '</a></dt>';
-
-				        for (var propName in stageValues) {
-				            var propVal = stageValues[propName];
-                            if(propName == 'url'){
-                            	tableBodyHTML += '<dd style="padding-left:6px;font-size: 0.857142857em;">' + propName + ': ' + propVal + '</dd>';
-                            	tableBodyHTML += '<i class="fa fa-pencil-square-o"></i>';
-                            }
-				        }
-				        tableBodyHTML += '</dl></div>	';
-				      
+				        tableBodyHTML += '<div class="list_col_content">';
+				        tableBodyHTML += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'"><span class="icon-edit"></span></a><span style="padding-left:6px;font-size: 0.857142857em;"><b>'+ stageName +' :</b> ' + formatUrlValue('url:' + stageValues['url']) +' </span></br>';
+				        tableBodyHTML += '</div>';
 				    }
-				    
+
 				   		tableBodyHTML+= '</li></ul>';
-				        if(snippets)   							   		
+				        if(snippets)
 				   		tableBodyHTML+='<div id="code'+row.name+'" style="display: none;" class="code">'
-										+codeSnippet.generate("Java","Apis","<%=applicationKey%>",row.name,row);       	
+										+codeSnippet.generate("Java","Apis","<%=applicationKey%>",row.name,row);
 										+'</div>';
 
 						tableBodyHTML+='</div>';
 				}
-				
+
 				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
 	            			'<ul class="list_row first_list_row">' +
 	            			'<li class="col-3">' +
 	            			'<h2 class="list_col_heading">Name</h2>' +
 	            			'</li>' +
-	            			'<li class="col-3">' +
+	            			'<li class="col-5">' +
 	            			'<h2 class="list_col_heading">Authentication</h2>'+
 	            			'</li>' +
-	            			'<li class="col-6">' +
+	            			'<li class="col-4">' +
 	            			'<h2 class="list_col_heading">Values</h2>'+
 	            			'</li>' +
 	            			'</ul>' +
@@ -329,7 +380,7 @@ language=appInfo.language;
 				$("#externalapi").empty().append(initTableTxt).append(tableBodyHTML);
 				for (var index in elementIds) {
 				    var name = elementIds[index];
-					
+
 				    //tableBodyHTML += '<ul class="list_row first_list_row">'
 					$("#snippet_"+name).click(function(){
 						$crtl=$(this);
@@ -337,14 +388,14 @@ language=appInfo.language;
 		  	 				});
 						});
 				}
-		    
-				$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false}); 
+
+				$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
         	}
         },
         function (jqXHR, textStatus, errorThrown) {
             // add the error label in the grid
         });
-    }   
+    }
     function showHideTabs(linkTab){
         $('li',$(linkTab).parent()).removeClass('active');
         $(linkTab).addClass('active');
@@ -358,12 +409,13 @@ language=appInfo.language;
         });
     }
     $(document).ready(function(){
-	    getHelpTips();
+    	initializeUserActivity("apis",'<%=applicationKey%>', '<%=applicationName%>');
+	    setHelpTips(<%= helpTips %>);
     	loadKeyNameMappings();
     	loadExternalAPIs();
     	isAppOwner();
     });
-    
+
     function showKeysByRole(parsedResult){
    	 var keyTableBodyHTML = "";
        	 for(var i=0; i < parsedResult.length;i++){
@@ -389,9 +441,9 @@ language=appInfo.language;
    	             '</li>';
 
        	 }
-            $("#keySection").append(keyTableBodyHTML);	 
+            $("#keySection").append(keyTableBodyHTML);
     }
-    
+
     function keysAvailableInRegistry() {
         jagg.post("../blocks/resources/apis/key/ajax/key.jag", {
             action:"keysExistsInAllStages",
@@ -404,31 +456,25 @@ language=appInfo.language;
     		}
         },
         function (jqXHR, textStatus, errorThrown) {
-        	$("#keySection").hide(); 
-        	jagg.message({
-                content: 'Error occurred while checking the existance of Keys in registries',
-                type: 'error',
-                id:'uniqueId1'
-            });
+        	$("#keySection").hide();
+
+        	if (jqXHR.status != 0){
+                jagg.message({
+                    content: 'Error occurred while checking the existance of Keys in registries',
+                    type: 'error',
+                    id:'uniqueId1'
+                });
+        	}
+
+
         });
     }
 
-    function getHelpTips(){
-	jagg.post("../blocks/help/ajax/help.jag", {
-		action: "getHelpTips",
-		page: "resources-apis"
-	},
-
-	function (result) {
-		helpTips = jQuery.parseJSON(result);
+    function setHelpTips(helpTips){
 		$("#apiHelp").html(helpTips.apiHelp);
 		$("#enterpriseApiHelp").html(helpTips.enterpriseApiHelp);
-	},
-
-	function (jqXHR, textStatus, errorThrown) {
-	});
      }
-    
+
 </script>
 
 <style type="text/css">
@@ -445,7 +491,7 @@ language=appInfo.language;
        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
        </div>
       <div class="content">
-         <h1>Resources</h1>
+         <h1>Runtime Configs</h1>
       </div>
    </header>
    <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>

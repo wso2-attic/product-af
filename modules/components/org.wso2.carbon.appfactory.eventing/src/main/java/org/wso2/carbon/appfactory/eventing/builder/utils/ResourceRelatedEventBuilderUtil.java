@@ -243,4 +243,67 @@ public class ResourceRelatedEventBuilderUtil {
         event.setCorrelationKey(correlationKey);
         return event;
     }
+
+    /**
+     *
+     * @param appKey application key
+     * @param attachedBy who attached the user
+     * @param title notification title
+     * @param description notification description
+     * @param category notification category whether it is SUCCESS or ERROR
+     * @return event that will be triggered when a new user is attached to a database
+     */
+    public static Event attachNewUserEvent(String appKey, String attachedBy, String title, String description, String category) {
+        Category eventStatus;
+        if ("INFO".equals(category)) {
+            eventStatus = Category.INFO;
+        } else {
+            eventStatus = Category.ERROR;
+        }
+
+        Event event = new Event();
+        Event.EventDispatchType[] eventDispatchTypes =
+                new Event.EventDispatchType[]{
+                        Event.EventDispatchType.SOCIAL_ACTIVITY
+                };
+        event.setEventDispatchTypes(eventDispatchTypes);
+        event.setSender(attachedBy);
+        event.setCategory(eventStatus);
+        event.setTarget(appKey);
+        event.setMessageTitle(title);
+        event.setMessageBody(description);
+        return event;
+    }
+
+
+    /**
+     *
+     * @param appKey application key
+     * @param detachedBy who attached the user
+     * @param title notification title
+     * @param description notification description
+     * @param category notification category whether it is SUCCESS or ERROR
+     * @return event that will be triggered when a user is detached from the database
+     */
+    public static Event detachUserEvent(String appKey, String detachedBy, String title, String description, String category) {
+        Category eventStatus;
+        if ("INFO".equals(category)) {
+            eventStatus = Category.INFO;
+        } else {
+            eventStatus = Category.ERROR;
+        }
+
+        Event event = new Event();
+        Event.EventDispatchType[] eventDispatchTypes =
+                new Event.EventDispatchType[]{
+                        Event.EventDispatchType.SOCIAL_ACTIVITY
+                };
+        event.setEventDispatchTypes(eventDispatchTypes);
+        event.setSender(detachedBy);
+        event.setCategory(eventStatus);
+        event.setTarget(appKey);
+        event.setMessageTitle(title);
+        event.setMessageBody(description);
+        return event;
+    }
 }

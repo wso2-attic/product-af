@@ -1,4 +1,5 @@
 <Runtime>
+    <SupportDataSource>true</SupportDataSource>
     <Runtime>appserver</Runtime>
     <DeployerClassName>org.wso2.carbon.appfactory.jenkins.deploy.JenkinsArtifactDeployer</DeployerClassName>
     <PAASArtifactStorageURLPattern>{@stage}/as</PAASArtifactStorageURLPattern>

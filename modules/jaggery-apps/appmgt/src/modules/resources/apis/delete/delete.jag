@@ -1,0 +1,56 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+var log = new Log('modules/resources/apis/delete/delete.jag');
+var modManager = jagg.module("manager");
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+/**
+ * Delete the application {@code appKey} from API Manager. This will remove the all the subscriptions associated with
+ * the {@code appKey} as well.
+ *
+ * @param appKey application key
+ */
+var deleteApplicationFromApiM = function(appKey){
+    var tenantDomain = modManager.getTenantDomain();
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
+        service.removeApplication(appKey, session.get("SAML_TOKEN"));
+        log.info("Successfully deleted API Manager application: "+appKey+
+                  " tenant: "+tenantDomain);
+    } catch (e) {
+        log.error("Error while deleting application from api manager. the list of APIs of appKey "+ appKey +
+                  " tenant: "+tenantDomain+"\n"+ e.message);
+        throw "Error while getting the list of APIs of appKey "+ appKey+" tenant: "+tenantDomain;
+    }
+};
+
+%>

@@ -1,10 +1,29 @@
-<% jagg.template("resources/menu", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/menu", function (inputs, outputs, jagg) { %>
 <nav class="sub_menu">
     <ul class="sub_list">
-        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'overview') { %>active<% } %>">Overview</a></li>
-        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'database_config') { %>active<% } %>">Databases</a></li>
-        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'apis') { %>active<% } %>">APIs</a></li>
-        <li class="sub_list_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'endpoints_registry') { %>active<% } %>">Properties</a></li>
+        <li class="sub_list_item"><a id="configOverviewTab" href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'overview') { %>active<% } %>">Overview</a></li>
+        <li class="sub_list_item"><a id="configDatasourcesTab" href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'datasources') { %>active<% } %>">Datasources</a></li>
+        <li class="sub_list_item"><a id="configAPITab" href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'apis') { %>active<% } %>">APIs</a></li>
+        <li class="sub_list_item"><a id="configPropertiesTab" href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=inputs.applicationName%>&applicationKey=<%=inputs.applicationKey%>" class="sub_list_link <% if(inputs.page == 'endpoints_registry') { %>active<% } %>">Properties</a></li>
      </ul>
 </nav>
 <% }); %>

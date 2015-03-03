@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 
@@ -9,25 +27,56 @@ var site = require("/site/conf/site.json");
 	if(session.get("last_backend_access_time_for_getting_appList") == null) {
 		session.put("last_backend_access_time_for_getting_appList",((new Date().getTime())/1000)/60);
 	}
-	var userName = session.get("LOGGED_IN_USER");
+    var userName = jagg.getUser();
 	if(userName == null | userName == 'anonymous user') {
 		//do nothing
 	} else {
-		if(session.get('application_list') == null) {
-			var apps = mod.getAllAppsOfUser(userName);
-			session.put('application_list',apps);
-		} else {
-			// do nothing. Application list is already in session
-		}
+	var permissionModule = jagg.module("permission");
+        var authUser = userName.split('@')[0];
 
-		var lastAccess = session.get("last_backend_access_time_for_getting_appList");
-		var currentTime = ((new Date().getTime())/1000)/60;
-		if(Math.floor(Math.abs(currentTime-lastAccess)) > 0 ) {
-			// reload application list to session taking from back end
-			var apps = mod.getAllAppsOfUser(userName);
-			session.put('application_list',apps);
-			session.put("last_backend_access_time_for_getting_appList",currentTime);
-		}
+        if(session.get('application_list') == null) {
+            var apps = mod.getAllAppsOfUser(userName);
+            session.put('application_list',apps);
+        }
+
+        if(session.get("PERMISSION_CACHE") == null){
+            var optimizedPermissions = permissionModule.getOptimizedPermissions(null);
+            var userCache={};
+            var permissionCache={};
+            var tenantPermissionCache={};
+
+            for(var i=0; i< optimizedPermissions.length ; i++){
+                tenantPermissionCache[optimizedPermissions[i]] = true;
+            }
+
+            userCache["tenantPermCache"] = tenantPermissionCache;
+            permissionCache[authUser] = userCache;
+
+            session.put("PERMISSION_CACHE",permissionCache);
+        }
+
+        if(session.get("APPLICATION_CACHE") == null){
+            var userApplicationsList =  jagg.module('tenant').getApplicatioinKeysOfUser(authUser);
+
+            var applicationsCache = {};
+            var applications = {};
+
+            for(var i=0; i < userApplicationsList.length ; i++){
+                applications[userApplicationsList[i]] = true;
+            }
+
+            applicationsCache[authUser] = applications;
+            session.put("APPLICATION_CACHE",applicationsCache);
+        }
+
+	var lastAccess = session.get("last_backend_access_time_for_getting_appList");
+	var currentTime = ((new Date().getTime())/1000)/60;
+	if(Math.floor(Math.abs(currentTime-lastAccess)) > 0 ) {
+		// reload application list to session taking from back end
+		var apps = mod.getAllAppsOfUser(userName);
+		session.put('application_list',apps);
+		session.put("last_backend_access_time_for_getting_appList",currentTime);
+	}
 	}
 
     jagg.render({

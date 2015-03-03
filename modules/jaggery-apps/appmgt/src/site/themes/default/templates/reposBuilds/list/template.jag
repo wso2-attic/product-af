@@ -1,24 +1,48 @@
-<% jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
 <%
+include("/jagg/config_reader.jag");
 var baseURL = getProperty(BASE_URL);
 var gitBaseUrl = getProperty(GIT_BASE_URL);
 var appDomain = getProperty("DomainName");
 var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
 var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
-var loggedInUser = session.get("LOGGED_IN_USER");
+var loggedInUser = jagg.getUser();
 var gitURL = null;
 var gitURLForked = null ;
 var applicationKey = request.getParameter("applicationKey");
+var applicationName = request.getParameter("applicationName");
 var mod = jagg.module("manager");
 var tenantDomain = mod.getTenantDomain();
 var allStages = getProperties(DEPLOYMENT_STAGES);
+var appDetails = outputs.appDetails;
+var buildableStages = outputs.buildableStages;
+var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+var isCodeEditorSupported = outputs.isCodeEditorSupported;
 %>
 <style>
 .popover_form input.branch-txt-width-fix {
 	width: 240px;
 }
-
+#select2-drop-mask{display:none !important;}
 #d_clip_button {
 	text-align: center;
 	border: 1px solid black;
@@ -36,6 +60,7 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
 }
 </style>
 
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
     //[cdata[
     var registerPopRemover = function(){
@@ -50,6 +75,10 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
                }
             });
     }
+
+    $(document).ready(function(){
+    	initializeUserActivity("reposBuild", '<%=applicationKey%>', null);
+    });
 
     var subDomain;
     var appType;
@@ -85,16 +114,15 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
 
         var codeEnvyUrl = null;
 
-        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+        jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
                 action: "createCodeEnvyUrl",
                 gitURL: gitURL,
                 applicationKey: applicationKey,
                 appType: appType,
                 version:version
             }, function (result) {
-                codeEnvyUrl = result;
-                var response = JSON.parse(result);
-                 if(codeEnvyUrl==="" || response.error === "true"){
+				codeEnvyUrl = result.url;
+                if(!codeEnvyUrl){
                         jagg.message({
                             content: "Failed creating the Codenvy workspace URL!",
                             type: 'error',
@@ -102,9 +130,7 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
                         });
 
                     }else{
-                        //OpenInNewTab(codeEnvyUrl);
-                        var elementName = "." + elementClassName;
-                        $(elementName).attr("href",codeEnvyUrl);
+                        window.open(codeEnvyUrl,'_blank');
                     }
         });
        // return nonEncodedUrl;
@@ -114,8 +140,8 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
     var enablePerDeveloperRepos = '<%=enablePerDeveloperRepos%>';
     var enablePerDeveloperBuild = '<%=enablePerDeveloperBuild%>';
 
-    function doFork(applicationKey, userName, type, version) {
-
+    function doFork(applicationKey, userName, type, version, element) {
+        element.attr('disabled',true);
         jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
             action:"createFork",
             applicationKey:applicationKey,
@@ -125,17 +151,25 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
         }, function (result) {
         	//drawForkedVersionsList();
         	loadRepositories(null,null);
+		    drawVersion(applicationKey , selectedVersion);
+		    element.attr('disabled',false);
             //forcePageAppRefresh = true;
         },
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({
-                content:"Error while forking repository.",
-                type:'error'
-            });
+
+            if (jqXHR.status != 0){
+                jagg.message({
+                    content:"Error while forking repository.",
+                    type:'error'
+                });
+            }
+
+            element.attr('disabled',false);
         });
     }
 
-    function doForkBranch(applicationKey, userName, type, version) {
+    function doForkBranch(applicationKey, userName, type, version,element) {
+        element.attr('disabled',true);
         jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
                     action:"createForkBranch",
                     applicationKey:applicationKey,
@@ -143,16 +177,22 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
                     type:type,
                     version:version
                 }, function (result) {
-                	//drawForkedVersionsList();
-                	loadRepositories($('#stagelist_masterrepo').select2('data').text,version);
+                	updateForkedVersionList();
+                	loadRepositories($('#stagelist_masterrepo').select2('val'),version);
+                    element.attr('disabled',false);
                 	//location.reload();
                     //forcePageAppRefresh = true;
                 },
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content:"Error while forking repository.",
-                        type:'error'
-                    });
+
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content:"Error while forking repository.",
+                            type:'error'
+                        });
+                    }
+
+                    element.attr('disabled',false);
                 });
     }
 
@@ -161,31 +201,87 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
     //	doForkBranch(applicationKey,userName,"git",selectedItem);
     //}
 
-    var forkedVersionList = [] ;
-    var versionList = [] ;
     var stagesList = [];
     var stageVersionMap = {};
     var nonForkedVersionList = [] ;
 
-    function drawVersionsList(selectedStage,selectedVersion) {
+    function drawVersion(applicationKey,selectedVersion){
+    // Adding a spinner until versions are drawn
+    $("#repositories_and_builds_list_master").empty().append('<span style="margin-left:35px; margin-top:40px;" class="icon-spinner icon-spin icon-large spin-large"></span>');
 
-        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
-                action: "getbuildandrepodata",
-                buildableforstage:"true",
-                metaDataNeed:"false",
+	jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+                action: "getBuildAndRepoDataForVersion",
                 applicationKey: applicationKey,
-                userName:userName,
-                isRoleBasedPermissionAllowed:"false"
+                version:selectedVersion
             }, function (result) {
-            	masterVersionJSON = jQuery.parseJSON(result) ;
-            	drawMasterVersionList(selectedStage,selectedVersion);
+		        masterJSON = jQuery.parseJSON(result);
+		        drawMasterVersion(selectedVersion);
+		        drawForkedVersions(selectedVersion);
             },
-	        function (jqXHR, textStatus, errorThrown) {
+                function (jqXHR, textStatus, errorThrown) {
 
-	        });
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while reading build and repo data for version" + selectedVersion,
+                            type: 'error',
+                            id:'message_id'
+                        });
+                }
+
+                });
+
     }
 
-    var masterVersionJSON = null ;
+    var masterJSON = null;
+
+    function drawInitialDropDowns(){
+	versions = jQuery.parseJSON('<%= appDetails %>');
+
+        count = versions.length;
+
+        for (var i = 0; i < count; i++) {
+
+            element = versions[i];
+            addToStagesList(element.version.stage);
+            addToStageVersionMapping(element.version.stage,element.version.current);
+
+        }
+
+        if($.cookie('selectedStage')!="null"){//cookie is set
+                selectedStage=$.cookie('selectedStage');
+        }else{
+                selectedStage=versions[0].version.stage;
+        }
+
+	    $.cookie('selectedStage',selectedStage);
+
+        if($.cookie('selectedVersion')!="null"){//cookie is set
+                selectedVersion = $.cookie('selectedVersion') ;
+                // After promoting the version and stage does not match
+            for (var i = 0; i < count; i++) {
+                element = versions[i];
+                if(element.version.current == selectedVersion){
+                    selectedStage = element.version.stage;
+                    $.cookie('selectedStage',selectedStage);
+                    break;
+                }
+            }
+
+        }else{
+                selectedVersion= stageVersionMap[selectedStage][0];
+        }
+
+	    $.cookie('selectedVersion',selectedVersion);
+
+        if(stageVersionMap[selectedStage]!=null){
+                loadVersionList(stageVersionMap[selectedStage],selectedVersion);
+        }else{ //if no versions available for a stage
+
+                loadVersionList(null,null);
+        }
+        loadStagesList(selectedStage);
+	drawVersion('<%= applicationKey%>',selectedVersion);
+    }
 
     function addToStagesList(stage){
         if(jQuery.inArray(stage,stagesList) == -1){
@@ -205,51 +301,12 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
         }
     }
 
-    function drawMasterVersionList(selectedStage,selectedVersion){
+    function drawMasterVersion(selectedVersion){
 
     	nonForkedVersionList = [] ;
-    	versionList = [] ;
     	var row = '',
-        versions = [],
-        element = {},
-        count = 0;
+        element = {};
         var currentStage;
-
-    	versions = masterVersionJSON ;
-    	$("#repositories_and_builds_list_master").empty();
-
-	count = versions.length;
-	
-	for (var i = 0; i < count; i++) {
-
-	    element = versions[i];
-	    versionList[versionList.length] = element.version.current ;
-	    addToStagesList(element.version.stage);
-	    addToStageVersionMapping(element.version.stage,element.version.current);
-
-	}
-
-
-	if($.cookie('selectedStage')!=null){//cookie is set
-		selectedStage=$.cookie('selectedStage');
-	}else{
-
-		selectedStage=versions[0].version.stage;
-	}
-
-    	if($.cookie('selectedVersion')!=null){//cookie is set
-        	selectedVersion = $.cookie('selectedVersion') ;
-        }else{
-		selectedVersion= stageVersionMap[selectedStage][0];
-	}
-	
-	if(stageVersionMap[selectedStage]!=null){
-		loadVersionList(stageVersionMap[selectedStage],selectedVersion);
-	}else{ //if no versions available for a stage
-
-		loadVersionList(null,null);
-	}
-	loadStagesList(selectedStage);	
 
         var $repoTable = $('<div class="page-content-area">'+
                 '<div class="af_container">'+
@@ -268,24 +325,36 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
                 '</div>'+
             '</div>');
 
-        for (var i = 0; i < count; i++) {
-            element = versions[i];
-            if(element.version.artifactType == "war" && element.version.productionMappedDomain != null && element.version.productionMappedDomain != "" ){
-            	domainMappedVersion = element.version.current;
-            }
-            if(selectedVersion!=null && element.version.current != selectedVersion){
-            	continue ;
-            }
-            $('table', $repoTable).append(constructRow(element,i));
-            currentStage = element.version.stage;
-
+        if(masterJSON != "undefined" || masterJSON != null){
+            element = masterJSON[0];
         }
+	    var versionInfo = element.versions[0];
+            if(element.type == "war" && versionInfo.productionMappedDomain != null && versionInfo.productionMappedDomain != "" ){
+            	domainMappedVersion = versionInfo.version;
+            }
+            $('table', $repoTable).append(constructRow(element));
+            currentStage = versionInfo.stage;
+        $('#repositories_and_builds_list_master span.icon-spinner').remove();
+        $("#repositories_and_builds_list_master").empty();
         $("#repositories_and_builds_list_master").append($repoTable);
 
             ZeroClipboard.setDefaults(_defaults);
             var clip = new ZeroClipboard($('#original_giturl'));
             clip.on( 'load', function(client) {});
-            clip.on( 'complete', function(client, args) { } );
+            clip.on( 'complete', function(client, args) {
+					$('#original_giturl').qtip({
+                        content:{
+                                attr: 'data-tooltip'
+                        },
+                        show:{
+                                event:'click',
+                                ready:true
+                        },
+                        hide:{
+                                distance:20
+                        }
+                    });
+	    });
             clip.on( 'mousedown', function(client) { } );
             $("#original_giturl").attr("data-clipboard-text",gitURL);
             $("#original_giturl_txt").val(gitURL);
@@ -331,7 +400,7 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
                     $next.show();
                 }
             });
-	 
+
 	    $('.popover_form .cancel', $('.js_build_option').parent()).click(function(event){
                 $(this).closest(".popover_form").toggle( function() {
                     $(this).toggleClass("highlight");
@@ -353,35 +422,36 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
 
 		//setInterval(function(){populateVersionList()}, 1000);
 
-                doBuild(applicationKey," ",tmpstage," ",tmpSrcVersion,autoDeploy,"original");
- 
-
-                
+                doBuild(applicationKey," ",tmpstage," ",tmpSrcVersion,autoDeploy,"original",$(this));
             });
+
             $('.createCodeEnvyUrl').click(function(event){
+            createCodeEnvyUrl(selectedVersion,element.type,gitURL,"createCodeEnvyUrl");
                 var version=$(this).attr('data-version');
                 var appType=$(this).attr('data-type');
-                if(appType=== 'bpel' || appType=== 'esb' || appType=== 'dbs'){
-                jagg.message({
-                    content: "Code editor not supported for the " + appType + " application type!",
-                    type: 'error',
-                    id:'message_id'
-                });
-
-            }
+                $(this).attr('disabled',true);
+                if('<%=isCodeEditorSupported%>' === 'true'){
+                    jagg.message({
+                        content: "Code editor not supported for the " + appType + " application type!",
+                        type: 'error',
+                        id:'message_id'
+                    });
+                }
+                $(this).attr('disabled',false);
             });
+
             $('.deploy_action').click(function(event){
                 var tmpSrcVersion=$(this).attr('data-version');
                 var tmpstage=$(this).attr('data-stage');
-
-                doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion);
+                doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion ,$(this));
             });
+
             $('.launch_action').click(function(event){
                 var tmpAppType=$(this).attr('data-type');
                 var tmpSrcVersion=$(this).attr('data-version');
                 var tmpstage=$(this).attr('data-stage');
                 var state="started";
-                doLaunch(applicationKey, tmpSrcVersion,tmpstage,state,tmpAppType);
+                doLaunch(applicationKey, tmpSrcVersion,tmpstage,state,tmpAppType, $(this));
             });
 
             $('.config_save-action').click(function(event){
@@ -395,7 +465,7 @@ var allStages = getProperties(DEPLOYMENT_STAGES);
 
 
                 var tmpstage=$(this).attr('data-stage');
-                doSetBuildDeployConfigs(applicationKey,tmpSrcVersion,tmpstage,autoBuild,autoDeploy);
+                doSetBuildDeployConfigs(applicationKey,tmpSrcVersion,tmpstage,autoBuild,autoDeploy,$(this));
             });
 $('.cancel').click(function(event){
 
@@ -413,8 +483,7 @@ $('js_build_option').removeClass("active");
             $('.fork_repo').click(function(event){
                 var fType = $(this).attr('data-forkType');
                 var ver = $(this).attr('original-version');
-
-                doForkBranch(applicationKey, userName, fType, ver);
+                doForkBranch(applicationKey, userName, fType, ver ,$(this));
             });
 
             $('.js-table-collapse').click(function(){
@@ -428,76 +497,69 @@ $('js_build_option').removeClass("active");
                 $(this).closest('tr').next().toggle('fast').next().toggle('fast');
             });
 
-            //We create the codeEnvy URL here
-            createCodeEnvyUrl(selectedVersion,element.type,gitURL,"createCodeEnvyUrl");
 
             //$('#repo_stage_header').empty().append("<h3>"+ currentStage+ ' >> ' + selectedVersion + "</h3>");
-        drawForkedVersionsList(selectedVersion);
     }
 
     var isAlreadyForked = false ;
+    //"forkedVersionsJSON" is used to draw forked version list
     var forkedVersionsJSON = null ;
-    function drawForkedVersionsList(selectedVersion) {
 
-        $.ajax({url:"../blocks/buildandrepo/list/ajax/list.jag", data:{
-                action: "getbuildandrepodataforkedrepo",
-                buildableforstage:"true",
-                metaDataNeed:"false",
-                applicationKey: applicationKey,
-                userName:userName,
-                isRoleBasedPermissionAllowed:"false"
-            },
-            type:'POST',
-            async:false,
-            success:function (result) {
-            	forkedVersionsJSON = jQuery.parseJSON(result);
-            	drawForkVersionListImpl(selectedVersion);
+    /**
+     * Get forked version list in sync manner and update {@code forkedVersionsJSON} which is used to draw the fork
+     * version list
+     */
+    function updateForkedVersionList(){
+        jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
+            action: "getbuildandrepodataforkedrepo",
+            buildableforstage:"true",
+            metaDataNeed:"false",
+            applicationKey: applicationKey,
+            userName:userName,
+            isRoleBasedPermissionAllowed:"false"
+        }, function (result) {
+            forkedVersionsJSON = result;
+        });
+    }
 
-            }
-         });
-
-         $('#stagelist_masterrepo').select2({minimumResultsForSearch: -1});
+    /**
+     * Draws the UI elements correspond to {@code selectedVersion}
+     * @param selectedVersion
+     */
+    function drawForkedVersions(selectedVersion) {
+        drawForkVersionImpl(selectedVersion);
+        $('#stagelist_masterrepo').select2({minimumResultsForSearch: -1});
         $('#versionlist_masterrepo').select2({minimumResultsForSearch: -1});
     }
-    function drawForkVersionListImpl(selectedVersion){
+
+    /**
+     * Checks the whether {@code version} is already added to the forked repo
+     * @param version
+     * @returns {boolean} true if {@code version} is already added to the forked repo
+     */
+    function isVersionAlreadyForked(version){
+        if(forkedVersionsJSON && forkedVersionsJSON[version]){
+            return true;
+        }
+        return false;
+    }
+
+    function drawForkVersionImpl(selectedVersion){
     	forkedVersionList = [] ;
 	    var row = '',
             versions = [],
-            element = {},
-            count = 0;
-	    versions = forkedVersionsJSON ;
+            element = {};
+        var foundVersion = false;
     	$("#repositories_and_builds_list_fork").empty();
 
-        count = versions.length;
-
-        if(count != 0){
-
+        if(forkedVersionsJSON && !(Object.getOwnPropertyNames(forkedVersionsJSON).length === 0)){
         	isAlreadyForked = true ;
-
-
-        	if(enablePerDeveloperRepos){
-
-            	for (var i = 0; i < count; i++) {
-                    element = versions[i];
-                    forkedVersionList[i] = element.version.current;
-            	}
-        	}
-
-            var foundVersion = false;
-
-            for (var i = 0; i < count; i++) {
-                element = versions[i];
-                if(selectedVersion!=null && element.version.current != selectedVersion){
-                	continue ;
-                }
-
-                foundVersion = true;
-
+            foundVersion = isVersionAlreadyForked(selectedVersion);
+            if(foundVersion) {
+                element = forkedVersionsJSON[selectedVersion];
                 var parsedVersionID = "#" + element.version.current.replace(/\./g,'_');
-                $(parsedVersionID).before(constructForkedRepoRow(element,i));
-                //$(parsedVersionID).append(constructForkedRepoRow(element,i));
+                $(parsedVersionID).before(constructForkedRepoRow(element));
             }
-
         }
             if(enablePerDeveloperRepos === "true"){
                 $forkActionBar = createForkActionBar(isAlreadyForked);
@@ -507,13 +569,26 @@ $('js_build_option').removeClass("active");
 
             $('.fork_root_button').click(function(event){
                 var fType = "git";
-                doFork(applicationKey, userName, fType, "");
+                doFork(applicationKey, userName, fType, "", $(this));
             });
 
             ZeroClipboard.setDefaults(_defaults);
             var clip = new ZeroClipboard($('#forked_giturl'));
             clip.on( 'load', function(client) {});
-            clip.on( 'complete', function(client, args) { } );
+            clip.on( 'complete', function(client, args) {
+					$('#forked_giturl').qtip({
+                        content:{
+                                attr: 'data-tooltip'
+                        },
+                        show:{
+                                event:'click',
+                                ready:true
+                        },
+                        hide:{
+                                distance:20
+                        }
+                    });
+	    } );
             clip.on( 'mousedown', function(client) { } );
             $("#forked_giturl").attr("data-clipboard-text",gitURLForked);
             $("#forked_giturl_txt").val(gitURLForked);
@@ -522,22 +597,23 @@ $('js_build_option').removeClass("active");
             $('.buildfork_action').click(function(event){
                 var tmpSrcVersion=$(this).attr('data-version');
                 var vr=tmpSrcVersion.replace(/\./g,'_');
-                var tmpstage=$(this).attr('data-stage');
                 var id2= "#auto_deploy_"+ vr;
                 var autoDeploy= $(id2).is(':checked');
-                doBuild(applicationKey," ",tmpstage," ",tmpSrcVersion,autoDeploy,"fork");
+                doBuild(applicationKey," ","Development"," ",tmpSrcVersion,autoDeploy,"fork" ,$(this));
             });
             $('.createForkedCodeEnvyUrl').click(function(event){
+            createCodeEnvyUrl(selectedVersion,element.type,gitURLForked,"createForkedCodeEnvyUrl");
                 var version=$(this).attr('data-version');
                 var appType=$(this).attr('data-type');
+                $(this).attr('disabled',true);
                 if(appType=== 'bpel' || appType=== 'esb' || appType=== 'dbs'){
-                jagg.message({
-                    content: "Code editor not supported for the " + appType + " application type!",
-                    type: 'error',
-                    id:'message_id'
-                });
-
-            }
+                    jagg.message({
+                        content: "Code editor not supported for the " + appType + " application type!",
+                        type: 'error',
+                        id:'message_id'
+                    });
+                }
+                $(this).attr('disabled',false);
             });
             $('#filter_repos_or_stages').keyup(function(event){
                  doSearch($(this).val());
@@ -561,8 +637,6 @@ $('js_build_option').removeClass("active");
             }
 
 
-            //We create the forked codeenvy URL here
-            createCodeEnvyUrl(selectedVersion,element.type,gitURLForked,"createForkedCodeEnvyUrl");
 
     }
 
@@ -588,34 +662,33 @@ $('js_build_option').removeClass("active");
 	    appType = parsedArray.type;
 	},function (jqXHR, textStatus, errorThrown) {
 	    //jagg.message({content:'Could not load Application information',type:'error' });
-        jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+
+        if (jqXHR.status != 0){
+            jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+        }
+
 	});
 }
 
     $(function () {
-
         applicationKey = '<%=request.getParameter("applicationKey")%>';
-        userName = '<%=session.get("LOGGED_IN_USER")%>';
-	    getHelpTips();
+        userName = '<%=jagg.getUser()%>';
         pageLoad();
-        setInterval(function(){
-		getBuildAndDeploymentInfo($.cookie("selectedVersion"))
-	},30000); 
     });
 
 
 
     function pageLoad(){
-    	//getBuildAndDeploymentInfo();
-		drawVersionsList(null,null);
+    	updateForkedVersionList();
+		drawInitialDropDowns();
         setJenkinsURL();
 	loadApplicationInfo(applicationKey);
     }
 
 
     function loadRepositories(stage,version){
-//    	drawForkedVersionsList(version);
-        drawVersionsList(stage,version);
+//    	drawForkedVersions(version);
+        drawVersion('<%= applicationKey %>',version);
         //drawVersionListRec();
     }
 
@@ -633,13 +706,16 @@ $('js_build_option').removeClass("active");
     }
 
     function selectMasterRepo(selectedStage){
-	$.cookie('selectedStage', selectedStage);
-	$.cookie('selectedVersion',$('#versionlist_masterrepo').select2('data').text);	
-    	drawMasterVersionList(selectedStage,$('#versionlist_masterrepo').select2('data').text);
+    if(selectedStage == undefined){
+        selectedStage = $('#stagelist_masterrepo').select2('val');
+    }
+$.cookie('selectedStage', selectedStage);
+	$.cookie('selectedVersion',$('#versionlist_masterrepo').select2('data').text);
+    	drawVersion('<%= applicationKey %>', $.cookie('selectedVersion'));
     }
 
     function populateVersionList(){
-        var selectedStage = $('#stagelist_masterrepo').select2('data').text;
+        var selectedStage = $('#stagelist_masterrepo').select2('val');
         loadVersionList(stageVersionMap[selectedStage],null);
        	selectMasterRepo(selectedStage);
 
@@ -672,24 +748,32 @@ $('js_build_option').removeClass("active");
 	}
 	$("#versionlist_masterrepo").empty().append(versionString);
 	$("#versionlist_masterrepo").select2("destroy");
-	$("#versionlist_masterrepo").select2({minimumResultsForSearch: -1});
+    $('#versionlist_masterrepo').select2({minimumResultsForSearch: -1});
     }
     function loadStagesList(selectedStage){
-	var allStages=<%=allStages%>;
+	    var allStages=<%=allStages%>;
     	var stageString = "" ;
 
-	for (var i = 0; i < allStages.length; i++) {
-            var v  = allStages[i];
-            if(v==selectedStage){
-            	stageString +="<option selected>"+v+"</option>";
+        for (var i = 0; i < allStages.length; i++) {
+            var stage  = allStages[i];
+            var versionCount = 0;
+            var versions = stageVersionMap[stage];
+            if(versions) {
+                versionCount = versions.length;
+                if ( versions.indexOf("trunk")  > -1 ){     // Exclude trunk from version count
+                    versionCount--;
+                }
+            }
+            if(stage==selectedStage){
+                stageString +="<option "+'value="'+stage+'" '+" selected>"+stage+" ("+versionCount+")"+"</option>";
             }else{
-            	stageString +="<option>"+v+"</option>";
+                stageString +="<option "+'value="'+stage+'" '+">"+stage+" ("+versionCount+")"+"</option>";
             }
         }
 
 		$("#stagelist_masterrepo").empty().append(stageString);
 		$("#stagelist_masterrepo").select2("destroy");
-		$("#stagelist_masterrepo").select2({minimumResultsForSearch: -1});
+        $('#stagelist_masterrepo').select2({minimumResultsForSearch: -1});
     }
 
 
@@ -698,7 +782,7 @@ $('js_build_option').removeClass("active");
         var codeSnippetHTML=codeSnippet.generate("Sh","BuildAndRepo",applicationKey, "help",{gitURL:gitURL,gitURLForked:gitURLForked, appVersion:selectedAppVersion});
         var helpText = '<div class="af_row push_left_10 push_top_10">' +
 		                        '<div class="col-12">' +
-		    				    '<div class="fork-help-text"><span class="icon-circle-arrow-down fork-help-text-icon" ></span> Commands for merging forked repository changes to master repository </div>' +
+		    				    '<div class="fork-help-text pointer_cursor"><span class="icon-circle-arrow-down fork-help-text-icon" ></span> Commands for merging forked repository changes to master repository </div>' +
 		    				    '</div></div>' +
 		                        '<div class="af_row push_left_10">' +
 		                        '<div class="col-12 ">' +
@@ -723,7 +807,7 @@ $('js_build_option').removeClass("active");
                                 'Fork your own copy of '+applicationKey +
                         '</div>'+
 			'</th><th class="td-9" colspan="2">'+
-                        '<div style="float: left"><button id="tenant_jenkins_url" class="btn main fork_root_button"><span class="icon-git"></span> Fork Application </button></div></th>'+
+                        '<div style="float: left"><button name="tenant_jenkins_url" id="tenant_jenkins_url" class="btn main fork_root_button" name="fork_root_button" ><span class="icon-git"></span> Fork Application </button></div></th>'+
                         '</div>'+
                     '</div>'+
                      '</tr>');
@@ -731,53 +815,62 @@ $('js_build_option').removeClass("active");
 		return $resultRow;
     }
 
-    function constructRow(element,i){
+    function constructRow(element){
+	    var versionInfo = element.versions[0];
         var statusStyle="";
-        var version=element.version.current;
+        var version=versionInfo.version;
         selectedAppVersion = version;
-        var isBuildableArtifact=element.version.isBuildableArtifact;
-        var stage=element.version.stage;
+	    var isBuildableArtifact = '<%= appDetails[0].isBuildable%>';
+        var stage=versionInfo.stage;
         var versionForIds=version.replace(/\./g,'_');
         var buildHidden="";
         var delpoyHidden="";
         var buildDeployHide="";
         var currentBuildStatusHidden = "" ;
         var launchHide="";
-        if((element.build.lastBuildId===null) || (stage == "Retired")){
+	    var lastBuildId = versionInfo.lastBuildResult.split(' ')[1];
+	    var isBuildableForStage;
+	    var buildableStages = '<%= buildableStages %>';
+	    if ( buildableStages.indexOf(stage) > -1 ){
+	        isBuildableForStage = true;
+	    }
+        if((lastBuildId===null) || (lastBuildId == undefined) || !isBuildableForStage){
             //hide build id,status
             buildHidden="hidden";
         }
-        if((element.deployment.deployedBuildId===null)||(element.deployment.deployedBuildId==="")){
+        if((versionInfo.deployedBuildId===null)||(versionInfo.deployedBuildId==="")){
             //hide ,deployed id,state
             delpoyHidden="hidden";
         }
 
-        if(element.build.status=="successful"){
+	    var lastBuildStatus = versionInfo.lastBuildResult.split(' ')[2];
+
+        if(lastBuildStatus=="successful"){
             statusStyle=successStateStyle;
         }else{
             statusStyle=failedStateStyle;
         }
         var isAutoBuildChecked="";
         var isAutoDeploymentChecked="";
-        if(element.version.isAutoBuild=="true"){
+        if(versionInfo.isAutoBuild=="true"){
             isAutoBuildChecked='checked="checked" ';
 
         }
-        if(element.version.isAutoDeploy=="true"){
+        if(versionInfo.isAutoDeploy=="true"){
             isAutoDeploymentChecked='checked="checked" ';
 
         }
-        if(stage!="Development"){
+        if(!isBuildableForStage){
             buildDeployHide="hidden";
         }
-        if(stage==="Retired"){
-        	launchHide="hidden";
+	if(stage==="Retired"){
+               launchHide="hidden";
         }
-        gitURL = element.version.repoURL;
+        gitURL = versionInfo.repoURL;
 
         var currentBuildStatus = "" ;
 
-        if(element.version.currentBuildStatus==="start"){
+        if(versionInfo.currentBuildStatus==="start"){
         	currentBuildStatus = " build running";
         	if(isBuildableArtifact==="true"){
         		forcePageAppRefresh = true ;
@@ -794,7 +887,7 @@ $('js_build_option').removeClass("active");
         }
 
         var hiddenForkedBranch = 'style="display:none"' ;
-        if(forkedVersionList.indexOf(element.version.current)==-1 && isAlreadyForked){
+        if(enablePerDeveloperRepos === "true" && isAlreadyForked && isVersionAlreadyForked(versionInfo.version)){
         	hiddenForkedBranch = "" ;
         }
 
@@ -807,26 +900,28 @@ $('js_build_option').removeClass("active");
 		                '<th class="td-9" colspan="2">' +
                             '<div class="inline-form h4-size-fix">' +
                                 '<input type="text" value="" id="original_giturl_txt" class="large-text-box" disabled value="">' +
-                                '<a data-clipboard-text="" title="Copy URL" id="original_giturl" class="copy-link" data-clipboard-text="">' +
+                                '<a data-clipboard-text="" title="Copy URL" id="original_giturl" class="copy-link" data-clipboard-text="" data-tooltip="Copied!">' +
                                         '<span class="icon-copy"></span>' +
                                 '</a>' +
                             '</div>' +
 		                '</th>'+
 		        '</tr><tr>'+
 		                '<td class="td-3">' +
+		                '<span  class="build_version" ><strong> Version  '+version+'</strong></span>'+
+
 		                '</td>' +
 		                '<td class="td-6">' +
 		                '<div class="data-message">'+
-                            '<span '+buildHidden+' class="build_status"  >Build <span id="build_id_'+jagg.getConvertedVersion(version)+'">'+element.build.lastBuildId+' ' +
-                                '</span><span class="'+statusStyle+'" id="build_status_'+jagg.getConvertedVersion(version)+'">'+element.build.status + '</span>' +
+                            '<span '+buildHidden+' class="build_status"  >Build <span id="build_id_'+jagg.getConvertedVersion(version)+'">'+lastBuildId+' ' +
+                                '</span><span class="'+statusStyle+'" id="build_status_'+jagg.getConvertedVersion(version)+'">'+lastBuildStatus + '</span>' +
                             '</span>'+
-                            '<span '+currentBuildStatusHidden+' class="build_status" ><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('img-dev/loading-small.gif'))%>" />'+currentBuildStatus+' ' +
+                            '<span '+currentBuildStatusHidden+' class="build_status" >'+currentBuildStatus+' ' +
                             '</span>'+
                         '</div>' +
                         '</td>'+
                         '<td class="td-3">' +
 		                '<div class="data-message">'+
-                            '<span '+delpoyHidden+' class="deployment_status" id="deploy_id_'+jagg.getConvertedVersion(version) +'">Build '+element.deployment.deployedBuildId+' Deployed</span>'+
+                            '<span '+delpoyHidden+' class="deployment_status" id="deploy_id_'+jagg.getConvertedVersion(version) +'">Build '+versionInfo.deployedBuildId+' Deployed</span>'+
                             //'<TODO post 1.0<p class="deployment_user">By <a href="#">'+element.deployment.triggeredBy+'</a><br />'+
                             //'at <a href="#"><time datetime="'+element.deployment.triggeredTime+'">'+element.deployment.triggeredTime+'</time></a></p>-->'+
                         '</div>'+
@@ -840,24 +935,24 @@ $('js_build_option').removeClass("active");
                                         '<form class="form-container" onSubmit="return false;">'+
                                                 '<div class="input_row separator">'+
                                                     '<label for="create_branch" class="push_right_10" align="center">Version:</label>'+
-                                                    '<input id="create_branch'+versionForIds+'" type="text" class="txt_version fw_250 branch-txt-width-fix" placeholder="Version Number" name="create_branch" value=""  />'+
+                                                    '<input id="create_branch'+versionForIds+'" type="text" name="create_branch" class="txt_version fw_250 branch-txt-width-fix" placeholder="Version Number" name="create_branch" value=""  />'+
                                                    '</div>'+
                                                 '<div class="btn_row" >'+
-                                                    '<input type="button" value="Create Branch" class="btn main small create_branch_button" data-version="'+version+'"/> <span class="submit_note">from <strong>'+version+'</strong> <a class="cancel" href="#">Cancel</a></span>'+
+                                                    '<input type="button" value="Create Branch" class="btn main small create_branch_button" id="create_branch_button" name="create_branch_button" data-version="'+version+'"/> <span class="submit_note">from <strong>'+version+'</strong> <a class="cancel" href="#">Cancel</a></span>'+
                                                 '</div>'+
                                         '</form>'+
                                      '</div>'+
                                 '</li>'+
                                 '<li '+hiddenForkedBranch+' class="inline_item">'+
-                                    '<a  id="fork'+i+'" class="btn main small fork_repo" data-gitURL="'+gitURL+'" data-forkType="git" original-version="'+version+'"><span class="icon-code-fork"></span> Add</a>'+
+                                    '<a  id="fork" class="btn main small fork_repo" data-gitURL="'+gitURL+'" data-forkType="git" original-version="'+version+'"><span class="icon-code-fork"></span> Add</a>'+
                                 '</li>'+
                              '</ul>'+
                         '</td>' +
 	                    '<td class="td-6 data-buttons">' +
 		                    '<ul class="inline_list" '+buildDeployHide+'>'+
-		                        '<li class="inline_item"><a href="#" target="_blank" class="btn main small createCodeEnvyUrl" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li>'+
-		                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small build_action" data-version="'+version+'" data-stage="'+stage+'">Build</a></li>'+
-		                        '<li class="inline_item"><a href="#" class="btn main small deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></li>'+
+		                        '<li class="inline_item"><a href="#" class="btn main small createCodeEnvyUrl" name="codenvy_action" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li><a href="#" target="_blank" id="createCodeEnvyUrl_hidden" style="display: none"></a></li>'+
+		                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small build_action" name="build_action" data-version="'+version+'" data-stage="'+stage+'">Build</a></li>'+
+		                        '<li class="inline_item"><a href="#" class="btn main small deploy_action" name="deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></li>'+
 		                        '<li class="inline_item relative">'+
 		                            '<a class="icon_link js_build_option" title="Change auto build,auto deployment settings"><span class="icon-cog"></span></a>'+
 		                        '<div  class="icon_link_popover build_option popover_form">'+
@@ -867,7 +962,7 @@ $('js_build_option').removeClass("active");
 		                                    '<label for="auto_deploy"><input id="auto_deploy_'+versionForIds+'" type="checkbox" name="auto_deploy" '+ isAutoDeploymentChecked+'/> Auto Deploy</label><br />'+
 		                                '</div>'+
 		                                '<div class="input_row">'+
-		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#">Cancel</a>'+
+		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#" onClick="window.location.reload(true);">Cancel</a>'+
 		                                '</div>'+
 		                            '</form>'+
 		                        '</div>'+
@@ -875,7 +970,7 @@ $('js_build_option').removeClass("active");
 		                    '</ul>'+
 		                '</td>'+
 		                '<td class="td-3 data-buttons">' +
-                                '<span class="inline_item"'+launchHide+'><a href="#" class="btn main small launch_action" data-type="'+element.type+'" data-version="'+version+'" data-stage="'+stage+'">Launch</a></span>'+
+                                '<span class="inline_item"'+launchHide+'><a href="#" class="btn main small launch_action" name="launch_action" data-type="'+element.type+'" data-version="'+version+'" data-stage="'+stage+'">Launch</a></span>'+
                         '</td>' +
                         '</tr>'
 		    );
@@ -909,7 +1004,7 @@ $('js_build_option').removeClass("active");
             delpoyHidden="hidden";
         }
         statusStyle=getStatusStyleForBuildStatus(element.build.status);
-       
+
         var isAutoBuildChecked="";
         var isAutoDeploymentChecked="";
         if(element.version.isAutoBuild=="true"){
@@ -951,7 +1046,7 @@ $('js_build_option').removeClass("active");
                         '</th>' +
                         '<th class="td-9" colspan="2">' +
                             '<div class="inline-form h4-size-fix"><input type="text" value="" id="forked_giturl_txt" class="large-text-box" disabled value="">' +
-                                '<a data-clipboard-text="" title="Copy URL" id="forked_giturl" class="copy-link" data-clipboard-text="">' +
+                                '<a data-clipboard-text="" title="Copy URL" id="forked_giturl" class="copy-link" data-clipboard-text="" data-tooltip="Copied!">' +
                                     '<span class="icon-copy"></span>' +
                                 '</a>' +
                             '</div>' +
@@ -966,13 +1061,13 @@ $('js_build_option').removeClass("active");
                                     '<span '+buildHidden+' class="build_status">Build '+element.build.lastBuildId+' ' +
                                     '<span class="'+statusStyle+'" id="build_status_'+jagg.getConvertedVersion(version)+'">'+element.build.status + '</span>' +
                                     '</span>'+
-                                    '<span '+currentBuildStatusHidden+' class="build_status"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('img-dev/loading-small.gif'))%>" />'+currentBuildStatus+' ' +
+                                    '<span '+currentBuildStatusHidden+' class="build_status">'+currentBuildStatus+' ' +
                                     '</span>'+
                                 '</div>'+
                                 '<div class="fork-data-buttons">'+
                                     '<ul class="inline_list" '+buildDeployHide+'>'+
-                                        '<li class="inline_item"><a href="#" target="_blank" class="btn main small createForkedCodeEnvyUrl" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li>'+
-                                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small buildfork_action" data-version="'+version+'">Build</a></li>'+
+                                        '<li class="inline_item"><a href="#" class="btn main small createForkedCodeEnvyUrl" name="codenvyforked_action" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li><a href="#" target="_blank" id="createForkedCodeEnvyUrl_hidden" style="display: none"></a></li>'+
+                                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small buildfork_action" name="buildfork_action" data-version="'+version+'">Build</a></li>'+
                                     '</ul>'+
                                 '</div>'+
                             '</td>' +
@@ -1005,9 +1100,15 @@ $('js_build_option').removeClass("active");
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
-                        targetVersion:targetVersion
+                        targetVersion:targetVersion,
+                        lifecycleName:'<%=LIFE_CYCLE_NAME%>'
                     }, function (result) {
-                        drawVersionsList($('#stagelist_masterrepo').select2('data').text,targetVersion);
+			addToStageVersionMapping(selectedStage,targetVersion);
+			loadStagesList(selectedStage);
+			loadVersionList(stageVersionMap[selectedStage],targetVersion);
+			$.cookie('selectedVersion',targetVersion);
+                        drawVersion('<%= applicationKey %>',targetVersion);
+			pollForBuildAndDeploy(targetVersion);
                     },
 
                     function (jqXHR, textStatus, errorThrown) {
@@ -1035,7 +1136,6 @@ $('js_build_option').removeClass("active");
     }
 
     function getBuildAndDeploymentInfo(version){
-    	console.log("invoked");
     	jagg.post("../blocks/buildandrepo/list/ajax/list.jag",{
             action: "getBuildAndDeployStatusForVersion",
             applicationKey:'<%=applicationKey%>',
@@ -1044,16 +1144,18 @@ $('js_build_option').removeClass("active");
         	result = jQuery.parseJSON(result) ;
         	console.log(result);
         	if(result!=null){
-
             	var buildHTML="";
 				$('#build_id_'+jagg.getConvertedVersion(version)).html(result.buildId);
 				$('#build_status_'+jagg.getConvertedVersion(version)).html(result.buildStatus);
 				$('#build_status_'+jagg.getConvertedVersion(version)).removeClass();
 				$('#build_status_'+jagg.getConvertedVersion(version)).addClass(getStatusStyleForBuildStatus(result.buildStatus));
 				$('#deploy_id_'+jagg.getConvertedVersion(version)).html('Build '+result.deployedId+' Deployed');
-            }
-        	
-        	
+
+				if(result.buildId != undefined && result.buildStatus != undefined && result.deployedId != undefined){
+				    $('.build_status').show();
+				    $('.deployment_status').show();
+				}
+	         }
         },
         function (jqXHR, textStatus, errorThrown) {
 
@@ -1061,7 +1163,8 @@ $('js_build_option').removeClass("active");
 
     }
 
-    function doBuild(applicationKey,revision,stage,tagName,version,autoDeploy,repoFrom){
+    function doBuild(applicationKey,revision,stage,tagName,version,autoDeploy,repoFrom ,element){
+        element.attr('disabled',true);
         jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
                     action: "createArtifact",
                     applicationKey: applicationKey,
@@ -1071,20 +1174,22 @@ $('js_build_option').removeClass("active");
                     version:version,
                     doDeploy:autoDeploy,
                     repoFrom:repoFrom
-                },function (result) {             
+                },function (result) {
                     clearTimeout(runThread);
                     forcePageAppRefresh = true ;
+                    element.attr('disabled',false);
                     //drawVersionListRec();
                 },
 
                 function (jqXHR, textStatus, errorThrown) {
-
+                    element.attr('disabled',false);
                 });
         jagg.message({
             content: "The build has been triggered succesfully - Refresh the page in a few seconds.",
             type: 'success',
             id:'message_id_success'
         });
+	    pollForBuildAndDeploy(version);
         hideNotification();
     }
 
@@ -1095,14 +1200,15 @@ $('js_build_option').removeClass("active");
     		forcePageAppRefresh = false ;
 
            // drawForkedVersionsList(null);
-    		drawVersionsList(null,null);
-    	};
+    		drawVersion('<%= applicationKey %>',selectedVersion);
+    	}
     	runThread = window.setTimeout(function () {
             drawVersionListRec();
         }, 20000);
     }
 
-    function doDeploy(applicationKey,deployAction,stage,tagName,version){
+    function doDeploy(applicationKey,deployAction,stage,tagName,version ,element){
+        element.attr('disabled',true);
         jagg.post("../blocks/build/add/ajax/add.jag", {
                     action: "deployArtifact",
                     applicationKey: applicationKey,
@@ -1118,21 +1224,29 @@ $('js_build_option').removeClass("active");
                         id:'message_id_success'
                     });
                     hideNotification();
+                    element.attr('disabled',false);
                 },
 
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content: "Error occurred while deploying the artifact.",
-                        type: 'error',
-                        id:'message_id'
-                    });
+
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while deploying the artifact.",
+                            type: 'error',
+                            id:'message_id'
+                        });
+                    }
+
+
+                    element.attr('disabled',false);
 
                 });
 
 
     }
-    function doLaunch(applicationKey, version,stage,state,type){
-        jagg.post("../blocks/application/get/ajax/list.jag", {
+    function doLaunch(applicationKey, version,stage,state,type ,element){
+        element.attr('disabled',true);
+        jagg.syncPost("../blocks/application/get/ajax/list.jag", {
                     action: "getMetaDataForAppVersion",
                     applicationKey: applicationKey,
                     version: version,
@@ -1142,9 +1256,9 @@ $('js_build_option').removeClass("active");
                 }, function (result) {
                     var resJSON;
                     var msg = "";
-                    resJSON = jQuery.parseJSON(result);
+                    resJSON = result;
                     var URL= resJSON.url;
-
+                    element.attr('disabled',false);
                     if(!URL){
                         jagg.message({
                             content: "Application is not deployed yet!",
@@ -1159,18 +1273,22 @@ $('js_build_option').removeClass("active");
                     window.open(URL, '_blank')
             },
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content: "Error occurred while launching the artifact.!",
-                        type: 'error',
-                        id:'message_id'
-                    });
 
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while launching the artifact.!",
+                            type: 'error',
+                            id:'message_id'
+                        });
+                    }
+
+                    element.attr('disabled',false);
                 });
 
     }
 
-    function doSetBuildDeployConfigs(applicationKey, version,stage,autoBuild,autoDeploy){
-
+    function doSetBuildDeployConfigs(applicationKey, version,stage,autoBuild,autoDeploy,element){
+        element.attr('disabled',true);
         jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
                     action: "setBuildDelpymentConfigs",
                     applicationKey: applicationKey,
@@ -1181,8 +1299,9 @@ $('js_build_option').removeClass("active");
                 }, function (result) {
                     var res=jQuery.parseJSON(result);
                     window.setTimeout(function () {
-                        drawVersionsList(stage,version);
+                        drawVersion('<%= applicationKey %>',version);
                     }, 300);
+                    element.attr('disabled',false);
                      if(res.autoBuild!="true"||res.autoDeploy!="true"){
                         jagg.message({
                             content: "Error occurred while changing configurations.",
@@ -1193,12 +1312,17 @@ $('js_build_option').removeClass("active");
 
                 },
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content: "Error occurred while changing configurations.",
-                        type: 'error',
-                        id:'message_id'
-                    });
 
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while changing configurations.",
+                            type: 'error',
+                            id:'message_id'
+                        });
+                    }
+
+
+                    element.attr('disabled',false);
                 });
     }
 
@@ -1219,30 +1343,6 @@ $('js_build_option').removeClass("active");
     });
 
     }
-    function getHelpTips(){
-        jagg.post("../blocks/help/ajax/help.jag", {
-                action: "getHelpTips",
-                page: "repoAndBuild"
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
-                 //$("#reposAndBuildHelp").html(helpTips.reposAndBuildHelp);
-            //     $("#forkedRepoHelp").html(helpTips.forkedRepoHelp);
-            //     $("#masterRepoHelp").html(helpTips.masterRepoHelp);
-        },
-
-       function (jqXHR, textStatus, errorThrown) {
-       });
-    }
-
-    function updateHelpTips(helpTipId){
-        if(helpTips == null){
-            getHelpTips();
-        }
-        var divId = "#" + helpTipId;
-         $(divId).html(helpTips[helpTipId]);
-    }
 
     //]]
 
@@ -1250,6 +1350,18 @@ $('js_build_option').removeClass("active");
           // create new timer with given time interval
             setTimeout(function () {jagg.removeMessage('message_id_success')}, 5000);
         }
+
+    function pollForBuildAndDeploy(version){
+	    var count=0;
+        (function poll(){
+            setTimeout(function(){
+            getBuildAndDeploymentInfo(version);
+			if(count++<4){
+            	poll();
+			}
+           }, 60000);
+         })();
+    }
 
 
 </script>
@@ -1279,6 +1391,7 @@ $('js_build_option').removeClass("active");
                         <div class="af_row">
                             <div class="col-12">
                                 <div class="right link-container link-container-top">
+                                    <a  id="dev_studio_url" href="<%=devStudioLink%>" class="link-with-icons" target="_blank">Developer Studio <div class="icon-boxer"><span class="icon-globe "></span></div></a>
                                     <a  id="tenant_jenkins_url" href="<%=baseURL%>" class="link-with-icons" target="_blank">Build Server <div class="icon-boxer"><span class="icon-globe "></span></div></a>
                                     <a id="original_gitbrowseurl" class="copy_link original_gitbrowseurl link-with-icons" target="_blank" href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" title="Browse Git Server " data-clipboard-text="">Browse GIT <div class="icon-boxer"><span class="icon-globe"></span></div></a>
                                 </div>
@@ -1310,7 +1423,7 @@ $('js_build_option').removeClass("active");
                                  <h2 class="topic_heading">Stage</h2>
                             </div>
                             <div class="col-3">
-                                 <select onchange="populateVersionList();" id="stagelist_masterrepo" class="select_list half big select2-offscreen" style="width:140px"></select>
+                                 <select onchange="populateVersionList();" id="stagelist_masterrepo" class="select_list half big select2-offscreen" style="width:150px"></select>
                             </div>
                             <div class="col-1" style="margin-top:5px">
                                  <h2 class="topic_heading">Version</h2>
@@ -1323,7 +1436,7 @@ $('js_build_option').removeClass("active");
                 </div>
             </div>
             <div id="repositories_and_builds_list_master">
-                <!--span class="icon-spinner icon-spin icon-large spin-large"></span-->
+                <span style="margin-left:35px; margin-top:40px;" class="icon-spinner icon-spin icon-large spin-large"></span>
             </div>
 
             <!--<div class="clearfix separator"></div>-->

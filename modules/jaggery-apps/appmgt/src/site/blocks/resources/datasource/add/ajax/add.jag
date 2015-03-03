@@ -1,7 +1,30 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+
+
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+var loggedInUser = jagg.getUser();
 
 (function () {
     var mod, obj, result,
@@ -12,6 +35,10 @@ include("/jagg/config_reader.jag");
     var response = {};
     var finalResponse={};
     var applicationKey = request.getParameter("applicationKey");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
     if (action == "createDatasource") {
     	mod = jagg.module("resources");
 	    var datasourceName = request.getParameter("datasourceName");
@@ -21,11 +48,41 @@ include("/jagg/config_reader.jag");
 	    var driverName=request.getParameter("driverName");
         var dbUsername= request.getParameter("dbUsername");
         var dbPassword= request.getParameter("dbPassword");
-		var allStages=getProperties(DEPLOYMENT_STAGES);
+
+        var RE_ORACLE = /^jdbc:oracle:thin:@([^:]+)(?::([0-9]+))?:([a-zA-Z][a-zA-Z0-9]*)/,
+                RE_MYSQL = /^jdbc:mysql:\/\/([^:\/]+)(?::([0-9]+))?\/([a-zA-Z][a-zA-Z0-9]*)/;
+        if (url == "" || url.length == 0 || !(RE_MYSQL.test(url) || RE_ORACLE.test(url))) {
+            response = {};
+            response.error= true;
+            response.errorMessage = "Invalid Database Url - Enter valid Database Url.";
+            print(response);
+            return;
+        }
+        var allStages=getProperties(DEPLOYMENT_STAGES);
         var copyAll = request.getParameter("copyAll");
         if(!copyAll || copyAll == "false"){
             allStages = [rssInstanceName];
         }
+
+        for(var tempStage in allStages){
+            var rssFilter = jagg.module("rss-filter");
+            try{
+                if(rssFilter.isDataSourceExist(datasourceName, applicationKey, allStages[tempStage] ) == true)
+                {
+                    response = {};
+                    response.error = true;
+                    response.errorMessage = "Datasource with the same name exists for this tenant";
+                    print(response);
+                    return;
+                }
+            }catch(e){
+                response = {};
+                response.error= true;
+                response.errorMessage = "Error while creating the datasource "
+                print(response);
+            }
+        }
+
         for (var tempStage in allStages){
         response={};
             var stage = mod.getStageFromRssInstanceName(allStages[tempStage]);
@@ -34,6 +91,17 @@ include("/jagg/config_reader.jag");
                     PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);
             if(dataSourceCreatePermission){
                 try {
+
+                    var correlationKey = applicationKey + "-" + stage + "-datasource-" + datasourceName;
+                    try {
+                        var notificationTitle = "Datasource " + datasourceName + " creation started";
+                        var notificationMessage = "In environment: " + stage;
+                        var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                        var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+                    } catch (e) {
+                        log.error("Error while sending create datasource start notification \n" + e.message);
+                    }
+
                     finalResponse[stage]=mod.createDataSource(stage, applicationKey, datasourceName, url,
                             driverName, dbUsername, dbPassword, datasourceDescription);
                 } catch(e) {
@@ -43,12 +111,11 @@ include("/jagg/config_reader.jag");
                     finalResponse[stage]=response;
                 }
             }  else {
-                response.result = true;
+                response.error = true;
                 response.message = "You don't have permission to create datasource in stage:"+stage;
                 log.error("You don't have permission to create datasource in stage:"+stage);
                 finalResponse[stage]=response;
             }
-
         }
         print(finalResponse);
     } else   if (action == "deleteDatasource") {
@@ -109,6 +176,16 @@ include("/jagg/config_reader.jag");
         var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
                 PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);
         if(dataSourceCreatePermission){
+            var correlationKey = applicationKey + "-" + stage + "-datasource-" + datasourceName;
+            try {
+                var notificationTitle = "Datasource " + datasourceName + " creation started";
+                var notificationMessage = "In environment: " + stage;
+                var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                log.error("Error while sending create datasource start notification \n" + e.message);
+            }
+
             try {
                 print(mod.addDataSource(applicationKey, stage, datasourceName, url,
                         driverName, dbUsername, dbPassword, datasourceDescription));

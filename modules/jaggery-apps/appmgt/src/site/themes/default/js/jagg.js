@@ -114,7 +114,12 @@ var messageTimer;
             $('.btn',contentObj).click(params.cbk);
         }
 
-        jagg.add_message(params.type, contentObj, params.id);
+        if(params.spinner=="true"){
+                jagg.add_warningmessage(params.type, contentObj, params.id);
+                }
+                else{
+                jagg.add_message(params.type, contentObj, params.id);
+                }
     };
     jagg.add_message = function(message_type, message_html,id) {
         var $appendTo;
@@ -145,6 +150,31 @@ var messageTimer;
         }
     };
 
+    jagg.add_warningmessage = function(message_type, message_html,id) {
+            var $appendTo;
+            if(id != undefined){
+                if($('#'+id).length > 0 ){
+                    $appendTo = $('.message-content-area','#'+id).parent();
+                }
+            }
+
+            if($appendTo == undefined){
+                if(typeof message_html == 'object'){
+                   var $message = $('<div class="message '+message_type+'_message" style="display:none"><div class="content"><a class="icon-spinner icon-spin" style="font-size: 30px;margin-left: 0px;margin-top: 5px;"></a></div><div class="content" style="font-size:15px;margin-top: -55px;margin-left:40px"><div class="message-container"></div></div><div class="content" style="font-size:15px;margin-top: -55px;margin-left:100px"><a class="close_message right icon-remove-sign js_close_message"></a></div></div>');
+                    $('.message-container',$message).append(message_html);
+                    $(".message_box").append($message);
+                }
+                var $messageObj = $(".message_box .message:last-child");
+                $messageObj.attr('id',id);
+                $messageObj.slideDown(500);
+            } else{
+                if(typeof message_html == 'object'){
+                    $appendTo.append(message_html);
+                }else{
+                    $appendTo.append($(message_html));
+                }
+            }
+        };
 
     jagg.removeMessage = function(id){
         if(id!= undefined){

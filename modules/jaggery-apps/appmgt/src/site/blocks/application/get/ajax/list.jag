@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -9,111 +27,69 @@ var log=new Log();
         action = request.getParameter("action"),
         site = require("/site/conf/site.json");
     var modPermission = jagg.module("permission");
-    
-	if (action === "getAppOwner"){
-		mod = jagg.module("application");
-		var applicationKey = request.getParameter("applicationKey");
-        //TODO what should be the permission here
-        try {
-            var application =  mod.getAppInfo(applicationKey);
-            if(application != null){
-                print(application.owner);
-            }else {
-                var msg = "Error while getting AppInfo for app key "+ applicationKey;
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+    if (action === "getAppOwner"){
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        if(jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_MEMBER)){
+            try {
+                var application =  mod.getAppInfo(applicationKey);
+                if(application != null){
+                    print(application.owner);
+                }else {
+                    var msg = "Error while getting AppInfo for app key "+ applicationKey;
+                    log.error( msg + e.message);
+                    throw msg;
+                }
+            } catch (e) {
+                var msg = "Error while retriving App Owner for app key "+ applicationKey +"\n";
                 log.error( msg + e.message);
                 throw msg;
             }
-        } catch (e) {
-            var msg = "Error while retriving App Owner for app key "+ applicationKey +"\n";
-            log.error( msg + e.message);
-            throw msg;
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to check the app owner";
+            print(response);
         }
-	}else if (action === "failedApps") {
+	}else if (action === "getUpdatedPendingApps") {
         mod = jagg.module("application");
-        
-        var failedApps = [];
-        var userName = request.getParameter("userName");
-        var currentApplications = parse(request.getParameter("currentApps"));
-        
-        //loads all the applications of the user: from database.
-        var loadedApplications = mod.getUserHomeInfo();      
+        var pendingAppKeys = parse(request.getParameter("pendingAppKeys"));
 
-        for (var exAppIndex in currentApplications) {
-            var exApp = currentApplications[exAppIndex];  
-            var hasAppFailed = true;
-            
-            for (var appIndex in loadedApplications) {
-            	var app = loadedApplications[appIndex];
-                if (exApp.key == app.key) {
-                	hasAppFailed = false;
-                	break;
-                }
-            }
-            
-            if(hasAppFailed){
-            	failedApps.push(exApp);
-            }
-        }
-        print(failedApps);
-	}else if (action === "creationCompletedApps") {
-        mod = jagg.module("application");
+        var result = {};
+        result[APPLICATION_CREATION_STATUS.COMPLETED] = [];
+        result[APPLICATION_CREATION_STATUS.FAULTY] = [];
 
-        var loadedApplications = [];
-        var pendingApplications = [];
-        var completedPendingApps = [];
-        var userName = request.getParameter("userName");
+        if(pendingAppKeys && pendingAppKeys.length > 0){
+            var userHomeApps = mod.getUpdatedUserHomeData();  // get user home info
 
-        //loads all the applications of the user: from database.
-        loadedApplications = mod.getUserHomeInfo();      
-        
-        if (session.get("pendingApplications") != null) {
-            //loads all the applications which are at pending stage: within the session
-            pendingApplications = session.get("pendingApplications");
-            for (var exAppIndex in loadedApplications) {
-                var exApp = loadedApplications[exAppIndex];  
-                for (var appIndex in pendingApplications) {
-                	var appContainer = pendingApplications[appIndex];
-                    if (appContainer.userName === userName) {
-                        if (exApp.key == appContainer.app.key) {
-                            completedPendingApps.push(exApp);
-                            pendingApplications.splice(appContainer, 1);
-
-                        }
+            for(var index in pendingAppKeys) {
+                var appKey = pendingAppKeys[index];
+                var app = userHomeApps[APPLICATION_CREATION_STATUS.COMPLETED][appKey];
+                if(app) {       // if app is in COMPLETED status add to completed array
+                    result[APPLICATION_CREATION_STATUS.COMPLETED].push(app);
+                } else {
+                    app = userHomeApps[APPLICATION_CREATION_STATUS.FAULTY][appKey];
+                    if(app) {   // if app is in FAULTY status add to faulty array
+                        result[APPLICATION_CREATION_STATUS.FAULTY].push(app);
                     }
                 }
             }
-            session.put("pendingApplications", pendingApplications);
         }
-        print(completedPendingApps);
+        print(result);
     }else if (action === "getAllApps") {
         mod = jagg.module("application");
 
         var loadedApplications = [];
-        var pendingApplications = [];
-        var appList = [];
-        var userName = request.getParameter("userName");
-        //loads all the applications of the user: from database.
-        loadedApplications = mod.getUserHomeInfo();
-        
-        if (session.get("pendingApplications") != null) {
-            //loads all the applications which are at pending stage: within the session
-            pendingApplications = session.get("pendingApplications");
-            for (var exAppIndex in loadedApplications) {
-                var exApp = loadedApplications[exAppIndex];
-                
-                for (var appIndex in pendingApplications) {
-                    var appContainer = pendingApplications[appIndex];
-                    if (appContainer.userName === userName) { 
-                        if (exApp.key == appContainer.app.key) {
-                            pendingApplications.splice(appContainer, 1);
-                        }
-                    }
-                }
+
+        var userHomeApps = mod.getUpdatedUserHomeData();
+        for(var status in userHomeApps) {
+            var appsInStatus = userHomeApps[status];
+            for (var appKey in appsInStatus) {
+                loadedApplications.push(appsInStatus[appKey]);
             }
-            for (var pendingAppIndex in pendingApplications) {
-                loadedApplications.push(pendingApplications[pendingAppIndex].app);
-            }
-            session.put("pendingApplications", pendingApplications);
         }
         print(loadedApplications);
     }else if (action === "checkSystemStatus") {
@@ -220,7 +196,12 @@ var log=new Log();
         var pendingApplications = [];
         
         //loads all the applications of the user: from database.
-        loadedApplications = parse(mod.getAllAppsOfUser(userName));
+        var loadedApplications = session.get("application_list");
+        if(loadedApplications == null) {
+            loadedApplications = mod.getAllAppsOfUser(userName);
+            session.put('application_list', loadedApplications);
+        }
+        loadedApplications = parse(loadedApplications);
         
         if (session.get("pendingApplications") !== null) {
             //loads all the applications which are at pending stage: within the session

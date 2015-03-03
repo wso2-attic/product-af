@@ -1,4 +1,24 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+//Appfactory version info
+var APPFAC_VERSION = "AppfactoryVersion";
+
 var DOMAIN_NAME = "DomainName";
 var FINE_GRAINED_DOMAIN_MAPPING = "FineGrainedDomainMappingAllowedStage";
 var ISSUETRACKER_SUMMARY_ONLY="IssueTrackerConnector.summaryOnly";
@@ -18,6 +38,14 @@ var APPLICATION_REPO_LINK = "applicationRepoLink";
 // property keys of registry 'userApplicationMapping' resource
 var APPLICATION_LIST = "applications";
 var APP_INFO = "/appinfo";
+
+// constants for lifecycle-add page
+var SUCCESSFUL = "successful";
+var TAGGED = "Tagged";
+var LATEST = "Latest";
+var PROMOTE = "promote";
+var PROMOTED = "Promoted";
+
 
 //appfactory.xml keys
 var SSO_NAME = "SSORelyingParty.Name";
@@ -51,11 +79,14 @@ var API_MANAGER_PROD = "prod";
 var API_MANAGER_SANDBOX = "sandbox";
 
 var LIFE_CYCLE_NAME="ApplicationLifecycle";
+var UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME="UploadableApplicationLifeCycle";
 var APP_VERSION = "/appversion";
+var UPLOADABLE_APPLICATION_INITIAL_VERSION="1.0.0"
 
 var API_MANAGER_BUTTON = "ApiManager.ButtonLabel";
 var API_MANAGER_SERVER_URL = "ApiManager.Server.Url";
 var API_MANAGER_STORE_URL = "ApiManager.Store.Url";
+var API_MANAGER_STORE_SUBSCRIPTION_URL = "ApiManager.StoreSubscription.Url";
 var API_MANAGER_SERVICE_NAME = "ApiManager.Service.Name";
 var API_MANAGER_SERVICE_NAMESPACE = "ApiManager.Service.Namespace";
 var SANDBOX_KEYS_PROPERTY = "ApiManager.Keys.Property.Sandbox";
@@ -103,7 +134,7 @@ var PERMISSION_CONFIGURATION_API_MANAGER ="/permission/admin/appfactory/configur
 var PERMISSION_CONFIGURATION_API_SUBSCRIBE = "/permission/admin/appfactory/configure/api/subscribe";
 var PERMISSION_USER_INVITE ="/permission/admin/appfactory/usermgt/invite";
 var PERMISSION_ADMIN ="/permission/admin/appfactory";
-var PERMISSION_TENANT_ADMIN ="/permission/admin";
+var PERMISSION_TENANT_ADMIN ="/permission/admin/";
 var PERMISSION_VISIBILITY_STAGE = "/permission/admin/appfactory/visibility/";
 var PERMISSION_CEO_DASHBOARD = "/permission/admin/appfactory/ceo/dashboard";
 var PERMISSION_TASKS_VIEW = "/permission/admin/appfactory/tasks/view";
@@ -117,6 +148,16 @@ var PERMISSION_CXO_DASHBOARD="/permission/admin/appfactory/ceo/dashboard";
 var PERMISSION_DATASOURCE_CREATE="/permission/admin/appfactory/datasource/create";
 var PERMISSION_CONFIGURATION_RESOURCES_FOR_STAGE = "/permission/admin/appfactory/configure/resources/";
 var PERMISSION_RESOURCES_ACCESS_FOR_STAGE = "/permission/admin/appfactory/access/resources/";
+
+// Tablink Permissions
+var PERMISSION_TABLINK_OVERVIEW="/permission/admin/login";
+var PERMISSION_TABLINK_TEAM="/permission/admin/login";
+var PERMISSION_TABLINK_REPOS_AND_BUILDS="/permission/admin/appfactory/develop";
+var PERMISSION_TABLINK_RESOURCES="/permission/admin/appfactory/resources";
+var PERMISSION_TABLINK_ISSUES="/permission/admin/login";
+var PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO="/permission/admin/appfactory/demoteTo";
+var PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO="/permission/admin/appfactory/promoteTo";
+var PERMISSION_TABLINK_LOGS="/permission/admin/appfactory/logs";
 
 
 var USER_SEARCH_STATUS = "EnableUserSearch";
@@ -158,7 +199,7 @@ var BAM_ADMIN_PASSWORD = "BAM.AdminPassword"
 var ISSUETRACKER_URL = "IssueTrackerConnector.issueTracker.Property.FrontUrl";
 var ISSUE_TRACKER_SERVER_URL = "IssueTrackerConnector.issueTracker.Property.Url";
 
-var DEPLOYER_APPTYPE_EP= ".Deployer.ApplicationType.*.Endpoint";
+var DEPLOYER_APPTYPE_EP= ".PAASServicesURL";
 var SC_URL=".TenantMgtUrl";
 
 //For Codenvy
@@ -175,6 +216,7 @@ var SAML_ASSERTION_TOKEN_SESSION_KEY = "SAML_ASSERTION_TOKEN";
 
 //For uploading existing application flow (WAR)
 var TMP_UPLOADED_APPLICATIONS_PATH = "tmpUploadedApps"
+var UPPLOADABLE_SUFFIX = ".uploaded";
 //For claims
 
 var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";
@@ -186,6 +228,21 @@ var ERROR_NOTIFICATION_POLLING_PERIOD="NotificationConfig.MessageBroker.PollingP
 
 var GIT_BASE_URL="RepositoryProviderConfig.git.Property.BaseURL";
 
+// Tenant Info
+var TENANT_INFO_CACHE = "TENANT_INFO_CACHE";
+var TENANT_INFO_APP_TYPE = "APP_TYPE";
+var UNAUTHORIZED_ERROR_RESPONSE ={"errorCode":"401","errorMessage":"Unauthorized access!!!"};
+
+// Cache
+var USER_HOME_CAHCE = "USER_HOME_CACHE";
+var FIELD_APP_CREATION_STATUS = "applicationCreationStatus";
+var APP_CTX_DELETED_KEYS = "DELETED_KEYS_APP_CTX_CACHE";
+
+//auth headers
+var MUTUALSSL_HEADER_USERNAME_URL = "http://mutualssl.carbon.wso2.org";
+var CLOUD_HEADER_USERNAME_URL = "http://cloud.carbon.wso2.org/username";
+var CLOUD_HEADER_SECRET_URL = "http://cloud.carbon.wso2.org/secret";
+
 var PAGES={
               APP_HOME : "APP_HOME",
               USER_HOME : "USER_HOME",               
@@ -196,4 +253,12 @@ var PAGES={
               SERVER : "SERVER",
               ISSUES : "ISSUES" 
             };
+
+var APPLICATION_CREATION_STATUS = {
+    COMPLETED:"COMPLETED",
+    PENDING:"PENDING",
+    FAULTY:"FAULTY"
+};
+
+
 %>

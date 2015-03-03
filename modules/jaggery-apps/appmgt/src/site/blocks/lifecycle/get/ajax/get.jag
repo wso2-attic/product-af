@@ -1,4 +1,21 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
 
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
@@ -9,6 +26,10 @@ include("/jagg/config_reader.jag");
     var mod, obj, result,
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
 
  	var log = new Log();
  
@@ -27,24 +48,8 @@ include("/jagg/config_reader.jag");
         var isAuthorizeToPromote = false;
         var isAuthorizeToDemote = false;
 
-        if(nextStage != null && nextStage != undefined) {
-            permissionPromoteToNextStage = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage;
-            isAuthorizeToPromote = modPermission.isUserAccessGrantedForPlatform(permissionPromoteToNextStage);
-        }
-        if(previousStage != null || previousStage != undefined){
-            permissionDemoteToNextStage = PERMISSION_GOVERNANCE_DEMOTE_TO + previousStage;
-            isAuthorizeToDemote = modPermission.isUserAccessGrantedForPlatform(permissionDemoteToNextStage);
-        }
-
-        if(isAuthorizeToPromote || isAuthorizeToDemote){
-            var result = mod.getLifeCycleHistoryForApplication(applicationKey,version,stageName,userName);
-            print(result);
-        } else {
-            response.result = 0;
-            response.message = "You don't have permission to perform the life cycle operation";
-            print(response);
-        }
-
+        var result = mod.getLifeCycleHistoryForApplication(applicationKey,version,stageName,userName);
+        print(result);
 
     }else {
 		log.error("No action specified");

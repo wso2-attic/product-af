@@ -54,4 +54,31 @@ public class JaggeryApplicationTypeProcessor extends AbstractFreeStyleApplicatio
         }
     }
 
+    @Override
+    public void doVersion(String applicationId, String targetVersion, String currentVersion,
+                                              String workingDirectory) throws AppFactoryException {
+        File workDir = new File(workingDirectory);
+        for (File file : workDir.listFiles()) {
+            if (file.isDirectory() && file.getName().contains("-")) {
+                String newName = changeFileName(file.getName(), targetVersion);
+                File newFile =
+                    new File(file.getAbsolutePath().replace(file.getName(),
+                                                            newName));
+                file.renameTo(newFile);
+            }
+        }
+    }
+
+    private static String changeFileName(String name, String changedVersion) throws AppFactoryException {
+
+        String applicationName = name;
+        String artifactVersionXPath = "-" + AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(ARTIFACT_VERSION_XPATH);
+        if(name.lastIndexOf(artifactVersionXPath) != -1) {
+            applicationName = name.substring(0, name.lastIndexOf(artifactVersionXPath));
+        } else if (name.lastIndexOf("-") != -1) {
+            applicationName = name.substring(0, name.lastIndexOf("-"));
+        }
+        return applicationName + "-" + changedVersion;
+    }
+
 }

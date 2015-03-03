@@ -304,7 +304,7 @@ line-height: 30px; }
 	.datasources_url_col { width: 80.459770115%;  }
 		.datasources_name_col .list_col_content { padding: 20px 0;  }
 		.datasources_driverclass_col .list_col_content,
-		.datasources_description_col  .list_col_content  { padding: 20px 20px 20px 0; font-size: 0.857142857em;  }
+		.datasources_description_col  .list_col_content  { padding-right: 20px; font-size: 0.857142857em; }
 		.datasources_url_col .list_col_content { padding: 20px 0; font-size: 0.857142857em;  }
 	
 	.resources_apikey_col { width: 220px; }	

@@ -256,11 +256,6 @@
                                     org.wso2.carbon:org.wso2.carbon.webapp.mgt.feature:${carbon.platform.version1}
                                 </featureArtifactDef>
 
-                                <!-- sts feature -->
-                                <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.sts.feature:${carbon.platform.version0}
-
-                                </featureArtifactDef>
 
                                 <!--Social related features start -->
                                 <featureArtifactDef>
@@ -552,11 +547,6 @@
                                     <version>${carbon.platform.version1}</version>
                                 </feature>
 
-                                <!-- sts features -->
-                                <feature>
-                                    <id>org.wso2.carbon.sts.feature.group</id>
-                                    <version>${carbon.platform.version0}</version>
-                                </feature>
                                 <!-- social reated features start -->
                                 <feature>
                                     <id>org.wso2.carbon.social.feature.group</id>

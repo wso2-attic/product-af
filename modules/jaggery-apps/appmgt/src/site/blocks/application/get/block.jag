@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include('/jagg/constants.jag');
 
 jagg.block("application/get", {
@@ -32,21 +50,26 @@ jagg.block("application/get", {
     	 var deploymentStages = getProperties(DEPLOYMENT_STAGES);
 
          var tenantDomain = mod.getTenantDomain();
-         
-         var projUtils = Packages.org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
-		 var applicationType = projUtils.getApplicationType(applicationKey, mod.getTenantDomain());
-		 var isUploadableAppType = getProperty("ApplicationType."+applicationType+".Property.isUploadableAppType");
 	     var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
 		 var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
-         
+	     var helpTips = jagg.module("help").getHelpTips("applicationHome");
+       	 
+	 var applicationType = mod.getApplicationType(applicationKey);
+         var executionType = mod.getApplicationTypeBean(applicationType).getExecutionType();	  
+	 var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+		var hasAppCreationPermission=jagg.module("permission").hasAppCreationPermission();
+
     	return {
     		"tenantDomain":tenantDomain,
     		"hasConfigureAPIManagerPermission": hasConfigureAPIManagerPermission,
     		"hasRepoReadWritePermission":hasRepoReadWritePermission,
-    		"stagesMap":map,
-    		"isUploadableApp":isUploadableAppType,
+			"stagesMap":map,
     		"hasDomainMappingPermission":hasDomainMappingPermission,
     		"fineGrainedDomainMappingAllowedStage": fineGrainedDomainMappingAllowedStage,
+		    "helpTips":helpTips,
+		"executionType":executionType,
+		"isAllowDomainMapping":isAllowDomainMapping,
+			"hasAppCreationPermission":hasAppCreationPermission
     	};
     }
 

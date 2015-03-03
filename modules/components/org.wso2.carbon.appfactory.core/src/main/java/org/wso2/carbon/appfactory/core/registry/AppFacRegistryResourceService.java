@@ -21,9 +21,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
@@ -41,6 +46,8 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 
 import javax.cache.Cache;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an OSGi service that enables CRUD operations to work with mounted Startos manager registries to App Factory
@@ -57,7 +64,7 @@ public class AppFacRegistryResourceService {
      * @throws AppFactoryException
      */
     public Dependency[] getAllResources(String resourcePath) throws AppFactoryException {
-        Dependency[] dependencies = new Dependency[0];
+        List<Dependency> dependencyList = new ArrayList<Dependency>();
 
         try {
             UserRegistry registry = getRegistry();
@@ -73,22 +80,22 @@ public class AppFacRegistryResourceService {
                         if (log.isDebugEnabled()) {
                             log.debug("No resources were found as dependencies in resource path : " + resourcePath);
                         }
-                        return dependencies;
+                        return dependencyList.toArray(new Dependency[dependencyList.size()]);
                     }
-
-                    dependencies = new Dependency[children.length];
 
                     for (int i = 0; i < children.length; i++) {
                         String childPath = children[i];
-                        Resource child = registry.get(childPath);
+                        if (registry.resourceExists(childPath)) {
+                            Resource child = registry.get(childPath);
 
-                        Dependency element = new Dependency();
-                        element.setName(RegistryUtils.getResourceName(child.getPath()));
-                        element.setDescription(child.getDescription());
-                        element.setValue(getResourceContent(child));
-                        element.setMediaType(child.getMediaType());
+                            Dependency element = new Dependency();
+                            element.setName(RegistryUtils.getResourceName(child.getPath()));
+                            element.setDescription(child.getDescription());
+                            element.setValue(getResourceContent(child));
+                            element.setMediaType(child.getMediaType());
 
-                        dependencies[i] = element;
+                            dependencyList.add(element);
+                        }
                     }
                 } else {
                     if (log.isDebugEnabled()) {
@@ -102,7 +109,8 @@ public class AppFacRegistryResourceService {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
-        return dependencies;
+
+        return dependencyList.toArray(new Dependency[dependencyList.size()]);
     }
 
     /**
@@ -209,6 +217,7 @@ public class AppFacRegistryResourceService {
                             // delete parent path
                             String parentPath =
                                 StringUtils.substring(resourcePath, 0, StringUtils.lastIndexOf(resourcePath, "/"));
+                            cacheKey = RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, parentPath);
                             if (cache.containsKey(cacheKey)) {
                                 cache.remove(cacheKey);
                                 if (log.isDebugEnabled()) {
@@ -220,6 +229,29 @@ public class AppFacRegistryResourceService {
                 }
             }
         }
+    }
+
+
+    /**
+     * Method to check whether this is a application showing data sources
+     * @param applicationId
+     * @return
+     */
+    public boolean checkDataSourceSupport(String applicationId) throws AppFactoryException {
+        String type = ApplicationManager.getInstance().getApplicationType(applicationId);
+        ApplicationTypeBean appType = ApplicationTypeManager.getInstance().getApplicationTypeBean(type);
+        String[] runTimes = appType.getRuntimes();
+        boolean runtimeDS = Boolean.parseBoolean(RuntimeManager.getInstance().getRuntimeBean(runTimes[0]).
+                getProperty(AppFactoryConstants.SUPPORT_DATASOURCE));
+        boolean appTypeDS = false;
+        if (appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE) != null &&
+                appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE).toString() == "true"){
+            appTypeDS = true;
+        }
+        if (runtimeDS && appTypeDS) {
+            return true;
+        }
+        return false;
     }
 }
 

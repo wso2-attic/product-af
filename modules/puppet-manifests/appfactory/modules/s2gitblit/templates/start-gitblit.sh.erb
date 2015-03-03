@@ -1,2 +1,2 @@
 export GIT_SSL_NO_VERIFY=1
-nohup /opt/java/bin/java -server ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -Xms1024m -Xmx4096m -XX:MaxPermSize=1024m  -Djava.io.tmpdir="<%= @base_dir %>/tmp/" -jar gitblit.jar --httpsPort <%= @s2gitbit_https_port %>  > <%= @gitblit_home %>/logs/s2gitblit.log 2>&1  &
+nohup /opt/java/bin/java -server ${JAVA_PROXY_CONFIG} -Djava.awt.headless=true -Xms1024m -Xmx4096m -XX:MaxPermSize=1024m  -Djava.io.tmpdir="<%= @gitblit_home %>/tmp/" -jar gitblit.jar --httpsPort <%= @s2gitbit_https_port %>  > <%= @gitblit_home %>/logs/s2gitblit.log 2>&1  &

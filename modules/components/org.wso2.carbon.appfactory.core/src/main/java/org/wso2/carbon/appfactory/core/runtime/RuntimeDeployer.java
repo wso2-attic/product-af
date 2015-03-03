@@ -59,14 +59,20 @@ public class RuntimeDeployer extends AbstractDeployer {
 
 		File runtimeFile = runtimeFileData.getFile();
 		boolean isDirectory = runtimeFile.isDirectory();
-		if (!FilenameUtils.getExtension(runtimeFile.getName()).equals(RUNTIME_EXTENSION)) {
-			return;
-		} else if (isDirectory) {  // Ignore folders
-			return;
-		}
-
 		if (log.isDebugEnabled()) {
 			log.debug("Deploying the new runtime from : " + runtimeFile.getName());
+		}
+
+		if (!RUNTIME_EXTENSION.equals(FilenameUtils.getExtension(runtimeFile.getName()))) {
+			if (log.isDebugEnabled()) {
+				log.debug("Runtime file is not a xml file, The available file is" + runtimeFile.getName());
+			}
+			return;
+		} else if (isDirectory) {  // Ignore folders
+			if (log.isDebugEnabled()) {
+				log.debug("The available file is a directory" + runtimeFile.getName());
+			}
+			return;
 		}
 
 		try {

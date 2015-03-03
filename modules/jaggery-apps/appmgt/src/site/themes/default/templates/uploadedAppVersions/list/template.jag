@@ -1,12 +1,33 @@
-<% jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
 
 <%
     var baseURL = getProperty(BASE_URL);
     var gitURL = null;
     var mod = jagg.module("manager");
     var tenantDomain = mod.getTenantDomain();
-    var loggedInUser = session.get("LOGGED_IN_USER");
-    var appDomain = getProperty("DomainName");    	
+    var loggedInUser = jagg.getUser();
+    var appDomain = getProperty("DomainName");
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
  %>
     <style>
     .popover_form input.branch-txt-width-fix{
@@ -23,11 +44,19 @@
 
     </style>
 
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+    
     <script type="text/javascript">
+
+    $(document).ready(function(){
+    	initializeUserActivity("uploadVersions", '<%=applicationKey%>', '<%=applicationName%>');
+    });
+
+    
     var latestVersion=null;
     var applicaitonType = null;
     var subDomain = null;
-    var domainMappedVersion = null;	
+    var domainMappedVersion = null;
     function drawVersionsList() {
     	var row = '',
             versions = [],
@@ -44,7 +73,7 @@
 
                 versions = jQuery.parseJSON(result);
                 $("#repositories_and_builds_list").empty();
-                
+
                 count = versions.length;
                 $theTable=$('<table class="data-table"><thead><tr><th>Version</th><th>Stage</th><th></th><th></th></tr></thead></table>');
 
@@ -55,17 +84,17 @@
 	   	    }
 	        $theTable.append(constructRow(element,i));
         }
-             
+
 		latestVersion=versions[0].version.current;
 
                 	$("#repositories_and_builds_list").append($theTable);
                     $("#repositories_and_builds_list").append($('<div class="clearfix"></div>'));
-                                               
+
                     $('.deploy_action').click(function(event){
-				
+
                         var tmpSrcVersion=$(this).attr('data-version');
                         var tmpstage=$(this).attr('data-stage');
-                        doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion);
+                        doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion,$(this));
                     });
 
                     $('.launch_action').click(function(event){
@@ -73,7 +102,7 @@
                         var tmpSrcVersion=$(this).attr('data-version');
                         var tmpstage=$(this).attr('data-stage');
                         var state="started";
-                        doLaunch(applicationKey, tmpSrcVersion,tmpstage,state,tmpAppType);
+                        doLaunch(applicationKey, tmpSrcVersion,tmpstage,state,tmpAppType,$(this));
                     });
 
                     $('#filter_repos_or_stages').keyup(function(event){
@@ -97,24 +126,29 @@
             applicaitonType = parsedArray.type;
         },function (jqXHR, textStatus, errorThrown) {
             //jagg.message({content:'Could not load Application information',type:'error' });
-        jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+
+            if (jqXHR.status != 0){
+                jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+
+            }
+
         });
-}
+     }
 
 
     $(function () {
             applicationKey = '<%=request.getParameter("applicationKey")%>';
-            userName = '<%=session.get("LOGGED_IN_USER")%>';
+            userName = '<%=jagg.getUser()%>';
 	        loadApplicationInfo(applicationKey);
             drawVersionsList();
-	
+
 	       $('form').ajaxForm({
                         beforeSend: function() {
 			     $("#appcreation").attr('disabled','disabled');
 			      jagg.message({
                                     content: "New version deployment in-progress.",
                                     type: 'info'
-                                 });	
+                                 });
                         },
                         complete: function(response) {
 				if(response.status === 200){
@@ -122,46 +156,47 @@
 				   var major = Number(existingVersion.split(".")[0]);
 		           var newMajor = ++major;
     			   var newVersion = newMajor+".0.0";
+    			   $("#appcreation").attr('disabled',false);
 				   location.reload();
-					 
 				}else{
 				  jagg.message({
                                     content: "Error while adding new version.",
                                     type: 'Error'
-                                 });	
+                                 });
+                    $("#appcreation").attr('disabled',false);
 				}
                          }
                  });
-               
+
     });
-    
+
     function uploadNewVersion(){
     	if(validate()){
 		$("#versionInput").attr("value",latestVersion);
 		$("#versionUploadForm").submit();
 	}
 	//return false;
-    	
+
     }
-   
+
     function validate(){
     	if(!$("#uploaded_application").val()){
 		   jagg.message({
 				    content: "File is not provided to upload.",
 				    type: 'error'
 			    });
-		  return false;	
+		  return false;
 		}
 	return true;
     }
- 	
+
 
     function constructRow(element,i){
-    
+
         var version=element.version.current;
         var stage=element.version.stage;
         var versionForIds=version.replace(/\./g,'_');
-    
+
         var $resultRow = '<tr><td>' + version +'</td><td>' + stage + '</td>';
 	    if(stage != "Retired"){
 	    	$resultRow +='<td><a href="#" class="btn main small deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></td>' +
@@ -180,7 +215,8 @@
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
-                        targetVersion:targetVersion
+                        targetVersion:targetVersion,
+                        lifecycleName:'<%=UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME%>'
                     }, function (result) {
                         $(button).removeAttr('disabled').val('Create Branch');
                         //drawVersionsList();
@@ -189,10 +225,13 @@
 
                     function (jqXHR, textStatus, errorThrown) {
                         $(button).removeAttr('disabled').val('Create Branch');
-                        jagg.message({
-                            content: "Error while creating version. Check the given version value and try again.",
-                            type: 'error'
-                        });
+
+                        if (jqXHR.status != 0){
+                            jagg.message({
+                                content: "Error while creating version. Check the given version value and try again.",
+                                type: 'error'
+                            });
+                        }
                     });
         }else{	// if wrong versioning number
             jagg.removeMessage();
@@ -205,12 +244,12 @@
 
 
     }
-    
+
     var runThread = null ;
 
 
-    function doDeploy(applicationKey,deployAction,stage,tagName,version){
-
+    function doDeploy(applicationKey,deployAction,stage,tagName,version,element){
+        element.attr('disabled',true);
         jagg.post("../blocks/build/add/ajax/add.jag", {
                     action: "deployArtifact",
                     applicationKey: applicationKey,
@@ -225,21 +264,28 @@
                         type: 'success',
                         id:'message_id_success'
                     });
+                    element.attr('disabled',false);
                     hideNotification();
                 },
 
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content: "Error occurred while deploying the artifact.",
-                        type: 'error',
-                        id:'message_id'
-                    });
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while deploying the artifact.",
+                            type: 'error',
+                            id:'message_id'
+                        });
+                    }
 
+
+
+                    element.attr('disabled',false);
                 });
 
 
     }
-    function doLaunch(applicationKey, version,stage,state,type){
+    function doLaunch(applicationKey, version,stage,state,type,element){
+        element.attr('disabled',true);
         jagg.post("../blocks/application/get/ajax/list.jag", {
                     action: "getMetaDataForAppVersion",
                     applicationKey: applicationKey,
@@ -252,7 +298,7 @@
                     var msg = "";
                     resJSON = jQuery.parseJSON(result);
                     var URL= resJSON.url;
-
+                    element.attr('disabled',false);
                     if(!URL){
                         jagg.message({
                             content: "Application is not deployed yet!",
@@ -260,7 +306,7 @@
                         });
                       return;
                     }
-				
+
 				//Domain mapping
 				if(domainMappedVersion != null && version == domainMappedVersion && subDomain !=null && (subDomain.trim().length > 0)){
                    URL = "http://" + subDomain + ".<%=appDomain%>";
@@ -268,12 +314,16 @@
                 window.open(URL, '_blank')
             },
                 function (jqXHR, textStatus, errorThrown) {
-                    jagg.message({
-                        content: "Error occurred while launching the artifact.!",
-                        type: 'error',
-                        id:'message_id'
-                    });
 
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while launching the artifact.!",
+                            type: 'error',
+                            id:'message_id'
+                        });
+                    }
+
+                    element.attr('disabled',false);
                 });
 
     }
@@ -318,6 +368,7 @@
         <article class="main">
         <%
     jagg.includeBlock("page/messages", null);
+    jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
     %>
             <header class="separator">
                <div class="content">
@@ -327,7 +378,7 @@
                         <div class="input_row">
                             <label for="filter_repos_or_stages" class="hide" >Filter Repos or Stages</label>
                             <input id="filter_repos_or_stages" type="text" class="fw_250 margin_15" placeholder="Filter Repos or Stages" name="filter_repos_or_stages" value=""  /><span class="icon-search"></span>
-                        </div>                       
+                        </div>
                     </form>
                 </div>
 
@@ -342,12 +393,13 @@
                                 action="../blocks/lifecycle/add/ajax/add.jag" enctype="multipart/form-data" method='post'>
                                 <input type="hidden" id="action" name="action"
                                     value="uploadNewVersionOfExistingApp" />
-
+                                <input type="hidden" id="lifecycleName" name="lifecycleName" 
+                                	value="<%=UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME%>" />
                                 <input type="hidden" id="applicationKey" name="applicationKey"
                                     value="<%=request.getParameter('applicationKey')%>" />
                                 <input type="hidden" id="versionInput" name="latestVersion" value="123"/>
                                 <input type="hidden" id="userName" name="userName"
-                                                        value="<%=session.get('LOGGED_IN_USER')%>" />
+                                                        value="<%=jagg.getUser()%>" />
                                <input type="hidden" id="latestVersion" name="applicationKey"
                                     value="<%=request.getParameter('applicationKey')%>" />
 				 <div class="input_row">
@@ -356,7 +408,7 @@
                                         <input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." />
                                     </span>
                                         <input type="button" value="Upload" class="btn main" id='appcreation' onclick="uploadNewVersion()" />
-  
+
                             </form>
 
                             </div>

@@ -1,4 +1,23 @@
-<% include("/jagg/constants.jag"); %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/constants.jag"); %>
 <% jagg.template("application/get", function(inputs, outputs, jagg) { %>
 <%
     var log = new Log();
@@ -12,9 +31,16 @@
     var tenantDomain = mod.getTenantDomain();
     var hasCXOPermissionOnApps = permissionMod.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
     var isTenantAdmin = permissionMod.hasTenantLevelUserMgtPermission();
-    var appDomain = getProperty("DomainName");
-    var isUploadableApp = outputs.isUploadableApp;
+    var appDomain = getProperty(DOMAIN_NAME);
+    var isUploadableApp = request.getParameter("isUploadableApp");
+    var helpTips = outputs.helpTips;
+    var executionType = outputs.executionType;
+    var isAllowDomainMapping = outputs.isAllowDomainMapping;
+    var hasAppCreationPermission = outputs.hasAppCreationPermission;
     %>
+    
+ <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+    
  <script type="text/javascript" charset="utf-8">
     //this is for zeroclipboard pluging
     var _defaults = {
@@ -37,8 +63,16 @@
    var allResourceCount = [];
    var appInfo;//
    var domainMappedVersion;
-   var subDomain;
-   var previousSubDomain;
+   var defaultSubDomain;
+   var currentCustomUrl;
+   var customUrlVerificationCode;
+   var newCustomUrl;
+   var applicationType;
+   var deployedPodVersionCount = 0;
+   var unmappedProdVersion;
+   var validateBtnHoverText = "Please click this button to validate the url.";
+   var addNewUrlBtnHoverText = "Please click this button to add new custom url.";
+   var removeUrlBtnHoverText = "Please click this button to remove custom url."
 
    var fgdmAllowedStage  = JSON.parse('<%=stringify(fineGrainedDomainMappingAllowedStage)%>') ;
    var deploymentPermission  = JSON.parse('<%=stringify(stagesMap)%>') ;
@@ -52,9 +86,12 @@
 
    //[cdata[
     $(document).ready(function(){
+
+    	initializeUserActivity("appHome", '<%=applicationKey%>', '<%=applicationName%>');
+        
         loggedinUser='<%=userName%>';
 
-        getHelpTips();
+        setHelpTips(<%= helpTips %>);
         loadAppIcon('<%=applicationKey%>');
         loadApplicationInfo();
 
@@ -77,7 +114,8 @@
                 if(jsonResp.result == 0){
                     jagg.message({
                         content: jsonResp.message,
-                        type: 'error', id:'appdeleteerrormsg'
+                        type: 'error',
+                        id:'notification'
                     });
                     return;
                 }
@@ -97,6 +135,17 @@
 
         if(loggedinUser!=appownerName){
             $('.element-editor-hover').click(function(){
+                if($(this).attr("id") && "div-custom-url-hover" == $(this).attr("id")) { // if click on the custom url hover(edit)
+                    $("#btn-validate-domain").hide();
+                    if(currentCustomUrl){               // if custom url is set, set value in the edit span
+                        $('#custom-url-edit').val(currentCustomUrl);
+                    } else {
+                        $('#custom-url-edit').val("");
+                    }
+                    // initially disable save button
+                    $("#custom-url-save-btn").attr('disabled','disabled');
+                }// end of custom url specific action
+
                 $(this).parent().hide().next().show();
             });
         }
@@ -106,7 +155,16 @@
         })
         $('#description_save_btn').click(function(){
             $(this).closest('.element-editor-edit').hide().prev().show();
-            var newDescription = $('#description_edit').val();
+            jagg.removeMessage('notification');
+            var newDescription = $('#description_edit').val().trim();
+            if(!validateInputForAlphanumericAndSpaces(newDescription)){
+                jagg.message({content:'Invalid input for description field!. Only alphanumeric and spaces are allowed.',type:'error',id:'notification' });
+                return;
+            }
+            if(newDescription.length > 1000){
+                jagg.message({content:'Use maximum 1000 characters for description field!',type:'error',id:'notification' });
+                return;
+            }
             jagg.post("../blocks/application/update/ajax/update.jag", {
                 action:"updateDescription",
                 applicationKey:'<%=applicationKey%>',
@@ -118,24 +176,103 @@
                         $('#description_hover').html("Click here to add description");
                     }
                 },function (jqXHR, textStatus, errorThrown) {
-                    //jagg.message({content:'Error occured while updating description!',type:'error' });
-                    jagg.message({content:'Error occured while updating description!',type:'error',id:'myuniqeid' });
+                    jagg.message({content:'Error occurred while updating description!',type:'error',id:'notification' });
             });
         });
-        $('#sub_domain_save_btn').click(function(){
+
+        $('#custom-url-save-btn').click(function(){
             $(this).closest('.element-editor-edit').hide().prev().show();
-            if(!validateSubDomain()){
-                return;
-            }
-          //isDomainAvailable();
-            updateDomainMapping();
+            triggerSaveCustomUrlEvent();
         });
+
         $('#sub_domain_cancel_btn').click(function(){
-        	$('#sub_domain_edit').val("");
+        	setUrlMappingElements();
+        	var customUrlValue = "";
+        	if(currentCustomUrl) {          // if current custom url is defined set edit span to that value, else empty
+        	    customUrlValue = currentCustomUrl;
+        	}
+        	$('#custom-url-edit').val(customUrlValue);
+        });
+
+        $('#custom-url-edit').keyup(function(e){
+        	var tempCustUrl = $('#custom-url-edit').val().trim();
+        	var currentProdUrl = defaultSubDomain+".<%=appDomain%>";
+        	if((currentCustomUrl) && (tempCustUrl) && ( (currentCustomUrl == tempCustUrl) || (tempCustUrl == currentProdUrl) ) ) {
+        	    // if new custom url is equal to existing current custom url or production url we disable the save button
+        	    $("#custom-url-save-btn").attr('disabled','disabled');
+        	} else if(!tempCustUrl && !currentCustomUrl){
+        	    // if there is no already exciting custom url and new url value is empty we disable the save button.
+        	    $("#custom-url-save-btn").attr('disabled','disabled');
+        	}else {
+        	    $("#custom-url-save-btn").removeAttr('disabled');
+
+        	    // To save the sub domain when the enter key is pressed
+        	    code= (e.keyCode ? e.keyCode : e.which);
+        	    if (code == 13 && $('#custom-url-edit').val()) {
+                    $(this).closest('.element-editor-edit').hide().prev().show();
+                    triggerSaveCustomUrlEvent()
+                }
+        	}
+        });
+
+        // validate button tooltip
+        $('#btn-validate-domain').qtip({
+            content: validateBtnHoverText,
+            position : {
+                my: 'top right'
+            }
+        });
+
+        // add new custom url button tooltip
+        $('#add-new-custom-url-btn').qtip({
+            content: addNewUrlBtnHoverText,
+            position : {
+                my: 'top right'
+            }
+        });
+
+        // remove custom url btn tooltip
+        $('#remove-custom-url-btn').qtip({
+            content: removeUrlBtnHoverText,
+            position : {
+                my: 'top right'
+            }
         });
    });
 
+function validateInputForAlphanumericAndSpaces(inputValue){
+	return !/[^a-zA-Z0-9\-\ /]/.test(inputValue);
+}
+/**
+ * Set customer url as a spin icon
+ * @param busy
+ */
+function setCustomUrlBusy(busy){
+    if(!busy){
+        $(".custom-url-spin").hide();
+        $("#custom-url-view").show();
+        $("#custom-url-hover").show();
+    } else {
+        $(".custom-url-spin").show();
+        $("#custom-url-view").hide();
+        $("#custom-url-hover").hide();
+    }
+}
+
+/**
+* Click add new custom url button
+*/
+function addNewUrlClick() {
+    if(hasDomainMappingPermission ==='true') {
+        $("#div-custom-url-details").show();
+        $("#div-custom-url-details").find("#div-custom-url-wrapper").hide();
+        $("#div-custom-url-details").find(".element-editor-edit").show();
+        $("#add-new-custom-url-btn").hide();
+    }
+}
+
 function deleteApplication(){
+   jagg.message({content:'<%=applicationName%> is being deleted, Please wait for a moment',type:'warning',id:'notification',spinner:'true'});
    $('#deleteButton').attr('disabled','disabled');
    $('#deleteForm').submit();
 }
@@ -165,9 +302,53 @@ function loadAppIcon(appKey) {
 
 
 
-function submitChangeAppIcon(){
-    $('#changeAppIcon').submit();
+function submitChangeAppIcon(newIconObj){
+    var validated = validateIconImage(newIconObj.value,newIconObj.files[0].size);
+    if(validated){
+        $('#changeAppIcon').submit();
+    }
 }
+
+function getFileExtension(filename) {
+    var parts = filename.split('.');
+    return parts[parts.length - 1];
+    }
+
+function validateIconImage(filename,fileSize) {
+    var ext = getFileExtension(filename);
+    var extStatus = false;
+    var fileSizeStatus = true;
+    // Check extension
+    switch (ext.toLowerCase()) {
+        case 'jpg':
+        case 'jpeg':
+        case 'gif':
+        case 'bmp':
+        case 'png':
+         extStatus = true;
+         break;
+        default:
+        jagg.message({
+                   content: "Invalid image selected for Application Icon - Select a valid image",
+                   type: 'error',
+                   id:'notification'
+               });
+         break;
+        }
+
+        if(fileSize > 5242880 && extStatus == true){
+            fileSizeStatus = false;
+            jagg.message({
+                   content: "Image file should be less than 5MB",
+                   type: 'error',
+                   id:'notification'
+               });
+        }
+        if(extStatus == true && fileSizeStatus == true){
+             return true;
+        }
+    return false;
+    }
 
  function toErrorHtml(message){
     var html="<span style=\"color:#D16666\">"+message+"</span>";
@@ -196,7 +377,7 @@ function submitChangeAppIcon(){
                jagg.message({
                    content: "The Deployment is successfully submitted. - Refresh the page in few seconds.",
                    type: 'success',
-                   id:'message_id_success'
+                   id:'notification'
                });
                hideNotification();
            },
@@ -205,7 +386,7 @@ function submitChangeAppIcon(){
                jagg.message({
                    content: "Error occurred while deploying the artifact.",
                    type: 'error',
-                   id:'message_id'
+                   id:'notification'
                });
 
            });
@@ -225,37 +406,44 @@ function submitChangeAppIcon(){
                launchHide = "hidden";
            }
 
-           var executionType;
-           if (type == "dbs" || type == "bpel") {
-               executionType = "View WSDL";
-           } else if (type == "esb") {
-               executionType = "View Synapse Config";
-           } else {
-               executionType = "Open";
+           var executionType = '<%=executionType%>';
+
+	   if (executionType){
+                executionType = "Open";
            }
+
 
     	   var buttons = "";
     	   var resJSON = jQuery.parseJSON(result);
     	   var URL = resJSON.url;
 
     	   //Domain mapping
-           if(domainMappedVersion != null && version == domainMappedVersion && previousSubDomain != null  && (previousSubDomain.trim().length > 0)){
-               URL = "http://" + previousSubDomain + ".<%=appDomain%>";
+           if(domainMappedVersion != null && version == domainMappedVersion && defaultSubDomain){
+               URL = "http://" + defaultSubDomain+".<%=appDomain%>";
+               if(currentCustomUrl && customUrlVerificationCode){ // if custom url specified and verified
+                    URL = "http://" + currentCustomUrl;
+               }
            }
 
     	   if(resJSON.url){
     		   if(promoteStatus==="pending" && deploymentPermission[stage]){
-    			   buttons += '<a  href="#" onclick="acceptAndDeploy(\'<%=applicationKey%>\',\'' + version + '\',\'' + stage + '\',\'deploy\',\'started\',\'' + type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:0px;float:left;">Accept & Deploy</a>&nbsp;';
+    			   buttons += '<a  name="acceptdeploy_action" href="#" onclick="acceptAndDeploy(\'<%=applicationKey%>\',\'' + version + '\',\'' + stage + '\',\'deploy\',\'started\',\'' + type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:0px;float:left;">Accept & Deploy</a>&nbsp;';
     		   }else{
-	    		   buttons += '<a href="'+ URL +'" target="_blank" class="push_right_10 escape-event" style="margin-left:0px;float:left;">' + executionType + '</a>&nbsp;';
+	    		   buttons += '<a name="open_action" href="'+ URL +'" target="_blank" class="push_right_10 escape-event" style="margin-left:0px;float:left;">' + executionType + '</a>&nbsp;';
+	    		   if(stage == fgdmAllowedStage){
+                        deployedPodVersionCount++;
+                        if(domainMappedVersion == null) {
+                            unmappedProdVersion = version;
+                        }
+                   }
 	    		   //buttons += '<a class="copy-link" id ="launch'+version.split(".").join("_")+'" title="Copy URL" data-clipboard-text=""><span class="icon-copy"></span></a>';
     		   }
     	   }else{
     		   if(deploymentPermission[stage]){
 	    		   if(promoteStatus==="pending"){
-	    			   buttons += '<a  href="#" onclick="acceptAndDeploy(\'<%=applicationKey%>\',\'' + version + '\',\'' + stage + '\',\'deploy\',\'started\',\'' + type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:0px;float:left;">Accept & Deploy</a>&nbsp;';
+	    			   buttons += '<a  name="acceptdeploy_action" href="#" onclick="acceptAndDeploy(\'<%=applicationKey%>\',\'' + version + '\',\'' + stage + '\',\'deploy\',\'started\',\'' + type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:0px;float:left;">Accept & Deploy</a>&nbsp;';
 	    		   }else{
-	    			   buttons += '<a  href="#" onclick="deployApp(\'<%=applicationKey%>\',\'' + version + '\',\'' + stage + '\',\'deploy\',\'started\',\'' + type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:0px;float:left;">Deploy</a>&nbsp;';
+	    			   buttons += '<a name="deploy_action" href="#" onclick="deployApp(\'<%=applicationKey%>\',\'' + version + '\',\'' + stage + '\',\'deploy\',\'started\',\'' + type + '\');" class="btn main small push_right_10 escape-event" style="margin-left:0px;float:left;">Deploy</a>&nbsp;';
 	    		   }
     		   }
     	   }
@@ -267,7 +455,7 @@ function submitChangeAppIcon(){
            jagg.message({
                content: "Error occurred while checking "+ '<%=applicationKey%>' +" deployed in " + stage,
                type: 'error',
-               id:'message_id'
+               id:'notification'
            });
        });
    }
@@ -291,13 +479,13 @@ function setClipBoard(version){
        });
 }
 
-   function updateAppVersionPromoteStatus(promoteStatus, version){
+   function updateAppVersionPromoteStatus(promoteStatus, version, nextStage){
        jagg.post("../blocks/application/update/ajax/update.jag", {
                action: "updatePromoteStatus",
                applicationKey: '<%=applicationKey%>',
-               username:'<%=userName%>',
-               promoteStatus:promoteStatus,
-               version:version
+               nextStage:nextStage,
+               version:version,
+               state:promoteStatus
            }, function (result) {},
            function (jqXHR, textStatus, errorThrown) {});
    };
@@ -313,18 +501,23 @@ function setClipBoard(version){
                version:version
            }, function (result) {
                jagg.message({
-                   content: "The Deployment is successfully submitted. - Refresh the page in few seconds.",
+                   content: "The Deployment is underway. Please wait, this might take few minutes.",
                    type: 'success',
-                   id:'message_id_success'
+                   id:'notification'
                });
-               hideNotification();
+               if((stage == fgdmAllowedStage) && hasDomainMappingPermission === 'true' &&   //has permissions
+                            defaultSubDomain && !domainMappedVersion &&                     //production url exists
+                            domainMappedVersion == null && deployedPodVersionCount == 0 ){  // there is no version in production which is deployed and mapped
+                    remapDomainToVersion(version);
+               }
+               setTimeout("window.location.reload()",240000);
            },
 
            function (jqXHR, textStatus, errorThrown) {
                jagg.message({
                    content: "Error occurred while deploying the artifact.",
                    type: 'error',
-                   id:'message_id'
+                   id:'notification'
                });
 
            });
@@ -332,7 +525,7 @@ function setClipBoard(version){
 
    function acceptAndDeploy(applicationKey, version, stage, deployAction, state, type){
 	   deployApp(applicationKey, version, stage, deployAction, state, type);
-	   updateAppVersionPromoteStatus("",version);
+	   updateAppVersionPromoteStatus("",version, stage);
    };
 
 
@@ -358,13 +551,17 @@ function setClipBoard(version){
                if((!URL)&&(!getUrlOnly)){
                    jagg.message({
                        content: "Application is not deployed yet!",
-                       type: 'error'
+                       type: 'error',
+                       id:'notification'
                    });
                 return;
                }
                //Domain mapping
-               if(domainMappedVersion != null && version == domainMappedVersion && previousSubDomain != null  && (previousSubDomain.trim().length > 0)){
-                   URL = "http://" + previousSubDomain + ".<%=appDomain%>";
+               if(domainMappedVersion != null && version == domainMappedVersion && defaultSubDomain){
+                    URL = "http://" + defaultSubDomain + ".<%=appDomain%>";
+                    if(currentCustomUrl && customUrlVerificationCode) { // if custom url specified and verified
+                        URL = "http://" + currentCustomUrl;
+                    }
                }
                if(!getUrlOnly){
                    window.open(URL, '_blank');
@@ -376,7 +573,8 @@ function setClipBoard(version){
            function (jqXHR, textStatus, errorThrown) {
                jagg.message({
                    content: "Error occured while launching the artifact.!",
-                   type: 'error'
+                   type: 'error',
+                   id:'notification'
                });
 
            });
@@ -494,7 +692,10 @@ function setClipBoard(version){
             var type = "<%= jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/apptype/" + appInfo.type + ".png'))%>";
 	    $('#type').attr("src", type);
        },function (jqXHR, textStatus, errorThrown) {
-           jagg.message({content:'Could not load Application information',type:'error',id:'myuniqeid' });
+    	   // If user navigates from the page in middle of the ajax call jqXHR.status would be 0.
+     	  	if ( jqXHR.status != 0){
+     		  jagg.message({content:'Could not load Application information',type:'error',id:'notification' });
+     	  	}
        });
    }
 
@@ -507,7 +708,9 @@ function setClipBoard(version){
 
 
    function createCurrentStatus(isLoad) {
-	    $('#repositories_and_builds_list_content_new tbody').empty();
+        $("#repositories_and_builds_list_content_new tbody").show();
+        $("#repositories_and_builds_list_content_new tbody").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+
 	    jagg.post("../blocks/application/get/ajax/list.jag", {
 	        action: "getAppVersionsInStages",
 	        userName: $("#userName").attr('value'),
@@ -516,21 +719,18 @@ function setClipBoard(version){
 
 	        var parsedArray = jQuery.parseJSON(result);
 	        var versions = Array();
-	        var applicationType;
-	        var versionExistsForDomainMapping = false;
 	        for (var i = 0; i < parsedArray.length; i++) {
 	            var application = parsedArray[i];
 	            versions = versions.concat(application.versions);
 	            applicationType = application.type;
-	            previousSubDomain = application.mappedSubDomain;
+	            defaultSubDomain = application.mappedSubDomain;
+	            currentCustomUrl = application.customUrl;
+	            customUrlVerificationCode = application.customUrlVerificationCode;
+
 	        }
 
-	        if(previousSubDomain != null && previousSubDomain != "null" && previousSubDomain != ""){
-               $('.sub_domain').html(previousSubDomain);
-               $('#sub_domain_edit').val(previousSubDomain);
-            }else{
-                $('.sub_domain').html("<span class='sub_domain_no_txt'>&lt;sub_domain&gt;</span>");
-	        }
+	        setUrlMappingElements();
+            setCustomUrlBusy(false);
 
 	        versions.sort(VersionComparator);
 	        issuesSummary(applicationKey);
@@ -547,15 +747,11 @@ function setClipBoard(version){
 
 	            //Domain Mapping Logic
 	            //T0D0 hardcorded app type
-	            if (applicationType == "war" || applicationType == "Uploaded-binary-App-war") {
+	            if ('<%=isAllowDomainMapping%>' === 'true') {
 	               // warAppVersions.push(currentVersion);
 	                var previousDomain = versionInfo.productionMappedDomain;
 	                if (previousDomain != null && previousDomain.trim().length) {
 	                    domainMappedVersion = currentVersion;
-	                }
-	                
-	                if(fgdmAllowedStage == versionStage){
-	                	versionExistsForDomainMapping = true;
 	                }
 	            }
 
@@ -659,7 +855,19 @@ function setClipBoard(version){
 	        });
 
 	        clip.on('complete', function (client, args) {
-	            // alert("Copied text to clipboard: " + args.text );
+	            //alert("Copied text to clipboard: " + args.text );
+		    $('#copymain').qtip({
+			content:{
+				attr: 'data-tooltip'
+			},
+			show:{
+				event:'click',
+				ready:true
+			},
+			hide:{
+				distance:20
+			}
+		    });
 	        });
 	        clip.on('mousedown', function (client) {
 
@@ -668,57 +876,240 @@ function setClipBoard(version){
 	        $('.js-table-collapse').click(function () {
 	            $(this).toggleClass("icon-chevron-down").closest("tr").toggleClass("expanded").next().toggle('fast');
 	        });
-	        
-	        if(hasDomainMappingPermission === 'true' && versionExistsForDomainMapping){
-	    		$('#urlMapper').show();
-	    	}
-	    }, function (jqXHR, textStatus, errorThrown) {});
+
+            // TODO: support for other app types
+            if(defaultSubDomain && ('<%=isAllowDomainMapping%>' === 'true')) {
+                $('#urlMapper').show();
+            } else {
+                 // hide domain mapping div, if production url is not defined
+                $('#urlMapper').hide();
+            }
+
+            $('table#repositories_and_builds_list_content_new span.icon-spinner').remove();
+	    }, function (jqXHR, textStatus, errorThrown) {
+	        setCustomUrlBusy(false);
+            $('table#repositories_and_builds_list_content_new span.icon-spinner').remove();
+
+	    });
 	}
 
-   function validateSubDomain(){
-	   subDomain = $('#sub_domain_edit').val();
-	   var pattern=/^[a-zA-Z0-9]*$/;
-	   if(!subDomain.trim().length || subDomain == 'null' || !pattern.test(subDomain)){
-		   jagg.message({content:'Please specify a valid subdomain',type:'error',id:'myuniqeid' });
+	/**
+	*  Set url mapping UI elements based on the current status
+	*/
+	function setUrlMappingElements(){
+	    // Set default prod url
+	    if(defaultSubDomain && defaultSubDomain != "null" && defaultSubDomain != ""){
+	        $('#default-sub-domain-span').html(defaultSubDomain);
+	    }
+
+	    // set custom url html elements
+	    $("remove-custom-url-btn").hide();
+	    if(currentCustomUrl && currentCustomUrl != "null" && currentCustomUrl != ""){   //if custom url defined
+
+	        $("#add-new-custom-url-btn").hide();
+            $('.custom-url').html(currentCustomUrl);
+            $('#custom-url-edit').val(currentCustomUrl);
+            if(customUrlVerificationCode) {                 // if custom url verified
+                $("#btn-validate-domain").hide();           // hide validate button
+                $("remove-custom-url-btn").show();          // show remove button
+            } else {
+                $("#btn-validate-domain").show();           // else show validate button and hide remove button
+                $("remove-custom-url-btn").hide();
+            }
+        }else{
+            $("#btn-validate-domain").hide();               // if custom url is not verified, hide validate btn
+             $("#div-custom-url-details").hide();
+            if(hasDomainMappingPermission ==='true') {
+                $("#add-new-custom-url-btn").show();
+            } else {
+                $("#add-new-custom-url-btn").hide();
+            }
+            $('.custom-url').html("<span class='sub_domain_no_txt'>&lt;sub_domain&gt;</span>");
+        }
+
+
+    }
+
+   /**
+   *  Validate custom url pattern.
+   */
+   function validateUrlPattern(){
+	   newCustomUrl = $('#custom-url-edit').val().trim();
+	   var pattern=/[\w-]+(\.[\w-]+)+/;
+	   if(!newCustomUrl.trim().length || newCustomUrl == 'null' || !pattern.test(newCustomUrl)){    // if new custom url has not valid text
+		   jagg.message({content:'Please specify a valid url',type:'error',id:'notification' });
 	       return false;
+	   } else if(currentCustomUrl && newCustomUrl && (currentCustomUrl == newCustomUrl)){           // if new url is equal to current url
+            jagg.message({content:'Please enter a different url than existing url',type:'error',id:'notification' });
+            return false;
 	   }
 	   return true;
    }
 
-   function updateDomainMapping() {
-	   if(domainMappedVersion){
-		   jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
-	           action:"updateDomainMappingForSameAppVersion",
-	           version:domainMappedVersion,
-	           oldSubDomain:previousSubDomain,
-	           newSubDomain:subDomain,
-	           applicationKey:applicationKey,
-	           tenantDomain:tenantDomain,
-	           username:loggedinUser
-	       },function (result) {
-	    	   updateSubDomain();
-	       },function (jqXHR, textStatus, errorThrown) {
-	    	   //TODO: If error occured update domain mapping to previousSubDomain
-	           jagg.message({content:'Error occured while updating domain mapping with sudomain '+subDomain,type:'error',id:'myuniqeid' });
-	       });
-	   }else{
-		   updateSubDomain();
-	   }
+   /**
+   * Click validate custom url btn
+   */
+   function validateCustomUrl(){
+        newCustomUrl = $('#custom-url-edit').val().trim();
+        updateDomainMapping();
    }
 
-   function updateSubDomain(){
-	   jagg.post("../blocks/application/update/ajax/update.jag", {
-	       action:"updateSubDomain",
-	       applicationKey:applicationKey,
-	       mappedSubDomain:subDomain,
-	       username:loggedinUser
+   /**
+   * Hide notifications
+   * @param timeout to be wait until auto remove the notifications
+   */
+   function hideNotification(timeout) {
+        if(timeout) {
+            // create new timer with given time interval
+            setTimeout(function () {
+                jagg.removeMessage('notification')
+            }, timeout);
+        } else {
+            jagg.removeMessage('notification');
+        }
+    }
+
+   /**
+   *  Update domain mapping
+   */
+   function updateDomainMapping() {
+	    if (hasDomainMappingPermission === 'true'){
+            if(domainMappedVersion){                                            // if already mapped to a version
+                mapNewCustomUrlToVersion(domainMappedVersion , newCustomUrl);
+            } else if(unmappedProdVersion && deployedPodVersionCount == 1) {    // there is an one unmapped version in production state
+                mapNewCustomUrlToVersion(unmappedProdVersion , newCustomUrl);
+            } else if(currentCustomUrl){                                       // if there is an assigned custom url
+                updateExistingUnmappedCustomUrl();
+            } else {
+                addNewCustomUrl();
+            }
+	    }
+   }
+
+    /**
+     * Remove previous domain and remap new domain to the given version
+     */
+   function mapNewCustomUrlToVersion(version ,newDomain){
+        jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
+	           action:"mapNewCustomUrlToVersion",
+	           version:version,
+	           newCustomUrl:newDomain,
+	           applicationKey:applicationKey
 	       },function (result) {
+	    	   hideNotification();
+	    	   jagg.message({
+                    content: "Production url " +newDomain+" is mapped to version - " + version,
+                    type: 'success',
+                    id:'notification'
+                });
 	    	   createCurrentStatus(false);
 	       },function (jqXHR, textStatus, errorThrown) {
-	           //jagg.message({content:'Error occured while updating application URL!',type:'error' });
-	           jagg.message({content:'Error occured while updating application subdomain!',type:'error',id:'myuniqeid' });
-	   });
+	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+	           createCurrentStatus(false);
+	       });
    }
+
+    /**
+     * Update existing unmapped sub domain
+     */
+   function updateExistingUnmappedCustomUrl(){
+       jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
+	           action:"updateExistingUnmappedCustomUrl",
+	           newCustomUrl:newCustomUrl,
+	           applicationKey:applicationKey
+	       },function (result) {
+	           hideNotification();
+	           createCurrentStatus(false);
+	       },function (jqXHR, textStatus, errorThrown) {
+               //TODO: If error occurred update domain mapping to defaultSubDomain
+               jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+               createCurrentStatus(false);
+	       });
+   }
+
+   /**
+     * Add new sub domain
+     */
+   function addNewCustomUrl(){
+        jagg.post("../blocks/urlmapper/add/ajax/add.jag", {
+	           action:"addNewCustomUrl",
+	           newCustomUrl:newCustomUrl,
+	           applicationKey:applicationKey
+	       },function (result) {
+	    	   hideNotification();
+	    	   createCurrentStatus(false);
+	       },function (jqXHR, textStatus, errorThrown) {
+	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+	           createCurrentStatus(false);
+	       });
+   }
+
+    /**
+     * Remap existing domain to a new version
+     */
+    function remapDomainToVersion(version){
+         jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
+                    action:"remapDomainToVersion",
+                    oldVersion: "",
+                    newVersion:version,
+                    applicationKey:applicationKey
+               },function (result) {
+                    hideNotification();
+                    jagg.message({
+                        content: "Custom url is updated to " +newCustomUrl,
+                        type: 'success',
+                        id:'notification'
+                    });
+                    jagg.message({
+                        content: "Production url is mapped to version - " + version,
+                        type: 'success',
+                        id:'notification'
+                    });
+                    createCurrentStatus(false);
+               },function (jqXHR, textStatus, errorThrown) {
+                   createCurrentStatus(false);
+                   jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+               });
+    }
+
+    /**
+    *  Remove exisiting custom url
+    */
+    function removeCustomUrl() {
+        if(hasDomainMappingPermission ==='true') {
+            jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
+                   action:"removeCustomUrl",
+                   applicationKey:applicationKey
+               },function (result) {
+                   hideNotification();
+                   createCurrentStatus(false);
+               },function (jqXHR, textStatus, errorThrown) {
+                   jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+                   createCurrentStatus(false);
+               });
+        }
+    }
+
+    /**
+    * Trigger custom url save event.
+    */
+    function triggerSaveCustomUrlEvent() {
+        newCustomUrl = $('#custom-url-edit').val().trim();
+        if(currentCustomUrl && !newCustomUrl){       // if there is already existing customurl and new custom url is empty
+            setCustomUrlBusy(true);
+            removeCustomUrl();
+        } else {
+            // validate url pattern
+            if(!validateUrlPattern()){
+                $('#custom-url-edit').val("");
+                setUrlMappingElements();
+                return;
+            }
+            setCustomUrlBusy(true);
+            updateDomainMapping();
+        }
+    }
+
 
    function updateCalculatedETAValue(appKey,stage, version){
            var endDate ="" ;
@@ -740,22 +1131,12 @@ function setClipBoard(version){
             });
    }
 
-   function getHelpTips(){
-   jagg.post("../blocks/help/ajax/help.jag", {
-           action: "getHelpTips",
-           page: "applicationHome",
-       },
-
-       function (result) {
-           helpTips = jQuery.parseJSON(result);
+   function setHelpTips(helpTips){
 		$("#appDescription").html(helpTips.appDescription);
-                $("#productionUrl").html(helpTips.productionUrl);
-                $("#launch").html(helpTips.launch);
-                $(".appHomeIcon").attr("title",helpTips.appIcon);
-   },
-
-       function (jqXHR, textStatus, errorThrown) {
-       });
+		var prodUrlHelp = helpTips.productionUrlViewOnly;
+        $("#productionUrlHelpText").html(prodUrlHelp);
+        $("#launch").html(helpTips.launch);
+        $(".appHomeIcon").attr("title",helpTips.appIcon);
    }
    //]]
 </script>
@@ -764,8 +1145,11 @@ function setClipBoard(version){
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
 <div class="container overview-page">
 <article class="main">
- <% jagg.includeBlock("page/messages", null); %>
- <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+ <% jagg.includeBlock("page/messages", null);
+ jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.APP_HOME});
+  jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+
+
 <!--New  Theme -->
 
             <section class="separator">
@@ -774,7 +1158,7 @@ function setClipBoard(version){
                         <div class="af_row">
                             <div class="col-2">
                                 <h2 class="push_top_10">Name</h2>
-                                <span id="appName" ></span>
+                                <span id="appName" style="word-wrap:break-word;"></span>
                                 <div class="element-editor-wrapper icon-wrapper">
                                     <div class="element-editor-default">
                                         <% if(applicationKey != null && applicationName != null){ %>
@@ -797,7 +1181,7 @@ function setClipBoard(version){
                                         <img class="appHomeIcon" src="<%=iconUrl%>" alt=""  width="100px"/>
                                        <form id="changeAppIcon" class="changeAppIcon"  name="changeAppIcon" action="/appmgt/site/blocks/application/update/ajax/update.jag" method="post" enctype="multipart/form-data">
                                           <label for="icon" class="icon-label">Select file</label>
-                                          <input id="icon" style="position:absolute;z-index:2;opacity:0" type="file" name="changeIcon" value="Browse..."  onchange="submitChangeAppIcon()" />
+                                          <input id="icon" style="position:absolute;z-index:2;opacity:0" type="file" name="changeIcon" value="Browse..."  onchange="submitChangeAppIcon(this)" />
                                           <div style="clear:both"></div>
                                           <input id="action" type="hidden" value="changeAppIcon" name="action"/>
                                           <input id="applicationKey" type="hidden" name="applicationKey" value="<%=applicationKey%>"/>
@@ -834,22 +1218,22 @@ function setClipBoard(version){
                             <h2>&nbsp;</h2>
                             <!--span id="appName" ></span-->
                             </div>
-                            <div class="col-10">
-
-                                <h2 style='margin-top:15px'>Repository URL</h2>
-                                <div>
-		                            <form class="inline-form form-container">
-		                                <input type="text" class="medium-large-text-box" id="repocloneurl" disabled value="" />
-		                                <a class="copy-link" id ="copymain" title="Copy URL" data-clipboard-text="">
-		                                 <span class="icon-copy"></span>
-		                                </a>
-		                                <a class="goto-git-link" id="repobrowseurl" href="" target="_blank" title="Browse Git URL">
-		                                 <span class="icon-globe"></span>
-		                                </a>
-		                             </form>
-		                        </div>
-
-                            </div>
+                            <%if(isUploadableApp == "false" || isUploadableApp == false){%>
+                                <div class="col-10">
+                                    <h2 style='margin-top:15px'>Repository URL</h2>
+                                    <div>
+                                        <form class="inline-form form-container">
+                                            <input type="text" class="medium-large-text-box" id="repocloneurl" disabled value="" />
+                                            <a class="copy-link" name ="copymain" id ="copymain" title="Copy URL" data-clipboard-text="" data-tooltip="Copied!">
+                                             <span class="icon-copy"></span>
+                                            </a>
+                                            <a class="goto-git-link" name="repobrowseurl" id="repobrowseurl" href="" target="_blank" title="Browse Git URL">
+                                             <span class="icon-globe"></span>
+                                            </a>
+                                         </form>
+                                    </div>
+                                </div>
+                            <%}%>
                             </div>
                             <div class="af_row push_top_10">
                              <div class="col-1">
@@ -858,23 +1242,35 @@ function setClipBoard(version){
                             </div>
                             <div class="col-10" id="urlMapper" style="display:none">
                                 <h2>Production URL</h2>
-				                <div class="help-block"><span class="help-icon">?</span> <span id="productionUrl"></span></div>
-                                <div class="element-editor-wrapper">
-                                    <div class="element-editor-default">
-                                        http://<span id="sub_domain_view" class="sub_domain"></span>.<%=appDomain%>
-
-                                    </div>
-                                    <div class="element-editor-hover">
-                                        http://<span id="sub_domain_hover" class="sub_domain"></span>.<%=appDomain%>
-                                        <span class="icon-pencil"></span>
-                                    </div>
-
+				                <div class="help-block"><span class="help-icon">?</span> <span id="productionUrlHelpText"></span></div>
+				                <div id="default-sub-domain-div">
+                                        http://<span id="default-sub-domain-span" class="default-sub-domain"></span>.<%=appDomain%>
+                                        <% if(hasDomainMappingPermission){ %> <a href="#" onclick="addNewUrlClick()" id="add-new-custom-url-btn" style="text-decoration:none;"><span class="icon-plus-sign"></span></a> <%}%>
                                 </div>
-                                <div class="element-editor-edit" style="display:none">
-                                    http://<input type="text" value="" id="sub_domain_edit" class="small-text-box" /> .<%=appDomain%>
-                                    <div class="element-editor-btn-panel">
-                                        <button class="btn main small" id="sub_domain_save_btn">Save</button>  <a class="element-editor-cancel" id="sub_domain_cancel_btn">Cancel</a>
+                                <div id="div-custom-url-details">
+                                    <div <% if(hasDomainMappingPermission){ %>class="element-editor-wrapper"<%}%> id="div-custom-url-wrapper">
+                                        <div class="element-editor-default col-7">
+                                            <span class='icon-spinner icon-spin custom-url-spin' style='display: none'></span>
+                                            <span id="custom-url-view">http://<span class="custom-url"></span></span>
+                                        </div>
+
+                                        <div class="element-editor-hover col-7" id="div-custom-url-hover">
+                                            <span class='icon-spinner icon-spin custom-url-spin' style='display: none'></span>
+                                            <span id="custom-url-hover">http://<span class="custom-url"></span></span>
+                                            <span class="icon-pencil" style="position: absolute;margin-right: -20px;margin-top: -8px"></span>
+                                        </div>
+
                                     </div>
+                                    <% if(hasDomainMappingPermission){ %>
+                                        <div class="element-editor-edit col-7" style="display:none">
+                                            http://<input type="text" value="" id="custom-url-edit" class="medium-large-text-box" />
+                                            <div class="element-editor-btn-panel">
+                                                <button class="btn main small" id="custom-url-save-btn" disabled="disabled">Save</button>  <a class="element-editor-cancel" id="sub_domain_cancel_btn">Cancel</a>
+                                            </div>
+                                        </div>
+                                        <a href="#" class="btn small sub_action" id="btn-validate-domain" onclick="validateCustomUrl()" style="margin-top: 10px; margin-bottom: 10px">Validate</a>
+                                    <%}%>
+
                                 </div>
                             </div>
                             </div>
@@ -885,7 +1281,7 @@ function setClipBoard(version){
                                 <h2>Description</h2>
      				            <div class="help-block"><span class="help-icon">?</span> <span id="appDescription"></span></div>
                                 <div class="element-editor-wrapper">
-                                    <div class="element-editor-default description" id="description_view">Click here to add description</div>
+                                    <div class="element-editor-default description" name="description_view" id="description_view">Click here to add description</div>
                                     <div class="element-editor-hover">
                                         <span class="description" id="description_hover"></span>
                                         <span class="icon-pencil"></span>
@@ -895,7 +1291,7 @@ function setClipBoard(version){
                                 <div class="element-editor-edit" style="display:none">
                                     <textarea class="description" id="description_edit"></textarea>
                                     <div class="element-editor-btn-panel">
-                                        <button class="btn main small" id="description_save_btn">Save</button>  <a class="element-editor-cancel">Cancel</a>
+                                        <button class="btn main small"  name="description_save_btn" id="description_save_btn">Save</button>  <a class="element-editor-cancel">Cancel</a>
                                     </div>
                                 </div>
 
@@ -938,11 +1334,13 @@ function setClipBoard(version){
                         <div class="af_row">
                             <div class="col-4">
                                 <div id='deleteDiv'>
+                                    <% if(hasAppCreationPermission) { %>
                                      <form id='deleteForm' action='/appmgt/site/blocks/application/delete/ajax/delete.jag'>
-                                         <input type='hidden' name='userName' value='<%= session.get("LOGGED_IN_USER") %>'/>
+                                         <input type='hidden' name='userName' value='<%=userName %>'/>
                                          <input type='hidden' name='appKey' value='<%=applicationKey %>'/>
                                          <a href='#' id='deleteButton' class='btn sub_action'>Delete Application</a>
                                      </form>
+                                     <% } %>
                                 </div>
                             </div>
                         </div>
@@ -956,13 +1354,14 @@ function setClipBoard(version){
             <!--New Theme End-->
 
 </article>
-<input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+<input type="hidden" name="userName"  id="userName" value='<%=userName%>'/>
 <!-- Todo - post 1.0 -->
 <% //jagg.includeBlock("comment/comment-add", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
 <% //jagg.includeBlock("comment/comment-list", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
 </div><!-- /container -->
 <script type="text/javascript">
 $(document).ready(function () {
+
     loadApplicationInfo();
     loggedinUser = $('#userName').val();
     if (loggedinUser == appownerName) {
@@ -1001,3 +1400,4 @@ $(document).ready(function () {
 });
 </script>
 <% }); %>
+

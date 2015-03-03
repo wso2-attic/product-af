@@ -1,4 +1,22 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -11,63 +29,88 @@ var permission = jagg.module("permission");
 (function () {
 	var action = request.getParameter("action"),
 	site = require("/site/conf/site.json");
-	
-    if(action == "updateAppVersionDomainMapping"){	
-		var oldVersion = request.getParameter("oldVersion");
-		var newVersion = request.getParameter("newVersion");
-		var subDomain = request.getParameter("subDomain");
-		var tenantDomain = request.getParameter("tenantDomain");
-		var applicationKey = request.getParameter("applicationKey");
-		var username = request.getParameter("username");
-		var response={};
-		
-		if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
-			var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
-			
-		    try {
-			   var mappedUrl = subDomain + "." + getProperty("DomainName");
-			   mod.removeDomainMappingsFromStratos(stage, mappedUrl, oldVersion, applicationKey); 
-			   mod.addDomainMappingsToStratos(stage, mappedUrl, newVersion, applicationKey);
-			} catch (e) {
-				var msg = "Error while updating domain " + mappedUrl + " from old version "+ oldVersion +" to new version " + newVersion + " in Stratos in stage "+ stage;
-				log.error(msg+e.message);
-				throw msg;
-			} 
- 				
-		} else {
-            response.result = 0;
-            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
-            print(response);
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+    if(action == "mapNewCustomUrlToVersion"){
+        var newCustomUrl = request.getParameter("newCustomUrl");
+        newCustomUrl = newCustomUrl.toLowerCase();
+        var version = request.getParameter("version");
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+        if ( permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+            try {
+                mod.mapNewCustomUrlToVersion(stage,newCustomUrl,applicationKey,version,true);
+            } catch (e) {
+                var msg = "Error while updating domain mapping(custom url) to "+newCustomUrl+ " for application: "+ applicationKey +
+                        " version: "+version+" in stage: "+ stage;
+                log.error(msg);
+                log.error(e);
+                response.status = 400;
+                response.content = e;
+            }
+        } else {
+            response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
         }
-	}else if(action == "updateDomainMappingForSameAppVersion"){	
-		var oldSubDomain = request.getParameter("oldSubDomain");
-		var newSubDomain = request.getParameter("newSubDomain");
-		var version = request.getParameter("version");
-		var tenantDomain = request.getParameter("tenantDomain");
-		var applicationKey = request.getParameter("applicationKey");
-		var username = request.getParameter("username");
-		var response={};
-		
-		if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
-			var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
-			
-		    try {
-			   var mappedUrlOld = oldSubDomain + "." + getProperty("DomainName");
-			   var mappedUrlNew = newSubDomain + "." + getProperty("DomainName");
-			   mod.addDomainMappingsToStratos(stage, mappedUrlNew, version, applicationKey);
-			   mod.removeDomainMappingsFromStratos(stage, mappedUrlOld, version, applicationKey);
-			} catch (e) {
-				var msg = "Error while updating old domain "+ mappedUrlOld +" to new domain " + mappedUrlNew + " for application version "+ version +" in App Server of "+ stage;
-				log.error(msg+e.message);
-				throw msg;
-			} 
- 				
-		} else {
-            response.result = 0;
-            response.message = "Unauthorized!!! Only Application Owner has permission to complete this action";
-            print(response);
+    } else if(action == "updateExistingUnmappedCustomUrl"){
+        var newCustomUrl = request.getParameter("newCustomUrl");
+        newCustomUrl = newCustomUrl.toLowerCase();
+        var applicationKey = request.getParameter("applicationKey");
+
+        if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+            var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+
+            try {
+                mod.updateExistingUnmappedCustomUrl(stage,newCustomUrl,applicationKey);
+            } catch (e) {
+                var msg = "Error while updating unmapped custom url to: "+newCustomUrl+ " for application: "
+                        +applicationKey +" in stage: "+ stage;
+                log.error(msg);
+                log.error(e);
+                response.status = 400;
+                response.content = e;
+            }
+        } else {
+            response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
         }
-	}else {
+    } else if(action == "remapDomainToVersion"){
+        var oldVersion = request.getParameter("oldVersion");
+        var newVersion = request.getParameter("newVersion");
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+
+        if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+            try {
+                mod.remapDomainToVersion(stage, applicationKey, newVersion,oldVersion);
+            } catch (e) {
+                var msg = "Error while remapping the production url(s) from version: "+oldVersion
+                        +" to version:"+newVersion+" for application: "+applicationKey +" in stage: "+ stage;
+                log.error(msg);
+                log.error(e);
+                response.status = 400;
+                response.content = e;
+            }
+        } else {
+            response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
+        }
+    } else if(action == "removeCustomUrl"){
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+        if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+            try {
+                mod.removeDomainMappingFromApplication(stage,applicationKey,null,true);
+            } catch (e) {
+                var msg = "Error while removing custom url for application: "+ applicationKey;
+                log.error(msg);
+                log.error(e);
+                response.status = 400;
+                response.content = e;
+            }
+        } else {
+            response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
+        }
+    } else {
 		throw new Error("No action specified");
 	}
 }());

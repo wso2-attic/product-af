@@ -1,4 +1,23 @@
-<% jagg.template("resources/registry/add", function(inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/registry/add", function(inputs, outputs, jagg) { %>
 
 <%
 include("/jagg/constants.jag");
@@ -20,6 +39,7 @@ var headerMsg = outputs.headerMsg;
 var isUpdatePermitted = outputs.isUpdatePermitted;
 var hasDeleteResourcePermissions = outputs.hasDeleteResourcePermissions;
 var buttonValue = outputs.buttonValue;
+var isDeleteButtonVisible = outputs.isDeleteButtonVisible;
 
 %>
 <script type="text/javascript">
@@ -37,9 +57,9 @@ function createResource(copyToAll) {
     jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
         action: "createResource",
         applicationKey: '<%=applicationKey%>',
-        resourceName: $("#property_name").attr('value'),
-        resourceDescription: $("#property_description").attr('value'),
-        contentValue: $("#property_value").attr('value'),
+        resourceName: $("#property_name").attr('value').trim(),
+        resourceDescription: $("#property_description").attr('value').trim(),
+        contentValue: $("#property_value").attr('value').trim(),
         stage: $("#rssInstance").val(),
         resourceMediaType: mediaType,
         copyToAll:copyToAll
@@ -91,10 +111,10 @@ function updateResource() {
                 action: "updateResource",
                 applicationKey: '<%=applicationKey%>',
                 resourceName: $("#property_name").attr('value'),
-                contentValue: $("#property_value").attr('value'),
+                contentValue: $("#property_value").attr('value').trim(),
                 resourceMediaType: mediaType,
                 deploymentStage: '<%=currentStage%>',
-                description:$("#property_description").attr('value')
+                description:$("#property_description").attr('value').trim()
             },
             function (result) {
             	
@@ -144,7 +164,7 @@ function updateUIForStage() {
                 action: "getResource",
                 applicationKey: '<%=applicationKey%>',
                 stage: $("#stage").attr('value'),
-                resourceName: $("#property_name").attr('value'),
+                resourceName: $("#property_name").attr('value').trim(),
             },
             function (result) {
                 var stage = jQuery.parseJSON(result);
@@ -170,15 +190,22 @@ function clearForm(){
 }
 
 function validateMandatoryInputs(){
-	var propName = $("#property_name").val();
-	var propValue = $("#property_value").val();
+    jagg.removeMessage();
+	var propName = $("#property_name").val().trim();
+	var propValue = $("#property_value").val().trim();
 	
 	validate = true;
 	var errorMsg = ""; 
 	if(propName == '' || propName.length == 0){
 		validate = false;
-		errorMsg += 'Invalid resource name - Enter a resource name which is not empty';
+		errorMsg += 'Invalid property name - Enter a property name which is not empty';
 	}
+
+    var usernamePattern = /^[a-zA-Z0-9_]{1,100}$/;
+    if (propName.length > 0 && !usernamePattern.test(propName)) {
+        validate = false;
+        errorMsg += 'Invalid property name - Use maximum 100 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).';
+    }
 
 	if(mediaType == ''){
 		validate = false;
@@ -187,7 +214,7 @@ function validateMandatoryInputs(){
 
     if(propValue == '' || propValue.length == 0){
         validate = false;
-        errorMsg += '<br />Invalid resource value - Enter a resource value which is not empty';
+        errorMsg += '<br />Invalid property value - Enter a property value which is not empty';
     }
     
     if(!validate){
@@ -202,7 +229,6 @@ function environmentSelected(value) {
 }
 
 $(document).ready(function() {
-    getHelpTips();	
     if('<%=isEdit%>'== 'true'){
         $("#delete-div").show();
         $("#stage").val('<%=outputs.initialStage%>');
@@ -241,16 +267,7 @@ $(document).ready(function() {
             jagg.popMessage({type:'confirm',title:'Delete Value',content:'Are you sure you want to delete value <%=resourceName%>?',okCallback:function(){deleteResource()}});
     });
 
-    $('#copyToAll').change(function() {
-            if($(this).is(":checked")) {
-                $('#rssInstances').parent().slideUp('fast');
 
-            }else{
-                $('#rssInstances').parent().slideDown('fast');
-
-
-            }
-        });
 });
 
 function pageReload(redirectURL){
@@ -258,35 +275,20 @@ function pageReload(redirectURL){
 	 window.location.replace(redirectURL);
 }
 
-function getHelpTips(){
-    jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getHelpTips",
-            page: "add-properties"
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
-               //  $("#createInAllEnvsHelp").html(helpTips.createInAllEnvsHelp);
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
-}
-
 function validatePropertyNameAndCreate() {
     $("#rssInstance").val($("#rssInstances").val());
     jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
             action: "propertyExistInStages",
             applicationKey: '<%=applicationKey%>',
-            propertyName: $("#property_name").attr('value'),
+            propertyName: $("#property_name").attr('value').trim(),
             givenValues: $("#rssInstance").val(),
-            copyToAll:$('#copyToAll').is(':checked')
+            copyToAll:false
     },
     function (result) {
         if(result){
         jagg.message({type:'error', id:'validation', content: "A resource with the same name exists. Please use a different name"});
         }else{
-        createResource($('#copyToAll').is(':checked'));
+        createResource(false);
         }
     },"json");
 }
@@ -304,7 +306,7 @@ function validatePropertyNameAndCreate() {
                          <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
                          </div>
                         	<div class="content">
-                                <h1>Resources</h1>
+                                <h1>Runtime Configs</h1>
                              </div>
                         </header>
                         <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
@@ -320,7 +322,7 @@ function validatePropertyNameAndCreate() {
                                         <%}%>
                                     </ol>
                                     <%
-                                      	if(isEdit == "true" && hasDeleteResourcePermissions){
+                                      	if(isEdit == "true" && isDeleteButtonVisible){
                                       %>
                                     <div class="right btn_group" id="delete_button_div">
                                         <ul class="inline_box inline_list btn_group_list">
@@ -363,11 +365,6 @@ function validatePropertyNameAndCreate() {
                                                     		<select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
                                                     		<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
         	                                        	</div>
-        	                                        	<%if((AllowedAllStages)){%>
-        	                                        	<div class="input_row">
-											            <legend id="copyAll"><input align="left" type="checkbox" id="copyToAll"> Create property in all environments</legend>
-                        			                    </div>
-                        			                    <%}%>
                                                 <% } %>
                                             </div>
                                             
@@ -400,7 +397,7 @@ function validatePropertyNameAndCreate() {
 	                                        <%
 	                                        }
 	                                        %>
-                                        	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'"><% if(isUpdatePermitted){ %>Cancel<%} else {%>Back<%}%></a>
+                                        	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'"><% if(isUpdatePermitted){ %>Cancel<%} else {%>Cancel<%}%></a>
 										</div>
                                      </form>
 

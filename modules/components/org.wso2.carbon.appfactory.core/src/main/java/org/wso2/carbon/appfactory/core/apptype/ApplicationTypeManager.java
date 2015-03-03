@@ -146,7 +146,7 @@ public class ApplicationTypeManager {
                         ApplicationTypeConstants.BUILDABLE)));
             }
 			if(properties.getProperty(AppFactoryConstants.RUNTIMES) == null){
-				throw new AppFactoryException("Cannot find the Runtimes for the Application Type");
+				throw new AppFactoryException("Cannot find the Runtimes for the Application Type :"+type);
 			}
 			applicationTypeBean.setRuntimes(properties.getProperty(AppFactoryConstants.RUNTIMES).
 							split(AppFactoryConstants.PROPERTY_VALUE_SEPERATOR));

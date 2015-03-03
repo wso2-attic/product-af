@@ -205,7 +205,7 @@ var getShCodeForBuildAndRepo = function(applicationKey, name,details){
         'git clone ' + gitURL +' </br>'+
         'Go to ' + applicationKey + ' folder</br>'+
         'git remote add -f b ' + gitURLForked + '</br>'+
-        'git diff ' + appVersion + ' remotes/b/' + appVersion + ' > ' + applicationKey + '.diff</br>' +
+        'git diff origin/' + appVersion + ' remotes/b/' + appVersion + ' > ' + applicationKey + '.diff</br>' +
         '<p></p>'+
         '#Apply the diff</br>'+
         'git apply ' + applicationKey +'.diff</br>'+
@@ -216,3 +216,27 @@ var getShCodeForBuildAndRepo = function(applicationKey, name,details){
 
     return commands;
 };
+
+var getJaggeryCodeForProperties = function(appKey, propertyName, details){
+    var tenantDomain = details.tenantDomain;
+    var tenantId = details.tenantId;
+    var loggedinUser = details.loggedinUser;
+    var code = '';
+
+    code='<pre class="clipboard">'
+        +'var carbon = require(\'carbon\');</br>'
+        +'var requestUrl = request.getRequestURL();</br>'
+        +'var hostName = requestUrl.split(":")[1].split("/")[2];</br>'
+        +'var port = requestUrl.split(":")[2].split("/")[0];</br>'
+        +'var url = \'http://\' + hostName + \':\' + port + \'/admin/services/\';</br>'
+        +'var server = new carbon.server.Server(url);</br>'
+        +'var options = {username: \'' + loggedinUser.split("@")[0] + '\',  domain:\''+ tenantDomain + '\' , tenantId:' + tenantId + '};</br>'
+        +'var registry = new carbon.registry.Registry(server, options);</br>'
+        +'var path =\'/_system/governance/dependencies/jaggeryappnew/testprop\'; </br>'
+        +'var retrivedresource = registry.get(path);</br>'
+        +'print(\'Retrived Resource : \');</br>'
+        +'print(String(retrivedresource.content))</br>'
+        +'</pre>';
+    return code;
+};
+

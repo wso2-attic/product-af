@@ -378,24 +378,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             jenkinsCISystemDriver.addUsersToApplication(application.getId(),
                     new String[]{forkedUser}, tenantDomain);
 
-
-            String perDeveloperAutoBuild = configuration.getFirstProperty("EnablePerDeveloperAutoBuild");
-            if (perDeveloperAutoBuild != null && perDeveloperAutoBuild.equals("true")) {
-
-                if (version == null || version.trim().equals("")) {
-                    Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-                    for (Version version2 : versions) {
-                        String stage = rxtManager.getStage(application.getId(), versions[0].getId(), tenantDomain);
-                        if (ArrayUtils.isNotEmpty(versions)) {
-                            jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getId(), true, stage, "", tenantDomain, userName, AppFactoryConstants.FORK_REPOSITORY);
-                        }
-                    }
-                } else {
-                    String stage = rxtManager.getStage(application.getId(), version, tenantDomain);
-                    jenkinsCISystemDriver.startBuild(application.getId(), version, true, stage, "", tenantDomain, userName, AppFactoryConstants.FORK_REPOSITORY);
-                }
-
-            }
+            //TO-DO give the user the ability to select auto build for a particular forked version
         }
 
     }

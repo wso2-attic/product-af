@@ -1,29 +1,65 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+include("/jagg/correlationKeys.jag");
 
 
 var log= new Log();
 var response = {};
-var allStages=getProperties(DEPLOYMENT_STAGES);
+var allStages = getProperties(DEPLOYMENT_STAGES);
+
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+
+var loggedInUser = jagg.getUser();
 
 (function () {
-	var mod, obj, result,
+	var obj, result,
 	action = request.getParameter("action"),
+	mod = jagg.module("resources"),
 	applicationKey = request.getParameter("applicationKey"),
 	site = require("/site/conf/site.json");
     var response = {};
     var modPermission = jagg.module("permission");
-
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
 	if (action == "createDatabaseWithAttachedUsers") {
 
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseName = request.getParameter("databaseName");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
 		var isDefaultPass = request.getParameter("isDefaultPass");
 		var customPassword = request.getParameter("customPassword");
+
+        var correlationKey = dbCorrelationKey(applicationKey, databaseName, databaseServerInstanceName);
+        try {
+            var notificationTitle = "Database " + databaseName + "creation started"
+            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, jagg.getUser(), notificationTitle, "", correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending database creation start notification \n" + e.message);
+        }
 
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
@@ -56,7 +92,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 			print(returnError);
 		}
 	}else if (action == "createDatabaseAndAttachUser") {
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseName = request.getParameter("databaseName");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
@@ -66,12 +101,14 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		var isCreateDatasource= request.getParameter("createDatasource");
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
+        var databaseDescription = request.getParameter("databaseDescription");
 		if( !hasPermission ){
 			response.error = true;
 			response.errorMessage = "No permission";
 			print(response);
 			return;
 		}
+
 		var targetStage=[];
 		targetStage.push(databaseServerInstanceName);
 		var userName=null;
@@ -82,47 +119,115 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 		var response = {};
 
-		if((createInAll=="true")&&jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
-			targetStage=allStages;
+		if((createInAll=="true") && jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
+			targetStage = allStages;
 		}
+
+		for(var stage in targetStage){
+			var rssFilter = jagg.module("rss-filter");
+			try{
+				if(rssFilter.isDatabaseExist(databaseName, targetStage[stage]) == true)
+				{
+					print("database exists");
+					return;
+				}
+			}catch(e){
+				return e;
+			}
+		}
+
+		try{
+			var notificationTitle = "Database " + databaseName + " creation started";
+			var correlationKey = dbCorrelationKey(applicationKey, databaseName, databaseServerInstanceName);
+
+			var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+			var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+		}  catch (e) {
+			log.error("Error while sending database creation start notification \n" + e.message);
+		}
+
 		for (var stage in targetStage){
 			databaseServerInstanceName=targetStage[stage];
 			try{
-				if(isBasic == "true") {
-					// default user is created with db name
-					userName = databaseName;
-					templateName = databaseName +'@'+ databaseServerInstanceName;
+			    var isTemplateCreated = false;
+			    var isUserCreated = false;
+
+				if (isBasic == "true") {
+				    // generate possible username
+                    userName = mod.getPossibleUsername(applicationKey, databaseServerInstanceName, databaseName);
+                    templateName = applicationKey + '_admin@'+ databaseServerInstanceName;
 					userName = mod.createDatabaseUser(applicationKey, customPassword, databaseServerInstanceName, userName);
-					var setPermission = "Y";
-					try{
-						dbResult = mod.createTemplate(applicationKey,databaseServerInstanceName,templateName,setPermission,setPermission, setPermission,setPermission, setPermission, setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,true);
-					}catch(e){
-						mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
-					}
-					// user name is updated with full qualified user name to attach user to db
-					//var carbon = require('carbon');
-					//var server = carbon.server;
-					//var fullUserName =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getFullyQualifiedDbUsername(userName, applicationKey);
-					//userName = fullUserName;
+					if(userName.indexOf('already exists') == -1) {
+                        isUserCreated = true;
+                    }
+
+                    // we want to create the template only if isUserCreated = true && 'appkey_admin@development' template is not available.
+                    if (isUserCreated) {
+                        var templateArray = mod.getTemplates(applicationKey);
+                        var isDefaultTemplateExist = false;
+                        for(var i=0; i<templateArray.length; i++){
+                            var template = templateArray[i];
+                            if(template.name == templateName){
+                                isDefaultTemplateExist = true;
+                            }
+                        }
+                        if(!isDefaultTemplateExist){
+                            var setPermission = "Y";
+                            try{
+                                dbResult = mod.createTemplate(applicationKey,databaseServerInstanceName,templateName,setPermission,setPermission, setPermission,setPermission, setPermission, setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,true);
+                                isTemplateCreated = true; // if template creation fails, this line will not be executed.
+                            }catch(e){
+				 if (log.isDebugEnabled()) {
+				     log.debug("Error while creating default template : " + templateName + ". Rollback user : " + userName + " creation....");
+				 }
+                                mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
+                            }
+                        }
+                    }
+
 				} else {
 					userName = request.getParameter("userName");
 					templateName = request.getParameter("templateName");
 				}
+
 				try{
-					actualDBName = mod.createDatabase(applicationKey,databaseName,databaseServerInstanceName);
-										
+                    actualDBName = mod.createDatabase(applicationKey, databaseName, databaseServerInstanceName, databaseDescription);
+
+                    if(actualDBName.indexOf('already exists') > -1){
+                        print("database exists");
+                    }
+
 				}catch(e){
 					if(isBasic == "true") {
+						if (log.isDebugEnabled()) {
+							log.debug("Error while creating database :" + databaseName + ". Rollback user : " + userName + " creation....");
+						}
 						mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
-						mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
+						if (isTemplateCreated) {
+							if (log.isDebugEnabled()) {
+								log.debug("Error while creating database :" + databaseName + ". Rollback template : " + templateName + " creation....");
+							}
+						    mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
+						}
 					}
 				}
 				try{
 					dbResult = mod.attachNewUser(applicationKey,databaseServerInstanceName, actualDBName, userName, templateName);
 				}catch(e){
 					if(isBasic == "true") {
+						if (log.isDebugEnabled()) {
+							log.debug("Error while attaching new user :" + userName + ". Rollback user : " + userName + " creation....");
+						}
 						mod.deleteUser(applicationKey,userName,databaseServerInstanceName);
-						mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
+						if (isTemplateCreated) {
+							if (log.isDebugEnabled()) {
+								log.debug("Error while attaching new user :" + userName + ". Rollback template : " + templateName + " creation....");
+							}
+						    mod.dropTemplate(applicationKey,databaseServerInstanceName,templateName);
+						}
+					}
+					if (log.isDebugEnabled()) {
+						log.debug("Error while attaching new user :" + userName + ". Rollback database : " + actualDBName + " creation....");
 					}
 					mod.dropDatabase(applicationKey,actualDBName,databaseServerInstanceName);
 				}
@@ -142,7 +247,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		print(dbResult);
 
 	}else if (action == "createDbWithUserAndTemplate") {
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
@@ -199,7 +303,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		}
 	}else if (action == "createDatabase") {
 
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var databaseName = request.getParameter("databaseName");
 		var databaseServerInstanceName = request.getParameter("databaseServerInstanceName");
@@ -222,7 +325,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		}
 	} else if (action == "getDatabases") {
 		// this method provides only the database information such as name,url,environment.
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 
 		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
@@ -250,7 +352,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 	}else if(action == "getDatabasesInfoForStages"){
 		var infoArray=[];
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
 		//var stage = request.getParameter("stage");
@@ -327,7 +428,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 	}else if(action == "getDatabasesForStage"){
 
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var stage = request.getParameter("stage");
 
@@ -348,7 +448,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 			throw "Error while getting the database";
 		}
 	} else if(action == "getDbUserTemplateInfoForStages"){
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
@@ -370,7 +469,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		}
 		print(infoArray);
 		}else if(action == "getCreatableRSSinstances"){
-			mod = jagg.module("resources");
 			var applicationKey = request.getParameter("applicationKey");
 	
 			var deploymentStages = getProperties(DEPLOYMENT_STAGES);
@@ -395,7 +493,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 			}
 			print(instances);
 		}else if(action == "getRSSinstances"){
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 
 		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
@@ -420,7 +517,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		}
 		print(instances);
 	}else if(action == "getAttachedUsers"){
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var dbname = request.getParameter("dbname");
 		var rssInstance = request.getParameter("rssInstance");
@@ -447,12 +543,11 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 	}else if(action == "attachNewUser"){
 
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var dbname = request.getParameter("databaseName");
 		var rssInstance = request.getParameter("dbServerInstanceName");
 		var users = request.getParameter("users");
-		var templates = request.getParameter("templates");
+		var templateName = request.getParameter("templates");
 
 		var stage = mod.getStageFromRssInstanceName(rssInstance);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
@@ -466,15 +561,37 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 		var response = {};
 		try {
-			result = mod.attachNewUser(applicationKey,rssInstance, dbname, users, templates);
-			print(result);
+			// create the default template 'appkey_admin@development' if it is not available.
+			var templateArray = mod.getTemplates(applicationKey);
+			var isDefaultTemplateExist = false;
+			for (var i=0; i<templateArray.length; i++) {
+				var template = templateArray[i];
+				if(template.name == templateName){
+					isDefaultTemplateExist = true;
+				}
+			}
+
+			var isTemplateCreated = false;
+			if(!isDefaultTemplateExist){
+				var setPermission = "Y";
+				var dbResult = mod.createTemplate(applicationKey,rssInstance,templateName,setPermission,setPermission, setPermission,setPermission, setPermission, setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,setPermission,true);
+				isTemplateCreated = true; // if template creation fails, this line will not be executed.
+			}
+
+			if (isDefaultTemplateExist || isTemplateCreated) {
+				result = mod.attachNewUser(applicationKey,rssInstance, dbname, users, templateName);
+				print(result);
+			}
+
 		} catch(e) {
-			throw "Error while reading the database";
+			var msg = "Error while attching new user " + users + " to the db : " + dbname + ", application key: " + applicationKey + " & stage: " + rssInstance;
+			log.error(msg);
+			log.error(e);
+			throw e;
 		}
 
 	}else if(action == "detachUser"){
 
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var dbname = request.getParameter("databaseName");
 		var rssInstance = request.getParameter("dbServerInstanceName");
@@ -502,7 +619,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 	}else if(action == "getUserPrivileges"){
 
-		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var dbname = request.getParameter("dbname");
 		var rssInstance = request.getParameter("rssInstanceName");
@@ -531,7 +647,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 
 	} else if ( action == "getDatabaseInfoUrl"){
 	  
-		mod = jagg.module("resources");
 		var stage = request.getParameter("stage");
 
 		var response = {};
@@ -566,7 +681,6 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		}
 
 
-		mod = jagg.module("resources");
 		var dbname = request.getParameter("databaseName");
 		var username = request.getParameter("username");
 		var alterPriv=createValue(request.getParameter("alterPriv"));
@@ -590,6 +704,17 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 		var updatePriv=createValue(request.getParameter("updatePriv"));
 
 		var response = {};
+
+		try {
+            var notificationTitle = "Privileges update started for database " + dbname;
+            var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
+            var correlationKeyPrivileges = applicationKey + "-" + stage + "-dbPrivilege-" + dbname + "-" + username;
+            var eventBuilderInstance = EventBuilder.resourceUpdateStartEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, correlationKeyPrivileges, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending database user privilege update start notification \n" + e.message);
+        }
+
 		try {
 			mod.editUserPermissions(applicationKey,dbname,rssInstance,username,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
 
@@ -597,7 +722,33 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 			throw "Error while reading permissions";
 		}
 
-	} else {
+    } else if (action == "getAllDatabasesInfo") {
+        var databasesByName = {};
+        for (var i = 0; i < allStages.length; i++) {
+            var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
+                            PERMISSION_RESOURCES_READ_FOR_STAGE + allStages[i]);
+            if (hasDBConfigurePermissionToStage) {
+                try {
+                    result = mod.getAllDatabasesInfo(applicationKey, allStages[i]);
+                    for (var j in result) {
+                        var databaseRow = result[j];
+                        var databases = databasesByName[databaseRow.name];
+                        if (!databases){
+                            databases = [];
+                        }
+                        databases.push(databaseRow);
+                        databasesByName[databaseRow.name] = databases;
+                    }
+                } catch (e) {
+                    var msg = "Error while getting database info for the application : " + applicationKey + " & stage : " + allStages[i];
+                    log.error(msg);
+		    log.error(e);
+                    throw e;
+                }
+            }
+        }
+        print(databasesByName);
+    } else {
 		throw new Error("No action specified");
 	}
 }());
@@ -615,8 +766,8 @@ var allStages=getProperties(DEPLOYMENT_STAGES);
 	}
 
 	function createDatasource(applicationKey,datasourceName,rssInstanceName,url,datasourceDescription,driverName,dbUsername,dbPassword){
-		mod = jagg.module("resources");
-		modPermission=jagg.module("permission");
+		modPermission = jagg.module("permission");
+	        mod = jagg.module("resources");
 		var stage = mod.getStageFromRssInstanceName(rssInstanceName);
 		//if user has access to stage
 		var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,

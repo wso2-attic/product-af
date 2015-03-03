@@ -1,4 +1,23 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
@@ -6,42 +25,113 @@ var log = new Log("module/urlmapper/urlmapper.jag");
 var modManager = jagg.module("manager");
 var context=multitenancy.getPrivilegedCarbonContext();
 
-var addDomainMappingsToStratos= function(stage, domain, version, appKey){
-	var service = getDomainMappingManagementService();
-	try{
-		service.addSubscriptionDomain(stage, domain, version, appKey);
-	} catch (e) {
-		var msg = "Error while adding "+ domain +" to Stratos in "+stage;
-        log.error(msg + e.message);
-        throw msg;
+/**
+ * add new domain mapping for the application
+ */
+var addNewCustomUrl = function(stage,domain,appKey,version,isCustomDomain){
+    var service = getDomainMappingManagementService();
+    try{
+        service.addNewSubscriptionDomain(stage,domain,appKey,version,isCustomDomain);
+    } catch (e) {
+        var msg = "Error while adding new custom domain : "+domain+" in stage: "+stage +
+                " for application id : "+ appKey;
+        log.error(msg +" " +e.message);
+        throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
     }
 };
 
-var removeDomainMappingsFromStratos = function(stage, domain){
-	var service = getDomainMappingManagementService();
-	try{
-		service.removeSubscriptionDomain(stage, domain);
-	} catch (e) {
-		var msg = "Error while removing "+ domain +" from Stratos in "+stage;
-        log.error(msg + e.message);
-        throw msg;
+/**
+ * Remove previously unmapped sub domain and add a new domain
+ *
+ */
+var updateExistingUnmappedCustomUrl = function(stage,newDomain,appKey){
+    var service = getDomainMappingManagementService();
+    try{
+        service.remapContextToDomain(stage,newDomain,appKey,null,true);
+    } catch (e) {
+        var msg = "Error while updating domain: "+ newDomain +
+                " in stage: "+stage +
+                " for application id : "+ appKey;
+        log.error(msg +" "+ e.message);
+        throw e.javaException.getMessage();
+    }finally{
+        context.endTenantFlow();
+    }
+};
+
+/**
+ * Remap {@code newDomain} to {@code version}
+ *
+ */
+var mapNewCustomUrlToVersion = function(stage,newDomain,appKey,version){
+    var service = getDomainMappingManagementService();
+    try{
+        service.remapContextToDomain(stage,newDomain,appKey,version,true);
+    } catch (e) {
+        var msg = "Error while mapping new domain: "+ newDomain +" to version: "+version +
+                " in stage: "+stage +
+                " for application id : "+ appKey;
+        log.error(msg +" " + e.message);
+        throw e.javaException.getMessage();
+    }finally{
+        context.endTenantFlow();
+    }
+};
+
+/**
+ * Remap given domain from {@code previousVersion} to {@code newVersion}
+ *
+ */
+var remapDomainToVersion = function(stage, appKey, newVersion, previousVersion){
+    var service = getDomainMappingManagementService();
+    try{
+        service.remapDomainToContext(stage, appKey, newVersion, previousVersion);
+    } catch (e) {
+        var msg = "Error while remap from version: "+previousVersion+" to version: "+newVersion+" in stage: "+stage +
+                " for application id : "+ appKey;
+        log.error(msg +" " + e.message);
+        throw e.javaException.getMessage();
+    }finally{
+        context.endTenantFlow();
+    }
+};
+
+/**
+ * Remap domain mapping from application
+ *
+ */
+var removeDomainMappingFromApplication = function(stage, appKey, version, isCustomDomain){
+    var service = getDomainMappingManagementService();
+    try{
+        service.removeDomainMappingFromApplication(stage, appKey, version, isCustomDomain);
+    } catch (e) {
+        var msg = "Error while removing domain mapping in stage: "+stage +
+                  " for application id : "+ appKey;
+        log.error(msg +" " + e.message);
+        throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
     }
 };
 
 var getDomainMappingManagementService = function(){
-    var carbon = require('carbon');
-    var tenantDomain=modManager.getTenantDomain() ;
-    var tenantManager= multitenancy.getTenantManager();
-    
-    context.startTenantFlow();
-    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    context.getThreadLocalCarbonContext().setUsername(session.get("LOGGED_IN_USER"));
-    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-    return carbon.server.osgiService('org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService');
+    try{
+        var carbon = require('carbon');
+        var tenantDomain=modManager.getTenantDomain() ;
+        var tenantManager= multitenancy.getTenantManager();
+
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
+        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
+        return carbon.server.osgiService('org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService');
+    } catch(e) {
+        var msg = "Error while getting DomainMappingManagementService";
+        log.error(msg +" " + e.message);
+        throw "Error occurred during the requested operation. Please try again after few seconds!";
+    }
+
 };
 
 

@@ -1,10 +1,30 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
 var log = new Log('modules/resources/databases/drop/drop.jag');
-
+var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
+var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+var loggedInUser = jagg.getUser();
 var modManager = jagg.module("manager");
 var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
@@ -25,16 +45,32 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 	'<ser:databaseName>'+databaseName+'</ser:databaseName></ser:removeDatabase>';
 	
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
-	options["HTTPHeaders"] =
-	[{
-		name : "Cookie", value :modManager.getBackendCookie(storageServerURL)
-	}];
+	modManager.setAuthHeaders(options);
+    var correlationKey = applicationKey + "-" + stage + "-database-" + databaseName;
 	try {
 		dropDatabaseService.open(options, storageServerURL+'RSSAdmin', false);
 		dropDatabaseService.send(payload);
-		rssFilter.deleteDatabase(rssFilter.getTenantAwareDBName(databaseName), applicationKey,
-		stage);
+		rssFilter.deleteDatabase(rssFilter.getTenantAwareDBName(databaseName), applicationKey, stage);
+
+        try{
+            var notificationTitle  = "Database " + databaseName + " deleted. ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey,loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending delete database success notification \n" + e.message);
+        }
+
 	} catch (e) {
+        try{
+            var notificationTitle  = "Database " + databaseName + " deletion failed ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            log.error("Error while sending delete database failure notification \n" + e.message);
+        }
+
 		log.error("Error while dropping database \n" + e.message);
 		throw "Error while dropping database";
 	}

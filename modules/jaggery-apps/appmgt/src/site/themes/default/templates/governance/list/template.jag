@@ -1,4 +1,23 @@
-<% jagg.template("governance/list", function(inputs, outputs, jagg){%>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("governance/list", function(inputs, outputs, jagg){%>
 <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
 <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
@@ -8,13 +27,15 @@
     var hasPromotePermissions = outputs.hasPromotePermissions;
     var hasDemotePermissions = outputs.hasDemotePermissions;
     var nextStage = outputs.nextStage;
+    var previousStage = outputs.previousStage;
     var fineGrainedDomainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
     var tenantDomain = outputs.tenantDomain;
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var hasDomainMappingPermission = outputs.hasDomainMappingPermission;
     var stages = getProperties('ApplicationDeployment.DeploymentStage');
-
+    var isAllowDomainMapping = outputs.isAllowDomainMapping;
+    var isUploadableAppType = outputs.isUploadableAppType;
     print('<div id="hiddenstages">');
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
@@ -32,17 +53,26 @@
     }
     print('</div>');
     %>
+    
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+ 
     <script type="text/javascript">
     var processIndicatorHTML = '<span class="icon-spinner icon-spin icon-large spin-large"></span>';
     var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
     var fgdmAllowedStage  = JSON.parse('<%=stringify(fineGrainedDomainMappingAllowedStage)%>') ;
 	var appType;
-	var subDomain;
+	var defaultSubDomain;
 	var previousDomainMappedVersion;
 	var hasPromotePermissions = JSON.parse('<%=stringify(hasPromotePermissions)%>') ;
 	var nextStage = JSON.parse('<%=stringify(nextStage)%>') ;
+	var previousStage = JSON.parse('<%=stringify(previousStage)%>') ;
 	var hasDomainMappingPermission = '<%=hasDomainMappingPermission%>';
-	
+	var prodVersionCount = 0;
+
+	$(document).ready(function() {
+		initializeUserActivity("lifecycle", '<%=applicationKey%>', '<%=applicationName%>');
+	});
+
 function doDemoteActionAjax(stage, version, tagName) {
     var checkItems = [];
     var applicationName = "<%=applicationName%>";
@@ -86,13 +116,19 @@ function doDemoteActionAjax(stage, version, tagName) {
             content: "Successfully submitted request for the governance operation - Demote",
             type: 'success'
         });
-        waitAndRedrawVersionList();
+        var newStage = previousStage[stage];
+        updateSessionInfo(newStage);
+        waitAndRedrawVersionList(newStage);
         hideNotification();
     }, function (jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content: "Error occurred while performing the governance operation",
-            type: 'error'
-        });
+
+        if (jqXHR.status != 0){
+            jagg.message({
+                content: "Error occurred while performing the governance operation",
+                type: 'error'
+            });
+        }
+
     });
 }
 function doGovernanceActionAjax(actionName, stage, version, tagName, checkItems, comment) {
@@ -118,15 +154,24 @@ function doGovernanceActionAjax(actionName, stage, version, tagName, checkItems,
                 content: "Successfully submitted request for the governance operation - " + actionName,
                 type: 'success'
             });
-            waitAndRedrawVersionList();
+            var newStage = nextStage[stage];
+            if( actionName == 'Retire') {
+                newStage = stage;
+            }
+            updateSessionInfo(newStage);
+            waitAndRedrawVersionList(newStage);
             hideNotification();
             deployPromotedAppToNextStage(actionName, stage, version);
         }
     }, function (jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content: "Error occurred while performing the governance operation",
-            type: 'error'
-        });
+
+        if ( jqXHR.status != 0){
+            jagg.message({
+                content: "Error occurred while performing the governance operation",
+                type: 'error'
+            });
+        }
+
     });
 }
 
@@ -146,32 +191,51 @@ function deployApp(version, nextStage){
             tagName:"",
             version:version
         }, function (result) {
-        	updateAppVersionPromoteStatus("",version);
+        	updateAppVersionPromoteStatus("",version, nextStage);
             jagg.message({
                 content: "Deployment has been submitted successfully for the next stage "+ nextStage,
                 type: 'success',
                 id:'message_id_success'
             });
+            updateDomainMappingOnPromoteToProduction(nextStage, version);
             hideNotification();
         },
 
         function (jqXHR, textStatus, errorThrown) {
-            jagg.message({
-                content: "Error occurred while deploying the artifact in next stage "+ nextStage,
-                type: 'error',
-                id:'message_id'
-            });
+
+            if (  jqXHR.status != 0){
+                jagg.message({
+                    content: "Error occurred while deploying the artifact in next stage "+ nextStage,
+                    type: 'error',
+                    id:'message_id'
+                });
+            }
 
         });
 };
 
-function updateAppVersionPromoteStatus(promoteStatus, version){
+/**
+ * Update the domain mapping when promoting to the production when there are no other versions in production.
+ * @param newStage new stage that promoted to
+ * @param version   promoted version
+ * TODO: Support for other apptypes
+ */
+function  updateDomainMappingOnPromoteToProduction(newStage, version){
+    if(newStage == fgdmAllowedStage  && hasPromotePermissions[newStage] && hasDomainMappingPermission === 'true' &&    // has permissions
+            defaultSubDomain  && ('<%=isAllowDomainMapping%>' === 'true') &&              // sub domain is specified and ap type is supported
+            previousDomainMappedVersion == null && prodVersionCount == 0){                                  // only one version in fgdmAllowedStage
+        remapDomainToVersion(version);
+    }
+}
+
+
+function updateAppVersionPromoteStatus(promoteStatus, version, nextStage){
     jagg.post("../blocks/application/update/ajax/update.jag", {
             action: "updatePromoteStatus",
             applicationKey: '<%=applicationKey%>',
-            username:'<%=userName%>',
-            promoteStatus:promoteStatus,
-            version:version
+            nextStage:nextStage,
+            version:version,
+            state:promoteStatus
         }, function (result) {},
         function (jqXHR, textStatus, errorThrown) {});
 };
@@ -210,7 +274,7 @@ function doGovernanceAction(uiElement, actionName, stage, version, tagName) {
         }
         return;
     }
-    
+
     if (actionName == 'Demote') {
         $('input.actionName', $(uiElement).next()).val(actionName);
         $('input.stage', $(uiElement).next()).val(stage);
@@ -224,11 +288,35 @@ function doGovernanceAction(uiElement, actionName, stage, version, tagName) {
 
 }
 //This function call when we click on the check list item.
-function lifeCycleCheckListItemEventHandler(uiElement, stageName, version) {
+function lifeCycleCheckListItemEventHandler(uiElement, stageName, version, itemId, itemName) {
     var checkItems = new Array();
 
     $('input[type="checkbox"]', $(uiElement).parent().parent().parent()).each(function (index, element) {
-        checkItems[index] = $(this).is(':checked');
+        var checked = $(this).is(':checked');
+        checkItems[index] = checked;
+        if(checked && (parseInt(itemId) === index)){
+           jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+                action: "itemChecked",
+                applicationKey: $("#applicationKey").attr('value'),
+                stageName: stageName,
+                version: version,
+                itemName:itemName,
+                checked:checked
+
+            }, function (result) {
+                if (result != undefined) {
+
+                    //We are going to change the text strikethrough here.
+                    $(uiElement).parent().toggleClass("check-box-line-through");
+
+                }
+            }, function (jqXHR, textStatus, errorThrown) {
+                jagg.message({
+                    content: "Error occurred while performing the governance operation",
+                    type: 'info'
+                });
+            });
+        }
 
     });
 
@@ -257,7 +345,7 @@ function lifeCycleCheckListItemEventHandler(uiElement, stageName, version) {
 }
 ;
 
-function createLifeCycleItemCheckbox(stage, version, item) {
+function createLifeCycleItemCheckbox(hasPromotePermission, hasDemotePermission, stage, version, item) {
     //  var uiElement = '<label class="checkbox"> <input type="checkbox"' + ' order="' + item.order + '"';
     var uiElement = '<div class="input_row"><label';
 
@@ -271,8 +359,11 @@ function createLifeCycleItemCheckbox(stage, version, item) {
         uiElement = uiElement + ' checked="checked"';
     }
 
-    uiElement = uiElement + ' id="' + item.key + '" onclick="lifeCycleCheckListItemEventHandler(this,\'' + stage + '\',\'' + version + '\');" value="' + item.name + '"/> ' + getFormattedLifeCycleItem(item.name) + '</label></div>';
+    if (!hasPromotePermission && !hasDemotePermission) {
+        uiElement = uiElement + ' disabled="disabled"';
+    }
 
+    uiElement = uiElement + ' id="' + item.key + '" onclick="lifeCycleCheckListItemEventHandler(this,\'' + stage + '\',\'' + version + '\',\'' + item.order + '\' ,\'' + item.name + '\');" value="' + item.name + '"/> ' + getFormattedLifeCycleItem(item.name) + '</label></div>';
     return uiElement;
 }
 
@@ -286,17 +377,17 @@ function getFormattedLifeCycleItem(item) {
 function VersionComparator(a, b) {
     return b.version.localeCompare(a.version);
 }
-function waitAndRedrawVersionList() {
+function waitAndRedrawVersionList(newStage) {
     $("#loader_id").show();
     setTimeout(function () {
     $('#whereItAllGoes').empty();
-        drawVersionsList();
+        drawVersionsList(newStage);
     }, 5000);
 
 }
 
 
-function drawVersionsList() {
+function drawVersionsList(newStage) {
     var stages = $("#hiddenstages").children();
      $("#loader_id").show();
 
@@ -326,15 +417,15 @@ function drawVersionsList() {
         for (var i in parsedArray) {
 
             var stage = parsedArray[i].stage;
-            
+
             var stagesPriority = $("#hiddenstagespriority").children();
-            
+
             var appKey = parsedArray[i].appKey;
             var versions = parsedArray[i].versions;
             versions.sort(VersionComparator);
 
             showDefaultProductionVersion(stage, versions);
-            
+
             var hasPromotePermission = ($("#hasPromotePermissionTo" + stage).val() === 'true');
             var hasDemotePermission = ($("#hasDemotePermissionTo" + stage).val() === 'true');
             var hasRetirePermission = ($("#hasRetirePermission").val() === 'true');
@@ -351,7 +442,7 @@ function drawVersionsList() {
             	if(stage===stagesPriority[k].value){
             		//DisplayPriority highest stage
             		if (versionsCount > 0) {
-		
+
 		                highlightClass = 'special-row';
 		            }
             	}else{
@@ -359,9 +450,9 @@ function drawVersionsList() {
 		                highlightClass = '';
 		            }
             	}
-            	
+
             }
-            
+
             var domContent = '';
             var tableHeaders = '';
 
@@ -389,7 +480,7 @@ function drawVersionsList() {
                     }
                     isTrunkOnly = false;
                     var promoteText, demoteText, retireText, domeETAText, lifeCycleContent;
-                    lifeCycleContent = getLifeCycleContents(versionInfo, stage);
+                    lifeCycleContent = getLifeCycleContents(hasPromotePermission, hasDemotePermission, versionInfo, stage);
                     promoteText = getPromoteText(hasPromotePermission,hasPromoteOperation, versionInfo, stage, lifeCycleContent);
                     demoteText = getDemoteText(hasDemotePermission, versionInfo, stage);
                     domeETAText = getETAText(hasPromotePermission, versionInfo, stage);
@@ -400,13 +491,15 @@ function drawVersionsList() {
                 var row = $(domContent);
                 allRows += domContent;
             }
-
+            if(stage == fgdmAllowedStage) {
+                prodVersionCount = versionCountForTabs;
+            }
             // we are going to create a table for each stage
             // Each table will go on a different tab
             // we have a tabbed layout pre-defined and we are going to add the tabs(based on the number of stages
             //   and the tab content of each tab from this code.
             if(versionCountForTabs > 0){
-                tableHeaders = getTableHeaders();
+                tableHeaders = getTableHeaders(stage);
             }
             tabHeader =  tabHeader + constructTabHeader(stage, versionCountForTabs);
             tableElement = tableElement + getTableSection(stage,tableHeaders, allRows);
@@ -426,44 +519,22 @@ function drawVersionsList() {
           <%
            }else{ %>
                 trnkOnlyText = '<tr><td><div class="noData-message">Governance operations do not apply to the Trunk but to versioned branches only.</div></td></tr>';
-         <%  }  %> 
-        
+         <%  }  %>
+
             $("#whereItAllGoes").append(getTableSectionWithMessage(trnkOnlyText));
-	
+
         }else{
             $("#whereItAllGoes").empty().append(getTabHeaders(tabHeader)).append(tableElement);
-            //$('#whereItAllGoes').tabs();
-
-            // We are registering all the events here.
-
-            $(".ui-widget-content").each(function(){
-            //removing the border from here and not modifying the original CSS
-                $(this).css("border","0px");
-            });
-            $(".ui-widget-header").each(function(){
-            //removing the border from here and not modifying the original CSS
-                $(this).css("background","#FFFFFF");
-                $(this).css("border","0px");
-                $(this).removeClass("ui-corner-all");
-                $(this).css("border-bottom","1px solid #AAAAAA");
-            });
-            $(".ui-widget").each(function(){
-            //removing the border from here and not modifying the original CSS
-                $(this).removeClass("ui-corner-all");
-            });
-
-            $(".domain-url-map").each(function(){
-                $(this).click(function(){
-                    var selectedVersion = $(this).attr("data-version");
-                    updateDomainMappingOnVersionChange(selectedVersion, this);
-                });
-            });
+            registerTabElementEvents();
         }
         initPops();
         $('#stage_selector').select2({minimumResultsForSearch: -1});
 
         //update tabs with the given stage
         var stage = '<%=session.get('stage')%>';
+        if(newStage){
+            stage = newStage;
+        }
         if(stage != 'null'){
             $('.content-tabs').hide();
             $('#stage_selector').val(stage);
@@ -479,11 +550,61 @@ function drawVersionsList() {
     });
 }
 
+/**
+ *  Register events and styles for elements in tabs
+ */
+function registerTabElementEvents(){
+    // We are registering all the events here.
+    $(".ui-widget-content").each(function(){
+    //removing the border from here and not modifying the original CSS
+        $(this).css("border","0px");
+    });
+    $(".ui-widget-header").each(function(){
+    //removing the border from here and not modifying the original CSS
+        $(this).css("background","#FFFFFF");
+        $(this).css("border","0px");
+        $(this).removeClass("ui-corner-all");
+        $(this).css("border-bottom","1px solid #AAAAAA");
+    });
+    $(".ui-widget").each(function(){
+    //removing the border from here and not modifying the original CSS
+        $(this).removeClass("ui-corner-all");
+    });
+
+    $(".domain-url-map").each(function(){
+        $(this).unbind("click");
+        $(this).click(function(){
+            var selectedVersion = $(this).attr("data-version");
+            updateDomainMappingOnVersionChange(selectedVersion, this);
+        });
+    });
+
+    $(".domain-mapped-demote").each(function(){
+        $(this).unbind("click");
+        $(this).click(function(){
+            jagg.message({
+                content: 'This version is mapped to the production URL.',
+                type: 'warning'
+            });
+        });
+    });
+
+    $(".domain-mapped-retire").each(function(){
+        $(this).unbind("click");
+        $(this).click(function(){
+            jagg.message({
+                content: 'This version is mapped to the production URL.',
+                type: 'warning'
+            });
+        });
+    });
+}
+
 //Domain Mapping
 //TODO: need to embed this in the lifecycle table
 function showDefaultProductionVersion(stage,versions){
 
-	if(hasDomainMappingPermission === 'true' && (appType == "war" || appType == "Uploaded-binary-App-war")){
+	if(hasDomainMappingPermission === 'true' && '<%=isAllowDomainMapping%>' === 'true'){
 		var versionsCount = versions.length;
 
 	    if(stage == fgdmAllowedStage && versionsCount > 0){
@@ -501,50 +622,44 @@ function showDefaultProductionVersion(stage,versions){
 	}
 }
 
-function emptySubDomain(){
-	   jagg.post("../blocks/application/update/ajax/update.jag", {
-	       action:"updateSubDomain",
-	       applicationKey:'<%=applicationKey%>',
-	       mappedSubDomain:"",
-	       username:'<%=userName%>'
-	       },
-	       function (result) {},
-	       function (jqXHR, textStatus, errorThrown) {});
-}
-
-
+/**
+*  Update domain mapping when changing mapped domain
+*  TODO: Support for other app types
+*/
 function updateDomainMappingOnVersionChange(version, uiElement) {
-	   if(previousDomainMappedVersion == null && subDomain.trim().length){
-		   jagg.post("../blocks/urlmapper/add/ajax/add.jag", {
-	            action:"addAppVersionDomainMapping",
-	            version:version,
-	            subDomain:subDomain,
-	            tenantDomain:'<%=tenantDomain%>',
-			    applicationKey:'<%=applicationKey%>',
-			    username:'<%=userName%>'
-	       },function (result) {
-	    	   updateAppVersionSubDomain(version, subDomain);
-	       },function (jqXHR, textStatus, errorThrown) {
-	    	   emptySubDomain();
-	           jagg.message({content:'Error occured while adding domain mapping for version '+version,type:'error',id:'myuniqeid' });
-	       });
-	   }else if(previousDomainMappedVersion != version){
-		   jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
-	            action:"updateAppVersionDomainMapping",
-	            oldVersion:previousDomainMappedVersion,
-	            newVersion:version,
-	            subDomain:subDomain,
-	            tenantDomain:'<%=tenantDomain%>',
-			    applicationKey:'<%=applicationKey%>',
-			    username:'<%=userName%>'
-	       },function (result) {
-	    	   updateAppVersionSubDomain(previousDomainMappedVersion, "");
-	    	   updateAppVersionSubDomain(version, subDomain);
-	       },function (jqXHR, textStatus, errorThrown) {
-	           jagg.message({content:'Error occured while updating new version for domain mapping',type:'error',id:'myuniqeid' });
-	       });
-	   }
+    if( (previousDomainMappedVersion == null || previousDomainMappedVersion != version ) &&
+            defaultSubDomain && '<%=isAllowDomainMapping%>' === 'true'){
+        remapDomainToVersion(version);
+    }
 }
+
+/**
+ * Remap sub domain to new version
+ *
+ */
+function remapDomainToVersion(version){
+     $("#loader_id").show();
+     jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
+	            action:"remapDomainToVersion",
+	            oldVersion: (previousDomainMappedVersion) ? previousDomainMappedVersion : "",
+	            newVersion:version,
+			    applicationKey:'<%=applicationKey%>'
+	       },function (result) {
+	            updateTabElementsOnDomainMappingUpdate(version,previousDomainMappedVersion);
+                registerTabElementEvents();
+                initPops();
+	            jagg.removeMessage();
+                jagg.message({
+                    content: "Production url is mapped to version - " + version,
+                    type: 'success'
+                });
+	            $("#loader_id").hide();
+	       },function (jqXHR, textStatus, errorThrown) {
+	           jagg.message({content:jqXHR.responseText,type:'error',id:'myuniqeid' });
+	           $("#loader_id").hide();
+	       });
+}
+
 function getTabHeaders(allTabLabels){
     var tabDiv = '<div class="af_container" style="margin-left:-15px">'+
                         '<div class="af_row">'+
@@ -580,7 +695,7 @@ function getTableSection(stage,tableHeaders, allRows){
                //     '</div>' +
                //  '</div>' +
                  '<div class="af_row">' +
-                    '<div class="col-12">' +
+                    '<div class="col-13">' +
                         '<table class="data-table data-table-top" id="whereItAllGoes' + stage +'">' +
                         innerContent +
                        '</table>' +
@@ -594,7 +709,7 @@ function getTableSectionWithMessage(message){
 
     var table = '<div class="af_row push_top_15">' +
                  '<div class="af_row">' +
-                    '<div class="col-12">' +
+                    '<div class="col-13">' +
                         '<table class="data-table data-table-top">' +
                         message +
                        '</table>' +
@@ -603,14 +718,17 @@ function getTableSectionWithMessage(message){
     return table;
 }
 
-function getTableHeaders() {
+function getTableHeaders(stage) {
     var trunkContent =  '<tr>'+
                             '<th class="td-1" style="padding-left:0">Version</th>'+
                             '<th class="td-3">Estimated Completion Date</th>'+
                             '<th class="td-3">To Do</th>'+
                             '<th class="td-3">Actions</th>'+
-                            '<th class="td-2">History</th>'+
-                        '</tr>';
+                            '<th class="td-1">History</th>';
+    if(hasDomainMappingPermission === 'true' && fgdmAllowedStage == stage && defaultSubDomain != null  && (defaultSubDomain.trim().length > 0)){
+        trunkContent += '<th class="td-2">Mapped</th>';
+    }
+    trunkContent +='</tr>';
     return trunkContent;
 }
 function getVersionRowContents(versionInfo, stage, promoteText, domeETAText, demoteText, retireText,lifeCycleContent,hasRetireOperation,highlightClass) {
@@ -643,7 +761,10 @@ function getVersionRowContents(versionInfo, stage, promoteText, domeETAText, dem
                         '<span class="icon-file-alt" />' +
                         '</a>';
 
-                    if(hasDomainMappingPermission === 'true' && fgdmAllowedStage == stage && subDomain != null  && (subDomain.trim().length > 0)){
+
+                    if(hasDomainMappingPermission === 'true' && fgdmAllowedStage == stage && defaultSubDomain != null  && (defaultSubDomain.trim().length > 0)){
+                        domContent += '</td> ';
+                        domContent+= '<td>';
                         var tmpIdVersion =  versionInfo.version.replace(/\./g,'_');
                         domContent+= '<div style="float:right" id="'+tmpIdVersion+'" data-version="' + versionInfo.version + '"';
                         if(versionInfo.version == previousDomainMappedVersion){
@@ -651,7 +772,7 @@ function getVersionRowContents(versionInfo, stage, promoteText, domeETAText, dem
                         }else{
                             domContent+=' class="domain-url-map">';
                         }
-                        
+
                         domContent+='<i class="icon-link"></i></div>';
                     }
 
@@ -661,56 +782,63 @@ function getVersionRowContents(versionInfo, stage, promoteText, domeETAText, dem
 }
 function getDemoteText(hasDemotePermission, versionInfo, stage) {
     var demoteText = '';
-    if (hasDemotePermission && !versionInfo.isInitialStage && appType != "Uploaded-binary-App-war" && appType != "Uploaded-App-Jaggery" ) {
+    if (hasDemotePermission && !versionInfo.isInitialStage && ('<%=isUploadableAppType%>' === 'false') ) {
+        var  demoteBtnClass = "js_demote_popover";
+        var demoteBtnId =  "demote_btn_"+versionInfo.version.replace(/\./g,'_');
+
+        //if this version is mapped to the production url, by adding this class,
+        // there will be a warning message when try to demote this version
+        if(previousDomainMappedVersion == versionInfo.version){
+            demoteBtnClass = "domain-mapped-demote";
+        }
         demoteText =
-                '<button class="btn main small js_demote_popover governance-button" data-popover-my-position="top right" ' +
+                '<button class="btn main small '+demoteBtnClass+' governance-button" data-popover-my-position="top right" ' + 
+                'name="'+demoteBtnId+'" '+
+                'id="'+demoteBtnId+'" '+
                 'popover-target-position="bottom right" demote-app-stage="' + stage + '" demote-app-version="' + versionInfo.version + '" demote-app-tagName="">Demote</button>';
-    } else {
-    //    demoteText = '<li class="inline_item" title="Demote">' +
-    //            '<button class="btn small main" disabled="disabled">Demote</button>' +
-    //            '</li>';
     }
     return demoteText;
 }
 function getPromoteText(hasPromotePermission,hasPromoteOperation, versionInfo, stage, lifeCycleContent) {
     var promoteText = '';
     if (hasPromotePermission & hasPromoteOperation) {
-        promoteText = 
-                '<button class="btn main small hide_button governance-button" onClick="doGovernanceAction(this, \'Promote\',\'' +
+        promoteText =
+                '<button id="promote_action" name="promote_action" class="btn main small hide_button governance-button" onClick="doGovernanceAction(this, \'Promote\',\'' +
                 stage + '\'' + ', \'' + versionInfo.version + '\')" >Promote</button>';
-    } else {
-        //promoteText = '<button class="btn main small" disabled="disabled">Promote</button>';
-
     }
     return promoteText;
 }
 function getRetireText(hasRetirePermission, hasRetireOperation, versionInfo, stage, lifeCycleContent) {
     var retireText = '';
     if (hasRetirePermission & hasRetireOperation) {
-        retireText = '<button class="btn main small js_promote_popover governance-button">Retire</button>' +
+        var  retireBtnClass = "js_promote_popover";
+        var retireBtnId =  "retire_btn_"+versionInfo.version.replace(/\./g,'_');
+
+        //if this version is mapped to the production url, by adding this class,
+        // there will be a warning message when try to demote this version
+        if(previousDomainMappedVersion == versionInfo.version){
+            retireBtnClass = "domain-mapped-retire";
+        }
+        retireText = '<button class="btn main small '+retireBtnClass+' governance-button" '+
+                'id="'+retireBtnId+'" '+'>Retire</button>' +
                 '<div class="popover_content hide" style="width:400px;">' +
                 '<form class="form-container" onSubmit="return false;">' +
                 lifeCycleContent +
                 '<div class="btn_row">' +
                 '<button class="btn main small hide_button" onClick="doGovernanceAction(this, \'Retire\',\'' +
-                stage + '\'' + ', \'' + versionInfo.version + '\')" >RetireS</button>' +
+                stage + '\'' + ', \'' + versionInfo.version + '\')" >Retire</button>' +
                 '<a href="#" class="popover_close small" >Close</a>' +
                 '</div> ' +
                 '   </form>' +
                 '</div> ';
-    } else {
-  //      retireText = '<li class="inline_item" title="Retire">' +
-  //              '<button class="btn main small disable" disabled="disabled">Retire</button>' +
-  //              '</li>';
-
     }
     return retireText;
 }
-function getLifeCycleContents(versionInfo, stage) {
+function getLifeCycleContents(hasPromotePermission, hasDemotePermission, versionInfo, stage) {
     var lifeCycleContent = '';
     for (counter = 0; counter < versionInfo.lifeCycleCheckListItems.length; counter++) {
         var lifeCycleItem = versionInfo.lifeCycleCheckListItems[counter];
-        lifeCycleContent = lifeCycleContent + createLifeCycleItemCheckbox(stage, versionInfo.version, lifeCycleItem);
+        lifeCycleContent = lifeCycleContent + createLifeCycleItemCheckbox(hasPromotePermission, hasDemotePermission, stage, versionInfo.version, lifeCycleItem);
     }
     return lifeCycleContent;
 }
@@ -905,22 +1033,22 @@ function getETA(uiElement, stage, version) {
             if (resultJson.eta.etaFrom.length != 0 && resultJson.eta.etaTo.length != 0) {
 
                 var etaEdit = $('<form class="form-container" onsubmit="return false;">' +
-                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="v-small-text-box small push_right_10 datepicker" placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="' + resultJson.eta.etaFrom + '" type="hidden"/><input type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
+                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="v-small-text-box small push_right_10 datepicker" placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="' + resultJson.eta.etaFrom + '" type="hidden"/><input id="editeta_action" name="editeta_action" type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
                         '</form>');
 
                 $("#eta_edit_" + modifiedVersion).append(etaEdit);
 
-                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
+                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a name="editeta_ico" id="editeta_ico" href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
                 $("#eta_display_" + modifiedVersion).append(suggestedETAstr);
                 makeETAUneditable(modifiedVersion);
 
             } else {
                 var etaEdit = $('<form class="form-container" onsubmit="return false;">' +
-                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="v-small-text-box small push_right_10 datepicker"  placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="0000-00-00" type="hidden"/><input type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
+                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="v-small-text-box small push_right_10 datepicker"  placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="0000-00-00" type="hidden"/><input id="addeta_action" name="addeta_action" type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
                         '</form>');
                 $("#eta_edit_" + modifiedVersion).append(etaEdit);
 
-                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\',\'' + resultJson.eta.etaTo + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
+                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a name="editeta_ico" id="editeta_ico" href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\',\'' + resultJson.eta.etaTo + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
                 $("#eta_display_" + modifiedVersion).append(suggestedETAstr);
                 showETAEditable(modifiedVersion);
 
@@ -932,10 +1060,14 @@ function getETA(uiElement, stage, version) {
             initDatePicker();
         }
     }, function (jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content: "Error occurred while performing the governance operation",
-            type: 'info'
-        });
+
+        if ( jqXHR.status != 0){
+            jagg.message({
+                content: "Error occurred while performing the governance operation",
+                type: 'info'
+            });
+        }
+
     });
 }
 
@@ -999,7 +1131,7 @@ function initPops() {
                     var $el = $(api.elements.target[0]);
                     $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
                     $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
-                    
+
 
                 },
                 hide: function (event, api) {
@@ -1059,9 +1191,9 @@ function initPops() {
                                             '</div>' +
                                             '<div class="input_row">' +
                                             '<label>Add Comment<font color="red">*</font></label>' +
-                                            '<textarea cols="5" rows="3" name="something" class="comment_area"></textarea>' +
+                                            '<textarea cols="5" rows="3" id="demote_comment" name="demote_comment" class="comment_area"></textarea>' +
                                             '<div class="btn_row">' +
-                                            '<button class="btn main small hide_button" onclick="doDemoteActionAjax(\'' + stage + '\'' + ', \'' + version + '\'' + ',\'' + tagName + '\'' + ' )">Demote</button><a href="#" class="popover_close small" >Cancel</a>' +
+                                            '<button name="demote_action" id="demote_action" class="btn main small hide_button" onclick="doDemoteActionAjax(\'' + stage + '\'' + ', \'' + version + '\'' + ',\'' + tagName + '\'' + ' )">Demote</button><a href="#" class="popover_close small" >Cancel</a>' +
                                             '</div>' +
                                             '</div>' +
                                             '</form>' +
@@ -1071,7 +1203,11 @@ function initPops() {
                                 }
                             },
                             function (jqXHR, textStatus, errorThrown) {
-                                jagg.message({content: "Error occurred while retrieving issues", type: 'info' });
+
+                                if ( jqXHR.status != 0){
+                                    jagg.message({content: "Error occurred while retrieving issues", type: 'info' });
+                                }
+
                             });
 
 
@@ -1248,9 +1384,13 @@ function updateTabs(){
     $('.content-tabs').hide();
     var selected = $('#stage_selector').select2('data').id;
     $('#content-tab-'+selected).show();
+    updateSessionInfo(selected);
+}
+
+function updateSessionInfo(stageName){
     jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
         action: "updateSessionInfo",
-        stageName: selected
+        stageName: stageName
     },function (result) {
         //We ignore the result here
 	}, function (jqXHR, textStatus, errorThrown) {
@@ -1258,28 +1398,37 @@ function updateTabs(){
 	});
 }
 
-function updateAppVersionSubDomain(version, subDomainVal){
-	 jagg.post("../blocks/application/update/ajax/update.jag", {
-		    action:"updateDefaultVersionSubDomain",
-		    applicationKey:'<%=applicationKey%>',
-		    username:'<%=userName%>',
-		    subDomain:subDomainVal,
-		    version:version 	
-	   },function (result) {
-	        var tmpIdVersion =  version.replace(/\./g,'_');
-            $('.domain-url-map-selected').removeClass('domain-url-map-selected').addClass('domain-url-map');
-            $('#'+tmpIdVersion).removeClass('domain-url-map').addClass('domain-url-map-selected');
-            jagg.removeMessage();
-            jagg.message({
-	            content: "Production url is mapped to version - " + version,
-	            type: 'success'
-	        });
-	   }, function (jqXHR, textStatus, errorThrown) {
-	        jagg.message({
-	            content: "Error occurred while updating application version subdomain",
-	            type: 'info'
-	        });
-	    });
+/**
+*  Update the tab elements when domain mapping is removed
+*  @param removedVersion
+*/
+function updateTabElementsOnDomainMappingRemove(removedVersion){
+    var tmpIdVersion =  removedVersion.replace(/\./g,'_');
+    $('#'+tmpIdVersion).unbind( "click" );
+    $('#'+tmpIdVersion).removeClass('domain-url-map-selected').addClass('domain-url-map');
+    $('#demote_btn_'+tmpIdVersion).unbind( "click" );
+    $('#demote_btn_'+tmpIdVersion).addClass('js_demote_popover').removeClass('domain-mapped-demote');
+    $('#retire_btn_'+tmpIdVersion).unbind( "click" );
+    $('#retire_btn_'+tmpIdVersion).addClass('js_promote_popover').removeClass('domain-mapped-retire');
+}
+
+/**
+ * Update the tab elements when domain mapping changes
+ * @param mappedVersion
+ */
+function updateTabElementsOnDomainMappingUpdate(mappedVersion ,removedVersion){
+    previousDomainMappedVersion = mappedVersion;
+    if(removedVersion){
+        updateTabElementsOnDomainMappingRemove(removedVersion);
+    }
+    var tmpIdVersion =  mappedVersion.replace(/\./g,'_');
+    $('#'+tmpIdVersion).removeClass('domain-url-map').addClass('domain-url-map-selected');
+
+    // Disable demote/retire for current mapped version
+    $('#demote_btn_'+tmpIdVersion).removeClass('js_demote_popover').addClass('domain-mapped-demote');
+    $( '#demote_btn_'+tmpIdVersion).unbind( "click" );
+    $('#retire_btn_'+tmpIdVersion).removeClass('js_promote_popover').addClass('domain-mapped-retire');
+    $( '#retire_btn_'+tmpIdVersion).unbind( "click" );
 }
 
 function getAppInfo(){
@@ -1289,12 +1438,16 @@ function getAppInfo(){
 	   },function (result) {
 	    var parsedArray = jQuery.parseJSON(result);
 	    appType = parsedArray.type;
-	    subDomain = parsedArray.mappedSubDomain;
+	    defaultSubDomain = parsedArray.mappedSubDomain;
 	   }, function (jqXHR, textStatus, errorThrown) {
-	        jagg.message({
-	            content: "Error occurred while retriving application information",
-	            type: 'info'
-	        });
+
+	       if (jqXHR.status != 0){
+	            jagg.message({
+	                content: "Error occurred while retriving application information",
+	                type: 'info'
+	            });
+	       }
+
 	   });
 }
 
@@ -1429,8 +1582,7 @@ function hideNotification() {
     <!--START content section-->
 
     <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
-<input type="hidden" name="userName" id="userName" value="<%=userName
-    %>"/>
+<input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 <%
 
     for (var promoteStage in hasPromotePermissions){
@@ -1486,7 +1638,7 @@ function hideNotification() {
 
         <div class="clearfix"></div>
     </article>
-    
+
 </div>
 <!-- /container -->
 

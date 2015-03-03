@@ -1,509 +1,129 @@
-<% jagg.template("resources/database/list", function (inputs, outputs, jagg) { %>
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("resources/database/list", function (inputs, outputs, jagg) { %>
 <%
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
-var isDefaultMode = request.getParameter("isDefaultMode");
-var hasCreateResourcePermissions = outputs.hasCreateResourcePermissions;
-appInfo=session.get("APP_INFO");
-language=appInfo.language;
-
 %>
-
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
-
-$(document).ready(function(){
-	drawDatabasesTable();
-	convertDataSourcesToPrintableFormat()
-});
-
-var inheriteddatabaseName, inheritedrssInstanceName, inheritedusername;
-
-var _defaults = {
-	    moviePath:         "<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
-	    trustedDomains:    undefined,                  // Domains that we should trust (single string or array of strings)
-	    hoverClass:        "zeroclipboard-is-hover",   // The class used to hover over the object
-	    activeClass:       "zeroclipboard-is-active",  // The class used to set object active
-	    allowScriptAccess: "sameDomain",               // SWF outbound scripting policy
-	    useNoCache:        true,                       // Include a nocache query parameter on requests for the SWF
-	    amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
-
-	 };
-function convertDataSourcesToPrintableFormat(){
-	jagg.post("../blocks/resources/datasource/get/ajax/list.jag", {
-        action: "getDatasources",
-        applicationKey: "<%=applicationKey%>"
-    }, function (result) {
-        if (result !== undefined) {
-            var datasources = jQuery.parseJSON(result); 
-			constructHTML(datasources);	
-        }
-    }, function (jqXHR, textStatus, errorThrown) {
-    	$('#contentHeader').html("");
-    	jagg.message({content:'Error occurred while reading datasources',type:'error', id:'datasourceoverview' });
-    });
-}
-
- 
-
-function constructHTML(datasources){
-    var $table='';
-    var count = 0;
-    for(var ds in datasources){
-        count++;
-        $table+=constructRow(datasources[ds],ds);
-   }
-    if(count == 0){
-    	$('#contentHeader').html("<td class='td-12' style='border-bottom: none;padding: 5px 0'><div class='noData-message'>Datasources have not been created yet.</div></td>");
-    }else{
-    	$('#content').append($table);
-    	for(var datasource in datasources){
-		    //tableBodyHTML += '<ul class="list_row first_list_row">'
-			$("#snippet_"+datasource).click(function(){
-				$crtl=$(this);
- 				$(this).parent().parent().parent().next().slideToggle( "fast", function(){
-  	 				});
-				});
-		}
-		$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false}); 
-    	
-    }	
-    
-    $('.dsLink').click(function(){
-        var dsName=$(this).attr('data-dsname');
-        var stage=$(this).attr('stage');
-        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
-    });
-     $('.stage_label').click(function(){
-        var dsName=$(this).attr('data-dsname');
-        var stage=this.innerHTML;
-        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+dsName+"&currentStage="+stage);
+    $(document).ready(function() {
+    	initializeUserActivity("databases",'<%=applicationKey%>', '<%=applicationName%>');
+        drawDatabasesTable();
     });
 
-}
+    function drawDatabasesTable() {
+        $("#dbSection").show();
+        $("#dbSection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action: "getAllDatabasesInfo",
+            applicationKey: "<%=applicationKey%>"
+        }, function (result) {
+            if (result !== undefined) {
+                var databasesByName = jQuery.parseJSON(result);
+                var tableDataRow = "";
+                var zeroDB = true;
 
-    function constructRow(ds,name){
-        var codeSnippetHTML=codeSnippet.generate("<%=language%>","Datasources","<%=applicationKey%>",name);
-        var snippets=(codeSnippetHTML!=undefined);
-
-        var editURL = "<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+name+"%>";
-
-        var $row='<tr>'+
-                '<td>'+
-                '<div class="list_col_content">'+
-                '<ul class="list">'+name+'</ul>';
-         if(snippets){
-			 $row+= '<span id="snippet_'+name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
-
-         }
-               
-             $row+= '</td>'+
-                '<td>'+
-                '<div class="list_col_content">' +
-                '<dl class="list datasource-description">'+
-                ds.description+
-                '</dl>' +
-                '</div>'+
-                '</td>'+
-                '<td>'+
-                '<div class="list_col_content">'+
-                '<dl class="list">'+
-                getEnviromentParameters(ds.environments,name)+
-                '</dl>'+
-                '</div>'+
-                '</td>'+
-                '</tr>';
-        		$row+= '<tr id="code'+name+'" style="display: none;" class="code"><td colspan="3">';
-              if(snippets){
-                    $row+=codeSnippetHTML;
-              }
-              $row+='</td></tr>';
-        return $row;
-    }
-
-    function getEnviromentParameters(environments,name){
-		var content='';
-		var i=0;
-		for(var environment in environments){
-			var url="<%=jagg.getAbsoluteUrl("/site/pages/editdatasource.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dsName="+name+"&currentStage="+environment;
-			
-		    i++;
-		    content+='<dt><a href="'+url+'" class="tag" style="margin-left:0px">'+
-		    		 environment+
-		    		 '</a></dt>';
-		    		 var params=environments[environment];	
-        for(var param in params){
-          
-        	if(param=="url"){
-			content+='<dd style="padding-left:6px;font-size: 0.857142857em;">'+
-					param+':'+
-					params[param]+
-					'<a id="copy'+i+'" class="icon_link_small copy_link push_left_10 pointer_cursor" title="Copy DB URL " data-clipboard-text="'+params[param]+'"><span class="icon-copy"></span></a>'+
-					'</dd>';
-        	}else if(param!="password"){
-			content+='<dd style="padding-left:6px;font-size: 0.857142857em;">'+
-			param+':'+
-			params[param]+'</dd>';
-		}
-		}
-		}
-		return content;
-      
-    }
-  
-	 
-    
-
-function drawDatabasesTable() {
-
-    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-        action: "getDbUserTemplateInfoForStages",
-        applicationKey: "<%=applicationKey%>"
-    }, function (result) {
-			    if (result !== undefined) {
-
-                    var parsedArray = jQuery.parseJSON(result);
-                    if (parsedArray.length > 0) {
-
-                        var domRSStbl = "";
-                        var domRSSUsrtbl = "";
-                        var domRSStemptbl = "";
-                        var zeroDB =true;
-                        var zeroDBUsr =true;
-                        var zeroDBTmp =true;
-                        var dbcount = 0;
-                        for (var index in parsedArray) {
-                            var instance = parsedArray[index];
-                            var dbsli = '';
-                            if (instance.dbs != null) {
-                                for (var i = 0; i < instance.dbs.length; i++) {
-                                    var db = instance.dbs[i];
-                                    var dbsUrl = '<%=jagg.getAbsoluteUrl("/site/pages/editdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dbName=' + db.dbName + '&environment=' + instance.stage;
-                                    dbsli += '<a href="' + dbsUrl + '" style="margin-right:5px;">' + db.dbName + '</a><a id="copy'+(dbcount + i)+'" class="icon_link_small copy_link pointer_cursor" title="Copy DB URL " data-clipboard-text="'+db.url+'"><span class="icon-copy"></span></a> ';
-                                }
-                                if(instance.dbs.length > 0 ){
-                                	zeroDB = false;
-                                }
-                            	dbcount += instance.dbs.length;
-                            }
-                            var usersli = '';
-                            if (instance.users != null) {
-                                for (var i = 0; i < instance.users.length; i++) {
-                                    var username = instance.users[i].name;
-                                    var dbUserUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&user=' + username + '&environment=' + instance.stage;
-                                    usersli += '<a style="margin-right: 20px" href="' + dbUserUrl + '">' + username + '</a> ';
-                                }
-                                if(instance.users.length > 0 ){
-                                	zeroDBUsr = false;
-                                }
-                            }
-
-                            var templateli = '';
-                            if (instance.templates != null) {
-                                for (var i = 0; i < instance.templates.length; i++) {
-                                    var template = instance.templates[i].name;
-                                    var templateUrl = '<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=true&templateName=' + template +'&environment=' + instance.stage;
-                                    templateli += '<a style="margin-right: 20px" href="' + templateUrl + '">' + template + '</a> ';
-                                }
-                                if(instance.templates.length > 0 ){
-                                	zeroDBTmp = false;
-                                }
-                            }
-
-                    domRSStbl += '<tr>'+
-                                '<td>'+instance.stage+'</td>'+
-                                '<td class="list">'+dbsli +'</td>'+
-                                '</tr>';
-
-                    
-                    domRSSUsrtbl +=   '<tr>'+
-                                '<td>'+instance.stage+'</td>'+
-                                '<td class="list">'+usersli +'</td>'+
-                                '</tr>';
-
-
-
-
-                    
-                    domRSStemptbl +=   '<tr>'+
-                                '<td>'+instance.stage+'</td>'+
-                                '<td class="list">'+templateli +'</td>'+
-                                '</tr>';
-
-                }
-                if(!zeroDB){
-                    $('#dbSection').html('<tr>'+
-                                            '<th class="td-3">Environment</th>'+
-                                            '<th>Database Names</th>'+
-                                            '</tr>');
-                    $("#dbSection").html($("#dbSection").html()+domRSStbl);
-
-                    for (var i = 0; i < dbcount; i++) {
-	                    ZeroClipboard.setDefaults(_defaults);
-	                    var clip = new ZeroClipboard($('#copy'+i));
-	
-	                    clip.on( 'load', function(client) {
-	                        //alert( "movie is loaded" );
-	                    });
-	
-	                    clip.on( 'complete', function(client, args) {
-	                        //alert("Copied text to clipboard: " + args.text );
-	                    } );
-	                    clip.on( 'mousedown', function(client) {
-	
-	                    } );
-                    }
-                    /*$('div.db_url').each(function(){
-                        if($(this).html().length > 24){
-                            $(this).qtip(
-                               {
-                                   content: {
-                                               text: $(this).attr('data-url')
-                                            },
-                                   show: {
-                                       when: 'click',
-                                       solo: true // Only show one tooltip at a time
-                                   },
-                                   hide: 'unfocus',
-                                   style: {
-                                                  classes: 'popup_status_box tooltip',
-                                                  widget: false,
-                                                  def: false
-                                              }
-                               });
+                for (var index in databasesByName) {
+                    var databases = databasesByName[index];
+                    if (databases.length > 0 ) {
+                        tableDataRow += '<tr>';
+                        for (var count in databases) {
+                            var db = databases[count];
+                            if (count == 0) {
+                                tableDataRow += '<td class=td-3>' + db.name + '</td>' +
+                                    '<td class=td-3>' + db.description + '</td>' +
+                                    '<td class=td-3>MySQL</td>' +
+                                    '<td class=td-3>';
+                             }
+                            var url = '<%=jagg.getAbsoluteUrl("/site/pages/editdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey %>&dbName=' + db.name + '&environment=' + db.stage;
+                            tableDataRow += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'"><span class="icon-edit"></span></a><span style="padding-left:6px;">' + db.stage + '</span></br>';
+                            zeroDB = false;
                         }
-                    });*/
-                }else{
+                        tableDataRow += '</td></tr>';
+                    }
+                }
+
+
+                if (!zeroDB) {
+                    $('#dbSection').html('<tr>' +
+                                        '<th>Name</th>' +
+                                        '<th>Description</th>' +
+                                        '<th>Database Type</th>' +
+                                        '<th>Values</th>' +
+                                        '</tr>');
+                    $("#dbSection").html($("#dbSection").html() + tableDataRow);
+                } else {
                     $("#dbSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
                 }
-                if(!zeroDBUsr){
-                    $('#dbUsrSection').html('<tr>'+
-                                '<th class="td-3">Environment</th>'+
-                                '<th class="td-3">Database Users</th>'+
-                       '</tr>');
-                    $("#dbUsrSection").html($("#dbUsrSection").html()+domRSSUsrtbl);
-                }else{
-                    $("#dbUsrSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
-                }
-                
-                if(!zeroDBTmp){
-                    $('#dbTempSection').html('<tr>'+
-                            '<th class="td-3">Environment</th>'+
-                            '<th>Database Permission Templates</th>'+
-                       '</tr>');
-                    $("#dbTempSection").html($("#dbTempSection").html()+domRSStemptbl);
-                }else{
-                    $("#dbTempSection").html('<div class="noData-message">Database Templates have not been created yet.</div>');
-                }
-		
             } else {
-                $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
-                $("#dbTable").hide();
-
+                $("#dbSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
             }
-	    hideSpin();
-        } else {
-            $("#dbTableReplaceInfo").text("No databases found.").fadeIn();
-            $("#dbTable").hide();
+            hideSpin();
+    },
+    function (jqXHR, textStatus, errorThrown) {
+
+        if (jqXHR.status != 0){
+            jagg.message({content:'Error occurred while reading databases database users and templates',type:'error', id:'databaseoverwiew' });
         }
 
-    },
-
-    function (jqXHR, textStatus, errorThrown) {
-    	jagg.message({content:'Error occurred while reading databases databaseusers and templates',type:'error', id:'databaseoverwiew' });
-        hideSpin();
+    	hideSpin();
     });
-
 }
 
 
 
-function hideSpin(){
+function hideSpin() {
 	$('div#configlist> span.icon-spinner').remove();
 }
 
-function dropDatabase(name,rssInstanceName){
-
-	jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
-		action:"dropDatabase",
-		applicationKey:$("#applicationKey").attr('value'),
-		databaseName:name,
-		rssInstanceName:rssInstanceName
-
-	},  function (result) {
-		document.location.reload(true);
-		// jagg.message({content:'Database has been created',type:'info' });
-	},
-	function (jqXHR, textStatus, errorThrown) {
-
-	});
-}
-
-function getHelpTips(){
-    jagg.post("../blocks/help/ajax/help.jag", {
-            action: "getHelpTips",
-            page: "resources-databases"
-        },
-
-        function (result) {
-            helpTips = jQuery.parseJSON(result);
-                 $("#datasourceHelp").html(helpTips.datasourceHelp);
-                 $("#databaseHelp").html(helpTips.databaseHelp);
-                 $("#databaseUserHelp").html(helpTips.databaseUserHelp);
-                 $("#permissionTemplateHelp").html(helpTips.permissionTemplateHelp);
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-        });
-}
-
-$(document).ready(function(){
-    getHelpTips();
-    $('#js_extra_fieldset_on').click(function(){
-        $(this).next().toggle('fast');
-    });
-    $('.js_extra_fields_on').on("click", function(event){
-		var $el = $(this);
-		$(this).toggleClass("active");
-		$(this).next(".extra_fields_box").slideToggle(250, function() {
-			if( $el.prev().is(':disabled') == false) {
-				 $el.prev().attr("disabled", "disabled");
-			} else {
-				 $el.prev().removeAttr('disabled');
-			}
-	    });
-	 	event.preventDefault();
-	});
-});
 </script>
 <input type="hidden" id='applicationKey'
 	value='<%=request.getParameter("applicationKey")%>' />
 <div class="container">
 	<article class="main database-page">
 
-		<header>
+		<header class="separator">
 			<div>
 				<% jagg.includeBlock("page/messages", null); %>
 				<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 				<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 			</div>
 			<div class="content">
-				<h1>Resources</h1>
+				<h1 class="inline_box">Databases</h1>
+				<a id="addNewDBBtn" name="addNewDBBtn" href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false' class="btn main btn_group_first push_left_40">Add New Database</a>
 			</div>
 		</header>
-		<% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
-		<% jagg.includeBlock("page/help", {"section": "resources-databases"}); %>
 
-		<% if(language=="Java"){%>
-		<section class="separator push_top_20">
-			<div class="content clear">
-			    <div class="af_container">
-			        <div class="af_row">
-			            <div class="col-6"><h2 class="big">Datasources</h2></div>
-			            <div class="col-6">
-				            <% if(hasCreateResourcePermissions){%>
-	                            <div class="right btn_group resource">
-	                                <ul class="inline_box inline_list">
-	                                    <li class="inline_item"><a
-	                                        href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false'
-	                                        class="btn main btn_group_first">Add New Datasource</a></li>
-	
-	                                </ul>
-	                                <div class="clearfix"></div>
-	                            </div>
-	                        <%}%>
-			            </div>
-			        </div>
-			    </div>
-<div class="help-block"><span class="help-icon">?</span> <span id="datasourceHelp"></span></div>
-                <table class="data-table push_top_20" id="content">
-                    <tr id="contentHeader">
-                        <th class="td-3">Name</th>
-                        <th class="td-3">Description</th>
-                        <th class="td-6">Environments</th>
-                    </tr>
-                </table>
-			</div>
-		</section>
+		<% jagg.includeBlock("page/help", {"section": "databases"}); %>
 		<div style="clear:both"></div>
-		<hr />
-		<%}%>
+    		<div class="clearfix"></div>
+
  		<section class="separator">
 			<div class="content clear">
-
-			<div class="af_container">
-			        <div class="af_row">
-			            <div class="col-6"><h2 class="big">Databases</h2></div>
-			            <div class="col-6">
-                            <div class="right btn_group resource">
-                                <ul class="inline_box inline_list">
-                                    <li class="inline_item"><a
-                                        href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false'
-                                        class="btn main btn_group_first">Add New Database</a></li>
-
-                                </ul>
-                                <div class="clearfix"></div>
-                            </div>
-			            </div>
-			        </div>
-			    </div>
-			    <div class="help-block"><span class="help-icon">?</span> <span id="databaseHelp"></span></div>
 			    <table class="data-table push_top_20" id="dbSection"></table>
 			</div>
 		</section>
+
 		<div style="clear:both"></div>
-		<hr />
- 		<section class="separator">
-			<div class="content clear">
 
-                <div class="af_container">
-                    <div class="af_row">
-                        <div class="col-6"><h2 class="big">Database Users</h2></div>
-                        <div class="col-6">
-                            <div class="right btn_group resource">
-                                <ul class="inline_box inline_list">
-                                        <li class="inline_item"><a
-                                        href='<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true'
-                                        class="btn main">Add New User</a></li>
-
-                                </ul>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-				<div class="help-block"><span class="help-icon">?</span> <span id="databaseUserHelp"></span></div>
-				<table class="data-table push_top_20"  id="dbUsrSection"></table>
-			</div>
-		</section>
-		<div style="clear:both"></div>
-		<hr />
-		<section class="separator">
-			<div class="content clear">
-
-
-                <div class="af_container">
-                    <div class="af_row">
-                        <div class="col-6"><h2 class="big">Permission Templates</h2></div>
-                        <div class="col-6">
-                            <div class="right btn_group resource">
-                                <ul class="inline_box inline_list">
-                                        <li class="inline_item"><a
-                                        href='<%=jagg.getAbsoluteUrl("/site/pages/createdbtemplate.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'
-                                        class="btn main">Add New Template</a></li>
-
-                                </ul>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-				<div class="help-block"><span class="help-icon">?</span> <span id="permissionTemplateHelp"></span></div>
-				<table class="data-table push_top_20"  id="dbTempSection"></table>
-			</div>
-		</section>
 		<div class="clearfix"></div>
 	</article>
 </div>

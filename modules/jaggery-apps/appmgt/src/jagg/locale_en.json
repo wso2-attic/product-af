@@ -1,7 +1,7 @@
 {
     "sections":{
         "applicationHome":{
-            "helpTips":{"appDescription":"Click to edit the application's description","productionUrl":"Edit the application’s subdomain to complete the production URL","appIcon":"Click on the icon to change it","launch":"Click the buttons associated with each application version to deploy and launch it","teamAndResources":"Shown below is the summary of team members and resources allocated to this application"}
+            "helpTips":{"appDescription":"Click to edit the application's description","productionUrlViewOnly":"This URL will be assigned to a branch once it is promoted to production.","productionUrl":"Edit the application’s subdomain to complete the production URL.","appIcon":"Click on the icon to change it","launch":"Click the buttons associated with each application version to deploy and launch it","teamAndResources":"Shown below is the summary of team members and resources allocated to this application"}
         },
         "team":{
             "description":{"roles":"appowner,developer,qa,devops,cxo", "details":{ "msg":"", "subMsg":"The team members participating in the current application are listed here."} },
@@ -24,20 +24,24 @@
         },
         "memberAddition":{
             "addMember":{"roles":"appowner", "details":{ "msg":"", "subMsg":"You can type in the member name in the box below to add to the list. To get access, the member accounts need to already exist in the organization. </p>To add new members to the organization to change roles of existing members, please go to the <a href=www.google.lk> organisation page</a> instead.", } },
-            "helpTips":{"addMemberHelp":"Enter the member's user name. Click <link> to see your organization's members."}
+            "helpTips":{"addMemberHelp":"Enter the member's user name."}
         },
         "resourcesOverview":{
-            "description":{"roles":"appowner,developer,qa,devops,cxo", "details":{ "msg":"", "subMsg":"Manage databases, APIs and properties (name,value pairs) across all stages using this section.<p> Use a single name within your application to refer to a resource whose value will change from stage to stage.<p> Code snippets are given in each section to be used in the application. Read more <a href=https://docs.wso2.org/display/AF200/WSO2+App+Factory+Documentation target=_blank>here<a>."} },
-            "helpTips":{"databaseHelp":"Datasources created for this application are listed below.","apiHelp":"APIs created for this application are listed below.","propertyHelp":"Property resources created for this application are listed below","userRealmHelp":"Selecting this option enables this application to use user realm services from within the application","noDatabases":"Databases have not been created yet.","noAPIs":"No APIs have been subscribed to yet.","noProperties":"Property resources have not been created yet."}
+            "description":{"roles":"appowner,developer,qa,devops,cxo", "details":{ "msg":"", "subMsg":"<p> Use a single name within your application to refer to a resource whose value will change from stage to stage.<p> Code snippets are given in each section to be used in the application. Read more <a href=https://docs.wso2.org/display/AF200/WSO2+App+Factory+Documentation target=_blank>here<a>."} },
+            "helpTips":{"datasourceHelp":"Datasources created for this application are listed below.","apiHelp":"APIs created for this application are listed below.","propertyHelp":"Property resources created for this application are listed below","userRealmHelp":"Selecting this option enables this application to use user realm services from within the application","noDatasources":"Datasources have not been created yet.","noAPIs":"No APIs have been subscribed to yet.","noProperties":"Property resources have not been created yet."}
         },
         "resources-databases":{
             "description":{"roles":"appowner,developer,qa,devops,cxo", "details":{ "msg":"", "subMsg":"Create/update and delete datasources, databases, database users and permission templates."} },
             "helpTips":{"datasourceHelp":"Listed below are the datasources that were created for the databases used within this application","databaseHelp":"Listed below are the databases that were created for this application","databaseUserHelp":"Database users created here can be used with existing databases or new ones created for this application.","permissionTemplateHelp":"Permission templates can be created only by members who have permission to access all the stages.<br> Templates created here can be used with existing databases or new ones created for this application."}
         },
+        "databases": {
+            "description": {"roles": "appowner,developer,qa,devops,cxo", "details": {"msg": "", "subMsg": "Create/update and delete MySQL databases, database users and permission templates."} }
+        },
         "add-databases":{
             "helpTips":{"createInAllEnvsHelp":"Select this option to create this database in all environments of the application"}
         },
         "resources-datasources":{
+            "description":{"roles":"appowner,developer,qa,devops,cxo", "details":{ "msg":"", "subMsg":" This datasource uses a unique name but is registered with different connection details across different stages of the application lifecycle."} },
             "helpTips":{"datasourceHelp":"Shown below are the datasource that were created for the databases within this application space"}
         },
         "resources-apis":{

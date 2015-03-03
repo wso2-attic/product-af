@@ -1,4 +1,21 @@
 <%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
 //TODO: check what is getAppVersionsInStages and getAppVersionsInStage
     include("/jagg/jagg.jag");
     include("/jagg/constants.jag");
@@ -14,6 +31,7 @@
     var server = carbon.server;
     var appfactory = require('appFactory');
     var multitenancy = carbon.multitenancy;
+    var modMananger = jagg.module("manager");
 
 
 
@@ -48,8 +66,7 @@
                     context.endTenantFlow();
                 }
         return appsOfUser;
-    }
-    ;
+    };
     
     var getRepoURL = function(applicationKey, version, auth)
     {
@@ -66,7 +83,7 @@
             context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
             url = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').getURLForAppVersion(applicationKey,version,"");
-            
+
         }finally{
             context.endTenantFlow();
         }
@@ -95,6 +112,7 @@
 
     var getAllAppsOfUser = function(userName){
         // jagg.module("permission").checkUserAuthenticated();
+        var tenantDomain=modManager.getTenantDomain();
          try {
              var result;
              result = getAllApps(userName.split('@')[0]);
@@ -104,6 +122,7 @@
                  var appInfo = convertAppInfo(result[applicationKey]);
                  if (appInfo != null) {
                      elementsArray.push(appInfo);
+                     modMananger.cacheTenantInfo(tenantDomain, appInfo.key , TENANT_INFO_APP_TYPE, appInfo.type);
                  }
              }
              return stringify(elementsArray);
@@ -127,7 +146,10 @@
         } finally {
             context.endTenantFlow();
         }
-        return convertAppInfo(result);
+        if (result != null) {
+            return convertAppInfo(result);
+        }
+        return null;
     };
 
     var convertAppInfo =  function(resourceContent){
@@ -144,7 +166,6 @@
     }
 
     var extractAppInfo=function(resourceContent,forUserHome){
-
         var application={};
         if(forUserHome){
             application.key = resourceContent.applicationKey;
@@ -153,24 +174,29 @@
             application.key = resourceContent.id;
             application.owner = resourceContent.owner;
             application.type = resourceContent.type;
-            application.language=getProperty("ApplicationType." + application.type + ".Property.Language");
+            application.language = modManager.getApplicationTypeBean(application.type).getProperty("Language");
 
+            // custom url
+            application.mappedSubDomain = resourceContent.mappedSubDomain;
+            application.customUrl=resourceContent.customUrl;
+            application.customUrlVerificationCode = resourceContent.customUrlVerificationCode;
+
+            application.description = resourceContent.description;
+            application.repositoryType = resourceContent.repositoryType;
+            application.repositoryTypeDisplayName = getProperty("RepositoryProviderConfig." + application.repositoryType + ".Property.DisplayName");
+            application.branchCount=resourceContent.branchCount;
         }
-        
-        application.name = resourceContent.name;
-        application.description = resourceContent.description;
-        application.repoAccessability = resourceContent.repoAccessability;
-        application.mappedSubDomain = resourceContent.mappedSubDomain;
 
-        //TODO
-        application.branchCount=resourceContent.branchCount;
-        application.typeDisplayName = getProperty("ApplicationType." + application.type + ".Property.DisplayName");
-        application.repositoryType = resourceContent.repositoryType;
-        application.repositoryTypeDisplayName = getProperty("RepositoryProviderConfig." + application.repositoryType + ".Property.DisplayName");
+        application.typeDisplayName = modManager.getApplicationTypeBean(application.type).getDisplayName();
+        application.isUploadable = modManager.getApplicationTypeBean(application.type).isUploadableAppType();	
+	    application.name = resourceContent.name;
+        application.repoAccessability = resourceContent.repoAccessability;
+
         //TODO
         application.inProduction = false;
+        application.applicationCreationStatus = resourceContent.applicationCreationStatus.name();
         return application;
-    }
+    };
 
     // This funciton get application rxt from registry and populate application object.
     // This is not secured as this is calling from getAllApp method. Any caller of this
@@ -202,7 +228,11 @@
         var visibilityPermissionToStage = PERMISSION_VISIBILITY_STAGE + stageName;
 
         var allAppVersionArray = new Array();
-        var applicationList = getAllAppsOfUser(userName);
+        var applicationList = session.get("application_list");
+        if(applicationList == null) {
+            applicationList = mod.getAllAppsOfUser(jagg.getUser());
+           session.put('application_list', applicationList);
+        }
         var parsedArray = parse(applicationList);
 
         for (var i = 0; i < parsedArray.length; i++) {
@@ -324,6 +354,310 @@
     	return result;
     }
 
+    /**
+     * Get deleted app keys of the tenantDomain from application context.
+     *
+     * @returns Array of deleted keys of the user's tenantDomain
+     */
+    var getDeletedAppKeysFromAppContext = function(){
+        var allDeletedAppKeys = application.get(APP_CTX_DELETED_KEYS);
+        var tenantDomain=modManager.getTenantDomain();
+        var deletedAppKeysOfTenant = new Array();
+        if(!isEmpty(allDeletedAppKeys) && allDeletedAppKeys[tenantDomain] &&
+                             allDeletedAppKeys[tenantDomain].length > 0) {
+            deletedAppKeysOfTenant = allDeletedAppKeys[tenantDomain];
+        }
+        return deletedAppKeysOfTenant;
+    };
+
+
+    /**
+     * Get updated user user home information from cache.
+     *
+     * @returns  application info list as below
+     * {
+     *      "COMPLETED":{
+     *              appKey1:{//app info},
+     *              ...
+     *          },
+     *      "PENDING":{
+     *              appKey5:{//app info},
+     *              ...
+     *          },
+     *      "FAULTY":{
+     *              appKey9:{//app info},
+     *              ...
+     *          },
+     *  }
+     */
+    var getUpdatedUserHomeData = function(){
+        updateUserHomeCacheWithDeletedApps();   // remove the deleted apps from the user home cache
+        updateUserHomePendingApps();            // update the application creation status
+        return getUserHomeDataFromCache();
+    };
+
+    /**
+     * Get user home information from cache.
+     * If the request is a cache miss, retrieve data from backend and return while caching
+     * @returns  application info list as below
+     * {
+         *      "COMPLETED":{
+         *              appKey1:{//app info},
+         *              ...
+         *          },
+         *      "PENDING":{
+         *              appKey5:{//app info},
+         *              ...
+         *          },
+         *      "FAULTY":{
+         *              appKey9:{//app info},
+         *              ...
+         *          },
+         *  }
+     */
+    var getUserHomeDataFromCache = function(){
+        var userHomeData = session.get(USER_HOME_CAHCE);
+        if(!userHomeData){
+            userHomeData = getUserHomeInformation();
+            session.put(USER_HOME_CAHCE,userHomeData);
+        }
+        return userHomeData;
+    };
+
+    /**
+     * Add an application to user home cache.
+     *
+     * @param creationStatus application creation status
+     * @param appKey application key
+     * @param application application object
+     */
+    var addAppToUserHomeCache = function(creationStatus , appKey, application){
+        var userHomeData = getUserHomeDataFromCache();
+        userHomeData[creationStatus][appKey] = application;
+        session.put(USER_HOME_CAHCE,userHomeData);
+    };
+
+    /**
+     * Update the user home cache with deleted apps.
+     * This method will get the deleted app keys form the application context and remove those apps from the user home
+     * cache. We need this step since once an application is deleted, user home should be updated with the existing apps.
+     */
+    var updateUserHomeCacheWithDeletedApps = function() {
+        var deletedKeys = getDeletedAppKeysFromAppContext();
+        if(deletedKeys && deletedKeys.length > 0) {
+            removeAppsFromUserHomeCache(APPLICATION_CREATION_STATUS.COMPLETED,deletedKeys);
+            removeAppsFromUserHomeCache(APPLICATION_CREATION_STATUS.PENDING,deletedKeys);
+            removeAppsFromUserHomeCache(APPLICATION_CREATION_STATUS.FAULTY,deletedKeys);
+        }
+    };
+
+    /**
+     * Remove application from user home cache.
+     *
+     * @param creationStatus current application creation status of the app.
+     * @param appKeys application keys to be deleted as an Array
+     */
+    var removeAppsFromUserHomeCache = function(creationStatus , appKeys){
+        var userHomeData = getUserHomeDataFromCache();
+        for(var index in appKeys){
+            delete userHomeData[creationStatus][appKeys[index]];
+        }
+        session.put(USER_HOME_CAHCE,userHomeData);
+    };
+
+    /**
+     * Check and update the pending app status and move to corresponding list of the user home cache.
+     */
+    var updateUserHomePendingApps = function(){
+        var appKeys = getAppKeysFromUserHomeCache(APPLICATION_CREATION_STATUS.PENDING);
+        var userHomeData = getUserHomeDataFromCache();
+        if(appKeys.length > 0){
+            var updatedStatus = getAppCreationStatusByKeys(appKeys);
+            if(!isEmpty(updatedStatus)) {
+                for (var appKey in updatedStatus){
+                    if(APPLICATION_CREATION_STATUS.PENDING != updatedStatus[appKey]) {
+                        userHomeData = moveApplicationFromCreationStatus(userHomeData,APPLICATION_CREATION_STATUS.PENDING,
+                                                                         updatedStatus[appKey],appKey);
+                    }
+                }
+                session.put(USER_HOME_CAHCE,userHomeData);
+            }
+        }
+    };
+
+    /**
+     * Get user home information from backend.
+     *
+     * @returns  application info list as below
+     * {
+     *      "COMPLETED":{
+     *              appKey1:{//app info},
+     *              ...
+     *          },
+     *      "PENDING":{
+     *              appKey5:{//app info},
+     *              ...
+     *          },
+     *      "FAULTY":{
+     *              appKey9:{//app info},
+     *              ...
+     *          },
+     *  }
+     */
+    var getUserHomeInformation= function(){
+        var userName=modManager.getDomainlessUserName();
+        var context=multitenancy.getPrivilegedCarbonContext();
+        var service = getApplicationInfoService(context);
+        try{
+            var result=service.getApplicationInfoForUser(userName);
+
+            // init
+            var appList = {};
+            appList[APPLICATION_CREATION_STATUS.COMPLETED] ={};
+            appList[APPLICATION_CREATION_STATUS.PENDING] ={};
+            appList[APPLICATION_CREATION_STATUS.FAULTY] ={};
+
+            for (var listKey in result){
+                var appInfo = convertAppInfoLightWeight(result[listKey]);
+                if (appInfo != null) {
+                    var creationStatus = (appInfo.applicationCreationStatus) ? (appInfo.applicationCreationStatus) :
+                                         APPLICATION_CREATION_STATUS.PENDING;
+                    appList[creationStatus][appInfo.key] = appInfo;
+                }
+            }
+            return appList;
+        } catch (e) {
+            log.error("Error while getting application of user" + e.message);
+            throw "Error while getting application of user" + e;
+        }finally{
+            context.endTenantFlow();
+        }
+        return result;
+    };
+
+    /**
+     * Get application keys of application which has {@code creationStatus}.
+     *
+     * @param creationStatus  APPLICATION_CREATION_STATUS.*
+     * @returns {Array} application keys
+     */
+    var getAppKeysFromUserHomeCache = function(creationStatus){
+        var userHomeData = getUserHomeDataFromCache();
+        var appKeys = new Array();
+        var statusAppList = userHomeData[creationStatus];
+        for (var appKey in statusAppList){
+            appKeys.push(appKey);
+        }
+        return appKeys;
+    };
+
+    /**
+     * Convert given {@code hashMap} to js object
+     *
+     * @param hashMap HashMap to be converted
+     * @param valuesAsStrings whether to convert values to string or not.
+     * @returns js Object with key value pairs
+     *  e.g {
+     *          appkey1:COMPLETED,
+     *          appKey2:PENDING
+     *      }
+     */
+    var convertHashMapToJsObject =function(hashMap,valuesAsStrings){
+        var jsObject = {};
+        if(hashMap && hashMap.entrySet() && hashMap.entrySet().toArray()) {
+            var entitySetArray = hashMap.entrySet().toArray();
+            for(var index in entitySetArray){
+                var entity=entitySetArray[index];
+                if(valuesAsStrings == true){
+                    jsObject[entity.getKey()] = entity.getValue().toString();
+                } else {
+                    jsObject[entity.getKey()] = entity.getValue()
+                }
+            }
+        }
+        return jsObject;
+    };
+
+    /**
+     * Get application creation status by application keys.
+     * @param  applicationKeys array of application keys
+     *
+     * @returns js Object with appkey-status as key value pairs
+     *  e.g {
+     *          appkey1:COMPLETED,
+     *          appKey2:PENDING
+     *      }
+     */
+    var getAppCreationStatusByKeys = function(applicationKeys){
+        var context=multitenancy.getPrivilegedCarbonContext();
+        var service = getApplicationInfoService(context);
+        try{
+            var resultHashMap = service.getAppCreationStatus(applicationKeys);
+            return convertHashMapToJsObject(resultHashMap,true);
+        } catch (e) {
+            var msg = "Error while retrieving app creation status for app keys: "+applicationKeys;
+            log.error(msg +" " + e.message);
+            throw msg+e;
+        }finally{
+            context.endTenantFlow();
+        }
+    };
+
+    /**
+     * Get ApplicationInfoService osgi service.
+     *
+     * @param context Privileged Carbon Context
+     * @returns service reference
+     */
+    var getApplicationInfoService = function(context){
+        try{
+            var tenantManager= multitenancy.getTenantManager();
+            var tenantDomain=modManager.getTenantDomain() ;
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
+            return server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
+        } catch(e) {
+            var msg = "Error while getting ApplicationInfoService";
+            log.error(msg +" " + e.message);
+            throw "Error occurred during the requested operation. Please try again after few seconds!";
+        }
+    };
+
+    /**
+     * Moves application represented by {@code appKey} from {@code currentStatus} to {@code newStatus}.
+     *
+     * @param appList user home data object
+     * @param currentStatus current status of the app
+     * @param newStatus new status of the app
+     * @param appKey application key.
+     * @returns {*} updated user home object
+     */
+    var moveApplicationFromCreationStatus = function(appList, currentStatus , newStatus, appKey){
+        if(!isEmpty(appList) && !isEmpty(appList[currentStatus]) && !isEmpty(appList[currentStatus][appKey])) {
+            if(isEmpty(appList[newStatus])){
+                appList[newStatus] = {};
+            }
+            appList[newStatus][appKey] = appList[currentStatus][appKey];
+            appList[newStatus][appKey][FIELD_APP_CREATION_STATUS] = newStatus;
+            delete appList[currentStatus][appKey];
+        }
+        return appList;
+    };
+
+    /**
+     * Check whether the {@code obj} is empty object({}) or not.
+     *
+     * @param obj
+     * @returns {boolean}
+     */
+    var isEmpty = function(obj){
+        if(!obj){       // if object is null
+            return true;
+        } else {
+            return (Object.getOwnPropertyNames(obj).length === 0);
+        }
+    };
+
     var getApplicationManagementService=function(){
         var carbon = require('carbon');
         var service;
@@ -349,7 +683,7 @@
 
 
         var tenantDomain = modManager.getTenantDomain();
-        var loggedInUser = session.get("LOGGED_IN_USER");
+        var loggedInUser = jagg.getUser();
         var userName = "";
         if (loggedInUser != null) {
             userName = loggedInUser.split("@")[0];
@@ -463,7 +797,11 @@
     {
         jagg.module("permission").checkUserAuthenticated();
         var allAppVersionArray = new Array();
-        var applicationList = getAllAppsOfUser(userName);
+        var applicationList = session.get("application_list");
+        if(applicationList == null) {
+            applicationList = mod.getAllAppsOfUser(userName);
+            session.put('application_list', applicationList);
+        }
         var allStages = getAllStages();
         var parsedStages = parse(allStages);
         var parsedArray = parse(applicationList);

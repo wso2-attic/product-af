@@ -307,11 +307,11 @@ public class RepositoryManagementService extends AbstractAdmin {
 
         GITBlitBasedGITRepositoryProvider repositoryProvider = new GITBlitBasedGITRepositoryProvider();
         repositoryProvider.setBaseUrl(AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL));
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL));
         repositoryProvider.setAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME));
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
         repositoryProvider.setAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD));
+                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD));
 
         String repoName = runtimeBean.getPaasRepositoryURLPattern().replace("{@stage}", "Development") +
                           File.separator + Integer.toString(tenantId) + "_" + userName;

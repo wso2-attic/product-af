@@ -54,7 +54,7 @@ public class JenkinsBuildStatusProvider implements BuildStatusProvider {
 		String url = null;
 		try {
 			url = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-					AppFactoryConstants.CONTINUOUS_INTEGRATION_PROVIDER_JENKINS_PROPERTY_BASE_URL);
+					AppFactoryConstants.JENKINS_PROPERTYBASE_URL);
 		} catch (AppFactoryException e) {
 			String msg = "Error occuered while calling the API";
 			throw new BuildStatusProviderException(msg);
