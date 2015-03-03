@@ -27,7 +27,6 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.appfactory.repository.provider.common.AbstractRepositoryProvider;
-import org.wso2.carbon.appfactory.tenant.mgt.beans.UserInfoBean;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -126,39 +125,7 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
     @Override
     public boolean deleteForkedRepository(String applicationKey, String userName, String tenantDomain) throws RepositoryMgtException {
 
-        //https://git.appfactory.private.wso2.com:8443/git/~manipiya1.com/devqa10/app1.git
-        //https://git.appfactory.private.wso2.com:8443/git/manipiya1.com/app1.git
-
-        UserInfoBean[] userList = new ApplicationUserManagementService().getUsersOftheApplication(applicationKey);
-
-        String repoName = "~/" + tenantDomain + "/" + userName +  "/" + applicationKey + ".git";
-        String repoUrl = config.getFirstProperty(BASE_URL);
-        String adminUsername = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_USERNAME);
-        String adminPassword = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_PASSWORD);
-        // Create the gftblit repository model
-        RepositoryModel model = new RepositoryModel();
-        model.name = repoName;
-        // authenticated users can clone, push and view the repository
-        model.accessRestriction = Constants.AccessRestrictionType.VIEW;
-        model.isBare = true; // TODO: temporaryly added for demo purpose, need
-        // to fixed with new gitblit
-        boolean isDeleted;
-        try {
-            RepositoryModel retrievedRepo =
-                    findRepository(model.name, repoUrl, adminUsername,
-                            adminPassword);
-            isDeleted =
-                    RpcUtils.deleteRepository(retrievedRepo, repoUrl, adminUsername,
-                            adminPassword.toCharArray());
-        } catch (IOException e) {
-            String msg =
-                    "Repository is not deleted for " + applicationKey + " due to " +
-                            e.getLocalizedMessage();
-            log.error(msg);
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new RepositoryMgtException(msg, e);
+        //TODO: Still discussing
         return false;
     }
 

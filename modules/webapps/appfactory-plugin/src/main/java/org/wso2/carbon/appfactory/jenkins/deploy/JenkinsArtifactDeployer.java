@@ -128,7 +128,6 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
             try {
                 //used for eventing
-                log.info("***************************repositoryFrom: " + repositoryFrom);
 	            if (!AppFactoryConstants.FORK_REPOSITORY.equals(repositoryFrom)) {
 		            String tenantDomain = getTenantDomain();
 		            String correlationKey = applicationId + stageName + version + tenantDomain;
@@ -139,7 +138,6 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 						                                                     correlationKey));
 		            super.deployLatestSuccessArtifact(parameters);
 	            }
-                super.deployLatestSuccessArtifact(parameters);
             } catch (AppFactoryException e) {
                 String msg = "deployment of latest success artifact failed for applicaion " + jobName;
                 handleException(msg, e);

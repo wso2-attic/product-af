@@ -90,6 +90,7 @@ public class RuntimeManager {
 
 		String runtimeName = config.get(AppFactoryConstants.RUNTIME);
 		RuntimeBean applicationRuntimeBean;
+
 		try {
 
 			applicationRuntimeBean = new RuntimeBean();
