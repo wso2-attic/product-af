@@ -36,20 +36,24 @@ public interface RepositoryProvider {
     /**
      * Delete a repository for a application key
      *
-     * @param applicationKey for the creating app
+     * @param applicationKey for the deleting app
      * @param tenantDomain   Tenant domain of application
      * @return delete repository result
-     * @throws RepositoryMgtException when repository creation fails
+     * @throws RepositoryMgtException when repository deletion fails
      */
     public boolean deleteRepository(String applicationKey, String tenantDomain) throws RepositoryMgtException;
+
+
     /**
-     * Return the repository url if exists or return null
+     * Delete a forked repository for a particular user in the application
      *
-     * @param applicationKey for the created app
-     * @param tenantDomain Tenant domain of the application
-     * @return repository url or null
-     * @throws RepositoryMgtException when getting repo URL
+     * @param applicationKey for the deleting app
+     * @param userName of the forked repo owner
+     * @param tenantDomain of the forked repo owner
+     * @return delete fork repository result
+     * @throws RepositoryMgtException when forked repository deletion fails
      */
+    public boolean deleteForkedRepository(String applicationKey, String userName, String tenantDomain) throws RepositoryMgtException;
 
     /**
      * Check whether a repository exists for application of the tenant
