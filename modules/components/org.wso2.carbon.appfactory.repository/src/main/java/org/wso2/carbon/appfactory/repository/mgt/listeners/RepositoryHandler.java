@@ -74,6 +74,9 @@ public class RepositoryHandler extends ApplicationEventsHandler {
         RepositoryProvider provider = Util.getRepositoryProvider(application.getRepositoryType());
         try {
             provider.deleteRepository(application.getId(), tenantDomain);
+
+            // if forks available, delete forked repos also
+            provider.deleteForkedRepository(application.getId(), userName, tenantDomain);
             log.info("Successfully deleted the repository of application : " + application.getId() +
                     " from tenant domain : " + tenantDomain);
         } catch (RepositoryMgtException e) {
