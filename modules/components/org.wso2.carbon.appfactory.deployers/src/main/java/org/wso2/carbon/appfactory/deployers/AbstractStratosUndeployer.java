@@ -20,16 +20,15 @@ package org.wso2.carbon.appfactory.deployers;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.Undeployer;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * This class is used to undeploy artifacts in Git repository.
@@ -43,11 +42,19 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
     /**
      * Undeploy the artifacts from stratos storage repository provider
      *
-     * @param parameters this map contains values related to artifact which is going to be undeployed. eg :
-     *                   application type, deployer type, stage, version, application id etc.
+     * @param deployerType
+     * @param applicationId
+     * @param applicationType
+     * @param version
+     * @param lifecycleStage
+     * @param applicationTypeBean
+     * @param runtimeBean
      * @throws AppFactoryException
      */
-    public abstract void undeployArtifact(Map<String, String[]> parameters) throws AppFactoryException;
+    public abstract void undeployArtifact(String deployerType, String applicationId,
+                                          String applicationType, String version, String lifecycleStage,
+                                          ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
+                                          throws AppFactoryException;
 
     public Collection getFilesToDelete(String applicationId, String version, String fileExtension,
                                        File applicationRootLocation) {
@@ -67,15 +74,16 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
                 getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
     }
 
-    /**
-     * Generates the repository url of the stratos storage repository provider based on the passed parameters.
+     /**
+     *Generates the repository url of the stratos storage repository provider based on the passed parameters.
      *
-     * @param parameters this map contains values related to artifact which is going to be undeployed. eg :
-     *                   application type, deployer type, stage, version, application id etc.
+     * @param runtimeBean
+     * @param applicationId
+     * @param stage
      * @return
      * @throws AppFactoryException
      */
-    public abstract String generateRepoUrl(Map parameters)
+    public abstract String generateRepoUrl(RuntimeBean runtimeBean, String applicationId, String stage)
             throws AppFactoryException;
 
     /**
