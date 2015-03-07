@@ -17,21 +17,29 @@
  */
 package org.wso2.carbon.appfactory.core;
 
-import java.util.Map;
-
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 
 /**
  * Interface is used to undeploy application artifacts
  */
 public interface Undeployer {
+
     /**
      * Undeploy artifacts for given parameters
      *
-     * @param parameters this map contains values related to artifact which is going to be undeployed. eg :
-     *                   application type, deployer type, stage, version, application id etc.
+     * @param deployerType
+     * @param applicationId
+     * @param applicationType
+     * @param version
+     * @param lifecycleStage
+     * @param applicationTypeBean
+     * @param runtimeBean
      * @throws AppFactoryException
      */
-    void undeployArtifact(Map<String, String[]> parameters) throws AppFactoryException;
+    void undeployArtifact(String deployerType, String applicationId,
+                          String applicationType, String version, String lifecycleStage,
+                          ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean) throws AppFactoryException;
 
 }

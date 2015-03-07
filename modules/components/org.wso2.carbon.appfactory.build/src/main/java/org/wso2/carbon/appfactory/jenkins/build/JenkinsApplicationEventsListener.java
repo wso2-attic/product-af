@@ -22,14 +22,19 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.Undeployer;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
+import org.wso2.carbon.appfactory.deployers.StratosUndeployer;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
@@ -129,20 +134,45 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     @Override
     public void onDeletion(Application application, String userName, String tenantDomain)
             throws AppFactoryException {
+
+        ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
+                .getApplicationTypeBean(application.getType());
+
+        if (applicationTypeBean == null) {
+            throw new AppFactoryException(
+                    "Application Type details cannot be found for Artifact Type : " +
+                            application.getType() + ", application id" + application.getId() +
+                            " for tenant domain: " + tenantDomain);
+        }
+
+        String runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
+        RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtimeNameForAppType);
+
+        if (runtimeBean == null) {
+            throw new AppFactoryException(
+                    "Runtime details cannot be found for Artifact Type : " + application.getType() + ", application id"+
+                            application.getId() + " for tenant domain: " + tenantDomain);
+        }
         Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
         String deployerType = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
                                                     .getProperty(AppFactoryConstants.DEPLOYER_TYPE).toString();
         JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
+        Undeployer undeployer = new StratosUndeployer();
+
+        //This has put to fix APPFAC-2853 issue. This has used to load the tenant in build server when build server has unload the tenant.
+        jenkinsCISystemDriver.isJobExists(application.getId(), "trunk", tenantDomain);
+
         for (Version version : versions) {
             String lifecycleStage = version.getLifecycleStage();
             String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
                     .getJobName(application.getId(), version.getId(), null);
+
             jenkinsCISystemDriver.deleteJob(application.getId(), version.getId(), tenantDomain);
+
             log.info("Successfully deleted the jenkins job : " + jobName +
-                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
-                     " from tenant domain : " + tenantDomain + " in jenkins");
-            RestBasedJenkinsCIConnector.getInstance().undeployArtifact(
-                    deployerType, jobName, application.getId(), application.getType(), version.getId(), lifecycleStage, tenantDomain);
+                    " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
+                    " from tenant domain : " + tenantDomain + " in jenkins");
+            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version.getId(), lifecycleStage, applicationTypeBean, runtimeBean);
             log.info("Successfully undeployed the artifact version : " + version.getId() +
                      " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                      " from tenant domain : " + tenantDomain + " from dep sync repo");
@@ -378,24 +408,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             jenkinsCISystemDriver.addUsersToApplication(application.getId(),
                     new String[]{forkedUser}, tenantDomain);
 
-
-            String perDeveloperAutoBuild = configuration.getFirstProperty("EnablePerDeveloperAutoBuild");
-            if (perDeveloperAutoBuild != null && perDeveloperAutoBuild.equals("true")) {
-
-                if (version == null || version.trim().equals("")) {
-                    Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-                    for (Version version2 : versions) {
-                        String stage = rxtManager.getStage(application.getId(), versions[0].getId(), tenantDomain);
-                        if (ArrayUtils.isNotEmpty(versions)) {
-                            jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getId(), true, stage, "", tenantDomain, userName, AppFactoryConstants.FORK_REPOSITORY);
-                        }
-                    }
-                } else {
-                    String stage = rxtManager.getStage(application.getId(), version, tenantDomain);
-                    jenkinsCISystemDriver.startBuild(application.getId(), version, true, stage, "", tenantDomain, userName, AppFactoryConstants.FORK_REPOSITORY);
-                }
-
-            }
+            //TO-DO give the user the ability to select auto build for a particular forked version
         }
 
     }

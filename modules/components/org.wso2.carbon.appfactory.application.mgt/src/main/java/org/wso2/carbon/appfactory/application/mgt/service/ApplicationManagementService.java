@@ -595,6 +595,11 @@ public class ApplicationManagementService extends AbstractAdmin {
 
         Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
         UserInfoBean[] userList = new ApplicationUserManagementService().getUsersOftheApplication(applicationId);
+
+//        for (UserInfoBean anUserList : userList) {
+//            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForUser(anUserList.getUserName().concat("@").concat(domainName));
+//        }
+
         ApplicationEventsHandler listener;
         while (appEventListeners.hasNext()) {
             listener = appEventListeners.next();

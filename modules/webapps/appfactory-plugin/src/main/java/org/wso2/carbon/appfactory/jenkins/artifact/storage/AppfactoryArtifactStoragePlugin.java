@@ -87,10 +87,6 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
                     className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME);
                     Deployer deployer = getDeployer(className, loader);
                     deployer.deployPromotedArtifact(map);
-                } else if (UNDEPLOY_ARTIFACT_ACTION.equals(action)) {
-                    className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME);
-                    Undeployer undeployer = getUndeployer(className, loader);
-                    undeployer.undeployArtifact(map);
                 } else {
                     rsp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     throw new ServletException("Invalid action");

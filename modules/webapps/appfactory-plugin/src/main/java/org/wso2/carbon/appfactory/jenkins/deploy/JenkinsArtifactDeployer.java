@@ -77,9 +77,8 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		String version = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_VERSION);
 		String serverDeploymentPath = DeployerUtil.getParameter(parameters, AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
 		log.info("Server deployment path is : " + serverDeploymentPath);
-
 		String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
-
+		String repositoryFrom = DeployerUtil.getParameter(parameters, AppFactoryConstants.REPOSITORY_FROM);
 		String path = getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
 		                                                   getTenantDomain(),jobName);
 
@@ -129,11 +128,16 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
             try {
                 //used for eventing
-                String tenantDomain = getTenantDomain();
-                String correlationKey = applicationId + stageName + version + tenantDomain;
-
-                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.buildApplicationDeployementStartedEvent(applicationId, tenantDomain, "Application deployment started", "", correlationKey));
-                super.deployLatestSuccessArtifact(parameters);
+	            if (!AppFactoryConstants.FORK_REPOSITORY.equals(repositoryFrom)) {
+		            String tenantDomain = getTenantDomain();
+		            String correlationKey = applicationId + stageName + version + tenantDomain;
+		            EventNotifier.getInstance().notify(
+				            ContinousIntegrationEventBuilderUtil
+						            .buildApplicationDeployementStartedEvent(applicationId, tenantDomain,
+						                                                     "Application deployment started", null,
+						                                                     correlationKey));
+		            super.deployLatestSuccessArtifact(parameters);
+	            }
             } catch (AppFactoryException e) {
                 String msg = "deployment of latest success artifact failed for applicaion " + jobName;
                 handleException(msg, e);
