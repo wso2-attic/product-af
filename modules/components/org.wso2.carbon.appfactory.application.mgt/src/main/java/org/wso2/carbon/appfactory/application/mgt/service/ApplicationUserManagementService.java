@@ -286,7 +286,7 @@ public class ApplicationUserManagementService {
 			Application[] apps = ApplicationManager.getInstance().getAllApplicaitonsOfUser(userName);
             long endTime = System.currentTimeMillis();
             if (perfLog.isDebugEnabled()) {
-                perfLog.debug("AFProfiling getApplicaitonsOfTheUser" + (endTime - startTime) );
+                perfLog.debug("AFProfiling getApplicaitonsOfTheUser :" + (endTime - startTime) );
             }
             return apps;
 		} catch (AppFactoryException e) {
