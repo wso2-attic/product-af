@@ -65,6 +65,7 @@ import java.util.List;
 public class ApplicationManagementService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(ApplicationManagementService.class);
+    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.appversion.load");
 
     public static String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
     public static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
@@ -794,6 +795,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
     public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
 
+        long startTime = System.currentTimeMillis();
         // Commenting out all App version cache related code
 
         // AppVersionCache cache = AppVersionCache.getAppVersionCache();
@@ -810,8 +812,9 @@ public class ApplicationManagementService extends AbstractAdmin {
                                                                                                    applicationId);
             artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
             // cache.addToCache(applicationId, artifacts);
-            if (log.isDebugEnabled()) {
-                log.debug("*** Added all versions to cache " + applicationId);
+            long endTime = System.currentTimeMillis();
+            if (perfLog.isDebugEnabled()) {
+                perfLog.debug("AFProfiling getAllVersionsOfApplication :" + (endTime - startTime) );
             }
             return artifacts;
         } catch (AppFactoryException e) {

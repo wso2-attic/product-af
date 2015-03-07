@@ -47,6 +47,8 @@ import java.util.Iterator;
 public class ApplicationUserManagementService {
     private static final Log log = LogFactory.getLog(ApplicationUserManagementService.class);
 
+    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.application.load");
+
     /**
      * get user info beans of the users of the Application
      * 
@@ -279,8 +281,13 @@ public class ApplicationUserManagementService {
 	 */
    public Application[] getApplicaitonsOfTheUser(String userName)
                                                                   throws ApplicationManagementException {
+        long startTime = System.currentTimeMillis();
 		try {
-			return ApplicationManager.getInstance().getAllApplicaitonsOfUser(userName);
+			Application[] apps = ApplicationManager.getInstance().getAllApplicaitonsOfUser(userName);
+            long endTime = System.currentTimeMillis();
+            if (perfLog.isDebugEnabled()) {
+                perfLog.debug("AFProfiling getApplicaitonsOfTheUser" + (endTime - startTime) );
+            }
 		} catch (AppFactoryException e) {
 			String message = "Failed to retrieve applications of the user" + userName;
 			log.error(message, e);
