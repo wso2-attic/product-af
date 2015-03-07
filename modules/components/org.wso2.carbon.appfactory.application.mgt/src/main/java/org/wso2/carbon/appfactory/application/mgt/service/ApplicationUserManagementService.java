@@ -288,6 +288,7 @@ public class ApplicationUserManagementService {
             if (perfLog.isDebugEnabled()) {
                 perfLog.debug("AFProfiling getApplicaitonsOfTheUser" + (endTime - startTime) );
             }
+            return apps;
 		} catch (AppFactoryException e) {
 			String message = "Failed to retrieve applications of the user" + userName;
 			log.error(message, e);
