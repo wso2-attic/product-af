@@ -39,7 +39,6 @@ jagg.block("resources/externalapi/add", {
 
 	   var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
 	   var hasDeleteResourcePermissions= hasUILevelResourceDeletePermission(applicationKey, currentStage);
-           var deleteButtonVisibility = isDeleteButtonVisible(currentStage);
 	   var helpTips = jagg.module("help").getHelpTips("add-extapis");
            return {
                "stages": deploymentStages,
@@ -47,7 +46,6 @@ jagg.block("resources/externalapi/add", {
            	   "hasUpdateResourcePermissions":isUpdatePermitted,
 		   "hasCreateResourcePermissions":hasCreateResourcePermissions,
 		   "hasDeleteResourcePermissions":hasDeleteResourcePermissions,
-               "isDeleteButtonVisible": deleteButtonVisibility,
 		   "helpTips":helpTips
            };
     }
