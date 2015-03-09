@@ -1,25 +1,22 @@
 ================================================================================
-                        WSO2 App Factory 1.0.0
+                        WSO2 App Factory 2.1.0
 ================================================================================
 
-Welcome to WSO2 AppFactory 1.0.0 release
+Welcome to WSO2 AppFactory 2.1.0 release
+
+About AppFactory
+=================================
+WSO2 App Factory is a multi-tenant, elastic and self-service enterprise platform that enables multiple project teams to collaboratively create, run and manage enterprise applications. Combining complete application lifecycle management and Platform-as-a-Service (PaaS) capabilities, WSO2 App Factory makes it possible to develop, test, deploy to production and retire applications with a single click. It also provides an easy way to discover and consume apps and APIs through a user-friendly storefront.
+
 
 Installation & Running
 ==================================
-
-1. Extract the wso2appfactory-1.0.0.zip and go to the bin folder in extracted directory
-2. Run the wso2server.sh or wso2server.bat as appropriate
-3. Point your favourite browser to
-
-    https://localhost:9443/carbon
-
-4. Use the following username and password to login
-
-    username : admin
-    password : admin
+1. The latest distribution is available to download at https://svn.wso2.org/repos/wso2/scratch/appfactorycc_tags/2.1.0-beta/packs/
+2. Puppet manifests for installing App Factory can be found at https://github.com/wso2/product-af/tree/2.1.0-Beta/modules/puppet-manifests
+3. Latest documentation is at https://docs.wso2.com/display/AF210/WSO2+App+Factory+Documentation
 
 
-WSO2 AppFactory 1.0.0 distribution directory structure
+WSO2 AppFactory 2.1.0 distribution directory structure
 =============================================
 
 	CARBON_HOME
