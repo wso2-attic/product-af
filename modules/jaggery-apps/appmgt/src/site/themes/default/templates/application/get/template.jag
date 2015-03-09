@@ -241,7 +241,7 @@ include("/jagg/constants.jag"); %>
    });
 
 function validateInputForAlphanumericAndSpaces(inputValue){
-	return !/[^a-zA-Z0-9\-\ /]/.test(inputValue);
+	return !/[^a-zA-Z0-9\-\.,'"":;_+=(){}\[\] /]/.test(inputValue);
 }
 /**
  * Set customer url as a spin icon
@@ -336,7 +336,7 @@ function validateIconImage(filename,fileSize) {
          break;
         }
 
-        if(fileSize > 5242880 && extStatus == true){
+        if(fileSize > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
             fileSizeStatus = false;
             jagg.message({
                    content: "Image file should be less than 5MB",
@@ -501,7 +501,7 @@ function setClipBoard(version){
                version:version
            }, function (result) {
                jagg.message({
-                   content: "The Deployment is underway. Please wait, this might take few minutes.",
+                   content: "The Deployment is underway. Please wait and refresh page after few minutes.",
                    type: 'success',
                    id:'notification'
                });

@@ -37,6 +37,9 @@ var appDetails = outputs.appDetails;
 var buildableStages = outputs.buildableStages;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var isCodeEditorSupported = outputs.isCodeEditorSupported;
+var autoDeployCheckBoxValue=null;
+var autoBuildCheckBoxValue=null;
+var appVersionId=null;
 %>
 <style>
 .popover_form input.branch-txt-width-fix {
@@ -113,7 +116,7 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
     function createCodeEnvyUrl(version,appType,gitURL,elementClassName){
 
         var codeEnvyUrl = null;
-
+        var newWindow = window.open('','_blank');
         jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
                 action: "createCodeEnvyUrl",
                 gitURL: gitURL,
@@ -130,7 +133,7 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
                         });
 
                     }else{
-                        window.open(codeEnvyUrl,'_blank');
+                         newWindow.location = codeEnvyUrl;
                     }
         });
        // return nonEncodedUrl;
@@ -150,7 +153,8 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
             version:version
         }, function (result) {
         	//drawForkedVersionsList();
-        	loadRepositories(null,null);
+        	//loadRepositories(null,null);
+		    updateForkedVersionList();
 		    drawVersion(applicationKey , selectedVersion);
 		    element.attr('disabled',false);
             //forcePageAppRefresh = true;
@@ -397,6 +401,8 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
                 if($next.is(":visible")){
                     $next.hide();
                 }else{
+                    $("#auto_deploy_"+appVersionId).attr('checked',autoDeployCheckBoxValue);
+ 		     $("#auto_build_"+appVersionId).attr('checked',autoBuildCheckBoxValue);
                     $next.show();
                 }
             });
@@ -817,12 +823,15 @@ $.cookie('selectedStage', selectedStage);
 
     function constructRow(element){
 	    var versionInfo = element.versions[0];
+	 autoDeployCheckBoxValue = versionInfo.isAutoDeploy;
+        autoBuildCheckBoxValue = versionInfo.isAutoBuild;
         var statusStyle="";
         var version=versionInfo.version;
         selectedAppVersion = version;
 	    var isBuildableArtifact = '<%= appDetails[0].isBuildable%>';
         var stage=versionInfo.stage;
         var versionForIds=version.replace(/\./g,'_');
+        appVersionId=versionForIds;
         var buildHidden="";
         var delpoyHidden="";
         var buildDeployHide="";
@@ -887,7 +896,7 @@ $.cookie('selectedStage', selectedStage);
         }
 
         var hiddenForkedBranch = 'style="display:none"' ;
-        if(enablePerDeveloperRepos === "true" && isAlreadyForked && isVersionAlreadyForked(versionInfo.version)){
+        if(enablePerDeveloperRepos === "true" && isAlreadyForked && !isVersionAlreadyForked(versionInfo.version)){
         	hiddenForkedBranch = "" ;
         }
 
@@ -962,7 +971,7 @@ $.cookie('selectedStage', selectedStage);
 		                                    '<label for="auto_deploy"><input id="auto_deploy_'+versionForIds+'" type="checkbox" name="auto_deploy" '+ isAutoDeploymentChecked+'/> Auto Deploy</label><br />'+
 		                                '</div>'+
 		                                '<div class="input_row">'+
-		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#" onClick="window.location.reload(true);">Cancel</a>'+
+		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#">Cancel</a>'+
 		                                '</div>'+
 		                            '</form>'+
 		                        '</div>'+
