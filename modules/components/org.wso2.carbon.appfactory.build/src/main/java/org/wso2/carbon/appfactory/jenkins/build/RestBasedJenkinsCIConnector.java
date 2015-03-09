@@ -119,7 +119,7 @@ public class RestBasedJenkinsCIConnector {
 		return restBasedJenkinsCIConnector;
 	}
 
-	/**
+    /**
 	 * Private constructor for singalton class
 	 * @throws AppFactoryException when reading from appfactory.xml
 	 */
