@@ -18,7 +18,7 @@ Prerequisite
         Select GET and POST in the resource section and click Implement. Hit Save.
         Under the Endpoint section in the next window provide the Production and Sandbox URLs and click Manage.
 
-        Produciton URL - http://weather.yahooapis.com/forecastrss?w=2442047&u=c
+        Production URL - http://weather.yahooapis.com/forecastrss?w=2442047&u=c
         Sandbox URL - http://weather.yahooapis.com/forecastrss?w=2502265
         
         Select Tier Availability as Unlimited and hit Save & Publish.
@@ -47,13 +47,13 @@ Steps for Sample
 6. Go to Runtime Configs --> APIs and click Go to API Manager.
 7. The API Manager's storefront opens in a separate window: https://apimanager.appfactory.private.wso2.com/store. It lists all APIs published to the store, 
    including  yahooweather 1.0.0 API you created and published earlier.
-8. Click the yahooweather-1.0.0 API to open its details. Select apiinvoker from Applications drop down and Subscribe. 
+8. Click the yahooweather-1.0.0 API to open its details. Select apiinvoker from Applications dropdown and Subscribe. 
 9. After subscribing, go to 'My Subscriptions'. You will get options to generate access keys. Generate keys for sandbox and production separately.    
 10. Refresh App Factory Runtime Configs --> APIs and hit 'Sync Keys' button. The generated keys will be appeared in the UI based on user's permissions.
 11. Select the Repos and Builds tab. Build and Deploy APIInvoker application in the development environment by simply clicking the relevant buttons in the UI screen.
 
-    API Manager Url must be HTTP: http://apimanager.appfactory.private.wso2.com
-    End point Url of the Yahoo Weather API: http://apimanager.appfactory.private.wso2.com:8280/yahooweather/1.0.0
+    API Manager Url must be HTTP: http://apimanager.appfactory.private.wso2.com:9769
+    End point Url of the Yahoo Weather API: http://gateway.apimanager.appfactory.private.wso2.com:8286/t/samples.com/yahooweather/1.0.0
     Username & Password of the logged user
 
 12. Submit the details to receive response with weather information printed as an XML file.
