@@ -32,7 +32,7 @@ include("/jagg/constants.jag"); %>
     var hasCXOPermissionOnApps = permissionMod.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
     var isTenantAdmin = permissionMod.hasTenantLevelUserMgtPermission();
     var appDomain = getProperty(DOMAIN_NAME);
-    var isUploadableApp = request.getParameter("isUploadableApp");
+    var isUploadableApp = outputs.isUploadableAppType;
     var helpTips = outputs.helpTips;
     var executionType = outputs.executionType;
     var isAllowDomainMapping = outputs.isAllowDomainMapping;

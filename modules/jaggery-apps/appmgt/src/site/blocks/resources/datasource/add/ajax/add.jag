@@ -150,7 +150,7 @@ var loggedInUser = jagg.getUser();
     	var driverName=request.getParameter("driverName");
     	var dbUsername= request.getParameter("dbUsername");
     	var dbPassword= request.getParameter("dbPassword");
-	var isEdit = request.getparameter("isEdit");
+	    var isEdit = request.getParameter("isEdit");
         var hasDatasourceUpdatePermission =  PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage;
         if (hasDatasourceUpdatePermission) {
             try {

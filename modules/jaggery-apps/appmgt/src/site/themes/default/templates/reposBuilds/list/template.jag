@@ -19,51 +19,51 @@
 jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
 <%
-include("/jagg/config_reader.jag");
-var baseURL = getProperty(BASE_URL);
-var gitBaseUrl = getProperty(GIT_BASE_URL);
-var appDomain = getProperty("DomainName");
-var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
-var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
-var loggedInUser = jagg.getUser();
-var gitURL = null;
-var gitURLForked = null ;
-var applicationKey = request.getParameter("applicationKey");
-var applicationName = request.getParameter("applicationName");
-var mod = jagg.module("manager");
-var tenantDomain = mod.getTenantDomain();
-var allStages = getProperties(DEPLOYMENT_STAGES);
-var appDetails = outputs.appDetails;
-var buildableStages = outputs.buildableStages;
-var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
-var isCodeEditorSupported = outputs.isCodeEditorSupported;
-var autoDeployCheckBoxValue=null;
-var autoBuildCheckBoxValue=null;
-var appVersionId=null;
-%>
-<style>
-.popover_form input.branch-txt-width-fix {
-	width: 240px;
-}
-#select2-drop-mask{display:none !important;}
-#d_clip_button {
-	text-align: center;
-	border: 1px solid black;
-	background-color: #ccc;
-	margin: 10px;
-	padding: 10px;
-}
+    include("/jagg/config_reader.jag");
+    var baseURL = getProperty(BASE_URL);
+    var gitBaseUrl = getProperty(GIT_BASE_URL);
+    var appDomain = getProperty("DomainName");
+    var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
+    var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
+    var loggedInUser = jagg.getUser();
+    var gitURL = null;
+    var gitURLForked = null ;
+    var applicationKey = request.getParameter("applicationKey");
+    var applicationName = request.getParameter("applicationName");
+    var mod = jagg.module("manager");
+    var tenantDomain = mod.getTenantDomain();
+    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var appDetails = outputs.appDetails;
+    var buildableStages = outputs.buildableStages;
+    var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+    var isCodeEditorSupported = outputs.isCodeEditorSupported;
+    var autoDeployCheckBoxValue=null;
+    var autoBuildCheckBoxValue=null;
+    var appVersionId=null;
+    %>
+    <style>
+    .popover_form input.branch-txt-width-fix {
+        width: 240px;
+    }
+    #select2-drop-mask{display:none !important;}
+    #d_clip_button {
+        text-align: center;
+        border: 1px solid black;
+        background-color: #ccc;
+        margin: 10px;
+        padding: 10px;
+    }
 
-#d_clip_button.zeroclipboard-is-hover {
-	background-color: #eee;
-}
+    #d_clip_button.zeroclipboard-is-hover {
+        background-color: #eee;
+    }
 
-#d_clip_button.zeroclipboard-is-active {
-	background-color: #aaa;
-}
-</style>
+    #d_clip_button.zeroclipboard-is-active {
+        background-color: #aaa;
+    }
+    </style>
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
     //[cdata[
     var registerPopRemover = function(){
@@ -398,11 +398,18 @@ var appVersionId=null;
             $('.js_build_option').click(function(event){
                 $(this).toggleClass("active");
                 var $next = $(this).next();
+                var autoBuild, autoDeploy = false;
                 if($next.is(":visible")){
                     $next.hide();
-                }else{
-                    $("#auto_deploy_"+appVersionId).attr('checked',autoDeployCheckBoxValue);
- 		     $("#auto_build_"+appVersionId).attr('checked',autoBuildCheckBoxValue);
+                } else{
+                    if(autoDeployCheckBoxValue == 'true'){
+                        autoDeploy = true;
+                    }
+                    if(autoBuildCheckBoxValue == 'true'){
+                        autoBuild = true;
+                    }
+                    $("#auto_deploy_"+appVersionId).attr('checked',autoDeploy);
+ 		            $("#auto_build_"+appVersionId).attr('checked',autoBuild);
                     $next.show();
                 }
             });
@@ -823,7 +830,7 @@ $.cookie('selectedStage', selectedStage);
 
     function constructRow(element){
 	    var versionInfo = element.versions[0];
-	 autoDeployCheckBoxValue = versionInfo.isAutoDeploy;
+	 	autoDeployCheckBoxValue = versionInfo.isAutoDeploy;
         autoBuildCheckBoxValue = versionInfo.isAutoBuild;
         var statusStyle="";
         var version=versionInfo.version;

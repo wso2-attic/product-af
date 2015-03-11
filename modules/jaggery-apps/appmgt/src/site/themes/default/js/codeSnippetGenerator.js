@@ -251,11 +251,12 @@ var getShCodeForBuildAndRepo = function(applicationKey, name,details){
     var commands =  '<pre class="clipboard">#Git commands to get the diff from forked repository against master</br>'+
         'git clone ' + gitURL +' </br>'+
         'Go to ' + applicationKey + ' folder</br>'+
+        'git checkout ' + appVersion + ' </br>'+
         'git remote add -f b ' + gitURLForked + '</br>'+
-        'git diff origin/' + appVersion + ' remotes/b/' + appVersion + ' > ' + applicationKey + '.diff</br>' +
+        'git diff origin/' + appVersion + ' remotes/b/' + appVersion + ' > /tmp/' + applicationKey + '.diff</br>' +
         '<p></p>'+
         '#Apply the diff</br>'+
-        'git apply ' + applicationKey +'.diff</br>'+
+        'git apply /tmp/' + applicationKey +'.diff</br>'+
         'git add * </br>'+
         'git commit -m ""</br>'+
         'git push</br>' +

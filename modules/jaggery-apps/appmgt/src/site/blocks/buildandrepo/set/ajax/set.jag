@@ -79,11 +79,11 @@ include("/jagg/config_reader.jag");
         var authorizedUsersToOwnForkedRepos = [];
 
         for(var i =0 ; i< tenantAwareUserNameArray.length ; i++){
-       		//Adding autherized user from the user list to new array.
+       		//Adding authorized user from the user list to new array.
               authorizedUsersToOwnForkedRepos.push(tenantAwareUserNameArray[i]);
         }
         var response = {};
-        //Check the permission for current logged in user whether he is already autherized to do this fork request or not
+        //Check the permission for current logged in user whether he is already authorized to do this fork request or not
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_DEVELOP) && authorizedUsersToOwnForkedRepos.length != 0){
             try {
                 return mod.createFork(applicationKey, authorizedUsersToOwnForkedRepos, type,version);

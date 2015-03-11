@@ -28,6 +28,7 @@ var modApplication = jagg.module("application");
 var modManager = jagg.module("manager");
 //var modResource = jagg.module("resource");
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.GovernanceEventBuilderUtil;
+var CtsIntegrationEventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 
 var carbon = require('carbon');
@@ -36,7 +37,7 @@ var appfactory = require('appFactory');
 var multitenancy = carbon.multitenancy;
 
 var invokeCreateArtifact = function invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName, repofrom) {
-	
+
     var tenantDomain = modManager.getTenantDomain();
     var loggedInUser = jagg.getUser();
     var userName = "";
@@ -211,7 +212,7 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
         context.startTenantFlow();
         context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        
+
         var key = 'appversion';
         var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
                 '<appversion>' +
@@ -227,8 +228,8 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
         addGenericArtifact(key, content, lifecycleAttribute);
 
         doBranchResult = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
-        branch(applicationKey, srcVersion, targetVersion, "HEAD", tenantDomain);
-                                
+                branch(applicationKey, srcVersion, targetVersion, "HEAD", tenantDomain);
+
         //Finally notify application management service about the version addition.
         var publishVersionAddEvent = new ws.WSRequest();
         var publishVersionAddOptions = new Array();
@@ -333,22 +334,26 @@ in
     return checkListItem;
 };
 
-function getCheckItemsByPath(path){
+function getCheckItemsByPath(path) {
 
     var result = getLifeCycleBean(path);
-    var elements  = result.*::["return"].*::["lifecycleProperties"];
+    var elements = result.*::["return"].*::["lifecycleProperties"];
 
     var lifeCycleCheckListItems = new Array();
     var k = 0;
 
-    for each(var ele in elements){
+    for each(var ele
+in
+    elements
+)
+    {
         var key = ele.*::key;
         var keyValue = key.text();
 
         if (keyValue.indexOf("registry.custom_lifecycle.checklist.option") != -1 &&
                 keyValue.indexOf("permission") < 0) { // we don't want
-														// to permission
-														// property
+            // to permission
+            // property
             var values = ele.*::values;
             lifeCycleCheckListItems[k++] = createLifeCycleCheckListItem(ele);
         }
@@ -361,10 +366,10 @@ function getCheckItemsByPath(path){
     return lifeCycleCheckListItems;
 }
 
-function getCheckItemsByPathWithSleep(path){
-	var thread = Packages.java.lang.Thread;
-	thread.sleep(5000);
-	return getCheckItemsByPath(path);
+function getCheckItemsByPathWithSleep(path) {
+    var thread = Packages.java.lang.Thread;
+    thread.sleep(5000);
+    return getCheckItemsByPath(path);
 }
 
 function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
@@ -560,7 +565,7 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
             '<p:aspect>' + aspect + '</p:aspect>' +
             '<p:deployAction>' + deployAction + '</p:deployAction>' +
             '<p:checkListItems>' + checkListItems + '</p:checkListItems>' +
-            '<p:userName>' + userName + '</p:userName>' ;
+            '<p:userName>' + userName + '</p:userName>';
 
     if (params.length > 0) {
 //for (var index=0;index<params.length;index++) {
@@ -604,13 +609,13 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
 
         //Sending app promote started messages to wall
 
-        var notificationTitle = version + " "+notificationAction+" from " + currentStage + toStageString + ".";
+        var notificationTitle = version + " " + notificationAction + " from " + currentStage + toStageString + ".";
         var notificationDescription = "";
 
-        try{
-        	var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, notificationDescription , "INFO");
+        try {
+            var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, notificationDescription, "INFO");
         } catch (e) {
-        	  log.error("Error while sending notification \n" + e.message);
+            log.error("Error while sending notification \n" + e.message);
         }
 
         if (log.isDebugEnabled()) {
@@ -619,11 +624,11 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
     } catch (e) {
         //Sending app promote failure messages to wall
 
-        var notificationTitle =  version + " "+notificationAction+" from " + currentStage + toStageString + " failed.";
-        try{
-        	var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, e.messages, "ERROR");
+        var notificationTitle = version + " " + notificationAction + " from " + currentStage + toStageString + " failed.";
+        try {
+            var eventBuilderInstance = EventBuilder.invokePromoteEvents(applicationID, userName, notificationTitle, e.messages, "ERROR");
         } catch (e) {
-      	  log.error("Error while sending notification \n" + e.message);
+            log.error("Error while sending notification \n" + e.message);
         }
 
         log.error("Error while deploying to " + currentStage + "\n" + e.message);
@@ -637,11 +642,11 @@ var setAutoDeployment = function setAutoDeployment(applicationKey, stageName, pr
             previousVersion + "next version: " + nextVersion);
     var adVersionChangePayload =
             '<ser:publishApplicationAutoDeploymentChange xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
-                    '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
-                    '<ser:previousVersion>' + previousVersion + '</ser:previousVersion>' +
-                    '<ser:nextVersion>' + nextVersion + '</ser:nextVersion>' +
-                    '<ser:versionStage>' + stageName + '</ser:versionStage>' +
-                    '</ser:publishApplicationAutoDeploymentChange>';
+            '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
+            '<ser:previousVersion>' + previousVersion + '</ser:previousVersion>' +
+            '<ser:nextVersion>' + nextVersion + '</ser:nextVersion>' +
+            '<ser:versionStage>' + stageName + '</ser:versionStage>' +
+            '</ser:publishApplicationAutoDeploymentChange>';
 
 
     var key = 'appversion';
@@ -766,7 +771,7 @@ var getInitialLifeCycleStages = function getInitialLifeCycleStages() {
 };
 
 var getAllLifeCycleStages = function getAllLifeCycleStages() {
-     return  getProperties(DEPLOYMENT_STAGES);
+    return  getProperties(DEPLOYMENT_STAGES);
 };
 
 
@@ -789,22 +794,22 @@ var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, versio
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         context.getThreadLocalCarbonContext().setUsername(userName);
         log.debug("Updating auto build status. \n Application key: " + applicationKey + " stage: " + stageName + " version: " + version + " isEnable: " + isEnable);
-        
-        var isBuild = (isEnable == "true" || isEnable == 'true') ? true:false;
+
+        var isBuild = (isEnable == "true" || isEnable == 'true') ? true : false;
         try {
             server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').publishSetApplicationAutoBuild(applicationKey, stageName, version, isBuild);
-            try{
-                var notificationTitle  = "Auto build is " + isBuild + " for version " + version;
-                var eventBuilderInstance = EventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "INFO");
+            try {
+                var notificationTitle = "Auto build is " + isBuild + " for version " + version;
+                var eventBuilderInstance = CtsIntegrationEventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
                 log.error("Error while sending notification \n" + e.message);
             }
             return "true";
         } catch (e) {
-            try{
-                var notificationTitle  = "Changing auto build status for version " + version + " failed";
-                var eventBuilderInstance = EventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "ERROR");
+            try {
+                var notificationTitle = "Changing auto build status for version " + version + " failed";
+                var eventBuilderInstance = CtsIntegrationEventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
                 log.error("Error while sending notification \n" + e.message);
@@ -833,21 +838,21 @@ var updateAutoDeployment = function updateAutoDeployment(applicationKey, stageNa
         context.getThreadLocalCarbonContext().setUsername(userName);
         log.debug(" updating auto deploy status. application key: " + applicationKey + " stage: " + stageName + " version: "
                 + version + " isEnable: " + isEnable);
-        var isDeploy = (isEnable == "true" || isEnable == 'true') ? true:false;
+        var isDeploy = (isEnable == "true" || isEnable == 'true') ? true : false;
         try {
             server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').publishSetApplicationAutoDeploy(applicationKey, stageName, version, isDeploy);
-            try{
-                var notificationTitle  = "Auto deploy is " + isDeploy + " for version " + version;
-                var eventBuilderInstance = EventBuilder.autoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "INFO");
+            try {
+                var notificationTitle = "Auto deploy is " + isDeploy + " for version " + version;
+                var eventBuilderInstance = CtsIntegrationEventBuilder.autoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "INFO");
                 EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
                 log.error("Error while sending notification \n" + e.message);
             }
             return "true";
         } catch (e) {
-            try{
-                var notificationTitle  = "Changing auto deploy status for version " + version + " failed";
-                var eventBuilderInstance = EventBuilder.createAutoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "" , "ERROR");
+            try {
+                var notificationTitle = "Changing auto deploy status for version " + version + " failed";
+                var eventBuilderInstance = CtsIntegrationEventBuilder.createAutoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
                 log.error("Error while sending notification \n" + e.message);
@@ -869,7 +874,10 @@ function getLifecycleAction(path) {
     var actions = availableActions.actionNamespace::["actions"];
     var lifecycleActions = new Array();
     var k = 0;
-    for each(var action in actions)
+    for each(var action
+in
+    actions
+)
     {
         var value = action.text();
         lifecycleActions[k++] = value;
