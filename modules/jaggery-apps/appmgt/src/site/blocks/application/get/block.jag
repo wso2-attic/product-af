@@ -58,7 +58,7 @@ jagg.block("application/get", {
 		var executionType = mod.getApplicationTypeBean(applicationType).getExecutionType();
 		var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
 		var hasAppCreationPermission = jagg.module("permission").hasAppCreationPermission();
-		var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+		var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
 
     	return {
 			"tenantDomain": tenantDomain,
