@@ -134,8 +134,8 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		            EventNotifier.getInstance().notify(
 				            ContinousIntegrationEventBuilderUtil
 						            .buildApplicationDeployementStartedEvent(applicationId, tenantDomain,
-						                                                     "Application deployment started", null,
-						                                                     correlationKey));
+						                "Application deployment started for " + version + " of " + repositoryFrom +
+                                                " repo" , null, correlationKey));
 		            super.deployLatestSuccessArtifact(parameters);
 	            }
             } catch (AppFactoryException e) {
@@ -152,7 +152,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	/**
 	 * This method is used to build the specified job
 	 * build parameters are set in such a way that it does not execute any post build actions
-	 * 
+	 *
 	 * @param jobName
 	 *            job that we need to build
 	 * @param buildUrl
@@ -347,7 +347,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	}
 
 	public void deployTaggedArtifact(Map<String, String[]> requestParameters) throws Exception {
-		
+
 
 	}
 
