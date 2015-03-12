@@ -135,9 +135,9 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 				            ContinousIntegrationEventBuilderUtil
 						            .buildApplicationDeployementStartedEvent(applicationId, tenantDomain,
 						                "Application deployment started for " + version + " of " + repositoryFrom +
-                                                " repo" , null, correlationKey));
-		            super.deployLatestSuccessArtifact(parameters);
+                                                " repo" , null, correlationKey)); 
 	            }
+                    super.deployLatestSuccessArtifact(parameters);
             } catch (AppFactoryException e) {
                 String msg = "deployment of latest success artifact failed for applicaion " + jobName;
                 handleException(msg, e);
