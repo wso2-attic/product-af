@@ -51,12 +51,7 @@ var invokeCreateArtifact = function invokeCreateArtifact(applicationKey, version
         context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         context.getThreadLocalCarbonContext().setUsername(userName);
-        if (doDeploy == "true") {
-            server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(true), stage, tagName, repofrom);
-        }
-        else {
-            server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(false), stage, tagName, repofrom);
-        }
+        server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(false), stage, tagName, repofrom);
     } finally {
         context.endTenantFlow();
     }
