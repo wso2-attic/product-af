@@ -21,12 +21,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
+import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
-import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 
 import java.util.ArrayList;
@@ -46,35 +46,33 @@ public class ApplicationInfoService {
      * Get the application information bean of the application
      * 
      * @param applicationKey
-     * @param tenantDomain
      * @return
      * @throws AppFactoryException
      */
-    private ApplicationInfoBean getBasicApplicationInfo(String applicationKey, String tenantDomain)
-                                                                                                   throws AppFactoryException {
+    private Application getBasicApplicationInfo(String applicationKey) throws AppFactoryException {
         Application application = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
-        return new ApplicationInfoBean(application);
+        return application;
     }
 
     /**
      * Gets application information of the user to populate the user home
-     * 
+     *
      * @param userName
      * @return
-     * @throws ApplicationManagementException  
+     * @throws ApplicationManagementException
      */
-    public ApplicationInfoBean[] getApplicationInfoForUser(String userName)
+    public Application[] getApplicationInfoForUser(String userName)
                                                                            throws ApplicationManagementException {
         ApplicationUserManagementService applicationUserManagementService =
                                                                             new ApplicationUserManagementService();
         String[] applicationKeys =
                                    applicationUserManagementService.getApplicationKeysOfUser(userName);
         String tenantDomain = getTenantDomain();
-        List<ApplicationInfoBean> appInfoList = new ArrayList<ApplicationInfoBean>();
+        List<Application> appInfoList = new ArrayList<Application>();
         for (String applicationKey : applicationKeys) {
             try {
-                ApplicationInfoBean appInfo = getBasicApplicationInfo(applicationKey, tenantDomain);
-                appInfoList.add(appInfo);
+                Application application = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
+                appInfoList.add(application);
             } catch (AppFactoryException e) {
                 String msg =
                              "Error while getting application info for user " + userName +
@@ -82,7 +80,7 @@ public class ApplicationInfoService {
                 log.error(msg, e);
             }
         }
-        return appInfoList.toArray(new ApplicationInfoBean[appInfoList.size()]);
+        return appInfoList.toArray(new Application[appInfoList.size()]);
     }
 
     /**
@@ -128,6 +126,41 @@ public class ApplicationInfoService {
 
     private String getTenantDomain() {
         return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    }
+
+    /**
+     * Gets application information of the user to populate the user home
+     *
+     * @param userName
+     * @return
+     * @throws ApplicationManagementException
+     */
+    public ApplicationSummary[] getApplicationSummaryForUser(String userName)
+            throws ApplicationManagementException {
+
+        ApplicationUserManagementService applicationUserManagementService =
+                new ApplicationUserManagementService();
+        String[] applicationKeys =
+                applicationUserManagementService.getApplicationKeysOfUser(userName);
+        String tenantDomain = getTenantDomain();
+        List<ApplicationSummary> appInfoList = new ArrayList<ApplicationSummary>();
+        for (String applicationKey : applicationKeys) {
+            try {
+                ApplicationSummary applicationSummary =
+                      ApplicationManager.getInstance().getSummarizedApplicationInfo(applicationKey);
+                appInfoList.add(applicationSummary);
+            } catch (AppFactoryException e) {
+                String msg =
+                        "Error while getting application summary info for user " + userName +
+                        " of tenant" + tenantDomain;
+                log.error(msg, e);
+            }
+        }
+        if (ApplicationsOfUserCache.getApplicationsOfUserCache().
+                isUserInvitedToApplication(userName)) {
+            ApplicationsOfUserCache.getApplicationsOfUserCache().clearCacheForUserName(userName);
+        }
+        return appInfoList.toArray(new ApplicationSummary[appInfoList.size()]);
     }
 
 }

@@ -26,6 +26,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
@@ -111,8 +112,11 @@ public class ApplicationUserManagementService {
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
                     applicationEventsListener.onUserAddition(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
-
                 }
+            }
+
+            for (String userName:userNames){
+                ApplicationsOfUserCache.getApplicationsOfUserCache().addToCache(userName+ "@" + tenantDomain, true);
             }
 
             //Notify to App wall

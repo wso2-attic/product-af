@@ -19,11 +19,13 @@ package org.wso2.carbon.appfactory.core.dto;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.util.Constants;
 
+import java.io.Serializable;
+
 /**
  * Holds information about an Application. Refer
  * {@link ApplicationEventsHandler} for usage.
  */
-public class Application {
+public class Application implements Serializable {
 
 	/**
 	 * Name of the application
@@ -218,4 +220,35 @@ public class Application {
     public void setApplicationCreationStatus(Constants.ApplicationCreationStatus applicationCreationStatus) {
         this.applicationCreationStatus = applicationCreationStatus;
     }
+
+    @Override
+    public String toString() {
+        return " [Application key : " + getId() + "] ";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Application appObject = (Application) obj;
+        return this.getId() != null &&
+                this.getId().equals(appObject.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result =
+                prime * result +
+                        ((this.id == null) ? 0 : this.id.hashCode());
+
+        return result;
+    }
+
 }
