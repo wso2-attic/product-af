@@ -48,8 +48,6 @@ import java.util.Iterator;
 public class ApplicationUserManagementService {
     private static final Log log = LogFactory.getLog(ApplicationUserManagementService.class);
 
-    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.application.load");
-
     /**
      * get user info beans of the users of the Application
      * 
@@ -116,7 +114,7 @@ public class ApplicationUserManagementService {
             }
 
             for (String userName:userNames){
-                ApplicationsOfUserCache.getApplicationsOfUserCache().addToCache(userName+ "@" + tenantDomain, true);
+                ApplicationsOfUserCache.getApplicationsOfUserCache().addToCache(userName, true);
             }
 
             //Notify to App wall
@@ -275,77 +273,4 @@ public class ApplicationUserManagementService {
             throw new ApplicationManagementException(message, e);
         }
     }
-
-	/**
-	 * Returns the list of applications that user belongs to
-	 * 
-	 * @param userName
-	 * @return <b>Application</b> Array
-	 * @throws ApplicationManagementException
-	 */
-   public Application[] getApplicaitonsOfTheUser(String userName)
-                                                                  throws ApplicationManagementException {
-        long startTime = System.currentTimeMillis();
-		try {
-			Application[] apps = ApplicationManager.getInstance().getAllApplicaitonsOfUser(userName);
-            long endTime = System.currentTimeMillis();
-            if (perfLog.isDebugEnabled()) {
-                perfLog.debug("AFProfiling getApplicaitonsOfTheUser :" + (endTime - startTime) );
-            }
-            return apps;
-		} catch (AppFactoryException e) {
-			String message = "Failed to retrieve applications of the user" + userName;
-			log.error(message, e);
-			throw new ApplicationManagementException(message, e);
-		}
-    }
-   
-   /**
-    * Lightweight method to get application keys of the applications of user 
-    * @param userName 
-    * @return String array of applicaiton keys 
-    * @throws ApplicationManagementException
-    */
-    public String[] getApplicationKeysOfUser(String userName) throws ApplicationManagementException {
-        CarbonContext context = CarbonContext.getThreadLocalCarbonContext();
-        ArrayList<String> applications = new ArrayList<String>();
-        try {
-            String[] roles =
-                             context.getUserRealm().getUserStoreManager()
-                                    .getRoleListOfUser(userName);
-            for (String role : roles) {
-                if (AppFactoryUtil.isAppRole(role)) {
-                    try {
-                        String appkeyFromPerAppRoleName = AppFactoryUtil.getAppkeyFromPerAppRoleName(role);
-                        applications.add(appkeyFromPerAppRoleName);
-                    } catch (AppFactoryException e) {
-                        // ignore exception here because isAppRole check avoids this exception being thrown..
-                    }
-                }
-            }
-            return applications.toArray(new String[applications.size()]);
-        } catch (UserStoreException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message,e);
-            throw new ApplicationManagementException(message, e);
-        }
-
-    }
-
-    /**
-     * Returns all the applications created by a particular user.
-     *
-     * @param userName user name of the user with domain eg: user@tenant.com
-     * @return <Application> array
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicationsCreatedByUser(String userName) throws ApplicationManagementException {
-        try {
-            return ApplicationManager.getInstance().getAllApplicationsCreatedByUser(userName);
-        } catch (AppFactoryException e) {
-            throw new ApplicationManagementException("Failed to retrieve applications created by the user" +
-                                                     userName, e);
-        }
-    }
-
 }
