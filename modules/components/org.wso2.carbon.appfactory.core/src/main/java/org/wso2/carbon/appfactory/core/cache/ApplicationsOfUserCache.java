@@ -31,54 +31,35 @@ import javax.cache.Caching;
  */
 public class ApplicationsOfUserCache {
 
-    private static ApplicationsOfUserCache appsOfUserCache;
+    private static ApplicationsOfUserCache appsOfUserCache = new ApplicationsOfUserCache();
     private Cache<String,Boolean> newlyInvitedUserCache;
     private ApplicationsOfUserCache() {
-        CacheManager appCacheManager= Caching.getCacheManager(AppFactoryConstants.APPS_OF_USER_CACHE_MANAGER);
-        newlyInvitedUserCache=appCacheManager.getCache(AppFactoryConstants.APPS_OF_USER_CACHE);
+        CacheManager appCacheManager = Caching.getCacheManager(AppFactoryConstants.APPS_OF_USER_CACHE_MANAGER);
+        newlyInvitedUserCache = appCacheManager.getCache(AppFactoryConstants.APPS_OF_USER_CACHE);
     }
 
+    /**
+     * Retrieve the cache
+     * @return appsOfUserCache instance
+     */
     public static ApplicationsOfUserCache getApplicationsOfUserCache() {
-         if(appsOfUserCache == null){
-             appsOfUserCache = new ApplicationsOfUserCache();
-         }
-
         return appsOfUserCache;
     }
 
     public void addToCache(String userName, boolean isUserInvitedToApplication) {
-        if(isCacheNull()){
-            return;
-        }
         newlyInvitedUserCache.put(userName,isUserInvitedToApplication);
     }
 
     public boolean isUserInvitedToApplication(String userName) {
-        if(isCacheNull()){
-            return false;
-        }
-
-        if(newlyInvitedUserCache.get(userName) instanceof Boolean){
+        if(Boolean.TRUE.equals(newlyInvitedUserCache.get(userName))){
            return true;
         }
         return false;
     }
 
-    //Improve this method to clear cache for app Id
     public void clearCacheForUserName(String userName) {
-        if(isCacheNull()){
-            return;
-        }
-        if(newlyInvitedUserCache.get(userName) instanceof Boolean){
+        if(Boolean.TRUE.equals(newlyInvitedUserCache.get(userName))){
             newlyInvitedUserCache.remove(userName);
         }
     }
-
-    private boolean isCacheNull(){
-        if(this.newlyInvitedUserCache == null){
-            return true;
-        }
-        return false;
-    }
-
 }

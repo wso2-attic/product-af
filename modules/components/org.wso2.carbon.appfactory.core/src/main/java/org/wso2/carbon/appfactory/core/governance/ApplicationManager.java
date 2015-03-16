@@ -39,6 +39,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is repsonsbile of handling applications. 
@@ -222,43 +223,47 @@ public class ApplicationManager {
 
     /**
      * Method to retieve application
-     * @param applicationId - Applicaiton ID
+     * @param applicationKeys - Applicaiton ID array
      * @return Information object or null if application by the id is not in registry
      * @throws AppFactoryException
      */
-    private ApplicationSummary getApplicationSummary(String applicationId,
+    private List<ApplicationSummary> getApplicationSummary(String[] applicationKeys,
                                        GenericArtifactManager artifactManager,
                                        UserRegistry userRegistry) throws AppFactoryException {
-        String path =
-                AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" + applicationId + "/" +
-                        "appinfo";
-
         if (log.isDebugEnabled()) {
             log.debug("Username for registry :" + userRegistry.getUserName() + " Tenant ID : " +
-                    userRegistry.getTenantId());
+                      userRegistry.getTenantId());
             log.debug("Username from carbon context :" +
-                    CarbonContext.getThreadLocalCarbonContext().getUsername());
+                      CarbonContext.getThreadLocalCarbonContext().getUsername());
         }
-        try {
 
+        List<ApplicationSummary> appSummaryList = new ArrayList<ApplicationSummary>();
 
-            if (!userRegistry.resourceExists(path)) {
-                return null;
+        for(String applicationId : applicationKeys){
+            String path =
+                    AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" + applicationId + "/" +
+                            "appinfo";
+
+            try {
+                if (!userRegistry.resourceExists(path)) {
+                    return null;
+                }
+
+                Resource resource = userRegistry.get(path);
+
+                GenericArtifact artifact = artifactManager.getGenericArtifact(resource.getUUID());
+                ApplicationSummary applicationSummary = null;
+                if(artifact !=null) {
+                    applicationSummary = getAppInfoSummaryFromRXT(artifact);
+                }
+                appSummaryList.add(applicationSummary);
+            } catch (GovernanceException e) {
+                throw new AppFactoryException("Error while getting Application Info service ", e);
+            } catch (RegistryException e) {
+                throw new AppFactoryException("Error while getting Application Info service ", e);
             }
-
-            Resource resource = userRegistry.get(path);
-
-            GenericArtifact artifact = artifactManager.getGenericArtifact(resource.getUUID());
-            ApplicationSummary applicationSummary = null;
-            if(artifact !=null) {
-                applicationSummary = getAppInfoSummaryFromRXT(artifact);
-            }
-            return applicationSummary ;
-        } catch (GovernanceException e) {
-            throw new AppFactoryException("Error while getting Application Info service ", e);
-        } catch (RegistryException e) {
-            throw new AppFactoryException("Error while getting Application Info service ", e);
         }
+        return appSummaryList;
     }
 		
 
@@ -317,7 +322,8 @@ public class ApplicationManager {
 	}
 
 
-    private ApplicationSummary getAppInfoSummaryFromRXT(GenericArtifact artifact) throws AppFactoryException {
+    private ApplicationSummary getAppInfoSummaryFromRXT(GenericArtifact artifact)
+            throws AppFactoryException {
         ApplicationSummary appInfo;
         try {
             appInfo =
@@ -336,14 +342,16 @@ public class ApplicationManager {
         return appInfo;
     }
 
-    public ApplicationSummary getSummarizedApplicationInfo(String applicationId) throws AppFactoryException {
+    public List<ApplicationSummary> getSummarizedApplicationInfo(String[] applicationKeys)
+            throws AppFactoryException {
         UserRegistry userRegistry =
                 (UserRegistry) CarbonContext.getThreadLocalCarbonContext()
                         .getRegistry(RegistryType.SYSTEM_GOVERNANCE);
         try {
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-            GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "application");
-            return getApplicationSummary(applicationId, artifactManager, userRegistry);
+            GenericArtifactManager artifactManager =
+                    new GenericArtifactManager(userRegistry, "application");
+            return getApplicationSummary(applicationKeys, artifactManager, userRegistry);
         } catch (RegistryException e) {
             throw new AppFactoryException("Error while loading GenericArtifactManager", e);
         }

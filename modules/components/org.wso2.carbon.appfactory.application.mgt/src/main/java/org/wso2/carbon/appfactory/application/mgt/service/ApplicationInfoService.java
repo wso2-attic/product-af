@@ -141,24 +141,22 @@ public class ApplicationInfoService {
 
         String[] applicationKeys = getApplicationKeysOfUser(userName);
         String tenantDomain = getTenantDomain();
-        List<ApplicationSummary> appInfoList = new ArrayList<ApplicationSummary>();
-        for (String applicationKey : applicationKeys) {
-            try {
-                ApplicationSummary applicationSummary =
-                      ApplicationManager.getInstance().getSummarizedApplicationInfo(applicationKey);
-                appInfoList.add(applicationSummary);
-            } catch (AppFactoryException e) {
-                String msg =
-                        "Error while getting application summary info for user " + userName +
-                        " of tenant" + tenantDomain;
-                log.error(msg, e);
-            }
+        List<ApplicationSummary> applicationSummaryList = new ArrayList<ApplicationSummary>();
+        try {
+            applicationSummaryList =
+                    ApplicationManager.getInstance().getSummarizedApplicationInfo(applicationKeys);
+        } catch (AppFactoryException e) {
+            String msg =
+                    "Error while getting application summary info for user " + userName +
+                    " of tenant" + tenantDomain;
+            log.error(msg, e);
         }
         if (ApplicationsOfUserCache.getApplicationsOfUserCache().
                 isUserInvitedToApplication(userName)) {
             ApplicationsOfUserCache.getApplicationsOfUserCache().clearCacheForUserName(userName);
         }
-        return appInfoList.toArray(new ApplicationSummary[appInfoList.size()]);
+        return
+            applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
     }
 
 
@@ -192,7 +190,7 @@ public class ApplicationInfoService {
      * @return String array of applicaiton keys
      * @throws ApplicationManagementException
      */
-    public String[] getApplicationKeysOfUser(String userName) throws ApplicationManagementException {
+    public String[] getApplicationKeysOfUser(String userName) throws ApplicationManagementException{
         CarbonContext context = CarbonContext.getThreadLocalCarbonContext();
         ArrayList<String> applications = new ArrayList<String>();
         try {
@@ -202,7 +200,8 @@ public class ApplicationInfoService {
             for (String role : roles) {
                 if (AppFactoryUtil.isAppRole(role)) {
                     try {
-                        String appkeyFromPerAppRoleName = AppFactoryUtil.getAppkeyFromPerAppRoleName(role);
+                        String appkeyFromPerAppRoleName =
+                                AppFactoryUtil.getAppkeyFromPerAppRoleName(role);
                         applications.add(appkeyFromPerAppRoleName);
                     } catch (AppFactoryException e) {
                         // ignore exception here because isAppRole check avoids this exception being thrown..
