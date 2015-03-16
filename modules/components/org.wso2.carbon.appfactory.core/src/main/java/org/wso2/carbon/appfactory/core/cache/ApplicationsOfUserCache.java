@@ -39,17 +39,27 @@ public class ApplicationsOfUserCache {
     }
 
     /**
-     * Retrieve the cache
+     * Retrieve the cache instance
      * @return appsOfUserCache instance
      */
     public static ApplicationsOfUserCache getApplicationsOfUserCache() {
         return appsOfUserCache;
     }
 
+    /**
+     * add user to cache when invited to new application
+     * @param userName  username of the user
+     * @param isUserInvitedToApplication when a user is invited to an app value true is added
+     */
     public void addToCache(String userName, boolean isUserInvitedToApplication) {
         newlyInvitedUserCache.put(userName,isUserInvitedToApplication);
     }
 
+    /**
+     * check user exists in cache
+     * @param userName username of the user checked existance in cache
+     * @return true if exists in cache false otherwise
+     */
     public boolean isUserInvitedToApplication(String userName) {
         if(Boolean.TRUE.equals(newlyInvitedUserCache.get(userName))){
            return true;
@@ -57,6 +67,10 @@ public class ApplicationsOfUserCache {
         return false;
     }
 
+    /**
+     * invalidate cache entry for user name
+     * @param userName username of the user to be removed from cache
+     */
     public void clearCacheForUserName(String userName) {
         if(Boolean.TRUE.equals(newlyInvitedUserCache.get(userName))){
             newlyInvitedUserCache.remove(userName);

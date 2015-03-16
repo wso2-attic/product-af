@@ -321,7 +321,12 @@ public class ApplicationManager {
 		return appInfo;
 	}
 
-
+    /**
+     *
+     * @param artifact
+     * @return Application summary object from RXT
+     * @throws AppFactoryException
+     */
     private ApplicationSummary getAppInfoSummaryFromRXT(GenericArtifact artifact)
             throws AppFactoryException {
         ApplicationSummary appInfo;
@@ -342,6 +347,12 @@ public class ApplicationManager {
         return appInfo;
     }
 
+    /**
+     * get application summary from registry
+     * @param applicationKeys array of application keys
+     * @return Application Summary List
+     * @throws AppFactoryException
+     */
     public List<ApplicationSummary> getSummarizedApplicationInfo(String[] applicationKeys)
             throws AppFactoryException {
         UserRegistry userRegistry =
