@@ -669,7 +669,7 @@ var deleteResource = function(serverUrl, appId, propname, propcontent, descripti
             context.endTenantFlow();
     }
 
-    clearParentCache(stage, appId, context, tenantDomain);
+    clearResourceCache(stage, appId, propname, context, tenantDomain);
 };
 
 var copyNewProperties = function (appId, sourceStage, targetStage) {
@@ -689,8 +689,6 @@ var copyNewProperties = function (appId, sourceStage, targetStage) {
     }
     var sourceServerUrl = getProperty(DEPLOYMENT_STAGES + "." + sourceStage + DEPLOYER_APPTYPE_EP);
     var targetServerUrl = getProperty(DEPLOYMENT_STAGES + "." + targetStage + DEPLOYER_APPTYPE_EP);
-    var sourceServerCookie = modManager.getBackendCookie(sourceServerUrl);
-    var targetServerCookie = modManager.getBackendCookie(targetServerUrl);
     var tenantDomain = modManager.getTenantDomain();
     var context = multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();

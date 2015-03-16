@@ -54,7 +54,7 @@ var loggedInUser = jagg.getUser();
 
         var correlationKey = dbCorrelationKey(applicationKey, databaseName, databaseServerInstanceName);
         try {
-            var notificationTitle = "Database " + databaseName + "creation started"
+            var notificationTitle = "Database " + databaseName + "creation started in " + databaseServerInstanceName;
             var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, jagg.getUser(), notificationTitle, "", correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
@@ -137,7 +137,7 @@ var loggedInUser = jagg.getUser();
 		}
 
 		try{
-			var notificationTitle = "Database " + databaseName + " creation started";
+			var notificationTitle = "Database " + databaseName + " creation started in " + databaseServerInstanceName;
 			var correlationKey = dbCorrelationKey(applicationKey, databaseName, databaseServerInstanceName);
 
 			var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
@@ -706,7 +706,7 @@ var loggedInUser = jagg.getUser();
 		var response = {};
 
 		try {
-            var notificationTitle = "Privileges update started for database " + dbname;
+            var notificationTitle = "Privileges update started for database " + dbname + " in " + stage;
             var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
             var correlationKeyPrivileges = applicationKey + "-" + stage + "-dbPrivilege-" + dbname + "-" + username;
             var eventBuilderInstance = EventBuilder.resourceUpdateStartEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, correlationKeyPrivileges, "INFO");

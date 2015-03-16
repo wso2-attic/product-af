@@ -28,7 +28,6 @@ env=request.getParameter("environment");
 AllowedAllStages=outputs.hasAccessForAllstages;
 var hasUpdateResourcePermissions = outputs.hasUpdateResourcePermissions;
 var hasDeleteResourcePermissions = outputs.hasDeleteResourcePermissions;
-var isDeleteButtonVisible = outputs.isDeleteButtonVisible;
 
 var pagePath = request.getParameter("pagePath");
 var redirectURL = "configureenvironment.jag?applicationName="+ applicationName +"&applicationKey="+ applicationKey;
@@ -344,7 +343,7 @@ function validatePropertyNameAndCreate() {
                 <div class="content clear">
                     <ol class="breadcrumb left">
                         <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">APIs</a></li>
-                       <% if(isEdit==="true" && isDeleteButtonVisible){	%>
+                       <% if(isEdit==="true" && hasDeleteResourcePermissions){	%>
                         <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
 
                           </ol>

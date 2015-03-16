@@ -66,18 +66,16 @@ var dropTemplate = function (applicationKey,databaseServerInstanceName,name){
         applicationKey, stage);
         var correlationKey = applicationKey + "-" + stage + "-template-" + name;
         try{
-            var notificationTitle  = "Database template " + name + " deleted ";
-            var notificationMessage = "In environment: " + stage;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var notificationTitle  = "Database template " + name + " deleted from " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
         } catch (e) {
             log.error("Error while sending delete db template success notification \n" + e.message);
         }
 
 	} catch (e) {
         try{
-            var notificationTitle  = "Database template " + name + " delete failed ";
-            var notificationMessage = "In environment: " + databaseServerInstanceName;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var notificationTitle  = "Database template " + name + " deletion failed in " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
         } catch (e) {
             log.error("Error while sending delete database success notification \n" + e.message);
         }
@@ -155,7 +153,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 							'<xsd:triggerPriv>'+triggerPriv+'</xsd:triggerPriv>'+
 							'</xsd:privileges>'+
 							'</ser:template></ser:addDatabasePrivilegeTemplate>';
-	if(autoCreation || copyToAll == "false"){
+	if(autoCreation || !copyToAll ){
 				allStages=[];
 				allStages.push(getStageFromRssInstanceName(databaseServerInstanceName));
 			}
@@ -179,7 +177,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 			result[stage] = "success";
             var correlationKey = applicationKey + "-" + stage + "-template-" + EnvUnawareName;
             try{
-                var notificationTitle  = "Database template " + EnvUnawareName + " created ";
+                var notificationTitle  = "Database template " + EnvUnawareName + " created in " + stage;
                 var notificationMessage = "In environment: " + stage;
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
@@ -188,9 +186,8 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
             }
 		} catch (e) {
             try{
-                var notificationTitle  = "Database template " + EnvUnawareName + " creation failed ";
-                var notificationMessage = "In environment: " + stage;
-                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+                var notificationTitle  = "Database template " + EnvUnawareName + " creation failed in " + stage;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
                 log.error("Error while sending create db template failure notification \n" + e.message);
@@ -251,7 +248,7 @@ var editDbTemplate = function (applicationKey,databaseServerInstanceName,name,al
 		editTemplateService.send(payload);
         var correlationKey = applicationKey + "-" + stage + "-template-" + name;
         try{
-            var notificationTitle  = "Database template " + name + " modified ";
+            var notificationTitle  = "Database template " + name + " modified in " + stage;
             var notificationMessage = "In environment: " + stage;
             var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
@@ -260,9 +257,8 @@ var editDbTemplate = function (applicationKey,databaseServerInstanceName,name,al
         }
 	} catch (e) {
         try{
-            var notificationTitle  = "Database template " + name + " modification failed ";
-            var notificationMessage = "In environment: " + stage;
-            var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var notificationTitle  = "Database template " + name + " modification failed in " + stage;
+            var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending edit db template failure notification \n" + e.message);
