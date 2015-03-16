@@ -132,8 +132,8 @@ public class ApplicationInfoService {
     /**
      * Gets application information of the user to populate the user home
      *
-     * @param userName
-     * @return
+     * @param userName username of the user for whom application summary list needs to be loaded
+     * @return ApplicationSummary[]
      * @throws ApplicationManagementException
      */
     public ApplicationSummary[] getApplicationSummaryForUser(String userName)
