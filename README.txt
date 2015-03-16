@@ -4,6 +4,7 @@
 
 Welcome to WSO2 AppFactory 2.1.0 release
 
+
 About AppFactory
 =================================
 WSO2 App Factory is a multi-tenant, elastic and self-service enterprise platform that enables multiple project teams to collaboratively create, run and manage enterprise applications. Combining complete application lifecycle management and Platform-as-a-Service (PaaS) capabilities, WSO2 App Factory makes it possible to develop, test, deploy to production and retire applications with a single click. It also provides an easy way to discover and consume apps and APIs through a user-friendly storefront.
@@ -80,4 +81,3 @@ WSO2 AppFactory 2.1.0 distribution directory structure
 
 	- README.txt
 	  This document.
-

@@ -576,23 +576,20 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
                 }
                 ,function (result) {
-			var result = true;
-			var response= jQuery.parseJSON(result);
 
-			for(var stage in response){
-				if(response[stage]!='success'){
-						result=false;
-						break;
-					}
-			}
+            if(result.indexOf('template exists') > -1) {	// check whether template is already exists based on identifying key word call 'template exists'
+                jagg.message({content:'Template Name already exists!', type:'error', id:'databasecreation' });
+            } else {
+                var response= jQuery.parseJSON(result);
 
-			if(result){
-				var template = templateName+'@'+environment;
-				loadTemplatesForSelectedStage(template);
-                $('#js_db_template').next().hide();
+                if(response[environment] == 'success'){
+                    var template = templateName+'@'+environment;
+                    loadTemplatesForSelectedStage(template);
+                    $('#js_db_template').next().hide();
 
-			} else {
-				jagg.message({content:'Error occurred while creating Template!', type:'error', id:'databasecreation' });
+                } else {
+                    jagg.message({content:'Error occurred while creating Template!', type:'error', id:'databasecreation' });
+                }
 			}
 		},function (jqXHR, textStatus, errorThrown) {
 

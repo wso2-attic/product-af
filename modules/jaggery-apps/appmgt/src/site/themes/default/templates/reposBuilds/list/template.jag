@@ -19,48 +19,51 @@
 jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
 <%
-include("/jagg/config_reader.jag");
-var baseURL = getProperty(BASE_URL);
-var gitBaseUrl = getProperty(GIT_BASE_URL);
-var appDomain = getProperty("DomainName");
-var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
-var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
-var loggedInUser = jagg.getUser();
-var gitURL = null;
-var gitURLForked = null ;
-var applicationKey = request.getParameter("applicationKey");
-var applicationName = request.getParameter("applicationName");
-var mod = jagg.module("manager");
-var tenantDomain = mod.getTenantDomain();
-var allStages = getProperties(DEPLOYMENT_STAGES);
-var appDetails = outputs.appDetails;
-var buildableStages = outputs.buildableStages;
-var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
-var isCodeEditorSupported = outputs.isCodeEditorSupported;
-%>
-<style>
-.popover_form input.branch-txt-width-fix {
-	width: 240px;
-}
-#select2-drop-mask{display:none !important;}
-#d_clip_button {
-	text-align: center;
-	border: 1px solid black;
-	background-color: #ccc;
-	margin: 10px;
-	padding: 10px;
-}
+    include("/jagg/config_reader.jag");
+    var baseURL = getProperty(BASE_URL);
+    var gitBaseUrl = getProperty(GIT_BASE_URL);
+    var appDomain = getProperty("DomainName");
+    var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
+    var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
+    var loggedInUser = jagg.getUser();
+    var gitURL = null;
+    var gitURLForked = null ;
+    var applicationKey = request.getParameter("applicationKey");
+    var applicationName = request.getParameter("applicationName");
+    var mod = jagg.module("manager");
+    var tenantDomain = mod.getTenantDomain();
+    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var appDetails = outputs.appDetails;
+    var buildableStages = outputs.buildableStages;
+    var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+    var isCodeEditorSupported = outputs.isCodeEditorSupported;
+    var autoDeployCheckBoxValue=null;
+    var autoBuildCheckBoxValue=null;
+    var appVersionId=null;
+    %>
+    <style>
+    .popover_form input.branch-txt-width-fix {
+        width: 240px;
+    }
+    #select2-drop-mask{display:none !important;}
+    #d_clip_button {
+        text-align: center;
+        border: 1px solid black;
+        background-color: #ccc;
+        margin: 10px;
+        padding: 10px;
+    }
 
-#d_clip_button.zeroclipboard-is-hover {
-	background-color: #eee;
-}
+    #d_clip_button.zeroclipboard-is-hover {
+        background-color: #eee;
+    }
 
-#d_clip_button.zeroclipboard-is-active {
-	background-color: #aaa;
-}
-</style>
+    #d_clip_button.zeroclipboard-is-active {
+        background-color: #aaa;
+    }
+    </style>
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
     //[cdata[
     var registerPopRemover = function(){
@@ -113,7 +116,7 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
     function createCodeEnvyUrl(version,appType,gitURL,elementClassName){
 
         var codeEnvyUrl = null;
-
+        var newWindow = window.open('','_blank');
         jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
                 action: "createCodeEnvyUrl",
                 gitURL: gitURL,
@@ -130,7 +133,7 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
                         });
 
                     }else{
-                        window.open(codeEnvyUrl,'_blank');
+                         newWindow.location = codeEnvyUrl;
                     }
         });
        // return nonEncodedUrl;
@@ -150,7 +153,8 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
             version:version
         }, function (result) {
         	//drawForkedVersionsList();
-        	loadRepositories(null,null);
+        	//loadRepositories(null,null);
+		    updateForkedVersionList();
 		    drawVersion(applicationKey , selectedVersion);
 		    element.attr('disabled',false);
             //forcePageAppRefresh = true;
@@ -394,9 +398,18 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
             $('.js_build_option').click(function(event){
                 $(this).toggleClass("active");
                 var $next = $(this).next();
+                var autoBuild, autoDeploy = false;
                 if($next.is(":visible")){
                     $next.hide();
-                }else{
+                } else{
+                    if(autoDeployCheckBoxValue == 'true'){
+                        autoDeploy = true;
+                    }
+                    if(autoBuildCheckBoxValue == 'true'){
+                        autoBuild = true;
+                    }
+                    $("#auto_deploy_"+appVersionId).attr('checked',autoDeploy);
+ 		            $("#auto_build_"+appVersionId).attr('checked',autoBuild);
                     $next.show();
                 }
             });
@@ -817,12 +830,15 @@ $.cookie('selectedStage', selectedStage);
 
     function constructRow(element){
 	    var versionInfo = element.versions[0];
+	 	autoDeployCheckBoxValue = versionInfo.isAutoDeploy;
+        autoBuildCheckBoxValue = versionInfo.isAutoBuild;
         var statusStyle="";
         var version=versionInfo.version;
         selectedAppVersion = version;
 	    var isBuildableArtifact = '<%= appDetails[0].isBuildable%>';
         var stage=versionInfo.stage;
         var versionForIds=version.replace(/\./g,'_');
+        appVersionId=versionForIds;
         var buildHidden="";
         var delpoyHidden="";
         var buildDeployHide="";
@@ -887,7 +903,7 @@ $.cookie('selectedStage', selectedStage);
         }
 
         var hiddenForkedBranch = 'style="display:none"' ;
-        if(enablePerDeveloperRepos === "true" && isAlreadyForked && isVersionAlreadyForked(versionInfo.version)){
+        if(enablePerDeveloperRepos === "true" && isAlreadyForked && !isVersionAlreadyForked(versionInfo.version)){
         	hiddenForkedBranch = "" ;
         }
 
@@ -962,7 +978,7 @@ $.cookie('selectedStage', selectedStage);
 		                                    '<label for="auto_deploy"><input id="auto_deploy_'+versionForIds+'" type="checkbox" name="auto_deploy" '+ isAutoDeploymentChecked+'/> Auto Deploy</label><br />'+
 		                                '</div>'+
 		                                '<div class="input_row">'+
-		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#" onClick="window.location.reload(true);">Cancel</a>'+
+		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#">Cancel</a>'+
 		                                '</div>'+
 		                            '</form>'+
 		                        '</div>'+

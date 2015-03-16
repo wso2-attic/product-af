@@ -34,7 +34,7 @@
         username = "";
         password = "";
     } else {
-        String applicationName = pageContext.getServletContext().getInitParameter("applicationKey");
+        String applicationName = pageContext.getServletContext().getInitParameter("applicationName");
         CarbonContext cCtx = CarbonContext.getThreadLocalCarbonContext();
         Registry registry = (Registry) cCtx.getRegistry(RegistryType.SYSTEM_GOVERNANCE);
 
