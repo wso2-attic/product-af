@@ -104,7 +104,7 @@ public class SubscriptionHandler {
                 repoProvider.setAdminPassword(adminPassword);
 
                 String repoURLforDeployer = DeployerUtil.getParameterValue(
-                        deployerInfo, AppFactoryConstants.RUNTIME_REPO_URL);
+                        deployerInfo, AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN);
                 String aliasPrefix = DeployerUtil.getParameterValue(
                         deployerInfo, AppFactoryConstants.RUNTIME_ALIAS_PREFIX);
                 repoProvider.setRepoName(generateRepoUrlFromTemplate(repoURLforDeployer,aliasPrefix,
