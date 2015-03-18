@@ -213,12 +213,14 @@
         <!--number of worker threads for indexing -->
         <indexerPoolSize>10</indexerPoolSize>
         <!-- location storing the time the indexing took place-->
-        <lastAccessTimeLocation>/_system/local/repository/components/org.wso2.carbon.registry/indexing/lastaccesstime
-        </lastAccessTimeLocation>
+        <lastAccessTimeLocation>/_system/local/repository/components/org.wso2.carbon.registry/indexing/lastaccesstime</lastAccessTimeLocation>
         <!-- the indexers that implement the indexer interface for a relevant media type/(s) -->
         <indexers>
             <indexer class="org.wso2.carbon.registry.metadata.index.GenericMetadataIndexer"
                      mediaTypeRegEx="vnd.wso2.(.)+/(.)+"/>
+            <indexer class="org.wso2.carbon.governance.registry.extensions.indexers.RXTIndexer" 
+		     mediaTypeRegEx="application/vnd.(.)+\+xml"/>
+
         </indexers>
         <exclusions>
             <exclusion pathRegEx="/_system/config/repository/dashboards/gadgets/swfobject1-5/.*[.]html"/>
