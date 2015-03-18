@@ -585,21 +585,13 @@ public class RxtManager {
             RegistryException  {
         GovernanceUtils.loadGovernanceArtifacts(userRegistry);
         GenericArtifactManager artifactManager =
-                new GenericArtifactManager(userRegistry,
-                        "repouser");
+                new GenericArtifactManager(userRegistry, "repouser");
 
-        GenericArtifactFilter artifactFilter = new GenericArtifactFilter() {
-            @Override
-            public boolean matches(GenericArtifact artifact) throws GovernanceException {
-                if(artifact != null && artifact.getAttribute("repouser_name") != null && artifact.getAttribute("repouser_key") != null) {
-                    return artifact.getAttribute("repouser_name").equals(userName) && artifact.getAttribute("repouser_key").equals(applicationId);
-                } else {
-                    return false;
-                }
-            }
-        };
+        Map<String, List<String>> filterCriteria = new HashMap<String, List<String>>();
+        filterCriteria.put("repouser_name", new ArrayList<String>() {{add(userName);}});
+        filterCriteria.put("repouser_key", new ArrayList<String>() {{add(applicationId);}});
 
-        GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(artifactFilter);
+        GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(filterCriteria);
         final List<Artifact> artifactList = new ArrayList<Artifact>();
 
         if(allArtifacts != null){
@@ -608,7 +600,6 @@ public class RxtManager {
             }
 
         }
-
         return artifactList;
     }
 
@@ -619,23 +610,13 @@ public class RxtManager {
             RegistryException {
         GovernanceUtils.loadGovernanceArtifacts(userRegistry);
         GenericArtifactManager artifactManager =
-                new GenericArtifactManager(userRegistry,
-                        "appversion");
+                new GenericArtifactManager(userRegistry, "appversion");
 
 
-//        Used the proper governance API method for searching. Commented out the old code segment.
-        GenericArtifactFilter artifactFilter = new GenericArtifactFilter() {
-            @Override
-            public boolean matches(GenericArtifact artifact) throws GovernanceException {
-                if(artifact != null && artifact.getAttribute("appversion_key") != null) {
-                    return artifact.getAttribute("appversion_key").equals(applicationId);
-                } else {
-                    return false;
-                }
-            }
-        };
+        Map<String, List<String>> filterCriteria = new HashMap<String, List<String>>();
+        filterCriteria.put("appversion_key", new ArrayList<String>() {{add(applicationId);}});
 
-        GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(artifactFilter);
+        GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(filterCriteria);
         final List<Artifact> artifactList = new ArrayList<Artifact>();
 
         if(allArtifacts != null){
@@ -644,7 +625,6 @@ public class RxtManager {
             }
 
         }
-
         return artifactList;
     }
 
