@@ -31,6 +31,11 @@
                 <exclude>**/*.lock</exclude>
                 <exclude>**/.data</exclude>
                 <exclude>**/.settings</exclude>
+		<exclude>**/javax.servlet.jsp_2.0.0.v200806031607.jar</exclude>
+		<exclude>**/javax.servlet_3.0.0.wso2v1.jar</exclude>
+		<exclude>**/org.wso2.carbon.webapp.list.ui_4.2.0.jar</exclude>
+		<exclude>**/httpclient_4.2.5.wso2v1.jar</exclude>
+		<exclude>**/httpcore_4.1.0.wso2v1.jar</exclude>
             </excludes>
         </fileSet>
     </fileSets>
