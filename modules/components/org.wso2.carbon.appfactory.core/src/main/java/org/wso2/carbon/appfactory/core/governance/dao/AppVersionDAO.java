@@ -16,6 +16,17 @@
 
 package org.wso2.carbon.appfactory.core.governance.dao;
 
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.util.GovernanceUtil;
+import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
+import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
+import org.wso2.carbon.registry.core.session.UserRegistry;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import java.io.StringReader;
+
 /**
  * Contains the CRUD operations done on Resources created via appversion.rxt Meta Data Model
  */
@@ -27,6 +38,37 @@ public class AppVersionDAO {
 
     public static AppVersionDAO getInstance() {
         return appVersionDAO;
+    }
+
+    public String addArtifact(String info, String lifecycleAttribute) throws AppFactoryException {
+        try {
+            UserRegistry userRegistry = GovernanceUtil.getUserRegistry();
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty(XMLInputFactory.IS_COALESCING, true);
+            XMLStreamReader reader = null;
+
+            reader = factory.createXMLStreamReader(new StringReader(info));
+
+
+            GenericArtifactManager manager = new GenericArtifactManager(userRegistry, "appversion");
+            GenericArtifact artifact = manager.newGovernanceArtifact(
+                    new StAXOMBuilder(reader).getDocumentElement());
+
+            // want to save original content, so set content here
+            artifact.setContent(info.getBytes());
+
+            manager.addGenericArtifact(artifact);
+            if (lifecycleAttribute != null) {
+                String lifecycle = artifact.getAttribute(lifecycleAttribute);
+                if (lifecycle != null) {
+                    artifact.attachLifecycle(lifecycle);
+                }
+            }
+            return "/_system/governance"+ artifact.getPath();
+        } catch (Exception e) {
+            String errorMsg = "Error adding artifact";
+            throw new AppFactoryException(errorMsg, e);
+        }
     }
 }
 
