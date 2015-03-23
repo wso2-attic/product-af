@@ -9,9 +9,12 @@ public or hybrid cloud.
 
 ##Documentation
 
-Documentation and tutorials can be found on [AppFactory documentation](https://docs.wso2.com/display/AF210/WSO2+App+Factory+Documentation) site.
+Documentation and tutorials can be found in [AppFactory documentation](https://docs.wso2.com/display/AF210/WSO2+App+Factory+Documentation) site.
 
 Useful series of webinars can be found in [AppFactory webinar](http://wso2.com/landing/app-factory-webinar-series/) site.
+
+#Developer Resources
+Development documentation can be found in [GitHub wiki page](https://github.com/wso2/product-af/wiki)
 
 ##Getting Help
 
