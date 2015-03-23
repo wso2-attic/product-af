@@ -31,19 +31,10 @@ import javax.cache.Caching;
  */
 public class ApplicationsOfUserCache {
 
-    private static ApplicationsOfUserCache appsOfUserCache = new ApplicationsOfUserCache();
     private Cache<String,Boolean> newlyInvitedUserCache;
-    private ApplicationsOfUserCache() {
+    public ApplicationsOfUserCache() {
         CacheManager appCacheManager = Caching.getCacheManager(AppFactoryConstants.APPS_OF_USER_CACHE_MANAGER);
         newlyInvitedUserCache = appCacheManager.getCache(AppFactoryConstants.APPS_OF_USER_CACHE);
-    }
-
-    /**
-     * Retrieve the cache instance
-     * @return appsOfUserCache instance
-     */
-    public static ApplicationsOfUserCache getApplicationsOfUserCache() {
-        return appsOfUserCache;
     }
 
     /**

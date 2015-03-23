@@ -112,9 +112,9 @@ public class ApplicationUserManagementService {
                     applicationEventsListener.onUserAddition(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
                 }
             }
-
+            ApplicationsOfUserCache applicationsOfUserCache = new ApplicationsOfUserCache();
             for (String userName:userNames){
-                ApplicationsOfUserCache.getApplicationsOfUserCache().addToCache(userName, true);
+                applicationsOfUserCache.addToCache(userName, true);
             }
 
             //Notify to App wall

@@ -151,9 +151,9 @@ public class ApplicationInfoService {
                     " of tenant" + tenantDomain;
             log.error(msg, e);
         }
-        if (ApplicationsOfUserCache.getApplicationsOfUserCache().
-                isUserInvitedToApplication(userName)) {
-            ApplicationsOfUserCache.getApplicationsOfUserCache().clearCacheForUserName(userName);
+        ApplicationsOfUserCache applicationsOfUserCache =  new ApplicationsOfUserCache();
+        if (applicationsOfUserCache.isUserInvitedToApplication(userName)) {
+            applicationsOfUserCache.clearCacheForUserName(userName);
         }
         return
             applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
