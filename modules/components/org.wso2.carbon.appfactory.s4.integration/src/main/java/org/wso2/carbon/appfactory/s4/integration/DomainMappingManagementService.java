@@ -158,9 +158,6 @@ public class DomainMappingManagementService {
                     AppFactoryConstants.FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE), defaultUrl, appKey, version, false);
         } catch (DomainMappingVerificationException e) {
             log.error(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl), e);
-            // update the custom url values of the rxt.
-            DomainMappingUtils.updateCustomUrlMetadata(appKey, defaultUrl,
-                                                       DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl));
         }
         DomainMappingUtils.updateMetadata(appKey, defaultUrl, version, false);
