@@ -32,6 +32,8 @@ public class AppFactoryConstants {
 	public static final String DEPLOYMENT_STAGES = "ApplicationDeployment.DeploymentStage";
 	public static final String DEPLOYMENT_URL = "DeploymentServerURL";
 	public static final String APPFACTORY_WEB_CONTEXT_ROOT = "WebContextRoot";
+	public static final String DOMAIN_NAME = "DomainName";
+	public static final String FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE = "FineGrainedDomainMappingAllowedStage";
 
 	public static final String APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 	public static final String BPS_SERVER_URL = "ServerUrls.BPS";
