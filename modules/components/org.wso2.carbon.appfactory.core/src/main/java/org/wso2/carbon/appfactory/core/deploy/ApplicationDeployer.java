@@ -28,6 +28,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.Storage;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -298,10 +299,11 @@ public class ApplicationDeployer {
 	}
 
 	public String getStage(String applicationId, String version) throws AppFactoryException {
+        return JDBCAppVersionDAO.getInstance().getAppVersionStage(applicationId,version);
 		// Getting the tenant domain
-		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+		//String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
-		return RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
+		//return RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
 	}
 
 	// Is called from the jaggery app

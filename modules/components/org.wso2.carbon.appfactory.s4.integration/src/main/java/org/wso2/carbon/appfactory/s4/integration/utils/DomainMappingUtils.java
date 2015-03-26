@@ -31,6 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
+import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -434,8 +436,10 @@ public class DomainMappingUtils {
             throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
-            rxtManager.updateAppVersionRxt(appKey, version, AppFactoryConstants.RXT_KEY_APPVERSION_PROD_MAPPED_VERSION,
-                                           mappedDomain, tenantDomain);
+            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(appKey);
+            JDBCAppVersionDAO.getInstance().updateSubDomainsOfVersion(autoIncrementAppID,version,mappedDomain);
+           /* rxtManager.updateAppVersionRxt(appKey, version, AppFactoryConstants.RXT_KEY_APPVERSION_PROD_MAPPED_VERSION,
+                                           mappedDomain, tenantDomain);*/
 
         } catch (AppFactoryException e) {
             log.error("Error occurred while updating the appversion rxt with mapped domain for application id: " + appKey + " version:" + version + " domain: " + mappedDomain, e);

@@ -27,6 +27,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.*;
@@ -73,6 +74,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
     public static UserApplicationCache userApplicationCache = UserApplicationCache.getUserApplicationCache();
     public static JDBCApplicationDAO applicationDAO=JDBCApplicationDAO.getInstance();
+    public static JDBCAppVersionDAO appVersionDAO=JDBCAppVersionDAO.getInstance();
 
     /**
      * This createApplication method is used for the create an application. When
@@ -191,8 +193,8 @@ public class ApplicationManagementService extends AbstractAdmin {
         try {
             // Getting the tenant domain
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-            return RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
+            return JDBCAppVersionDAO.getInstance().getAppVersionStage(applicationId, version);
+            //return RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
         } catch (AppFactoryException e) {
             String msg = "Unable to get stage for " + applicationId + "and version : " + version;
             log.error(msg, e);
@@ -413,7 +415,7 @@ public class ApplicationManagementService extends AbstractAdmin {
         // Getting the tenant domain
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
-        updateRxtWithBuildStatus(applicationId, stage, version, isAutoBuildable, tenantDomain);
+        updateDBWithBuildStatus(applicationId, stage, version, isAutoBuildable, tenantDomain);
 
         try {
             JenkinsCISystemDriver jenkinsCISystemDriver =
@@ -482,7 +484,7 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
     /**
-     * Updates the rxt registry with given auto build information.
+     * Updates the database tables with given auto build information.
      *
      * @param applicationId
      * @param stage
@@ -490,12 +492,15 @@ public class ApplicationManagementService extends AbstractAdmin {
      * @param isAutoBuildable
      * @throws ApplicationManagementException
      */
-    private void updateRxtWithBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable,
+    private void updateDBWithBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable,
                                           String tenantDomain) throws ApplicationManagementException {
         try {
-            RxtManager.getInstance().updateAppVersionRxt(applicationId, version, "appversion_isAutoBuild",
-                                                         String.valueOf(isAutoBuildable), tenantDomain);
-            log.debug(" Rtx updated successfully for : " + applicationId + " " + " Version : " + version + " stage :" +
+            int autoIncrementAppID = applicationDAO.getAutoIncrementAppID(applicationId);
+            appVersionDAO.updateAutoBuildStatusOfVersion(autoIncrementAppID,version,isAutoBuildable);
+
+           /* RxtManager.getInstance().updateAppVersionRxt(applicationId, version, "appversion_isAutoBuild",
+                                                         String.valueOf(isAutoBuildable), tenantDomain);*/
+            log.debug(" Database updated successfully for : " + applicationId + " " + " Version : " + version + " stage :" +
                     stage + " isAutoBuildable :" + isAutoBuildable);
 
         } catch (AppFactoryException e) {
@@ -506,7 +511,7 @@ public class ApplicationManagementService extends AbstractAdmin {
     }
 
     /**
-     * Updating Rxt value when do the  promote action
+     * Updating value when do the  promote action
      *
      * @param applicationId
      * @param stage
@@ -520,7 +525,8 @@ public class ApplicationManagementService extends AbstractAdmin {
             return ;
         }
         try {
-            applicationDAO.updatePromoteStatusOfVersion(applicationId,version,state);
+            int autoIncrementAppID = applicationDAO.getAutoIncrementAppID(applicationId);
+            appVersionDAO.updatePromoteStatusOfVersion(autoIncrementAppID,version,state);
             log.debug(" Updated successfully for : " + applicationId + " " + " Version : " +
                     version + " stage :" +
                     stage + " Promote is Pending state");
@@ -545,9 +551,11 @@ public class ApplicationManagementService extends AbstractAdmin {
                                               boolean isAutoDeployable, String tenantDomain)
                                                       throws ApplicationManagementException {
         try {
-            RxtManager.getInstance().updateAppVersionRxt(applicationId, version, "appversion_isAutoDeploy",
-                                                         String.valueOf(isAutoDeployable), tenantDomain);
-            log.debug(" Rtx updated successfully for : " + applicationId + " " + " Version : " + version + " stage :" +
+            int autoIncrementAppID = applicationDAO.getAutoIncrementAppID(applicationId);
+            appVersionDAO.updateAutoDeployStatusOfVersion(autoIncrementAppID,version,isAutoDeployable);
+           /*RxtManager.getInstance().updateAppVersionRxt(applicationId, version, "appversion_isAutoDeploy",
+                                                         String.valueOf(isAutoDeployable), tenantDomain);*/
+            log.debug(" DB updated successfully for : " + applicationId + " " + " Version : " + version + " stage :" +
                     stage + " isAutoDeployable :" + isAutoDeployable);
 
         } catch (AppFactoryException e) {
