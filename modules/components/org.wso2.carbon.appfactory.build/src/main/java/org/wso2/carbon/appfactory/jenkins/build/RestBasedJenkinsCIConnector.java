@@ -20,6 +20,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -755,7 +756,7 @@ public class RestBasedJenkinsCIConnector {
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new NameValuePair(AppFactoryConstants.IS_AUTOMATIC,
-		                                 AppFactoryConstants.STRING_FALSE));
+		                                 Boolean.FALSE));
 		parameters
 				.add(new NameValuePair(AppFactoryConstants.DO_DEPLOY, Boolean.toString(doDeploy)));
 		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stageName));
@@ -767,7 +768,7 @@ public class RestBasedJenkinsCIConnector {
 
 		// TODO should get the persistArtifact parameter value from the user and
 		// set here
-		if (tagName != null && !tagName.equals(AppFactoryConstants.EMPTY_STRING)) {
+		if (StringUtils.isNotBlank(tagName)) {
 			parameters.add(new NameValuePair(AppFactoryConstants.PERSIST_ARTIFACT, String
 					.valueOf(true)));
 			parameters.add(new NameValuePair(AppFactoryConstants.TAG_NAME, tagName));
@@ -943,8 +944,8 @@ public class RestBasedJenkinsCIConnector {
 					checkJobExistsMethod.getResponseBodyAsStream());
 			OMElement resultElement = builder.getDocumentElement();
 			if (resultElement != null) {
-				if (AppFactoryConstants.STRING_FALSE.equals(getValueUsingXpath(resultElement,
-				                                      "/*/building"))) {
+				if (Boolean.FALSE.equals(getValueUsingXpath(resultElement,
+				                                                      "/*/building"))) {
 					buildStatus = getValueUsingXpath(resultElement, "/*/result");
 				} else {
 					buildStatus = AppFactoryConstants.BUILD_STATUS_BUILDING;
@@ -1087,8 +1088,8 @@ public class RestBasedJenkinsCIConnector {
 			log.debug(String.format("getJsonTree - for %s > %s", jobName, treeStructure));
 		}
 		if (jobName == null || jobName.isEmpty()
-		    || jobName.equalsIgnoreCase(AppFactoryConstants.ALL_JOB_NAME) ||
-		    jobName.equals(AppFactoryConstants.ASTERISK)) {
+		    || AppFactoryConstants.ALL_JOB_NAME.equalsIgnoreCase(jobName) ||
+		    AppFactoryConstants.REGEX_ALL.equals(jobName)) {
 			buildUrl = this.getJenkinsUrl() + AppFactoryConstants.URL_SEPERATOR;
 		} else {
 			buildUrl = String.format("%s/job/%s/", this.getJenkinsUrl(),
@@ -1171,7 +1172,7 @@ public class RestBasedJenkinsCIConnector {
 			int httpStatus = getAuthenticatedHttpClient()
 					.executeMethod(setCredentialsMethod);
 			Header locationHeader = setCredentialsMethod
-					.getResponseHeader(AppFactoryConstants.LOCATION_HEADER_PARAM);
+					.getResponseHeader(HTTPConstants.HEADER_LOCATION);
 
 			// if operation completed successfully Jenkins returns http 302,
 			// which location header ending with '..../credentialOK'
@@ -1934,9 +1935,9 @@ public class RestBasedJenkinsCIConnector {
 
 			String paramValue = null;
 			if (isAutoDeploy) {
-				paramValue = AppFactoryConstants.STRING_TRUE;
+				paramValue = Boolean.TRUE;
 			} else {
-				paramValue = AppFactoryConstants.STRING_FALSE;
+				paramValue = Boolean.FALSE;
 			}
 
 			AXIOMXPath axiomxPath = new AXIOMXPath(
