@@ -44,6 +44,7 @@ public class AppFactoryConstants {
 	public static final String UPPLOADABLE_SUFFIX = ".uploaded";
 
 	public static final String MESSAGE_BROKER_CONNECTION_URL = "MessageBrokerConnectionURL";
+    public static final String UPLOADABLE_ARTIFACT_MAX_SIZE="UploadableArtifactMaxSize";
 
 	public static final String REGISTRY_GET = "REGISTRY_GET";
 	public static final String REGISTRY_PUT = "REGISTRY_PUT";
