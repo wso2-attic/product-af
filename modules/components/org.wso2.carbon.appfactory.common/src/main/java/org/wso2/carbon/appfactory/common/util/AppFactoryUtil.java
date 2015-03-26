@@ -137,6 +137,9 @@ public class AppFactoryUtil {
         return appFactoryConfig.getFirstProperty(AppFactoryConstants.MESSAGE_BROKER_CONNECTION_URL);
     }
 
+    public static int getUploadableArtifactMaxSize(){
+            return Integer.parseInt(appFactoryConfig.getFirstProperty(AppFactoryConstants.UPLOADABLE_ARTIFACT_MAX_SIZE));
+    }
 
     public static Set<RoleBean> getRolePermissionConfigurations(String rolePermissionConfigPath, String defaultUser)
             throws AppFactoryException {
