@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.appfactory.core.governance;
 
-import java.util.ArrayList;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,6 +24,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
+import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.RegistryType;
@@ -38,6 +37,9 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is repsonsbile of handling applications. 
@@ -218,6 +220,55 @@ public class ApplicationManager {
 			throw new AppFactoryException("Error while getting Application Info service ", e);
 		} 
 	}
+
+    /**
+     * Method to retieve application
+     * @param applicationKeys - Applicaiton ID array
+     * @return Information object or null if application by the id is not in registry
+     * @throws AppFactoryException
+     */
+    private List<ApplicationSummary> getApplicationSummary(String[] applicationKeys,
+                                       GenericArtifactManager artifactManager,
+                                       UserRegistry userRegistry) throws AppFactoryException {
+        if (log.isDebugEnabled()) {
+            log.debug("Username for registry :" + userRegistry.getUserName() + " Tenant ID : " +
+                      userRegistry.getTenantId());
+            log.debug("Username from carbon context :" +
+                      CarbonContext.getThreadLocalCarbonContext().getUsername());
+        }
+
+        List<ApplicationSummary> appSummaryList = new ArrayList<ApplicationSummary>();
+
+        for(String applicationId : applicationKeys){
+            String path =
+                    AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" + applicationId + "/" +
+                            "appinfo";
+
+            try {
+                if (!userRegistry.resourceExists(path)) {
+                    return null;
+                }
+
+                Resource resource = userRegistry.get(path);
+
+                GenericArtifact artifact = artifactManager.getGenericArtifact(resource.getUUID());
+                ApplicationSummary applicationSummary = null;
+                if(artifact !=null) {
+                    applicationSummary = getAppInfoSummaryFromRXT(artifact);
+                }
+                appSummaryList.add(applicationSummary);
+            } catch (GovernanceException e) {
+                throw new AppFactoryException("Error while getting Application Info service user: "
+                                              + userRegistry.getUserName() + "Tenant Id: "
+                                              + userRegistry.getTenantId(), e);
+            } catch (RegistryException e) {
+                throw new AppFactoryException("Error while getting Application Info service user: "
+                                              + userRegistry.getUserName() + "Tenant Id: "
+                                              + userRegistry.getTenantId(), e);
+            }
+        }
+        return appSummaryList;
+    }
 		
 
 	//TODO
@@ -273,6 +324,53 @@ public class ApplicationManager {
 
 		return appInfo;
 	}
-    
+
+    /**
+     *
+     * @param artifact
+     * @return Application summary object from RXT
+     * @throws AppFactoryException
+     */
+    private ApplicationSummary getAppInfoSummaryFromRXT(GenericArtifact artifact)
+            throws AppFactoryException {
+        ApplicationSummary appInfo;
+        try {
+            appInfo =
+                    new ApplicationSummary(
+                            artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_KEY),
+                            artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_NAME),
+                            artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_TYPE));
+        } catch (GovernanceException e) {
+            String errorMsg =
+                    String.format("Unable to extract information from RXT: %s",
+                            artifact.getId());
+            log.error(errorMsg);
+            throw new AppFactoryException(errorMsg, e);
+        }
+
+        return appInfo;
+    }
+
+    /**
+     * get application summary from registry
+     * @param applicationKeys array of application keys
+     * @return Application Summary List
+     * @throws AppFactoryException
+     */
+    public List<ApplicationSummary> getSummarizedApplicationInfo(String[] applicationKeys)
+            throws AppFactoryException {
+        UserRegistry userRegistry =
+                (UserRegistry) CarbonContext.getThreadLocalCarbonContext()
+                        .getRegistry(RegistryType.SYSTEM_GOVERNANCE);
+        try {
+            GovernanceUtils.loadGovernanceArtifacts(userRegistry);
+            GenericArtifactManager artifactManager =
+                    new GenericArtifactManager(userRegistry, "application");
+            return getApplicationSummary(applicationKeys, artifactManager, userRegistry);
+        } catch (RegistryException e) {
+            throw new AppFactoryException("Error while loading GenericArtifactManager", e);
+        }
+    }
+
 
 }
