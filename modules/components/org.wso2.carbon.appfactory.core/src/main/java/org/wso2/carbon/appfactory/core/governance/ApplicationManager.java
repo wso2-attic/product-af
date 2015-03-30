@@ -258,9 +258,13 @@ public class ApplicationManager {
                 }
                 appSummaryList.add(applicationSummary);
             } catch (GovernanceException e) {
-                throw new AppFactoryException("Error while getting Application Info service ", e);
+                throw new AppFactoryException("Error while getting Application Info service user: "
+                                              + userRegistry.getUserName() + "Tenant Id: "
+                                              + userRegistry.getTenantId(), e);
             } catch (RegistryException e) {
-                throw new AppFactoryException("Error while getting Application Info service ", e);
+                throw new AppFactoryException("Error while getting Application Info service user: "
+                                              + userRegistry.getUserName() + "Tenant Id: "
+                                              + userRegistry.getTenantId(), e);
             }
         }
         return appSummaryList;
