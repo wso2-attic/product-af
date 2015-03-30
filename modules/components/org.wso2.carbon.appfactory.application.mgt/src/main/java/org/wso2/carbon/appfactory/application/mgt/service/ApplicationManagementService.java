@@ -96,17 +96,17 @@ public class ApplicationManagementService extends AbstractAdmin {
                                   String applicationType, String repositoryType,
                                   String userName) throws ApplicationManagementException {
 
-        ApplicationInfoBean applicationInfoBean = new ApplicationInfoBean();
-        applicationInfoBean.setName(applicationName);
-        applicationInfoBean.setApplicationKey(applicationKey);
-        applicationInfoBean.setDescription(applicationDescription);
-        applicationInfoBean.setApplicationType(applicationType);
-        applicationInfoBean.setRepositoryType(repositoryType);
-        applicationInfoBean.setOwnerUserName(userName);
+        Application application = new Application();
+        application.setName(applicationName);
+        application.setId(applicationKey);
+        application.setDescription(applicationDescription);
+        application.setType(applicationType);
+        application.setRepositoryType(repositoryType);
+        application.setOwner(userName);
 
         try {
             ApplicationCreator applicationCreator = ApplicationCreator.getInstance();
-            applicationCreator.getExecutionEngine().getSynchQueue().put(applicationInfoBean);
+            applicationCreator.getExecutionEngine().getSynchQueue().put(application);
 
             BamDataPublisher publisher = BamDataPublisher.getInstance();
             String tenantId = "" + Util.getRealmService().getBootstrapRealmConfiguration().getTenantId();

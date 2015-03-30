@@ -331,6 +331,8 @@ public class AppFactoryConstants {
 	public static final String APP_VERSION_CACHE_MANAGER = "af.appversion.cache.manager";
 	public static final String APP_VERSION_STAGE_CACHE = "af.appversion.stage.cache";
 	public static final String APP_VERSION_STAGE_CACHE_MANAGER = "af.appversion.stage.cache.manager";
+    public static final String APPS_OF_USER_CACHE_MANAGER =  "af.user.application.cache.manager";
+    public static final String APPS_OF_USER_CACHE = "af.user.application.cache";
 
 	// constants added for BAM Stats
 	public static final String BAM_ADD_DATA = "ADD";
