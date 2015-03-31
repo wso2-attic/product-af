@@ -17,6 +17,7 @@
 package org.wso2.carbon.appfactory.core.dto;
 
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
 
 /**
  * Holds information about a version. Refer {@link ApplicationEventsHandler} for usage.
@@ -44,6 +45,11 @@ public class Version {
 
     public Version(String id) {
         this.id = id;
+    }
+
+    public Version(String id, String lifecycleStage) {
+        this.id = id;
+        this.lifecycleStage = lifecycleStage;
     }
 
 	public String getId() {

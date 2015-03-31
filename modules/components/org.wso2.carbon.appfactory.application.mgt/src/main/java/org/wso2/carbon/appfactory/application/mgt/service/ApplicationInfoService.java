@@ -28,7 +28,6 @@ import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.governance.dao.AppVersionDAO;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -126,19 +125,6 @@ public class ApplicationInfoService {
      */
     public String getApplicationType(String applicationId, String tenantDomain) throws AppFactoryException {
         return ApplicationManager.getInstance().getApplicationType(applicationId);
-    }
-
-
-    public String addArtifact(String key, String info, String lifecycleAttribute) throws AppFactoryException {
-       RegistryUtils.recordStatistics(key, info, lifecycleAttribute);
-       if(key.equals("application")){
-          // ApplicationDAO.getInstance()
-       }else if(key.equals("appversion")){
-           AppVersionDAO.getInstance().addArtifact(info,lifecycleAttribute);
-       }
-
-
-        return RxtManager.getInstance().addArtifact(key, info, lifecycleAttribute);
     }
 
     private String getTenantDomain() {
