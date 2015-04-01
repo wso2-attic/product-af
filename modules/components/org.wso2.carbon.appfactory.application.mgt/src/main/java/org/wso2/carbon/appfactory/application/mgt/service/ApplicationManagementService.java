@@ -65,6 +65,7 @@ import java.util.List;
 public class ApplicationManagementService extends AbstractAdmin {
 
     private static Log log = LogFactory.getLog(ApplicationManagementService.class);
+    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.appversion.load");
 
     public static String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
     public static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
@@ -95,17 +96,17 @@ public class ApplicationManagementService extends AbstractAdmin {
                                   String applicationType, String repositoryType,
                                   String userName) throws ApplicationManagementException {
 
-        ApplicationInfoBean applicationInfoBean = new ApplicationInfoBean();
-        applicationInfoBean.setName(applicationName);
-        applicationInfoBean.setApplicationKey(applicationKey);
-        applicationInfoBean.setDescription(applicationDescription);
-        applicationInfoBean.setApplicationType(applicationType);
-        applicationInfoBean.setRepositoryType(repositoryType);
-        applicationInfoBean.setOwnerUserName(userName);
+        Application application = new Application();
+        application.setName(applicationName);
+        application.setId(applicationKey);
+        application.setDescription(applicationDescription);
+        application.setType(applicationType);
+        application.setRepositoryType(repositoryType);
+        application.setOwner(userName);
 
         try {
             ApplicationCreator applicationCreator = ApplicationCreator.getInstance();
-            applicationCreator.getExecutionEngine().getSynchQueue().put(applicationInfoBean);
+            applicationCreator.getExecutionEngine().getSynchQueue().put(application);
 
             BamDataPublisher publisher = BamDataPublisher.getInstance();
             String tenantId = "" + Util.getRealmService().getBootstrapRealmConfiguration().getTenantId();
@@ -594,6 +595,11 @@ public class ApplicationManagementService extends AbstractAdmin {
 
         Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
         UserInfoBean[] userList = new ApplicationUserManagementService().getUsersOftheApplication(applicationId);
+
+//        for (UserInfoBean anUserList : userList) {
+//            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForUser(anUserList.getUserName().concat("@").concat(domainName));
+//        }
+
         ApplicationEventsHandler listener;
         while (appEventListeners.hasNext()) {
             listener = appEventListeners.next();
@@ -794,6 +800,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
     public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
 
+        long startTime = System.currentTimeMillis();
         // Commenting out all App version cache related code
 
         // AppVersionCache cache = AppVersionCache.getAppVersionCache();
@@ -810,8 +817,9 @@ public class ApplicationManagementService extends AbstractAdmin {
                                                                                                    applicationId);
             artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
             // cache.addToCache(applicationId, artifacts);
-            if (log.isDebugEnabled()) {
-                log.debug("*** Added all versions to cache " + applicationId);
+            long endTime = System.currentTimeMillis();
+            if (perfLog.isDebugEnabled()) {
+                perfLog.debug("AFProfiling getAllVersionsOfApplication :" + (endTime - startTime) );
             }
             return artifacts;
         } catch (AppFactoryException e) {

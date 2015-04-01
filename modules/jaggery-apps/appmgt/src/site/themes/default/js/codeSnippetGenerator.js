@@ -113,84 +113,131 @@ var getJavaCodeForDatasources=function(applicaitonKey,propertyName){
 };
 var getJavaCodeForApis=function(applicaitonKey,propertyName,info){
     var code='';
-//    code='<pre class="clipboard">'
-//          +'import javax.naming.InitialContext;</br>'
-//          +'import javax.naming.NamingException;</br>'
-//          +'import javax.sql.DataSource;</br></br>'  
-//          +'DataSource dataSource = null;</br>'
-//          +'try {</br>' 
-//          +'    InitialContext context = new InitialContext();</br>'
-//          +'    if(env.size()>0){</br>'
-//          +'         context = new InitialContext(env);</br>'
-//          +'    }</br>'
-//          +'    dataSource = (DataSource) context.lookup("jdbc/'+propertyName+'");</br>'
-//          +'} catch (NamingException e) {</br>'
-//          +'    e.printStackTrace();</br>'
-//          +'}</br>'
-//          +'return dataSource;</br>'
-//          +'</pre>';  
-//    
-//    return code;  
     var name=info.name;
     var authentication=info.authentication;
-    if(authentication=="none"){
-       
-        code='<pre class="clipboard">'
-            +'import java.io.IOException;</br>'
-            +'import org.apache.http.HttpResponse;</br>'
-            +'import org.apache.http.client.methods.HttpPost;</br>'  
-            +'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
-            +'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
-            +'import org.wso2.carbon.context.CarbonContext;</br>'
-            +'import org.wso2.carbon.context.RegistryType;</br>'
-            +'import org.wso2.carbon.registry.core.Registry;</br>'
-            +'import org.wso2.carbon.registry.core.Resource;</br>'  
-            +'import org.apache.http.impl.client.HttpClientBuilder;</br>'  
-            +'String url=getApiValues("url");</br>'  
-            +'HttpClient client= HttpClientBuilder.create().build();</br>'  
-            +'HttpPost post= new HttpPost(url);</br>'
-            +'HttpResponse response;</br>'  
-            +'try {</br></br>' 
-            +'    response=client.execute(post);</br>'
-            +'} catch (IOException e) {</br>'
-            +'    e.printStackTrace();</br>'
-            +'}</br></br>'
-             
-            +'    '+getApiReadValuesMethod(applicaitonKey,name)
-            +'</br>'  
-            +'</pre>';  
+
+    if (authentication == "none") {
+
+        code = '<pre class="clipboard">'
+        + 'import java.io.IOException;</br>'
+        + 'import org.apache.http.HttpResponse;</br>'
+        + 'import org.apache.http.client.methods.HttpPost;</br>'
+        + 'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
+        + 'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
+        + 'import org.wso2.carbon.context.CarbonContext;</br>'
+        + 'import org.wso2.carbon.context.RegistryType;</br>'
+        + 'import org.wso2.carbon.registry.core.Registry;</br>'
+        + 'import org.wso2.carbon.registry.core.Resource;</br>'
+        + 'import org.apache.http.impl.client.HttpClientBuilder;</br>'
+        + 'String url = getApiValues("url");</br>'
+        + 'HttpClient client = HttpClientBuilder.create().build();</br>'
+        + 'HttpPost post = new HttpPost(url);</br>'
+        + 'HttpResponse response;</br>'
+        + 'try {</br></br>'
+        + '    response=client.execute(post);</br>'
+        + '} catch (IOException e) {</br>'
+        + '    e.printStackTrace();</br>'
+        + '}</br></br>'
+
+        + '    ' + getApiReadValuesMethod(applicaitonKey, name)
+        + '</br>'
+        + '</pre>';
         return code;
-    }else if(authentication=="token"){
-        code='<pre class="clipboard">'
-            +'import java.io.IOException;</br>'
-            +'import org.apache.http.HttpResponse;</br>'
-            +'import org.apache.http.client.methods.HttpPost;</br>'  
-            +'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
-            +'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
-            +'import org.wso2.carbon.context.CarbonContext;</br>'
-            +'import org.wso2.carbon.context.RegistryType;</br>'
-            +'import org.wso2.carbon.registry.core.Registry;</br>'
-            +'import org.wso2.carbon.registry.core.Resource;</br>'  
-            +'import org.apache.http.impl.client.HttpClientBuilder;</br>'  
-            +'String url=getApiValues("url");</br>' 
-            +'String token=getApiValues("token");</br>'  
-            +'HttpClient client= HttpClientBuilder.create().build();</br>'  
-            +'HttpPost post= new HttpPost(url);</br>'
-            +'post.addHeader("Authorization","Bearer "+token);</br>'
-            +'HttpResponse response;</br>'  
-            +'try {</br></br>' 
-            +'    response=client.execute(post);</br>'
-            +'} catch (IOException e) {</br>'
-            +'    e.printStackTrace();</br>'
-            +'}</br></br>'
-             
-            +'    '+getApiReadValuesMethod(applicaitonKey,name)
-            +'</br>'  
-            +'</pre>';  
+    } else if (authentication == "token") {
+        code = '<pre class="clipboard">'
+        + 'import java.io.IOException;</br>'
+        + 'import org.apache.http.HttpResponse;</br>'
+        + 'import org.apache.http.client.methods.HttpPost;</br>'
+        + 'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
+        + 'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
+        + 'import org.wso2.carbon.context.CarbonContext;</br>'
+        + 'import org.wso2.carbon.context.RegistryType;</br>'
+        + 'import org.wso2.carbon.registry.core.Registry;</br>'
+        + 'import org.wso2.carbon.registry.core.Resource;</br>'
+        + 'import org.apache.http.impl.client.HttpClientBuilder;</br>'
+        + 'String url = getApiValues("url");</br>'
+        + 'String token = getApiValues("token");</br>'
+        + 'HttpClient client = HttpClientBuilder.create().build();</br>'
+        + 'HttpPost post = new HttpPost(url);</br>'
+        + 'post.addHeader("Authorization","Bearer "+token);</br>'
+        + 'HttpResponse response;</br>'
+        + 'try {</br></br>'
+        + '    response=client.execute(post);</br>'
+        + '} catch (IOException e) {</br>'
+        + '    e.printStackTrace();</br>'
+        + '}</br></br>'
+
+        + '    ' + getApiReadValuesMethod(applicaitonKey, name)
+        + '</br>'
+        + '</pre>';
         return code;
-//        TODO: need to add the other two types
+
+    } else if (authentication == "oauth") {
+        code = '<pre class="clipboard">'
+        + 'import java.io.IOException;</br>'
+        + 'import org.apache.http.HttpResponse;</br>'
+        + 'import org.apache.http.client.methods.HttpPost;</br>'
+        + 'import org.apache.axiom.util.base64.Base64Utils;</br>'
+        + 'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
+        + 'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
+        + 'import org.wso2.carbon.context.CarbonContext;</br>'
+        + 'import org.wso2.carbon.context.RegistryType;</br>'
+        + 'import org.wso2.carbon.registry.core.Registry;</br>'
+        + 'import org.wso2.carbon.registry.core.Resource;</br>'
+        + 'import org.apache.http.impl.client.HttpClientBuilder;</br>'
+        + 'String url = getApiValues("url");</br>'
+        + 'String consumer_key = getApiValues("consumer_key");</br>'
+        + 'String consumer_secret = getApiValues("consumer_secret");</br>'
+        + 'String encodeStr = consumer_key + ":" + consumer_secret;</br>'
+        + 'String token = Base64Utils.encode(encodeStr.getBytes());</br>'
+        + 'HttpClient client = HttpClientBuilder.create().build();</br>'
+        + 'HttpPost post = new HttpPost(url);</br>'
+        + 'post.addHeader("Authorization","Basic " + token);</br>'
+        + 'HttpResponse response;</br>'
+        + 'try {</br></br>'
+        + '    response=client.execute(post);</br>'
+        + '} catch (IOException e) {</br>'
+        + '    e.printStackTrace();</br>'
+        + '}</br></br>'
+
+        + '    ' + getApiReadValuesMethod(applicaitonKey, name)
+        + '</br>'
+        + '</pre>';
+        return code;
+
+    } else if (authentication == "basic") {
+        code = '<pre class="clipboard">'
+        + 'import java.io.IOException;</br>'
+        + 'import org.apache.http.HttpResponse;</br>'
+        + 'import org.apache.http.client.methods.HttpPost;</br>'
+        + 'import org.apache.axiom.util.base64.Base64Utils;</br>'
+        + 'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
+        + 'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
+        + 'import org.wso2.carbon.context.CarbonContext;</br>'
+        + 'import org.wso2.carbon.context.RegistryType;</br>'
+        + 'import org.wso2.carbon.registry.core.Registry;</br>'
+        + 'import org.wso2.carbon.registry.core.Resource;</br>'
+        + 'import org.apache.http.impl.client.HttpClientBuilder;</br>'
+        + 'String url = getApiValues("url");</br>'
+        + 'String username = getApiValues("username");</br>'
+        + 'String password = getApiValues("password");</br>'
+        + 'String encodeStr = username + ":" + password;</br>'
+        + 'String token = Base64Utils.encode(encodeStr.getBytes());</br>'
+        + 'HttpClient client = HttpClientBuilder.create().build();</br>'
+        + 'HttpPost post = new HttpPost(url);</br>'
+        + 'post.addHeader("Authorization","Basic " + token);</br>'
+        + 'HttpResponse response;</br>'
+        + 'try {</br></br>'
+        + '    response=client.execute(post);</br>'
+        + '} catch (IOException e) {</br>'
+        + '    e.printStackTrace();</br>'
+        + '}</br></br>'
+
+        + '    ' + getApiReadValuesMethod(applicaitonKey, name)
+        + '</br>'
+        + '</pre>';
+        return code;
     }
-    
 };
 
 var getShCodeForBuildAndRepo = function(applicationKey, name,details){
@@ -204,11 +251,12 @@ var getShCodeForBuildAndRepo = function(applicationKey, name,details){
     var commands =  '<pre class="clipboard">#Git commands to get the diff from forked repository against master</br>'+
         'git clone ' + gitURL +' </br>'+
         'Go to ' + applicationKey + ' folder</br>'+
+        'git checkout ' + appVersion + ' </br>'+
         'git remote add -f b ' + gitURLForked + '</br>'+
-        'git diff origin/' + appVersion + ' remotes/b/' + appVersion + ' > ' + applicationKey + '.diff</br>' +
+        'git diff origin/' + appVersion + ' remotes/b/' + appVersion + ' > /tmp/' + applicationKey + '.diff</br>' +
         '<p></p>'+
         '#Apply the diff</br>'+
-        'git apply ' + applicationKey +'.diff</br>'+
+        'git apply /tmp/' + applicationKey +'.diff</br>'+
         'git add * </br>'+
         'git commit -m ""</br>'+
         'git push</br>' +
@@ -217,7 +265,7 @@ var getShCodeForBuildAndRepo = function(applicationKey, name,details){
     return commands;
 };
 
-var getJaggeryCodeForProperties = function(appKey, propertyName, details){
+var getjaggeryCodeForProperties = function(appKey, propertyName, details){
     var tenantDomain = details.tenantDomain;
     var tenantId = details.tenantId;
     var loggedinUser = details.loggedinUser;

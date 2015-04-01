@@ -61,7 +61,7 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 			defaultVersion = "1.0.0";
 			defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("EndStage");
 		}
-		
+
 		applicationDeployer.deployArtifact(application.getId(), defaultStage, defaultVersion, "", "deploy","");
 
        }

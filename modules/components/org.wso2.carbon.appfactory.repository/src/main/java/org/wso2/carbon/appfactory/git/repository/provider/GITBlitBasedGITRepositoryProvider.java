@@ -122,7 +122,15 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 		return isDeleted;
 	}
 
-	@Override
+    @Override
+    public boolean deleteForkedRepository(String applicationKey, String userName, String tenantDomain) throws RepositoryMgtException {
+
+        //TODO: Still discussing
+        return false;
+    }
+
+
+    @Override
 	public boolean repoExists(String applicationKey, String tenantDomain)
 	                                                                     throws RepositoryMgtException {
 		// TODO implement method

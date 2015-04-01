@@ -18,8 +18,8 @@ package org.wso2.carbon.appfactory.application.mgt.service.applicationqueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoBean;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
+import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.queue.ExecutionEngine;
 
@@ -43,20 +43,20 @@ public class ApplicationCreator {
     private int executorCount = 1 ;
 
     private ApplicationExecutor applicationExecutor = null;
-    private ExecutionEngine<ApplicationInfoBean> executionEngine = null;
+    private ExecutionEngine<Application> executionEngine = null;
 
     private ApplicationCreator() throws AppFactoryQueueException {
         // Executor interface implementation
         this.applicationExecutor = new ApplicationExecutor();
         // ExecutionEngine instance
         this.executionEngine =
-                new ExecutionEngine<ApplicationInfoBean>(applicationExecutor, true,
+                new ExecutionEngine<Application>(applicationExecutor, true,
                                                          true, getTimeDelay(),
                                                          getQueueLength(),getParellalExecutorCount());
 
     }
 
-    public ExecutionEngine<ApplicationInfoBean> getExecutionEngine() {
+    public ExecutionEngine<Application> getExecutionEngine() {
         return executionEngine;
     }
 

@@ -22,7 +22,6 @@ include("/jagg/constants.jag");
 <%
     var applicationKey = inputs.applicationKey;
     var applicationName = inputs.applicationName;
-    var isUploadableAppType = 	outputs.isUploadableAppType;
     var pageName = inputs.pageName;
     if(jagg.getUser()){
         if(!applicationKey){
@@ -54,7 +53,7 @@ include("/jagg/constants.jag");
             <ul class="main_list">
 
                 <% if (outputs.isOverviewAllowed) { %>
-                    <li class="main_list_item"><a id="menu_appHome" href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isUploadableApp=<%=isUploadableAppType%>" class="main_list_link <% if (pageName == "AppHome") { %>active<%}%>" title="Overview"><span class="icon-desktop"></span> Overview</a></li>
+                    <li class="main_list_item"><a id="menu_appHome" href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="main_list_link <% if (pageName == "AppHome") { %>active<%}%>" title="Overview"><span class="icon-desktop"></span> Overview</a></li>
                 <% } %>
 
                 <% if (outputs.isTeamAllowed) { %>

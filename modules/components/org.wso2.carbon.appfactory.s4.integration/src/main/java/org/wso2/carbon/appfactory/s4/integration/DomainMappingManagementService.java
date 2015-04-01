@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -28,6 +29,7 @@ import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppInfoUpdateEventBuilderUtil;
+import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingAction;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingResponse;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
@@ -41,6 +43,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Random;
 
 /**
  * Domain mapping management service. Handles the domain mapping requests.
@@ -134,6 +137,30 @@ public class DomainMappingManagementService {
                 throw new AppFactoryException(String.format(DomainMappingUtils.AF_ERROR_ADD_DOMAIN_MSG, domain));
             }
         } // end of synchronized
+    }
+
+    /**
+     * Add default production url, if its failed during app creation time
+     *
+     * @param appKey    application key
+     * @param version   version of the application
+     * @throws AppFactoryException
+     */
+    public void addDefaultProdUrl(String appKey, String version) throws AppFactoryException {
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String defaultHostName = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
+                AppFactoryConstants.DOMAIN_NAME);
+        String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(
+                appKey + AppFactoryConstants.MINUS + (new Random()).nextInt(1000),
+                tenantDomain, defaultHostName);
+        try {
+            addSubscriptionDomain(ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
+                    AppFactoryConstants.FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE), defaultUrl, appKey, version, false);
+        } catch (DomainMappingVerificationException e) {
+            log.error(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl), e);
+            throw new AppFactoryException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl));
+        }
+        DomainMappingUtils.updateMetadata(appKey, defaultUrl, version, false);
     }
 
     /**

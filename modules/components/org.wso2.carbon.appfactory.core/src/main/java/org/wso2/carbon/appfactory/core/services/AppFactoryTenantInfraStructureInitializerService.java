@@ -22,7 +22,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
-import org.wso2.carbon.appfactory.core.dto.TenantInfoBean;
+import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.task.AppFactoryTenantRepositoryInitializerTask;

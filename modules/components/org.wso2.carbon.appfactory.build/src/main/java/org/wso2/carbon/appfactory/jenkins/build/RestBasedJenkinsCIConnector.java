@@ -119,7 +119,7 @@ public class RestBasedJenkinsCIConnector {
 		return restBasedJenkinsCIConnector;
 	}
 
-	/**
+    /**
 	 * Private constructor for singalton class
 	 * @throws AppFactoryException when reading from appfactory.xml
 	 */
@@ -169,6 +169,19 @@ public class RestBasedJenkinsCIConnector {
 		}
 		return httpClient;
 	}
+
+    public HttpClient getNewAuthenticatedHttpClient() {
+       HttpClient httpClientObj = new HttpClient();
+        if (this.authenticate) {
+            httpClientObj.getState()
+                    .setCredentials(
+                            AuthScope.ANY,
+                            new UsernamePasswordCredentials(this.username,
+                                    this.apiKeyOrPassword));
+            httpClientObj.getParams().setAuthenticationPreemptive(true);
+        }
+        return httpClientObj;
+    }
 
 	/**
 	 * @return
@@ -679,13 +692,14 @@ public class RestBasedJenkinsCIConnector {
 				tenantDomain);
 		int httpStatusCode = -1;
 		try {
-			httpStatusCode = getAuthenticatedHttpClient().executeMethod(deleteJobMethod);
 
-			if (HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
-				httpStatusCode = resendRequest(deleteJobMethod);
-			}
+            //APPFAC-2853 fix; HttpClient has a bug in handling 302, there for reinitializing the client
+            HttpClient httpClient =  getNewAuthenticatedHttpClient();
 
-			if (HttpStatus.SC_FORBIDDEN == httpStatusCode) {
+            //This will always result 302 due to APPFAC-2853 fix
+			httpStatusCode = httpClient.executeMethod(deleteJobMethod);
+
+			if (HttpStatus.SC_MOVED_TEMPORARILY != httpStatusCode) {
 				final String errorMsg = String.format(
 						"Unable to delete: [%s]. jenkins returned, "
 								+ "http status : %d", jobName, httpStatusCode);

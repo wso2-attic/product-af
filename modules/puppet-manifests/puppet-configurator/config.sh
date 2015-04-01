@@ -21,8 +21,8 @@ PACKS_DIR=/var/www/software
 SOURCE_PATH=/home/ubuntu/product-af
 PUPPET_MODULES_HOME=${SOURCE_PATH}/modules/puppet-manifests/appfactory/modules
 PUPPET_CONFIG_PATH=${SOURCE_PATH}/modules/puppet-manifests/appfactory
-OLD_VERSION="2.1.0"
-NEW_VERSION="2.1.0-SNAPSHOT"
+OLD_VERSION="2.1.0-SNAPSHOT"
+NEW_VERSION="2.1.0"
 RESET_CLR='\033[00;00m'
 RED="\033[33;31m"
 GREEN="\033[33;32m"
@@ -50,7 +50,7 @@ declare -a SM_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 
 ## patches
 declare -a AM_PATCHES=("patch0999");
-declare -a AF_PATCHES=("patch0001" "patch0004" "patch0132" "patch0133" "patch0630" "patch0670" "patch1091");
+declare -a AF_PATCHES=("patch0001" "patch0004" "patch0132" "patch0133" "patch1091");
 declare -a AS_PATCHES=("patch0028" "patch0132" "patch0133" "patch9999");
 declare -a ELB_PATCHES=("patch0001" "patch0027" "patch0236" "patch8000");
 declare -a IS_PATCHES=("patch0031" "patch0137");

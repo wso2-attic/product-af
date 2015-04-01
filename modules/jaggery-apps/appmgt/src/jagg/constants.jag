@@ -217,6 +217,9 @@ var SAML_ASSERTION_TOKEN_SESSION_KEY = "SAML_ASSERTION_TOKEN";
 //For uploading existing application flow (WAR)
 var TMP_UPLOADED_APPLICATIONS_PATH = "tmpUploadedApps"
 var UPPLOADABLE_SUFFIX = ".uploaded";
+
+//for applicaiton icon file size
+var APP_ICON_MAX_SIZE = 51200;
 //For claims
 
 var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";

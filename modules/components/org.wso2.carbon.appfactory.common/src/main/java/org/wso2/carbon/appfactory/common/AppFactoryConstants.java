@@ -32,6 +32,8 @@ public class AppFactoryConstants {
 	public static final String DEPLOYMENT_STAGES = "ApplicationDeployment.DeploymentStage";
 	public static final String DEPLOYMENT_URL = "DeploymentServerURL";
 	public static final String APPFACTORY_WEB_CONTEXT_ROOT = "WebContextRoot";
+	public static final String DOMAIN_NAME = "DomainName";
+	public static final String FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE = "FineGrainedDomainMappingAllowedStage";
 
 	public static final String APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 	public static final String BPS_SERVER_URL = "ServerUrls.BPS";
@@ -42,6 +44,7 @@ public class AppFactoryConstants {
 	public static final String UPPLOADABLE_SUFFIX = ".uploaded";
 
 	public static final String MESSAGE_BROKER_CONNECTION_URL = "MessageBrokerConnectionURL";
+    public static final String UPLOADABLE_ARTIFACT_MAX_SIZE="UploadableArtifactMaxSize";
 
 	public static final String REGISTRY_GET = "REGISTRY_GET";
 	public static final String REGISTRY_PUT = "REGISTRY_PUT";
@@ -328,6 +331,8 @@ public class AppFactoryConstants {
 	public static final String APP_VERSION_CACHE_MANAGER = "af.appversion.cache.manager";
 	public static final String APP_VERSION_STAGE_CACHE = "af.appversion.stage.cache";
 	public static final String APP_VERSION_STAGE_CACHE_MANAGER = "af.appversion.stage.cache.manager";
+    public static final String APPS_OF_USER_CACHE_MANAGER =  "af.user.application.cache.manager";
+    public static final String APPS_OF_USER_CACHE = "af.user.application.cache";
 
 	// constants added for BAM Stats
 	public static final String BAM_ADD_DATA = "ADD";
