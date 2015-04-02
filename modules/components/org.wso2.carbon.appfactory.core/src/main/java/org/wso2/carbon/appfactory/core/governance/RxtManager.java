@@ -44,10 +44,14 @@ import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
-
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public class RxtManager {
     /*
@@ -267,43 +271,7 @@ public class RxtManager {
 
     }
 
-    /**
-     * This method will add the given newValue as the value of the key,
-     * replacing the existing value
-     *
-     * @param applicationId the Id of the current application
-     * @param key           the attribute key that is been updated
-     * @param newValue      the new value of the attribute key
-     * @throws AppFactoryException
-     */
-    public void updateAppInfoRxt(String applicationId, String key,
-                                 String newValue, String tenantDomain) throws AppFactoryException {
 
-        // creating a unique key for an application in a tenant
-        String tenant_appLock = tenantDomain.concat("_").concat(applicationId);
-
-        synchronized (tenant_appLock.intern()){
-            GenericArtifactImpl artifact = getAppInfoArtifact(applicationId, tenantDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Updating application information rxt with key : " + key + " value : " + newValue
-                        + " applicationId : " + applicationId + " in tenant domain : " + tenantDomain);
-            }
-
-            try {
-                artifact.setAttribute(key, newValue);
-                UserRegistry userRegistry = getUserRegistry(tenantDomain);
-                GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-                GenericArtifactManager artifactManager =
-                        new GenericArtifactManager(userRegistry,
-                                "application");
-                artifactManager.updateGenericArtifact(artifact);
-            } catch (RegistryException e) {
-                String errorMsg = "Error while updating the artifact " + applicationId;
-                log.error(errorMsg, e);
-                throw new AppFactoryException(errorMsg, e);
-            }
-        }
-    }
 
     /**
      * This method returns the stage of a given application version
@@ -369,68 +337,8 @@ public class RxtManager {
         return artifact;
     }
 
-    /**
-     * @param applicationId the ID of the current application
-     * @return generic artifact implementation of the artifact that matches the
-     *         given applicationId, stage and version
-     * @throws AppFactoryException
-     */
-    private  GenericArtifactImpl getAppInfoArtifact(String applicationId, String tenantDomain) throws AppFactoryException {
-        GenericArtifactImpl artifact;
-        try {
 
-            UserRegistry userRegistry = getUserRegistry(tenantDomain);
 
-            Resource resource =
-                    userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                            RegistryConstants.PATH_SEPARATOR + applicationId +
-                            RegistryConstants.PATH_SEPARATOR + "appinfo");
-            GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-            GenericArtifactManager artifactManager =
-                    new GenericArtifactManager(userRegistry,
-                            "application");
-            artifact = (GenericArtifactImpl) artifactManager.getGenericArtifact(resource.getUUID());
-
-        } catch (RegistryException e) {
-            String errorMsg =
-                    String.format("Unable to load the application information for applicaiton id: %s",
-                            applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-
-        if (artifact == null) {
-            String errorMsg = "Failed to get generic artifact implementation of application information artifact with " +
-                    "tenant domain : " + tenantDomain + " applicationId : " + applicationId;
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-        return artifact;
-    }
-
-    /**
-     * @param applicationId the ID of the current application
-     * @param key           the key is one of element what we need to get the value
-     * @return keyValue the keyValue is the returned value for the given key
-     * @throws AppFactoryException
-     */
-    public String getAppInfoRxtValue(String applicationId, String key,String tenantDomain) throws AppFactoryException {
-        GenericArtifactImpl artifact;
-        String keyValue;
-        try {
-            artifact = getAppInfoArtifact(applicationId, tenantDomain);
-            keyValue = artifact.getAttribute(key);
-
-        } catch (RegistryException e) {
-            String errorMsg =
-                    String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-
-        return keyValue;
-    }
 
     /**
      * @param applicationId the ID of the current application
