@@ -80,7 +80,7 @@ public class JDBCApplicationDAO {
 
                 int applicationID = getApplicationID(application.getId(), databaseConnection);
                 Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
-                        new Version(SQLParameterConstants.VERSION_1_0_0, "Production"):new Version(SQLParameterConstants.VERSION_TRUNK, "Development");
+                        new Version(SQLParameterConstants.VERSION_1_0_0):new Version(SQLParameterConstants.VERSION_TRUNK);
 
                 addVersion(applicationID, version, databaseConnection,application.getId());
                 databaseConnection.commit();

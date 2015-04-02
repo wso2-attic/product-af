@@ -27,8 +27,6 @@ public class Artifact {
 
     private String lastBuildStatus;
 
-    private String lastBuildId;
-
     private String version;
 
     private boolean autoBuild = false;

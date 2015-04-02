@@ -35,7 +35,6 @@ import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
-import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
@@ -308,12 +307,12 @@ public class ApplicationManagementService extends AbstractAdmin {
             domainName = threadLocalCarbonContext.getTenantDomain();
             String userName = threadLocalCarbonContext.getUsername();
 
+            Version version=new Version(targetVersion);
+            applicationDAO.addVersion(applicationId,version);
+            Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
+
             Application application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
-
-            Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
-                              new Version(targetVersion, "Production"):new Version(targetVersion, "Development");
-            applicationDAO.addVersion(applicationId,version);
 
             Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
 
@@ -335,7 +334,6 @@ public class ApplicationManagementService extends AbstractAdmin {
                 }
             }
 
-            Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
             ApplicationEventsHandler listener = null ;
             while (appEventListeners.hasNext()) {
                 try {

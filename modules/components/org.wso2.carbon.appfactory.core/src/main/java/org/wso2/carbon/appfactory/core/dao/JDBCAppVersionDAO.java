@@ -108,7 +108,7 @@ public class JDBCAppVersionDAO {
         PreparedStatement preparedStatement = null;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_SUBDOMAIN_OF_VERSION);
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_SUBDOMIN_OF_VERSION);
             preparedStatement.setString(1, subdomain);
             preparedStatement.setInt(2, autoIncrementAppId);
             preparedStatement.setString(3, version);
@@ -422,8 +422,7 @@ public class JDBCAppVersionDAO {
             resultSet = preparedStatement.getResultSet();
             while (resultSet.next()) {
                 Artifact artifact = new Artifact( applicationKey,
-                "build "+ resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD)
-                +" " + resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_STATUS)
+                resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_STATUS)
         ,       resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME),
                 resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD)==1?true:false,
                 resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY)==1?true:false,
