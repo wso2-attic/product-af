@@ -29,7 +29,7 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
@@ -109,7 +109,7 @@ public class ApplicationUserManagementService {
                 ApplicationEventsHandler applicationEventsListener =
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
-                    applicationEventsListener.onUserAddition(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
+                    applicationEventsListener.onUserAddition(RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
                 }
             }
             ApplicationsOfUserCache applicationsOfUserCache = new ApplicationsOfUserCache();
@@ -191,7 +191,7 @@ public class ApplicationUserManagementService {
             throw new AppFactoryException(errorMsg, e);
         }
 
-        Application app = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
+        Application app = RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey);
         String applicationName = app.getName();
 
         for (String userName : userNames) {
@@ -230,7 +230,7 @@ public class ApplicationUserManagementService {
                 ApplicationEventsHandler applicationEventsListener =
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
-                    applicationEventsListener.onUserDeletion(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
+                    applicationEventsListener.onUserDeletion(RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
                 }
             }
 

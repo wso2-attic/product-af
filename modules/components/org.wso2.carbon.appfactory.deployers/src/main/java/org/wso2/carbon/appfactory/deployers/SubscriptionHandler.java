@@ -71,7 +71,7 @@ public class SubscriptionHandler {
      */
     public String createSubscription(Map<String,String> deployerInfo, String stage, String username, int tenantID,
                                      String applicationID, String tenantDomain) throws AppFactoryException {
-
+        System.out.println("createSubscription >>>>>>>>>>>>>>>>>>>>>>>>>>");
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
         AppFactoryConfiguration configuration = appfactoryConfiguration;
         //get the stratos server url for each stage

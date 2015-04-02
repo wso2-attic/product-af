@@ -89,10 +89,6 @@ public class ApplicationManagementServiceComponent {
 	protected void activate(ComponentContext context){
 
 		BundleContext bundleContext = context.getBundleContext();
-		ApplicationManagementService mgtService = new ApplicationManagementService();
-		bundleContext.registerService(ApplicationManagementService.class.getName(), mgtService,
-		                              null);
-
 		bundleContext.registerService(ApplicationUserManagementService.class.getName(),
 		                              new ApplicationUserManagementService(), null);
 		AppFactoryConfiguration appFactoryConfiguration = Util.getConfiguration();
