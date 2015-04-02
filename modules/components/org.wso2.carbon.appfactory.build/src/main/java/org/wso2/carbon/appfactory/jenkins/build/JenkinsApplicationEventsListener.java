@@ -27,7 +27,6 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
@@ -107,8 +106,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                 new String[]{userName.split("@")[0]},
                 tenantDomain);
         Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-        //String stage = rxtManager.getStage(application.getId(), versions[0].getId(), tenantDomain);
-        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0].getId());
+        String stage = rxtManager.getStage(application.getId(), versions[0].getId(), tenantDomain);
         if (ArrayUtils.isNotEmpty(versions)) {
             // No need to create job.
             jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getId(), true, stage,
@@ -242,10 +240,9 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         ServiceContainer.getJenkinsCISystemDriver()
                 .startBuild(application.getId(),
                         target.getId(),
-                        true, JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(),
-                                target.getId())
-                        /*rxtManager.getStage(application.getId(), target.getId(),
-                                tenantDomain)*/, "", tenantDomain, userName,
+                        true,
+                        rxtManager.getStage(application.getId(), target.getId(),
+                                tenantDomain), "", tenantDomain, userName,
                         AppFactoryConstants.ORIGINAL_REPOSITORY);
 
     }

@@ -19,8 +19,6 @@ package org.wso2.carbon.appfactory.core.build;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
-import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
@@ -68,15 +66,13 @@ public class ArtifactCreator extends AbstractAdmin {
 			boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
 
 			boolean performBuild = true;
-            int autoIncrement = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            boolean performDeploy = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(autoIncrement,version);
-			/*boolean performDeploy = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
-                    version, "appversion_isAutoDeploy", tenantDomain));*/
+			boolean performDeploy = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
+                    version, "appversion_isAutoDeploy", tenantDomain));
 			if ( doDeploy ) {
-				/*performBuild = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
-						version, "appversion_isAutoBuild", tenantDomain));*/
-                //triggered by auto commit
-                performBuild = JDBCAppVersionDAO.getInstance().getAutoDeployStatusOfVersion(autoIncrement,version);
+				//triggered by auto commit
+				performBuild = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
+						version, "appversion_isAutoBuild", tenantDomain));
+
                 if (log.isDebugEnabled()) {
                     log.error("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " + repoFrom);
                 }

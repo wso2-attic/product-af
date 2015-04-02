@@ -70,7 +70,8 @@ public class JDBCResourceDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_RESOURCE_SQL);
-            int applicationId = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey);
+            int applicationId = JDBCApplicationDAO.getInstance().getApplicationID(applicationKey,
+                                                                                  databaseConnection);
             preparedStatement.setInt(1, applicationId);
             preparedStatement.setString(2, resourceName);
             preparedStatement.setString(3, resourceType);
@@ -221,7 +222,8 @@ public class JDBCResourceDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement =
                 databaseConnection.prepareStatement(SQLConstants.DELETE_RESOURCE_SQL);
-            int applicationId = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey);
+            int applicationId = JDBCApplicationDAO.getInstance().getApplicationID(applicationKey,
+                                                                                  databaseConnection);
             preparedStatement.setInt(1, applicationId);
             preparedStatement.setString(2, resourceName);
             preparedStatement.setString(3, resourceType);

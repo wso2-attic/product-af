@@ -79,9 +79,11 @@ public class JDBCApplicationDAO {
                         (updatedRowCount).append(" rows").toString());
 
                 int applicationID = getApplicationID(application.getId(), databaseConnection);
-                Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
-                        new Version(SQLParameterConstants.VERSION_1_0_0):new Version(SQLParameterConstants.VERSION_TRUNK);
-
+                Version version = new Version(SQLParameterConstants.VERSION_TRUNK);
+                boolean isUploadableAppType = AppFactoryCoreUtil.isUplodableAppType(application.getType());
+                if (isUploadableAppType) {
+                    version = new Version(SQLParameterConstants.VERSION_1_0_0);
+                }
                 addVersion(applicationID, version, databaseConnection,application.getId());
                 databaseConnection.commit();
                 return true;
@@ -1392,6 +1394,91 @@ public class JDBCApplicationDAO {
     }
 
     /**
+     * Get a {@link Version} of a given application and version name
+     *
+     * @param applicationID key of the application
+     * @param versionName   version number
+     * @return {@link Version}
+     * @throws AppFactoryException
+     */
+    public Version getApplicationVersion(String applicationID, String versionName) throws AppFactoryException {
+        Connection databaseConnection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet allVersions = null;
+
+        Version version = new Version();
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
+            preparedStatement.setInt(1, getApplicationID(applicationID, databaseConnection));
+            preparedStatement.setString(2, versionName);
+            allVersions = preparedStatement.executeQuery();
+            while (allVersions.next()) {
+                version.setId(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+                version.setLifecycleStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
+                version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
+            }
+        } catch (SQLException e) {
+            handleException("Error while getting app version " + versionName + " of application " +
+                            applicationID, e);
+        } finally {
+            AppFactoryDBUtil.closeResultSet(allVersions);
+            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+        return version;
+    }
+
+    /**
+     * Update method for promote status of an application version
+     *
+     * @param applicationKey key of an application
+     * @param version        version number
+     * @param status         status of promotion
+     * @return true if it success false if it failed
+     * @throws AppFactoryException
+     */
+    public boolean updatePromoteStatusOfVersion(String applicationKey, String version, String status)
+            throws AppFactoryException {
+        Connection databaseConnection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_PROMOTE_STATUS__OF_VERSION);
+            int applicationID = getApplicationID(applicationKey, databaseConnection);
+            preparedStatement.setString(1, status);
+            preparedStatement.setInt(2, applicationID);
+            preparedStatement.setString(3, version);
+            preparedStatement.execute();
+            int affectedRows = preparedStatement.getUpdateCount();
+            if (affectedRows > 0) {
+                databaseConnection.commit();
+                return true;
+            }
+            handleException("Error while updating promote status of version " + version + " of " +
+                            "application " + applicationKey);
+        } catch (SQLException e) {
+            try {
+                if (databaseConnection != null) {
+                    databaseConnection.rollback();
+                }
+            } catch (SQLException e1) {
+                // Only logging this exception since this is not the main issue. The original issue is thrown.
+                log.error("Error while rolling back update promote status of version " +
+                          "" + version + " of " +
+                          "application " + applicationKey, e);
+            }
+            handleException("Error while updating promote status of version " + version + " of " +
+                            "application " + applicationKey, e);
+        } finally {
+            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+
+        return false;
+    }
+
+    /**
      * Helper method to add a empty holder for deploy status
      *
      * @param repositoryID       repository ID
@@ -1454,60 +1541,11 @@ public class JDBCApplicationDAO {
      * Get application Id
      *
      * @param applicationKey     application key of an application
-     * @return application id
-     * @throws AppFactoryException
-     */
-    public int getAutoIncrementAppID(String applicationKey) throws AppFactoryException {
-        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String applicationIdCacheKey = JDBCApplicationCacheManager.constructApplicationIdCacheKey(tenantID,
-                applicationKey);
-        Cache<String, Integer> applicationIdCache = JDBCApplicationCacheManager.getApplicationIdCache();
-        if (applicationIdCache.containsKey(applicationIdCacheKey)) {
-
-            //debug log
-            handleDebugLog("Retrieving data from the cache for application key : " + applicationKey);
-            return applicationIdCache.get(applicationIdCacheKey);
-        }
-
-        // No cache hit
-        PreparedStatement getAppIDPreparedStatement = null;
-        ResultSet application = null;
-        int applicationID = -1;
-        Connection databaseConnection = null;
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            getAppIDPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_SQL);
-            getAppIDPreparedStatement.setString(1, applicationKey);
-            getAppIDPreparedStatement.setInt(2, tenantID);
-            application = getAppIDPreparedStatement.executeQuery();
-            if (application.next()) {
-                applicationID = application.getInt(SQLParameterConstants.COLUMN_NAME_ID);
-
-                // Add to the cache here
-                applicationIdCache.put(applicationIdCacheKey, applicationID);
-            }
-
-            //debug log
-            handleDebugLog("Getting AF_APPLICATION ID " + applicationID + " for application key : " + applicationKey);
-        } catch (SQLException e) {
-            handleException("Error while getting application id of application " + applicationKey, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(application);
-            AppFactoryDBUtil.closePreparedStatement(getAppIDPreparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return applicationID;
-    }
-
-    /**
-     * Get application Id
-     *
-     * @param applicationKey     application key of an application
      * @param databaseConnection existing connection
      * @return application id
      * @throws AppFactoryException
      */
-    private int getApplicationID(String applicationKey, Connection databaseConnection) throws AppFactoryException {
+    int getApplicationID(String applicationKey, Connection databaseConnection) throws AppFactoryException {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String applicationIdCacheKey = JDBCApplicationCacheManager.constructApplicationIdCacheKey(tenantID,
                                                                                                   applicationKey);

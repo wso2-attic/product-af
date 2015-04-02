@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
@@ -690,8 +689,7 @@ public class RxtManager {
         }
         String lastDeployedId = deployStatus.getLastDeployedId();
         currentBuildStatus=buildStatus.getCurrentBuildId();
-        int autoIncrement = applicationDAO.getAutoIncrementAppID(applicationKey);
-        promoteStatus= JDBCAppVersionDAO.getInstance().getApplicationVersion(autoIncrement, version).getPromoteStatus();
+        promoteStatus=applicationDAO.getApplicationVersion(applicationKey,version).getPromoteStatus();
         Artifact artifact =  new Artifact(applicationKey, lastBuildStatus, version, isAutoBuild, isAutoDeploy,
                 lastDeployedId, stage,currentBuildStatus,promoteStatus);
         artifact.setProductionMappedDomain(productionMappedDomain);
