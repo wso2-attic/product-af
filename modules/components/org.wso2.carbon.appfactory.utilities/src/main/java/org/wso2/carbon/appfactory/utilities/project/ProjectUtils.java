@@ -29,7 +29,6 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.Application;
@@ -233,8 +232,8 @@ public class ProjectUtils {
         List<Version> versions = new ArrayList<Version>();
         List<Artifact> artifactList;
                     try {
-                        artifactList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-                    } catch (AppFactoryException e) {
+                        artifactList = RxtManager.getInstance().getAppVersionRxtForApplication(domainName, applicationId);
+                    } catch (RegistryException e) {
                         String errorMsg =
                                 String.format("Unable to load the application version information for applicaiton id: %s",
                                         applicationId);
@@ -388,7 +387,7 @@ public class ProjectUtils {
 			        new GenericArtifactManager(userRegistry,
 			                                   AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
 	        artifact = artifactManager.getGenericArtifact(resource.getUUID());
-            List<Artifact> appVersions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+            List<Artifact> appVersions = RxtManager.getInstance().getAppVersionRxtForApplication(domainName, applicationId);
             String newBranchCount = String.valueOf(appVersions.size());
             artifact.setAttribute(AppFactoryConstants.RXT_KEY_APPINFO_BRANCHCOUNT, newBranchCount);
             artifactManager.updateGenericArtifact(artifact);

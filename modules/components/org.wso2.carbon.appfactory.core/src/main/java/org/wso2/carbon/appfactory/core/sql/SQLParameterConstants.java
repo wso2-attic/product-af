@@ -40,7 +40,6 @@ public class SQLParameterConstants {
     public static final String COLUMN_NAME_BRANCH_COUNT = "BRANCH_COUNT";
     public static final String COLUMN_NAME_AUTO_BUILD = "AUTO_BUILD";
     public static final String COLUMN_NAME_AUTO_DEPLOY = "AUTO_DEPLOY";
-    public static final String COLUMN_NAME_SUB_DOMAIN = "SUBDOMAIN";
     public static final String VERSION_TRUNK = "trunk";
     public static final String VERSION_1_0_0 = "1.0.0";
 }

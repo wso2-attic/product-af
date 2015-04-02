@@ -68,14 +68,15 @@ public class ArtifactCreator extends AbstractAdmin {
 			boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
 
 			boolean performBuild = true;
-            boolean performDeploy = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId,version);
+            int autoIncrement = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
+            boolean performDeploy = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(autoIncrement,version);
 			/*boolean performDeploy = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
                     version, "appversion_isAutoDeploy", tenantDomain));*/
 			if ( doDeploy ) {
 				/*performBuild = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
 						version, "appversion_isAutoBuild", tenantDomain));*/
                 //triggered by auto commit
-                performBuild = JDBCAppVersionDAO.getInstance().getAutoDeployStatusOfVersion(applicationId,version);
+                performBuild = JDBCAppVersionDAO.getInstance().getAutoDeployStatusOfVersion(autoIncrement,version);
                 if (log.isDebugEnabled()) {
                     log.error("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " + repoFrom);
                 }

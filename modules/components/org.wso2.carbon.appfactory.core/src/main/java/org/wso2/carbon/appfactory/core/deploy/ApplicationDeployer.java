@@ -102,9 +102,15 @@ public class ApplicationDeployer {
 		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
 		try {
-			return JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+			// List<Artifact> artifacts = rxtManager.getAppVersionRxtForApplication(applicationId);
+			List<Artifact> artifacts = RxtManager.getInstance().getAppVersionRxtForApplication(tenantDomain, applicationId);
+			return artifacts;
+
 		} catch (AppFactoryException e) {
-			log.error("Error while retrieving artifat information from database for application "+ applicationId);
+			log.error("Error while retrieving artifat information from rxt");
+			throw new AppFactoryException(e.getMessage());
+		} catch (RegistryException e) {
+			log.error("Error while retrieving artifat information from rxt");
 			throw new AppFactoryException(e.getMessage());
 		}
 	}

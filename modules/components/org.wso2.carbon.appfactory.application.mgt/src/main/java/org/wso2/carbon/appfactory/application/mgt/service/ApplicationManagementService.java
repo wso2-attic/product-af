@@ -809,18 +809,32 @@ public class ApplicationManagementService extends AbstractAdmin {
     public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
 
         long startTime = System.currentTimeMillis();
-        Artifact[] artifacts;
+        // Commenting out all App version cache related code
 
+        // AppVersionCache cache = AppVersionCache.getAppVersionCache();
+        // Artifact[] artifacts = cache.getAppVersions(applicationId);
+        Artifact[] artifacts;
+        // if (artifacts != null) {
+        // if (log.isDebugEnabled()) {
+        // log.debug("*** Retrieved all versions from cache " + applicationId);
+        // }
+        // return artifacts;
+        // }
         try {
-            List<Artifact> artifactsList = appVersionDAO.getAllVersionsOfApplication(applicationId);
+            List<Artifact> artifactsList = RxtManager.getInstance().getAppVersionRxtForApplication(domainName,
+                                                                                                   applicationId);
             artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
+            // cache.addToCache(applicationId, artifacts);
             long endTime = System.currentTimeMillis();
             if (perfLog.isDebugEnabled()) {
                 perfLog.debug("AFProfiling getAllVersionsOfApplication :" + (endTime - startTime) );
             }
             return artifacts;
         } catch (AppFactoryException e) {
-            log.error("Error while retrieving artifat information from database for application " + applicationId);
+            log.error("Error while retrieving artifat information from rxt");
+            throw new AppFactoryException(e.getMessage());
+        } catch (RegistryException e) {
+            log.error("Error while retrieving artifat information from rxt");
             throw new AppFactoryException(e.getMessage());
         }
     }
