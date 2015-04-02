@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
+import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
@@ -389,7 +390,9 @@ public class DomainMappingUtils {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String customDomain;
         try {
-            customDomain = rxtManager.getAppInfoRxtValue(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL, tenantDomain);
+            customDomain = RxtApplicationDAO.getInstance().getAppInfoRxtValue(appKey,
+                                                                           AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL,
+                                                                           tenantDomain);
         } catch (AppFactoryException e) {
             log.error("Error occurred while getting custom url for :" + appKey, e);
             throw new AppFactoryException(AF_METADATA_ERROR_MSG);
@@ -408,7 +411,9 @@ public class DomainMappingUtils {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String defaultSubDomain;
         try {
-            defaultSubDomain = rxtManager.getAppInfoRxtValue(appKey, AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN, tenantDomain);
+            defaultSubDomain = RxtApplicationDAO.getInstance().getAppInfoRxtValue(appKey,
+                                                                               AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN,
+                                                                               tenantDomain);
         } catch (AppFactoryException e) {
             log.error("Error occurred while getting default url for :" + appKey, e);
             throw new AppFactoryException(AF_METADATA_ERROR_MSG);
@@ -463,8 +468,8 @@ public class DomainMappingUtils {
             } else if (!StringUtils.equals(UNDEFINED_URL_RXT_VALUE, mappedDomain)) {          // if given mappedDomain  does not derived from the default domain host and does not equal to UNDEFINED_URL_RXT_VALUE
                 log.warn("Requested default url:" + mappedDomain + " does not derived from the default domain host: " + ServiceHolder.getAppFactoryConfiguration().getFirstProperty("DomainName") + " application id:" + appKey);
             }
-            rxtManager.updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN,
-                                        subDomain, tenantDomain);
+            RxtApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN,
+                                                          subDomain, tenantDomain);
 
         } catch (AppFactoryException e) {
             log.error("Error occurred while updating the application rxt with mapped domain for application id: " + appKey + " domain: " + mappedDomain, e);
@@ -484,9 +489,9 @@ public class DomainMappingUtils {
             throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
-            rxtManager.updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL,
-                                        mappedDomain, tenantDomain);
-            rxtManager.updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL_VERIFICATION,
+            RxtApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL,
+                                                          mappedDomain, tenantDomain);
+            RxtApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL_VERIFICATION,
                                         verificationCode, tenantDomain);
         } catch (AppFactoryException e) {
             String msg = "Error occurred while updating the application rxt with custom domain for application id: " + appKey + " domain: " + mappedDomain;

@@ -22,17 +22,16 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
-import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
-
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
 import org.wso2.carbon.appfactory.eventing.builder.utils.RepoCreationEventBuilderUtil;
@@ -288,7 +287,7 @@ public class RepositoryManagementService extends AbstractAdmin {
 
     private String createDeploymentFork(String applicationKey, Integer tenantId, String userName)
                    throws AppFactoryException {
-        String applicationType = ApplicationManager.getInstance().getApplicationType(applicationKey);
+        String applicationType = RxtApplicationDAO.getInstance().getApplicationType(applicationKey);
         ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
                                                                         .getApplicationTypeBean(applicationType);
 

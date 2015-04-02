@@ -24,6 +24,7 @@ import java.io.File;
 public class AppFactoryConstants {
 	public static final String CONFIG_FOLDER = "appfactory";
 	public static final String CONFIG_FILE_NAME = "appfactory.xml";
+	public static final String CONFIG_APPLICATION_ROLLBACK_NOTICE_EMAIL = "application-rollback-notice-email.xml";
 	public static final String CONFIG_NAMESPACE = "http://www.wso2.org/appfactory/";
 
 	public static final String SERVER_ADMIN_NAME = "AdminUserName";
@@ -34,6 +35,7 @@ public class AppFactoryConstants {
 	public static final String APPFACTORY_WEB_CONTEXT_ROOT = "WebContextRoot";
 	public static final String DOMAIN_NAME = "DomainName";
 	public static final String FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE = "FineGrainedDomainMappingAllowedStage";
+	public static final String AUTOMATIC_DEPLOYMENT_POLLING_PERIOD = "AutomaticDeployment.PollingPeriod";
 
 	public static final String APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 	public static final String BPS_SERVER_URL = "ServerUrls.BPS";
@@ -277,6 +279,10 @@ public class AppFactoryConstants {
 	public static final String RXT_KEY_APPINFO_PROD_VERSION = "application_prodVersions";
 	public static final String RXT_KEY_APPINFO_PRODUCTION_VERSION = "application_productionVersions";
 	public static final String RXT_KEY_APPINFO_BRANCHCOUNT = "application_branchcount";
+	public static final String RXT_KEY_APPVERSION = "appversion";
+	public static final String RXT_KEY_APPVERSION_ISAUTOBUILD = "appversion_isAutoBuild";
+	public static final String RXT_KEY_APPVERSION_ISAUTODEPLOY = "appversion_isAutoDeploy";
+	public static final String RXT_KEY_APPVERSION_PROMOTE = "Promote";
 
 	public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
 			FILE_TYPE_CAR, FILE_TYPE_JAXRS, FILE_TYPE_JAXWS, FILE_TYPE_JAGGERY,

@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
@@ -84,7 +84,7 @@ public class DomainMappingManagementService {
     public void addSubscriptionDomain(String stage, String domain, String appKey, String version,
                                       boolean isCustomDomain)
             throws AppFactoryException, DomainMappingVerificationException {
-        String appType = ApplicationManager.getInstance().getApplicationInfo(appKey).getType();
+        String appType = RxtApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String addSubscriptionDomainEndPoint =
                 DomainMappingUtils.getAddDomainEndPoint(stage, appType);
         synchronized (domain.intern()) {
@@ -389,7 +389,7 @@ public class DomainMappingManagementService {
      */
     public void removeSubscriptionDomain(String stage, String domain, String appKey) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String appType = ApplicationManager.getInstance().getApplicationInfo(appKey).getType();
+        String appType = RxtApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(stage, domain, appType);
         DomainMappingResponse deleteResponse;
         try {
