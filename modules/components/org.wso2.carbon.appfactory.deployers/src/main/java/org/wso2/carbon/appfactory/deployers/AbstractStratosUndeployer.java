@@ -34,8 +34,6 @@ import java.util.Collection;
  * This class is used to undeploy artifacts in Git repository.
  */
 public abstract class AbstractStratosUndeployer implements Undeployer {
-
-    protected static final String DEFAULT_SNAPSHOT = "-default-SNAPSHOT";
     private int tenantId;
     private String tenantDomain;
 
@@ -125,7 +123,7 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
 
         public ArtifactFileFilter(String applicationId, String version, String extension) {
             if (AppFactoryConstants.TRUNK.equals(version)) {
-                fileName = applicationId + DEFAULT_SNAPSHOT;
+                fileName = applicationId + AppFactoryConstants.SNAPSHOT;
             } else {
                 fileName = applicationId + AppFactoryConstants.MINUS + version;
             }
