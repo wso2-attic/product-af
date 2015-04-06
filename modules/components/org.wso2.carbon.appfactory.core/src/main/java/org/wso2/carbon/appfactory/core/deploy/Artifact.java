@@ -17,15 +17,15 @@ package org.wso2.carbon.appfactory.core.deploy;
 
 /**
  * DTO to represent all the artifact related information.
- * 
- * @author shamika
- * 
+ *
  */
 public class Artifact {
 
     private String applicationKey;
 
     private String lastBuildStatus;
+
+    private String lastBuildId;
 
     private String version;
 
@@ -46,22 +46,6 @@ public class Artifact {
     private String userId;
 
     private String productionMappedDomain;
-
-    public String getCurrentBuildStatus() {
-        return currentBuildStatus;
-    }
-
-    public void setCurrentBuildStatus(String currentBuildStatus) {
-        this.currentBuildStatus = currentBuildStatus;
-    }
-
-    public String getStage() {
-        return stage;
-    }
-
-    public void setStage(String stage) {
-        this.stage = stage;
-    }
 
     public Artifact(String applicationKey, String lastBuildStatus, String version,
                     boolean isAutoBuild, boolean isAutoDeploy, String lastDeployedId, String stage,
@@ -92,6 +76,22 @@ public class Artifact {
         this.lastDeployedId = lastDeployedId;
         this.currentBuildStatus = currentBuildStatus;
         this.promoteStatus = promoteStatus;
+    }
+
+    public String getCurrentBuildStatus() {
+        return currentBuildStatus;
+    }
+
+    public void setCurrentBuildStatus(String currentBuildStatus) {
+        this.currentBuildStatus = currentBuildStatus;
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
     }
 
     public String getApplicationKey() {
@@ -166,7 +166,6 @@ public class Artifact {
         this.productionMappedDomain = productionMappedDomain;
     }
 
-
     public String getPromoteStatus() {
         return promoteStatus;
     }
@@ -175,6 +174,5 @@ public class Artifact {
         this.promoteStatus = promoteStatus;
     }
 
-    
 
 }

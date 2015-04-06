@@ -21,12 +21,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
-import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.Application;
@@ -35,7 +35,6 @@ import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.BuildandDeployStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.governance.dao.AppVersionDAO;
 import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
@@ -44,7 +43,6 @@ import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsCISystemDriver;
-import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -62,18 +60,15 @@ import java.util.Map;
 /**
  * This service provides necessary information of the application. Detailed and
  * lightweight methods related to retrieving applications information
- * 
- * 
  */
 public class ApplicationInfoService {
+    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.application.load");
     private static Log log = LogFactory.getLog(ApplicationInfoService.class);
 
-    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.application.load");
-    public static JDBCApplicationDAO applicationDAO=JDBCApplicationDAO.getInstance();
 
     /**
      * Get the application information bean of the application
-     * 
+     *
      * @param applicationKey
      * @return
      * @throws AppFactoryException
@@ -86,23 +81,20 @@ public class ApplicationInfoService {
     /**
      * Gets application information of the user to populate the user home
      *
-     * @param userName
+     * @param userName user name
      * @return
      * @throws ApplicationManagementException
      */
-    public Application[] getApplicationInfoForUser(String userName)
-                                                                           throws ApplicationManagementException {
-        String[] applicationKeys = getApplicationKeysOfUser(userName);
-        String tenantDomain = getTenantDomain();
+    public Application[] getApplicationInfoForUser(String userName) throws ApplicationManagementException {
         List<Application> appInfoList = new ArrayList<Application>();
+        String[] applicationKeys = getApplicationKeysOfUser(userName);
         for (String applicationKey : applicationKeys) {
             try {
                 Application application = RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey);
                 appInfoList.add(application);
             } catch (AppFactoryException e) {
-                String msg =
-                             "Error while getting application info for user " + userName +
-                                     " of tenant" + tenantDomain;
+                String msg = "Error while getting application info for user : " + userName + " of tenant : " +
+                             getTenantDomain();
                 log.error(msg, e);
             }
         }
@@ -123,11 +115,11 @@ public class ApplicationInfoService {
      */
     public Map<String, Constants.ApplicationCreationStatus> getAppCreationStatus(String[] applicationKeys)
             throws AppFactoryException {
-        JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
         Map<String, Constants.ApplicationCreationStatus> applicationCreationStatus = null;
         try {
             if (ArrayUtils.isNotEmpty(applicationKeys)) {
-                applicationCreationStatus = jdbcApplicationDAO.getApplicationCreationStatusByKeys(applicationKeys);
+                applicationCreationStatus = JDBCApplicationDAO.getInstance().getApplicationCreationStatusByKeys
+                        (applicationKeys);
             }
         } catch (AppFactoryException e) {
             String errMsg = "Error while getting application creation status of applications " +
@@ -151,12 +143,21 @@ public class ApplicationInfoService {
     }
 
 
+    /**
+     * Add the artifacts to registry such as application/appversion
+     *
+     * @param key  application/appversion
+     * @param info metadata information
+     * @param lifecycleAttribute
+     * @return artifact path inregistry
+     * @throws AppFactoryException
+     */
     public String addArtifact(String key, String info, String lifecycleAttribute) throws AppFactoryException {
        RegistryUtils.recordStatistics(key, info, lifecycleAttribute);
        if(key.equals(AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION)){
           return RxtApplicationDAO.getInstance().addApplicationArtifact(info, lifecycleAttribute);
        }else if(key.equals(AppFactoryConstants.RXT_KEY_APPVERSION)){
-           return AppVersionDAO.getInstance().addArtifact(info,lifecycleAttribute);
+           return RxtManager.getInstance().addArtifact(key, info,lifecycleAttribute);
        }
         return null;
     }
@@ -202,7 +203,8 @@ public class ApplicationInfoService {
      */
     public String getApplicationStatus(String applicationId, String version, String stage) throws AppFactoryException {
         try {
-            return applicationDAO.getDeployStatus(applicationId, version, stage, false, null).getLastDeployedStatus();
+            return JDBCApplicationDAO.getInstance().getDeployStatus(applicationId, version, stage, false, null).
+                    getLastDeployedStatus();
         } catch (AppFactoryException e) {
             String message = "Error while retrieving application status for the application id : " + applicationId
                              + " with version : " + version + " in stage : " + stage;
@@ -212,21 +214,19 @@ public class ApplicationInfoService {
     }
 
     /**
-     * Method to get the stage of a given application of given version
+     * Method to get the stage of a given application version
      *
      * @param applicationId id of the application
-     * @param version version of the application
-     * @return
+     * @param version       version of the application
+     * @return              the stage
      * @throws AppFactoryException
      */
     public String getStage(String applicationId, String version) throws AppFactoryException {
         try {
-            // Getting the tenant domain
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-            return RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
+            return JDBCAppVersionDAO.getInstance().getAppVersionStage(applicationId, version);
         } catch (AppFactoryException e) {
-            String msg = "Unable to get stage of application : " + applicationId + " with version : " + version;
+            String msg = "Unable to get stage for the application id : " + applicationId + " and version : " + version
+                         +" of tenant " + getTenantDomain();
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
@@ -265,17 +265,15 @@ public class ApplicationInfoService {
      * @return array of version artifacts
      * @throws AppFactoryException
      */
-    public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
 
-        Artifact[] artifacts;
+    //TODO remove domainName
+    public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
         try {
-            List<Artifact> artifactsList = RxtManager.getInstance()
-                    .getAppVersionRxtForApplication(domainName, applicationId);
-            artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
-            return artifacts;
-        } catch (RegistryException e) {
-            String msg = "Error while retrieving artifact information from registry for the application id : "
-                         + applicationId + " tenant domain : " + domainName;
+            List<Artifact> artifactsList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+            return artifactsList.toArray(new Artifact[artifactsList.size()]);
+        } catch (AppFactoryException e) {
+            String msg = "Error while retrieving artifact information from database for application id : " + applicationId
+                         + " of tenant domain : " + domainName;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
@@ -292,19 +290,17 @@ public class ApplicationInfoService {
      */
     public BuildandDeployStatus getBuildandDelpoyedStatus(String applicationId, String tenantDomain, String version)
             throws AppFactoryException {
-        BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, version, false, null);
+        BuildStatus buildStatus = JDBCApplicationDAO.getInstance().getBuildStatus(applicationId, version, false, null);
         DeployStatus deployStatus;
         String stage = RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
-        deployStatus = applicationDAO.getDeployStatus(applicationId, version, stage, false, null);
-        BuildandDeployStatus buildandDeployStatus = new BuildandDeployStatus(buildStatus.getLastBuildId(),
-                                                                             buildStatus.getLastBuildStatus(),
-                                                                             deployStatus.getLastDeployedId());
-        return buildandDeployStatus;
+        deployStatus = JDBCApplicationDAO.getInstance().getDeployStatus(applicationId, version, stage, false, null);
+        return new BuildandDeployStatus(buildStatus.getLastBuildId(),
+                                                 buildStatus.getLastBuildStatus(),  deployStatus.getLastDeployedId());
     }
 
 
     /**
-     * Method to make the given application set to auto build.
+     * Updates the database tables with given auto build information.
      *
      * @param applicationId   application id
      * @param stage           stage of the application
@@ -312,53 +308,57 @@ public class ApplicationInfoService {
      * @param isAutoBuildable auto buildable true or false
      * @throws AppFactoryException
      */
-    public void publishSetApplicationAutoBuild(String applicationId, String stage, String version,
-                                               boolean isAutoBuildable) throws AppFactoryException {
-        updateRxtWithBuildStatus(applicationId, stage, version, isAutoBuildable, getTenantDomain());
-        JenkinsCISystemDriver jenkinsCISystemDriver =
-                (JenkinsCISystemDriver) Util.getContinuousIntegrationSystemDriver();
-        AppFactoryConfiguration configuration = ServiceContainer.getAppFactoryConfiguration();
-        int pollingPeriod = Integer
-                .parseInt(configuration.getFirstProperty(AppFactoryConstants.DEPLOYMENT_STAGES +
-                                                         AppFactoryConstants.DOT_SEPERATOR + stage +
-                                                         AppFactoryConstants.DOT_SEPERATOR +
-                                                         AppFactoryConstants.AUTOMATIC_DEPLOYMENT_POLLING_PERIOD));
-        jenkinsCISystemDriver
-                .setJobAutoBuildable(applicationId, version, isAutoBuildable, pollingPeriod, getTenantDomain());
-        if (log.isDebugEnabled()) {
-            log.debug("Auto build change event successful for : " + applicationId + " with version : " + version +
-                      " in stage : " + stage + " with isAutoBuildable : " + isAutoBuildable);
+    private void updateDBWithAutoBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable)
+                                                                    throws ApplicationManagementException {
+        try {
+            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
+            JDBCAppVersionDAO.getInstance().updateAutoBuildStatusOfVersion(autoIncrementAppID, version, isAutoBuildable);
+            if (log.isDebugEnabled()) {
+                log.debug(" Database updated successfully for application id : " + applicationId + " " + " version : "
+                          + version + " stage :" + stage + " isAutoBuildable :" + isAutoBuildable);
+            }
+        } catch (AppFactoryException e) {
+            String msg = "Error occurred while updating the database with auto-build status for application id : "
+                         + applicationId + " " + " version : "+ version + " stage :" + stage + " isAutoBuildable :"
+                         + isAutoBuildable;
+            log.error(msg, e);
+            throw new ApplicationManagementException(msg, e);
         }
     }
 
     /**
-     * Updates the rxt in registry with given auto build information.
+     * Service method to make the application related to given {@code applicationId} auto build.
      *
-     * @param applicationId   application id
-     * @param stage           stage of the application
-     * @param version         version of the application
-     * @param isAutoBuildable is auto buildable true or false
-     * @param tenantDomain    tenant domain
-     * @throws AppFactoryException
+     * @param applicationId    application id
+     * @param stage            stage of the application
+     * @param version          version of the application
+     * @param isAutoBuildable is auto build true or false
+     * @throws ApplicationManagementException
      */
-    private void updateRxtWithBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable,
-                                          String tenantDomain) throws AppFactoryException {
+    public void publishSetApplicationAutoBuild(String applicationId, String stage, String version,
+                                               boolean isAutoBuildable) throws ApplicationManagementException {
+        log.info("Auto build change event received for application id : " + applicationId + " " + " Version : "
+                 + version +" stage :" + stage + " isAutoBuildable :" + isAutoBuildable);
+
+        // Getting the tenant domain
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        updateDBWithAutoBuildStatus(applicationId, stage, version, isAutoBuildable);
         try {
-            RxtManager.getInstance().updateAppVersionRxt(applicationId, version,
-                                                         AppFactoryConstants.RXT_KEY_APPVERSION_ISAUTOBUILD,
-                                                         String.valueOf(isAutoBuildable), tenantDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Rtx updated successfully for application : " + applicationId + " with version : " + version
-                          + " in stage :" + stage + " with isAutoBuildable :" + isAutoBuildable);
-            }
+            JenkinsCISystemDriver jenkinsCISystemDriver = (JenkinsCISystemDriver)
+                                                            Util.getContinuousIntegrationSystemDriver();
+
+            int pollingPeriod = 6; // TODO this from configuration
+            jenkinsCISystemDriver.setJobAutoBuildable(applicationId, version, isAutoBuildable, pollingPeriod,
+                                                      CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+            log.info("Application id : " + applicationId + " successfully configured for auto building " + isAutoBuildable);
         } catch (AppFactoryException e) {
-            String msg = "Error occurred while updating the rxt with auto-build status : " + isAutoBuildable +
-                         " for the application : " + applicationId + " with version : " + version + " in stage : " +
-                         " of tenant domain : " + tenantDomain;
+            String msg = "Error occurred while updating jenkins configuration for auto build : " + isAutoBuildable
+                         +" for application id : "+ applicationId + "for tenant domain: " + tenantDomain;
             log.error(msg, e);
-            throw new AppFactoryException(msg, e);
+            throw new ApplicationManagementException(msg, e);
         }
     }
+
 
     /**
      * Method to make the given application set to auto deploy.
@@ -370,11 +370,13 @@ public class ApplicationInfoService {
      * @throws AppFactoryException
      */
     public void publishSetApplicationAutoDeploy(String applicationId, String stage, String version,
-                                                boolean isAutoDeployable) throws AppFactoryException {
+                                                boolean isAutoDeployable) throws ApplicationManagementException {
 
+        // Getting the tenant domain
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        updateDBAutoDeploymentStatus(applicationId, stage, version, isAutoDeployable);
         try {
-            updateRxtWithDeploymentStatus(applicationId, version, isAutoDeployable, getTenantDomain());
-            String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, getTenantDomain());
+            String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, tenantDomain);
             boolean appIsBuildable = AppFactoryCoreUtil.isBuildable(applicationType);
             if (appIsBuildable) {
                 JenkinsCISystemDriver jenkinsCISystemDriver =
@@ -385,32 +387,48 @@ public class ApplicationInfoService {
                 log.info("Auto deploy change event successful for : " + applicationId + " with version : " + version
                          + " in stage : " + stage + " with isAutoBuildable : " + isAutoDeployable);
             }
-        } catch (RegistryException e) {
-            String msg = "Error occurred while updating registry for the application : " + applicationId + " with " +
-                         "version : " + version + " in stage : " + stage;
+        } catch (AppFactoryException e) {
+            String msg = "Error occurred while updating jenkins configuration for auto deploy: " + isAutoDeployable
+                         +" for application id : "+ applicationId + "for tenant domain: " + tenantDomain;
             log.error(msg, e);
-            throw new AppFactoryException(msg, e);
+            throw new ApplicationManagementException(msg, e);
+        } catch (RegistryException e) {
+            String msg = "Error occurred while reading application type from registry for application id : "
+                         + applicationId + "for tenant domain: " + tenantDomain;
+            log.error(msg, e);
+            throw new ApplicationManagementException(msg, e);
         }
     }
 
     /**
-     * This method is used to update rxt with deployment status.
+     * Updates the rxt registry with given auto deploy information.
      *
-     * @param applicationId    application id
-     * @param version          version of the application
-     * @param isAutoDeployable is auto deploy enabled or not
-     * @param tenantDomain     tenant domain
-     * @throws AppFactoryException
+     * @param applicationId id of the application
+     * @param stage current stage of the application
+     * @param version
+     * @param isAutoDeployable
+     * @throws ApplicationManagementException
      */
-    private void updateRxtWithDeploymentStatus(String applicationId, String version, boolean isAutoDeployable,
-                                               String tenantDomain) throws AppFactoryException {
-        RxtManager.getInstance().updateAppVersionRxt(applicationId, version,
-                                                     AppFactoryConstants.RXT_KEY_APPVERSION_ISAUTODEPLOY,
-                                                     String.valueOf(isAutoDeployable), tenantDomain);
+    private void updateDBAutoDeploymentStatus(String applicationId, String stage, String version,
+                                              boolean isAutoDeployable) throws ApplicationManagementException {
+        try {
+            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
+            JDBCAppVersionDAO.getInstance().updateAutoDeployStatusOfVersion(autoIncrementAppID, version, isAutoDeployable);
+            if (log.isDebugEnabled()) {
+                log.debug(" DB updated successfully for application id : " + applicationId + " " + " version : "
+                          + version +" stage :" + stage + " isAutoDeployable :" + isAutoDeployable);
+            }
+        } catch (AppFactoryException e) {
+            String msg = "Error occurred while updating the database with auto-build status for application id : "
+                         + applicationId + " " + " version : "+ version +" stage :" + stage + " isAutoDeployable :"
+                         + isAutoDeployable;
+            log.error(msg, e);
+            throw new ApplicationManagementException(msg, e);
+        }
     }
 
     /**
-     * Updating Rxt value when doing the promote action.
+     * Updating DB value when doing the promote action.
      *
      * @param applicationId id of the application
      * @param stage         current stage of the application
@@ -418,17 +436,55 @@ public class ApplicationInfoService {
      * @param action        promote action
      * @throws ApplicationManagementException
      */
+
+    //TODO rename method as rxt is not involved anymore
     public void updateRxtWithPromoteState(String applicationId, String stage, String version, String action,
-                                          String state) throws AppFactoryException {
+                                          String state) throws ApplicationManagementException {
         if (action == null || !action.equals(AppFactoryConstants.RXT_KEY_APPVERSION_PROMOTE)) {
             return;
         }
-        applicationDAO.updatePromoteStatusOfVersion(applicationId, version, state);
-        if (log.isDebugEnabled()) {
-            log.debug("Promote status updated successfully for the application : " + applicationId + " with version : "
-                      + version + " in stage : " + stage + " with state : " + state);
+
+        try {
+            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
+            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(autoIncrementAppID, version, state);
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
+                          " version : "+ version + " stage :" + stage);
+            }
+        } catch (AppFactoryException e) {
+            String msg = "Error occurred while updating with promote status for application id : " + applicationId +
+                         " version : "+ version + " stage :" + stage;
+            log.error(msg, e);
+            throw new ApplicationManagementException(msg, e);
         }
     }
+
+
+    /**
+     * Updating the stage based on application promote/demote
+     *
+     * @param applicationId
+     * @param stage
+     * @param version
+     * @throws ApplicationManagementException
+     */
+    public void updateCurrentStage(String applicationId, String stage, String version)
+            throws ApplicationManagementException {
+        try {
+            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
+            JDBCAppVersionDAO.getInstance().updateStageOfVersion(autoIncrementAppID, version, stage);
+            if (log.isDebugEnabled()) {
+                log.debug(" Successfully updated stage to " + stage + " for application id : " + applicationId
+                          + " version : " + version);
+            }
+        } catch (AppFactoryException e) {
+            String msg = "Error occurred while updating the stage to " +stage + " for application id : " + applicationId
+                         + " version : " + version;
+            log.error(msg, e);
+            throw new ApplicationManagementException(msg, e);
+        }
+    }
+
 
     /**
      * This method is used to delete an application.
@@ -462,24 +518,24 @@ public class ApplicationInfoService {
         try {
             removeApplicationRoles(applicationId, domainName);
         } catch (UserStoreException e) {
-            String msg = "Error while removing the application roles from LDAP for application : " + applicationId;
+            String msg = "Error while removing the application roles from LDAP for application id : " + applicationId;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
         try {
             RxtApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
         } catch (UserStoreException e) {
-            String msg = "Error while deleting the application resource from registry for application : " +
+            String msg = "Error while deleting the application resource from registry for application id : " +
                          applicationId;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } catch (RegistryException e) {
-            String msg = "Error while deleting the application resource from registry for application : " +
+            String msg = "Error while deleting the application resource from registry for application id : " +
                          applicationId;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
-        applicationDAO.deleteApplication(applicationId);
+        JDBCApplicationDAO.getInstance().deleteApplication(applicationId);
         String title = "Application " + applicationId + " is deleted successfully";
         String messageDescription = "Deleted by: " + userName;
         try {
@@ -491,8 +547,9 @@ public class ApplicationInfoService {
             EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForApplication(
                     applicationId, title, messageDescription, userName, Event.Category.INFO));
         } catch (AppFactoryEventException e) {
-            //we dont throw error here since this is a event notifier.
-            log.error("Failed to notify application deletion event for the application : " + applicationId, e);
+
+            //we don't throw error here since this is a event notifier.
+            log.error("Failed to notify application deletion event for the application id : " + applicationId, e);
         }
         return completedSuccessfully;
     }
@@ -546,12 +603,12 @@ public class ApplicationInfoService {
                     " of tenant" + tenantDomain;
             log.error(msg, e);
         }
-        ApplicationsOfUserCache applicationsOfUserCache =  new ApplicationsOfUserCache();
+        ApplicationsOfUserCache applicationsOfUserCache = new ApplicationsOfUserCache();
         if (applicationsOfUserCache.isUserInvitedToApplication(userName)) {
             applicationsOfUserCache.clearCacheForUserName(userName);
         }
         return
-            applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
+                applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
     }
 
 
@@ -569,7 +626,7 @@ public class ApplicationInfoService {
             Application[] apps = RxtApplicationDAO.getInstance().getAllApplicationsOfUser(userName);
             long endTime = System.currentTimeMillis();
             if (perfLog.isDebugEnabled()) {
-                perfLog.debug("AFProfiling getApplicaitonsOfTheUser :" + (endTime - startTime) );
+                perfLog.debug("AFProfiling getApplicaitonsOfTheUser : " + (endTime - startTime));
             }
             return apps;
         } catch (AppFactoryException e) {
@@ -581,11 +638,12 @@ public class ApplicationInfoService {
 
     /**
      * Lightweight method to get application keys of the applications of user
+     *
      * @param userName
      * @return String array of applicaiton keys
      * @throws ApplicationManagementException
      */
-    public String[] getApplicationKeysOfUser(String userName) throws ApplicationManagementException{
+    public String[] getApplicationKeysOfUser(String userName) throws ApplicationManagementException {
         CarbonContext context = CarbonContext.getThreadLocalCarbonContext();
         ArrayList<String> applications = new ArrayList<String>();
         try {
@@ -606,7 +664,7 @@ public class ApplicationInfoService {
             return applications.toArray(new String[applications.size()]);
         } catch (UserStoreException e) {
             String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message,e);
+            log.error(message, e);
             throw new ApplicationManagementException(message, e);
         }
 

@@ -80,9 +80,8 @@ public class JDBCAppVersionDAO {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-
                 // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while rolling back update promote status of version : " + version, e);
+                log.error("Error while rolling back update promote status of version : " + version, e1);
             }
             String msg = "Error while updating promote status of version : " + version;
             log.error(msg, e);
@@ -112,23 +111,15 @@ public class JDBCAppVersionDAO {
             preparedStatement.setInt(2, autoIncrementAppId);
             preparedStatement.setString(3, version);
             preparedStatement.execute();
-            int affectedRows = preparedStatement.getUpdateCount();
-            if (affectedRows > 0) {
-                databaseConnection.commit();
-                return true;
-            }
-            String msg = "Error while updating stage : " + stage + " of version : " + version;
-            log.error(msg);
-            throw new AppFactoryException(msg);
+            databaseConnection.commit();
         } catch (SQLException e) {
             try {
                 if (databaseConnection != null) {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-
                 // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while rolling back update stage of version : " + version, e);
+                log.error("Error while rolling back update stage of version : " + version, e1);
             }
             String msg = "Error while updating stage of version : " + version;
             log.error(msg, e);
@@ -137,6 +128,7 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
+        return true;
     }
 
     /**
@@ -158,23 +150,15 @@ public class JDBCAppVersionDAO {
             preparedStatement.setInt(2, autoIncrementAppId);
             preparedStatement.setString(3, version);
             preparedStatement.execute();
-            int affectedRows = preparedStatement.getUpdateCount();
-            if (affectedRows > 0) {
-                databaseConnection.commit();
-                return true;
-            }
-            String msg = "Error while updating sub domain : " + subdomain + " of version : " + version;
-            log.error(msg);
-            throw new AppFactoryException(msg);
+            databaseConnection.commit();
         } catch (SQLException e) {
             try {
                 if (databaseConnection != null) {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-
                 // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while rolling back update sub domain of version : " + version, e);
+                log.error("Error while rolling back update sub domain of version : " + version, e1);
             }
             String msg = "Error while rolling back update sub domain of version : " + version;
             log.error(msg, e);
@@ -183,6 +167,7 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
+        return true;
     }
 
     /**
@@ -204,23 +189,15 @@ public class JDBCAppVersionDAO {
             preparedStatement.setInt(2, autoIncrementAppId);
             preparedStatement.setString(3, version);
             preparedStatement.execute();
-            int affectedRows = preparedStatement.getUpdateCount();
-            if (affectedRows > 0) {
-                databaseConnection.commit();
-                return true;
-            }
-            String msg = "Error while updating auto build status of version : " + version;
-            log.error(msg);
-            throw new AppFactoryException(msg);
+            databaseConnection.commit();
         } catch (SQLException e) {
             try {
                 if (databaseConnection != null) {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-
                 // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while rolling back update auto build status of version : " + version, e);
+                log.error("Error while rolling back update auto build status of version : " + version, e1);
             }
             String msg = "Error while rolling back update auto build status of version : " + version;
             log.error(msg, e);
@@ -229,6 +206,7 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
+        return true;
     }
 
     /**
@@ -243,6 +221,7 @@ public class JDBCAppVersionDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        boolean result = true;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_AUTO_BUILD_STATUS_OF_VERSION);
@@ -252,12 +231,10 @@ public class JDBCAppVersionDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 int value = resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD);
-
                 if (log.isDebugEnabled()) {
                     log.debug("Successfully received the auto build status of version : " + version);
                 }
-
-                return value == 0 ? false : true;
+                result = value == 0 ? false : true;
             }
         } catch (SQLException e) {
             String msg = "Error while receiving the auto build status of version : " + version;
@@ -268,7 +245,7 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-        return true;
+        return result;
     }
 
     /**
@@ -290,23 +267,15 @@ public class JDBCAppVersionDAO {
             preparedStatement.setInt(2, autoIncrementAppId);
             preparedStatement.setString(3, version);
             preparedStatement.execute();
-            int affectedRows = preparedStatement.getUpdateCount();
-            if (affectedRows > 0) {
-                databaseConnection.commit();
-                return true;
-            }
-            String msg = "Error while updating auto deploy status of version " + version;
-            log.error(msg);
-            throw new AppFactoryException(msg);
+            databaseConnection.commit();
         } catch (SQLException e) {
             try {
                 if (databaseConnection != null) {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-
                 // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while rolling back update auto deploy status of version " + version, e);
+                log.error("Error while rolling back update auto deploy status of version " + version, e1);
             }
             String msg = "Error while rolling back update auto deploy status of version " + version;
             log.error(msg, e);
@@ -315,6 +284,7 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
+        return true;
     }
 
     /**
@@ -329,7 +299,6 @@ public class JDBCAppVersionDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_AUTO_DEPLOY_STATUS_OF_VERSION);
@@ -339,7 +308,6 @@ public class JDBCAppVersionDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 int value = resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY);
-
                 if (log.isDebugEnabled()) {
                     log.debug("Successfully received the auto deploy status of version " + version);
                 }
@@ -369,6 +337,7 @@ public class JDBCAppVersionDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+        String result = "";
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_STAGE_OF_APPLICATION_VERSION);
@@ -379,12 +348,11 @@ public class JDBCAppVersionDAO {
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 String stage = resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE);
-
                 if (log.isDebugEnabled()) {
                     log.debug("Successfully received the stage of version : " + version + " for application key : "
                               + applicationKey);
                 }
-                return stage;
+                result = stage;
             }
         } catch (SQLException e) {
             String msg = "Error while getting stage of version : " + version + " for application key : " +
@@ -396,7 +364,7 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-        return "";
+        return result;
     }
 
     /**
@@ -411,14 +379,15 @@ public class JDBCAppVersionDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet allVersions = null;
-        Version version = new Version();
+        Version version = null;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
             preparedStatement.setInt(1, autoIncrementAppId);
             preparedStatement.setString(2, versionName);
             allVersions = preparedStatement.executeQuery();
-            while (allVersions.next()) {
+            if (allVersions.next()) {
+                version = new Version();
                 version.setId(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
                 version.setLifecycleStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
                 version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
@@ -446,7 +415,6 @@ public class JDBCAppVersionDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-
         List<Artifact> artifactList = new ArrayList<Artifact>(0);
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
@@ -478,7 +446,6 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-
         if (log.isDebugEnabled()) {
             log.debug("List of Version IDs of application key : " + applicationKey + " are : " + artifactList);
         }
