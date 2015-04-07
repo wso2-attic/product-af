@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.jenkins.build.service.TenantContinousIntegrationSystemDriverService;
 import org.wso2.carbon.appfactory.nonbuild.artifact.ArtifactGeneratorFactory;
@@ -46,8 +47,8 @@ public class JaggeryDeployableArtifact extends DeployableArtifact {
 		String artifactFileName = "";
 		String artifactZIPFileName = "";
 		if (getVersion().equals("trunk")) {
-			artifactZIPFileName = getApplicationId() + "-default-SNAPSHOT.zip";
-			artifactFileName = getApplicationId() + "-default-SNAPSHOT";
+			artifactZIPFileName = getApplicationId() +AppFactoryConstants.SNAPSHOT +  ".zip";
+			artifactFileName = getApplicationId() + AppFactoryConstants.SNAPSHOT;
 		} else {
 			artifactZIPFileName = getApplicationId() + "-" + getVersion() + ".zip";
 			artifactFileName = getApplicationId() + "-" + getVersion();
