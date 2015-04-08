@@ -102,7 +102,8 @@ public class DomainMappingManagementService {
                 // if custom utl is not verified, throw an exception. Here we are throwing DomainMappingVerificationException therefore
                 // we could identify the error occurred due to unsuccessful verification
                 notifyAppWall(appKey, AF_APPWALL_CUSTOM_URL_INVALID_MSG, String.format(AF_APPWALL_URL, domain), Event.Category.ERROR);
-                log.error("Requested custom domain :" + domain + " is not verified for application id :" + appKey + " for stage :" + stage);
+                log.warn("Requested custom domain :" + domain + " is not verified for application id :" + appKey +
+                           " for stage :" + stage);
                 throw new DomainMappingVerificationException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
             }
 
@@ -157,7 +158,10 @@ public class DomainMappingManagementService {
             addSubscriptionDomain(ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
                     AppFactoryConstants.FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE), defaultUrl, appKey, version, false);
         } catch (DomainMappingVerificationException e) {
-            log.error(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl), e);
+            // we are logging this as warn messages since this is caused, due to an user error. For example if the
+            // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+            // time of adding the url), then url validation will fail but it is not an system error
+            log.warn(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl), e);
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, defaultUrl));
         }
         DomainMappingUtils.updateMetadata(appKey, defaultUrl, version, false);
@@ -177,7 +181,10 @@ public class DomainMappingManagementService {
         try {
             addSubscriptionDomain(stage, domain, appKey, version, isCustomDomain);
         } catch (DomainMappingVerificationException e) {
-            log.error(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain), e);
+            // we are logging this as warn messages since this is caused, due to an user error. For example if the
+            // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+            // time of adding the url), then url validation will fail but it is not an system error
+            log.warn(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain), e);
             // update the custom url values of the rxt.
             DomainMappingUtils.updateCustomUrlMetadata(appKey, domain, DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
@@ -215,7 +222,10 @@ public class DomainMappingManagementService {
         try {
             addSubscriptionDomain(stage, domain, appKey, newVersion, isCustomDomain);
         } catch (DomainMappingVerificationException e) {
-            log.error(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain), e);
+            // we are logging this as warn messages since this is caused, due to an user error. For example if the
+            // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+            // time of adding the url), then url validation will fail but it is not an system error
+            log.warn(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain), e);
             // update the custom url values of the rxt.
             if (isCustomDomain) {
                 DomainMappingUtils.updateCustomUrlMetadata(appKey, domain, DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
@@ -295,7 +305,10 @@ public class DomainMappingManagementService {
         try {
             addSubscriptionDomain(stage, newDomain, appKey, version, isCustomDomain);
         } catch (DomainMappingVerificationException e) {    //validation unsuccessful for custom urls
-            log.error(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, newDomain), e);
+            // we are logging this as warn messages since this is caused, due to an user error. For example if the
+            // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+            // time of adding the url), then url validation will fail but it is not an system error
+            log.warn(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, newDomain), e);
             // update the custom url values of the rxt with new values.
             DomainMappingUtils.updateCustomUrlMetadata(appKey, newDomain, DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
 
@@ -435,7 +448,7 @@ public class DomainMappingManagementService {
                 if(validation){
                     log.info("Successfully verified domain: " + customUrl + " for application " + appKey);
                 } else {
-                    log.error("Failed to verify domain: " + customUrl + " for application: " + appKey);
+                    log.warn("Failed to verify domain: " + customUrl + " for application: " + appKey);
                 }
             } else {
                 log.error("Failed to verify custom domain: "+customUrl+" for application id: "+appKey+" since default production url is empty");
@@ -470,15 +483,26 @@ public class DomainMappingManagementService {
             Multimap<String, String> resolvedHosts = resolveDNS(customUrl, env);
             Collection<String> resolvedCnames = resolvedHosts.get(DNS_CNAME_RECORD);
             if (!resolvedCnames.isEmpty() && resolvedCnames.contains(pointedUrl)) {
-                log.info(pointedUrl+" can be reached from: " + customUrl +" via CNAME records");
+                if(log.isDebugEnabled()) {
+                    log.debug(pointedUrl + " can be reached from: " + customUrl + " via CNAME records");
+                }
                 success = true;
             } else {
-                log.warn(pointedUrl+" cannot be reached from: " + customUrl +" via CNAME records");
+                if(log.isDebugEnabled()) {
+                    log.debug(pointedUrl + " cannot be reached from: " + customUrl + " via CNAME records");
+                }
                 success = false;
             }
         } catch (AppFactoryException e) {
             log.error("Error occurred while resolving dns for: " + customUrl, e);
             throw new AppFactoryException("Error occurred while resolving dns for: " + customUrl, e);
+        } catch (DomainMappingVerificationException e) {
+            // we are logging this as warn messages since this is caused, due to an user error. For example if the
+            // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+            // time of adding the url), then url validation will fail but it is not an system error
+            log.warn(pointedUrl + " cannot be reached from: " + customUrl + " via CNAME records. Provided custom" +
+                          " url: "+customUrl+" might not a valid url." ,e);
+            success = false;
         }
         return success;
     }
@@ -493,23 +517,30 @@ public class DomainMappingManagementService {
      * @throws AppFactoryException if error occurred while the operation
      */
     public Multimap<String, String> resolveDNS(String domain, Hashtable<String, String> environmentConfigs)
-            throws AppFactoryException {
+            throws AppFactoryException, DomainMappingVerificationException {
         // result mutimap of dns records. Contains the cname and records resolved by the given hostname
         // ex:  CNAME   => foo.com,bar.com
         //      A       => 192.1.2.3 , 192.3.4.5
         Multimap<String, String> dnsRecordsResult = ArrayListMultimap.create();
+        Attributes dnsRecords;
+        boolean isARecordFound = false;
+        boolean isCNAMEFound = false;
 
         try {
             if (log.isDebugEnabled()) {
                 log.debug("DNS validation: resolving DNS for " + domain + " " + "(A/CNAME)");
             }
-            boolean isARecordFound = false;
-            boolean isCNAMEFound = false;
-
             DirContext context = new InitialDirContext(environmentConfigs);
             String[] dnsRecordsToCheck = new String[]{DNS_A_RECORD, DNS_CNAME_RECORD};
-            Attributes dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
+            dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
+        } catch (NamingException e) {
+            String msg = "DNS validation: DNS query failed for: " + domain+". Error occurred while configuring " +
+                         "directory context.";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
 
+        try {
             // looking for for A records
             Attribute aRecords = dnsRecords.get(DNS_A_RECORD);
             if (aRecords != null && aRecords.size() > 0) {                      // if an A record exists
@@ -546,13 +577,18 @@ public class DomainMappingManagementService {
                 }
             }
 
-            if (!isARecordFound && !isCNAMEFound) {
-                log.info("DNS validation: No CNAME or A record found for domain: '" + domain);
+            if (!isARecordFound && !isCNAMEFound && log.isDebugEnabled()) {
+                log.debug("DNS validation: No CNAME or A record found for domain: '" + domain);
             }
             return dnsRecordsResult;
         } catch (NamingException ne) {
-            log.error("DNS validation: DNS query failed for: " + domain, ne);
-            throw new AppFactoryException("DNS validation: DNS query failed for: " + domain, ne);
+            String msg = "DNS validation: DNS query failed for: " + domain+". Provided domain: "+domain+" might be a " +
+                         "non existing domain.";
+            // we are logging this as warn messages since this is caused, due to an user error. For example if the
+            // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+            // time of adding the url), then url validation will fail but it is not an system error
+            log.warn(msg, ne);
+            throw new DomainMappingVerificationException(msg, ne);
         }
     }
 
