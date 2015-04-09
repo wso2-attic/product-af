@@ -39,6 +39,13 @@ public class Version {
 
     private String productionMappedDomain;
 
+    String lastBuildStatus;
+
+    String lastDeployedId;
+
+    String currentBuildStatus;
+
+
     public Version() {
     }
 

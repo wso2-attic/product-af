@@ -22,6 +22,7 @@ import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.Constants;
+import org.wso2.carbon.context.CarbonContext;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -221,7 +222,8 @@ public class JDBCApplicationCacheManager {
         return constructCacheKeyPrefix(tenantId, ApplicationKey) + KEY_SEPARATOR + APPS_INFO;
     }
 
-    public static String constructAppVersionCacheKey(int tenantId, int applicationKey, String version) {
+    public static String constructAppVersionCacheKey(String applicationKey, String version) {
+        int tenantId =  CarbonContext.getCurrentContext().getTenantId();
         return tenantId + KEY_SEPARATOR + applicationKey + KEY_SEPARATOR + version;
     }
 }
