@@ -19,6 +19,7 @@ package org.wso2.carbon.appfactory.core.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
@@ -379,6 +380,11 @@ public class JDBCAppVersionDAO {
         PreparedStatement preparedStatement = null;
         ResultSet allVersions = null;
         Version version = null;
+        version = JDBCApplicationCacheManager.getAppVersionCache().get(JDBCApplicationCacheManager.
+                                              constructAppVersionCacheKey(-1, autoIncrementAppId, versionName));
+        if (version != null) {
+            return version;
+        }
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
@@ -391,6 +397,9 @@ public class JDBCAppVersionDAO {
                 version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
                 version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
             }
+
+            JDBCApplicationCacheManager.getAppVersionCache().put(JDBCApplicationCacheManager.constructAppVersionCacheKey(-1, autoIncrementAppId, versionName), version);
+
         } catch (SQLException e) {
             String msg = "Error while getting application version : " + versionName;
             log.error(msg, e);

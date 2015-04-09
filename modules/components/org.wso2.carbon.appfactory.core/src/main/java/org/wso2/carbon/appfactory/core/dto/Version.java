@@ -23,21 +23,13 @@ public class Version {
 
     private String applicationKey;
 
-    private String lastBuildStatus;
-
-    private String lastBuildId;
-
     private String version;
 
     private boolean autoBuild = false;
 
     private boolean autoDeploy = false;
 
-    private String lastDeployedId;
-
     private String stage;
-
-    private String currentBuildStatus;
 
     private String promoteStatus;
 

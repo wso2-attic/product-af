@@ -221,7 +221,7 @@ public class JDBCApplicationCacheManager {
         return constructCacheKeyPrefix(tenantId, ApplicationKey) + KEY_SEPARATOR + APPS_INFO;
     }
 
-    public static String contructAppVersionCacheKey(int tenantId, String applicationKey, String version) {
+    public static String constructAppVersionCacheKey(int tenantId, int applicationKey, String version) {
         return tenantId + KEY_SEPARATOR + applicationKey + KEY_SEPARATOR + version;
     }
 }
