@@ -63,7 +63,8 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_PROMOTE_STATUS_OF_VERSION);
             preparedStatement.setString(1, status);
-            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                               databaseConnection));
             preparedStatement.setString(3, version);
             preparedStatement.execute();
             int affectedRows = preparedStatement.getUpdateCount();
@@ -109,7 +110,8 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_STAGE_OF_VERSION);
             preparedStatement.setString(1, stage);
-            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                               databaseConnection));
             preparedStatement.setString(3, version);
             preparedStatement.execute();
             databaseConnection.commit();
@@ -149,7 +151,8 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_SUBDOMAIN_OF_VERSION);
             preparedStatement.setString(1, subdomain);
-            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                               databaseConnection));
             preparedStatement.setString(3, version);
             preparedStatement.execute();
             databaseConnection.commit();
@@ -189,7 +192,8 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_AUTO_BUILD_STATUS_OF_VERSION);
             preparedStatement.setInt(1, isAutoBuildable ? 1 : 0);
-            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            preparedStatement.setInt(2, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                               databaseConnection));
             preparedStatement.setString(3, version);
             preparedStatement.execute();
             databaseConnection.commit();
@@ -268,7 +272,8 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_AUTO_DEPLOY_STATUS_OF_VERSION);
             preparedStatement.setInt(1, isAutoDeployable ? 1 : 0);
-            preparedStatement.setInt(2,JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            preparedStatement.setInt(2,JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                              databaseConnection));
             preparedStatement.setString(3, version);
             preparedStatement.execute();
             databaseConnection.commit();
@@ -387,7 +392,8 @@ public class JDBCAppVersionDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
-            preparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            preparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                               databaseConnection));
             preparedStatement.setString(2, versionName);
             allVersions = preparedStatement.executeQuery();
             if (allVersions.next()) {
@@ -489,4 +495,42 @@ public class JDBCAppVersionDAO {
         }
     }
 
+    /**
+     * Get all the versions of an application
+     *
+     * @param applicationKey key of an app
+     * @return arrays of {@link org.wso2.carbon.appfactory.core.dto.Version}
+     * @throws AppFactoryException
+     */
+    public Version[] getAllApplicationVersions(String applicationKey) throws AppFactoryException {
+        Connection databaseConnection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet allVersions = null;
+
+        List<Version> versions = new ArrayList<Version>();
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_APPLICATION_VERSION_SQL);
+            preparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                               databaseConnection));
+            allVersions = preparedStatement.executeQuery();
+            Version version;
+            while (allVersions.next()) {
+                version = new Version();
+                version.setVersion(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+                version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
+                version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
+                versions.add(version);
+            }
+        } catch (SQLException e) {
+            String msg = "Error while getting app versions of application key : " + applicationKey;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+         } finally {
+            AppFactoryDBUtil.closeResultSet(allVersions);
+            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+        return versions.toArray(new Version[versions.size()]);
+    }
 }
