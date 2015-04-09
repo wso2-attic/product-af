@@ -87,55 +87,6 @@ public class RxtManager {
      * @param newValue      the new value of the attribute key
      * @throws AppFactoryException
      */
-    public void updateAppVersionRxt(String applicationId, String version, String[] key, String[] newValue,
-                                    String tenantDomain) throws AppFactoryException {
-
-        // creating a unique key for an application in a tenant
-        String tenant_appLock = tenantDomain.concat("_").concat(applicationId);
-
-        synchronized (tenant_appLock.intern()) {
-            GenericArtifactImpl artifact = getAppVersionArtifact(applicationId, version, tenantDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Updating application version rxt with keys : " + Arrays.toString(key) + " values : "
-                          + Arrays.toString(newValue) + " application key : " + applicationId + " version : " + version
-                          + " in tenant domain : " + tenantDomain);
-            }
-            try {
-                for (int i = 0; i < key.length; i++) {
-                    String currentVal = artifact.getAttribute(key[i]);
-                    if (currentVal == null) {
-                        artifact.addAttribute(key[i], newValue[i]);
-                    } else {
-                        artifact.setAttribute(key[i], newValue[i]);
-                    }
-                }
-                UserRegistry userRegistry = getUserRegistry(tenantDomain);
-                GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-                GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "appversion");
-                artifactManager.updateGenericArtifact(artifact);
-            } catch (RegistryException e) {
-                String errorMsg = "Error while updating the artifact " + applicationId;
-                log.error(errorMsg, e);
-                throw new AppFactoryException(errorMsg, e);
-            } catch (Exception e) {
-                String errorMsg = String.format("Unable to get tenant id for %s", tenantDomain);
-                log.error(errorMsg, e);
-                throw new AppFactoryException(errorMsg, e);
-            }
-        }
-    }
-
-
-    /**
-     * This method will add the given newValue as the value of the key,
-     * replacing the existing value
-     *
-     * @param applicationId the Id of the current application
-     * @param version       version of the current application
-     * @param key           the attribute key that is been updated
-     * @param newValue      the new value of the attribute key
-     * @throws AppFactoryException
-     */
     public void updateAppVersionForUserRxt(String applicationId, String version, String userName, String key[],
                                            String newValue[], String tenantDomain) throws AppFactoryException {
 
@@ -175,144 +126,6 @@ public class RxtManager {
 
     }
 
-
-    /**
-     * This method will add the given newValue as the value of the key,
-     * replacing the existing value
-     *
-     * @param applicationId the Id of the current application
-     * @param version       version of the current application
-     * @param key           the attribute key that is been updated
-     * @param newValue      the new value of the attribute key
-     * @throws AppFactoryException
-     */
-    public void updateAppVersionRxt(String applicationId, String version, String key, String newValue,
-                                    String tenantDomain) throws AppFactoryException {
-
-        // creating a unique key for an application in a tenant
-        String tenant_appLock = tenantDomain.concat("_").concat(applicationId);
-
-        synchronized (tenant_appLock.intern()) {
-            GenericArtifactImpl artifact = getAppVersionArtifact(applicationId, version, tenantDomain);
-            if (log.isDebugEnabled()) {
-                log.debug("Updating application version rxt with key : " + key + " value : " + newValue
-                          + " applicationId : " + applicationId + " version : " + version
-                          + " in tenant domain : " + tenantDomain);
-            }
-
-            try {
-                artifact.setAttribute(key, newValue);
-                UserRegistry userRegistry = getUserRegistry(tenantDomain);
-                GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-                GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "appversion");
-                artifactManager.updateGenericArtifact(artifact);
-            } catch (RegistryException e) {
-                String errorMsg = "Error while updating the artifact " + applicationId;
-                log.error(errorMsg, e);
-                throw new AppFactoryException(errorMsg, e);
-            }
-        }
-
-    }
-
-
-    /**
-     * This method will append the given newValues as values for the key given
-     *
-     * @param applicationId the ID of the current application
-     * @param version       the version of the current application
-     * @param key           the attribute key that is been updated
-     * @param newValues     array of new values for the attribute key
-     * @throws AppFactoryException
-     */
-    public void updateAppVersionRxt(String applicationId, String version, String key, String[] newValues,
-                                    String tenantDomain) throws AppFactoryException {
-
-        // creating a unique key for an application in a tenant
-        String tenant_appLock = tenantDomain.concat("_").concat(applicationId);
-        synchronized (tenant_appLock.intern()) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Updating application version rxt with key : " + key + " value : " + Arrays.toString(newValues)
-                        + " applicationId : " + applicationId + " version : " + version
-                        + " in tenant domain : " + tenantDomain);
-            }
-            GenericArtifactImpl artifact = getAppVersionArtifact(applicationId, version, tenantDomain);
-            try {
-                for (String value : newValues) {
-                    artifact.addAttribute(key, value);
-                }
-                UserRegistry userRegistry = getUserRegistry(tenantDomain);
-                GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-                GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "appversion");
-                artifactManager.updateGenericArtifact(artifact);
-            } catch (RegistryException e) {
-                String errorMsg = "Error while updating the artifact " + applicationId;
-                log.error(errorMsg, e);
-                throw new AppFactoryException(errorMsg, e);
-            }
-        }
-
-    }
-
-
-    /**
-     * This method returns the stage of a given application version
-     *
-     * @param applicationId the ID of the current application
-     * @param appVersion    the version of the current application
-     * @return the stage of the given application version
-     * @throws AppFactoryException
-     */
-    public String getStage(String applicationId, String appVersion, String tenantDomain) throws AppFactoryException {
-        String stage;
-        GenericArtifactImpl artifact = getAppVersionArtifact(applicationId, appVersion, tenantDomain);
-        try {
-            stage = artifact.getLifecycleState();
-        } catch (GovernanceException e) {
-            String errorMsg = "Error while getting  the lifecycle state of artifact " + applicationId;
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        return stage;
-    }
-
-
-    /**
-     * @param applicationId the ID of the current application
-     * @param version       the version of the current application
-     * @return generic artifact implementation of the artifact that matches the
-     * given applicationId, stage and version
-     * @throws AppFactoryException
-     */
-    private GenericArtifactImpl getAppVersionArtifact(String applicationId, String version, String tenantDomain)
-            throws AppFactoryException {
-        GenericArtifactImpl artifact;
-        try {
-            UserRegistry userRegistry = getUserRegistry(tenantDomain);
-            Resource resource = userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                                                    RegistryConstants.PATH_SEPARATOR + applicationId +
-                                                     RegistryConstants.PATH_SEPARATOR + version);
-            GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-            GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "appversion");
-            artifact = (GenericArtifactImpl) artifactManager.getGenericArtifact(resource.getUUID());
-        } catch (RegistryException e) {
-            String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        if (artifact == null) {
-            String errorMsg = "Failed to get generic artifact implementation of application version artifact with " +
-                              "tenant domain : " + tenantDomain + " applicationId : " + applicationId + " version : " +
-                              version;
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-        return artifact;
-    }
-
-
     /**
      * @param applicationId the ID of the current application
      * @param version       the version of the current application
@@ -346,69 +159,6 @@ public class RxtManager {
             throw new AppFactoryException(errorMsg);
         }
         return artifact;
-    }
-
-
-    /**
-     * To get Artifact detail given application id, version
-     *
-     * @param applicationId
-     * @param version
-     * @param tenantDomain
-     * @return
-     * @throws AppFactoryException
-     */
-    public Version getAppVersionDetailArtifact(String applicationId, String version, String tenantDomain)
-            throws AppFactoryException {
-        GenericArtifact genericArtifact = getAppVersionArtifact(applicationId, version, tenantDomain);
-        Version artifact = null;
-        try {
-            artifact = getArtifactByGenericArtifact(genericArtifact);
-        } catch (GovernanceException e) {
-            log.debug(e.getMessage());
-        }
-        return artifact;
-
-    }
-
-    /**
-     * @param applicationId the ID of the current application
-     * @param version       the version of the current application
-     * @param key           the key is one of element what we need to get the value
-     * @return keyValue the keyValue is the returned value for the given key
-     * @throws AppFactoryException
-     */
-    public String getAppVersionRxtValue(String applicationId, String version,
-                                        String key, String tenantDomain) throws AppFactoryException {
-        GenericArtifactImpl artifact;
-        String keyValue;
-        try {
-            artifact = getAppVersionArtifact(applicationId, version, tenantDomain);
-            keyValue = artifact.getAttribute(key);
-
-        } catch (RegistryException e) {
-            String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        return keyValue;
-    }
-
-
-    /**
-     * Retrieves App Version RXTs from tenant's registry
-     *
-     * @param domainName    tenant domain of the application
-     * @param applicationId {@code applicationId}
-     * @return list of  Artifact
-     * @throws AppFactoryException
-     * @throws RegistryException
-     */
-    public List<Version> getAppVersionRxtForApplication(String domainName, final String applicationId)
-            throws AppFactoryException, RegistryException {
-        UserRegistry userRegistry = getUserRegistry(domainName);
-        return getAppVersionRXTFromRegistry(userRegistry, applicationId);
     }
 
     /**
@@ -468,75 +218,8 @@ public class RxtManager {
         return versionList;
     }
 
-    /**
-     * Private method to get App Version from given User registry
-     */
-    private List<Version> getAppVersionRXTFromRegistry(UserRegistry userRegistry, final String applicationId)
-            throws AppFactoryException, RegistryException {
-        GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-        GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "appversion");
-
-//        Used the proper governance API method for searching. Commented out the old code segment.
-        GenericArtifactFilter artifactFilter = new GenericArtifactFilter() {
-            @Override
-            public boolean matches(GenericArtifact artifact) throws GovernanceException {
-                if (artifact != null && artifact.getAttribute("appversion_key") != null) {
-                    return artifact.getAttribute("appversion_key").equals(applicationId);
-                } else {
-                    return false;
-                }
-            }
-        };
-        GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(artifactFilter);
-        final List<Version> versionList = new ArrayList<Version>();
-        if (allArtifacts != null) {
-            for (GenericArtifact genericArtifact : allArtifacts) {
-                versionList.add(getArtifactByGenericArtifact(genericArtifact));
-            }
-        }
-        return versionList;
-    }
-
-
     private boolean isCollection(Resource res) {
         return (res instanceof Collection);
-    }
-
-    private Version getArtifactByGenericArtifact(GenericArtifact paramGenericArtifact)
-            throws GovernanceException, AppFactoryException {
-        JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
-        String applicationKey = paramGenericArtifact.getAttribute("appversion_key");
-        String version = paramGenericArtifact.getAttribute("appversion_version");
-        String autoBuildStr = paramGenericArtifact.getAttribute("appversion_isAutoBuild");
-        String autoDeployStr = paramGenericArtifact.getAttribute("appversion_isAutoDeploy");
-        String productionMappedDomain = paramGenericArtifact.getAttribute("appversion_prodmappedsubdomain");
-        String stage = paramGenericArtifact.getLifecycleState();
-        boolean isAutoDeploy = (autoDeployStr == null) ? false : Boolean.valueOf(autoDeployStr);
-        boolean isAutoBuild = autoBuildStr == null ? false : Boolean.valueOf(autoBuildStr);
-        BuildStatus buildStatus;
-        DeployStatus deployStatus;
-        try {
-            buildStatus = applicationDAO.getBuildStatus(applicationKey, version, false, null);
-            deployStatus = applicationDAO.getDeployStatus(applicationKey, version, stage,false, null);
-        } catch (AppFactoryException e) {
-            String errorMsg = "Error while retrieving build and deploy status for " + applicationKey;
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        String promoteStatus;
-        String currentBuildStatus;
-        String lastBuildStatus = null;
-        if (buildStatus.getLastBuildId() != null && buildStatus.getLastBuildStatus() != null) {
-            lastBuildStatus = "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus();
-        }
-        String lastDeployedId = deployStatus.getLastDeployedId();
-        currentBuildStatus = buildStatus.getCurrentBuildId();
-        int autoIncrement = applicationDAO.getAutoIncrementAppID(applicationKey);
-        promoteStatus = JDBCAppVersionDAO.getInstance().getApplicationVersion(autoIncrement,version).getPromoteStatus();
-        Version artifact = new Version(applicationKey, lastBuildStatus, version, isAutoBuild, isAutoDeploy,
-                                         lastDeployedId, stage, currentBuildStatus, promoteStatus);
-        artifact.setProductionMappedDomain(productionMappedDomain);
-        return artifact;
     }
 
     /**
@@ -563,7 +246,7 @@ public class RxtManager {
         try {
             buildStatus = applicationDAO.getBuildStatus(applicationKey, version, true, userId);
             deployStatus = applicationDAO.getDeployStatus(applicationKey, version,
-                                                  getStage(applicationKey, version, domainName), true, userId);
+                             JDBCAppVersionDAO.getInstance().getAppVersionStage(applicationKey, version), true, userId);
         } catch (AppFactoryException e) {
             String errorMsg = "Error while retrieving build and deploy status for " + applicationKey;
             log.error(errorMsg, e);
@@ -788,27 +471,6 @@ public class RxtManager {
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
-    }
-
-    public List<Version> getAppVersionRxtsInStage(final String applicationId, final String stage)
-            throws RegistryException, AppFactoryException {
-        List<Version> versionList;
-        List<Version> artifactsInStageList = new ArrayList<Version>();
-        try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            versionList = getAppVersionRxtForApplication(tenantDomain, applicationId);     // check the tenant flow
-        } catch (AppFactoryException e) {
-            String errorMsg = "Error While getting versions of application " + applicationId;
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        for (Version version : versionList) {
-            if (stage.equals(version.getStage())) {
-                artifactsInStageList.add(version);
-            }
-
-        }
-        return artifactsInStageList;
     }
 
     private UserRegistry getUserRegistry(String tenantDomain) throws RegistryException {

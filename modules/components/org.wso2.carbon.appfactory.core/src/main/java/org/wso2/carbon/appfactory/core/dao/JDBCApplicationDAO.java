@@ -114,7 +114,7 @@ public class JDBCApplicationDAO {
                         getCapitalizedString()) : new Version(SQLParameterConstants.VERSION_TRUNK, AppFactoryConstants.
                         ApplicationStage.DEVELOPMENT.getCapitalizedString());
 
-                addVersion(applicationID, version, databaseConnection, application.getId());
+                addVersion(version, databaseConnection, application.getId());
                 databaseConnection.commit();
                 return true;
             }
@@ -249,19 +249,18 @@ public class JDBCApplicationDAO {
     /**
      * Helper method to add a version with given DB connection
      *
-     * @param applicationID      applicationID of the version
      * @param version            version with version name
      * @param databaseConnection existing db connection
      * @param applicationKey     application key to identify the application
      * @return true if it successful false if it failed
      * @throws AppFactoryException
      */
-     boolean addVersion(int applicationID, Version version, Connection databaseConnection,
+     boolean addVersion(Version version, Connection databaseConnection,
                                String applicationKey) throws AppFactoryException {
         PreparedStatement addVersionPreparedStatement = null;
         try {
             addVersionPreparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_VERSION);
-            addVersionPreparedStatement.setInt(1, applicationID);
+            addVersionPreparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
             addVersionPreparedStatement.setString(2, version.getVersion());
             addVersionPreparedStatement.setString(3, version.getStage());
             addVersionPreparedStatement.execute();
@@ -282,7 +281,7 @@ public class JDBCApplicationDAO {
                                  affectedRowCount + " rows";
                     log.debug(msg);
                 }
-                int versionID = getVersionID(applicationID, version.getVersion(), databaseConnection);
+                int versionID = getVersionID(applicationKey, version.getVersion(), databaseConnection);
                 addRepository(versionID, false, null, databaseConnection);
                 return true;
             }
@@ -1230,7 +1229,7 @@ public class JDBCApplicationDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             int applicationID = getApplicationID(applicationKey, databaseConnection);
-            int versionID = getVersionID(applicationID, version, databaseConnection);
+            int versionID = getVersionID(applicationKey, version, databaseConnection);
             addRepository(versionID, true, username, databaseConnection);
             databaseConnection.commit();
         } catch (SQLException e) {
@@ -1392,7 +1391,7 @@ public class JDBCApplicationDAO {
      * @return application id
      * @throws AppFactoryException
      */
-    public int getAutoIncrementAppID(String applicationKey) throws AppFactoryException {
+     int getAutoIncrementAppID(String applicationKey) throws AppFactoryException {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String applicationIdCacheKey = JDBCApplicationCacheManager.constructApplicationIdCacheKey(tenantID,
                                                                                                   applicationKey);
@@ -1476,29 +1475,29 @@ public class JDBCApplicationDAO {
     /**
      * Retrieve the auto generated version id from table
      *
-     * @param applicationID      auto generated application id in table
+     * @param applicationKey     application key
      * @param version            application version
      * @param databaseConnection existing connection
      * @return application id
      * @throws AppFactoryException
      */
-    private int getVersionID(int applicationID, String version, Connection databaseConnection)
+    private int getVersionID(String applicationKey, String version, Connection databaseConnection)
             throws AppFactoryException {
         PreparedStatement getAppIDPreparedStatement = null;
         ResultSet versionResultSet = null;
         int versionID = -1;
         try {
             getAppIDPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_ID_SQL);
-            getAppIDPreparedStatement.setInt(1, applicationID);
+            getAppIDPreparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
             getAppIDPreparedStatement.setString(2, version);
             versionResultSet = getAppIDPreparedStatement.executeQuery();
             if (versionResultSet.next()) {
                 versionID = versionResultSet.getInt(SQLParameterConstants.COLUMN_NAME_ID);
             }
-            handleDebugLog("Getting AF_VERSION ID " + versionID + " for application key : " + applicationID);
+            handleDebugLog("Getting AF_VERSION ID " + versionID + " for application key : " + applicationKey);
         } catch (SQLException e) {
             handleException("Error while getting version id of version : " + version + " of application key : "
-                            + applicationID, e);
+                            + applicationKey, e);
         } finally {
             AppFactoryDBUtil.closeResultSet(versionResultSet);
             AppFactoryDBUtil.closePreparedStatement(getAppIDPreparedStatement);
@@ -1552,7 +1551,7 @@ public class JDBCApplicationDAO {
     private int getRepositoryID(String applicationKey, boolean isForked, String username, String version,
                                 Connection dataConnection) throws AppFactoryException {
         int applicationID = getApplicationID(applicationKey, dataConnection);
-        int versionID = getVersionID(applicationID, version, dataConnection);
+        int versionID = getVersionID(applicationKey, version, dataConnection);
         return getRepositoryID(versionID, isForked, username, dataConnection);
     }
 

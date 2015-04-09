@@ -281,8 +281,7 @@ public class ApplicationManagementService extends AbstractAdmin {
                               new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION
                                       .getCapitalizedString()) : new Version(targetVersion, AppFactoryConstants.
                                         ApplicationStage.DEVELOPMENT.getCapitalizedString());
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().addVersion(autoIncrementAppID, applicationId, version);
+            JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
             Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
 
             // find the versions.
@@ -378,8 +377,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             return;
         }
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(autoIncrementAppID, version, state);
+            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(applicationId, version, state);
             if (log.isDebugEnabled()) {
                 log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
                           " version : "+ version + " stage :" + stage);
