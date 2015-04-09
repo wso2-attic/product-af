@@ -19,7 +19,6 @@ package org.wso2.carbon.appfactory.core.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
@@ -388,8 +387,8 @@ public class JDBCAppVersionDAO {
             allVersions = preparedStatement.executeQuery();
             if (allVersions.next()) {
                 version = new Version();
-                version.setId(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
-                version.setLifecycleStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
+                version.setVersion(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+                version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
                 version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
             }
         } catch (SQLException e) {
@@ -405,17 +404,17 @@ public class JDBCAppVersionDAO {
     }
 
     /**
-     * This method is used to get a list of all {@link org.wso2.carbon.appfactory.core.deploy.Artifact} versions of the a application
+     * This method is used to get a list of all {@link org.wso2.carbon.appfactory.core.dto.Version} versions of the a application
      *
      * @param applicationKey The application applicationKey of the current application
-     * @return {@link org.wso2.carbon.appfactory.core.deploy.Artifact}
+     * @return {@link org.wso2.carbon.appfactory.core.dto.Version}
      * @throws AppFactoryException if SQL operation fails
      */
-    public List<Artifact> getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
+    public List<Version> getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<Artifact> artifactList = new ArrayList<Artifact>(0);
+        List<Version> versionList = new ArrayList<Version>(0);
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
@@ -424,7 +423,7 @@ public class JDBCAppVersionDAO {
             preparedStatement.execute();
             resultSet = preparedStatement.getResultSet();
             while (resultSet.next()) {
-                Artifact artifact = new Artifact(applicationKey, "build " +
+                Version version = new Version(applicationKey, "build " +
                                                  resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD) +
                                                  " " + resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_STATUS),
                                                  resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME),
@@ -434,8 +433,8 @@ public class JDBCAppVersionDAO {
                                                  resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE),
                                                  null,
                                                  resultSet.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
-                artifact.setProductionMappedDomain(resultSet.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
-                artifactList.add(artifact);
+                version.setProductionMappedDomain(resultSet.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
+                versionList.add(version);
             }
         } catch (SQLException e) {
             String msg = "Error while getting all the version of application key : " + applicationKey;
@@ -447,9 +446,42 @@ public class JDBCAppVersionDAO {
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
         if (log.isDebugEnabled()) {
-            log.debug("List of Version IDs of application key : " + applicationKey + " are : " + artifactList);
+            log.debug("List of Version IDs of application key : " + applicationKey + " are : " + versionList);
         }
-        return artifactList;
+        return versionList;
+    }
+
+    /**
+     * Add new a version of a application
+     *
+     * @param applicationKey application key of an application
+     * @param version        Version with version name
+     * @return true if it successful false if it failed
+     * @throws AppFactoryException
+     */
+    public boolean addVersion(int applicationId, String applicationKey, Version version) throws AppFactoryException {
+        Connection databaseConnection = null;
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            JDBCApplicationDAO.getInstance().addVersion(applicationId, version, databaseConnection, applicationKey);
+            databaseConnection.commit();
+            return true;
+        } catch (SQLException e) {
+            try {
+                if (databaseConnection != null) {
+                    databaseConnection.rollback();
+                }
+            } catch (SQLException e1) {
+
+                // Only logging this exception since this is not the main issue. The original issue is thrown.
+                log.error("Error while rolling back add version " + version.getVersion() + " of application key : " + applicationKey, e1);
+            }
+            String msg = "Error while adding version : " + version.getVersion() + " of application key : " + applicationKey;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
     }
 
 }

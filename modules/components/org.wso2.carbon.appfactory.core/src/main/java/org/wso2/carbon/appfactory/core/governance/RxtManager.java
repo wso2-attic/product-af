@@ -23,7 +23,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -358,10 +358,10 @@ public class RxtManager {
      * @return
      * @throws AppFactoryException
      */
-    public Artifact getAppVersionDetailArtifact(String applicationId, String version, String tenantDomain)
+    public Version getAppVersionDetailArtifact(String applicationId, String version, String tenantDomain)
             throws AppFactoryException {
         GenericArtifact genericArtifact = getAppVersionArtifact(applicationId, version, tenantDomain);
-        Artifact artifact = null;
+        Version artifact = null;
         try {
             artifact = getArtifactByGenericArtifact(genericArtifact);
         } catch (GovernanceException e) {
@@ -405,7 +405,7 @@ public class RxtManager {
      * @throws AppFactoryException
      * @throws RegistryException
      */
-    public List<Artifact> getAppVersionRxtForApplication(String domainName, final String applicationId)
+    public List<Version> getAppVersionRxtForApplication(String domainName, final String applicationId)
             throws AppFactoryException, RegistryException {
         UserRegistry userRegistry = getUserRegistry(domainName);
         return getAppVersionRXTFromRegistry(userRegistry, applicationId);
@@ -419,7 +419,7 @@ public class RxtManager {
      * @throws AppFactoryException
      * @throws RegistryException
      */
-    public List<Artifact> getRepoUserRxtForApplicationOfUser(String domainName, String applicationId, String userName)
+    public List<Version> getRepoUserRxtForApplicationOfUser(String domainName, String applicationId, String userName)
             throws AppFactoryException, RegistryException {
         try {
             UserRegistry userRegistry = getUserRegistry(domainName);
@@ -442,7 +442,7 @@ public class RxtManager {
      * @throws AppFactoryException
      * @throws RegistryException
      */
-    private List<Artifact> getrepoUserRXTFromRegistry(UserRegistry userRegistry, final String applicationId,
+    private List<Version> getrepoUserRXTFromRegistry(UserRegistry userRegistry, final String applicationId,
                    final String userName, String domainName) throws AppFactoryException, RegistryException {
         GovernanceUtils.loadGovernanceArtifacts(userRegistry);
         GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "repouser");
@@ -459,19 +459,19 @@ public class RxtManager {
             }
         };
         GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(artifactFilter);
-        final List<Artifact> artifactList = new ArrayList<Artifact>();
+        final List<Version> versionList = new ArrayList<Version>();
         if (allArtifacts != null) {
             for (GenericArtifact genericArtifact : allArtifacts) {
-                artifactList.add(getRepoUserArtifactByGenericArtifact(genericArtifact, domainName));
+                versionList.add(getRepoUserArtifactByGenericArtifact(genericArtifact, domainName));
             }
         }
-        return artifactList;
+        return versionList;
     }
 
     /**
      * Private method to get App Version from given User registry
      */
-    private List<Artifact> getAppVersionRXTFromRegistry(UserRegistry userRegistry, final String applicationId)
+    private List<Version> getAppVersionRXTFromRegistry(UserRegistry userRegistry, final String applicationId)
             throws AppFactoryException, RegistryException {
         GovernanceUtils.loadGovernanceArtifacts(userRegistry);
         GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "appversion");
@@ -488,13 +488,13 @@ public class RxtManager {
             }
         };
         GenericArtifact[] allArtifacts = artifactManager.findGenericArtifacts(artifactFilter);
-        final List<Artifact> artifactList = new ArrayList<Artifact>();
+        final List<Version> versionList = new ArrayList<Version>();
         if (allArtifacts != null) {
             for (GenericArtifact genericArtifact : allArtifacts) {
-                artifactList.add(getArtifactByGenericArtifact(genericArtifact));
+                versionList.add(getArtifactByGenericArtifact(genericArtifact));
             }
         }
-        return artifactList;
+        return versionList;
     }
 
 
@@ -502,7 +502,7 @@ public class RxtManager {
         return (res instanceof Collection);
     }
 
-    private Artifact getArtifactByGenericArtifact(GenericArtifact paramGenericArtifact)
+    private Version getArtifactByGenericArtifact(GenericArtifact paramGenericArtifact)
             throws GovernanceException, AppFactoryException {
         JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
         String applicationKey = paramGenericArtifact.getAttribute("appversion_key");
@@ -533,7 +533,7 @@ public class RxtManager {
         currentBuildStatus = buildStatus.getCurrentBuildId();
         int autoIncrement = applicationDAO.getAutoIncrementAppID(applicationKey);
         promoteStatus = JDBCAppVersionDAO.getInstance().getApplicationVersion(autoIncrement,version).getPromoteStatus();
-        Artifact artifact = new Artifact(applicationKey, lastBuildStatus, version, isAutoBuild, isAutoDeploy,
+        Version artifact = new Version(applicationKey, lastBuildStatus, version, isAutoBuild, isAutoDeploy,
                                          lastDeployedId, stage, currentBuildStatus, promoteStatus);
         artifact.setProductionMappedDomain(productionMappedDomain);
         return artifact;
@@ -547,7 +547,7 @@ public class RxtManager {
      * @return artifact created from repouser rxt
      * @throws GovernanceException
      */
-    private Artifact getRepoUserArtifactByGenericArtifact(GenericArtifact paramGenericArtifact, String domainName)
+    private Version getRepoUserArtifactByGenericArtifact(GenericArtifact paramGenericArtifact, String domainName)
             throws GovernanceException, AppFactoryException {
         JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
         String applicationKey = paramGenericArtifact.getAttribute("repouser_key");
@@ -576,7 +576,7 @@ public class RxtManager {
         }
         String lastDeployedId = deployStatus.getLastDeployedId();
         currentBuildStatus = buildStatus.getCurrentBuildId();
-        return new Artifact(applicationKey, userId, version, isAutoBuild, isAutoDeploy, repoURL, lastDeployedId,
+        return new Version(applicationKey, userId, version, isAutoBuild, isAutoDeploy, repoURL, lastDeployedId,
                             lastBuildStatus, currentBuildStatus, null);
     }
 
@@ -790,21 +790,21 @@ public class RxtManager {
         }
     }
 
-    public List<Artifact> getAppVersionRxtsInStage(final String applicationId, final String stage)
+    public List<Version> getAppVersionRxtsInStage(final String applicationId, final String stage)
             throws RegistryException, AppFactoryException {
-        List<Artifact> artifactList;
-        List<Artifact> artifactsInStageList = new ArrayList<Artifact>();
+        List<Version> versionList;
+        List<Version> artifactsInStageList = new ArrayList<Version>();
         try {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            artifactList = getAppVersionRxtForApplication(tenantDomain, applicationId);     // check the tenant flow
+            versionList = getAppVersionRxtForApplication(tenantDomain, applicationId);     // check the tenant flow
         } catch (AppFactoryException e) {
             String errorMsg = "Error While getting versions of application " + applicationId;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
-        for (Artifact artifact : artifactList) {
-            if (stage.equals(artifact.getStage())) {
-                artifactsInStageList.add(artifact);
+        for (Version version : versionList) {
+            if (stage.equals(version.getStage())) {
+                artifactsInStageList.add(version);
             }
 
         }

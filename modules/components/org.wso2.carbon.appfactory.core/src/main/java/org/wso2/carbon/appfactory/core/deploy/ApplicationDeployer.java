@@ -30,6 +30,7 @@ import org.wso2.carbon.appfactory.core.Storage;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -92,7 +93,7 @@ public class ApplicationDeployer {
      * @param applicationId
      * @throws AppFactoryException
      */
-    public List<Artifact> getArtifactInformation(String applicationId) throws AppFactoryException {
+    public List<Version> getArtifactInformation(String applicationId) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             return JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);

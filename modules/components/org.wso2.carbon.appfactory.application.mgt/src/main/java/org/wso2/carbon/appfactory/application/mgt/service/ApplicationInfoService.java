@@ -28,7 +28,7 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
@@ -241,14 +241,14 @@ public class ApplicationInfoService {
      * @return array of artifacts
      * @throws AppFactoryException
      */
-    public Artifact[] getAllVersionsOfApplicationPerUser(String domainName, String applicationId, String userName)
+    public Version[] getAllVersionsOfApplicationPerUser(String domainName, String applicationId, String userName)
             throws AppFactoryException {
-        Artifact[] artifacts;
+        Version[] versions;
         try {
-            List<Artifact> artifactsList = RxtManager
+            List<Version> artifactsList = RxtManager
                     .getInstance().getRepoUserRxtForApplicationOfUser(domainName, applicationId, userName);
-            artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
-            return artifacts;
+            versions = artifactsList.toArray(new Version[artifactsList.size()]);
+            return versions;
         } catch (RegistryException e) {
             String msg = "Error while retrieving artifact information for application id : " + applicationId
                          + "of user : " + userName + " of tenant domain : " + domainName;
@@ -267,10 +267,10 @@ public class ApplicationInfoService {
      */
 
     //TODO remove domainName
-    public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
+    public Version[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
         try {
-            List<Artifact> artifactsList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-            return artifactsList.toArray(new Artifact[artifactsList.size()]);
+            List<Version> artifactsList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+            return artifactsList.toArray(new Version[artifactsList.size()]);
         } catch (AppFactoryException e) {
             String msg = "Error while retrieving artifact information from database for application id : " + applicationId
                          + " of tenant domain : " + domainName;

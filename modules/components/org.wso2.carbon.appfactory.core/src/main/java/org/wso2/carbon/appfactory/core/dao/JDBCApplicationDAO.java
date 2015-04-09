@@ -22,11 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
@@ -256,14 +256,14 @@ public class JDBCApplicationDAO {
      * @return true if it successful false if it failed
      * @throws AppFactoryException
      */
-    private boolean addVersion(int applicationID, Version version, Connection databaseConnection,
+     boolean addVersion(int applicationID, Version version, Connection databaseConnection,
                                String applicationKey) throws AppFactoryException {
         PreparedStatement addVersionPreparedStatement = null;
         try {
             addVersionPreparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_VERSION);
             addVersionPreparedStatement.setInt(1, applicationID);
-            addVersionPreparedStatement.setString(2, version.getId());
-            addVersionPreparedStatement.setString(3, version.getLifecycleStage());
+            addVersionPreparedStatement.setString(2, version.getVersion());
+            addVersionPreparedStatement.setString(3, version.getStage());
             addVersionPreparedStatement.execute();
             int affectedRowCount = addVersionPreparedStatement.getUpdateCount();
             int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -278,16 +278,16 @@ public class JDBCApplicationDAO {
                 if (log.isDebugEnabled()) {
                     String msg = "successfully added application of tenant " +
                                  CarbonContext.getThreadLocalCarbonContext().getTenantDomain() + " version : " +
-                                 version.getId() + " of application key : " + applicationKey + " updated : " +
+                                 version.getVersion() + " of application key : " + applicationKey + " updated : " +
                                  affectedRowCount + " rows";
                     log.debug(msg);
                 }
-                int versionID = getVersionID(applicationID, version.getId(), databaseConnection);
+                int versionID = getVersionID(applicationID, version.getVersion(), databaseConnection);
                 addRepository(versionID, false, null, databaseConnection);
                 return true;
             }
         } catch (SQLException e) {
-            handleException("Adding new version : " + version.getId() + " for application key : " + applicationKey, e);
+            handleException("Adding new version : " + version.getVersion() + " for application key : " + applicationKey, e);
         } finally {
             AppFactoryDBUtil.closePreparedStatement(addVersionPreparedStatement);
         }
@@ -679,39 +679,6 @@ public class JDBCApplicationDAO {
         }
         handleDebugLog("The list of repository IDs of application : " + applicationKey + " are : " + allRepositoryIDs);
         return allRepositoryIDs;
-    }
-
-    /**
-     * Add new a version of a application
-     *
-     * @param applicationKey application key of an application
-     * @param version        Version with version name
-     * @return true if it successful false if it failed
-     * @throws AppFactoryException
-     */
-    public boolean addVersion(String applicationKey, Version version) throws AppFactoryException {
-        Connection databaseConnection = null;
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            addVersion(getApplicationID(applicationKey, databaseConnection), version, databaseConnection,
-                       applicationKey);
-            databaseConnection.commit();
-            return true;
-        } catch (SQLException e) {
-            try {
-                if (databaseConnection != null) {
-                    databaseConnection.rollback();
-                }
-            } catch (SQLException e1) {
-
-                // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while rolling back add version " + version.getId() + " of application key : " + applicationKey, e1);
-            }
-            handleException("Error while adding version " + version.getId() + " of application key : " + applicationKey, e);
-        } finally {
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return false;
     }
 
     /**
@@ -1325,7 +1292,7 @@ public class JDBCApplicationDAO {
      * Get all the versions of an application
      *
      * @param applicationID key of an app
-     * @return arrays of {@link Version}
+     * @return arrays of {@link org.wso2.carbon.appfactory.core.dto.Version}
      * @throws AppFactoryException
      */
     public Version[] getAllApplicationVersions(String applicationID) throws AppFactoryException {
@@ -1342,8 +1309,8 @@ public class JDBCApplicationDAO {
             Version version;
             while (allVersions.next()) {
                 version = new Version();
-                version.setId(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
-                version.setLifecycleStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
+                version.setVersion(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+                version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
                 version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
                 versions.add(version);
             }

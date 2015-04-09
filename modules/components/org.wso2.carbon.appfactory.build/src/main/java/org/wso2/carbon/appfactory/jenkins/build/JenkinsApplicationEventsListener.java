@@ -28,9 +28,9 @@ import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
@@ -101,11 +101,11 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         jenkinsCISystemDriver.addUsersToApplication(application.getId(), new String[]{userName.split("@")[0]},
                                                     tenantDomain);
         Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0].getId());
+        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0].getVersion());
         if (ArrayUtils.isNotEmpty(versions)) {
 
             // No need to create job.
-            jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getId(), true, stage, "", tenantDomain,
+            jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getVersion(), true, stage, "", tenantDomain,
                                              userName, AppFactoryConstants.ORIGINAL_REPOSITORY);
         }
         try {
@@ -157,17 +157,17 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         jenkinsCISystemDriver.isJobExists(application.getId(), "trunk", tenantDomain);
 
         for (Version version : versions) {
-            String lifecycleStage = version.getLifecycleStage();
+            String lifecycleStage = version.getStage();
             String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
-                    .getJobName(application.getId(), version.getId(), null);
+                    .getJobName(application.getId(), version.getVersion(), null);
 
-            jenkinsCISystemDriver.deleteJob(application.getId(), version.getId(), tenantDomain);
+            jenkinsCISystemDriver.deleteJob(application.getId(), version.getVersion(), tenantDomain);
 
             log.info("Successfully deleted the jenkins job : " + jobName +
                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                     " from tenant domain : " + tenantDomain + " in jenkins");
-            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version.getId(), lifecycleStage, applicationTypeBean, runtimeBean);
-            log.info("Successfully undeployed the artifact version : " + version.getId() +
+            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version.getVersion(), lifecycleStage, applicationTypeBean, runtimeBean);
+            log.info("Successfully undeployed the artifact version : " + version.getVersion() +
                      " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                      " from tenant domain : " + tenantDomain + " from dep sync repo");
 
@@ -215,7 +215,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         }
 
         log.info("Version Creation event recieved for : " + application.getId() + " " +
-                application.getName() + " Version : " + target.getId());
+                application.getName() + " Version : " + target.getVersion());
 
         RepositoryProvider repoProvider =
                 Util.getRepositoryProvider(application.getRepositoryType());
@@ -228,14 +228,14 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         }
 
         ServiceContainer.getJenkinsCISystemDriver()
-                .createJob(application.getId(), target.getId(), "", tenantDomain, userName,
+                .createJob(application.getId(), target.getVersion(), "", tenantDomain, userName,
                         repoURL, AppFactoryConstants.ORIGINAL_REPOSITORY);
 
         ServiceContainer.getJenkinsCISystemDriver()
                 .startBuild(application.getId(),
-                        target.getId(),
+                        target.getVersion(),
                         true, JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(),
-                                target.getId()), "", tenantDomain, userName,
+                                target.getVersion()), "", tenantDomain, userName,
                         AppFactoryConstants.ORIGINAL_REPOSITORY);
 
     }
@@ -283,7 +283,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         }
 
         ServiceContainer.getJenkinsCISystemDriver().editADJobConfiguration(application.getId(),
-                version.getId(),
+                version.getVersion(),
                 deploymentState,
                 pollingPeriod,
                 tenantDomain);
@@ -300,14 +300,14 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         }
 
         log.info("AutoDeployment Version Change event recieved for : " + application.getId() + " " +
-                application.getName() + " From Version : " + previousVersion.getId() +
-                " To Version : " + newVersion.getId());
+                application.getName() + " From Version : " + previousVersion.getVersion() +
+                " To Version : " + newVersion.getVersion());
         int pollingPeriod = 0;
 
         // noinspection ConstantConditions
         if (previousVersion != null) {
             ServiceContainer.getJenkinsCISystemDriver()
-                    .editADJobConfiguration(application.getId(), previousVersion.getId(),
+                    .editADJobConfiguration(application.getId(), previousVersion.getVersion(),
                             "removeAD", pollingPeriod, tenantDomain);
         }
 
@@ -319,7 +319,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                             newStage +
                             ".AutomaticDeployment.PollingPeriod"));
             ServiceContainer.getJenkinsCISystemDriver().editADJobConfiguration(application.getId(),
-                    newVersion.getId(),
+                    newVersion.getVersion(),
                     "addAD",
                     pollingPeriod,
                     tenantDomain);
@@ -386,7 +386,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             if (version == null || version.trim().equals("")) {
                 Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
                 for (Version version2 : versions) {
-                    jenkinsCISystemDriver.createJob(application.getId(), version2.getId(), "",
+                    jenkinsCISystemDriver.createJob(application.getId(), version2.getVersion(), "",
                             tenantDomain, forkedUser, repoURL,
                             AppFactoryConstants.FORK_REPOSITORY);
                 }

@@ -29,9 +29,9 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -281,19 +281,19 @@ public class ApplicationManagementService extends AbstractAdmin {
                               new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION
                                       .getCapitalizedString()) : new Version(targetVersion, AppFactoryConstants.
                                         ApplicationStage.DEVELOPMENT.getCapitalizedString());
-            JDBCApplicationDAO.getInstance().addVersion(applicationId, version);
-
+            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
+            JDBCAppVersionDAO.getInstance().addVersion(autoIncrementAppID, applicationId, version);
             Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
 
             // find the versions.
             Version source = null;
             Version target = null;
             for (Version v : versions) {
-                if (v.getId().equals(sourceVersion)) {
+                if (v.getVersion().equals(sourceVersion)) {
                     source = v;
                 }
 
-                if (v.getId().equals(targetVersion)) {
+                if (v.getVersion().equals(targetVersion)) {
                     target = v;
                 }
 

@@ -37,7 +37,6 @@ import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
@@ -256,22 +255,23 @@ public class ProjectUtils {
      */
     public static Version[] getVersions(String applicationId, String domainName) throws AppFactoryException {
         List<Version> versions = new ArrayList<Version>();
-        List<Artifact> artifactList;
+        List<Version> versionList;
         try {
-            artifactList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+            versionList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
         } catch (AppFactoryException e) {
             String errorMsg = String.format("Unable to load the application version information for application key : %s",
                                   applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
-        for (Artifact artifact : artifactList) {
+        for (Version artifact : versionList) {
 
             // extract the name of the resource ( which will be the version id)
             String lifecycleStage = artifact.getStage();
             String versionId = artifact.getVersion();
-            Version version = new Version(versionId);
-            version.setLifecycleStage(lifecycleStage);
+            Version version = new Version();
+            version.setVersion(versionId);
+            version.setStage(lifecycleStage);
             versions.add(version);
         }
         return versions.toArray(new Version[versions.size()]);
@@ -409,7 +409,7 @@ public class ProjectUtils {
             GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
                                                AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
-            List<Artifact> appVersions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+            List<Version> appVersions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
             String newBranchCount = String.valueOf(appVersions.size());
             artifact.setAttribute(AppFactoryConstants.RXT_KEY_APPINFO_BRANCHCOUNT, newBranchCount);
             artifactManager.updateGenericArtifact(artifact);
