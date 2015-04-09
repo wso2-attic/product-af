@@ -23,8 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ArtifactStorage;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
-import org.wso2.carbon.appfactory.core.util.CommonUtil;
+import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.activation.DataHandler;
@@ -45,7 +44,7 @@ public class FileArtifactStorage implements ArtifactStorage {
         File targetDir = null;
         List<File> artifactFiles = null;
         File workDir = new File(getApplicationStorageDirectoryPath(applicationId, version, revision));
-        String applicationType = ApplicationManager.getInstance().getApplicationType(applicationId);
+        String applicationType = RxtApplicationDAO.getInstance().getApplicationType(applicationId);
         String[] fileExtension = {applicationType};
 
         if (workDir.isDirectory()) {
@@ -65,7 +64,7 @@ public class FileArtifactStorage implements ArtifactStorage {
         File targetDir = null;
         List<File> artifactFiles = null;
         File workDir = new File(getStoragePathForArtifact(applicationId, version, buildId));
-        String applicationType = ApplicationManager.getInstance().getApplicationType(applicationId);
+        String applicationType = RxtApplicationDAO.getInstance().getApplicationType(applicationId);
         String[] fileExtension = {applicationType};
         artifactFiles = (List<File>) FileUtils.listFiles(workDir, fileExtension, false);
         targetDir = artifactFiles.get(0);

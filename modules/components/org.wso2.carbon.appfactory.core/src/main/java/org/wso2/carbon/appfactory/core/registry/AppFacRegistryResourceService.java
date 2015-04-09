@@ -26,7 +26,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.context.CarbonContext;
@@ -238,7 +238,7 @@ public class AppFacRegistryResourceService {
      * @return
      */
     public boolean checkDataSourceSupport(String applicationId) throws AppFactoryException {
-        String type = ApplicationManager.getInstance().getApplicationType(applicationId);
+        String type = RxtApplicationDAO.getInstance().getApplicationType(applicationId);
         ApplicationTypeBean appType = ApplicationTypeManager.getInstance().getApplicationTypeBean(type);
         String[] runTimes = appType.getRuntimes();
         boolean runtimeDS = Boolean.parseBoolean(RuntimeManager.getInstance().getRuntimeBean(runTimes[0]).

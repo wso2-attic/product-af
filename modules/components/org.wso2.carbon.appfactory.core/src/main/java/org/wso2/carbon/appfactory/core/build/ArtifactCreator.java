@@ -19,9 +19,8 @@ package org.wso2.carbon.appfactory.core.build;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
-import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.context.CarbonContext;
@@ -30,85 +29,78 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
 /**
  * This service is used to do operation against artifacts.
- * 
  */
 public class ArtifactCreator extends AbstractAdmin {
 
-	private static Log log = LogFactory.getLog(ArtifactCreator.class);
+    private static Log log = LogFactory.getLog(ArtifactCreator.class);
 
-	/**
-	 * If the artifact is buildable , then this operation trigger the build that given Continuous Intergration System
-	 * and if the artifact auto deploy states is true then from the intergration system should do the deployment
-	 * 
-	 * If it is non-buildable then it create artifact and check the auto deployment property before deployment.
-	 * 
-	 * 
-	 * 
-	 * @param applicationId
-	 * @param version
-	 * @param revision
-	 * @param doDeploy - indicates whether this is triggered manually or by build
-	 * @param deployStage
-	 * @param tagName
-	 * @throws AppFactoryException
-	 */
-	public void createArtifact(String applicationId, String version, String revision, boolean doDeploy,
-	                           String deployStage, String tagName, String repoFrom) throws AppFactoryException {
+    /**
+     * If the artifact is buildable , then this operation trigger the build that given Continuous Intergration System
+     * and if the artifact auto deploy states is true then from the intergration system should do the deployment
+     * <p/>
+     * If it is non-buildable then it create artifact and check the auto deployment property before deployment.
+     *
+     * @param applicationId
+     * @param version
+     * @param revision
+     * @param doDeploy      - indicates whether this is triggered manually or by build
+     * @param deployStage
+     * @param tagName
+     * @throws AppFactoryException
+     */
+    public void createArtifact(String applicationId, String version, String revision, boolean doDeploy,
+                               String deployStage, String tagName, String repoFrom) throws AppFactoryException {
 
-		try {
-			//doDeploy - indicates that it is an commit or not
-			log.info("Artifact Create Service triggered....");
-			
-			String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-			String tenantUserName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" + tenantDomain;
+        try {
+            //doDeploy - indicates that it is an commit or not
+            log.info("Artifact Create Service triggered....");
 
-			String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, tenantDomain);
-			boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String tenantUserName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" + tenantDomain;
 
-			boolean performBuild = true;
-			boolean performDeploy = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
-                    version, "appversion_isAutoDeploy", tenantDomain));
-			if ( doDeploy ) {
-				//triggered by auto commit
-				performBuild = Boolean.parseBoolean(RxtManager.getInstance().getAppVersionRxtValue(applicationId,
-						version, "appversion_isAutoBuild", tenantDomain));
+            String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, tenantDomain);
+            boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
 
+            boolean performBuild = true;
+            boolean performDeploy = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId, version);
+            if (doDeploy) {
+                //triggered by auto commit
+                performBuild = JDBCAppVersionDAO.getInstance().getAutoDeployStatusOfVersion(applicationId, version);
                 if (log.isDebugEnabled()) {
-                    log.error("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " + repoFrom);
+                    log.error("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " +
+                              repoFrom);
                 }
-			} else {
-				//triggered by manual build
+            } else {
+                //triggered by manual build
                 if (log.isDebugEnabled()) {
-                    log.error("Triggered by manual build " + performBuild + " and " + performDeploy + " repoFrom "+ repoFrom);
+                    log.error("Triggered by manual build " + performBuild + " and " + performDeploy + " repoFrom " +
+                              repoFrom);
                 }
-			}
+            }
 
             if (appIsBuilServerRequired && performBuild) {
                 if (ServiceHolder.getContinuousIntegrationSystemDriver() == null) {
-                    throw new AppFactoryException(
-                            "There is no any ContinuousIntegrationSystem register to build artifacts");
+                    throw new AppFactoryException("There is no any ContinuousIntegrationSystem register to build" +
+                                                  " artifacts");
                 }
                 ServiceHolder.getContinuousIntegrationSystemDriver().startBuild(applicationId, version, performDeploy,
-                        deployStage, tagName, tenantDomain,
-                        tenantUserName, repoFrom);
-                log.info("Start a build job [Buildable Artifact] in CI to Application ID : " + applicationId + " , version "
-                        + version + " by " + tenantDomain + " repoFrom " +repoFrom);
+                              deployStage, tagName, tenantDomain,tenantUserName, repoFrom);
+                log.info("Start a build job [Buildable Artifact] in CI to application id : " + applicationId +
+                         " version : " + version + " tenant domain : " + tenantDomain + " repoFrom : " + repoFrom);
 
             }
-
             if (performDeploy) {
                 ApplicationDeployer applicationDeployer = new ApplicationDeployer();
                 applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy", repoFrom);
-                log.info("Start artifact deploying  job for Application ID : " +
-                        applicationId + " , version " + version + " by " + tenantDomain + " repoFrom " +repoFrom) ;
+                log.info("Start artifact deploying  job for Application ID : " + applicationId + " , version " + version
+                         + " by " + tenantDomain + " repoFrom " + repoFrom);
             }
-
-		} catch (RegistryException e) {
-			String errMsg =
-					"Error when try to get the application type from regsistry that given application id and tenant domain : " +
-							e.getMessage();
-			log.error(errMsg, e);
-			throw new AppFactoryException(errMsg, e);
-		}
-	}
+        } catch (RegistryException e) {
+            String errMsg =
+                    "Error when try to get the application type from registry that given application id and tenant domain : " +
+                    e.getMessage();
+            log.error(errMsg, e);
+            throw new AppFactoryException(errMsg, e);
+        }
+    }
 }

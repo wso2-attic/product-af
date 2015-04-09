@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.appfactory.core.cache;
 
+import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.util.Constants;
@@ -42,6 +43,9 @@ public class JDBCApplicationCacheManager {
     public static final String AF_APPLICATION_DATABASE_ID_CACHE = "af.application.database.id.cache";
 
     public static final String AF_APPLICATION_INFO_CACHE = "af.application.info.cache";
+
+    public static final String AF_APPVERSION_CACHE = "af.appversion.cache";
+
 
     // The cache key separator value. This value is used to combine different parameters to generate the cache key
     public static final String KEY_SEPARATOR = "_";
@@ -109,6 +113,10 @@ public class JDBCApplicationCacheManager {
         // This cache holds the AF_APPLICATION branch count against the application key
         // The purpose of this is to reduce the multiple calls that happen to the database to fetch the application id
         return getCacheManager().getCache(AF_APPLICATION_INFO_CACHE);
+    }
+
+    public static Cache<String, Artifact> getAppVersionCache() {
+        return getCacheManager().getCache(AF_APPVERSION_CACHE);
     }
 
     /**
@@ -211,5 +219,9 @@ public class JDBCApplicationCacheManager {
     public static String constructApplicationBranchCountCacheKey(int tenantId,
                                                                  String ApplicationKey) {
         return constructCacheKeyPrefix(tenantId, ApplicationKey) + KEY_SEPARATOR + APPS_INFO;
+    }
+
+    public static String contructAppVersionCacheKey(int tenantId, String applicationKey, String version) {
+        return tenantId + KEY_SEPARATOR + applicationKey + KEY_SEPARATOR + version;
     }
 }

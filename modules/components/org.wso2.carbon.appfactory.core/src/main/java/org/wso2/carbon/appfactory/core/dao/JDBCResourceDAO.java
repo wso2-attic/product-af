@@ -20,6 +20,7 @@ package org.wso2.carbon.appfactory.core.dao;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.cache.JDBCResourceCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Resource;
@@ -70,8 +71,7 @@ public class JDBCResourceDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_RESOURCE_SQL);
-            int applicationId = JDBCApplicationDAO.getInstance().getApplicationID(applicationKey,
-                                                                                  databaseConnection);
+            int applicationId = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey);
             preparedStatement.setInt(1, applicationId);
             preparedStatement.setString(2, resourceName);
             preparedStatement.setString(3, resourceType);
@@ -81,10 +81,11 @@ public class JDBCResourceDAO {
             int affectedRow = preparedStatement.getUpdateCount();
             if (affectedRow > 0) {
                 databaseConnection.commit();
+
                 // clear the cache
                 JDBCResourceCacheManager.clearCache(applicationKey, environment, resourceType);
                 if (log.isDebugEnabled()) {
-                    log.debug("Cache cleared for resource type : " + resourceType + " of application : " +
+                    log.debug("Cache cleared for resource type : " + resourceType + " of application key : " +
                               applicationKey + " in : " + environment);
                 }
                 return true;
@@ -96,19 +97,19 @@ public class JDBCResourceDAO {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-                String msg = "Error while rolling back resource addition for : " + resourceName + " of resource type : " +
-                             resourceType + " of application : " + applicationKey + " in : " + environment;
+                String msg =
+                        "Error while rolling back resource addition for : " + resourceName + " of resource type : " +
+                        resourceType + " of application key : " + applicationKey + " in : " + environment;
                 log.error(msg, e1);
             }
             String msg = "Error while adding resource : " + resourceName + " of resource type : " + resourceType +
-                         " of application : " + applicationKey + " in : " + environment;
+                         " of application key : " + applicationKey + " in : " + environment;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } finally {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-
         return false;
     }
 
@@ -129,14 +130,13 @@ public class JDBCResourceDAO {
         if (JDBCResourceCacheManager.isResourceExist(applicationKey, environment, resourceType, resourceName)) {
             return true;
         }
-
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resourcesRS = null;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection
-                .prepareStatement(SQLConstants.GET_RESOURCES_BY_NAME_AND_TYPE_AND_ENV);
+                    .prepareStatement(SQLConstants.GET_RESOURCES_BY_NAME_AND_TYPE_AND_ENV);
             preparedStatement.setString(1, applicationKey);
             preparedStatement.setInt(2, tenantId);
             preparedStatement.setString(3, resourceType);
@@ -144,6 +144,7 @@ public class JDBCResourceDAO {
             preparedStatement.setString(5, resourceName);
             resourcesRS = preparedStatement.executeQuery();
             if (resourcesRS.next()) {
+
                 //Here we are retrieving only a single resource from database. But we can add only a list of resources
                 // of a particular resource type. So here we cant add the retrieved resource to the cache
                 return true;
@@ -158,22 +159,22 @@ public class JDBCResourceDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-
         return false;
     }
 
     public boolean isDataBaseExistsForTenant(String databaseName, String resourceType, String environment,
                                              String tenantDomain) throws AppFactoryException {
         String tenantDatabaseName = null;
-        if (StringUtils.isNotBlank(tenantDomain) && !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-            tenantDatabaseName = databaseName + "_" + tenantDomain.replace(".", "_");
+        if (StringUtils.isNotBlank(tenantDomain) &&
+            !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
+            tenantDatabaseName = databaseName + AppFactoryConstants.UNDER_SCORE + tenantDomain.replace(
+                    AppFactoryConstants.DOT, AppFactoryConstants.UNDER_SCORE);
         } else if (StringUtils.isBlank(tenantDomain)) {
-            String msg = "Tenant domain should have a value to check existence of resource : " + databaseName
-                         + " of resource type: " + resourceType + " in : " + environment;
+            String msg = "Tenant domain should have a value to check existence of resource : " + databaseName + " of " +
+                         "resource type: " + resourceType + " in : " + environment;
             log.error(msg);
             throw new AppFactoryException(msg);
         }
-
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resourcesRS = null;
@@ -186,6 +187,7 @@ public class JDBCResourceDAO {
             preparedStatement.setString(3, tenantDatabaseName);
             resourcesRS = preparedStatement.executeQuery();
             if (resourcesRS.next()) {
+
                 //Here we are retrieving only a single resource from database. But we can add only a list of resources
                 // of a particular resource type. So here we cant add the retrieved resource to the cache
                 return true;
@@ -200,7 +202,6 @@ public class JDBCResourceDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-
         return false;
     }
 
@@ -221,9 +222,8 @@ public class JDBCResourceDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement =
-                databaseConnection.prepareStatement(SQLConstants.DELETE_RESOURCE_SQL);
-            int applicationId = JDBCApplicationDAO.getInstance().getApplicationID(applicationKey,
-                                                                                  databaseConnection);
+                    databaseConnection.prepareStatement(SQLConstants.DELETE_RESOURCE_SQL);
+            int applicationId = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey);
             preparedStatement.setInt(1, applicationId);
             preparedStatement.setString(2, resourceName);
             preparedStatement.setString(3, resourceType);
@@ -241,15 +241,15 @@ public class JDBCResourceDAO {
 
                 return true;
             }
-
         } catch (SQLException e) {
             try {
                 if (databaseConnection != null) {
                     databaseConnection.rollback();
                 }
             } catch (SQLException e1) {
-                String msg = "Error while rolling back resource deletion for : " + resourceName + " of resource type : " +
-                             resourceType + " of application : " + applicationKey + " in : " + environment;
+                String msg =
+                        "Error while rolling back resource deletion for : " + resourceName + " of resource type : " +
+                        resourceType + " of application : " + applicationKey + " in : " + environment;
                 log.error(msg, e1);
             }
             String msg = "Error while deleting resource : " + resourceName + " of resource type : " + resourceType +
@@ -260,7 +260,6 @@ public class JDBCResourceDAO {
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-
         return false;
     }
 
@@ -274,8 +273,7 @@ public class JDBCResourceDAO {
      * @throws AppFactoryException
      */
     public Resource[] getResources(String applicationKey, String resourceType, String environment)
-        throws AppFactoryException {
-
+            throws AppFactoryException {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         // Get resources from cache
@@ -288,15 +286,13 @@ public class JDBCResourceDAO {
 
         // If no resources from cache
         if (resources.isEmpty()) {
-
             Connection databaseConnection = null;
             PreparedStatement preparedStatement = null;
             ResultSet resourcesRS = null;
-
             try {
                 databaseConnection = AppFactoryDBUtil.getConnection();
                 preparedStatement =
-                    databaseConnection.prepareStatement(SQLConstants.GET_RESOURCES_BY_TYPE_AND_ENV);
+                        databaseConnection.prepareStatement(SQLConstants.GET_RESOURCES_BY_TYPE_AND_ENV);
                 preparedStatement.setString(1, applicationKey);
                 preparedStatement.setInt(2, tenantId);
                 preparedStatement.setString(3, resourceType);
@@ -309,14 +305,12 @@ public class JDBCResourceDAO {
                     resource.setDescription(resourcesRS.getString(DESCRIPTION));
                     resources.add(resource);
                 }
-
                 String cacheKey = JDBCResourceCacheManager.addResourcesToCache(
                         applicationKey, resourceType, environment, resources);
                 if (log.isDebugEnabled()) {
                     log.debug("Resources of resource type : " + resourceType + " of application : " + applicationKey +
                               " added to the cache with cache key : " + cacheKey + " in : " + environment);
                 }
-
             } catch (SQLException e) {
                 String msg = "Error while getting resources of resource type : " + resourceType + " of application : " +
                              applicationKey + " in environment : " + environment;
@@ -328,7 +322,6 @@ public class JDBCResourceDAO {
                 AppFactoryDBUtil.closeConnection(databaseConnection);
             }
         }
-
         return resources.toArray(new Resource[resources.size()]);
     }
 }
