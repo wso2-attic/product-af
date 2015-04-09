@@ -423,8 +423,7 @@ public class DomainMappingUtils {
             throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(appKey);
-            JDBCAppVersionDAO.getInstance().updateSubDomainsOfVersion(autoIncrementAppID, version, mappedDomain);
+            JDBCAppVersionDAO.getInstance().updateSubDomainsOfVersion(appKey, version, mappedDomain);
         } catch (AppFactoryException e) {
             log.error("Error occurred while updating the appversion rxt with mapped domain for application id: " +
                       appKey + " version:" + version + " domain: " + mappedDomain, e);

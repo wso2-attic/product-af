@@ -292,7 +292,7 @@ public class ApplicationInfoService {
             throws AppFactoryException {
         BuildStatus buildStatus = JDBCApplicationDAO.getInstance().getBuildStatus(applicationId, version, false, null);
         DeployStatus deployStatus;
-        String stage = RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
+        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(applicationId, version);
         deployStatus = JDBCApplicationDAO.getInstance().getDeployStatus(applicationId, version, stage, false, null);
         return new BuildandDeployStatus(buildStatus.getLastBuildId(),
                                                  buildStatus.getLastBuildStatus(),  deployStatus.getLastDeployedId());
@@ -311,8 +311,7 @@ public class ApplicationInfoService {
     private void updateDBWithAutoBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable)
                                                                     throws ApplicationManagementException {
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updateAutoBuildStatusOfVersion(autoIncrementAppID, version, isAutoBuildable);
+            JDBCAppVersionDAO.getInstance().updateAutoBuildStatusOfVersion(applicationId, version, isAutoBuildable);
             if (log.isDebugEnabled()) {
                 log.debug(" Database updated successfully for application id : " + applicationId + " " + " version : "
                           + version + " stage :" + stage + " isAutoBuildable :" + isAutoBuildable);
@@ -412,8 +411,7 @@ public class ApplicationInfoService {
     private void updateDBAutoDeploymentStatus(String applicationId, String stage, String version,
                                               boolean isAutoDeployable) throws ApplicationManagementException {
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updateAutoDeployStatusOfVersion(autoIncrementAppID, version, isAutoDeployable);
+            JDBCAppVersionDAO.getInstance().updateAutoDeployStatusOfVersion(applicationId, version, isAutoDeployable);
             if (log.isDebugEnabled()) {
                 log.debug(" DB updated successfully for application id : " + applicationId + " " + " version : "
                           + version +" stage :" + stage + " isAutoDeployable :" + isAutoDeployable);
@@ -445,8 +443,7 @@ public class ApplicationInfoService {
         }
 
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(autoIncrementAppID, version, state);
+            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(applicationId, version, state);
             if (log.isDebugEnabled()) {
                 log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
                           " version : "+ version + " stage :" + stage);
@@ -471,8 +468,7 @@ public class ApplicationInfoService {
     public void updateCurrentStage(String applicationId, String stage, String version)
             throws ApplicationManagementException {
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updateStageOfVersion(autoIncrementAppID, version, stage);
+            JDBCAppVersionDAO.getInstance().updateStageOfVersion(applicationId, version, stage);
             if (log.isDebugEnabled()) {
                 log.debug(" Successfully updated stage to " + stage + " for application id : " + applicationId
                           + " version : " + version);

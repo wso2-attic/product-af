@@ -65,29 +65,6 @@ public class ApplicationDeployer {
     private static final Log log = LogFactory.getLog(ApplicationDeployer.class);
 
     /**
-     * Service method to get the latest deployed build information.
-     *
-     * @throws AppFactoryException
-     */
-    public String getDeployedArtifactInformation(String applicationId, String version, String stage)
-            throws AppFactoryException {
-        String buildNumber = "-1";
-        if (AppFactoryUtil.checkAuthorizationForUser(AppFactoryConstants.PERMISSION_VIBILITY + stage,
-                                                     AppFactoryConstants.DEFAULT_ACTION)) {
-            // Getting the tenant domain
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            try {
-                buildNumber =
-                        RxtManager.getInstance().getAppVersionRxtValue(applicationId, version,
-                                                                       "appversion_lastdeployedid", tenantDomain);
-            } catch (AppFactoryException e) {
-                throw new AppFactoryException(e.getMessage());
-            }
-        }
-        return buildNumber;
-    }
-
-    /**
      * Service method to get the artifact information for the given applicationId.
      *
      * @param applicationId
