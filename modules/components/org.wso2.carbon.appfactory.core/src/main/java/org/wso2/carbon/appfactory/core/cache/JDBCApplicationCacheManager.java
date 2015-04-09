@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.appfactory.core.cache;
 
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.Constants;
 
 import javax.cache.Cache;
@@ -115,7 +115,7 @@ public class JDBCApplicationCacheManager {
         return getCacheManager().getCache(AF_APPLICATION_INFO_CACHE);
     }
 
-    public static Cache<String, Artifact> getAppVersionCache() {
+    public static Cache<String, Version> getAppVersionCache() {
         return getCacheManager().getCache(AF_APPVERSION_CACHE);
     }
 
