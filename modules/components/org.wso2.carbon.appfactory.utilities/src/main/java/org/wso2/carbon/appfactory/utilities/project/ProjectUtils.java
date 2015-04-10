@@ -247,37 +247,6 @@ public class ProjectUtils {
     }
 
     /**
-     * Returns all available versions of a application
-     *
-     * @param applicationId Id of the application
-     * @return an Array of {@link Version}
-     * @throws AppFactoryException if an error occurs
-     */
-    public static Version[] getVersions(String applicationId, String domainName) throws AppFactoryException {
-        List<Version> versions = new ArrayList<Version>();
-        List<Version> versionList;
-        try {
-            versionList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-        } catch (AppFactoryException e) {
-            String errorMsg = String.format("Unable to load the application version information for application key : %s",
-                                  applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        for (Version artifact : versionList) {
-
-            // extract the name of the resource ( which will be the version id)
-            String lifecycleStage = artifact.getStage();
-            String versionId = artifact.getVersion();
-            Version version = new Version();
-            version.setVersion(versionId);
-            version.setStage(lifecycleStage);
-            versions.add(version);
-        }
-        return versions.toArray(new Version[versions.size()]);
-    }
-
-    /**
      *
      * @param applicationId
      * @return
@@ -368,81 +337,6 @@ public class ProjectUtils {
                 //ignore this catch clause
                 log.warn("Error while creating file .gitignore");
             }
-        }
-    }
-
-    /**
-     * Updates appinfo rxt the no branch count by retrieving all the branches created for the given application.
-     *
-     * @param applicationId Id of the application
-     * @throws AppFactoryException
-     */
-    public static void updateBranchCount(String applicationId) throws AppFactoryException {
-        RegistryService registryService = ServiceReferenceHolder.getInstance().getRegistryService();
-        UserRegistry userRegistry;
-        try {
-            userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext.getThreadLocalCarbonContext()
-                                                                               .getTenantId());
-        } catch (RegistryException e) {
-            String errorMsg = String.format("Unable to load userRegistry");
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-        updateBranchCount(userRegistry, applicationId, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-    }
-
-    /**
-     *
-     * @param userRegistry
-     * @param applicationId
-     * @param domainName
-     * @throws AppFactoryException
-     */
-    private static void updateBranchCount(UserRegistry userRegistry, String applicationId,
-                                          String domainName) throws AppFactoryException {
-        GenericArtifact artifact;
-        try {
-            Resource resource = userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                                     RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR
-                                     + AppFactoryConstants.RXT_KEY_APPINFO);
-            GovernanceUtils.loadGovernanceArtifacts(userRegistry);
-            GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
-                                               AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
-            artifact = artifactManager.getGenericArtifact(resource.getUUID());
-            List<Version> appVersions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-            String newBranchCount = String.valueOf(appVersions.size());
-            artifact.setAttribute(AppFactoryConstants.RXT_KEY_APPINFO_BRANCHCOUNT, newBranchCount);
-            artifactManager.updateGenericArtifact(artifact);
-            log.info(String.format("Application - %s Branch count is updated to - %s", applicationId, newBranchCount));
-        } catch (RegistryException e) {
-            String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        }
-    }
-
-    /**
-     *
-     * @param domainName
-     * @param applicationId
-     * @throws AppFactoryException
-     */
-    public static void updateBranchCount(String domainName, String applicationId) throws AppFactoryException {
-        RegistryService registryService = ServiceReferenceHolder.getInstance().getRegistryService();
-        UserRegistry userRegistry;
-        try {
-            userRegistry = registryService.getGovernanceSystemRegistry(ServiceReferenceHolder.getInstance().
-                    getRealmService().getTenantManager().getTenantId(domainName));
-            updateBranchCount(userRegistry, applicationId, domainName);
-        } catch (UserStoreException e) {
-            String errorMsg = String.format("Unable to get tenant id for domain: %s", domainName);
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        } catch (RegistryException e) {
-            String errorMsg = String.format("Unable to load userRegistry");
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
         }
     }
 
