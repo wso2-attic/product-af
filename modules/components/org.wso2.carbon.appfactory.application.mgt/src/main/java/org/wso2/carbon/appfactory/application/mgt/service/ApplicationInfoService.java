@@ -607,31 +607,6 @@ public class ApplicationInfoService {
                 applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
     }
 
-
-    /**
-     * Returns the list of applications that user belongs to
-     *
-     * @param userName
-     * @return <b>Application</b> Array
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicaitonsOfTheUser(String userName)
-            throws ApplicationManagementException {
-        long startTime = System.currentTimeMillis();
-        try {
-            Application[] apps = RxtApplicationDAO.getInstance().getAllApplicationsOfUser(userName);
-            long endTime = System.currentTimeMillis();
-            if (perfLog.isDebugEnabled()) {
-                perfLog.debug("AFProfiling getApplicaitonsOfTheUser : " + (endTime - startTime));
-            }
-            return apps;
-        } catch (AppFactoryException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message, e);
-            throw new ApplicationManagementException(message, e);
-        }
-    }
-
     /**
      * Lightweight method to get application keys of the applications of user
      *
