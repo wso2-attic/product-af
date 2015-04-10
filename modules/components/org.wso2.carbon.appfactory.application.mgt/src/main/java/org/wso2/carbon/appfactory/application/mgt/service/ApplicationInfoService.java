@@ -265,12 +265,16 @@ public class ApplicationInfoService {
      * @return array of version artifacts
      * @throws AppFactoryException
      */
-
-    //TODO remove domainName
+    //TODO Modify this method with new UX improvements. Simply use Version name list String list. Must do item.
     public Version[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
         try {
-            List<Version> artifactsList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-            return artifactsList.toArray(new Version[artifactsList.size()]);
+            JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
+            String[] artifactsList = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+            Version[] versions = new Version[artifactsList.length];
+            for (int i = 0; i < versions.length; i++) {
+                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, artifactsList[i]);
+            }
+            return versions;
         } catch (AppFactoryException e) {
             String msg = "Error while retrieving artifact information from database for application id : " + applicationId
                          + " of tenant domain : " + domainName;

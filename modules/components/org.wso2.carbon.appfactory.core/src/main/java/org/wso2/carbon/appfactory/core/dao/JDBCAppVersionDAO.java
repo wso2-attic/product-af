@@ -19,6 +19,7 @@ package org.wso2.carbon.appfactory.core.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
@@ -57,6 +58,7 @@ public class JDBCAppVersionDAO {
      */
     public boolean updatePromoteStatusOfVersion(String applicationKey, String version, String status) throws
                                                                                                   AppFactoryException {
+        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -104,6 +106,7 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateStageOfVersion(String applicationKey, String version, String stage) throws
                                                                                               AppFactoryException {
+        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -145,6 +148,7 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateSubDomainsOfVersion(String applicationKey, String version, String subdomain) throws
                                                                                                        AppFactoryException {
+        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -186,6 +190,7 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateAutoBuildStatusOfVersion(String applicationKey, String version, boolean isAutoBuildable)
                                                                                            throws AppFactoryException {
+        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -220,39 +225,13 @@ public class JDBCAppVersionDAO {
      * Gets auto build status of a given application version
      *
      * @param applicationKey applicationKey of application
-     * @param version        version number
+     * @param versionName        version number
      * @return true or false for auto build status
      * @throws AppFactoryException
      */
-    public boolean getAutoBuildStatusOfVersion(String applicationKey, String version) throws AppFactoryException {
-        Connection databaseConnection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        boolean result = true;
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_AUTO_BUILD_STATUS_OF_VERSION);
-            preparedStatement.setString(1, applicationKey);
-            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(3, version);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                int value = resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD);
-                if (log.isDebugEnabled()) {
-                    log.debug("Successfully received the auto build status of version : " + version);
-                }
-                result = value == 0 ? false : true;
-            }
-        } catch (SQLException e) {
-            String msg = "Error while receiving the auto build status of version : " + version;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(resultSet);
-            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return result;
+    public boolean getAutoBuildStatusOfVersion(String applicationKey, String versionName) throws AppFactoryException {
+        Version version = getApplicationVersion(applicationKey, versionName);
+        return version.isAutoBuild();
     }
 
     /**
@@ -266,6 +245,7 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateAutoDeployStatusOfVersion(String applicationKey, String version,
                                                    boolean isAutoDeployable) throws AppFactoryException {
+        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -300,80 +280,26 @@ public class JDBCAppVersionDAO {
      * et auto deploy status of a given application version
      *
      * @param applicationKey applicationKey of application
-     * @param version        version number
+     * @param versionName        version number
      * @return true or false for auto deploy status
      * @throws AppFactoryException
      */
-    public boolean getAutoDeployStatusOfVersion(String applicationKey, String version) throws AppFactoryException {
-        Connection databaseConnection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_AUTO_DEPLOY_STATUS_OF_VERSION);
-            preparedStatement.setString(1, applicationKey);
-            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(3, version);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                int value = resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY);
-                if (log.isDebugEnabled()) {
-                    log.debug("Successfully received the auto deploy status of version " + version);
-                }
-                return value == 0 ? false : true;
-            }
-        } catch (SQLException e) {
-            String msg = "Error while receiving the auto deploy status of version " + version;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(resultSet);
-            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return true;
+    public boolean getAutoDeployStatusOfVersion(String applicationKey, String versionName) throws AppFactoryException {
+        Version version = getApplicationVersion(applicationKey, versionName);
+        return version.isAutoDeploy();
     }
 
     /**
      * Returns the stage of a particular application version
      *
-     * @param version        version number
+     * @param versionName        version number
      * @param applicationKey application key
      * @return true if it success false if it failed
      * @throws org.wso2.carbon.appfactory.common.AppFactoryException
      */
-    public String getAppVersionStage(String applicationKey, String version) throws AppFactoryException {
-        Connection databaseConnection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        String result = "";
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_STAGE_OF_APPLICATION_VERSION);
-            preparedStatement.setString(1, applicationKey);
-            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(3, version);
-            preparedStatement.execute();
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String stage = resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE);
-                if (log.isDebugEnabled()) {
-                    log.debug("Successfully received the stage of version : " + version + " for application key : "
-                              + applicationKey);
-                }
-                result = stage;
-            }
-        } catch (SQLException e) {
-            String msg = "Error while getting stage of version : " + version + " for application key : " +
-                         applicationKey;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(resultSet);
-            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return result;
+    public String getAppVersionStage(String applicationKey, String versionName) throws AppFactoryException {
+        Version version = getApplicationVersion(applicationKey, versionName);
+        return version.getStage();
     }
 
     /**
@@ -389,6 +315,11 @@ public class JDBCAppVersionDAO {
         PreparedStatement preparedStatement = null;
         ResultSet allVersions = null;
         Version version = null;
+        version = JDBCApplicationCacheManager.getAppVersionCache().get(JDBCApplicationCacheManager.
+                                              constructAppVersionCacheKey(applicationKey, versionName));
+        if (version != null) {
+            return version;
+        }
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
@@ -402,6 +333,11 @@ public class JDBCAppVersionDAO {
                 version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
                 version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
             }
+
+            JDBCApplicationCacheManager.getAppVersionCache().
+                    put(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, versionName),
+                        version);
+
         } catch (SQLException e) {
             String msg = "Error while getting application version : " + versionName;
             log.error(msg, e);
@@ -421,36 +357,23 @@ public class JDBCAppVersionDAO {
      * @return {@link org.wso2.carbon.appfactory.core.dto.Version}
      * @throws AppFactoryException if SQL operation fails
      */
-    public List<Version> getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
+    public String[] getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<Version> versionList = new ArrayList<Version>(0);
+        List<String> versionList = JDBCApplicationCacheManager.getAppVersionListCache().
+                                                               get(JDBCApplicationCacheManager.constructAppVersionListCacheKey(applicationKey));
+        if (versionList != null) {
+            return versionList.toArray(new String[versionList.size()]);
+        }
         try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
-            preparedStatement.setString(1, applicationKey);
-            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.execute();
-            resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                Version version = new Version(applicationKey, "build " +
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD) +
-                                                 " " + resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_STATUS),
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME),
-                                                 resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD) == 1 ? true : false,
-                                                 resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY) == 1 ? true : false,
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_DEPLOY),
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE),
-                                                 null,
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
-                version.setProductionMappedDomain(resultSet.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
-                versionList.add(version);
-            }
-        } catch (SQLException e) {
-            String msg = "Error while getting all the version of application key : " + applicationKey;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
+            //TODO - Punnadi - write code to get the list of names
+
+
+//        } catch (SQLException e) {
+//            String msg = "Error while getting all the version of application key : " + applicationKey;
+//            log.error(msg, e);
+//            throw new AppFactoryException(msg, e);
         } finally {
             AppFactoryDBUtil.closeResultSet(resultSet);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
@@ -459,7 +382,7 @@ public class JDBCAppVersionDAO {
         if (log.isDebugEnabled()) {
             log.debug("List of Version IDs of application key : " + applicationKey + " are : " + versionList);
         }
-        return versionList;
+        return null; //TODO - Fix Punnadi
     }
 
     /**
