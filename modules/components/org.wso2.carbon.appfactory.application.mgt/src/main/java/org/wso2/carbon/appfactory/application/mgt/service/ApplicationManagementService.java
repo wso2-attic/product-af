@@ -282,25 +282,10 @@ public class ApplicationManagementService extends AbstractAdmin {
                                       .getCapitalizedString()) : new Version(targetVersion, AppFactoryConstants.
                                         ApplicationStage.DEVELOPMENT.getCapitalizedString());
             JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
-            Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
 
             // find the versions.
-            Version source = null;
-            Version target = null;
-            for (Version v : versions) {
-                if (v.getVersion().equals(sourceVersion)) {
-                    source = v;
-                }
-
-                if (v.getVersion().equals(targetVersion)) {
-                    target = v;
-                }
-
-                if (source != null && target != null) {
-                    // both version are found. no need to traverse more
-                    break;
-                }
-            }
+            Version source = JDBCAppVersionDAO.getInstance().getApplicationVersion(applicationId, sourceVersion);
+            Version target = JDBCAppVersionDAO.getInstance().getApplicationVersion(applicationId, targetVersion);
 
             Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
             ApplicationEventsHandler listener = null;

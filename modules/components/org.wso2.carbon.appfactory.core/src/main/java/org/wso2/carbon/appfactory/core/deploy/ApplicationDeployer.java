@@ -72,12 +72,14 @@ public class ApplicationDeployer {
      */
     public List<Version> getArtifactInformation(String applicationId) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        try {
-            return JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-        } catch (AppFactoryException e) {
-            log.error("Error while retrieving artifat information from database for application " + applicationId);
-            throw new AppFactoryException(e.getMessage());
-        }
+//        try {
+            //TODO - Check Punnadi why is this needed?
+            //return JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+//        } catch (AppFactoryException e) {
+//            log.error("Error while retrieving artifat information from database for application " + applicationId);
+//            throw new AppFactoryException(e.getMessage());
+//        }
+        return null;
     }
 
     /**

@@ -351,36 +351,23 @@ public class JDBCAppVersionDAO {
      * @return {@link org.wso2.carbon.appfactory.core.dto.Version}
      * @throws AppFactoryException if SQL operation fails
      */
-    public List<Version> getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
+    public String[] getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<Version> versionList = new ArrayList<Version>(0);
+        List<String> versionList = JDBCApplicationCacheManager.getAppVersionListCache().
+                                                               get(JDBCApplicationCacheManager.constructAppVersionListCacheKey(applicationKey));
+        if (versionList != null) {
+            return versionList.toArray(new String[versionList.size()]);
+        }
         try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
-            preparedStatement.setString(1, applicationKey);
-            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.execute();
-            resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                Version version = new Version(applicationKey, "build " +
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD) +
-                                                 " " + resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_STATUS),
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME),
-                                                 resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD) == 1 ? true : false,
-                                                 resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY) == 1 ? true : false,
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_DEPLOY),
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE),
-                                                 null,
-                                                 resultSet.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
-                version.setProductionMappedDomain(resultSet.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
-                versionList.add(version);
-            }
-        } catch (SQLException e) {
-            String msg = "Error while getting all the version of application key : " + applicationKey;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
+            //TODO - Punnadi - write code to get the list of names
+
+
+//        } catch (SQLException e) {
+//            String msg = "Error while getting all the version of application key : " + applicationKey;
+//            log.error(msg, e);
+//            throw new AppFactoryException(msg, e);
         } finally {
             AppFactoryDBUtil.closeResultSet(resultSet);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
@@ -389,7 +376,7 @@ public class JDBCAppVersionDAO {
         if (log.isDebugEnabled()) {
             log.debug("List of Version IDs of application key : " + applicationKey + " are : " + versionList);
         }
-        return versionList;
+        return null; //TODO - Fix Punnadi
     }
 
     /**

@@ -100,12 +100,13 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         // adding app creator to jenkins
         jenkinsCISystemDriver.addUsersToApplication(application.getId(), new String[]{userName.split("@")[0]},
                                                     tenantDomain);
-        Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0].getVersion());
+        JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
+        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
+        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0]);
         if (ArrayUtils.isNotEmpty(versions)) {
 
             // No need to create job.
-            jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getVersion(), true, stage, "", tenantDomain,
+            jenkinsCISystemDriver.startBuild(application.getId(), versions[0], true, stage, "", tenantDomain,
                                              userName, AppFactoryConstants.ORIGINAL_REPOSITORY);
         }
         try {
@@ -147,7 +148,8 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                     "Runtime details cannot be found for Artifact Type : " + application.getType() + ", application id"+
                             application.getId() + " for tenant domain: " + tenantDomain);
         }
-        Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
+        JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
+        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
         String deployerType = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
                                                     .getProperty(AppFactoryConstants.DEPLOYER_TYPE).toString();
         JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
@@ -156,18 +158,18 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         //This has put to fix APPFAC-2853 issue. This has used to load the tenant in build server when build server has unload the tenant.
         jenkinsCISystemDriver.isJobExists(application.getId(), "trunk", tenantDomain);
 
-        for (Version version : versions) {
-            String lifecycleStage = version.getStage();
+        for (String version : versions) {
+            String lifecycleStage = appVersionDAO.getAppVersionStage(application.getId(), version);
             String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
-                    .getJobName(application.getId(), version.getVersion(), null);
+                    .getJobName(application.getId(), version, null);
 
-            jenkinsCISystemDriver.deleteJob(application.getId(), version.getVersion(), tenantDomain);
+            jenkinsCISystemDriver.deleteJob(application.getId(), version, tenantDomain);
 
             log.info("Successfully deleted the jenkins job : " + jobName +
                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                     " from tenant domain : " + tenantDomain + " in jenkins");
-            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version.getVersion(), lifecycleStage, applicationTypeBean, runtimeBean);
-            log.info("Successfully undeployed the artifact version : " + version.getVersion() +
+            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version, lifecycleStage, applicationTypeBean, runtimeBean);
+            log.info("Successfully undeployed the artifact version : " + version +
                      " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                      " from tenant domain : " + tenantDomain + " from dep sync repo");
 
@@ -384,9 +386,9 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             }
 
             if (version == null || version.trim().equals("")) {
-                Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-                for (Version version2 : versions) {
-                    jenkinsCISystemDriver.createJob(application.getId(), version2.getVersion(), "",
+                String[] versions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(application.getId());
+                for (String version2 : versions) {
+                    jenkinsCISystemDriver.createJob(application.getId(), version2, "",
                             tenantDomain, forkedUser, repoURL,
                             AppFactoryConstants.FORK_REPOSITORY);
                 }

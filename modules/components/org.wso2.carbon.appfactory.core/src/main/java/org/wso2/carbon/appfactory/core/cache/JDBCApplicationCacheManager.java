@@ -27,6 +27,7 @@ import org.wso2.carbon.context.CarbonContext;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import java.util.List;
 
 /**
  * This class acts as the cache manager for JDBCApplicationDAO.
@@ -46,6 +47,8 @@ public class JDBCApplicationCacheManager {
     public static final String AF_APPLICATION_INFO_CACHE = "af.application.info.cache";
 
     public static final String AF_APPVERSION_CACHE = "af.appversion.cache";
+
+    public static final String AF_APPVERSION_LIST_CACHE = "af.appversion.list.cache";
 
 
     // The cache key separator value. This value is used to combine different parameters to generate the cache key
@@ -116,8 +119,20 @@ public class JDBCApplicationCacheManager {
         return getCacheManager().getCache(AF_APPLICATION_INFO_CACHE);
     }
 
+    /**
+     *
+     * @return
+     */
     public static Cache<String, Version> getAppVersionCache() {
         return getCacheManager().getCache(AF_APPVERSION_CACHE);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static Cache<String, List<String>> getAppVersionListCache() {
+        return getCacheManager().getCache(AF_APPVERSION_LIST_CACHE);
     }
 
     /**
@@ -225,5 +240,10 @@ public class JDBCApplicationCacheManager {
     public static String constructAppVersionCacheKey(String applicationKey, String version) {
         int tenantId =  CarbonContext.getCurrentContext().getTenantId();
         return tenantId + KEY_SEPARATOR + applicationKey + KEY_SEPARATOR + version;
+    }
+
+    public static String constructAppVersionListCacheKey(String applicationKey) {
+        int tenantId =  CarbonContext.getCurrentContext().getTenantId();
+        return tenantId + KEY_SEPARATOR + applicationKey;
     }
 }
