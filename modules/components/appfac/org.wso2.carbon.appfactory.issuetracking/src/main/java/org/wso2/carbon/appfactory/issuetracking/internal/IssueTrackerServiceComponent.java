@@ -25,6 +25,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.issuetracking.AppFactoryApplicationEventListener;
 import org.wso2.carbon.appfactory.issuetracking.IssueTrackerListener;
+import org.wso2.carbon.appfactory.issuetracking.service.IssueTrackerService;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsApplicationEventsListener;
 
 /**
@@ -70,6 +71,7 @@ public class IssueTrackerServiceComponent {
 			bundleContext.registerService(ApplicationEventsHandler.class.getName(),
 			                              new IssueTrackerListener("IssueTrackerListener",
 			                                                       listnerPriority), null);
+			bundleContext.registerService(IssueTrackerService.class.getName(), new IssueTrackerService(), null);
 
 			log.info("Issue tracking is enabled");
 		} else {

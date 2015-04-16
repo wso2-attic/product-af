@@ -1,32 +1,32 @@
-<% jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
+<% jagg.template("issuetracker/list", function (inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var issueCategory = request.getParameter("issueCategory");
-    
-    
+
+
     var summaryOnly = getProperty(ISSUETRACKER_SUMMARY_ONLY);
-    
-    var hiddenSummary = "hidden" ;
-    var hiddenInternal = "" ;
-    
-    if(summaryOnly==="true"){
-		hiddenSummary = "" ;
-		hiddenInternal = "hidden";
-	}else{
-		hiddenSummary = "hidden" ;
-		hiddenInternal = "";
-	}
-    
-%>
-<script type="text/javascript">
 
-    var issuesSummaryJSON = {};
-    
-  
-    $(document).ready(function(){
+    var hiddenSummary = "hidden";
+    var hiddenInternal = "";
 
-        issuesSummary("<%=applicationKey%>");
+    if (summaryOnly === "true") {
+        hiddenSummary = "";
+        hiddenInternal = "hidden";
+    } else {
+        hiddenSummary = "hidden";
+        hiddenInternal = "";
+    }
+
+    %>
+    <script type="text/javascript">
+
+        var issuesSummaryJSON = {};
+
+
+        $(document).ready(function(){
+
+            issuesSummary("<%=applicationKey%>");
         createCurrentStatus();
      });
         
@@ -159,32 +159,60 @@
             '</li>')
         );
     }
+    function hideDefault(){
+	$('#test').show();
+ 	$('#iframeId').hide();
+        $('#viewSummary').hide();
+        $('#back').show();
+  }
+  function showDefault(){
+        $('#test').hide();
+        $('#iframeId').show();
+	$('#viewSummary').show();
+        $('#back').hide();
+  }
 
 </script>
 
     <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
-    <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+    <input type="hidden" name="userName" id="userName" value="<%=userName
+    %>"/>
 
-            <div class="container">
-                        <article class="main">
-                        <% jagg.includeBlock("page/messages", null); %>
-                        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.ISSUES}); %>
-                        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-                        <header class="separator">
-                                <div class="content">
-                                <!--h1 class="left" style="margin-right:20px;" >Issues</h1-->
-                                     <div class="row-fluid">
-<div <%=hiddenSummary%> align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
+                <div class="container">
+                    <a id="viewSummary" onclick="hideDefault()">View Issue Summaries from JIRA</a>
+                    <a id="back" hidden onclick="showDefault()">Back To Defult Issue Tracker</a>
+                            <article class="main">
+                            <%
+    jagg.includeBlock("page/messages", null);
+    %>
+                           <%
+    jagg.includeBlock("page/eventing", {"applicationKey": null, "pageName": PAGES.ISSUES});
+    %>
+                           <%
+    jagg.includeBlock("page/notification-wall", {
+        "wall_name": applicationKey + " - App Wall",
+        "applicationKey": applicationKey,
+        "pageName": "App Home"
+    });
+    %>
+                           <header class="separator">
+                                   <div class="content">
+                                   <!--h1 class="left" style="margin-right:20px;" >Issues</h1-->
+                                        <div class="row-fluid">
+   <div <%=hiddenSummary%> align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
 <!--a href="<%=outputs.newIssueUrl%>" style="text-decoration: none" target="_blank">Track Issues</a-->
-<!--a href="<%=outputs.newIssueUrl%>" class="icon_link" target="_blank"-->
-<!--span class="icon-globe "></span-->
-</a></div>
+<!--a href="<%=outputs.newIssueUrl
+    %>" class="icon_link" target="_blank"-->
+    <!--span class="icon-globe "></span-->
+    </a></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </header>
-<!--<% jagg.includeBlock("page/help", {"section": "issues"}); %>-->
-<!--section class="separator">
-          <section <%=hiddenSummary%> id="item_list_container" class="hide">
+                            </header>
+    <!--<%
+    jagg.includeBlock("page/help", {"section": "issues"});
+    %>-->
+   <!--section class="separator">
+             <section <%=hiddenSummary%> id="item_list_container" class="hide">
                                                 <div class="content clear well" id="issueTrackerMainHeader">
                                     <ul id="item_list" class="table_items">
                                         <li class="item item_header">
@@ -201,12 +229,15 @@
                                                         <span class="icon-spinner icon-spin icon-large spin-large"></span>
                                                 </div>
   </section-->
-<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="90%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>"></iframe>
-                        <div class="clearfix"></div>
-                      </article>
-            </div><!-- /container -->
+  <iframe hidden  id="test" frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px" src="../themes/default/templates/issuetracker/list/getUserData.jag?applicationKey=<%=applicationKey%>"></iframe>
+<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="90%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory
+    %>"></iframe>
+                            <div class="clearfix"></div>
+                          </article>
+                </div><!-- /container -->
 
-<% }); %>              
+    <%
+}); %>
 
 
 

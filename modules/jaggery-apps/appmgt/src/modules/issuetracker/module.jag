@@ -9,6 +9,9 @@ jagg.module("issuetracker", {
     },
     getOpenIssues:function(){
         return jagg.require(jagg.getModulesDir() +"issuetracker/get/list.jag").getOpenIssues.apply(this, arguments);
+    },
+    getJiraIssueSummaries:function(){
+        return jagg.require(jagg.getModulesDir() +"issuetracker/get/getIssueSummaries.jag").getIssueSummaries.apply(this, arguments);
     }
 });
 %>

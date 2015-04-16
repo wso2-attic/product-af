@@ -1,0 +1,75 @@
+
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+var applicationKey = request.getParameter("applicationKey");
+
+%>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/javascript">
+	function showHelp(){
+		$('#help').show();
+	}
+</script>
+<html>
+<body>
+<div>
+<link href="../../../css/elegantAero.css" rel="stylesheet">
+<form class="elegant-aero" action="../../../../../blocks/issuetracker/list/ajax/getSummary.jag?applicationKey=<%=applicationKey%>">
+<label>JIRA instance URL</label>
+<input type="text" name="baseUrl">
+<label>Project name in JIRA</label>
+<input type="text" name="projectName">
+<input type="hidden" name="applicationKey" value="<%=applicationKey%>"/>
+<br>
+<a onclick="showHelp()"><u>Check Prerequisites</u></a>
+<br>
+<br>
+<br>
+<input type="submit" class="button" value="Get Summary">
+</form>
+</div>
+<div hidden id="help">
+<form class="elegant-aero">
+<b><u>Create Application Link</u></b>
+<br><br>
+1. Log in to your JIRA instance as a user with the JIRA Administrators permissions.
+<br><br>
+2. Choose   > Add-ons. Select Application Links in the left menu.
+<br><br>
+3. In the Application URL box, supply the URL as "<u>https://cloudmgt.cloud.wso2.com/cloudmgt/site/pages/user.jag</u>" and
+   then select Create new link.
+<br><br>
+4. Use the wizard to finish configuring the link.
+<br><br>
+5. Select "edit" to edit the configuartion link.
+<br><br>
+6. In the configuration window, choose to set "Incoming Authentication"
+<br><br>
+7. Select 'OAuth' and set Consumer Key, Consumer Name and Public Key as follows.
+    <br><br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Consumer Key:</b>appfactory
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Consumer Name:</b>WSO2 App Factory
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Public Key:</b><br><br>&nbsp;&nbsp;&nbsp;&nbsp;
+<textarea rows="4" cols="50" disabled>
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApsN3lAtRdICdNurMahVJQFr0P4+ltqPPmD8mBX2mhGqc/35b1kh3LYJqSe8a21ACz8tTR0XjtSaPPq3kIGaj0FbYs+OT8DBcxJOFe9WlMiT3nr+GzV8RR2HzUdb45w7H0f4CerOtl9jUviiUqv9aWMKFf48DXbBb7sEHHNVe+xlR35RF/9zyR+YsMUWtHR/gku6V6I2FFS4zGJBUufxpUvk5MpoXELURrhxkdC63mM56Ocns1MXrBdGwlwy8CevzMne2zfs62vteqZd5M1sVgW5V3sxdO588/OyXVvGxCmtvDEGO1VI3nPXfa9ry6vNdQ4/y6v8I9E/r9AAxn1dFWQIDAQAB
+</textarea>
+<br>
+</form>
+</div>
+</body>
+</html>

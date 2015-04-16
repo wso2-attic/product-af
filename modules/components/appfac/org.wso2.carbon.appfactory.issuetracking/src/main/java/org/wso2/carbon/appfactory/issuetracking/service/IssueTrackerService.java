@@ -15,7 +15,10 @@
  */
 package org.wso2.carbon.appfactory.issuetracking.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.issuetracking.IssueRepository;
+import org.wso2.carbon.appfactory.issuetracking.JIRAOAuthClient;
 import org.wso2.carbon.appfactory.issuetracking.UserIssues;
 import org.wso2.carbon.appfactory.issuetracking.beans.GenericIssue;
 import org.wso2.carbon.appfactory.issuetracking.beans.GenericIssueType;
@@ -30,60 +33,83 @@ import java.util.Map;
  *
  */
 public class IssueTrackerService {
-    private IssueRepository repository;
+	private IssueRepository repository;
+	private static final Log log = LogFactory.getLog(IssueTrackerService.class);
 
-    public IssueTrackerService() {
-        this.repository = IssueRepository.getIssueRepository();
-    }
+	public IssueTrackerService() {
+		this.repository = IssueRepository.getIssueRepository();
+	}
 
-    public String reportIssue(GenericIssue genericIssue, String appID) throws
-            IssueTrackerException {
+	public String reportIssue(GenericIssue genericIssue, String appID) throws IssueTrackerException {
 
-        return repository.reportIssue(genericIssue, appID);
-    }
+		return repository.reportIssue(genericIssue, appID);
+	}
 
-    public String updateIssue(GenericIssue genericIssue, String appID)
-            throws IssueTrackerException {
-        return repository.updateIssue(genericIssue, appID);
-    }
+	public String updateIssue(GenericIssue genericIssue, String appID) throws IssueTrackerException {
+		return repository.updateIssue(genericIssue, appID);
+	}
 
-    public List<GenericIssue> getAllIssuesOfApplication(String appId) throws IssueTrackerException {
-        return repository.getAllIssuesOfProject(appId);
-    }
-    
-    public List<GenericIssue> getAllIssuesWithParameters(String queryString)throws IssueTrackerException {
-        return repository.getAllIssuesWithParameters(queryString);
-    }
+	public List<GenericIssue> getAllIssuesOfApplication(String appId) throws IssueTrackerException {
+		return repository.getAllIssuesOfProject(appId);
+	}
 
-    public GenericIssue getIssueByKey(String key, String appID) throws IssueTrackerException {
-        return repository.getIssueByKey(key, appID);
-    }
+	public List<GenericIssue> getAllIssuesWithParameters(String queryString) throws IssueTrackerException {
+		return repository.getAllIssuesWithParameters(queryString);
+	}
 
-    public String[] getIssueStatus() throws IssueTrackerException {
-        return repository.getIssueStatus();
-    }
+	public GenericIssue getIssueByKey(String key, String appID) throws IssueTrackerException {
+		return repository.getIssueByKey(key, appID);
+	}
 
-    public GenericIssueType[] getIssueTypes() throws IssueTrackerException {
-        return repository.getIssueTypes();
-    }
+	public String[] getIssueStatus() throws IssueTrackerException {
+		return repository.getIssueStatus();
+	}
 
-    public String[] getAvailableAssignees(String appID) throws IssueTrackerException {
-        return this.repository.getAvailableAssignees(appID);
-    }
-    
-    public String getUrlForReportIssue(String appID) throws IssueTrackerException {
-        return this.repository.getUrlForReportIssue(appID);
-    }
-    
-    public UserIssues[] getAssignerIssueCount() throws IssueTrackerException {
-    	return repository.getAssignerIssueCount();
-    }
-    
-    public UserIssues[] getReporterIssueCount() throws IssueTrackerException {
-    	return repository.getReporterIssueCount();
-    }
-    
-    public IssueSummary[] getIssuesSummary(String appID) throws IssueTrackerException {
-    	return repository.getIssuesSummary(appID);
-    }
+	public GenericIssueType[] getIssueTypes() throws IssueTrackerException {
+		return repository.getIssueTypes();
+	}
+
+	public String[] getAvailableAssignees(String appID) throws IssueTrackerException {
+		return this.repository.getAvailableAssignees(appID);
+	}
+
+	public String getUrlForReportIssue(String appID) throws IssueTrackerException {
+		return this.repository.getUrlForReportIssue(appID);
+	}
+
+	public UserIssues[] getAssignerIssueCount() throws IssueTrackerException {
+		return repository.getAssignerIssueCount();
+	}
+
+	public UserIssues[] getReporterIssueCount() throws IssueTrackerException {
+		return repository.getReporterIssueCount();
+	}
+
+	public IssueSummary[] getIssuesSummary(String appID) throws IssueTrackerException {
+		return repository.getIssuesSummary(appID);
+	}
+
+	public JIRAOAuthClient createJIRAOAuthClient(String consumerKey,String consumerPrivateKey,String baseUrl,String
+			callbackUrl){
+		JIRAOAuthClient jiraClient=new JIRAOAuthClient(consumerKey,consumerPrivateKey,baseUrl, callbackUrl);
+		return jiraClient;
+	}
+
+	public JIRAOAuthClient setOAuthAuthorizationUrl(JIRAOAuthClient jiraClient) {
+		jiraClient.setOAuthAuthorizationUrl();
+		log.info("OAuth access to jira instance successful");
+		return jiraClient;
+	}
+
+	public JIRAOAuthClient setAccessToken(JIRAOAuthClient jiraClient,String verifier){
+		jiraClient.setAccessToken(verifier);
+		return jiraClient;
+	}
+
+	public String getSummaryofIssues(JIRAOAuthClient jiraoAuthClient,String projectName) {
+		String url = jiraoAuthClient.getBaseUrl()+"/rest/api/2/search?jql=project=" +projectName;
+		String responseAsString = jiraoAuthClient.getResponse(url);
+		return responseAsString;
+	}
+
 }
