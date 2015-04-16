@@ -23,9 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsApplicationEventsListener;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
@@ -110,7 +110,7 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 
         String defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("StartStage");
         ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-        applicationDeployer.deployArtifact(application.getId(), defaultStage, target.getId(), "", "deploy","");
+        applicationDeployer.deployArtifact(application.getId(), defaultStage, target.getVersion(), "", "deploy","");
 
 	}
 
