@@ -58,7 +58,6 @@ public class JDBCAppVersionDAO {
      */
     public boolean updatePromoteStatusOfVersion(String applicationKey, String version, String status) throws
                                                                                                   AppFactoryException {
-        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -90,6 +89,8 @@ public class JDBCAppVersionDAO {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } finally {
+            JDBCApplicationCacheManager.getAppVersionCache().
+                    remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -106,7 +107,6 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateStageOfVersion(String applicationKey, String version, String stage) throws
                                                                                               AppFactoryException {
-        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -131,6 +131,8 @@ public class JDBCAppVersionDAO {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } finally {
+            JDBCApplicationCacheManager.getAppVersionCache().
+                    remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -148,7 +150,6 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateSubDomainsOfVersion(String applicationKey, String version, String subdomain) throws
                                                                                                        AppFactoryException {
-        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -173,6 +174,8 @@ public class JDBCAppVersionDAO {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } finally {
+            JDBCApplicationCacheManager.getAppVersionCache().
+                    remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -190,7 +193,6 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateAutoBuildStatusOfVersion(String applicationKey, String version, boolean isAutoBuildable)
                                                                                            throws AppFactoryException {
-        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -215,6 +217,8 @@ public class JDBCAppVersionDAO {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } finally {
+            JDBCApplicationCacheManager.getAppVersionCache().
+                    remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -245,7 +249,6 @@ public class JDBCAppVersionDAO {
      */
     public boolean updateAutoDeployStatusOfVersion(String applicationKey, String version,
                                                    boolean isAutoDeployable) throws AppFactoryException {
-        JDBCApplicationCacheManager.getAppVersionCache().remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -270,6 +273,8 @@ public class JDBCAppVersionDAO {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } finally {
+            JDBCApplicationCacheManager.getAppVersionCache().
+                    remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -366,7 +371,9 @@ public class JDBCAppVersionDAO {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<String> versionList = JDBCApplicationCacheManager.getAppVersionListCache().
-                                                               get(JDBCApplicationCacheManager.constructAppVersionListCacheKey(applicationKey));
+                                                               get(JDBCApplicationCacheManager
+                                                                           .constructAppVersionListCacheKey(
+                                                                                   applicationKey));
         if (versionList != null) {
             return versionList.toArray(new String[versionList.size()]);
         }
