@@ -30,13 +30,12 @@ public class SQLParameterConstants {
     public static final String COLUMN_NAME_PROMOTE_STATUS = "PROMOTE_STATUS";
     public static final String COLUMN_NAME_APPLICATION_KEY = "APPLICATION_KEY";
     public static final String COLUMN_NAME_STATUS = "STATUS";
-    public static final String COLUMN_NAME_LAST_DEPLOY = "LAST_DEPLOY";
+    public static final String COLUMN_NAME_LAST_DEPLOYED_BUILD_ID = "LAST_DEPLOYED_BUILD_ID";
     public static final String COLUMN_NAME_LAST_DEPLOY_STATUS = "LAST_DEPLOY_STATUS";
     public static final String COLUMN_NAME_LAST_DEPLOY_TIME = "LAST_DEPLOY_TIME";
-    public static final String COLUMN_NAME_LAST_BUILD = "LAST_BUILD";
+    public static final String COLUMN_NAME_LAST_BUILD_ID = "LAST_BUILD_ID";
     public static final String COLUMN_NAME_LAST_BUILD_STATUS = "LAST_BUILD_STATUS";
     public static final String COLUMN_NAME_LAST_BUILD_TIME = "LAST_BUILD_TIME";
-    public static final String COLUMN_NAME_CURRENT_BUILD = "CURRENT_BUILD";
     public static final String COLUMN_NAME_BRANCH_COUNT = "BRANCH_COUNT";
     public static final String COLUMN_NAME_AUTO_BUILD = "AUTO_BUILD";
     public static final String COLUMN_NAME_AUTO_DEPLOY = "AUTO_DEPLOY";

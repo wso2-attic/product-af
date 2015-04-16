@@ -107,13 +107,10 @@ public class JDBCApplicationDAO {
                 //debug log
                 handleDebugLog((new StringBuilder()).append("successfully added application.Updated ").append
                         (updatedRowCount).append(" rows").toString());
-
-                int applicationID = getApplicationID(application.getId(), databaseConnection);
                 Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ? new Version(
                         SQLParameterConstants.VERSION_1_0_0, AppFactoryConstants.ApplicationStage.PRODUCTION.
                         getCapitalizedString()) : new Version(SQLParameterConstants.VERSION_TRUNK, AppFactoryConstants.
                         ApplicationStage.DEVELOPMENT.getCapitalizedString());
-
                 addVersion(version, databaseConnection, application.getId());
                 databaseConnection.commit();
                 return true;
@@ -150,7 +147,7 @@ public class JDBCApplicationDAO {
         Connection databaseConnection = null;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
-            int applicationId = getApplicationID(applicationKey, databaseConnection);
+            int applicationId = getAutoIncrementAppID(applicationKey, databaseConnection);
 
             // The result will contain -1 if there are no applications.
             if (applicationId > 0) {
@@ -260,9 +257,11 @@ public class JDBCApplicationDAO {
         PreparedStatement addVersionPreparedStatement = null;
         try {
             addVersionPreparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_VERSION);
-            addVersionPreparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            addVersionPreparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                                   databaseConnection));
             addVersionPreparedStatement.setString(2, version.getVersion());
             addVersionPreparedStatement.setString(3, version.getStage());
+            addVersionPreparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             addVersionPreparedStatement.execute();
             int affectedRowCount = addVersionPreparedStatement.getUpdateCount();
             int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -281,7 +280,7 @@ public class JDBCApplicationDAO {
                                  affectedRowCount + " rows";
                     log.debug(msg);
                 }
-                int versionID = getVersionID(applicationKey, version.getVersion(), databaseConnection);
+                int versionID = getAutoIncrementVersionID(applicationKey, version.getVersion(), databaseConnection);
                 addRepository(versionID, false, null, databaseConnection);
                 return true;
             }
@@ -293,18 +292,19 @@ public class JDBCApplicationDAO {
         return false;
     }
 
-    private boolean addRepository(int versionID, boolean isFork, String username, Connection databaseConnection)
+    private boolean addRepository(int versionID, boolean isForked, String username, Connection databaseConnection)
             throws AppFactoryException {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_APPLICATION_REPOSITORY_SQL);
             preparedStatement.setInt(1, versionID);
-            preparedStatement.setInt(2, isFork ? 1 : 0);
+            preparedStatement.setInt(2, isForked ? 1 : 0);
             preparedStatement.setString(3, username);
+            preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.execute();
             int affectedRows = preparedStatement.getUpdateCount();
             if (affectedRows > 0) {
-                int repositoryID = getRepositoryID(versionID, isFork, username, databaseConnection);
+                int repositoryID = getAutoIncrementRepositoryID(versionID, isForked, username, databaseConnection);
                 addBuildStatus(repositoryID, databaseConnection);
                 String stages[] = ServiceHolder.getAppFactoryConfiguration().getProperties(AppFactoryConstants
                                                                                                    .DEPLOYMENT_STAGES);
@@ -576,7 +576,7 @@ public class JDBCApplicationDAO {
         PreparedStatement preparedStatement = null;
         try {
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.DELETE_ALL_RESOURCES_SQL);
-            preparedStatement.setInt(1, getApplicationID(applicationKey, databaseConnection));
+            preparedStatement.setInt(1, getAutoIncrementAppID(applicationKey, databaseConnection));
             preparedStatement.execute();
             handleDebugLog("Successfully deleted all application resources information of application key : " +
                            applicationKey);
@@ -614,7 +614,7 @@ public class JDBCApplicationDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_APPLICATION_VERSION_ID);
-            preparedStatement.setInt(1, getApplicationID(applicationID, databaseConnection));
+            preparedStatement.setInt(1, getAutoIncrementAppID(applicationID, databaseConnection));
             preparedStatement.execute();
             resultSet = preparedStatement.getResultSet();
             while (resultSet.next()) {
@@ -803,7 +803,7 @@ public class JDBCApplicationDAO {
         Cache<String, Constants.ApplicationCreationStatus> appCreationStatusCache = JDBCApplicationCacheManager.
                                                                                    getApplicationCreationStatusCache();
         handleDebugLog("Retrieving data from the application creation status cache for multiple application keys");
-
+        boolean readFromDB = false;
         for (String applicationKey : appKeyArray) {
             String appCreationStatusCacheKey = JDBCApplicationCacheManager.constructApplicationCreationCacheKey
                     (tenantId, applicationKey);
@@ -813,39 +813,42 @@ public class JDBCApplicationDAO {
 
                 // This means that one of the entries are missing in the cache. So we ignore the previously retrieved
                 // entries as well. We do a direct DB call to fetch the complete result set.
-                applicationMap.clear();
                 handleDebugLog("Retrieving data from application creation cache has been aborted due to missing " +
                                "application information in the cache. Retrieving data from the database");
+                readFromDB = true;
                 break;
             }
         }
-        Connection databaseConnection = null;
-        PreparedStatement getAppCreationStatusStatement = null;
-        ResultSet result = null;
-        String applicationKeys = StringUtils.join(appKeyArray, ",");
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            String formattedPreparedSql = String.format(SQLConstants.GET_APPLICATION_CREATION_STATUS_BY_APPKEYS_SQL,
-                                                        preparePlaceHolders(appKeyArray.length));
-            getAppCreationStatusStatement = databaseConnection.prepareStatement(formattedPreparedSql);
-            getAppCreationStatusStatement.setInt(1, tenantId);
-            setValues(getAppCreationStatusStatement, 2, appKeyArray);
-            result = getAppCreationStatusStatement.executeQuery();
-            while (result.next()) {
-                String applicationKey = result.getString(SQLParameterConstants.COLUMN_NAME_APPLICATION_KEY);
-                Constants.ApplicationCreationStatus status = Constants.ApplicationCreationStatus.valueOf(
-                        result.getString(SQLParameterConstants.COLUMN_NAME_STATUS));
-                applicationMap.put(applicationKey, status);
+        if(readFromDB) {
+            applicationMap.clear();
+            Connection databaseConnection = null;
+            PreparedStatement getAppCreationStatusStatement = null;
+            ResultSet result = null;
+            String applicationKeys = StringUtils.join(appKeyArray, ",");
+            try {
+                databaseConnection = AppFactoryDBUtil.getConnection();
+                String formattedPreparedSql = String.format(SQLConstants.GET_APPLICATION_CREATION_STATUS_BY_APPKEYS_SQL,
+                                                            preparePlaceHolders(appKeyArray.length));
+                getAppCreationStatusStatement = databaseConnection.prepareStatement(formattedPreparedSql);
+                getAppCreationStatusStatement.setInt(1, tenantId);
+                setValues(getAppCreationStatusStatement, 2, appKeyArray);
+                result = getAppCreationStatusStatement.executeQuery();
+                while (result.next()) {
+                    String applicationKey = result.getString(SQLParameterConstants.COLUMN_NAME_APPLICATION_KEY);
+                    Constants.ApplicationCreationStatus status = Constants.ApplicationCreationStatus.valueOf(
+                            result.getString(SQLParameterConstants.COLUMN_NAME_STATUS));
+                    applicationMap.put(applicationKey, status);
 
-                // We add values to the cache here.
-                appCreationStatusCache.put(applicationKey, status);
+                    // We add values to the cache here.
+                    appCreationStatusCache.put(applicationKey, status);
+                }
+            } catch (SQLException e) {
+                handleException("Error while getting application creation status of " + applicationKeys, e);
+            } finally {
+                AppFactoryDBUtil.closeResultSet(result);
+                AppFactoryDBUtil.closePreparedStatement(getAppCreationStatusStatement);
+                AppFactoryDBUtil.closeConnection(databaseConnection);
             }
-        } catch (SQLException e) {
-            handleException("Error while getting application creation status of " + applicationKeys, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(result);
-            AppFactoryDBUtil.closePreparedStatement(getAppCreationStatusStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
         }
         return applicationMap;
     }
@@ -867,10 +870,6 @@ public class JDBCApplicationDAO {
 
         //get the cache
         Cache<String,Integer> applicationBranchCountCache = JDBCApplicationCacheManager.getApplicationBranchCountCache();
-        Connection databaseConnection = null;
-        PreparedStatement getAppIDPreparedStatement = null;
-        ResultSet application = null;
-
         //return the result which is already in cache
         if (applicationBranchCountCache.containsKey(applicationAppsBranchCountKey)) {
             if (log.isDebugEnabled()) {
@@ -879,6 +878,9 @@ public class JDBCApplicationDAO {
             return applicationBranchCountCache.get(applicationAppsBranchCountKey);
         }
 
+        Connection databaseConnection = null;
+        PreparedStatement getAppIDPreparedStatement = null;
+        ResultSet application = null;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             getAppIDPreparedStatement = databaseConnection.prepareStatement(SQLConstants
@@ -1000,7 +1002,7 @@ public class JDBCApplicationDAO {
             getAppLastBuildPreparedStatement.setInt(1, repositoryID);
             buildResultSet = getAppLastBuildPreparedStatement.executeQuery();
             if (buildResultSet.next()) {
-                buildStatus.setLastBuildId(buildResultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD));
+                buildStatus.setLastBuildId(buildResultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_ID));
                 buildStatus.setLastBuildStatus(buildResultSet.getString(SQLParameterConstants.
                                                                                 COLUMN_NAME_LAST_BUILD_STATUS));
                 Timestamp lastBuildTime = buildResultSet.getTimestamp(SQLParameterConstants.
@@ -1008,8 +1010,6 @@ public class JDBCApplicationDAO {
                 if (lastBuildTime != null) {
                     buildStatus.setLastBuildTime(lastBuildTime.getTime());
                 }
-                buildStatus.setCurrentBuildId(buildResultSet.getString(SQLParameterConstants.COLUMN_NAME_CURRENT_BUILD));
-
                 // We cache it here
                 buildStatusCache.put(buildStatusCacheKey, buildStatus);
             } else {
@@ -1190,7 +1190,8 @@ public class JDBCApplicationDAO {
             getAppLastDeployPreparedStatement.setString(2, environment);
             deployResultSet = getAppLastDeployPreparedStatement.executeQuery();
             if (deployResultSet.next()) {
-                deployStatus.setLastDeployedId(deployResultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_DEPLOY));
+                deployStatus.setLastDeployedId(deployResultSet.getString(SQLParameterConstants.
+                                                                                 COLUMN_NAME_LAST_DEPLOYED_BUILD_ID));
                 deployStatus.setLastDeployedStatus(deployResultSet.getString(
                         SQLParameterConstants.COLUMN_NAME_LAST_DEPLOY_STATUS));
                 Timestamp deployedTime = deployResultSet.getTimestamp(
@@ -1228,8 +1229,8 @@ public class JDBCApplicationDAO {
         Connection databaseConnection = null;
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
-            int applicationID = getApplicationID(applicationKey, databaseConnection);
-            int versionID = getVersionID(applicationKey, version, databaseConnection);
+            int applicationID = getAutoIncrementAppID(applicationKey, databaseConnection);
+            int versionID = getAutoIncrementVersionID(applicationKey, version, databaseConnection);
             addRepository(versionID, true, username, databaseConnection);
             databaseConnection.commit();
         } catch (SQLException e) {
@@ -1288,44 +1289,6 @@ public class JDBCApplicationDAO {
     }
 
     /**
-     * Get all the versions of an application
-     *
-     * @param applicationID key of an app
-     * @return arrays of {@link org.wso2.carbon.appfactory.core.dto.Version}
-     * @throws AppFactoryException
-     */
-    public Version[] getAllApplicationVersions(String applicationID) throws AppFactoryException {
-        Connection databaseConnection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet allVersions = null;
-
-        List<Version> versions = new ArrayList<Version>();
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_APPLICATION_VERSION_SQL);
-            preparedStatement.setInt(1, getApplicationID(applicationID, databaseConnection));
-            allVersions = preparedStatement.executeQuery();
-            Version version;
-            while (allVersions.next()) {
-                version = new Version();
-                version.setVersion(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
-                version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
-                version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
-                versions.add(version);
-            }
-        } catch (SQLException e) {
-            handleException("Error while getting app versions of application key : " + applicationID, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(allVersions);
-            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-
-
-        return versions.toArray(new Version[versions.size()]);
-    }
-
-    /**
      * Helper method to add a empty holder for deploy status
      *
      * @param repositoryID       repository ID
@@ -1340,7 +1303,7 @@ public class JDBCApplicationDAO {
         try {
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_DEPLOY_STATUS_SQL);
             preparedStatement.setInt(1, repositoryID);
-            preparedStatement.setString(2, environment);
+            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.execute();
             int affectedRow = preparedStatement.getUpdateCount();
             if (affectedRow > 0) {
@@ -1369,6 +1332,7 @@ public class JDBCApplicationDAO {
         try {
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_BUILD_STATUS_SQL);
             preparedStatement.setInt(1, repositoryID);
+            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.execute();
             int affectedRow = preparedStatement.getUpdateCount();
             if (affectedRow > 0) {
@@ -1385,51 +1349,6 @@ public class JDBCApplicationDAO {
     }
 
     /**
-     * Get auto generated application Id from table
-     *
-     * @param applicationKey application key of an application
-     * @return application id
-     * @throws AppFactoryException
-     */
-     int getAutoIncrementAppID(String applicationKey) throws AppFactoryException {
-        int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String applicationIdCacheKey = JDBCApplicationCacheManager.constructApplicationIdCacheKey(tenantID,
-                                                                                                  applicationKey);
-        Cache<String, Integer> applicationIdCache = JDBCApplicationCacheManager.getApplicationIdCache();
-        if (applicationIdCache.containsKey(applicationIdCacheKey)) {
-            handleDebugLog("Retrieving data from the cache for application key : " + applicationKey);
-            return applicationIdCache.get(applicationIdCacheKey);
-        }
-
-        // No cache hit
-        PreparedStatement getAppIDPreparedStatement = null;
-        ResultSet application = null;
-        int applicationID = -1;
-        Connection databaseConnection = null;
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            getAppIDPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_SQL);
-            getAppIDPreparedStatement.setString(1, applicationKey);
-            getAppIDPreparedStatement.setInt(2, tenantID);
-            application = getAppIDPreparedStatement.executeQuery();
-            if (application.next()) {
-                applicationID = application.getInt(SQLParameterConstants.COLUMN_NAME_ID);
-
-                // Add to the cache here
-                applicationIdCache.put(applicationIdCacheKey, applicationID);
-            }
-            handleDebugLog("Getting AF_APPLICATION ID " + applicationID + " for application key : " + applicationKey);
-        } catch (SQLException e) {
-            handleException("Error while getting application id of application key : " + applicationKey, e);
-        } finally {
-            AppFactoryDBUtil.closeResultSet(application);
-            AppFactoryDBUtil.closePreparedStatement(getAppIDPreparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return applicationID;
-    }
-
-    /**
      * Retrieve the auto generated application id from table
      *
      * @param applicationKey     application key of an application
@@ -1437,7 +1356,7 @@ public class JDBCApplicationDAO {
      * @return application id
      * @throws AppFactoryException
      */
-    private int getApplicationID(String applicationKey, Connection databaseConnection) throws AppFactoryException {
+     int getAutoIncrementAppID(String applicationKey, Connection databaseConnection) throws AppFactoryException {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String applicationIdCacheKey = JDBCApplicationCacheManager.constructApplicationIdCacheKey(tenantID,
                                                                                                   applicationKey);
@@ -1481,14 +1400,15 @@ public class JDBCApplicationDAO {
      * @return application id
      * @throws AppFactoryException
      */
-    private int getVersionID(String applicationKey, String version, Connection databaseConnection)
+    private int getAutoIncrementVersionID(String applicationKey, String version, Connection databaseConnection)
             throws AppFactoryException {
         PreparedStatement getAppIDPreparedStatement = null;
         ResultSet versionResultSet = null;
         int versionID = -1;
         try {
             getAppIDPreparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_ID_SQL);
-            getAppIDPreparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey));
+            getAppIDPreparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
+                                                                                                       databaseConnection));
             getAppIDPreparedStatement.setString(2, version);
             versionResultSet = getAppIDPreparedStatement.executeQuery();
             if (versionResultSet.next()) {
@@ -1515,7 +1435,7 @@ public class JDBCApplicationDAO {
      * @return
      * @throws AppFactoryException
      */
-    private int getRepositoryID(int versionID, boolean isFork, String userID, Connection databaseConnection)
+    private int getAutoIncrementRepositoryID(int versionID, boolean isFork, String userID, Connection databaseConnection)
             throws AppFactoryException {
         PreparedStatement repositoryIDPreparedStatement = null;
         ResultSet repositoryResultSet = null;
@@ -1550,69 +1470,9 @@ public class JDBCApplicationDAO {
 
     private int getRepositoryID(String applicationKey, boolean isForked, String username, String version,
                                 Connection dataConnection) throws AppFactoryException {
-        int applicationID = getApplicationID(applicationKey, dataConnection);
-        int versionID = getVersionID(applicationKey, version, dataConnection);
-        return getRepositoryID(versionID, isForked, username, dataConnection);
-    }
-
-    /**
-     * Update current build status
-     *
-     * @param applicationKey key of an application
-     * @param version        version number
-     * @param isForked       forked or not
-     * @param username       forked user
-     * @param buildStatus    {@link BuildStatus}
-     * @return true if it success ,false if it failed
-     * @throws AppFactoryException
-     */
-    public boolean updateCurrentBuildStatus(String applicationKey, String version, boolean isForked, String username,
-                                            BuildStatus buildStatus) throws AppFactoryException {
-        Connection databaseConnection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_CURRENT_BUILD_STATUS_SQL);
-            int repositoryID = getRepositoryID(applicationKey, isForked, username, version, databaseConnection);
-            preparedStatement.setString(1, buildStatus.getCurrentBuildId());
-            preparedStatement.setInt(2, repositoryID);
-            preparedStatement.execute();
-            int affectedRows = preparedStatement.getUpdateCount();
-            if (affectedRows > 0) {
-                databaseConnection.commit();
-
-                // We remove the cache entry here.
-                int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-                String buildStatusCacheKey = JDBCApplicationCacheManager.constructBuildStatusCacheKey(tenantId,
-                                                                                                      applicationKey,
-                                                                                                      version,
-                                                                                                      isForked,
-                                                                                                      username);
-                Cache<String, BuildStatus> buildStatusCache = JDBCApplicationCacheManager.
-                        getApplicationBuildStatusCache();
-                buildStatusCache.remove(buildStatusCacheKey);
-                return true;
-            }
-            handleException("Error while updating current build status for version : " + version +
-                            " of application key : " + applicationKey);
-        } catch (SQLException e) {
-            try {
-                if (databaseConnection != null) {
-                    databaseConnection.rollback();
-                }
-            } catch (SQLException e1) {
-                // Only logging this exception since this is not the main issue. The original issue is thrown.
-                log.error("Error while  rolling back update current build status for version : " + version + " of " +
-                          "application key : " + applicationKey, e);
-            }
-            handleException("Error while updating current build status for version : " + version + " of application " +
-                            "key : " + applicationKey, e);
-        } finally {
-            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-
-        return false;
+        int applicationID = getAutoIncrementAppID(applicationKey, dataConnection);
+        int versionID = getAutoIncrementVersionID(applicationKey, version, dataConnection);
+        return getAutoIncrementRepositoryID(versionID, isForked, username, dataConnection);
     }
 
     /**
@@ -1633,6 +1493,7 @@ public class JDBCApplicationDAO {
                 preparedStatement.setString(1, cartridgeCluster.getClusterId());
                 preparedStatement.setString(2, cartridgeCluster.getLbClusterId());
                 preparedStatement.setString(3, cartridgeCluster.getActiveIP());
+                preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
                 preparedStatement.execute();
                 databaseConnection.commit();
                 int updatedRowCount = preparedStatement.getUpdateCount();

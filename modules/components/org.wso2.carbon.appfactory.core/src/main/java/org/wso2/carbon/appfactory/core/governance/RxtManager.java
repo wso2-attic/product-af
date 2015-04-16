@@ -258,9 +258,8 @@ public class RxtManager {
             lastBuildStatus = "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus();
         }
         String lastDeployedId = deployStatus.getLastDeployedId();
-        currentBuildStatus = buildStatus.getCurrentBuildId();
         return new Version(applicationKey, userId, version, isAutoBuild, isAutoDeploy, repoURL, lastDeployedId,
-                            lastBuildStatus, currentBuildStatus, null);
+                            lastBuildStatus, null);
     }
 
     /**

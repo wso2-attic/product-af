@@ -12,13 +12,6 @@
            <column name="Version">
                <data type="path" value="appversion_version" href="@{storagePath}"/>
            </column>
-	   <column name="LastDeployedId">
-               <data type="path" value="appversion_lastdeployedid" href="@{storagePath}"/>
-           </column>
-           <column name="ProdMappedSubDomain">
-               <data type="path" value="appversion_productionmappeddomain" href="@{storagePath}"/>
-           </column>
-           
        </list>
    </ui>
    <content>
@@ -30,16 +23,6 @@
            <field type="text" required="true">
                <name>Version</name>
            </field> 
-	   <field type="text" required="true">
-               <name>LastDeployedId</name>
-           </field> 
-           <field type="text" required="true">
-               <name>AutoDeployment</name>
-           </field>
-           <field type="text" required="true">
-               <name>ProdMappedSubDomain</name>
-           </field>
-
        </table>
 
        <table name="Service Lifecycle">
@@ -50,5 +33,4 @@
            </field>
    </table>
    </content>
-
 </artifactType>

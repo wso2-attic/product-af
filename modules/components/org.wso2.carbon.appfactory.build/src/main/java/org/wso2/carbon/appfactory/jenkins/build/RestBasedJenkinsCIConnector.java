@@ -46,7 +46,7 @@ import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
 import org.wso2.carbon.appfactory.core.dto.Statistic;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -799,7 +799,7 @@ public class RestBasedJenkinsCIConnector {
 			}
 
             if (HttpStatus.SC_NOT_FOUND == httpStatusCode) {
-	            String repoType = RxtApplicationDAO.getInstance().getApplicationInfo(applicationId).getRepositoryType();
+	            String repoType = ApplicationDAO.getInstance().getApplicationInfo(applicationId).getRepositoryType();
 	            RepositoryProvider repoProvider = Util.getRepositoryProvider(repoType);
 	            String repoURL;
                 try {

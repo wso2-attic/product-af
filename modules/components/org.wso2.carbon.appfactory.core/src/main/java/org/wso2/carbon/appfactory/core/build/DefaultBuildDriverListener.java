@@ -107,30 +107,7 @@ public class DefaultBuildDriverListener implements BuildDriverListener {
         }
     }
     
-    /**
-    *
-    * @param applicationId
-    * @param version
-    * @param result
-    * @throws AppFactoryException
-    */
-    public static void updateCurrentBuildStatus(String applicationId, String version, String result, String tenantDomain) {
-        try {
-
-            JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
-            BuildStatus currentBuildStatus = new BuildStatus();
-            currentBuildStatus.setCurrentBuildId(result);
-            applicationDAO.updateCurrentBuildStatus(applicationId, version, false, null,
-                    currentBuildStatus);
-            // Removing app version cache related code
-            // AppVersionCache.getAppVersionCache().clearCacheForAppId(applicationId);
-        } catch (AppFactoryException e) {
-            log.error("Error updating the appversion with current build status : " + e
-                    .getMessage(), e);
-        }
-    }
-
-    private void publishStatsToBam(String applicationId, String version, String result, String tenantDomain, String buildId, String revisionId) 
+    private void publishStatsToBam(String applicationId, String version, String result, String tenantDomain, String buildId, String revisionId)
     {
         BamDataPublisher publisher = BamDataPublisher.getInstance();
         String tenantId = null;
