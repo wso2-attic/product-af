@@ -22,6 +22,7 @@ import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.util.Constants;
+import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -46,6 +47,7 @@ public class JDBCApplicationCacheManager {
 
     public static final String AF_APPVERSION_CACHE = "af.appversion.cache";
 
+    private static final String AF_APPLICATION_ARTIFACT_CACHE = "af.application.artifact.cache";
 
     // The cache key separator value. This value is used to combine different parameters to generate the cache key
     public static final String KEY_SEPARATOR = "_";
@@ -117,6 +119,15 @@ public class JDBCApplicationCacheManager {
 
     public static Cache<String, Artifact> getAppVersionCache() {
         return getCacheManager().getCache(AF_APPVERSION_CACHE);
+    }
+
+    /**
+     * This cache holds the artifacts of applications
+     *
+     * @return
+     */
+    public static Cache<String, GenericArtifact> getApplicationArtifactCache(){
+        return getCacheManager().getCache(AF_APPLICATION_ARTIFACT_CACHE);
     }
 
     /**

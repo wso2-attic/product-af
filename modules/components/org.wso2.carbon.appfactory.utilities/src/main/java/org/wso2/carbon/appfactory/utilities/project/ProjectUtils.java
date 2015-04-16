@@ -39,7 +39,7 @@ import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
 import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
@@ -548,7 +548,7 @@ public class ProjectUtils {
     public static String getApplicationExtenstion(String applicationID,
                                                   String tenantDomain) throws AppFactoryException {
 
-        String applicationType = RxtApplicationDAO.getInstance().getApplicationType(applicationID);
+        String applicationType = ApplicationDAO.getInstance().getApplicationType(applicationID);
         ApplicationTypeBean applicationTypeProcessor = ApplicationTypeManager.getInstance().getApplicationTypeBean(
                 applicationType);
         return applicationTypeProcessor.getExtension();

@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
@@ -81,7 +81,7 @@ public class BuildStatusReceiverService {
             boolean isFreestyle;
             try {
 				isFreestyle =
-				              AppFactoryCoreUtil.isFreestyleNonBuilableProject(RxtApplicationDAO.getInstance()
+				              AppFactoryCoreUtil.isFreestyleNonBuilableProject(ApplicationDAO.getInstance()
 				                                                                                 .getApplicationInfo(buildStatus.getApplicationId())
 				                                                                                 .getType());
             } catch (AppFactoryException e) {
