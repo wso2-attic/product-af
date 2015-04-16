@@ -23,7 +23,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
 import org.wso2.carbon.appfactory.core.dto.Statistic;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 
@@ -85,7 +85,7 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
 
        
         repoType = ProjectUtils.getRepositoryType(applicationId, tenantDomain);
-        applicationType = RxtApplicationDAO.getInstance().getApplicationType(applicationId);
+        applicationType = ApplicationDAO.getInstance().getApplicationType(applicationId);
 
  
 		if (log.isDebugEnabled()) {

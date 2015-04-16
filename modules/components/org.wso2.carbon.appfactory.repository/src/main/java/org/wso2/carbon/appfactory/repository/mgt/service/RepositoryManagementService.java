@@ -28,7 +28,7 @@ import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
@@ -287,7 +287,7 @@ public class RepositoryManagementService extends AbstractAdmin {
 
     private String createDeploymentFork(String applicationKey, Integer tenantId, String userName)
                    throws AppFactoryException {
-        String applicationType = RxtApplicationDAO.getInstance().getApplicationType(applicationKey);
+        String applicationType = ApplicationDAO.getInstance().getApplicationType(applicationKey);
         ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
                                                                         .getApplicationTypeBean(applicationType);
 

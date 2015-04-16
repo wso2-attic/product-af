@@ -35,7 +35,7 @@ import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.BuildandDeployStatus;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -74,7 +74,7 @@ public class ApplicationInfoService {
      * @throws AppFactoryException
      */
     private Application getBasicApplicationInfo(String applicationKey) throws AppFactoryException {
-        Application application = RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey);
+        Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
         return application;
     }
 
@@ -90,7 +90,7 @@ public class ApplicationInfoService {
         String[] applicationKeys = getApplicationKeysOfUser(userName);
         for (String applicationKey : applicationKeys) {
             try {
-                Application application = RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey);
+                Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
                 appInfoList.add(application);
             } catch (AppFactoryException e) {
                 String msg = "Error while getting application info for user : " + userName + " of tenant : " +
@@ -139,7 +139,7 @@ public class ApplicationInfoService {
      * @throws AppFactoryException If invalid application or application type is not available
      */
     public String getApplicationType(String applicationId, String tenantDomain) throws AppFactoryException {
-        return RxtApplicationDAO.getInstance().getApplicationType(applicationId);
+        return ApplicationDAO.getInstance().getApplicationType(applicationId);
     }
 
 
@@ -155,7 +155,7 @@ public class ApplicationInfoService {
     public String addArtifact(String key, String info, String lifecycleAttribute) throws AppFactoryException {
        RegistryUtils.recordStatistics(key, info, lifecycleAttribute);
        if(key.equals(AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION)){
-          return RxtApplicationDAO.getInstance().addApplicationArtifact(info, lifecycleAttribute);
+          return ApplicationDAO.getInstance().addApplicationArtifact(info, lifecycleAttribute);
        }else if(key.equals(AppFactoryConstants.RXT_KEY_APPVERSION)){
            return RxtManager.getInstance().addArtifact(key, info,lifecycleAttribute);
        }
@@ -174,7 +174,7 @@ public class ApplicationInfoService {
      * @throws AppFactoryException
      */
     public Application getApplication(String applicationId) throws AppFactoryException {
-        return RxtApplicationDAO.getInstance().getApplicationInfo(applicationId);
+        return ApplicationDAO.getInstance().getApplicationInfo(applicationId);
     }
 
     /**
@@ -523,7 +523,7 @@ public class ApplicationInfoService {
             throw new AppFactoryException(msg, e);
         }
         try {
-            RxtApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
+            ApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
         } catch (UserStoreException e) {
             String msg = "Error while deleting the application resource from registry for application id : " +
                          applicationId;
@@ -596,7 +596,7 @@ public class ApplicationInfoService {
         List<ApplicationSummary> applicationSummaryList = new ArrayList<ApplicationSummary>();
         try {
             applicationSummaryList =
-                    RxtApplicationDAO.getInstance().getSummarizedApplicationInfo(applicationKeys);
+                    ApplicationDAO.getInstance().getSummarizedApplicationInfo(applicationKeys);
         } catch (AppFactoryException e) {
             String msg =
                     "Error while getting application summary info for user " + userName +
@@ -623,7 +623,7 @@ public class ApplicationInfoService {
             throws ApplicationManagementException {
         long startTime = System.currentTimeMillis();
         try {
-            Application[] apps = RxtApplicationDAO.getInstance().getAllApplicationsOfUser(userName);
+            Application[] apps = ApplicationDAO.getInstance().getAllApplicationsOfUser(userName);
             long endTime = System.currentTimeMillis();
             if (perfLog.isDebugEnabled()) {
                 perfLog.debug("AFProfiling getApplicaitonsOfTheUser : " + (endTime - startTime));
@@ -679,7 +679,7 @@ public class ApplicationInfoService {
      */
     public Application[] getApplicationsCreatedByUser(String userName) throws ApplicationManagementException {
         try {
-            return RxtApplicationDAO.getInstance().getAllApplicationsCreatedByUser(userName);
+            return ApplicationDAO.getInstance().getAllApplicationsCreatedByUser(userName);
         } catch (AppFactoryException e) {
             throw new ApplicationManagementException("Failed to retrieve applications created by the user" +
                                                      userName, e);
