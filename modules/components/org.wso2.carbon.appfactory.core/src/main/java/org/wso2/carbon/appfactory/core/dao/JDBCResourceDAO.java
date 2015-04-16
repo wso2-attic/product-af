@@ -78,6 +78,7 @@ public class JDBCResourceDAO {
             preparedStatement.setString(3, resourceType);
             preparedStatement.setString(4, environment);
             preparedStatement.setString(5, description);
+            preparedStatement.setInt(6, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.execute();
             int affectedRow = preparedStatement.getUpdateCount();
             if (affectedRow > 0) {
@@ -126,8 +127,6 @@ public class JDBCResourceDAO {
      */
     public boolean isResourceExists(String applicationKey, String resourceName, String resourceType,
                                     String environment) throws AppFactoryException {
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-
         if (JDBCResourceCacheManager.isResourceExist(applicationKey, environment, resourceType, resourceName)) {
             return true;
         }
@@ -139,7 +138,7 @@ public class JDBCResourceDAO {
             preparedStatement = databaseConnection
                     .prepareStatement(SQLConstants.GET_RESOURCES_BY_NAME_AND_TYPE_AND_ENV);
             preparedStatement.setString(1, applicationKey);
-            preparedStatement.setInt(2, tenantId);
+            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.setString(3, resourceType);
             preparedStatement.setString(4, environment);
             preparedStatement.setString(5, resourceName);
@@ -276,7 +275,6 @@ public class JDBCResourceDAO {
      */
     public Resource[] getResources(String applicationKey, String resourceType, String environment)
             throws AppFactoryException {
-        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         // Get resources from cache
         List<Resource> resources = JDBCResourceCacheManager.getResourcesFromCache(
@@ -296,7 +294,7 @@ public class JDBCResourceDAO {
                 preparedStatement =
                         databaseConnection.prepareStatement(SQLConstants.GET_RESOURCES_BY_TYPE_AND_ENV);
                 preparedStatement.setString(1, applicationKey);
-                preparedStatement.setInt(2, tenantId);
+                preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
                 preparedStatement.setString(3, resourceType);
                 preparedStatement.setString(4, environment);
                 resourcesRS = preparedStatement.executeQuery();

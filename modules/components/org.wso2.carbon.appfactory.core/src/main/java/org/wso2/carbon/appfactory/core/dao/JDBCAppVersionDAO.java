@@ -323,8 +323,7 @@ public class JDBCAppVersionDAO {
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
-            preparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
-                                                                                               databaseConnection));
+            preparedStatement.setString(1, applicationKey);
             preparedStatement.setString(2, versionName);
             allVersions = preparedStatement.executeQuery();
             if (allVersions.next()) {
@@ -332,6 +331,11 @@ public class JDBCAppVersionDAO {
                 version.setVersion(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
                 version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
                 version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
+                version.setAutoBuild(allVersions.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD) == 1
+                                     ? true :false);
+                version.setAutoDeploy(allVersions.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY) == 1
+                                      ? true :false);
+                version.setProductionMappedDomain(allVersions.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
             }
 
             JDBCApplicationCacheManager.getAppVersionCache().
@@ -366,14 +370,22 @@ public class JDBCAppVersionDAO {
         if (versionList != null) {
             return versionList.toArray(new String[versionList.size()]);
         }
+
         try {
-            //TODO - Punnadi - write code to get the list of names
-
-
-//        } catch (SQLException e) {
-//            String msg = "Error while getting all the version of application key : " + applicationKey;
-//            log.error(msg, e);
-//            throw new AppFactoryException(msg, e);
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
+            preparedStatement.setString(1, applicationKey);
+            resultSet = preparedStatement.executeQuery();
+            versionList = new ArrayList<String>();
+            while (resultSet.next()) {
+                versionList.add(resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+            }
+            JDBCApplicationCacheManager.getAppVersionListCache().
+                    put(JDBCApplicationCacheManager.constructAppVersionListCacheKey(applicationKey), versionList);
+        } catch (SQLException e) {
+            String msg = "Error while getting all the version of application key : " + applicationKey;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
         } finally {
             AppFactoryDBUtil.closeResultSet(resultSet);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
@@ -382,7 +394,7 @@ public class JDBCAppVersionDAO {
         if (log.isDebugEnabled()) {
             log.debug("List of Version IDs of application key : " + applicationKey + " are : " + versionList);
         }
-        return null; //TODO - Fix Punnadi
+        return versionList.toArray(new String[versionList.size()]);
     }
 
     /**
@@ -416,44 +428,5 @@ public class JDBCAppVersionDAO {
         } finally {
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
-    }
-
-    /**
-     * Get all the versions of an application
-     *
-     * @param applicationKey key of an app
-     * @return arrays of {@link org.wso2.carbon.appfactory.core.dto.Version}
-     * @throws AppFactoryException
-     */
-    public Version[] getAllApplicationVersions(String applicationKey) throws AppFactoryException {
-        Connection databaseConnection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet allVersions = null;
-
-        List<Version> versions = new ArrayList<Version>();
-        try {
-            databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_APPLICATION_VERSION_SQL);
-            preparedStatement.setInt(1, JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationKey,
-                                                                                               databaseConnection));
-            allVersions = preparedStatement.executeQuery();
-            Version version;
-            while (allVersions.next()) {
-                version = new Version();
-                version.setVersion(allVersions.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
-                version.setStage(allVersions.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
-                version.setPromoteStatus(allVersions.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
-                versions.add(version);
-            }
-        } catch (SQLException e) {
-            String msg = "Error while getting app versions of application key : " + applicationKey;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-         } finally {
-            AppFactoryDBUtil.closeResultSet(allVersions);
-            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
-            AppFactoryDBUtil.closeConnection(databaseConnection);
-        }
-        return versions.toArray(new Version[versions.size()]);
     }
 }

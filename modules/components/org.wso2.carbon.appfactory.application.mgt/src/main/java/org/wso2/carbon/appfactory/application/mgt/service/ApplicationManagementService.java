@@ -635,8 +635,5 @@ public class ApplicationManagementService extends AbstractAdmin {
                 }
             }
         }
-
-
     }
-
 }
