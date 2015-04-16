@@ -41,7 +41,6 @@ import java.util.Map;
 public class AppfactoryArtifactStoragePlugin extends Plugin {
 
     private static final Log log = LogFactory.getLog(AppfactoryArtifactStoragePlugin.class);
-    private static final String UNDEPLOY_ARTIFACT_ACTION="/undeployArtifact";
     private static final String DEPLOY_PROMOTED_ARTIFACT_ACTION = "/deployPromotedArtifact";
     private static final String DEPLOY_LATEST_SUCCESS_ARTIFACT_ACTION = "/deployLatestSuccessArtifact";
 
@@ -92,29 +91,35 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
                     throw new ServletException("Invalid action");
                 }
             } catch (AppFactoryException e) {
-                String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
+                String msg = "Action " + action + " failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg, e);
                 throw new ServletException(msg, e);
             } catch (ClassNotFoundException e) {
-                String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
+                String msg = "Action " + action + " failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg, e);
                 throw new ServletException(msg, e);
             } catch (InstantiationException e) {
-                String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
+                String msg = "Action " + action + " failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
-                             + runtime+".\n Error occurred while getting an instance of the provided class: "+className;
+                             + runtime + ".\n Error occurred while getting an instance of the provided class: " +
+                             className;
+                log.error(msg, e);
                 throw new ServletException(msg, e);
             } catch (IllegalAccessException e) {
-                String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
+                String msg = "Action " + action + " failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg, e);
                 throw new ServletException(msg, e);
             } catch (Exception e) {
-                String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
+                String msg = "Action " + action + " failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg, e);
                 throw new ServletException(msg, e);
             }
 
