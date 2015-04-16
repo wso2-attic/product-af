@@ -677,13 +677,8 @@ public class ApplicationInfoService {
      * @return <Application> array
      * @throws ApplicationManagementException
      */
-    public Application[] getApplicationsCreatedByUser(String userName) throws ApplicationManagementException {
-        try {
-            return ApplicationDAO.getInstance().getAllApplicationsCreatedByUser(userName);
-        } catch (AppFactoryException e) {
-            throw new ApplicationManagementException("Failed to retrieve applications created by the user" +
-                                                     userName, e);
-        }
+    public Application[] getApplicationsCreatedByUser(String userName) throws AppFactoryException {
+        return ApplicationDAO.getInstance().getAllApplicationsCreatedByUser(userName);
     }
 
 
