@@ -27,7 +27,8 @@ public class SQLConstants {
     public static final String ADD_APPLICATION_REPOSITORY_SQL = "INSERT INTO AF_REPOSITORY (VERSION_ID,IS_FORKED," +
                                                                 "GIT_USER_ID,TENANT_ID) VALUES(?,?,?,?)";
     public static final String ADD_BUILD_STATUS_SQL = "INSERT INTO AF_BUILD (REPOSITORY_ID, TENANT_ID) VALUES(?,?)";
-    public static final String ADD_DEPLOY_STATUS_SQL = "INSERT INTO AF_DEPLOY (REPOSITORY_ID,TENANT_ID) VALUES(?,?)";
+    public static final String ADD_DEPLOY_STATUS_SQL = "INSERT INTO AF_DEPLOY (REPOSITORY_ID, ENVIRONMENT, TENANT_ID) " +
+                                                       "VALUES(?,?,?)";
     public static final String ADD_VERSION = "INSERT INTO AF_VERSION (APPLICATION_ID,VERSION_NAME,STAGE,TENANT_ID) " +
                                              "VALUES(?,?,?,?)";
     public static final String ADD_RESOURCE_SQL = "INSERT INTO AF_RESOURCE (APPLICATION_ID,RESOURCE_NAME," +
@@ -40,7 +41,7 @@ public class SQLConstants {
     //**************************************************Select Queries
     public static final String GET_APPLICATION_LAST_DEPLOY_SQL = "SELECT LAST_DEPLOYED_BUILD_ID," +
             "LAST_DEPLOY_STATUS,LAST_DEPLOY_TIME FROM AF_DEPLOY WHERE " +
-            "REPOSITORY_ID=?";
+            "REPOSITORY_ID=? AND ENVIRONMENT=?";
     public static final String GET_APPLICATION_SQL = "SELECT ID FROM AF_APPLICATION " +
             "WHERE APPLICATION_KEY=? AND " +
             "TENANT_ID=?";
@@ -72,7 +73,7 @@ public class SQLConstants {
             "BRANCH_COUNT FROM AF_REPOSITORY REPO,AF_VERSION VERSION,AF_APPLICATION APP WHERE APP.APPLICATION_KEY=? " +
             "AND APP.TENANT_ID=? AND VERSION.APPLICATION_ID=APP.ID AND REPO.VERSION_ID=VERSION.ID AND REPO.IS_FORKED=?";
     public static final String GET_APPLICATION_LAST_BUILD_SQL = "SELECT LAST_BUILD_ID, " +
-            "LAST_BUILD_STATUS, LAST_BUILD_TIME,CURRENT_BUILD FROM AF_BUILD WHERE " +
+            "LAST_BUILD_STATUS, LAST_BUILD_TIME FROM AF_BUILD WHERE " +
             "REPOSITORY_ID=?";
     public static final String GET_RESOURCES_BY_TYPE_AND_ENV = "SELECT RESOURCE.RESOURCE_NAME, " +
             "RESOURCE.DESCRIPTION FROM AF_RESOURCE RESOURCE,AF_APPLICATION APP WHERE " +

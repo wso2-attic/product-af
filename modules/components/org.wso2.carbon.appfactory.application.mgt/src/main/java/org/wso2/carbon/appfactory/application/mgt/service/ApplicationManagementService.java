@@ -32,7 +32,6 @@ import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -357,6 +356,7 @@ public class ApplicationManagementService extends AbstractAdmin {
      * @throws ApplicationManagementException
      */
 
+    //ToDo renamed
     public void updateRxtWithPromoteState(String applicationId, String stage, String version, String action,
                                           String state) throws ApplicationManagementException {
         if (action == null || !action.equals(AppFactoryConstants.RXT_KEY_APPVERSION_PROMOTE)) {

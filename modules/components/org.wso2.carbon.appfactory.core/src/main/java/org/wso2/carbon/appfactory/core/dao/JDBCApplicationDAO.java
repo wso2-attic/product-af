@@ -1303,7 +1303,8 @@ public class JDBCApplicationDAO {
         try {
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_DEPLOY_STATUS_SQL);
             preparedStatement.setInt(1, repositoryID);
-            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.setString(2, environment);
+            preparedStatement.setInt(3, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             preparedStatement.execute();
             int affectedRow = preparedStatement.getUpdateCount();
             if (affectedRow > 0) {
