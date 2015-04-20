@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.wso2.carbon.appfactory</groupId>
         <artifactId>appfactory</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.1.1</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.appfactory.common</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.1</version>
     <packaging>bundle</packaging>
     <name>WSO2 Appfactory - Common</name>
     <description>Appfactory common BE component for WSO2 Appfactory</description>

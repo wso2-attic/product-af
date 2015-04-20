@@ -3,12 +3,12 @@
     <parent>
         <groupId>org.wso2.appfactory</groupId>
         <artifactId>webapps-parent</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.wso2.appfactory</groupId>
     <artifactId>appfactory.gitblit.plugin</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.1</version>
     <packaging>jar</packaging>
 
     <name>appfactory.gitblit-plugin</name>
