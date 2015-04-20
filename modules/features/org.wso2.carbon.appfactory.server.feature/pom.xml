@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.appfactory</groupId>
         <artifactId>appfactory-feature</artifactId>
-        <version>2.2.0-SNAPSHOT</version>
+        <version>2.1.1</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon - AppFactory Server Feature</name>
     <url>http://wso2.org</url>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>2.1.1</version>
     <description>This feature contains the core bundles required for AppFactory back end
     </description>
 
