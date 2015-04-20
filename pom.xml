@@ -28,7 +28,7 @@
    <groupId>org.wso2.appfactory</groupId>
    <artifactId>wso2appfactory-parent</artifactId>
    <packaging>pom</packaging>
-   <version>2.1.1</version>
+   <version>2.1.1-SNAPSHOT</version>
    <name>WSO2 AppFacotry - Parent</name>
    <url>http://wso2.org/projects/appfactory/java</url>
    <description>WSO2 AppFactory</description>
@@ -222,55 +222,55 @@
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>dotnet-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>webapp-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxrs-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaxws-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>jaggery-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 	<dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>esb-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>bpel-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>dbs-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>php-archetype</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
 
@@ -892,13 +892,13 @@
        <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-authentication-plugin</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.1-SNAPSHOT</version>
             <type>hpi</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-plugin</artifactId>
-	    <version>2.1.1</version>
+	    <version>2.1.1-SNAPSHOT</version>
             <type>hpi</type>
         </dependency>
         <dependency>
@@ -1181,7 +1181,7 @@
        <url>https://github.com/wso2/product-af</url>
        <developerConnection>scm:git:https://github.com/wso2/product-af</developerConnection>
        <connection>scm:git:https://github.com/wso2/product-af</connection>
-       <tag>2.1.1</tag>
+       <tag>wso2appfactory-parent-2.1.0</tag>
    </scm>
 
    <repositories>
@@ -1278,7 +1278,7 @@
    <properties>
 
       <!--App Factory-->
-      <appfac.version>2.1.1</appfac.version>
+      <appfac.version>2.1.1-SNAPSHOT</appfac.version>
 
 
       <!--Stratos-->

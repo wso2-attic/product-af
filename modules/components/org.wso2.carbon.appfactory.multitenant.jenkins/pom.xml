@@ -14,14 +14,14 @@
 	 <parent>
      	<groupId>org.wso2.carbon.appfactory</groupId>
 	    <artifactId>appfactory</artifactId>
-      	<version>2.1.1</version>
+      	<version>2.1.1-SNAPSHOT</version>
 	    <relativePath>../pom.xml</relativePath>
     </parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.wso2.carbon.appfactory</groupId>
 	<artifactId>org.wso2.carbon.appfactory.multitenant.jenkins</artifactId>
-	<version>2.1.1</version>
+	<version>2.1.1-SNAPSHOT</version>
 	<name>WSO2 Appfactory - Jenkins multi tenant facilitator</name>
 	<description>WSO2 Appfactory - tenant based build server deployment component</description>
 	<url>http://maven.apache.org</url>
