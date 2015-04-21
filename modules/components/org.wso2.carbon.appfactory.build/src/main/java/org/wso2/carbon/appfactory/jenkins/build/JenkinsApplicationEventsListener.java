@@ -120,8 +120,9 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
 
     /**
      * This method will call RestBasedJenkinsCIConnector to undeploy the artifacts of an application
-     * @param application Application we need to delete
-     * @param userName User who logged in when invoking the deletion of application
+     *
+     * @param application  Application we need to delete
+     * @param userName     User who logged in when invoking the deletion of application
      * @param tenantDomain Tenant domain of application
      * @throws AppFactoryException
      */

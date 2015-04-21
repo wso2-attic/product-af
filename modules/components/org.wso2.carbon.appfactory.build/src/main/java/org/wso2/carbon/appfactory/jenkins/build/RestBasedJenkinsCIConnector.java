@@ -507,15 +507,15 @@ public class RestBasedJenkinsCIConnector {
 				out.write(bytes, 0, read);
 			}
 		} catch (HttpException e) {
-			String msg = "Failed to get artifact " + artifactName + "for job name : " + jobName + " and tenant : "
+			String msg = "Failed to get artifact " + artifactName + " for job name : " + jobName + " and tenant : "
 			             + tenantDomain;
 			throw new AppFactoryException(msg, e);
 		} catch (FileNotFoundException e) {
-			String msg = "Failed to get artifact " + artifactName + "for job name : " + jobName + " and tenant : "
+			String msg = "Failed to get artifact " + artifactName + " for job name : " + jobName + " and tenant : "
 			             + tenantDomain;
 			throw new AppFactoryException(msg, e);
 		} catch (IOException e) {
-			String msg = "Failed to get artifact " + artifactName + "for job name : " + jobName + " and tenant : "
+			String msg = "Failed to get artifact " + artifactName + " for job name : " + jobName + " and tenant : "
 			             + tenantDomain;
 			throw new AppFactoryException(msg, e);
 		} finally {
