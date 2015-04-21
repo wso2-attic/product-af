@@ -19,9 +19,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 
@@ -170,14 +170,14 @@ public class AppFactoryApplicationEventListener extends ApplicationEventsHandler
             }
             Project project = new Project();
             org.wso2.carbon.appfactory.issuetracking.beans.Version isstrackerVersion = new org.wso2.carbon.appfactory.issuetracking.beans.Version();
-            isstrackerVersion.setName(version1.getId());
+            isstrackerVersion.setName(version1.getVersion());
             project.setName(application.getName());
             project.setKey(connector.getProjectApplicationMapping().getProjectKey(application.getId()));
             project.setDescription(application.getDescription());
             connector.createVersionInProject(project, isstrackerVersion);
             log.info("On version creation event successfully handled by redmine application listener.");
         } catch (IssueTrackerException e) {
-            String msg = "Error while creating version " + version1.getId() + " for " + application.getId();
+            String msg = "Error while creating version " + version1.getVersion() + " for " + application.getId();
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }

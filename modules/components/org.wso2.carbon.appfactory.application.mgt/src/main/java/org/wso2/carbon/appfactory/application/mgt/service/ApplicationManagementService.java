@@ -29,9 +29,9 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -286,27 +286,11 @@ public class ApplicationManagementService extends AbstractAdmin {
                               new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION
                                       .getCapitalizedString()) : new Version(targetVersion, AppFactoryConstants.
                                         ApplicationStage.DEVELOPMENT.getCapitalizedString());
-            JDBCApplicationDAO.getInstance().addVersion(applicationId, version);
-
-            Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
+            JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
 
             // find the versions.
-            Version source = null;
-            Version target = null;
-            for (Version v : versions) {
-                if (v.getId().equals(sourceVersion)) {
-                    source = v;
-                }
-
-                if (v.getId().equals(targetVersion)) {
-                    target = v;
-                }
-
-                if (source != null && target != null) {
-                    // both version are found. no need to traverse more
-                    break;
-                }
-            }
+            Version source = JDBCAppVersionDAO.getInstance().getApplicationVersion(applicationId, sourceVersion);
+            Version target = JDBCAppVersionDAO.getInstance().getApplicationVersion(applicationId, targetVersion);
 
             Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
             ApplicationEventsHandler listener = null;
@@ -377,14 +361,14 @@ public class ApplicationManagementService extends AbstractAdmin {
      * @throws ApplicationManagementException
      */
 
+    //ToDo renamed
     public void updateRxtWithPromoteState(String applicationId, String stage, String version, String action,
                                           String state) throws ApplicationManagementException {
         if (action == null || !action.equals(AppFactoryConstants.RXT_KEY_APPVERSION_PROMOTE)) {
             return;
         }
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(autoIncrementAppID, version, state);
+            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(applicationId, version, state);
             if (log.isDebugEnabled()) {
                 log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
                           " version : "+ version + " stage :" + stage);
@@ -657,8 +641,5 @@ public class ApplicationManagementService extends AbstractAdmin {
                 }
             }
         }
-
-
     }
-
 }

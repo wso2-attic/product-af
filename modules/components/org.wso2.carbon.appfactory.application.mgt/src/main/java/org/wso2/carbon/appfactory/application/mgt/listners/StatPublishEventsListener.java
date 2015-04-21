@@ -24,9 +24,9 @@ import org.wso2.carbon.appfactory.application.mgt.util.Util;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.user.api.UserStoreException;
 
 public class StatPublishEventsListener extends ApplicationEventsHandler {

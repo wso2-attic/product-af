@@ -21,6 +21,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConfigurationBuilder;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCResourceDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -41,6 +42,7 @@ public class BaseTestCase extends TestCase {
     public static final String CARBON_HOME = "carbon.home";
     public static final String AFDB_CONFIGURATION_PATH = "AFDBConfigurationPath";
     public static JDBCApplicationDAO applicationDAO = null;
+    public static JDBCAppVersionDAO appVersionDAO = null;
     public static JDBCResourceDAO resourceDAO = null;
 
 
@@ -74,6 +76,7 @@ public class BaseTestCase extends TestCase {
         ApplicationTypeManager.getInstance().setApplicationTypeBeanMap(applicationTypeBeanMap);
 
         applicationDAO = JDBCApplicationDAO.getInstance();
+        appVersionDAO = JDBCAppVersionDAO.getInstance();
         resourceDAO = JDBCResourceDAO.getInstance();
     }
 

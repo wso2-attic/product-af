@@ -28,7 +28,7 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
 import org.wso2.carbon.appfactory.core.dto.BuildStatus;
@@ -241,14 +241,14 @@ public class ApplicationInfoService {
      * @return array of artifacts
      * @throws AppFactoryException
      */
-    public Artifact[] getAllVersionsOfApplicationPerUser(String domainName, String applicationId, String userName)
+    public Version[] getAllVersionsOfApplicationPerUser(String domainName, String applicationId, String userName)
             throws AppFactoryException {
-        Artifact[] artifacts;
+        Version[] versions;
         try {
-            List<Artifact> artifactsList = RxtManager
+            List<Version> artifactsList = RxtManager
                     .getInstance().getRepoUserRxtForApplicationOfUser(domainName, applicationId, userName);
-            artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
-            return artifacts;
+            versions = artifactsList.toArray(new Version[artifactsList.size()]);
+            return versions;
         } catch (RegistryException e) {
             String msg = "Error while retrieving artifact information for application id : " + applicationId
                          + "of user : " + userName + " of tenant domain : " + domainName;
@@ -265,12 +265,16 @@ public class ApplicationInfoService {
      * @return array of version artifacts
      * @throws AppFactoryException
      */
-
-    //TODO remove domainName
-    public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
+    //TODO Modify this method with new UX improvements. Simply use Version name list String list. Must do item.
+    public Version[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
         try {
-            List<Artifact> artifactsList = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-            return artifactsList.toArray(new Artifact[artifactsList.size()]);
+            JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
+            String[] artifactsList = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+            Version[] versions = new Version[artifactsList.length];
+            for (int i = 0; i < versions.length; i++) {
+                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, artifactsList[i]);
+            }
+            return versions;
         } catch (AppFactoryException e) {
             String msg = "Error while retrieving artifact information from database for application id : " + applicationId
                          + " of tenant domain : " + domainName;
@@ -292,7 +296,7 @@ public class ApplicationInfoService {
             throws AppFactoryException {
         BuildStatus buildStatus = JDBCApplicationDAO.getInstance().getBuildStatus(applicationId, version, false, null);
         DeployStatus deployStatus;
-        String stage = RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
+        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(applicationId, version);
         deployStatus = JDBCApplicationDAO.getInstance().getDeployStatus(applicationId, version, stage, false, null);
         return new BuildandDeployStatus(buildStatus.getLastBuildId(),
                                                  buildStatus.getLastBuildStatus(),  deployStatus.getLastDeployedId());
@@ -311,8 +315,7 @@ public class ApplicationInfoService {
     private void updateDBWithAutoBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable)
                                                                     throws ApplicationManagementException {
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updateAutoBuildStatusOfVersion(autoIncrementAppID, version, isAutoBuildable);
+            JDBCAppVersionDAO.getInstance().updateAutoBuildStatusOfVersion(applicationId, version, isAutoBuildable);
             if (log.isDebugEnabled()) {
                 log.debug(" Database updated successfully for application id : " + applicationId + " " + " version : "
                           + version + " stage :" + stage + " isAutoBuildable :" + isAutoBuildable);
@@ -412,8 +415,7 @@ public class ApplicationInfoService {
     private void updateDBAutoDeploymentStatus(String applicationId, String stage, String version,
                                               boolean isAutoDeployable) throws ApplicationManagementException {
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updateAutoDeployStatusOfVersion(autoIncrementAppID, version, isAutoDeployable);
+            JDBCAppVersionDAO.getInstance().updateAutoDeployStatusOfVersion(applicationId, version, isAutoDeployable);
             if (log.isDebugEnabled()) {
                 log.debug(" DB updated successfully for application id : " + applicationId + " " + " version : "
                           + version +" stage :" + stage + " isAutoDeployable :" + isAutoDeployable);
@@ -445,8 +447,7 @@ public class ApplicationInfoService {
         }
 
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(autoIncrementAppID, version, state);
+            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(applicationId, version, state);
             if (log.isDebugEnabled()) {
                 log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
                           " version : "+ version + " stage :" + stage);
@@ -471,8 +472,7 @@ public class ApplicationInfoService {
     public void updateCurrentStage(String applicationId, String stage, String version)
             throws ApplicationManagementException {
         try {
-            int autoIncrementAppID = JDBCApplicationDAO.getInstance().getAutoIncrementAppID(applicationId);
-            JDBCAppVersionDAO.getInstance().updateStageOfVersion(autoIncrementAppID, version, stage);
+            JDBCAppVersionDAO.getInstance().updateStageOfVersion(applicationId, version, stage);
             if (log.isDebugEnabled()) {
                 log.debug(" Successfully updated stage to " + stage + " for application id : " + applicationId
                           + " version : " + version);
@@ -610,7 +610,6 @@ public class ApplicationInfoService {
         return
                 applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
     }
-
 
     /**
      * Returns the list of applications that user belongs to

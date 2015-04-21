@@ -21,16 +21,6 @@ package org.wso2.carbon.appfactory.core.dto;
  */
 public class BuildStatus {
     private String lastBuildId;
-
-    public String getCurrentBuildId() {
-        return currentBuildId;
-    }
-
-    public void setCurrentBuildId(String currentBuildId) {
-        this.currentBuildId = currentBuildId;
-    }
-
-    private String currentBuildId;
     private String lastBuildStatus;
     private long lastBuildTime;
 
@@ -61,10 +51,9 @@ public class BuildStatus {
     @Override
     public String toString() {
         return "BuildStatus{" +
-                "lastBuildId='" + lastBuildId + '\'' +
-                ", currentBuildId='" + currentBuildId + '\'' +
-                ", lastBuildStatus='" + lastBuildStatus + '\'' +
-                ", lastBuildTime=" + lastBuildTime +
-                '}';
+               "lastBuildId='" + lastBuildId + '\'' +
+               ", lastBuildStatus='" + lastBuildStatus + '\'' +
+               ", lastBuildTime=" + lastBuildTime +
+               '}';
     }
 }

@@ -17,9 +17,9 @@
 package org.wso2.carbon.appfactory.core;
 
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 
 public abstract class ApplicationEventsHandler implements Comparable<ApplicationEventsHandler> {
 
