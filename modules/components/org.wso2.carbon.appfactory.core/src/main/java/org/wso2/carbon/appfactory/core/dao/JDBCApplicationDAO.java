@@ -1069,8 +1069,9 @@ public class JDBCApplicationDAO {
                 deployCache.remove(deployCacheKey);
                 return true;
             }
-            handleException("Error while updating deploy status for version : " + version + " of application key : " +
-                            applicationKey);
+            handleException("Error while updating deploy status, 0 rows affected for repository ID : " + repositoryID +
+                            "and environment : " + environment + " and version : " + version +
+                            " of application key : " + applicationKey);
         } catch (SQLException e) {
             try {
                 if (databaseConnection != null) {
