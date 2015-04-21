@@ -43,14 +43,18 @@
             <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
-            <version>${project.version}</version>
+	    <exclusions>
+	    	<exclusion>
+            	    <groupId>org.apache.stratos</groupId>
+            	    <artifactId>org.apache.stratos.cli</artifactId>
+	    	</exclusion>
+	    </exclusions>
         </dependency>
         <dependency>
         	<groupId>org.wso2.carbon</groupId>
@@ -59,22 +63,18 @@
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.common</artifactId>
-            <version>4.0.0-wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.manager</artifactId>
-            <version>4.0.0-wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.tenant.mgt</artifactId>
-            <version>4.0.0-wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.tenant.mgt.core</artifactId>
-            <version>4.0.0-wso2v1</version>
         </dependency>
     </dependencies>
 
