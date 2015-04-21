@@ -22,11 +22,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
-import org.wso2.carbon.appfactory.eventing.Event;
 
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
@@ -175,11 +174,11 @@ public class ApplicationInfomationChangeListner extends ApplicationEventsHandler
         if (AppFactoryConstants.ApplicationStage.PRODUCTION.getStageStrValue()
                 .equalsIgnoreCase(nextStage)) {
             log.debug("adding production version");
-            ProjectUtils.addProductionVersion(application.getId(), version.getId());
+            ProjectUtils.addProductionVersion(application.getId(), version.getVersion());
         } else if (AppFactoryConstants.ApplicationStage.PRODUCTION.getStageStrValue()
                 .equalsIgnoreCase(previosStage)) {
             log.debug("removing production version");
-            ProjectUtils.removeProductionVersion(application.getId(), version.getId());
+            ProjectUtils.removeProductionVersion(application.getId(), version.getVersion());
         }
         log.info("onLifeCycleStageChange is successfully handled by Application Information Change Listner.");
     }

@@ -20,9 +20,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 
@@ -85,7 +85,7 @@ public class IssueTrackerListener extends ApplicationEventsHandler {
     @Override
     public void onVersionCreation(Application application, Version source, Version target, String tenantDomain,String userName)
             throws AppFactoryException {
-        connector.onVersionCreation(application, target.getId(), tenantDomain);
+        connector.onVersionCreation(application, target.getVersion(), tenantDomain);
     }
 
     @Override

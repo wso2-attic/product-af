@@ -30,6 +30,7 @@ import org.wso2.carbon.appfactory.core.Storage;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -64,42 +65,21 @@ public class ApplicationDeployer {
     private static final Log log = LogFactory.getLog(ApplicationDeployer.class);
 
     /**
-     * Service method to get the latest deployed build information.
-     *
-     * @throws AppFactoryException
-     */
-    public String getDeployedArtifactInformation(String applicationId, String version, String stage)
-            throws AppFactoryException {
-        String buildNumber = "-1";
-        if (AppFactoryUtil.checkAuthorizationForUser(AppFactoryConstants.PERMISSION_VIBILITY + stage,
-                                                     AppFactoryConstants.DEFAULT_ACTION)) {
-            // Getting the tenant domain
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            try {
-                buildNumber =
-                        RxtManager.getInstance().getAppVersionRxtValue(applicationId, version,
-                                                                       "appversion_lastdeployedid", tenantDomain);
-            } catch (AppFactoryException e) {
-                throw new AppFactoryException(e.getMessage());
-            }
-        }
-        return buildNumber;
-    }
-
-    /**
      * Service method to get the artifact information for the given applicationId.
      *
      * @param applicationId
      * @throws AppFactoryException
      */
-    public List<Artifact> getArtifactInformation(String applicationId) throws AppFactoryException {
+    public List<Version> getArtifactInformation(String applicationId) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        try {
-            return JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
-        } catch (AppFactoryException e) {
-            log.error("Error while retrieving artifat information from database for application " + applicationId);
-            throw new AppFactoryException(e.getMessage());
-        }
+//        try {
+            //TODO - Check Punnadi why is this needed?
+            //return JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(applicationId);
+//        } catch (AppFactoryException e) {
+//            log.error("Error while retrieving artifat information from database for application " + applicationId);
+//            throw new AppFactoryException(e.getMessage());
+//        }
+        return null;
     }
 
     /**

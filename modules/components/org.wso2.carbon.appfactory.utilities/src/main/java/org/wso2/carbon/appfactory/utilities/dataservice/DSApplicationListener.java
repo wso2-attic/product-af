@@ -28,9 +28,9 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.utilities.security.authorization.RemoteAuthorizationMgtClient;
 import org.wso2.carbon.context.CarbonContext;
 
