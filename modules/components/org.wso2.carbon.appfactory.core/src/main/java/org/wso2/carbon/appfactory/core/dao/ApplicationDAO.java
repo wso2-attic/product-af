@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package org.wso2.carbon.appfactory.core.governance.dao;
+package org.wso2.carbon.appfactory.core.dao;
 
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.lang.ArrayUtils;
@@ -23,10 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
+import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
-import org.wso2.carbon.appfactory.core.governance.cache.RxtApplicationCacheManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.core.util.GovernanceUtil;
@@ -58,15 +57,15 @@ import java.util.List;
 /**
  * Contains the CRUD operations done on Resources created via application.rxt Meta Data Model
  */
-public class RxtApplicationDAO {
+public class ApplicationDAO {
 
-    private static RxtApplicationDAO rxtApplicationDAO = new RxtApplicationDAO();
-    Log log = LogFactory.getLog(RxtApplicationDAO.class);
+    private static ApplicationDAO rxtApplicationDAO = new ApplicationDAO();
+    Log log = LogFactory.getLog(ApplicationDAO.class);
 
-    private RxtApplicationDAO() {
+    private ApplicationDAO() {
     }
 
-    public static RxtApplicationDAO getInstance() {
+    public static ApplicationDAO getInstance() {
         return rxtApplicationDAO;
     }
 
@@ -249,7 +248,7 @@ public class RxtApplicationDAO {
                 GenericArtifactManager artifactManager =
                         new GenericArtifactManager(userRegistry, AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
                 artifactManager.updateGenericArtifact(artifact);
-                RxtApplicationCacheManager.clearCache(applicationId);
+                JDBCApplicationCacheManager.getApplicationArtifactCache().remove(applicationId);
             } catch (RegistryException e) {
                 String errorMsg = "Error while updating the artifact " + applicationId;
                 log.error(errorMsg, e);
@@ -292,7 +291,7 @@ public class RxtApplicationDAO {
 
             if (userRegistry.resourceExists(resourcePath)) {
                 userRegistry.delete(resourcePath);
-                RxtApplicationCacheManager.clearCache(applicationId);
+                JDBCApplicationCacheManager.getApplicationArtifactCache().remove(applicationId);
             }
 
         } finally {
@@ -449,7 +448,7 @@ public class RxtApplicationDAO {
     private GenericArtifactImpl getAppInfoArtifact(String applicationId, String tenantDomain)
             throws AppFactoryException {
         GenericArtifactImpl artifact;
-        artifact = (GenericArtifactImpl) RxtApplicationCacheManager.getAppArtifactFromCache(applicationId);
+        artifact = (GenericArtifactImpl) JDBCApplicationCacheManager.getApplicationArtifactCache().get(applicationId);
         if(artifact != null){
             return artifact;
         }
@@ -480,7 +479,7 @@ public class RxtApplicationDAO {
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
         } else {
-            RxtApplicationCacheManager.addArtifactToCache(artifact, applicationId);
+            JDBCApplicationCacheManager.getApplicationArtifactCache().put(applicationId, artifact);
         }
         return artifact;
     }

@@ -32,7 +32,7 @@ import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
@@ -194,7 +194,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             // creates role for application in the ldap to add users of the
             createApplicationRole(applicationId, tenantAwareUserName, domainName);
             addRegistryWritePermissionToApp(applicationId, domainName);
-            application = RxtApplicationDAO.getInstance().getApplicationInfo(applicationId);
+            application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
             if (application == null) {
                 String errorMsg = String.format("Unable to load application information for id %s", applicationId);
                 throw new ApplicationManagementException(errorMsg);
@@ -274,7 +274,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             domainName = threadLocalCarbonContext.getTenantDomain();
             String userName = threadLocalCarbonContext.getUsername();
 
-            Application application = RxtApplicationDAO.getInstance().getApplicationInfo(applicationId);
+            Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
 
             Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
@@ -338,7 +338,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
             Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
 
-            Application application = RxtApplicationDAO.getInstance().getApplicationInfo(applicationId);
+            Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
 
             ApplicationEventsHandler listener = null;
@@ -440,7 +440,7 @@ public class ApplicationManagementService extends AbstractAdmin {
         }
 
         try {
-            RxtApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
+            ApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
         } catch (UserStoreException e) {
             log.error("Error while deleting the application resource from registry for application " + applicationId,
                       e);
@@ -509,7 +509,7 @@ public class ApplicationManagementService extends AbstractAdmin {
                                                           CarbonConstants.UI_PERMISSION_ACTION)}, false);
 
         // Publish user add event to BAM
-        Application app = RxtApplicationDAO.getInstance().getApplicationInfo(applicationKey);
+        Application app = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
         applicationName = app.getName();
 
 

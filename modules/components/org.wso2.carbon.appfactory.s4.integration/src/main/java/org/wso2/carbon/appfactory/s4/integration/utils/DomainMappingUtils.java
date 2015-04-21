@@ -34,7 +34,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
@@ -375,7 +375,7 @@ public class DomainMappingUtils {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String customDomain;
         try {
-            customDomain = RxtApplicationDAO.getInstance().getAppInfoRxtValue(appKey,
+            customDomain = ApplicationDAO.getInstance().getAppInfoRxtValue(appKey,
                                                         AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL,tenantDomain);
         } catch (AppFactoryException e) {
             log.error("Error occurred while getting custom url for :" + appKey, e);
@@ -395,7 +395,7 @@ public class DomainMappingUtils {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String defaultSubDomain;
         try {
-            defaultSubDomain = RxtApplicationDAO.getInstance().getAppInfoRxtValue(appKey,
+            defaultSubDomain = ApplicationDAO.getInstance().getAppInfoRxtValue(appKey,
                                                     AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN, tenantDomain);
         } catch (AppFactoryException e) {
             log.error("Error occurred while getting default url for :" + appKey, e);
@@ -455,7 +455,7 @@ public class DomainMappingUtils {
                          ServiceHolder.getAppFactoryConfiguration().getFirstProperty("DomainName") +
                          " application id:" + appKey);
             }
-            RxtApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN,
+            ApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_DEFAULT_DOMAIN,
                                                              subDomain, tenantDomain);
 
         } catch (AppFactoryException e) {
@@ -477,9 +477,9 @@ public class DomainMappingUtils {
             throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
-            RxtApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL,
+            ApplicationDAO.getInstance().updateAppInfoRxt(appKey, AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL,
                                                              mappedDomain, tenantDomain);
-            RxtApplicationDAO.getInstance().updateAppInfoRxt(appKey,
+            ApplicationDAO.getInstance().updateAppInfoRxt(appKey,
                                                              AppFactoryConstants.RXT_KEY_APPINFO_CUSTOM_URL_VERIFICATION,
                                                              verificationCode, tenantDomain);
         } catch (AppFactoryException e) {

@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.dao.RxtApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
@@ -187,7 +187,7 @@ public class AppFactoryCoreUtil {
      */
     public static String getApplicationUrl(String applicationId, String version, String stage,
                                            String tenantDomain) throws AppFactoryException {
-	    String type = RxtApplicationDAO.getInstance().getApplicationType(applicationId);
+	    String type = ApplicationDAO.getInstance().getApplicationType(applicationId);
 	    try {
 	        if(type != null) {
 		        return ApplicationTypeManager.getInstance().getApplicationTypeBean(type)
