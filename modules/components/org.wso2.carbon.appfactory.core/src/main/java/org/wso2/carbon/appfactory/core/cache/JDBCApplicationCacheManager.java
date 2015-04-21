@@ -250,12 +250,12 @@ public class JDBCApplicationCacheManager {
     }
 
     public static String constructAppVersionCacheKey(String applicationKey, String version) {
-        int tenantId =  CarbonContext.getCurrentContext().getTenantId();
+        int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
         return tenantId + KEY_SEPARATOR + applicationKey + KEY_SEPARATOR + version;
     }
 
     public static String constructAppVersionListCacheKey(String applicationKey) {
-        int tenantId =  CarbonContext.getCurrentContext().getTenantId();
+        int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
         return tenantId + KEY_SEPARATOR + applicationKey;
     }
 }
