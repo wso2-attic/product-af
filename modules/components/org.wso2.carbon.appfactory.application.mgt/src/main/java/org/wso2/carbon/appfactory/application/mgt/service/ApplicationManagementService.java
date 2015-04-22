@@ -173,6 +173,7 @@ public class ApplicationManagementService extends AbstractAdmin {
         // New application is created successfully so now time to clear realm in cache to reload
         // the new realm with updated permissions
 
+	    boolean isListnersCompletedSuccessfully = true;
         clearRealmCache(applicationId);
         domainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -211,6 +212,7 @@ public class ApplicationManagementService extends AbstractAdmin {
                     listener = appEventListeners.next();
                     listener.onCreation(application, tenantAwareUserName, domainName, isUploadableAppType);
                 } catch (Throwable e) {
+	                isListnersCompletedSuccessfully = false;
                     String error = "Error while executing onCreation method of ApplicationEventsListener : " + listener;
                     log.error(error, e);
                     this.deleteApplication(application, tenantAwareUserName, domainName);
@@ -233,7 +235,10 @@ public class ApplicationManagementService extends AbstractAdmin {
                     break;
                 }
             }
-            ProjectUtils.updateApplicationCreationStatus(applicationId, Constants.ApplicationCreationStatus.COMPLETED);
+	        if(isListnersCompletedSuccessfully) {
+		        ProjectUtils
+				        .updateApplicationCreationStatus(applicationId, Constants.ApplicationCreationStatus.COMPLETED);
+	        }
         } catch (AppFactoryException ex) {
             String errorMsg = "Unable to load registry rxt for application " + applicationId;
             log.error(errorMsg, ex);
