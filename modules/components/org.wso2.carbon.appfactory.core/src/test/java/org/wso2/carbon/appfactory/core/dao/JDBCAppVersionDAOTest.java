@@ -39,6 +39,8 @@ public class JDBCAppVersionDAOTest extends BaseTestCase {
         assertTrue( Arrays.asList(applicationVersions).contains("trunk"));
         assertTrue(Arrays.asList(applicationVersions).contains("1.0.0"));
         assertEquals(2, applicationDAO.getBranchCount("appx"));
+
+        applicationDAO.deleteApplication("appx");
     }
 
     public void testGetApplicationVersion() throws Exception {
@@ -59,6 +61,8 @@ public class JDBCAppVersionDAOTest extends BaseTestCase {
         Version addedVersion = appVersionDAO.getApplicationVersion("appversion", "1.0.0");
         assertEquals("1.0.0", addedVersion.getVersion());
         assertEquals("Development", addedVersion.getStage());
+
+        applicationDAO.deleteApplication("appversion");
     }
 
     public void testUpdateApplicationVersionStage() throws Exception {
@@ -80,6 +84,8 @@ public class JDBCAppVersionDAOTest extends BaseTestCase {
         assertTrue(updated);
         Version addedVersion = appVersionDAO.getApplicationVersion("appstage", "2.0.0");
         assertEquals("Testing", addedVersion.getStage());
+
+        applicationDAO.deleteApplication("appstage");
     }
 
     public void testUpdateApplicationVersionPromoteState() throws Exception {
@@ -101,6 +107,8 @@ public class JDBCAppVersionDAOTest extends BaseTestCase {
         appVersionDAO.updatePromoteStatusOfVersion("apppromote", "2.0.0", "");
         Version addedVersion = appVersionDAO.getApplicationVersion("apppromote", "2.0.0");
         assertEquals("", addedVersion.getPromoteStatus());
+
+        applicationDAO.deleteApplication("apppromote");
     }
 
 }
