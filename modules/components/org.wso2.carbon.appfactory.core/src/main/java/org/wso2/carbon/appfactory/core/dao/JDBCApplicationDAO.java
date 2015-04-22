@@ -272,6 +272,8 @@ public class JDBCApplicationDAO {
             if (affectedRowCount > 0) {
 
                 //removing the older cache while adding new version for an app.
+                JDBCApplicationCacheManager.getAppVersionListCache().remove(JDBCApplicationCacheManager
+                                    .constructAppVersionListCacheKey(applicationKey));
                 applicationBranchCountCache.remove(applicationAppsBranchCountKey);
                 if (log.isDebugEnabled()) {
                     String msg = "successfully added application of tenant " +
@@ -549,6 +551,8 @@ public class JDBCApplicationDAO {
                                "deletion of application version information");
             }
             preparedStatement.executeBatch();
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(JDBCApplicationCacheManager
+                                                                      .constructAppVersionListCacheKey(applicationKey));
             handleDebugLog("Successfully deleted all application version information of application : " +
                            applicationKey);
         } catch (SQLException e) {

@@ -269,51 +269,6 @@ public class ApplicationManagementService extends AbstractAdmin {
         }
     }
 
-    public void publishApplicationVersionCreation(String domainName, String applicationId, String sourceVersion,
-                                                  String targetVersion) throws ApplicationManagementException {
-        try {
-
-            // Getting the tenant ID from the CarbonContext since this is called
-            // as a SOAP service.
-            CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-            domainName = threadLocalCarbonContext.getTenantDomain();
-            String userName = threadLocalCarbonContext.getUsername();
-
-            Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
-            String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
-
-            Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
-                              new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION
-                                      .getCapitalizedString()) : new Version(targetVersion, AppFactoryConstants.
-                                        ApplicationStage.DEVELOPMENT.getCapitalizedString());
-            JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
-
-            // find the versions.
-            Version source = JDBCAppVersionDAO.getInstance().getApplicationVersion(applicationId, sourceVersion);
-            Version target = JDBCAppVersionDAO.getInstance().getApplicationVersion(applicationId, targetVersion);
-
-            Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
-            ApplicationEventsHandler listener = null;
-            while (appEventListeners.hasNext()) {
-                try {
-                    listener = appEventListeners.next();
-                    listener.onVersionCreation(application, source, target, domainName, userName);
-                } catch (Throwable e) {
-                    log.error("Error while executing onVersionCreation method of ApplicationEventsListener: "
-                              + listener, e);
-                }
-            }
-
-        } catch (AppFactoryException ex) {
-            String errorMsg = "Unable to publish version creation for application id : " + applicationId
-                              + " source version : " + sourceVersion + " target version : " +targetVersion;
-            log.error(errorMsg, ex);
-            throw new ApplicationManagementException(errorMsg, ex);
-        } catch (RegistryException e) {
-            log.error(e);
-            throw new ApplicationManagementException(e);
-        }
-    }
 
     public void publishForkRepository(String applicationId, String type, String version, String userName,
                                       String[] forkedUser) throws ApplicationManagementException {
