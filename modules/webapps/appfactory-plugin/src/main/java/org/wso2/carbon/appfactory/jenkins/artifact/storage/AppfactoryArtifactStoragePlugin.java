@@ -95,26 +95,31 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg,e);
                 throw new ServletException(msg, e);
             } catch (ClassNotFoundException e) {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg,e);
                 throw new ServletException(msg, e);
             } catch (InstantiationException e) {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime+".\n Error occurred while getting an instance of the provided class: "+className;
+                log.error(msg,e);
                 throw new ServletException(msg, e);
             } catch (IllegalAccessException e) {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg,e);
                 throw new ServletException(msg, e);
             } catch (Exception e) {
                 String msg = "Action " + action + "failed for the job name : " + jobName + ", application id : "
                              + applicationId + ", version : " + version + " in  stage : " + stage + " and runtime : "
                              + runtime;
+                log.error(msg,e);
                 throw new ServletException(msg, e);
             }
 
