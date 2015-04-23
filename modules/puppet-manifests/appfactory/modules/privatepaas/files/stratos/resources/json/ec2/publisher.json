@@ -5,7 +5,7 @@
       "host": "publisher.am.wso2.com",
       "displayName": "API Manager - Publisher",
       "description": "API Manager - Publisher Cartridge",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "multiTenant": "true",
       "portMapping": [
          {

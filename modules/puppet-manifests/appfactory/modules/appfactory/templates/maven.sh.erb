@@ -23,9 +23,6 @@ if [ -z "$APPFACTORY_HOME" ] ; then
 	${ECHO} -e "AppFactory home set to : $APPFACTORY_HOME";
 fi
 
-if [ ! -f ~/af_maven_archetype_lock.txt ]; then
-
-
         ${MKDIR} -p /tmp/mvn-tmp;
         cd /tmp/mvn-tmp;
 
@@ -187,9 +184,3 @@ if [ ! -f ~/af_maven_archetype_lock.txt ]; then
         ${ECHO} -en "Adding archetype lock .... ";
         ${TOUCH} ~/af_maven_archetype_lock.txt;
         [ $? -eq 0 ] && ${ECHO} "[DONE]" || ${ECHO} "[FAILED]";
-else
-        ${ECHO} "Maven archetypes almost exist.";
-	${ECHO} "Remove \"~/af_maven_archetype_lock.txt\" to re-run the archetype installations."
-        exit 0;
-
-fi

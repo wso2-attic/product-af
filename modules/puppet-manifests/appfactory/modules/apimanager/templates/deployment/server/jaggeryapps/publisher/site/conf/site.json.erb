@@ -14,7 +14,13 @@
         "keyStorePassword" : "<%= apipublisher_keystore_password %>",
         "identityAlias" : "<%= apipublisher_keystore_alias %>",
         "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
-    }
+    },
+
+    "reverseProxy" : {
+        "enabled" : false,    // values true , false , "auto" - will look for  X-Forwarded-* headers
+        "host" : "sample.proxydomain.com", // If reverse proxy do not have a domain name use IP
+        "context":"",
+    },
 }
 <% else %>
 {
