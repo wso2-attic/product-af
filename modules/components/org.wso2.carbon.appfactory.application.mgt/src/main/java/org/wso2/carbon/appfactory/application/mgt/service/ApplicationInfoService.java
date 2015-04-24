@@ -269,10 +269,20 @@ public class ApplicationInfoService {
     public Version[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
         try {
             JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
-            String[] artifactsList = appVersionsDAO.getAllVersionsOfApplication(applicationId);
-            Version[] versions = new Version[artifactsList.length];
+            JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
+            String[] versionNames = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+            Version[] versions = new Version[versionNames.length];
             for (int i = 0; i < versions.length; i++) {
-                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, artifactsList[i]);
+                String currentVersionName = versionNames[i];
+                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, currentVersionName);
+                BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, currentVersionName, false, null);
+                versions[i].setLastBuildStatus(
+                        "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
+                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, currentVersionName,
+                                                                           AppFactoryConstants.ApplicationStage.
+                                                                                   DEVELOPMENT.getStageStrValue(),
+                                                                           false, null);
+                versions[i].setLastDeployedId(deployStatus.getLastDeployedId());
             }
             return versions;
         } catch (AppFactoryException e) {
