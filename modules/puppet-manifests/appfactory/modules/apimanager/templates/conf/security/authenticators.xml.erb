@@ -31,6 +31,7 @@
     <Authenticator name="SAML2SSOAuthenticator" disabled="true">
         <Priority>10</Priority>
         <Config>
+	    <Parameter name="VerifySignatureWithUserDomain">true</Parameter>
             <Parameter name="LoginPage">/carbon/admin/login.jsp</Parameter>
             <Parameter name="ServiceProviderID">APPFACTORY</Parameter>
 	    <!-- IdentityProviderSSOServiceURL is not being used at the moment-->

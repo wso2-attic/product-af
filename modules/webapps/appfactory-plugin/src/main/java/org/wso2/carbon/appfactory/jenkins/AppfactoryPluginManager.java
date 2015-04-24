@@ -82,10 +82,10 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 		this.applicationArtifactExtension = applicationArtifactExtension;
 		this.userName = userName ;
 		this.repositoryFrom = repositoryFrom ;
-		log.debug("Construct AppfactoryPluginManager  for : appid="
-				+ applicationId + ",version=" + applicationVersion
-				+ ",applicationArtifactExtension="
-				+ applicationArtifactExtension + ",username=" + userName + ", repoFrom="+repositoryFrom);
+		log.info("Construct AppfactoryPluginManager  for : appid="
+                + applicationId + ",version=" + applicationVersion
+                + ",applicationArtifactExtension="
+                + applicationArtifactExtension + ",username=" + userName + ", repoFrom=" + repositoryFrom);
 	}
 
 
@@ -105,8 +105,11 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
-           logger.append("The build started by " + this.userName + " for " + this.applicationId + " - " +
-                      this.applicationVersion + " in " + this.repositoryFrom + " is notified as " + build.getResult());
+        String msg = "The build started by " + this.userName + " for " + this.applicationId + " - " +
+                this.applicationVersion + " in " + this.repositoryFrom + " is notified as " + build.getResult() ;
+        logger.append(msg);
+        log.info(msg);
+
 
         final String APPFACTORY_SERVER_URL = getDescriptor().getAppfactoryServerURL();
         String serviceURL = APPFACTORY_SERVER_URL + BUILDSTATUS_RECEIVER_NAME;
@@ -134,10 +137,10 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                     sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage,
                             AppFactoryConstants.DEPLOY_ACTION_AUTO_DEPLOY, tenantUserName, this.repositoryFrom);
                 } catch (ApplicationDeployerAppFactoryExceptionException e) {
-                    logger.append("Error while retrieving the deployment stage of application ")
-                            .append(applicationId).append(" in version ").append
-                            (applicationVersion);
-                    logger.append("Failed to deploy the artifact of automatic build");
+                    msg = "Error while retrieving the deployment stage of application " + applicationId + " in version " + applicationVersion +
+                            "Failed to deploy the artifact of automatic build" ;
+                    logger.append(msg);
+                    log.info(msg);
                 }
             }
             //String deployAction = build.getEnvironment(listener).get("doDeploy");
@@ -153,15 +156,18 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                             append(tagName);
                     sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage, deployAction, tenantUserName, this.repositoryFrom);
                 } else {
-                    logger.append("sending message to deploy to stage ").append(stage);
+                    msg =  "sending message to deploy to stage " + stage ;
+                    logger.append(msg);
+                    log.info(msg);
                     sendMessageToDeploy(applicationId, applicationVersion, "HEAD", stage, deployAction, tenantUserName, this.repositoryFrom);
                 }
                 
             } else {
                 logger.append("DoDeploy is false");
             }
-            
-            logger.append("Successfully finished ").append(build.getFullDisplayName());
+            msg = "Successfully finished " + build.getFullDisplayName();
+            log.info(msg);
+            logger.append(msg);
 
         } else {
             if(Boolean.parseBoolean(build.getEnvironment(listener).get("isAutomatic"))) {
@@ -174,7 +180,9 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             //TODO get the error message from jenkins and put
             buildStatus.setLogMsg("Build Failed");
             client.onBuildCompletion(buildStatus, tenantUserName);
-            logger.append("Build failed ").append(build.getFullDisplayName());
+            msg = "Build failed " + build.getFullDisplayName() ;
+            logger.append(msg);
+            log.info(msg);
         }
 
         boolean shouldPersist = Boolean.parseBoolean(build.getEnvironment(listener).

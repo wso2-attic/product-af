@@ -43,7 +43,7 @@
 #
 
 class apimanager::pubstore (
-  $version            = "1.7.0",
+  $version            = "1.8.0",
   $env                = undef,
   $sub_cluster_domain = undef,
   $local_member_port  = '5000',
