@@ -20,8 +20,8 @@ package org.wso2.carbon.appfactory.core.dto;
  * DTO for build information
  */
 public class BuildStatus {
-    private String lastBuildId;
-    private String lastBuildStatus;
+    private String lastBuildId = "";
+    private String lastBuildStatus = "";
     private long lastBuildTime;
 
     public String getLastBuildId() {

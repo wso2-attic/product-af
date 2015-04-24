@@ -243,15 +243,29 @@ public class ApplicationInfoService {
      */
     public Version[] getAllVersionsOfApplicationPerUser(String domainName, String applicationId, String userName)
             throws AppFactoryException {
-        Version[] versions;
         try {
-            List<Version> artifactsList = RxtManager
-                    .getInstance().getRepoUserRxtForApplicationOfUser(domainName, applicationId, userName);
-            versions = artifactsList.toArray(new Version[artifactsList.size()]);
+            JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
+            JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
+            String[] versionNames = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+            Version[] versions = new Version[versionNames.length];
+            for (int i = 0; i < versions.length; i++) {
+                String currentVersionName = versionNames[i];
+                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, currentVersionName);
+                BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, currentVersionName,
+                                                                        userName == null ? false : true, userName);
+                versions[i].setLastBuildStatus(
+                        "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
+                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, currentVersionName,
+                                                                           AppFactoryConstants.ApplicationStage.
+                                                                                   DEVELOPMENT.getStageStrValue(),
+                                                                           userName == null ? false : true,
+                                                                           userName);
+                versions[i].setLastDeployedId(deployStatus.getLastDeployedId());
+            }
             return versions;
-        } catch (RegistryException e) {
-            String msg = "Error while retrieving artifact information for application id : " + applicationId
-                         + "of user : " + userName + " of tenant domain : " + domainName;
+        } catch (AppFactoryException e) {
+            String msg = "Error while retrieving artifact information from database for application id : " + applicationId
+                         + " of tenant domain : " + domainName;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
@@ -267,20 +281,7 @@ public class ApplicationInfoService {
      */
     //TODO Modify this method with new UX improvements. Simply use Version name list String list. Must do item.
     public Version[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
-        try {
-            JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
-            String[] artifactsList = appVersionsDAO.getAllVersionsOfApplication(applicationId);
-            Version[] versions = new Version[artifactsList.length];
-            for (int i = 0; i < versions.length; i++) {
-                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, artifactsList[i]);
-            }
-            return versions;
-        } catch (AppFactoryException e) {
-            String msg = "Error while retrieving artifact information from database for application id : " + applicationId
-                         + " of tenant domain : " + domainName;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        }
+        return getAllVersionsOfApplicationPerUser(domainName, applicationId , null);
     }
 
     /**
