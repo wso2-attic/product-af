@@ -15,11 +15,21 @@
  */
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.lang.CharEncoding;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
+import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
+import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,6 +70,24 @@ public class BaseRestClient {
     }
 
     /**
+     * Construct authenticates REST client to invoke appmgt functions
+     *
+     * @param backEndUrl backend url
+     * @param username   username
+     * @param password   password
+     * @throws Exception
+     */
+    public BaseRestClient(String backEndUrl, String username, String password) throws Exception {
+        setBackEndUrl(backEndUrl);
+
+        if (getRequestHeaders().get(HEADER_CONTENT_TYPE) == null) {
+            getRequestHeaders().put(HEADER_CONTENT_TYPE, MEDIA_TYPE_X_WWW_FORM);
+        }
+
+        login(username, password);
+    }
+
+    /**
      * Get session
      *
      * @param responseHeaders response headers
@@ -90,5 +118,56 @@ public class BaseRestClient {
             throw new AppFactoryIntegrationTestException(
                 "Operation not successful: " + jsonObject.get("message").toString());
         }
+    }
+
+    /**
+     * login to app mgt
+     *
+     * @param userName username
+     * @param password password
+     * @throws Exception
+     */
+    protected void login(String userName, String password) throws Exception {
+        HttpResponse response = HttpRequestUtil.doPost(
+                new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_USER_LOGIN),
+                "action=login&userName=" + userName + "&password=" + password, getRequestHeaders());
+
+        if (response.getResponseCode() == HttpStatus.SC_OK && response.getData().equals("true")) {
+            String session = getSession(response.getHeaders());
+            if (session == null) {
+                throw new AppFactoryIntegrationTestException("No session cookie found with response");
+            }
+            setSession(session);
+        } else {
+            throw new AppFactoryIntegrationTestException("Login failed " + response.getData());
+        }
+    }
+
+    /**
+     * Do post request to appfactory.
+     *
+     * @param urlSuffix url suffix from the block layer
+     * @param postBody  post body
+     * @return httpResponse
+     */
+    public HttpResponse doPostRequest(String urlSuffix, String postBody) throws Exception {
+        return HttpRequestUtil.doPost(new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + urlSuffix), postBody,
+                                      getRequestHeaders());
+
+    }
+
+    /**
+     * Returns a String that is suitable for use as an application/x-www-form-urlencoded list of parameters in an
+     * HTTP PUT or HTTP POST.
+     *
+     * @param keyVal parameter map
+     * @return message body
+     */
+    public String generateMsgBody(Map<String, String> keyVal) {
+        List<NameValuePair> qparams = new ArrayList<NameValuePair>();
+        for (Map.Entry<String, String> keyValEntry : keyVal.entrySet()) {
+            qparams.add(new BasicNameValuePair(keyValEntry.getKey(), keyValEntry.getValue()));
+        }
+        return URLEncodedUtils.format(qparams, CharEncoding.UTF_8);
     }
 }
