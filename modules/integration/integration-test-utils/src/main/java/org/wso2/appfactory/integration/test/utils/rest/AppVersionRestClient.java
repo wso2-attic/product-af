@@ -31,7 +31,7 @@ public class AppVersionRestClient extends BaseRestClient {
         msgBody.put("srcVersion", srcVersion);
         msgBody.put("targetVersion", targetVersion);
         msgBody.put("lifecycleName", "Development");
-        doPostRequest(APPMGT_LIFECYCLE_ADD, generateMsgBody(msgBody));
+        doPostRequest(APPMGT_LIFECYCLE_ADD, msgBody);
     }
 
 }

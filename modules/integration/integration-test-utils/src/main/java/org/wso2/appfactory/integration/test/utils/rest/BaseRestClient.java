@@ -154,10 +154,11 @@ public class BaseRestClient {
      * Do post request to appfactory.
      *
      * @param urlSuffix url suffix from the block layer
-     * @param postBody  post body
+     * @param keyVal  post body
      * @return httpResponse
      */
-    public HttpResponse doPostRequest(String urlSuffix, String postBody) throws Exception {
+    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws Exception {
+        String postBody = generateMsgBody(keyVal);
         return HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + urlSuffix), postBody,
                                       getRequestHeaders());
 
