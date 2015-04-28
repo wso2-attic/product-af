@@ -26,7 +26,7 @@ import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestExcep
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
