@@ -31,8 +31,7 @@ import java.net.URL;
  * REST client for AppMgt
  * TODO: use {@link this#generateMsgBody(java.util.Map)} method to generate the message body
  */
-public class AppMgtRestClient extends BaseRestClient {
-
+public class ApplicationRestClient extends BaseRestClient {
 
 	/**
 	 * Construct authenticates REST client to invoke appmgt functions
@@ -42,7 +41,7 @@ public class AppMgtRestClient extends BaseRestClient {
 	 * @param password   password
 	 * @throws Exception
 	 */
-	public AppMgtRestClient(String backEndUrl, String username, String password) throws Exception {
+	public ApplicationRestClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
 	}
 
@@ -55,7 +54,7 @@ public class AppMgtRestClient extends BaseRestClient {
 	 */
 	public HttpResponse getAppInfo(String applicationKey) throws Exception {
 		HttpResponse response = HttpRequestUtil
-			.doPost(new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_APPLICATION_GET),
+			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_GET),
 					"action=getAppInfo&applicationKey=" + applicationKey, getRequestHeaders());
 
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
@@ -75,7 +74,7 @@ public class AppMgtRestClient extends BaseRestClient {
 	 */
 	public boolean isAppNameAlreadyAvailable(String applicationName) throws Exception {
 		HttpResponse response = HttpRequestUtil
-			.doPost(new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_APPLICATION_ADD),
+			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_ADD),
 					"action=isAppNameAlreadyAvailable&applicationName=" + applicationName, getRequestHeaders());
 
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
@@ -96,7 +95,7 @@ public class AppMgtRestClient extends BaseRestClient {
 	 */
 	public boolean isApplicationKeyAvailable(String applicationKey) throws Exception {
 		HttpResponse response = HttpRequestUtil
-			.doPost(new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_APPLICATION_ADD),
+			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_ADD),
 					"action=isApplicationKeyAvailable&applicationKey=" + applicationKey, getRequestHeaders());
 
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
@@ -121,7 +120,7 @@ public class AppMgtRestClient extends BaseRestClient {
 	public void createNewApplication(String applicationName, String applicationKey, String applicationType,
 									 String userName, String applicationDescription) throws Exception {
 		HttpResponse response = HttpRequestUtil
-			.doPost(new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_APPLICATION_ADD),
+			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_ADD),
 					"action=createNewApplication&applicationName=" + applicationName + "&applicationKey=" +
 					applicationKey + "&creation_method=create_application" + "&applicationType=" + applicationType +
 					"&uploadableAppType=Uploaded-App-Jax-WS" +
@@ -144,10 +143,10 @@ public class AppMgtRestClient extends BaseRestClient {
 	public HttpResponse publishUserActivity(String events) throws Exception {
 		HttpResponse response =
 			HttpRequestUtil.doPost(new URL(getBackEndUrl() +
-										   AFConstants.APPMGT_URL_SURFIX +
-										   AFConstants.EVENTS_PUBLISHING),
-								   "action=userActivity&events=" + events,
-								   getRequestHeaders());
+                                           APPMGT_URL_SURFIX +
+                                           EVENTS_PUBLISHING),
+                                   "action=userActivity&events=" + events,
+                                   getRequestHeaders());
 
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			// checkErrors(response);
