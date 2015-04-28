@@ -33,13 +33,7 @@ import java.util.Map;
 public class DatabaseRestClient extends BaseRestClient {
 
 	public DatabaseRestClient(String backEndUrl, String username, String password) throws Exception {
-		setBackEndUrl(backEndUrl);
-
-		if (getRequestHeaders().get(HEADER_CONTENT_TYPE) == null) {
-			getRequestHeaders().put(HEADER_CONTENT_TYPE, MEDIA_TYPE_X_WWW_FORM);
-		}
-
-	//	login(username, password);
+		super(backEndUrl, username, password);
 	}
 
 	public void createDatabaseAndAttachUser(String applicationKey, String dbName, String dbServerInstance,
@@ -54,24 +48,13 @@ public class DatabaseRestClient extends BaseRestClient {
 		msgBodyMap.put("isBasic", isBasic );
 		msgBodyMap.put("copyToAll", copyToAll);
 		msgBodyMap.put("createDatasource", createDatasource);
-	/*	HttpResponse httpResponse = getHttpResponse(msgBodyMap, new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + "resources/database/add/ajax/add.jag");
-
-		HttpResponse response = HttpRequestUtil
-				.doPost(),
-				        "action=createDatabaseAndAttachUser&applicationKey=" + applicationKey +
-				        "&databaseServerInstanceName" +
-				        "&customPassword" +
-				        "&isBasic" +
-				        "&copyToAll" +
-				        "&createDatasource"
-						, getRequestHeaders());
-
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 			return;
 		} else {
 			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
-		}*/
+		}
 	}
 
 	public void createDatabase(String appKey, String databaseName, String dbServerInstance) {
