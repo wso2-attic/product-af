@@ -1,5 +1,5 @@
-CREATE DATABASE CusotmerDB;
-USE CusotmerDB;
+#CREATE DATABASE CusotmerDB;
+#USE CusotmerDB;
 CREATE TABLE IF NOT EXISTS Customer (Name VARCHAR (20), Category VARCHAR (20), Region VARCHAR (20));
 INSERT INTO Customer(Name, Category, Region) VALUES ('Bank of Ceylon','Banking', 'Asia');
 INSERT INTO Customer(Name, Category, Region) VALUES ('Sun Travels','Travel', 'Europe');
