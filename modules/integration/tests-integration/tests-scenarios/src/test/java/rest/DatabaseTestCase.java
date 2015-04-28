@@ -17,9 +17,33 @@
 */
 package rest;
 
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTest;
+
 /**
- * Created by muthulee on 4/28/15.
+ * This tests all CRUD operations
  */
-public class AppVersionTest {
+public class DatabaseTestCase extends AppFactoryIntegrationTest {
+
+	private static final int HIVE_STUB_TIMEOUT = 60000;
+
+	@BeforeClass(alwaysRun = true)
+	public void setEnvironment() throws Exception {
+		initWithTenantAndApplicationCreation();
+	}
+
+
+	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })
+	@Test(description = "Testing create database")
+	public void testCreateDatabase() throws Exception {
+
+		//createDatabaseWithAttachedUsers
+
+
+	}
+
+
+
 
 }

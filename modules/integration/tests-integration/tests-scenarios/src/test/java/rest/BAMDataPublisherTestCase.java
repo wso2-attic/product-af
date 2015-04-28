@@ -15,7 +15,7 @@
 *specific language governing permissions and limitations
 *under the License.
 */
-package org.wso2.appfactory.tests.scenarios;
+package rest;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +41,9 @@ import org.wso2.carbon.analytics.hive.stub.HiveExecutionServiceStub;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
+/**
+ * Telemetry test case
+ */
 public class BAMDataPublisherTestCase extends AppFactoryIntegrationTest {
 	private static final int HIVE_STUB_TIMEOUT = 60000;
 
