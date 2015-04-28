@@ -251,7 +251,8 @@ public class DatabaseRestClient extends BaseRestClient {
 
 
 	/*
-	getDatabaseUsers
+	getDatabaseUsers written by hasithat
+
 			getDatabaseUsersForRssInstance
 	getAvailableUsersToAttachToDatabase
 			deleteUser
