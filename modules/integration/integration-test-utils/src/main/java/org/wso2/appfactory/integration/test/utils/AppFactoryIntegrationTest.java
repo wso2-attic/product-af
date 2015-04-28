@@ -15,6 +15,7 @@
  */
 package org.wso2.appfactory.integration.test.utils;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -23,7 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.appfactory.integration.admin.clients.TenantManagementServiceClient;
 import org.wso2.appfactory.integration.test.utils.bpel.CreateTenantBPELClient;
-import org.wso2.appfactory.integration.test.utils.rest.AppMgtRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.AppVersionRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
@@ -74,21 +76,14 @@ public class AppFactoryIntegrationTest {
      * Start test execution with super tenant login and create tenant with default values
      * specified in automation.xml
      *
-     * @throws LoginAuthenticationExceptionException
-     * @throws IOException
-     * @throws XPathExpressionException
-     * @throws URISyntaxException
-     * @throws SAXException
-     * @throws XMLStreamException
+     * @throws Exception
      */
-    protected void initWithTenantCreation()
-        throws LoginAuthenticationExceptionException, IOException, XPathExpressionException, URISyntaxException,
-               SAXException, XMLStreamException, TenantMgtAdminServiceExceptionException, InterruptedException {
+    protected void initWithTenantCreation() throws Exception {
         init();
         tenantInfoBean = createTenant(getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
                                       getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
                                       getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
-                                      getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+                                      getRandomTenantDomain(),
                                       getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
                                       getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
                                       getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
@@ -102,13 +97,49 @@ public class AppFactoryIntegrationTest {
      */
     protected void initWithTenantAndApplicationCreation() throws Exception {
         initWithTenantCreation();
-        createApplication(getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+        createApplication(getRandomTenantDomain(),
                           getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
                           getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
                           getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
                           getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                           getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
                           getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE));
+    }
+
+    /**
+     * Start test execution with super tenant login, create tenant and then application and three versions with
+     * default values specified in automation.xml
+     *
+     * @throws Exception
+     */
+    protected void initTenantApplicationAndVersionCreation() throws Exception {
+        initWithTenantCreation();
+        createApplication(getRandomTenantDomain(),
+                          getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
+                          getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
+                          getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
+                          getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                          getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
+                          getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE));
+        createApplicationVersion(getRandomTenantDomain(),
+                                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
+                                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_TARGET));
+        createApplicationVersion(getRandomTenantDomain(),
+                                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
+                                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_VERSION_TWO_SRC),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_VERSION_TWO_TARGET));
+        createApplicationVersion(getRandomTenantDomain(),
+                                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
+                                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_SRC),
+                                 getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));
+
     }
 
     /**
@@ -246,6 +277,25 @@ public class AppFactoryIntegrationTest {
     }
 
     /**
+     * Create a version
+     *
+     * @param applicationKey application key
+     * @param sourceVersion source version
+     * @param targetVersion target version
+     */
+    protected void createApplicationVersion(String tenantDomain, String admin, String adminPassword,
+                                            String applicationKey, String sourceVersion, String targetVersion)
+            throws Exception{
+        String tenantAdminUsername = getAdminUsername(admin, tenantDomain);
+
+        AppVersionRestClient appVersionRestClient =
+                new AppVersionRestClient(getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                          tenantAdminUsername, adminPassword);
+        appVersionRestClient.createVersion(applicationKey, sourceVersion, targetVersion);
+
+    }
+
+    /**
      * Create Application flow
      *
      * @param tenantDomain           tenant domain
@@ -263,8 +313,8 @@ public class AppFactoryIntegrationTest {
 
         String tenantAdminUsername = getAdminUsername(admin, tenantDomain);
 
-        AppMgtRestClient appMgtRestClient =
-            new AppMgtRestClient(getPropertyValue(AFConstants.URLS_APPFACTORY),
+        ApplicationRestClient appMgtRestClient =
+            new ApplicationRestClient(getPropertyValue(AFConstants.URLS_APPFACTORY),
                                  tenantAdminUsername, adminPassword);
 
         if (appMgtRestClient.isAppNameAlreadyAvailable(applicationName) &&
@@ -292,8 +342,8 @@ public class AppFactoryIntegrationTest {
     protected void waitUntilApplicationCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
                                                          String adminPassword, String applicationKey,
                                                          String applicationName) throws Exception {
-        AppMgtRestClient appMgtRestClient =
-            new AppMgtRestClient(getPropertyValue(AFConstants.URLS_APPFACTORY),
+        ApplicationRestClient appMgtRestClient =
+            new ApplicationRestClient(getPropertyValue(AFConstants.URLS_APPFACTORY),
                                  tenantAdminUsername, adminPassword);
 
         HttpResponse httpResponse = null;
@@ -366,6 +416,15 @@ public class AppFactoryIntegrationTest {
      */
     protected static String getAdminUsername(String admin, String tenantDomain) {
         return admin + "@" + tenantDomain;
+    }
+
+    /**
+     * Retrieve a custom tenant domain by appending a random value
+     * @return
+     * @throws XPathExpressionException
+     */
+    protected static String getRandomTenantDomain() throws XPathExpressionException {
+        return RandomStringUtils.randomAlphanumeric(5)+ getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
     }
 
     /**

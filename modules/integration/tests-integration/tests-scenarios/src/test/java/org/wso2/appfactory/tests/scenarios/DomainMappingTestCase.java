@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTest;
-import org.wso2.appfactory.integration.test.utils.rest.AppMgtRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
@@ -118,7 +118,7 @@ public class DomainMappingTestCase extends AppFactoryIntegrationTest {
      * @throws Exception
      */
     private HttpResponse getHttpResponse(Map<String, String> keyVal, String epSuffix) throws Exception {
-        AppMgtRestClient appMgtRestClient = new AppMgtRestClient(
+        ApplicationRestClient appMgtRestClient = new ApplicationRestClient(
                 getPropertyValue(AFConstants.URLS_APPFACTORY),
                 getAdminUsername(tenantInfoBean.getAdmin(), tenantInfoBean.getTenantDomain()),
                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
