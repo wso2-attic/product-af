@@ -37,6 +37,13 @@ import java.util.Map;
  */
 public class BaseRestClient {
 
+    protected static final String APPMGT_URL_SURFIX = "appmgt/site/blocks/";
+    protected static final String APPMGT_USER_LOGIN = "user/login/ajax/login.jag";
+    protected static final String APPMGT_APPLICATION_GET = "application/get/ajax/list.jag";
+    protected static final String APPMGT_APPLICATION_ADD = "application/add/ajax/add.jag";
+    protected static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
+    protected static final String APPMGT_LIFECYCLE_ADD= "lifecycle/add/ajax/add.jag";
+
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HEADER_COOKIE = "Cookie";
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -129,7 +136,7 @@ public class BaseRestClient {
      */
     protected void login(String userName, String password) throws Exception {
         HttpResponse response = HttpRequestUtil.doPost(
-                new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_USER_LOGIN),
+                new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_USER_LOGIN),
                 "action=login&userName=" + userName + "&password=" + password, getRequestHeaders());
 
         if (response.getResponseCode() == HttpStatus.SC_OK && response.getData().equals("true")) {
@@ -151,7 +158,7 @@ public class BaseRestClient {
      * @return httpResponse
      */
     public HttpResponse doPostRequest(String urlSuffix, String postBody) throws Exception {
-        return HttpRequestUtil.doPost(new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + urlSuffix), postBody,
+        return HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + urlSuffix), postBody,
                                       getRequestHeaders());
 
     }

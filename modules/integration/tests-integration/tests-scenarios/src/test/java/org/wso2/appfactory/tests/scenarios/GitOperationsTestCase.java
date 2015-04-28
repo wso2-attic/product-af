@@ -61,7 +61,7 @@ public class GitOperationsTestCase extends AppFactoryIntegrationTest {
 		GitAgent gitAgent = new JGitAgent();
 		client = new GitRepositoryClient(gitAgent);
 		client.init(getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" +
-		            getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+                    getRandomTenantDomain(),
 		            getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
 
 	}
@@ -72,7 +72,7 @@ public class GitOperationsTestCase extends AppFactoryIntegrationTest {
 		// working directory
 		File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
 		// construct repo url for default application
-		String repoURL = getRepoUrl(getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+		String repoURL = getRepoUrl(getRandomTenantDomain(),
 		                            getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
 		boolean result = client.retireveMetadata(repoURL, false, workDir);
 		Assert.assertEquals(result, true, "Failed to clone.");

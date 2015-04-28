@@ -543,7 +543,13 @@
                                     <xs:sequence>
                                         <xs:element type="xs:string" name="appFactory"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="prodStratosController"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="bps"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="git"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="bam"
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
                                 </xs:complexType>
@@ -579,6 +585,21 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="applicationDescription"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element name="versions">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="version" maxOccurs="unbounded" minOccurs="0">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element type="xs:string" name="sourceVersion"/>
+                                                                <xs:element type="xs:string" name="targetVersion"/>
+                                                            </xs:sequence>
+                                                            <xs:attribute type="xs:string" name="key" use="optional"/>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>

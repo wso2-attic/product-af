@@ -308,6 +308,20 @@
             <applicationKey>appla</applicationKey>
             <applicationType>war</applicationType>
             <applicationDescription>applicationDescription</applicationDescription>
+            <versions>
+                <version key="v1">
+                    <sourceVersion>trunk</sourceVersion>
+                    <targetVersion>1.0.0</targetVersion>
+                </version>
+                <version key="v2">
+                    <sourceVersion>trunk</sourceVersion>
+                    <targetVersion>2.0.0</targetVersion>
+                </version>
+                <version key="v3">
+                    <sourceVersion>trunk</sourceVersion>
+                    <targetVersion>3.0.0</targetVersion>
+                </version>
+            </versions>
         </defaultApplication>
 
         <domainMapping>

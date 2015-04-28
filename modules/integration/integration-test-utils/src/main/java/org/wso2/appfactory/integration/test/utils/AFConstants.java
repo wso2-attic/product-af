@@ -56,12 +56,23 @@ public class AFConstants {
 	public static final String DEFAULT_APP_REPO_TYPE =
 	                                                   "//appFactoryProperties/defaultApplication/repositoryType";
 
-	// Appmgt jag file paths
-	public static final String APPMGT_URL_SURFIX = "appmgt/site/blocks/";
-	public static final String APPMGT_USER_LOGIN = "user/login/ajax/login.jag";
-	public static final String APPMGT_APPLICATION_GET = "application/get/ajax/list.jag";
-	public static final String APPMGT_APPLICATION_ADD = "application/add/ajax/add.jag";
-	public static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
+    public static final String DEFAULT_APP_VERSION_ONE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
+                                                             "version/v1/sourceVersion";
+
+    public static final String DEFAULT_APP_VERSION_ONE_TARGET = "//appFactoryProperties/defaultApplication/versions/" +
+                                                                "version/v1/targetVersion";
+
+    public static final String DEFAULT_APP_VERSION_TWO_SRC = "//appFactoryProperties/defaultApplication/versions/" +
+                                                                "version/v2/sourceVersion";
+
+    public static final String DEFAULT_APP_VERSION_TWO_TARGET = "appFactoryProperties/defaultApplication/versions/" +
+                                                                "version/v2/targetVersion";
+
+    public static final String DEFAULT_APP_VERSION_THREE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
+                                                               "version/v3/sourceVersion";
+
+    public static final String DEFAULT_APP_VERSION_THREE_TARGET = "appFactoryProperties/defaultApplication/versions/" +
+                                                                  "version/v3/targetVersion";
 
 	// Security policy files in resources/security folder
 	public static final String SECURITY_POLICIES_SCENARIO1_POLICY_XML =
