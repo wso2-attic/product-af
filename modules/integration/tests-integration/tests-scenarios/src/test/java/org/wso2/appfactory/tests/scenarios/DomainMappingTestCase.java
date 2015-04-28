@@ -122,7 +122,7 @@ public class DomainMappingTestCase extends AppFactoryIntegrationTest {
                 getPropertyValue(AFConstants.URLS_APPFACTORY),
                 getAdminUsername(tenantInfoBean.getAdmin(), tenantInfoBean.getTenantDomain()),
                 getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
-        return appMgtRestClient.doPostRequest(epSuffix, appMgtRestClient.generateMsgBody(keyVal));
+        return appMgtRestClient.doPostRequest(epSuffix, keyVal);
     }
 
     /**
