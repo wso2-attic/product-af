@@ -57,33 +57,200 @@ public class DatabaseRestClient extends BaseRestClient {
 		}
 	}
 
-	public void createDatabase(String appKey, String databaseName, String dbServerInstance) {
+	public void createDatabase(String applicationKey, String databaseName, String dbServerInstance) throws Exception{
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "createDatabaseAndAttachUser");
+		msgBodyMap.put("applicationKey", applicationKey);
+        msgBodyMap.put("databaseName", databaseName);
+		msgBodyMap.put("databaseServerInstanceName", dbServerInstance);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return;
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+	}
+
+	public String[] getDatabases(String applicationKey) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getDatabases");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return new String[0];
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+	}
+
+
+	public String[] getDatabasesInfoForStages(String applicationKey, String stage) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getDatabasesInfoForStages");
+		msgBodyMap.put("applicationKey", applicationKey);
+		msgBodyMap.put("stage", stage);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return new String[0];
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+	}
+
+	public String[] getDbUserTemplateInfoForStages(String applicationKey) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getDbUserTemplateInfoForStages");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return new String[0];
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
 
 	}
+
+
+
+	public String[] getCreatableRSSinstances(String applicationKey) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getCreatableRSSinstances");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return new String[0];
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+
+	}
+
+	public String[] getRSSinstances(String applicationKey)  throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getRSSinstances");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return new String[0];
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+
+	}
+
+	public String[] getAttachedUsers(String applicationKey, String databaseName, String stage)  throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getAttachedUsers");
+		msgBodyMap.put("applicationKey", applicationKey);
+		msgBodyMap.put("dbname", databaseName);
+		msgBodyMap.put("rssInstance", stage);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+			return new String[0];
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+	}
+
+	public void attachNewUser(String applicationKey, String databaseName, String stage, String users, String templates)  throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "attachNewUser");
+		msgBodyMap.put("applicationKey", applicationKey);
+		msgBodyMap.put("databaseName", databaseName);
+		msgBodyMap.put("dbServerInstanceName", stage);
+		msgBodyMap.put("users", users);
+		msgBodyMap.put("templates", templates);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+
+	}
+	public void detachUser(String applicationKey, String databaseName, String stage, String username)  throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "detachUser");
+		msgBodyMap.put("applicationKey", applicationKey);
+		msgBodyMap.put("databaseName", databaseName);
+		msgBodyMap.put("dbServerInstanceName", stage);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+	}
+
+
+	public String getUserPrivileges(String applicationKey, String databaseName, String stage, String username) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getUserPrivileges");
+		msgBodyMap.put("applicationKey", applicationKey);
+		msgBodyMap.put("dbname", databaseName);
+		msgBodyMap.put("rssInstanceName", stage);
+		msgBodyMap.put("username", username);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+		return "";
+	}
+
+	public void editUserPermissions() {
+
+	}
+
+	public String[] getAllDatabasesInfo(String applicationKey) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getUserPrivileges");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/add/ajax/add.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+		return new String[1];
+
+	}
+
+	public void dropDatabase(String applicationKey) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "dropDatabase");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/drop/ajax/drop.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+	}
+
+	public String[] getTemplates(String applicationKey) throws Exception {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put("action", "getTemplates");
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest("resources/database/templates/ajax/list.jag", msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
+		} else {
+			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+		}
+		return new String[0];
+	}
+
 
 	/*
-	public String[] getDatabases(String appKey) {
-
-	}
-
-
-	public String[] getDatabasesInfoForStages(String appKey, String stage) {
-
-	}
-
-	getDbUserTemplateInfoForStages
-			getAttachedUsers
-	attachNewUser
-			detachUser
-	getUserPrivileges
-			editUserPermissions
-	getAllDatabasesInfo
-			dropDatabase
-	getTemplates
-	*/
-
-	/*
-
 	getDatabaseUsers
 			getDatabaseUsersForRssInstance
 	getAvailableUsersToAttachToDatabase

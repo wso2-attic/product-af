@@ -40,6 +40,10 @@ public class DatabaseTestCase extends AppFactoryIntegrationTest {
 	@Test(description = "Testing create database")
 	public void testCreateDatabase() throws Exception {
 
+
+		//String[]  dbs = getDatabases
+		
+
 		//createDatabaseWithAttachedUsers
 
 
