@@ -59,29 +59,6 @@ public class AppMgtRestClient extends BaseRestClient {
 	}
 
 	/**
-	 * login to app mgt
-	 *
-	 * @param userName username
-	 * @param password password
-	 * @throws Exception
-	 */
-	private void login(String userName, String password) throws Exception {
-		HttpResponse response = HttpRequestUtil.doPost(
-			new URL(getBackEndUrl() + AFConstants.APPMGT_URL_SURFIX + AFConstants.APPMGT_USER_LOGIN),
-			"action=login&userName=" + userName + "&password=" + password, getRequestHeaders());
-
-		if (response.getResponseCode() == HttpStatus.SC_OK && response.getData().equals("true")) {
-			String session = getSession(response.getHeaders());
-			if (session == null) {
-				throw new AppFactoryIntegrationTestException("No session cookie found with response");
-			}
-			setSession(session);
-		} else {
-			throw new AppFactoryIntegrationTestException("Login failed " + response.getData());
-		}
-	}
-
-	/**
 	 * Get app info
 	 *
 	 * @param applicationKey application key

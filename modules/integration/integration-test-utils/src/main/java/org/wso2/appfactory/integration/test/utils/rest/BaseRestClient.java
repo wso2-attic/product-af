@@ -15,10 +15,13 @@
  */
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONObject;
+import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,4 +94,5 @@ public class BaseRestClient {
                 "Operation not successful: " + jsonObject.get("message").toString());
         }
     }
+
 }
