@@ -35,7 +35,7 @@ public class AFIntegrationTestUtils {
     public static String getRandomTenantDomain() throws XPathExpressionException {
         if(tenantDomain == null){
             synchronized (AFIntegrationTestUtils.class) {
-                if (context == null) {
+                if (tenantDomain == null) {
                     tenantDomain = RandomStringUtils.randomAlphanumeric(5) +
                                    getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
                 }
