@@ -49,9 +49,11 @@ removeUserFromApplication=function removeUserFromApplication (applicationKey,use
         return isDeleted;
 
     } catch (e) {
-        log.error("Error while removing the user " + e.message);
-        throw "Error while getting application of user";
-    } finally{
+        log.error("Error while removing the users : " + users + " from the application : " + applicationKey
+                  + " of tenant : " + tenantDomain);
+        log.error(e);
+        throw e;
+    } finally {
         context.endTenantFlow();
     }
 
@@ -94,8 +96,9 @@ updateRolesOfUserForApplication=function updateUserOfApplication (applicationKey
 		var element = result.ns::["return"];
 		return element;
 	} catch (e) {
-		log.error("Error while updating the user " + e.message);
-		throw "Error while updating the user of user";
+        log.error("Error while updating user roles of user : " + userName + " for application : " + applicationKey);
+        log.error(e);
+        throw e;
 	}
 };
 

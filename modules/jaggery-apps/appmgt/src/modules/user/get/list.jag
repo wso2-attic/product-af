@@ -56,11 +56,9 @@ function login(userName, password){
 		}
 		return stringify(finalResult);
 	} catch(e){
+		log.error("Error while authenticating user : " + userName);
 		log.error(e);
-		log.error("Error while authenticating user: "+userName);
-		finalResult.error="true";
-		finalResult.message="Internal Error Occured";
-		return stringify(finalResult);
+		throw e;
 	}
 }
 
@@ -107,8 +105,9 @@ function validateUser(userName){
     	result = result.ns::["return"].text();
 
     } catch (e) {
-    	log.error("Error when validating"+e.toString());
-    	return e.toString();
+		log.error("Error when validating user : " + userName);
+		log.error(e);
+		throw e;
     }
 
     return result;
@@ -128,7 +127,9 @@ function getUserConfirmationObject(secreteKey) {
         confirmationObject.confirmationKey=data.confirmationKey.text();
         return confirmationObject;
     } catch(e) {
-        throw "Error while getting confirmation object";
+		log.error("Error while getting user confirmation object.");
+		log.error(e);
+		throw e;
     }
 }
 
@@ -165,8 +166,9 @@ function getAllUsersHavingName(userName) {
     	userNames.usernames=elementsArray;
     	return userNames; 
     } catch (e) {
-    	log.error("Error while getting application of user" + e.message);
-    	throw "Error while getting application of user";
+		log.error("Error while getting all users having name : " + userName);
+		log.error(e);
+		throw e;
     }
 }
 
@@ -209,8 +211,9 @@ function getAllRolesOfUser(userName) {
     	userRoles.userRoles=elementsArray;
     	return userRoles;
     } catch (e) {
-    	log.error("Error while getting roles of user" + e.message);
-    	throw "Error while getting roles of user";
+		log.error("Error while getting all roles of user : " + userName);
+		log.error(e);
+		throw e;
     }
 }
 
@@ -237,8 +240,9 @@ function getConfirmationObject(secreteKey) {
     	}
     	return result;
     } catch (e) {
-    	log.error("Email varification failed \n" + e.message);
-    	throw "Email varification failed";
+		log.error("Error while getting confirmation object at email verification.");
+		log.error(e);
+		throw e;
     }
 }
 
@@ -266,8 +270,9 @@ function getUserInfoBean(userName) {
         return Resuser;
 
     } catch (e) {
-    	log.error("Error while getting application of user" + e.message);
-    	throw "Error while getting application of user";
+		log.error("Error while getting user info bean for user : " + userName);
+		log.error(e);
+		throw e;
     }
 }
 

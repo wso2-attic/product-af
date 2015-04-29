@@ -41,16 +41,6 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         //We do nothing here. But when we send the stage as a parameter for this, the above if condition will get hit
         //And it will update the session with the correct info.
         //Therefore don't remove this method
-    }else if (action == "deployToStage") {
-    	mod = jagg.module("lifecycle");
-    	
-    	var applicationKey = request.getParameter("applicationKey");
-    	var revision = request.getParameter("revision");
-    	var version = request.getParameter("version");
-    	var stageName = request.getParameter("stageName");
-    	var build = request.getParameter("build");
-    	
-        return mod.invokeDeployToStage(applicationKey,revision,version,stageName,build);
     } else if(action == "directdeploy") {
     	mod = jagg.module("lifecycle");
     	
@@ -307,31 +297,17 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         }
 
 
-    }else if ( action == "getLifecycleAction"){
-        mod = jagg.module("lifecycle");
-        var applicationKey = request.getParameter("applicationKey");
-        var stageName = request.getParameter("stageName");
-        var version = request.getParameter("version");
-        var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/'  + version;
-
-        try {
-            var deployedArtifact = mod.getLifecycleAction(path);
-            print(deployedArtifact);
-        } catch (e) {
-            throw new Error(e.message);
-        }
-
-    }else if(action == "uploadNewVersionOfExistingApp"){
+    } else if(action == "uploadNewVersionOfExistingApp"){
     	var applicationMod = jagg.module("application");
     	var lifecycleMod = jagg.module("lifecycle");
     	
     	var existingVersion = request.getParameter("latestVersion");//existing latest version
     	var major=Number(existingVersion.split(".")[0]);
     	var newMajor=++major;
-	var newVersion=newMajor+".0.0";
+	    var newVersion=newMajor+".0.0";
         var lifecycleName = request.getParameter("lifecycleName");
 
-	applicationKey = request.getParameter("applicationKey");
+	    applicationKey = request.getParameter("applicationKey");
     	var userName = request.getParameter("userName");
     	var srcVersion = "trunk";
         var targetVersion = newVersion;

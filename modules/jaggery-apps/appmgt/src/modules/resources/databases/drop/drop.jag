@@ -34,16 +34,16 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 	var ws = require('ws');
 
 	var dropDatabaseService = new ws.WSRequest();
-	var options = new Array();	
+	var options = new Array();
 	options.useSOAP = 1.2;
 	options.action = "urn:removeDatabase";
 	options.mep = "in-only";
-	
+
 	var payload ='<ser:removeDatabase  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">'+
 	'<ser:environmentName>' + databaseServerInstanceName + '</ser:environmentName>' +
 	'<ser:rssInstanceName>' + wso2_rss_instanceName + '</ser:rssInstanceName>' +
 	'<ser:databaseName>'+databaseName+'</ser:databaseName></ser:removeDatabase>';
-	
+
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
 	modManager.setAuthHeaders(options);
     var correlationKey = applicationKey + "-" + stage + "-database-" + databaseName;
@@ -57,7 +57,10 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
             var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey,loggedInUser, notificationTitle, "", correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending delete database success notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending delete database success notification of database : " + databaseName
+					  + " in stage : " + stage + " of application : " + applicationKey);
+			log.error(e);
         }
 
 	} catch (e) {
@@ -66,11 +69,15 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
             var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending delete database failure notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending delete database failure notification of database : " + databaseName
+					  + " in stage : " + stage + " of application : " + applicationKey);
+			log.error(e);
         }
-
-		log.error("Error while dropping database \n" + e.message);
-		throw "Error while dropping database";
+		log.error("Error while dropping database : " + databaseName + " in stage : " + stage + " application : "
+				  + applicationKey);
+		log.error(e);
+		throw e;
 	}
 
 };

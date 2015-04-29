@@ -220,11 +220,13 @@ function isAppOwner() {
                         						'<div>'+
                     							  '<div class="af_container">'+
                             							'<div class="af_row">'+
+                            							    <%if(outputs.hasCreateResourcePermissions){%>
                                 							'<div class="col-3">'+
                                     							'<div class="list_col_content"  id="btnItem">'+
                                         								'<a id="enterpriseAPIButton" class="btn main" href="'+url+'" target="_blank""><%=apiManagerButton%></a>'+
                                     							 '</div>'+
                                 							'</div>'+
+                                							<%}%>
                                 							'</div>'+
                             						'<div>'+
                        						 '</div>'+

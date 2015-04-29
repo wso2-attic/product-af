@@ -87,8 +87,9 @@ var getUsersofTenant = function getUsersofTenant() {
     		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
     	}
     } catch (e) {
-    	log.error("Error while adding user to tenant \n"+e.message);
-    	throw "Error while adding user to application";
+        log.error("Error while retrieving users of tenant.");
+        log.error(e);
+        throw e;
     }
     return resultUsers ;
 };
@@ -140,8 +141,9 @@ var getUserInfo = function getUserInfo(userName) {
     	}
     	 }
     catch (e) {
-    	log.error("Error while retrieving user info for"+userName);
-		throw e;
+        log.error("Error while retrieving info of user : " + userName);
+        log.error(e);
+        throw e;
     }
     return tmpUser;
 };
@@ -159,8 +161,10 @@ var isFirstLogin=function(){
         var claimValue=userStoreManager.getUserClaimValue(user,FIRST_LOGIN_CLAIM,null);
         return claimValue;
     }catch (e){
-        log.error("Error occured while checking first login status");
-        throw "Error occured while checking first login status"
+        log.error("Error occurred while checking first login status of user : " + user + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
     }
 }
 
@@ -173,7 +177,7 @@ var getApplicatioinKeysOfUser=function(userName){
           context.startTenantFlow();
           context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
           context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-          appsOfUser = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').getApplicationKeysOfUser(userName);
+          appsOfUser = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getApplicationKeysOfUser(userName);
        }finally{
           context.endTenantFlow();
        }

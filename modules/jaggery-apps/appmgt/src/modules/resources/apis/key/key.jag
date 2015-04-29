@@ -56,8 +56,10 @@ var getSavedKeys = function (applicationId, userName, isSync, envKeyConstants) {
 		var mainDictionary = createDataStructure(keys);
 		write(mainDictionary[API_MANAGER_PROD], mainDictionary[API_MANAGER_SANDBOX], applicationId);
 	}catch(e){
-		log.error("Error while retrieving saved keys for " + applicationKey + "\n" + e.message);
-		throw "Error while retrieving saved keys for " + applicationKey;
+		log.error("Error while retrieving saved keys for application id : " + applicationId + " of tenant domain : "
+				  + tenantDomain);
+		log.error(e);
+		throw e;
 	}finally {
 		context.endTenantFlow();
 	}
@@ -69,13 +71,17 @@ var write = function (prodDictionary, sandboxDictionary, applicationId) {
 	try{
 		resManager.putResourcesForCollectionInStages(sandboxDictionary,"","",applicationId,getProperties(SANDBOX_KEYS_PROPERTY));
 	}catch (e) {
-		log.error("Error while saving sandbox keys for " + applicationId + "\n" + e.message);
+		log.error("Error while saving sandbox keys : " + sandboxDictionary + " for application id : " + applicationId);
+		log.error(e);
+		throw e;
 	}
 
 	try{
 		resManager.putResourcesForCollectionInStages(prodDictionary,"","",applicationId,getProperties(PRODUCTION_KEYS_PROPERTY));
 	}catch (e) {
-		log.error("Error while saving production keys for " + applicationId + "\n" + e.message);
+		log.error("Error while saving production keys : " + prodDictionary + "for application id : " + applicationId);
+		log.error(e);
+		throw e;
 	}
 
 };
@@ -87,8 +93,9 @@ var writeToRegistry = function(envs, dictonary, appId){
 			resManager.updatePropertyInStages(elm.name, elm.value, "", "", appId, envs);
 		}
 	} catch (e) {
-		log.error("Error while saving " + elm.name + " in registry \n" + e.message);
-		throw "Error while saving " + elm.name + " in registry \n";
+		log.error("Error while writing to registry for application id : " + appId);
+		log.error(e);
+		throw e;
 	}
 };
 
@@ -107,8 +114,10 @@ var readFromRegistry = function (applicationId , envKeyConstants) {
 			try {
 				keyValue = resManager.getPropertyValueInStage(commonKeyName, applicationId, stage);
 			} catch (e) {
-				log.error("Error while retriving saved keys \n" + e.message);
-				continue;
+				//we don't throw error here, since throwing will break the for loop.
+				log.error("Error occurred while retrieving saved key : " + keyName + " from registry for "
+						  + "application id : " + applicationId + " in stage : " + stage);
+				log.error(e);
 			}
 			mainDictionary[keyName] = keyValue;
 		}
@@ -184,8 +193,9 @@ var keysExistsAllInStages = function (applicationId, envKeyConstants) {
 			}
 		}
 	} catch (e) {
-		log.error("Error while retriving saved keys from registry path " + registryPath + "\n" + e.message);
-		throw "Error while retriving saved keys from registry path " + registryPath + "\n";
+		log.error("Error while checking the existence of all keys in registry for application id : " + applicationId);
+		log.error(e);
+		throw e;
 	}
 	return true;
 };

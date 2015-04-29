@@ -50,7 +50,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return;
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -65,7 +65,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return;
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -78,7 +78,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -93,7 +93,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -106,7 +106,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 
 	}
@@ -136,7 +136,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 
 	}
@@ -152,7 +152,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -168,7 +168,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 
 	}
@@ -182,7 +182,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -198,7 +198,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 		return "";
 	}
@@ -215,7 +215,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 		return new String[1];
 
@@ -229,7 +229,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -241,7 +241,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 		return new String[0];
 	}
@@ -262,7 +262,7 @@ public class DatabaseRestClient extends BaseRestClient {
             //TODO
             return;
         } else {
-            throw new AFIntegrationTestException("Get database users failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
     }
 
@@ -277,7 +277,7 @@ public class DatabaseRestClient extends BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AFIntegrationTestException("Create database user failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
     }
 
@@ -301,7 +301,7 @@ public class DatabaseRestClient extends BaseRestClient {
             //TODO
             return;
         } else {
-            throw new AFIntegrationTestException("Get available users to attach to database failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
 
     }
@@ -326,7 +326,7 @@ public class DatabaseRestClient extends BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AFIntegrationTestException("Create database user failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
 
     }
@@ -353,7 +353,7 @@ public class DatabaseRestClient extends BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AFIntegrationTestException("Create database user failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
     }
 

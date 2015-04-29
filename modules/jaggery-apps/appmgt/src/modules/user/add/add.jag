@@ -36,6 +36,7 @@ function createUser(newUserName, password, email, firstName, lastName, sendEmail
 
     var payload = '<p:UserCreationProcessRequest xmlns:p="http://wso2.org"><userName xmlns="http://wso2.org">' + newUserName + '</userName><password xmlns="http://wso2.org">' + password + '</password><email xmlns="http://wso2.org">' + email + '</email><firstName xmlns="http://wso2.org">' + firstName + '</firstName><lastName xmlns="http://wso2.org">' + lastName + '</lastName><sendEmail xmlns="http://wso2.org">' + sendEmail + '</sendEmail></p:UserCreationProcessRequest>';
     var result;
+	var tenantDomain = modManager.getTenantDomain();
     try {
     	var endPoint = getProperty(BPS_SERVER_URL) + "UserCreationProcess";
     	request.open(options, endPoint, false);
@@ -45,8 +46,9 @@ function createUser(newUserName, password, email, firstName, lastName, sendEmail
     		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
     	}
     } catch (e) {
-    	log.error("Error while creating the user account \n" + e.message);
-    	throw "Error while creating the user account";
+		log.error("Error while creating new user : " + newUserName + " in tenant domain : " + tenantDomain);
+		log.error(e);
+		throw e;
     }
     return result;
 }
@@ -59,7 +61,7 @@ function invokeUserActivationProcess(userName, email, confirmationKey) {
     options.action = "http://wso2.org/process";
     var payload = '<UserActivationProcessRequest xmlns="http://wso2.org"><userName xmlns="http://wso2.org">' + userName + '</userName><email xmlns="http://wso2.org">' + email + '</email><confirmationKey xmlns="http://wso2.org">' + confirmationKey + '</confirmationKey></UserActivationProcessRequest>';
     var result;
-
+	var tenantDomain = modManager.getTenantDomain();
     try {
     	var endPoint = getProperty(BPS_SERVER_URL) + "UserActivationProcess";
     	UserActivationProcess.open(options, endPoint, false);
@@ -70,8 +72,9 @@ function invokeUserActivationProcess(userName, email, confirmationKey) {
     	}
     	return result;
     } catch (e) {
-    	log.error("Error while activating user \n" + e.message);
-    	throw "Error while activating user";
+		log.error("Error while activating user : " + userName + " of tenant domain : " + tenantDomain);
+		log.error(e);
+		throw e;
     }
 }
 
@@ -89,14 +92,15 @@ function pushGitHubUserName(userName,gitUserName){
 	var payload = '<ser:addUserClaims xmlns:ser="http://service.userstore.appfactory.carbon.wso2.org" xmlns:xsd="http://api.user.carbon.wso2.org/xsd"><ser:username>'+userName+'</ser:username><ser:claims><xsd:claimUri>http://wso2.org/github_account_name</xsd:claimUri><xsd:value>'+gitUserName+'</xsd:value></ser:claims></ser:addUserClaims>';
 	var result;
 	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "UserClaimStoreService";
-
+	var tenantDomain = modManager.getTenantDomain();
 	try {
 		version.open(options,endPoint, false);
 		version.send(payload);
 		result = version.responseE4X;
 	} catch (e) {
-		log.error(e.toString());
-		return e.toString();
+		log.error("Error while saving GitHub username for user : " + userName + " of tenant domain : " + tenantDomain);
+		log.error(e);
+		throw e;
 	}
 	return result;
 }
