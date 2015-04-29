@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.rmi.RemoteException;
 
 /**
@@ -29,6 +30,19 @@ public class AFIntegrationTest {
 
     private static final Log log = LogFactory.getLog(AFIntegrationTest.class);
 
+    protected String defaultAdmin;
+    protected String defaultAdminPassword;
+    protected String defaultAppKey;
+    protected String AFserverUrl;
+
+    public AFIntegrationTest() {
+        defaultAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) +
+                       "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
+
+        defaultAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+        defaultAppKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
+        AFserverUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
+    }
     /**
      * Clean up the changes
      */
@@ -52,6 +66,12 @@ public class AFIntegrationTest {
         AuthenticatorClient client = new AuthenticatorClient(backendUrl + "services/");
         return client.login(username, password, host);
     }
+
+    public String getAdminUsername() throws XPathExpressionException {
+        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) +
+               "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
+    }
+
 
 }
 

@@ -51,8 +51,12 @@ public class AFIntegrationTestUtils {
      * @return value
      * @throws XPathExpressionException
      */
-    public static String getPropertyValue(String xPath) throws XPathExpressionException {
-        return context.getConfigurationValue(xPath);
+    public static String getPropertyValue(String xPath) throws IllegalArgumentException {
+        try {
+            return context.getConfigurationValue(xPath);
+        } catch (XPathExpressionException e) {
+            throw new IllegalArgumentException("Error reading " + xPath, e);
+        }
     }
 
     /**
@@ -87,4 +91,11 @@ public class AFIntegrationTestUtils {
         return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" + tenantDomain;
     }
 
+    public static String getAdminPassword() throws XPathExpressionException {
+        return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+    }
+
+    public static String getBEServerURL() throws XPathExpressionException {
+        return getPropertyValue(AFConstants.URLS_APPFACTORY);
+    }
 }
