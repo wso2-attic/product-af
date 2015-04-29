@@ -9,25 +9,20 @@ import org.wso2.carbon.automation.engine.context.TestUserMode;
 import javax.xml.xpath.XPathExpressionException;
 
 /**
- * Created by punnadi on 4/29/15.
+ * Utility methods
  */
 public class AFIntegrationTestUtils {
     private static AFIntegrationTestUtils appFactoryIntegrationTestUtils;
     private static AutomationContext context;
     private static String tenantDomain;
 
-    private AFIntegrationTestUtils() {}
-
-    public static AFIntegrationTestUtils getInstance() {
-        if(appFactoryIntegrationTestUtils == null){
-            appFactoryIntegrationTestUtils = new AFIntegrationTestUtils();
-        }
-        return appFactoryIntegrationTestUtils;
-    }
-
-    public AutomationContext getAutomationContext() throws XPathExpressionException {
+    public static AutomationContext getAutomationContext() throws XPathExpressionException {
         if(context == null) {
-            context = new AutomationContext(AFConstants.AF_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
+            synchronized (AFIntegrationTestUtils.class) {
+                if(context == null) {
+                context = new AutomationContext(AFConstants.AF_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
+                }
+            }
         }
         return context;
     }
@@ -37,10 +32,14 @@ public class AFIntegrationTestUtils {
      * @return
      * @throws XPathExpressionException
      */
-    public String getRandomTenantDomain() throws XPathExpressionException {
+    public static String getRandomTenantDomain() throws XPathExpressionException {
         if(tenantDomain == null){
-            tenantDomain = RandomStringUtils.randomAlphanumeric(5) +
-                           getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
+            synchronized (AFIntegrationTestUtils.class) {
+                if (context == null) {
+                    tenantDomain = RandomStringUtils.randomAlphanumeric(5) +
+                                   getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
+                }
+            }
         }
         return  tenantDomain;
     }
@@ -52,7 +51,7 @@ public class AFIntegrationTestUtils {
      * @return value
      * @throws XPathExpressionException
      */
-    public String getPropertyValue(String xPath) throws XPathExpressionException {
+    public static String getPropertyValue(String xPath) throws XPathExpressionException {
         return context.getConfigurationValue(xPath);
     }
 
@@ -74,7 +73,7 @@ public class AFIntegrationTestUtils {
      * @return node list
      * @throws XPathExpressionException
      */
-    public NodeList getPropertyNodeList(String xPath) throws XPathExpressionException {
+    public static NodeList getPropertyNodeList(String xPath) throws XPathExpressionException {
         return context.getConfigurationNodeList(xPath);
     }
 
@@ -84,7 +83,7 @@ public class AFIntegrationTestUtils {
      *
      * @return tenant admin username
      */
-    public String getAdminUsername() throws XPathExpressionException {
+    public static String getAdminUsername() throws XPathExpressionException {
         return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" + tenantDomain;
     }
 

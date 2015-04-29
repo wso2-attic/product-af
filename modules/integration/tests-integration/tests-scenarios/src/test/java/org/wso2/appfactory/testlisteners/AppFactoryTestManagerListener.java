@@ -8,7 +8,7 @@ import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.carbon.automation.engine.testlisteners.TestManagerListener;
 
 /**
- * Created by punnadi on 4/29/15.
+ * Does the initial appfactory related data population
  */
 public class AppFactoryTestManagerListener extends TestManagerListener{
     private static final Log log = LogFactory.getLog(AppFactoryTestManagerListener.class);

@@ -22,6 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
@@ -57,7 +58,7 @@ public class DomainMappingTestCase extends AFIntegrationTest {
         String newUrl = generateCustomUrl(NEW_URL_STEM);
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_ADD_NEW_CUSTOM_URL);
-        msgBodyMap.put(REQUEST_KEY_APPKEY, utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         msgBodyMap.put(REQUEST_KEY_NEW_URL, newUrl);
         HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_ADD_NEW_CUSTOM_URL);
         Assert.assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_OK,
@@ -70,7 +71,7 @@ public class DomainMappingTestCase extends AFIntegrationTest {
         String newUrl = generateCustomUrl(NEW_URL_STEM);
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_UPDATE_UNMAPPED_CUSTOM_URL);
-        msgBodyMap.put(REQUEST_KEY_APPKEY, utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         msgBodyMap.put(REQUEST_KEY_NEW_URL, newUrl);
         try {
             HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_UPDATE_CUSTOM_URL);
@@ -89,7 +90,7 @@ public class DomainMappingTestCase extends AFIntegrationTest {
         String newUrl = generateCustomUrl(UPDATED_URL_STEM);
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_UPDATE_UNMAPPED_CUSTOM_URL);
-        msgBodyMap.put(REQUEST_KEY_APPKEY, utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         msgBodyMap.put(REQUEST_KEY_NEW_URL, newUrl);
         HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_UPDATE_CUSTOM_URL);
         Assert.assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_OK,
@@ -102,7 +103,7 @@ public class DomainMappingTestCase extends AFIntegrationTest {
     public void removeCustomUrlTest() throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_REMOVE_CUSTOM_URL);
-        msgBodyMap.put(REQUEST_KEY_APPKEY, utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_UPDATE_CUSTOM_URL);
         Assert.assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_OK,
                             "Removing custom url is not success.");
@@ -118,9 +119,9 @@ public class DomainMappingTestCase extends AFIntegrationTest {
      */
     private HttpResponse getHttpResponse(Map<String, String> keyVal, String epSuffix) throws Exception {
         ApplicationRestClient appMgtRestClient = new ApplicationRestClient(
-                utils.getPropertyValue(AFConstants.URLS_APPFACTORY),
-                utils.getAdminUsername(),
-                utils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                AFIntegrationTestUtils.getAdminUsername(),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
         return appMgtRestClient.doPostRequest(epSuffix, keyVal);
     }
 
@@ -133,8 +134,8 @@ public class DomainMappingTestCase extends AFIntegrationTest {
      * @throws XPathExpressionException
      */
     private String generateCustomUrl(String stem) throws XPathExpressionException {
-        return utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY) + SUB_DOMAIN_SEPARATOR + stem +
-               SUB_DOMAIN_SEPARATOR + utils.getPropertyValue(AFConstants.DOMAIN_MAPPING_DEFAULT_HOST);
+        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY) + SUB_DOMAIN_SEPARATOR + stem +
+               SUB_DOMAIN_SEPARATOR + AFIntegrationTestUtils.getPropertyValue(AFConstants.DOMAIN_MAPPING_DEFAULT_HOST);
     }
 
 }
