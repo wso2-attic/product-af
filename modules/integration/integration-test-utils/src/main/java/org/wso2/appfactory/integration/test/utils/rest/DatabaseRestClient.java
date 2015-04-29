@@ -21,12 +21,9 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
-import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +50,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return;
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -68,7 +65,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return;
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -81,7 +78,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -96,7 +93,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -109,7 +106,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 
 	}
@@ -125,7 +122,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 
 	}
@@ -139,7 +136,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 
 	}
@@ -155,7 +152,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -171,7 +168,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 
 	}
@@ -185,7 +182,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -201,7 +198,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 		return "";
 	}
@@ -218,7 +215,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 		return new String[1];
 
@@ -232,7 +229,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -244,7 +241,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 		return new String[0];
 	}
@@ -265,7 +262,7 @@ public class DatabaseRestClient extends BaseRestClient {
             //TODO
             return;
         } else {
-            throw new AppFactoryIntegrationTestException("Get database users failed " + response.getData());
+            throw new AFIntegrationTestException("Get database users failed " + response.getData());
         }
     }
 
@@ -280,7 +277,7 @@ public class DatabaseRestClient extends BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AppFactoryIntegrationTestException("Create database user failed " + response.getData());
+            throw new AFIntegrationTestException("Create database user failed " + response.getData());
         }
     }
 
@@ -304,7 +301,7 @@ public class DatabaseRestClient extends BaseRestClient {
             //TODO
             return;
         } else {
-            throw new AppFactoryIntegrationTestException("Get available users to attach to database failed " + response.getData());
+            throw new AFIntegrationTestException("Get available users to attach to database failed " + response.getData());
         }
 
     }
@@ -329,7 +326,7 @@ public class DatabaseRestClient extends BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AppFactoryIntegrationTestException("Create database user failed " + response.getData());
+            throw new AFIntegrationTestException("Create database user failed " + response.getData());
         }
 
     }
@@ -356,7 +353,7 @@ public class DatabaseRestClient extends BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AppFactoryIntegrationTestException("Create database user failed " + response.getData());
+            throw new AFIntegrationTestException("Create database user failed " + response.getData());
         }
     }
 

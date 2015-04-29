@@ -20,8 +20,7 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONObject;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
@@ -61,7 +60,7 @@ public class ApplicationRestClient extends BaseRestClient {
 			checkErrors(response);
 			return response;
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
@@ -82,7 +81,7 @@ public class ApplicationRestClient extends BaseRestClient {
 			JSONObject jsonObject = new JSONObject(response.getData());
 			return Boolean.parseBoolean(jsonObject.getString("isAvailable"));
 		} else {
-			throw new AppFactoryIntegrationTestException("IsAppNameAlreadyAvailable failed " + response.getData());
+			throw new AFIntegrationTestException("IsAppNameAlreadyAvailable failed " + response.getData());
 		}
 	}
 
@@ -103,7 +102,7 @@ public class ApplicationRestClient extends BaseRestClient {
 			JSONObject jsonObject = new JSONObject(response.getData());
 			return Boolean.parseBoolean(jsonObject.getString("isAvailable"));
 		} else {
-			throw new AppFactoryIntegrationTestException("IsApplicationKeyAvailable failed " + response.getData());
+			throw new AFIntegrationTestException("IsApplicationKeyAvailable failed " + response.getData());
 		}
 	}
 
@@ -133,10 +132,10 @@ public class ApplicationRestClient extends BaseRestClient {
 			JSONObject jsonObject = new JSONObject(response.getData());
 			if (!jsonObject.getString("message").equals(
 				"Application was created under Repository type git")) {
-				throw new AppFactoryIntegrationTestException("CreateNewApplication failed : " + response.getData());
+				throw new AFIntegrationTestException("CreateNewApplication failed : " + response.getData());
 			}
 		} else {
-			throw new AppFactoryIntegrationTestException("CreateNewApplication failed " + response.getData());
+			throw new AFIntegrationTestException("CreateNewApplication failed " + response.getData());
 		}
 	}
 
