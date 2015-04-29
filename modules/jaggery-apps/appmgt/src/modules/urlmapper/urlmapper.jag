@@ -25,6 +25,22 @@ var log = new Log("module/urlmapper/urlmapper.jag");
 var modManager = jagg.module("manager");
 var context=multitenancy.getPrivilegedCarbonContext();
 
+var addDefaultProdUrl = function(appKey, version){
+    var service = getDomainMappingManagementService();
+    try {
+        service.addDefaultProdUrl(appKey, version);
+    } catch (e){
+        // In this case we log the error messages here which is different from the other modules since the message to
+        // display in the app wall is generated from the back end(java layer). We log the exception here and throw the
+        // generated back end message to front end, such that it can be directly shown in the UI
+        log.error("Error while adding default production url for application id : "+ appKey + " version : " + version);
+        log.error(e);
+        throw e.javaException.getMessage();
+    }finally {
+        context.endTenantFlow();
+    }
+}
+
 /**
  * add new domain mapping for the application
  */
@@ -33,9 +49,16 @@ var addNewCustomUrl = function(stage,domain,appKey,version,isCustomDomain){
     try{
         service.addNewSubscriptionDomain(stage,domain,appKey,version,isCustomDomain);
     } catch (e) {
-        var msg = "Error while adding new custom domain : "+domain+" in stage: "+stage +
-                " for application id : "+ appKey;
-        log.error(msg +" " +e.message);
+        // In this case we log the error messages here which is different from the other modules since the message to
+        // display in the app wall is generated from the back end(java layer).
+        // We are logging this as warn messages since this is caused, due a to user error. For example if the
+        // user entered a rubbish custom url(Or a url which CNAME record is not propagated at the time of
+        // adding the url), then url validation will fail but it is not an system error
+        log.warn("Error while adding new custom domain : " + domain + " in stage : " + stage + " for application : "
+                  + appKey + " with version : " + version);
+        log.warn(e);
+        // The message to display in the app wall is generated from the back end(java layer). Here we throw the
+        // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
@@ -51,10 +74,16 @@ var updateExistingUnmappedCustomUrl = function(stage,newDomain,appKey){
     try{
         service.remapContextToDomain(stage,newDomain,appKey,null,true);
     } catch (e) {
-        var msg = "Error while updating domain: "+ newDomain +
-                " in stage: "+stage +
-                " for application id : "+ appKey;
-        log.error(msg +" "+ e.message);
+        // In this case we log the error messages here which is different from the other modules since the message to
+        // display in the app wall is generated from the back end(java layer).
+        // We are logging this as warn messages since this is caused, due a to user error. For example if the
+        // user entered a rubbish custom url(Or a url which CNAME record is not propagated at the time of
+        // adding the url), then url validation will fail but it is not an system error
+        log.warn("Error while updating domain : " + newDomain + " in stage : " + stage + " for application : " +
+                                                                                                               appKey);
+        log.warn(e);
+        // The message to display in the app wall is generated from the back end(java layer). Here we throw the
+        // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
@@ -70,10 +99,16 @@ var mapNewCustomUrlToVersion = function(stage,newDomain,appKey,version){
     try{
         service.remapContextToDomain(stage,newDomain,appKey,version,true);
     } catch (e) {
-        var msg = "Error while mapping new domain: "+ newDomain +" to version: "+version +
-                " in stage: "+stage +
-                " for application id : "+ appKey;
-        log.error(msg +" " + e.message);
+        // In this case we log the error messages here which is different from the other modules since the message to
+        // display in the app wall is generated from the back end(java layer).
+        // We are logging this as warn messages since this is caused, due a to user error. For example if the
+        // user entered a rubbish custom url(Or a url which CNAME record is not propagated at the time of
+        // adding the url), then url validation will fail but it is not an system error
+        log.warn("Error while mapping new domain : " + newDomain + " to version : " + version + " in stage : " + stage
+                  + " for application : " + appKey);
+        log.warn(e);
+        // The message to display in the app wall is generated from the back end(java layer). Here we throw the
+        // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
@@ -89,9 +124,11 @@ var remapDomainToVersion = function(stage, appKey, newVersion, previousVersion){
     try{
         service.remapDomainToContext(stage, appKey, newVersion, previousVersion);
     } catch (e) {
-        var msg = "Error while remap from version: "+previousVersion+" to version: "+newVersion+" in stage: "+stage +
-                " for application id : "+ appKey;
-        log.error(msg +" " + e.message);
+        log.error("Error while remapping domain for application : " + appKey + " from version : " + previousVersion
+                  + " to version : " + newVersion + " in stage : " + stage);
+        log.error(e);
+        // The message to display in the app wall is generated from the back end(java layer). Here we throw the
+        // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
@@ -107,9 +144,11 @@ var removeDomainMappingFromApplication = function(stage, appKey, version, isCust
     try{
         service.removeDomainMappingFromApplication(stage, appKey, version, isCustomDomain);
     } catch (e) {
-        var msg = "Error while removing domain mapping in stage: "+stage +
-                  " for application id : "+ appKey;
-        log.error(msg +" " + e.message);
+        log.error("Error while removing domain mapping from application : " + appKey + " with version : " + version
+                  + " in stage : " + stage);
+        log.error(e);
+        // The message to display in the app wall is generated from the back end(java layer). Here we throw the
+        // generated back end message to front end, such that it can be directly shown in the UI.
         throw e.javaException.getMessage();
     }finally{
         context.endTenantFlow();
@@ -127,8 +166,8 @@ var getDomainMappingManagementService = function(){
         context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         return carbon.server.osgiService('org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService');
     } catch(e) {
-        var msg = "Error while getting DomainMappingManagementService";
-        log.error(msg +" " + e.message);
+        log.error("Error while getting DomainMappingManagementService for tenant domain : " + tenantDomain);
+        log.error(e);
         throw "Error occurred during the requested operation. Please try again after few seconds!";
     }
 

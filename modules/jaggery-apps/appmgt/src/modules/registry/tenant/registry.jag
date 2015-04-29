@@ -41,8 +41,10 @@ var createResourceInTenantSpace = function (path, content, type) {
 		var resource = {mediaType: type, content: content};
 		var result = registry.put(path, resource );
 	} catch (e) {
-        log.error("Error while storing tenant space registry resource \n" + e.message);
-        throw "Error while storing tenant space registry resource";
+        log.error("Error while storing tenant space registry resource in path : " + path + " with type : " + type
+                  + " with content : " + content);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -51,8 +53,9 @@ var getResourceFromTenantSpace = function (path) {
 	try {
 		return registry.get(path);
 	} catch (e) {
-        log.error("Error while retriving tenant space registry resource \n" + e.message);
-        throw "Error while retriving tenant space registry resource";
+        log.error("Error while retrieving tenant space registry resource in path : " + path);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -66,8 +69,9 @@ var resourceExistsInTenantSpace = function (path) {
             return false;
         }
     } catch (e) {
-        log.error("Error while accessing tenant space registry resource \n" + e.message);
-        return false;
+        log.error("Error while accessing tenant space registry resource in path : " + path);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -76,8 +80,9 @@ var deleteResourceInTenantSpace = function (path) {
         try {
                 var result = registry.remove(path);
         } catch (e) {
-        log.error("Error while delete tenant space registry resource \n" + e.message);
-        throw "Error while storing tenant space registry resource";
+            log.error("Error while deleting tenant space registry resource in path : " + path);
+            log.error(e);
+            throw e;
     }
 };
 

@@ -24,8 +24,13 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var webContext = getProperty(WEB_CONTEXT_ROOT);
     var helpTips = outputs.helpTips;
     var uploadableAppExts = outputs.uploadableAppExts;
+    var mod = jagg.module("manager");
+    var uploadableApplicationMaxSize=mod.getUploadableApplicationMaxSize();
     %>
 
+
+   <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery-ui.css'))%>">
+   <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
     
     
@@ -33,6 +38,8 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
 
         var MAX_APP_KEY_LENGTH = 20;
         var validated = true ;
+        var uploadStartTime=0;
+        var uploadableApplicationMaxSize='<%=uploadableApplicationMaxSize%>';
         var helpTips;
         var uploadableAppExts  = JSON.parse('<%=stringify(uploadableAppExts)%>') ;
         function validateDuplicateApplicationKey(key) {
@@ -289,6 +296,8 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
             return isNameValid;
         }
 
+        
+
         function validateUploadedFile(){
         if($("#action").val() == "uploadExistingApplication"){
             if(!$("#uploaded_application").val()){
@@ -315,6 +324,60 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
         return true;
 
         }
+        function validateUploadableArtifactSize(fileSize){
+            if(fileSize > uploadableApplicationMaxSize){
+                jagg.message({
+                        content: "Uploaded file size is bigger than the allowed maximum size.",
+                        type: 'error', id:'appcreationerrormsg'
+                    });
+              return false;
+            }
+
+            return true;
+        }
+
+        function uploadProgressBar(completedPercentage){
+            $('#progressbar').progressbar({
+                value:completedPercentage,
+                create: function(event, ui) {$(this).find('.ui-widget-header').css({'background-color':'#3498db'})}
+            });
+        }
+
+        function uploadStatus(completedPercentage){
+            document.getElementById("progressStatusMsg").innerHTML = "Starting upload.......";
+
+            if(completedPercentage >0 && completedPercentage <100){
+                document.getElementById("progressStatusMsg").innerHTML = "Uploading "+completedPercentage+ "%";
+            }
+            else{
+                document.getElementById("progressStatusMsg").innerHTML = "Application Uploaded Successfully, Please wait you will be navigated to home page shortly";
+            }
+        }
+
+        function estimatedTimeToComplete(startTime,currentTime,totalFileSize,completedPercentage){
+        var uploadedFileSize=totalFileSize*completedPercentage/100;
+        var takenTime=(currentTime-startTime)/1000;
+        var avgUploadSpeed=uploadedFileSize/takenTime;
+        var remainingFileSize=(totalFileSize-uploadedFileSize);
+        var estimatedCompleteTime=remainingFileSize/avgUploadSpeed;
+        var estimatedTimeWithUnit=getTimeWithUnit(estimatedCompleteTime);
+         if(estimatedTimeWithUnit){
+            document.getElementById("remainingTime").innerHTML="Estimated time to complete "+estimatedTimeWithUnit;
+        }
+        else{
+            document.getElementById("remainingTime").innerHTML="";
+        }
+
+        }
+
+        function getTimeWithUnit(timeToCalculateUnit){
+                switch(true) {
+                    case (timeToCalculateUnit>60): return Math.floor(timeToCalculateUnit/60) +" Minutes and "+Math.round(timeToCalculateUnit%60)+" Seconds"; break;
+                    case (timeToCalculateUnit>360): return Math.floor(timeToCalculateUnit/360) +" Hours and "+ Math.round(timeToCalculateUnit%360)+" Minutes";break;
+                    case (timeToCalculateUnit<60 && timeToCalculateUnit>0): return Math.round(timeToCalculateUnit)+ " Seconds"; break;
+                    default : return false;
+            }
+        }
 
         var ie = (function(){
             var undef, v = 3, div = document.createElement('div');
@@ -333,10 +396,12 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
             
 	        $("#progressOverlay").hide();
 	        $("#progressSpinner").hide();
+	        $("#progress-bar-container-id").hide();
             $(".upload").hide();
             $(".hide_on_upload").show();
 	        $("#progressSpinner").css({top:document.body.clientHeight/2 - $("#progressSpinner").height(), left:document.documentElement.clientWidth/2-$("#progressSpinner").width() , position:'absolute'});
-	        $("#progressOverlay").css({height:document.body.clientHeight, width:document.body.clientWidth});
+	         $("#progress-bar-container-id").css({top:document.body.clientHeight/2 - $("#progressbar").height(), left:document.documentElement.clientWidth/2-$("#progressbar").width() , position:'absolute'});
+		$("#progressOverlay").css({height:document.body.clientHeight, width:document.body.clientWidth});
             setHelpTips(<%= helpTips %>);
             // function get trigger when clear button clicked.
             getSubscriptions();
@@ -396,6 +461,14 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                     }
                    
                     if($("#action").val() == "uploadExistingApplication"){
+                        var uploadArtifactFile=$('#uploaded_application');
+                        validated=validateUploadableArtifactSize(uploadArtifactFile[0].files[0].size);
+                        uploadStartTime=new Date();
+                        if(!validated){
+                            $("#appcreation").removeAttr('disabled');
+                            $("#appupload").removeAttr('disabled');
+                            return false;
+                        }
  			            $("#appupload").attr('disabled','disabled');
                     	 jagg.message({
                              content: "Please wait. Application upload in Progress...",
@@ -404,9 +477,19 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                     }
                 },
                 uploadProgress: function(event, position, total, percentComplete) { //on progress
+
                     $("#appupload").attr('disabled','disabled');
-		    		$("#progressOverlay").show();
-		    		$("#progressSpinner").show();
+                    if($("#action").val() == "uploadExistingApplication"){
+                        var completedPercentage = percentComplete;
+                        uploadStatus(completedPercentage);
+                        uploadProgressBar(completedPercentage);
+                        estimatedTimeToComplete(uploadStartTime,new Date(),$('#uploaded_application')[0].files[0].size,percentComplete);
+                        $("#progressOverlay").show();
+                        $("#progress-bar-container-id").show();
+                    }else{
+                        $("#progressOverlay").show();
+                        $("#progressSpinner").show();
+                    }
                 }, complete: function(result) { // on complete
                 	if($("#action").val() == "uploadExistingApplication"){
                 		jagg.removeMessage('inProgress');
@@ -427,6 +510,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
 		    		$('#appupload').removeAttr('disabled');
 		    		$("#progressSpinner").hide();
 		    		$("#progressOverlay").hide();
+
                 }
             });
 
@@ -480,6 +564,12 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
             $("#icon").change(function () {
                 var file = $('#icon');
                 validateIconImage(file.val(), this.files[0].size);
+            });
+
+             //Validate uploadableArtifact size
+            $("#uploaded_application").change(function(){
+            var uploadFile=$('#uploaded_application');
+            validateUploadableArtifactSize(this.files[0].size);
             });
 
         });
@@ -563,13 +653,23 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
         }
     }
 
+    function bitesToSize(bits) {
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bits == 0) return '0 Bits';
+        else if(bits<8) return bits+' Bits';
+        var bytes=Math.round(bits/8);
+
+        var unit = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, unit), 2) + ' ' + sizes[unit];
+    }
+
     function setHelpTips(helpTips){
             $("#appKey").html(helpTips.appKey);
             $("#appIcon").html( helpTips.appIcon);
             $(".appType").html(helpTips.appType);
             $("#repoType").html(helpTips.repoType);
             $("#appURL").html(helpTips.appURL);
-            $("#appUpload").html(helpTips.appUpload);
+            $("#appUpload").html(helpTips.appMaxSize+bitesToSize(uploadableApplicationMaxSize)+"<br>"+helpTips.appUpload);
             $("#appCreateMethod").html(helpTips.appCreateMethod);
     }
 
@@ -723,10 +823,21 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     <a href="#" onclick="location.href='index.jag?'" >Cancel</a>
     </div>
     <div class="buttonrow upload">
+    <!--<div id="progress-bar-container-id" class="progress-bar-container">
+                <div id="progressbar" class="progress-bar-style"></div>
+                <div id="progressStatusMsg"></div>
+        </div>-->
     <input type="button" value="Upload Application" class="btn main" id='appupload' onclick="submitUploadAppForm()" />
+
     <a href="#" onclick="location.href='index.jag?'" >Cancel</a>
     </div>
-    <div style="background:black;width:100%;height:100%;position:absolute;left:0;top:0;opacity:0.5;z-index:1000;" id="progressOverlay"></div>
+    <div style="background:black;width:100%;height:100%;position:absolute;left:0;top:0;opacity:0.5;z-index:1000;" id="progressOverlay">
+        <div id="progress-bar-container-id" class="progress-bar-container">
+                <div id="progressStatusMsg" class="progressbar-status-message"></div>
+                <div id="progressbar" class="progress-bar-style"></div>
+                <div id="remainingTime" class="progressbar-status-message"></div>
+        </div>
+    </div>
 	<span style="z-index:1001;" class="icon-spinner icon-spin icon-large spin-large" id="progressSpinner"></span>
     </div>
     <input type="hidden" name="userName"  id="userName" value='<%=

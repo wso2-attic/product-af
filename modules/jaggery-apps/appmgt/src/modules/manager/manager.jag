@@ -67,8 +67,9 @@ var getBackendCookie = function (serverUrl) {
         }
         return session.get(APPFAC_BACKEND_COOKIE + serverUrl);
     } catch (e) {
-        log.error("Failed to get backend cookie for serverUrl: " + serverUrl + " \n" + e.message);
-        throw "Failed to get backend cookie for serverUrl:"+serverUrl;
+        log.error("Failed to get backend cookie for serverUrl : " + serverUrl );
+        log.error(e);
+        throw e;
     }
 };
 /**
@@ -245,6 +246,11 @@ var getApplicationTypeManager=function(){
 var getApplicationTypeBean=function(applicationType){
     var applicationTypeManager = getApplicationTypeManager();
     return applicationTypeManager.getApplicationTypeBean(applicationType);
+}
+
+var getUploadableApplicationMaxSize = function(){
+    var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+    return AppFactoryUtil.getUploadableArtifactMaxSize();
 }
 
 /**

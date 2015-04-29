@@ -104,8 +104,10 @@ var addUserToApplication = function addUserToApplication(applicationKey, request
             log.debug("Invoking service endpoint: "+endPoint+" returned result:"+result);
         }
     } catch (e) {
-        log.error("Error while adding user to application \n"+e.message);
-        throw "Error while adding user to application";
+        log.error("Error while adding user " + newUsername + " as " + newUserRole + " to the application "
+                  + applicationKey + " as per the request from " + requestersUsername);
+        log.error(e);
+        throw e;
     }
     return result;
 };

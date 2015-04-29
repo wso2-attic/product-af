@@ -32,7 +32,8 @@
     var appfactory = require('appFactory');
     var multitenancy = carbon.multitenancy;
     var modMananger = jagg.module("manager");
-
+    var ApplicationsOfUserCache = Packages.org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
+    var MultiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 
     var VersionComparator = function(a, b)
@@ -46,9 +47,9 @@
     	return server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty(configElem);
     };
     
-    //checked - private method 
+    // In index.jag page this method is called before rendering. via getAllAppsOfUser()
+    // So untill we fix it from there dont remove start tenantflow here.
     var getAllApps = function(userName){
-        // jagg.module("permission").checkUserAuthenticated();
                 var appsOfUser;
                 var tenantDomain=modManager.getTenantDomain() ;
                 var context=multitenancy.getPrivilegedCarbonContext();
@@ -57,12 +58,14 @@
                     context.startTenantFlow();
                     context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
                     context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                    var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService') ;
-                    appsOfUser = service.getApplicaitonsOfTheUser(userName);
-                }catch(e){
-                       log.error(e);
-                }finally {
-
+                    var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService') ;
+                    appsOfUser = service.getApplicationInfoForUser(userName);
+                } catch (e) {
+                    log.error("Error while getting list of all applications of the user : " + userName + " of tenant "
+                              + "domain : " + tenantDomain);
+                    log.error(e);
+                    throw e;
+                } finally {
                     context.endTenantFlow();
                 }
         return appsOfUser;
@@ -76,18 +79,15 @@
     var getApplicationsCreatedByUser = function (userName) {
         var appsCreatedByUser;
         var tenantDomain = modManager.getTenantDomain();
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
         try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService');
+            var service = server
+                    .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
             appsCreatedByUser = service.getApplicationsCreatedByUser(userName);
         } catch (e) {
+            log.error("Error while getting all applications created by user : " + userName + " of tenant domain : "
+                      + tenantDomain);
+            log.error(e);
             throw e;
-        } finally {
-            context.endTenantFlow();
         }
         return appsCreatedByUser;
     };
@@ -100,16 +100,15 @@
         
         var url;
         var tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
         try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            url = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').getURLForAppVersion(applicationKey,version,"");
+            url = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
+                    getURLForAppVersion(applicationKey, version, "");
 
-        }finally{
-            context.endTenantFlow();
+        } catch (e) {
+            log.error("Error while getting RepoURL for the application : " + applicationKey + " with version : "
+                      + version + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
         return url;
     };
@@ -130,7 +129,9 @@
              var elements = result.ns::["return"].text();
              return elements.length();
          } catch (e) {
-             throw "Error while getting all application count of user: "+ userName;
+             log.error("Error while getting count of all applications of user : " + userName);
+             log.error(e);
+             throw e;
          }
     };
 
@@ -151,24 +152,24 @@
              }
              return stringify(elementsArray);
          } catch (e) {
+             log.error("Error while getting all application of user : " + userName + " of tenant domain : "
+                       + tenantDomain);
              log.error(e);
-             throw "Error while getting application of user" + e;
+             throw e;
          }
     };
     
     var getAppInfo = function (applicationKey) {
         var result;
         var tenantDomain=modManager.getTenantDomain();
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
         try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').
-                    getApplication(applicationKey);
-        } finally {
-            context.endTenantFlow();
+            result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getApplication(applicationKey);
+        } catch (e) {
+            log.error(" Error while getting application info for the application : " + applicationKey
+                      + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
         if (result != null) {
             return convertAppInfo(result);
@@ -192,8 +193,8 @@
     var extractAppInfo=function(resourceContent,forUserHome){
         var application={};
         if(forUserHome){
-            application.key = resourceContent.applicationKey;
-            application.type = resourceContent.applicationType;
+            application.key = resourceContent.id;
+            application.type = resourceContent.type;
         }else{
             application.key = resourceContent.id;
             application.owner = resourceContent.owner;
@@ -218,7 +219,6 @@
 
         //TODO
         application.inProduction = false;
-        application.applicationCreationStatus = resourceContent.applicationCreationStatus.name();
         return application;
     };
 
@@ -291,27 +291,23 @@
     var getAppVersionsInStage = function(stageName, applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed)
     {
         jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
-        //   jagg.module("permission").checkAdminPermission();
         if (isRoleBasedPermissionAllowed == "true") {
             var hasPermissiontToStage = jagg.module("permission").hasPermissionToStage(applicationKey, stageName);
             if (!hasPermissiontToStage) {
                 return null;
             }
         }
-        var applicatoinPath = APPLICATIONS + applicationKey;
         var artifacts;
         var tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
         try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(tenantDomain, applicationKey);
-        }finally{
-            context.endTenantFlow();
+            artifacts = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getAllVersionsOfApplication(tenantDomain, applicationKey);
+        } catch (e) {
+            log.error("Error while getting application versions of : " + applicationKey + " in stage : " + stageName
+                      + " of the tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
-        //var artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(applicationKey);
         var artifactsInStage = new Array();
         var artifactsInStageCount = 0;
         if (artifacts != undefined && artifacts.length > 0) {
@@ -334,15 +330,14 @@
 
     var getBranchInfo= function(applicationKey){
     	var result,tenantDomain=modManager.getTenantDomain();
-    	var context=multitenancy.getPrivilegedCarbonContext();
-    	var tenantManager= multitenancy.getTenantManager();
     	try{
-    		context.startTenantFlow();
-    		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-    		result=server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getBasicApplicationInfo(applicationKey);
-    	}finally{
-    		context.endTenantFlow();
+            result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getBasicApplicationInfo(applicationKey);
+        } catch (e) {
+            log.error(" Error while getting branch info for the application : " + applicationKey
+                      + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
     	}
     	return result;
     }
@@ -353,13 +348,9 @@
     var getUserHomeInfo= function(){
         var userName=modManager.getDomainlessUserName();
     	var result,tenantDomain=modManager.getTenantDomain();
-    	var context=multitenancy.getPrivilegedCarbonContext();
-    	var tenantManager= multitenancy.getTenantManager();
     	try{
-    		context.startTenantFlow();
-    		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-    		result=server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getApplicationInfoForUser(userName);
+            result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getApplicationSummaryForUser(userName);
 
     		 var elementsArray = new Array();
              for (var applicationKey in result){
@@ -370,10 +361,10 @@
              }
              return elementsArray;
          } catch (e) {
-             throw "Error while getting application of user" + e;
-
-    	}finally{
-    		context.endTenantFlow();
+            log.error("Error while getting the user home info for the user : " + userName + " of tenant domain : "
+                      + tenantDomain);
+            log.error(e);
+            throw e;
     	}
     	return result;
     }
@@ -441,7 +432,8 @@
      */
     var getUserHomeDataFromCache = function(){
         var userHomeData = session.get(USER_HOME_CAHCE);
-        if(!userHomeData){
+	var isApplicationsChanged = isApplicationsOfUserChanged();
+        if(!userHomeData || isApplicationsChanged){
             userHomeData = getUserHomeInformation();
             session.put(USER_HOME_CAHCE,userHomeData);
         }
@@ -533,7 +525,7 @@
         var context=multitenancy.getPrivilegedCarbonContext();
         var service = getApplicationInfoService(context);
         try{
-            var result=service.getApplicationInfoForUser(userName);
+            var result=service.getApplicationSummaryForUser(userName);
 
             // init
             var appList = {};
@@ -551,10 +543,9 @@
             }
             return appList;
         } catch (e) {
-            log.error("Error while getting application of user" + e.message);
-            throw "Error while getting application of user" + e;
-        }finally{
-            context.endTenantFlow();
+            log.error("Error while getting user home information for the  user : " + userName);
+            log.error(e);
+            throw e;
         }
         return result;
     };
@@ -619,11 +610,9 @@
             var resultHashMap = service.getAppCreationStatus(applicationKeys);
             return convertHashMapToJsObject(resultHashMap,true);
         } catch (e) {
-            var msg = "Error while retrieving app creation status for app keys: "+applicationKeys;
-            log.error(msg +" " + e.message);
-            throw msg+e;
-        }finally{
-            context.endTenantFlow();
+            log.error("Error while retrieving app creation status for app keys : " + applicationKeys);
+            log.error(e);
+            throw e;
         }
     };
 
@@ -634,16 +623,14 @@
      * @returns service reference
      */
     var getApplicationInfoService = function(context){
+        var tenantDomain=null;
         try{
-            var tenantManager= multitenancy.getTenantManager();
-            var tenantDomain=modManager.getTenantDomain() ;
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
+            tenantDomain=modManager.getTenantDomain() ;
             return server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
         } catch(e) {
-            var msg = "Error while getting ApplicationInfoService";
-            log.error(msg +" " + e.message);
-            throw "Error occurred during the requested operation. Please try again after few seconds!";
+            log.error("Error while getting ApplicationInfoService for the tenant : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
     };
 
@@ -682,21 +669,18 @@
         }
     };
 
-    var getApplicationManagementService=function(){
+    var getApplicationInfoService = function () {
         var carbon = require('carbon');
         var service;
         var tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
         try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            service = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
-        }finally{
-            context.endTenantFlow();
+            service = carbon.server
+                    .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
+        } catch (e) {
+            log.error("Error while getting application info service for the tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
-        //return carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
         return service;
     }
 
@@ -712,20 +696,15 @@
         if (loggedInUser != null) {
             userName = loggedInUser.split("@")[0];
         }
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
         var status;
         var url;
         var accessUrl;
 
         try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            context.getThreadLocalCarbonContext().setUsername(userName);
-            accessUrl = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationUrl(applicationKey, version, stage, tenantDomain);
-            status = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationStatus(applicationKey, version, stage, tenantDomain);
-
+            accessUrl = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getApplicationUrl(applicationKey, version, stage, tenantDomain);
+            status = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getApplicationStatus(applicationKey, version, stage);
             if(!status){
                  //fix for APPFAC-2195
                  //load the tenant
@@ -734,15 +713,18 @@
                    xhr.open("GET",accessUrl + "",false);
                    xhr.send("");
                    }
-
-               status = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationStatus(applicationKey, version, stage, tenantDomain);
+                status = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                        .getApplicationStatus(applicationKey, version, stage);
             }
             if(status){
                url=accessUrl;
              }
 
-        } finally {
-            context.endTenantFlow();
+        } catch (e) {
+            log.error(" Error while getting metadata for application state  for the application : " + applicationKey
+                      + " with version : " + version + " in stage : " + stage);
+            log.error(e);
+            throw e;
         }
 
         var data = {};
@@ -808,8 +790,9 @@
                 counter++;
             }
         } catch (e) {
-            log.error("Error while getting Buildable stages from appfactory.xml \n" + e.message);
-            throw "Error while getting Buildable stages";
+            log.error("Error while getting Buildable stages from appfactory.xml");
+            log.error(e);
+            throw e;
         }
 
         return stringify(stageArray);
@@ -870,20 +853,19 @@
     }
     ;
 
-    var getAppVersionInfoByVersion = function(applicationKey, version)
+    var getAppVersionInfoByVersion = function(applicationKey, version, userName)
     {
       
         var artifacts;
         var tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
-        try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(tenantDomain, applicationKey);
-        }finally{
-            context.endTenantFlow();
+        try {
+            artifacts = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getAllVersionsOfApplication(tenantDomain, applicationKey);
+        } catch (e) {
+            log.error("Error while getting application version info by version for the applicatin : " + applicationKey
+                      + " with version : " + version + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
 
         var artifactsInStage=[];
@@ -907,17 +889,15 @@
         var applicatoinPath = APPLICATIONS + applicationKey;
         var artifacts;
         var tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
-        try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(modManager.getTenantDomain(),applicationKey);
-        }finally{
-            context.endTenantFlow();
+        try {
+            artifacts = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getAllVersionsOfApplication(modManager.getTenantDomain(), applicationKey);
+        } catch (e) {
+            log.error("Error while getting app versions in stages for the application : " + applicationKey
+                      + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
-        //var artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(modManager.getTenantDomain(),applicationKey);
 	    var versions = getVersionInfo(applicationKey, artifacts);
         if(versions !=null) {
             return stringify(versions);
@@ -928,21 +908,14 @@
 
 var getStage = function(applicationKey, version) {
     jagg.module("permission").checkUserAuthenticated();
-
+    var tenantDomain = modManager.getTenantDomain();
     try {
-        var result,tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
-        try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            return getApplicationManagementService().getStage(applicationKey, version);
-        }finally{
-            context.endTenantFlow();
-        }
+        return getApplicationInfoService().getStage(applicationKey, version);
     } catch (e) {
-        throw "Error while getting application stage of app " + applicationKey + "  :" + e;
+        log.error("Error while getting stage of application :  " + applicationKey + " with version : " + version
+                  + " of the tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -1058,6 +1031,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
     
   //application icon resource read from registry
     var loadAppIcon = function (applicationKey) {
+        var tenantDomain = modManager.getTenantDomain();
     	 try{
     	  	var serverUrl = getProperty(APPFACTORY_SERVER_URL);
     	  	var carbon = require('carbon');
@@ -1070,32 +1044,27 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
     	  	return res;
       	
     	  } catch (e) {
-    		  var errMsg = "Error  while loading the icon for "+ applicationKey +" application  \n" ;
-            log.debug( errMsg );
-            throw errMsg;
+             log.error("Error  while loading the icon for application : " + applicationKey + " of tenant : "
+                       + tenantDomain);
+             log.error(e);
+             throw e;
     	  }
     };
 
     var getAppVersionsOfUser = function(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed)
     {
         jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
-
-        var applicatoinPath = APPLICATIONS + applicationKey;
         var artifacts;
         var tenantDomain=modManager.getTenantDomain() ;
-        var context=multitenancy.getPrivilegedCarbonContext();
-        var tenantManager= multitenancy.getTenantManager();
-        try{
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplicationPerUser(modManager.getTenantDomain(),applicationKey, userName);
-
-
-        }finally{
-            context.endTenantFlow();
+        try {
+            artifacts = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getAllVersionsOfApplicationPerUser(modManager.getTenantDomain(), applicationKey, userName);
+        } catch (e) {
+            log.error("Error while getting application versions of application : " + applicationKey + " for the user : "
+                      + userName + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
-        //var artifacts =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getAllVersionsOfApplication(modManager.getTenantDomain(),applicationKey);
 	    var versions = getRepoUserInfo(applicationKey, artifacts);
         if(versions !=null) {
             return stringify(versions);
@@ -1107,21 +1076,20 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
           var buildAndDeployInfo;;
           var result ={};
       	  var tenantDomain=modManager.getTenantDomain() ;
-      	  var context=multitenancy.getPrivilegedCarbonContext();
-      	  var tenantManager= multitenancy.getTenantManager();
       	  try{
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                 buildAndDeployInfo =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getBuildandDelpoyedStatus(applicationKey,tenantDomain,version);
+              buildAndDeployInfo = server
+                      .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                      .getBuildandDelpoyedStatus(applicationKey, tenantDomain, version);
                  if(buildAndDeployInfo!=null){
                  	result.buildId=buildAndDeployInfo['lastBuildId'];
                  	result.buildStatus=buildAndDeployInfo['lastBuildStatus'];
                  	result.deployedId=buildAndDeployInfo['lastDeployedId'];
                  }
-                 
-          }finally{
-                context.endTenantFlow();
+          }catch (e){
+              log.error(" Error while getting build and deployed status for application : " + applicationKey
+                        + " with version : " + version);
+              log.error(e);
+              throw e;
       	   }
           
       	  if(result !=null) {
@@ -1132,4 +1100,22 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
       	
       
     };
+
+    var isApplicationsOfUserChanged = function(){
+       var tenantDomain=modManager.getTenantDomain() ;
+       var context=multitenancy.getPrivilegedCarbonContext();
+       var tenantManager= multitenancy.getTenantManager();
+
+       try{
+           context.startTenantFlow();
+           context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+           var isApplicationsOfUserChanged = ApplicationsOfUserCache.getApplicationsOfUserCache().isUserInvitedToApplication(MultitenantUtils.getTenantAwareUsername(jagg.getUser()));
+       }catch (e){
+           var errMsg = "Error  while checking user : " + jagg.getUser() + " added to an application \n" ;
+           log.debug( errMsg );
+       }finally{
+           context.endTenantFlow();
+       }
+       return isApplicationsOfUserChanged;
+    }
 %>

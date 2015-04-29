@@ -441,28 +441,37 @@ return getThemePath() + path;
     };
 
     var render = function (obj) {
-        var init, fn, inputs, outputs, name = obj.name, log = new Log(), blok;
-        setData(obj);
-        initializeBlock(obj);
-        include(getTemplateFile(name));
-        fn = template(name);
-        if (!fn) {
-            log.error("Template header and footer includes are missing for : " + name);
+        var modManager = jagg.module("manager");
+        var tenantDomain = modManager.getTenantDomain();
+        var context = multitenancy.getPrivilegedCarbonContext();
+        try {
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+            var init, fn, inputs, outputs, name = obj.name, log = new Log("jagg/jagg.jag"), blok;
+            setData(obj);
+            initializeBlock(obj);
+            include(getTemplateFile(name));
+            fn = template(name);
+            if (!fn) {
+                log.error("Template header and footer includes are missing for : " + name);
+            }
+            inputs = obj.inputs;
+            blok = block(name);
+            if (blok.getOutputs) {
+                outputs = blok.getOutputs(inputs);
+            } else if (blok.getInputs) {
+                outputs = inputs;
+            } else {
+                outputs = {};
+            }
+            init = initializer(name);
+            if (init.postInitialize) {
+                init.postInitialize(inputs, outputs);
+            }
+            fn(inputs, outputs, jagg);
+        } finally {
+            context.endTenantFlow();
         }
-        inputs = obj.inputs;
-        blok = block(name);
-        if (blok.getOutputs) {
-            outputs = blok.getOutputs(inputs);
-        } else if (blok.getInputs) {
-            outputs = inputs;
-        } else {
-            outputs = {};
-        }
-        init = initializer(name);
-        if (init.postInitialize) {
-            init.postInitialize(inputs, outputs);
-        }
-        fn(inputs, outputs, jagg);
     };
 
     var includeBlock = function (name, inputs) {

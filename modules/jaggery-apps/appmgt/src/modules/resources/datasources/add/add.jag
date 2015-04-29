@@ -62,7 +62,10 @@ var deleteDatasource = function (applicationId, stageName, name, isEdit) {
                 var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending delete datasource success notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending delete datasource success notification for database : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
             }
 	}
         return {
@@ -77,11 +80,16 @@ var deleteDatasource = function (applicationId, stageName, name, isEdit) {
                 var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending delete datasource failure notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending delete datasource failed notification for database : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
             }
 	}
-        log.error("Error while deleting datasource " + stageName + "\n" + e.message);
-        throw "Error while deleting datasource  " + stageName;
+        log.error("Error while deleting datasource : " + name + " in stage : " + stageName + " of application id : "
+                  + applicationId);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -142,8 +150,10 @@ var addDataSource = function (applicationId, stageName, name, url, driverClass, 
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource success notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
                 log.error(e);
-                log.error("Error while sending create datasource success notification!");
             }
 	}else{
             try {
@@ -152,8 +162,10 @@ var addDataSource = function (applicationId, stageName, name, url, driverClass, 
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending edit datasource success notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
                 log.error(e);
-                log.error("Error while sending edit datasource success notification!");
             }
         }
 
@@ -169,8 +181,10 @@ var addDataSource = function (applicationId, stageName, name, url, driverClass, 
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource failed notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
                 log.error(e);
-                log.error("Error while sending create datasource failure notification!");
             }
 	}else{
             try {
@@ -179,14 +193,17 @@ var addDataSource = function (applicationId, stageName, name, url, driverClass, 
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending edit datasource failed notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
                 log.error(e);
-                log.error("Error while sending edit datasource failure notification!");
             }
         }
-
+        log.error("Error while creating datasource : " + name + " with url : " + url + " and driver class name : "
+                  + driverClass + " for user : " + username + " in stage : " + stageName + " for application id : "
+                  + applicationId);
         log.error(e);
-        log.error("Error while creating datasource in stage : " + stageName);
-        throw "Error while creating datasource  " + stageName;
+        throw e;
     }
 	
 };
@@ -257,7 +274,10 @@ var createDataSource = function (stage,applicationId, name, url, driverClass, us
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending create datasource success notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource success notification for datasource : " + name
+                          + " in stage : " + stage + " of application id : " + applicationId);
+                log.error(e);
             }
 
     	} catch (e) {
@@ -266,9 +286,16 @@ var createDataSource = function (stage,applicationId, name, url, driverClass, us
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending create datasource failure notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource failed notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
             }
-            log.error("Error while creating datasource in stage " + stage + "\n" + e.message);
+            log.error("Error while creating datasource : " + name + " with url : " + url + " and driver class name : "
+                      + driverClass + " for user : " + username + " in stage : " + stage
+                      + " stage for application id : " + applicationId);
+            log.error(e);
+            throw e;
     	}
 
     return datasources;
@@ -296,8 +323,10 @@ var copyNewDataSources = function(applicationId, sourceStage, targetStage) {
 				resourcesModule.addDataSource(applicationId, targetStage, dsToCreate.name, dsToCreate.url, dsToCreate.driverClassName, 
 						                      dsToCreate.username, dsToCreate.password, dsToCreate.description, false);
 			} catch(e){
-				log.error("Error while copying datasource: " + ds.name + "from :" 
-								+ sourceStage + "to: " + targetStage + "\n" + e.message);
+                //we don't throw here since we should not break the for loop
+                log.error("Error while copying datasource : " + dsName.name + " from stage : " + sourceStage
+                          + " to stage : " + targetStage + " of application id : " + applicationId);
+                log.error(e);
 			}
 		}
 	}

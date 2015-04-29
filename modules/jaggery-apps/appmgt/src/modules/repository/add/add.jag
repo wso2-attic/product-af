@@ -114,8 +114,10 @@ function createFork(applicationKey, tenantAwareUserNameArray, type, version) {
         }
         return "true";
     } catch (e) {
-        log.error("Error while forking repository\n" + e.message);
-        throw "Error while forking repository";
+        log.error("Error while forking repository for application : " + applicationKey + " with version : " + version +
+                  " in tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     } finally {
         context.endTenantFlow();
     }
@@ -192,8 +194,10 @@ function createForkBranch(applicationKey, tenantAwareUserNameArray, type, versio
         }
         return "true";
     } catch (e) {
-        log.error("Error while forking repository\n" + e);
-        throw "Error while forking repository";
+        log.error("Error while creating fork branch for application : " + applicationKey + " with version : " + version
+                  + " in tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     } finally {
         context.endTenantFlow();
     }

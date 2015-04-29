@@ -64,7 +64,7 @@
         },
         "addApplication":{
             "generalWelcome":{"roles":"appowner", "details":{"msg":"", "subMsg":"Upload an existing application or create one from scratch, which creates a skeleton application based on the app type you select."} },
-            "helpTips":{"appKey":"A unique key across all applications. This key is used in places like creating repositories and continuous build systems for your apps. <br> If required you can edit it to a key of your preference","appIcon":"The maximum file size is 5MB. <br> Accepted file types are jpg, jpeg, gif, bmp and png","appType":"Select the type of application you want to create. <br> Accepted file types are war and zip","repoType":"Select a version control system","appUpload":"Select the type of application to upload","appCreateMethod":"Upload an existing application or create one from scratch, which creates a skeleton application based on the app type you select."}
+            "helpTips":{"appKey":"A unique key across all applications. This key is used in places like creating repositories and continuous build systems for your apps. <br> If required you can edit it to a key of your preference","appIcon":"The maximum file size is 5MB. <br> Accepted file types are jpg, jpeg, gif, bmp and png","appType":"Select the type of application you want to create. <br> Accepted file types are war and zip","repoType":"Select a version control system","appUpload":"Select the type of application to upload","appMaxSize":"Maximum size of the artifact is ","appCreateMethod":"Upload an existing application or create one from scratch, which creates a skeleton application based on the app type you select."}
         }
     }
 }

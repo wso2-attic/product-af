@@ -38,8 +38,9 @@ var deleteAllResourcesOfApplication = function(applicationKey){
     } catch(e) {
         // We are not throwing an exception here since this should not interrupt other operations which is associated
         // with application deletion process
-        log.error("Error while deleting all dbs from application: "+applicationKey+" tenant: "+tenantDomain +
-                  " "+e.message);
+        log.error("Error while deleting all database data from application : " + applicationKey + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
     }
 
     // delete registry resources
@@ -48,8 +49,9 @@ var deleteAllResourcesOfApplication = function(applicationKey){
     } catch(e) {
         // We are not throwing an exception here since this should not interrupt other operations which is associated
         // with application deletion process
-        log.error("Error while deleting all resources from application: "+applicationKey+" tenant: "+tenantDomain +
-                  " "+e.message);
+        log.error("Error while deleting all resources from application : " + applicationKey + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
     }
 
     // delete data sources
@@ -58,8 +60,9 @@ var deleteAllResourcesOfApplication = function(applicationKey){
     } catch(e) {
         // We are not throwing an exception here since this should not interrupt other operations which is associated
         // with application deletion process
-        log.error("Error while deleting all resources from application: "+applicationKey+" tenant: "+tenantDomain +
-                  " "+e.message);
+        log.error("Error while deleting all data sources from application : " + applicationKey + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
     }
 
     // delete application from api manager
@@ -68,8 +71,9 @@ var deleteAllResourcesOfApplication = function(applicationKey){
     } catch(e) {
         // We are not throwing an exception here since this should not interrupt other operations which is associated
         // with application deletion process
-        log.error("Error while deleting application: "+applicationKey+" tenant: "+tenantDomain +
-                  " from API Manager "+e.message);
+        log.error("Error while deleting application : " + applicationKey + " of tenant domain : "
+                  + tenantDomain + " from API Manager.");
+        log.error(e);
     }
 
 };
@@ -90,8 +94,9 @@ var deleteAllResources = function(applicationKey) {
     } catch(e) {
         // We are not throwing an exception here since this should not interrupt other operations which is associated
         // with application deletion process
-        log.error("Error while deleting registry resources from application: "+applicationKey+" tenant: "+tenantDomain +
-                  " "+e.message);
+        log.error("Error while deleting all registry resources from application : " + applicationKey
+                  + " of tenant domain : " + tenantDomain);
+        log.error(e);
     }
 
 };
@@ -109,8 +114,9 @@ var deleteAllDataSources = function(applicationKey) {
     } catch(e) {
         // We are not throwing an exception here since this should not interrupt other operations which is associated
         // with application deletion process
-        log.error("Error while deleting datasources from application: "+applicationKey+" tenant: "+tenantDomain +
-                  " "+e.message);
+        log.error("Error while deleting all datasources from application : " + applicationKey
+                  + " of tenant domain : " + tenantDomain);
+        log.error(e);
     }
 
 };

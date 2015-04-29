@@ -56,6 +56,9 @@ jagg.module("manager", {
     },
     getApplicationTypeBean:function () {
         	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getApplicationTypeBean.apply(this, arguments);
+    },
+    getUploadableApplicationMaxSize:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getUploadableApplicationMaxSize.apply(this, arguments);
     }
 });
 %>

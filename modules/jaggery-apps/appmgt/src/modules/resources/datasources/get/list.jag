@@ -230,8 +230,10 @@ var checkDataSourceSupport = function (applicationKey) {
         var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
         return regService.checkDataSourceSupport(applicationKey);
     }catch(e){
+        log.error("Error checking datasource availability for application : " + applicationKey + " from tenant domain : "
+                  + tenantDomain);
         log.error(e);
-        throw new Error("Error checking datasource availablility for: " + applicationKey + " from tenant domain : " + tenantDomain);
+        throw e;
     }finally{
         context.endTenantFlow();
     }

@@ -220,6 +220,9 @@ var UPPLOADABLE_SUFFIX = ".uploaded";
 
 //for applicaiton icon file size
 var APP_ICON_MAX_SIZE = 51200;
+//for url mapping
+var MAX_NO_OF_TRY_FOR_ADD_DEFAULT_DOMAIN = 1;
+
 //For claims
 
 var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";

@@ -56,8 +56,9 @@ var deleteAllDataSources = function (applicationId) {
                       " for application: "+applicationId+" tenant:"+ tenantDomain);
         } catch (e) {
             // not throwing an exception here since this should not interrupt deletion of other stages
-            log.error("Error while deleting all the datasources in stage " + stageName +
-                      " for application: "+applicationId+" tenant:"+ tenantDomain+"\n" + e.message);
+            log.error("Error while deleting all the datasources in stage : " + stageName + " for application : "
+                      + applicationId + " of tenant domain : " + tenantDomain);
+            log.error(e);
             failedStages.push(stageName);
         }
 
