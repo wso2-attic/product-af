@@ -294,20 +294,20 @@
         </urls>
 
         <defaultTenant>
-            <firstName>firstName</firstName>
-            <lastName>lastName</lastName>
-            <email>firstName@example.com</email>
-            <admin>admin</admin>
-            <adminPassword>admin123</adminPassword>
-            <tenantDomain>rama15.com</tenantDomain>
+            <firstName>manipiya5</firstName>
+            <lastName>manipiya5</lastName>
+            <email>manipiya5@manipiya5.com</email>
+            <admin>manipiya5</admin>
+            <adminPassword>manipiya5</adminPassword>
+            <tenantDomain>manipiya5.com</tenantDomain>
             <usagePlan>Demo</usagePlan>
         </defaultTenant>
 
         <defaultApplication>
-            <applicationName>appla</applicationName>
-            <applicationKey>appla</applicationKey>
+            <applicationName>darunuapp1</applicationName>
+            <applicationKey>darunuapp1</applicationKey>
             <applicationType>war</applicationType>
-            <applicationDescription>applicationDescription</applicationDescription>
+            <applicationDescription></applicationDescription>
             <versions>
                 <version key="v1">
                     <sourceVersion>trunk</sourceVersion>
