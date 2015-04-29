@@ -2,18 +2,17 @@ package rest.admin;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
 /**
  * Test case to test build and repo rest endpoints.
  */
-public class BuildRepoTestCase extends AppFactoryIntegrationTest {
+public class BuildRepoTestCase extends AFIntegrationTest {
 
 	@BeforeClass(alwaysRun = true)
 	public void setEnvironment() throws Exception {
-		initWithTenantAndApplicationCreation();
 	}
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM})

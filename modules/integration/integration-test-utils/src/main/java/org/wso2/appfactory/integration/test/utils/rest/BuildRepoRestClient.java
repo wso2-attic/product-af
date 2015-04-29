@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			return;
 		} else {
-			throw new AppFactoryIntegrationTestException("Deploy Artifact failed " + response.getData());
+			throw new AFIntegrationTestException("Deploy Artifact failed " + response.getData());
 		}
 	}
 
@@ -77,7 +77,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			return response.getData();
 		} else {
-			throw new AppFactoryIntegrationTestException("Get build log url failed. " + response.getData());
+			throw new AFIntegrationTestException("Get build log url failed. " + response.getData());
 		}
 	}
 
@@ -99,7 +99,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 			JsonObject dataobject = jsonElement.getAsJsonObject();
 			return dataobject;
 		} else {
-			throw new AppFactoryIntegrationTestException("Get build info by application id is failed. " + response.getData());
+			throw new AFIntegrationTestException("Get build info by application id is failed. " + response.getData());
 		}
 	}
 
@@ -128,7 +128,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 			JsonObject dataobject = jsonElement.getAsJsonObject();
 			return dataobject;
 		} else {
-			throw new AppFactoryIntegrationTestException("Get build and repo data by application id is failed. " + response.getData());
+			throw new AFIntegrationTestException("Get build and repo data by application id is failed. " + response.getData());
 		}
 	}
 
@@ -144,7 +144,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			return response.getData();
 		} else {
-			throw new AppFactoryIntegrationTestException("Get jenkins url is failed. " + response.getData());
+			throw new AFIntegrationTestException("Get jenkins url is failed. " + response.getData());
 		}
 	}
 
@@ -169,7 +169,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			return response.getData();
 		} else {
-			throw new AppFactoryIntegrationTestException("Create codenvy url is failed. " + response.getData());
+			throw new AFIntegrationTestException("Create codenvy url is failed. " + response.getData());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 			JsonObject dataobject = jsonElement.getAsJsonObject();
 			return dataobject;
 		} else {
-			throw new AppFactoryIntegrationTestException("Get build and repo data for forked repo is failed. " + response.getData());
+			throw new AFIntegrationTestException("Get build and repo data for forked repo is failed. " + response.getData());
 		}
 	}
 
@@ -223,7 +223,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 			JsonObject dataobject = jsonElement.getAsJsonObject();
 			return dataobject;
 		} else {
-			throw new AppFactoryIntegrationTestException("Get build and deploy status for version is failed. " + response.getData());
+			throw new AFIntegrationTestException("Get build and deploy status for version is failed. " + response.getData());
 		}
 	}
 
@@ -247,7 +247,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 			JsonObject dataobject = jsonElement.getAsJsonObject();
 			return dataobject;
 		} else {
-			throw new AppFactoryIntegrationTestException("Get build and repo data for version is failed. " + response.getData());
+			throw new AFIntegrationTestException("Get build and repo data for version is failed. " + response.getData());
 		}
 	}
 
@@ -275,7 +275,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 			JsonObject dataobject = jsonElement.getAsJsonObject();
 			return dataobject;
 		} else {
-			throw new AppFactoryIntegrationTestException("Set build deployment configs is failed. " + response.getData());
+			throw new AFIntegrationTestException("Set build deployment configs is failed. " + response.getData());
 		}
 	}
 
@@ -299,7 +299,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			return Boolean.parseBoolean(response.getData());
 		} else {
-			throw new AppFactoryIntegrationTestException("Create fork is failed. " + response.getData());
+			throw new AFIntegrationTestException("Create fork is failed. " + response.getData());
 		}
 	}
 
@@ -323,7 +323,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			return Boolean.parseBoolean(response.getData());
 		} else {
-			throw new AppFactoryIntegrationTestException("Create fork branch is failed. " + response.getData());
+			throw new AFIntegrationTestException("Create fork branch is failed. " + response.getData());
 		}
 	}
 
