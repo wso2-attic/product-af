@@ -87,4 +87,11 @@ public class AFIntegrationTestUtils {
         return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" + tenantDomain;
     }
 
+    public static String getAdminPassword() throws XPathExpressionException {
+        return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+    }
+
+    public static String getBEServerURL() throws XPathExpressionException {
+        return getPropertyValue(AFConstants.URLS_APPFACTORY);
+    }
 }

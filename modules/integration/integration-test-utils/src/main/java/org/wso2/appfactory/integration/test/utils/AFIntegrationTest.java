@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.rmi.RemoteException;
 
 /**
@@ -51,6 +52,23 @@ public class AFIntegrationTest {
         throws RemoteException, LoginAuthenticationExceptionException {
         AuthenticatorClient client = new AuthenticatorClient(backendUrl + "services/");
         return client.login(username, password, host);
+    }
+
+    public String getAdminUsername() throws XPathExpressionException {
+        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) +
+               "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
+    }
+
+    public String getAdminPassword() throws XPathExpressionException {
+        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+    }
+
+    public String getBEServerURL() throws XPathExpressionException {
+        return AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
+    }
+
+    public String getDefaultAppKey() throws XPathExpressionException {
+        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
     }
 
 }
