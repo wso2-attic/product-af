@@ -30,6 +30,19 @@ public class AFIntegrationTest {
 
     private static final Log log = LogFactory.getLog(AFIntegrationTest.class);
 
+    protected String defaultAdmin;
+    protected String defaultAdminPassword;
+    protected String defaultAppKey;
+    protected String AFserverUrl;
+
+    public AFIntegrationTest() {
+        defaultAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) +
+                       "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
+
+        defaultAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+        defaultAppKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
+        AFserverUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
+    }
     /**
      * Clean up the changes
      */
@@ -59,17 +72,6 @@ public class AFIntegrationTest {
                "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
     }
 
-    public String getAdminPassword() throws XPathExpressionException {
-        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
-    }
-
-    public String getBEServerURL() throws XPathExpressionException {
-        return AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
-    }
-
-    public String getDefaultAppKey() throws XPathExpressionException {
-        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
-    }
 
 }
 

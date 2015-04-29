@@ -51,8 +51,12 @@ public class AFIntegrationTestUtils {
      * @return value
      * @throws XPathExpressionException
      */
-    public static String getPropertyValue(String xPath) throws XPathExpressionException {
-        return context.getConfigurationValue(xPath);
+    public static String getPropertyValue(String xPath) throws IllegalArgumentException {
+        try {
+            return context.getConfigurationValue(xPath);
+        } catch (XPathExpressionException e) {
+            throw new IllegalArgumentException("Error reading " + xPath, e);
+        }
     }
 
     /**

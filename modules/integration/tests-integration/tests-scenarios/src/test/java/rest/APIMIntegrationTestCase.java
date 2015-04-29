@@ -17,18 +17,18 @@ public class APIMIntegrationTestCase extends AFIntegrationTest {
 	private APIMIntegrationRestClient client;
 
 	public APIMIntegrationTestCase() throws Exception {
-		client = new APIMIntegrationRestClient(getBEServerURL(), getAdminUsername(), getAdminPassword());
+		client = new APIMIntegrationRestClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
 	}
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })
 	@Test(description = "Testing create application at APIM")
 	public void testCreateApplication() throws Exception {
-		client.createApplication(getDefaultAppKey(), getAdminUsername());
+		client.createApplication(defaultAppKey, defaultAdmin);
 		//add api - binali
 		//subscribe - binali
-		String[] apisOfApp = client.getAPIsOfApp(getDefaultAppKey(), getAdminUsername());
+		String[] apisOfApp = client.getAPIsOfApp(defaultAppKey, defaultAdmin);
 		Assert.assertEquals(apisOfApp, 1, "Expected APIs of Application");
-		String[] savedKeys = client.getSavedKeys(getDefaultAppKey(), getAdminUsername());
+		String[] savedKeys = client.getSavedKeys(defaultAppKey, defaultAdmin);
 		//Assertion whether number of savedKeys are 4
 	}
 
