@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by punnadi on 4/28/15.
+ * Application version stub
  */
 public class AppVersionRestClient extends BaseRestClient {
 

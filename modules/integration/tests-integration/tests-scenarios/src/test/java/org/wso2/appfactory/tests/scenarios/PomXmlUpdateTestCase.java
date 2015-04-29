@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitAgent;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
@@ -67,8 +68,9 @@ public class PomXmlUpdateTestCase extends AFIntegrationTest {
         // initiate repository client
         GitAgent gitAgent = new JGitAgent();
         client = new GitRepositoryClient(gitAgent);
-        client.init(utils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" + utils.getRandomTenantDomain(),
-                    utils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+        client.init(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" +
+                    AFIntegrationTestUtils.getRandomTenantDomain(),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
 
     }
 
@@ -78,7 +80,8 @@ public class PomXmlUpdateTestCase extends AFIntegrationTest {
         // working directory
         File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
         // construct repo url for default application
-        String repoURL = getRepoUrl(utils.getRandomTenantDomain(), utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        String repoURL = getRepoUrl(AFIntegrationTestUtils.getRandomTenantDomain(),
+                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         boolean result = client.retireveMetadata(repoURL, false, workDir);
         Assert.assertEquals(result, true, "Failed to clone.");
 
@@ -97,7 +100,8 @@ public class PomXmlUpdateTestCase extends AFIntegrationTest {
         // working directory
         File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
         // construct repo url for default application
-        String repoURL =  getRepoUrl(utils.getRandomTenantDomain(), utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        String repoURL =  getRepoUrl(AFIntegrationTestUtils.getRandomTenantDomain(),
+                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         boolean result = client.retireveMetadata(repoURL, false, workDir);
         Assert.assertEquals(result, true, "Failed to clone.");
 
@@ -120,7 +124,8 @@ public class PomXmlUpdateTestCase extends AFIntegrationTest {
         // working directory
         File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
         // construct repo url for default application
-        String repoURL =  getRepoUrl(utils.getRandomTenantDomain(), utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        String repoURL =  getRepoUrl(AFIntegrationTestUtils.getRandomTenantDomain(),
+                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         boolean result = client.retireveMetadata(repoURL, false, workDir);
         Assert.assertEquals(result, true, "Failed to clone.");
 
@@ -139,7 +144,8 @@ public class PomXmlUpdateTestCase extends AFIntegrationTest {
         // working directory
         File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
         // construct repo url for default application
-        String repoURL =  getRepoUrl(utils.getRandomTenantDomain(), utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        String repoURL =  getRepoUrl(AFIntegrationTestUtils.getRandomTenantDomain(),
+                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         boolean result = client.retireveMetadata(repoURL, false, workDir);
         Assert.assertEquals(result, true, "Failed to clone.");
 
@@ -163,7 +169,7 @@ public class PomXmlUpdateTestCase extends AFIntegrationTest {
     }
 
     public String getRepoUrl(String tenantDomain, String appKey) throws XPathExpressionException {
-        return  utils.getPropertyValue(AFConstants.URLS_GIT) + "git" + "/" + tenantDomain + "/" + appKey + ".git";
+        return  AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT) + "git" + "/" + tenantDomain + "/" + appKey + ".git";
     }
 
     public static void updatePOM(String version, String name, String packaging, String groupId,

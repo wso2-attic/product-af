@@ -36,11 +36,9 @@ public class AFDefaultDataPopulator {
     private static final Log log = LogFactory.getLog(AFDefaultDataPopulator.class);
     protected String superTenantSession;
     protected static AutomationContext context;
-    protected TenantInfoBean tenantInfoBean;
     private static String tenantDomain;
     String tenantAdminUsername;
     String tenantAdminPassword;
-    private AFIntegrationTestUtils utils = AFIntegrationTestUtils.getInstance();
 
     /**
      * Start test execution with super tenant login
@@ -48,38 +46,10 @@ public class AFDefaultDataPopulator {
      * @throws java.lang.Exception
      */
     private void init() throws Exception {
-        superTenantSession = login(context = utils.getAutomationContext());
-        tenantDomain = utils.getRandomTenantDomain();
-        tenantAdminUsername = utils.getAdminUsername();
-        tenantAdminPassword = utils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
-    }
-
-    /**
-     * Start test execution with super tenant login and create tenant with default values
-     * specified in automation.xml
-     *
-     * @throws Exception
-     */
-    private void initWithTenantCreation() throws Exception {
-        init();
-        tenantInfoBean = createTenant(utils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
-                                      utils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
-                                      utils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
-                                      utils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
-    }
-
-    /**
-     * Start test execution with super tenant login, create tenant and then application with
-     * default values specified in automation.xml
-     *
-     * @throws Exception
-     */
-    private void initWithTenantAndApplicationCreation() throws Exception {
-        initWithTenantCreation();
-        createApplication(utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
-                          utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                          utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
-                          utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE));
+        superTenantSession = login(context = AFIntegrationTestUtils.getAutomationContext());
+        tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
+        tenantAdminUsername = AFIntegrationTestUtils.getAdminUsername();
+        tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
     }
 
     /**
@@ -89,16 +59,30 @@ public class AFDefaultDataPopulator {
      * @throws Exception
      */
     public void initTenantApplicationAndVersionCreation() throws Exception {
-        initWithTenantAndApplicationCreation();
-        createApplicationVersion(utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                                 utils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
-                                 utils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_TARGET));
-        createApplicationVersion(utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                                 utils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_TWO_SRC),
-                                 utils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_TWO_TARGET));
-        createApplicationVersion(utils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                                 utils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_SRC),
-                                 utils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));
+        init();
+        boolean tenantAlreadyExists = createTenant(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
+                                            AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
+                                            AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
+                                            AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
+
+        if(!tenantAlreadyExists) {
+            createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE));
+            createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
+                                     AFIntegrationTestUtils.getPropertyValue(
+                                             AFConstants.DEFAULT_APP_VERSION_ONE_TARGET));
+            createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_TWO_SRC),
+                                     AFIntegrationTestUtils.getPropertyValue(
+                                             AFConstants.DEFAULT_APP_VERSION_TWO_TARGET));
+            createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_SRC),
+                                     AFIntegrationTestUtils.getPropertyValue(
+                                             AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));
+        }
 
     }
 
@@ -117,59 +101,76 @@ public class AFDefaultDataPopulator {
      * @throws XMLStreamException
      * @throws InterruptedException
      */
-    protected TenantInfoBean createTenant(String firstName, String lastName, String email, String usagePlan)
+    protected boolean createTenant(String firstName, String lastName, String email, String usagePlan)
             throws XPathExpressionException, RemoteException, TenantMgtAdminServiceExceptionException,
                    FileNotFoundException, XMLStreamException, InterruptedException {
 
+        boolean tenantAlreadyExists = false;
         // Check whether tenant is exist
         TenantManagementServiceClient tenantManagementServiceClient =
-                new TenantManagementServiceClient(utils.getPropertyValue(AFConstants.URLS_APPFACTORY), superTenantSession);
+                new TenantManagementServiceClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                                  superTenantSession);
 
-        Date date = new Date();
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(date);
+        /* tenantManagementServiceClient.getTenant() method always return a TenantInfoBean object
+        although the tenantDomain is not exist.
+        if tenantDomain is exist and inactive:
+        tenantInfoBean.getActive() == false && tenantInfoBean.getTenantId() > 0
+        if tenantDomain is not exist:
+        tenantInfoBean.getActive() == false && tenantInfoBean.getTenantId() == 0 */
+        TenantInfoBean tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
 
-        TenantInfoBean newTenant = new TenantInfoBean();
-        newTenant.setActive(true);
-        newTenant.setAdmin(tenantAdminUsername);
-        newTenant.setAdminPassword(tenantAdminPassword);
-        newTenant.setCreatedDate(calendar);
-        newTenant.setEmail(email);
-        newTenant.setFirstname(firstName);
-        newTenant.setLastname(lastName);
-        newTenant.setOriginatedService("WSO2 Stratos Manager");
-        newTenant.setTenantDomain(tenantDomain);
-        newTenant.setUsagePlan(usagePlan);
+        if (!tenantInfoBean.getActive() && tenantInfoBean.getTenantId() > 0) {
+            tenantManagementServiceClient.activateTenant(tenantDomain);
+            tenantInfoBean.setActive(true);
+            log.info("Tenant domain " + tenantDomain + " Activated");
+            tenantAlreadyExists = true;
 
-        tenantManagementServiceClient.addTenant(newTenant);
-        tenantManagementServiceClient.activateTenant(tenantDomain);
+        } else if (!tenantInfoBean.getActive() && tenantInfoBean.getTenantId() == 0) {
+            Date date = new Date();
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(date);
 
-        // Get created tenant
-        tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
-        Assert.assertTrue(tenantInfoBean.getActive(), "Tenant is not active");
-        Assert.assertTrue(tenantInfoBean.getTenantId() > 0, "Tenant Id is not more than 0");
+            TenantInfoBean newTenant = new TenantInfoBean();
+            newTenant.setActive(true);
+            newTenant.setAdmin(tenantAdminUsername);
+            newTenant.setAdminPassword(tenantAdminPassword);
+            newTenant.setCreatedDate(calendar);
+            newTenant.setEmail(email);
+            newTenant.setFirstname(firstName);
+            newTenant.setLastname(lastName);
+            newTenant.setOriginatedService("WSO2 Stratos Manager");
+            newTenant.setTenantDomain(tenantDomain);
+            newTenant.setUsagePlan(usagePlan);
 
-        // Invoke CreateTenant BPEL
-        CreateTenantBPELClient createTenantBPELClient =
-                new CreateTenantBPELClient(utils.getPropertyValue(AFConstants.URLS_BPS),
-                                           superTenantSession);
+            tenantManagementServiceClient.addTenant(newTenant);
+            tenantManagementServiceClient.activateTenant(tenantDomain);
 
-        String result = createTenantBPELClient
-                .createTenant(context, tenantAdminUsername, tenantInfoBean, tenantAdminPassword,
-                              "key", "WSO2 App Factory");
-        Assert.assertNotNull(result,
-                             "Result of createTenantBPELClient.createTenant() is null ");
-        Assert.assertTrue(result.contains("true"),
-                          "Result of createTenantBPELClient.createTenant() is not true ");
+            // Get created tenant
+            tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
+            Assert.assertTrue(tenantInfoBean.getActive(), "Tenant is not active");
+            Assert.assertTrue(tenantInfoBean.getTenantId() > 0, "Tenant Id is not more than 0");
 
-        log.info("Tenant domain " + tenantDomain + " created and activated");
+            // Invoke CreateTenant BPEL
+            CreateTenantBPELClient createTenantBPELClient =
+                    new CreateTenantBPELClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BPS),
+                                               superTenantSession);
 
+            String result = createTenantBPELClient
+                    .createTenant(context, tenantAdminUsername, tenantInfoBean, tenantAdminPassword,
+                                  "key", "WSO2 App Factory");
+            Assert.assertNotNull(result,
+                                 "Result of createTenantBPELClient.createTenant() is null ");
+            Assert.assertTrue(result.contains("true"),
+                              "Result of createTenantBPELClient.createTenant() is not true ");
+
+            log.info("Tenant domain " + tenantDomain + " created and activated");
+        }
         // Wait until tenant creation completes
         Assert.assertTrue(
                 waitUntilTenantCreationCompletes(10000L, 10, tenantAdminUsername, tenantAdminPassword),
                 "Tenant creation unsuccessful");
         log.info("Tenant domain " + tenantDomain + " completed successfully");
-        return tenantInfoBean;
+        return tenantAlreadyExists;
     }
 
     /**
@@ -189,7 +190,7 @@ public class AFDefaultDataPopulator {
         int round = 1;
         while (round <= retryCount) {
             try {
-                login(utils.getPropertyValue(AFConstants.URLS_PROD_SC), tenantAdminUsername,
+                login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_PROD_SC), tenantAdminUsername,
                       adminPassword, context.getInstance().getHosts().get("default"));
                 isTenantLoggedIn = true;
                 break;
@@ -220,7 +221,7 @@ public class AFDefaultDataPopulator {
     protected void createApplication(String applicationName, String applicationKey, String applicationDescription,
                                      String applicationType)
             throws Exception {
-        ApplicationRestClient appMgtRestClient = new ApplicationRestClient(utils.getPropertyValue(
+        ApplicationRestClient appMgtRestClient = new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.URLS_APPFACTORY)
                                                 , tenantAdminUsername, tenantAdminPassword);
         appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
@@ -242,7 +243,7 @@ public class AFDefaultDataPopulator {
     protected void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
             throws Exception{
         AppVersionRestClient appVersionRestClient =
-                new AppVersionRestClient(utils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                new AppVersionRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                          tenantAdminUsername, tenantAdminPassword);
         appVersionRestClient.createVersion(applicationKey, sourceVersion, targetVersion);
 
@@ -263,7 +264,7 @@ public class AFDefaultDataPopulator {
                                                          String adminPassword, String applicationKey,
                                                          String applicationName) throws Exception {
         ApplicationRestClient appMgtRestClient =
-                new ApplicationRestClient(utils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                           tenantAdminUsername, adminPassword);
 
         HttpResponse httpResponse = null;

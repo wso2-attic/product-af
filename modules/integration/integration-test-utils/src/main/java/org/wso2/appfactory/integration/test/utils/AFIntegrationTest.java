@@ -28,7 +28,6 @@ import java.rmi.RemoteException;
 public class AFIntegrationTest {
 
     private static final Log log = LogFactory.getLog(AFIntegrationTest.class);
-    protected static final AFIntegrationTestUtils utils = AFIntegrationTestUtils.getInstance();
 
     /**
      * Clean up the changes

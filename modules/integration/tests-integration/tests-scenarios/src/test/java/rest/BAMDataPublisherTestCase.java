@@ -36,6 +36,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
 import org.wso2.carbon.analytics.hive.stub.HiveExecutionServiceStub;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
@@ -66,9 +67,9 @@ public class BAMDataPublisherTestCase extends AFIntegrationTest {
 		activityJSON = MessageFormat.format(activityJSON, values);
 		ApplicationRestClient appMgtRestClient =
 		                                    new ApplicationRestClient(
-                                                    utils.getPropertyValue(AFConstants.URLS_APPFACTORY),
-                                                    utils.getAdminUsername(),
-                                                    utils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+                                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                                    AFIntegrationTestUtils.getAdminUsername(),
+                                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
 		appMgtRestClient.publishUserActivity(activityJSON);
 		verify(itemValue);
 
@@ -93,8 +94,8 @@ public class BAMDataPublisherTestCase extends AFIntegrationTest {
 	private HiveExecutionServiceStub getHiveExecutionStub() throws Exception {
 		ConfigurationContext configContext =
 		                                     ConfigurationContextFactory.createConfigurationContextFromFileSystem(null);
-		String backendUrl = utils.getPropertyValue(AFConstants.URLS_BAM);
-        final AutomationContext automationContext = utils.getAutomationContext();
+		String backendUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BAM);
+        final AutomationContext automationContext = AFIntegrationTestUtils.getAutomationContext();
         String loggedInSessionCookie =
 		                               super.login(backendUrl,
                                                    automationContext.getSuperTenant().getTenantAdmin().getUserName(),
