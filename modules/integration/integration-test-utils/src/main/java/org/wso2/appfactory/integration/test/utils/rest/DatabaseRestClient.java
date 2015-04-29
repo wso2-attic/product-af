@@ -21,12 +21,9 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 
 import org.apache.commons.httpclient.HttpStatus;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
-import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +50,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return;
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -68,7 +65,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return;
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -81,7 +78,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -96,7 +93,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -109,7 +106,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 
 	}
@@ -125,7 +122,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 
 	}
@@ -139,7 +136,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 
 	}
@@ -155,7 +152,7 @@ public class DatabaseRestClient extends BaseRestClient {
 			//TODO
 			return new String[0];
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -171,7 +168,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 
 	}
@@ -185,7 +182,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -201,7 +198,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 		return "";
 	}
@@ -218,7 +215,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 		return new String[1];
 
@@ -232,7 +229,7 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 	}
 
@@ -244,19 +241,120 @@ public class DatabaseRestClient extends BaseRestClient {
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
 			//TODO
 		} else {
-			throw new AppFactoryIntegrationTestException("GetAppInfo failed " + response.getData());
+			throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
 		}
 		return new String[0];
 	}
 
+    /**
+     *
+     * @param applicationKey
+     * @throws Exception
+     */
+    public void getDatabaseUsers(String applicationKey) throws Exception{
 
-	/*
-	getDatabaseUsers
-			getDatabaseUsersForRssInstance
-	getAvailableUsersToAttachToDatabase
-			deleteUser
-	createDatabaseUser
-	*/
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put("action", "getDatabaseUsers");
+        msgBodyMap.put("applicationKey", applicationKey);
 
+        HttpResponse response = super.doPostRequest("resources/database/users/list/ajax/list.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            //TODO
+            return;
+        } else {
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+        }
+    }
+
+    public void getDatabaseUsersForRssInstance(String applicationKey,String rssInstance)throws Exception{
+
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put("action", "getDatabaseUsersForRssInstance");
+        msgBodyMap.put("applicationKey", applicationKey);
+        msgBodyMap.put("rssInstance", rssInstance);
+
+        HttpResponse response = super.doPostRequest("resources/database/users/list/ajax/list.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            return;
+        } else {
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+        }
+    }
+
+    /**
+     *
+     * @param applicationKey
+     * @param databaseName
+     * @param databaseServerInstanceName
+     * @throws Exception
+     */
+    public void getAvailableUsersToAttachToDatabase(String applicationKey,String databaseName,String databaseServerInstanceName) throws Exception{
+
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put("action", "getAvailableUsersToAttachToDatabase");
+        msgBodyMap.put("applicationKey", applicationKey);
+        msgBodyMap.put("databaseName", databaseName);
+        msgBodyMap.put("dbServerInstanceName", databaseServerInstanceName );
+
+        HttpResponse response = super.doPostRequest("resources/database/users/list/ajax/list.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            //TODO
+            return;
+        } else {
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+        }
+
+    }
+
+
+    /**
+     *
+     * @param applicationKey
+     * @param name
+     * @param rssInstance
+     * @throws Exception
+     */
+    public void deleteUser(String applicationKey,String name,String rssInstance) throws Exception{
+
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put("action", "deleteUser");
+        msgBodyMap.put("applicationKey", applicationKey);
+        msgBodyMap.put("name", name);
+        msgBodyMap.put("rssInstance", rssInstance);
+
+        HttpResponse response = super.doPostRequest("resources/database/users/list/ajax/list.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            return;
+        } else {
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+        }
+
+    }
+
+    /**
+     *
+     * @param applicationKey
+     * @param password
+     * @param rssInstance
+     * @param username
+     * @return
+     * @throws Exception
+     */
+    public void createDatabaseUser(String applicationKey,String password,String rssInstance,String username) throws Exception{
+
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put("action", "createDatabaseUser");
+        msgBodyMap.put("applicationKey", applicationKey);
+        msgBodyMap.put("password", password);
+        msgBodyMap.put("rssInstance", rssInstance);
+        msgBodyMap.put("username", username);
+
+        HttpResponse response = super.doPostRequest("resources/database/users/list/ajax/list.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            return;
+        } else {
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+        }
+    }
 
 }

@@ -66,8 +66,9 @@ var createBaseAppPath = function (stage, appId) {
         }
 
     } catch (e) {
-        log.error("Error while putting remote registry: " + serverUrl + " resource in " + dependencyPath + appId + "\n" + e.message);
-        throw "Error while putting remote registry: " + serverUrl + " resource in " + dependencyPath + appId;
+        log.error("Error while putting resource : " + dependencyPath + appId + " in remote registry : " + serverUrl);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -98,7 +99,10 @@ var addPropertyToStages = function (propname, propcontent, description, proptype
                     var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(appId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
                     var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
                 }  catch (e) {
-                    log.error("Error while sending property creation completed notification \n" + e.message);
+                    //we don't throw here since this is message sending to wall.
+                    log.error("Error while sending property creation success notification for property : " + propname
+                              + " in stage : " + stage + " for application id : " + appId);
+                    log.error(e);
                 }
 
             } finally {
@@ -112,10 +116,14 @@ var addPropertyToStages = function (propname, propcontent, description, proptype
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(appId, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             }  catch (e) {
-                log.error("Error while sending property creation failed notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending property creation failure notification for property : " + propname
+                          + " in stage : " + stage + " for application id : " + appId);
+                log.error(e);
             }
-            log.error("Error while putting remote registry: " + serverUrl + " resource in " + path + "\n" + e.message);
-            throw "Error while putting remote registry resource";
+            log.error("Error while adding registry property to stages in server : " + serverUrl + " to path : " + path);
+            log.error(e);
+            throw e;
         }
         clearResourceCache(stage, appId, propname, context, tenantDomain);
     }
@@ -147,8 +155,9 @@ var addPropertyCollectionToStages = function (path, description, mediatype, appI
                 context.endTenantFlow();
             }
         } catch (e) {
-            log.error("Error while putting remote registry: " + serverUrl + " collection in " + path + "\n" + e.message);
-            throw "Error while putting remote registry collection";
+            log.error("Error while putting collection : " + path + " in remote registry : " + serverUrl);
+            log.error(e);
+            throw e;
         }
 
         clearParentCache(stage, appId, context, tenantDomain);
@@ -183,8 +192,9 @@ var addPropertyToInitialStages = function (propname, propcontent, description, p
                 context.endTenantFlow();
             }
 	    } catch (e) {
-	        log.error("Error while putting remote registry: "+ serverUrl +" resource to "+path +"\n" + e.message);
-	        throw "Error while putting remote registry resource";
+            log.error("Error while putting property : " + path + " to initial stages in remote registry : " + serverUrl);
+            log.error(e);
+            throw e;
 	    }
         clearResourceCache(stage, appId, propname, context, tenantDomain);
 	}
@@ -221,8 +231,10 @@ var updatePropertyDescriptionInStages = function (propname, mediatype, descripti
             }
 
         } catch (e) {
-            log.error("Error while updating remote registry: " + serverUrl + " resource description to " + path + "\n" + e.message);
-            throw "Error while updating remote registry resource description";
+            log.error("Error while updating property description of property : " + path + " in remote registry : "
+                      + serverUrl);
+            log.error(e);
+            throw e;
         }
 
           clearResourceCache(stage, appId, propname, context, tenantDomain);
@@ -290,8 +302,9 @@ var propertyExistsInStages = function (propname, appId, stages) {
                 return false;
             }
         } catch (e) {
-            log.error("Error while checking remote registry: " + serverUrl + " for existance of resource " + path + "\n" + e.message);
-            throw "Error while checking existance of remote registry resource";
+            log.error("Error while checking remote registry : " + serverUrl + " for existence of resource : " + path);
+            log.error(e);
+            throw e;
         }
     }
     return true;
@@ -327,8 +340,9 @@ var propertyExistsInAllStages = function (propname, appId) {
                 return false;
             }
         } catch (e) {
-            log.error("Error while checking remote registry: " + serverUrl + " for existance of resource " + path + "\n" + e.message);
-            throw "Error while checking existance of remote registry resource";
+            log.error("Error while checking remote registry : " + serverUrl + " for existence of resource " + path);
+            log.error(e);
+            throw e;
         }
     }
     return false;
@@ -363,8 +377,10 @@ var getPropertyValueInAllStages = function (propname, appId) {
             //var value = regService.getRegistyResourceValue(serverUrl, cookie, path);
             valueByStage[stage] = value;
         } catch (e) {
-            log.error("Error while retriving remote registry: " + serverUrl + " resource from " + path + "\n" + e.message);
-            throw "Error while retriving remote registry resource";
+            log.error("Error in retrieving resource : " + path + " from remote registry : " + serverUrl
+                      + " while getting the property values in all stages.");
+            log.error(e);
+            throw e;
         }
     }
     return valueByStage;
@@ -407,8 +423,10 @@ var getPropertiesInStage = function (appId, stage) {
         }
         return dependencies;
     } catch (e) {
-        log.error("Error while retriving remote registry: " + serverUrl + " resources from " + path + "\n" + e.message);
-        throw "Error while retriving remote registry resources";
+        log.error("Error in retrieving resource : " + path + " from remote registry : " + serverUrl
+                  + " while getting properties in stage.");
+        log.error(e);
+        throw e;
     }
 };
 
@@ -444,8 +462,10 @@ var getDetailedPropertyValueInStage = function (propname, appId, stage) {
         object.mediaType = resource.mediaType;
 
     } catch (e) {
-        log.error("Error while retriving remote registry: " + serverUrl + " resources from " + path + "\n" + e.message);
-        throw "Error while retriving remote registry resources";
+        log.error("Error in retrieving resource : " + path + " in remote registry : " + serverUrl + " while getting "
+                  + "detailed property values in stage.");
+        log.error(e);
+        throw e;
     }
     return object;
 };
@@ -531,8 +551,10 @@ var putResourcesForCollectionInStages = function (dictionary, description, media
                 context.endTenantFlow();
             }
         } catch (e) {
-            log.error("Error while updating remote registry: " + serverUrl + " resource in " + path + "\n" + e);
-            throw "Error while updating remote registry resource";
+            log.error("Error in updating remote registry : " + serverUrl + " with resource : " + elm.value
+                      + " while putting resources for collection in stages.");
+            log.error(e);
+            throw e;
         }
 
         clearParentCache(stage, appId, context, tenantDomain);
@@ -566,8 +588,10 @@ var updatePropertyInStages = function (propname, propcontent, description, propt
             }
 
         } catch (e) {
-            log.error("Error while updating remote registry: " + serverUrl + " resource in " + path + "\n" + e.message);
-            throw "Error while updating remote registry resource";
+            log.error("Error in updating resource : " + path + " in remote registry : " + serverUrl
+                      + " while updating property in given stages.");
+            log.error(e);
+            throw e;
         }
 
         clearResourceCache(stage, appId, propname, context, tenantDomain);
@@ -586,8 +610,10 @@ var deletePropertyFromAllStages = function (propname, appId) {
         try {
             deleteResource(serverUrl, path, null, null, null, null, stage);
         } catch (e) {
-            log.error("Error while deleting remote registry: " + serverUrl + " resource from " + path + "\n" + e.message);
-            throw "Error while deleting remote registry resource";
+            log.error("Error in deleting resource : " + path + " from remote registry : " + serverUrl
+                      + " while deleting property from all stages.");
+            log.error(e);
+            throw e;
         }
     }
 };
@@ -603,8 +629,10 @@ var deletePropertyFromStages = function (propname, resourceMediaType, contentVal
         try {
             deleteResource(serverUrl, appId, propname, contentValue, resourceDescription, resourceMediaType, stage);
         } catch (e) {
-            log.error("Error while deleting remote registry: " + serverUrl + " resource from " + path + "\n" + e.message);
-            throw "Error while deleting remote registry resource";
+            log.error("Error in deleting resource : " + path + " from remote registry : " + serverUrl
+                      + " while deleting property from given stages.");
+            log.error(e);
+            throw e;
         }
     }
 };
@@ -632,14 +660,15 @@ var deleteAllRegistryResourcesFromAllStages = function (appId) {
         } catch (e) {
             // we are not throwing an exception here, even the deletion process is failed for the {@code stage},
             // it should try for other stages
-            log.error("Error while deleting remote registry: " + serverUrl + " resource from " + path +
-                      " for application: "+appId+" for stage: "+stage+" tenant: "+tenantDomain+"\n" + e.message);
+            log.error("Error while deleting resource : " + path + "  from remote registry : " + serverUrl
+                      + " for application : " + appId + " in stage : " + stage + " of tenant domain : " + tenantDomain);
+            log.error(e);
             errorOccurred = true;
         }
     }
     if(errorOccurred) {
-        throw "Error occurred while deleting all registry resources for application: "+appId+
-              " tenant: "+tenantDomain;
+        throw "Error occurred while deleting all registry resources from all stages for application id : " + appId
+              + " of tenant domain : " + tenantDomain;
     }
 };
 
@@ -662,9 +691,10 @@ var deleteResource = function(serverUrl, appId, propname, propcontent, descripti
         var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
         regService.deleteRegistryResource(serverUrl, username, appId, propname, propcontent, description, proptype, false);
     } catch (e) {
-        log.error("Error while deleting remote registry: " + serverUrl + " resource from " + path +
-                  " tenant: "+tenantDomain+"\n" + e.message);
-        throw "Error while deleting remote registry resource";
+        log.error("Error while deleting resource : " + propname + " from remote registry : " + serverUrl
+                  + "of application id : " + appId + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     } finally {
             context.endTenantFlow();
     }

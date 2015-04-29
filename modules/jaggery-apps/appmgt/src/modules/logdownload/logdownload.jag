@@ -134,8 +134,10 @@ var downloadDailyLogs = function (appName, stage, pageNumber){
         return {numberOfPages : numberOfPages, logEvents : logEvent};
 
     } catch (e) {
-        log.error('Error occurred while downloading the logs');
-        throw "Error while retrieving logs in "+stage+" "+e.toString();
+        log.error("Error occurred while downloading daily logs from stage : " + stage + " of application : "
+                  + appName + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -183,8 +185,10 @@ var downloadArchivedLogFile = function (applicationKey, stage, logFileName) {
         }
         return "";
     } catch (e) {
-        log.error('Error occurred while downloading the logs');
-        throw "Error while retrieving logs in "+stage+" "+e.toString();
+        log.error("Error occurred while downloading archived log file : " + logFileName + " from stage : " + stage
+                  + " of application : " + appName + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     }
 };
 

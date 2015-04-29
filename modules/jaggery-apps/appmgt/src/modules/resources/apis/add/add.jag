@@ -54,8 +54,10 @@ var createApplication = function (applicationKey){
 				
 		return result;
 	}catch(e){
-		log.error("Error while retrieving saved keys for " + applicationKey + "\n" + e.message);
-		throw "Error while retrieving saved keys for " + applicationKey;
+		log.error("Error at invoking APIManagerIntegrationService while creating application : " + applicationKey
+				  + " of tenant domain : " + tenantDomain);
+		log.error(e);
+		throw e;
 	}finally {
 		context.endTenantFlow();
 	}

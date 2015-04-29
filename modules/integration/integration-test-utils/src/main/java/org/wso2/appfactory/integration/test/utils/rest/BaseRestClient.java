@@ -21,8 +21,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTestException;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
@@ -43,6 +42,7 @@ public class BaseRestClient {
     protected static final String APPMGT_APPLICATION_ADD = "application/add/ajax/add.jag";
     protected static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
     protected static final String APPMGT_LIFECYCLE_ADD= "lifecycle/add/ajax/add.jag";
+    protected static final String APPMGT_DATASOURCE_ADD= "resources/datasource/add/ajax/add.jag";
 
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HEADER_COOKIE = "Cookie";
@@ -117,12 +117,12 @@ public class BaseRestClient {
      * Check response errors
      *
      * @param response response
-     * @throws AppFactoryIntegrationTestException
+     * @throws org.wso2.appfactory.integration.test.utils.AFIntegrationTestException
      */
-    protected void checkErrors(HttpResponse response) throws AppFactoryIntegrationTestException {
+    protected void checkErrors(HttpResponse response) throws AFIntegrationTestException {
         JSONObject jsonObject = new JSONObject(response.getData());
         if (jsonObject.keySet().contains("error")) {
-            throw new AppFactoryIntegrationTestException(
+            throw new AFIntegrationTestException(
                 "Operation not successful: " + jsonObject.get("message").toString());
         }
     }
@@ -142,11 +142,11 @@ public class BaseRestClient {
         if (response.getResponseCode() == HttpStatus.SC_OK && response.getData().equals("true")) {
             String session = getSession(response.getHeaders());
             if (session == null) {
-                throw new AppFactoryIntegrationTestException("No session cookie found with response");
+                throw new AFIntegrationTestException("No session cookie found with response");
             }
             setSession(session);
         } else {
-            throw new AppFactoryIntegrationTestException("Login failed " + response.getData());
+            throw new AFIntegrationTestException("Login failed " + response.getData());
         }
     }
 

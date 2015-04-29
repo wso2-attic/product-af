@@ -79,7 +79,7 @@ var getRoles=function (applicationKey, userName) {
     modManager.setAuthHeaders(options);
     var payload = '<p:getRolesOfUserPerApplication xmlns:p="http://service.mgt.application.appfactory.carbon.wso2.org"><xs:appId xmlns:xs="http://service.mgt.application.appfactory.carbon.wso2.org">' + applicationKey + '</xs:appId><xs:userName xmlns:xs="http://service.mgt.application.appfactory.carbon.wso2.org">' + userName + '</xs:userName></p:getRolesOfUserPerApplication>';
     var result;
-
+    var tenantDomain = modManager.getTenantDomain();
     try {
     	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
     	request.open(options,endPoint, false);
@@ -89,7 +89,10 @@ var getRoles=function (applicationKey, userName) {
     		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
     	}
     } catch (e) {
-    	throw "Error while retrieving roles";
+        log.error("Error while retrieving roles of user : " + userName + " for the app : " + applicationKey
+                  + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     }
     return result;
 };
@@ -133,7 +136,9 @@ var getAppUsersWithRoles = function(applicationKey) {
             throw "Error while retrieving users";
         }
     } catch(e) {
-        throw "Error while retrieving users";
+        log.error("Error while retrieving app users with roles for the application : " + applicationKey);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -158,7 +163,9 @@ var getUsersInfoOfApplication=function(applicationKey) {
     		log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
     	}
     } catch (e) {
-    	throw "Error while retrieving user info";
+        log.error("Error while retrieving user info for the application : " + applicationKey);
+        log.error(e);
+        throw e;
     }
     return result;
 };
@@ -174,7 +181,9 @@ var getUserRolesForApplication = function(applicationKey, userName) {
             throw "Error while retrieving roles";
         }
     } catch(e) {
-        throw "Error while retrieving roles";
+        log.error("Error while retrieving user roles of " + userName + " for the application : " + applicationKey);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -338,13 +347,11 @@ var getAppUsersByRoles = function(applicationKey) {
             }
             
             return rolesMap;
-        } else {
-            log.error("Error while retrieving users \n");
-            throw "Error while retrieving users";
         }
     } catch(e) {
-        log.error("Error while retrieving users \n"+e.message);
-        throw "Error while retrieving users";
+        log.error("Error while retrieving app users by roles for the application : " + applicationKey);
+        log.error(e);
+        throw e;
     }
 };
 %>

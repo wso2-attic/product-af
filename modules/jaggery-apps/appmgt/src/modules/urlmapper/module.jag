@@ -19,6 +19,10 @@
 
 jagg.module("urlmapper", {
 
+    addDefaultProdUrl:function () {
+        return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").addDefaultProdUrl.apply(this, arguments);
+    },
+
     addNewCustomUrl:function () {
         return jagg.require(jagg.getModulesDir() + "urlmapper/urlmapper.jag").addNewCustomUrl.apply(this, arguments);
     },

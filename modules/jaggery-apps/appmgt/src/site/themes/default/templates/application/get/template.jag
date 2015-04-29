@@ -705,6 +705,7 @@ function setClipBoard(version){
 
    var repoCloneURL = "" ;
    var repoBrowseURL = "" ;
+   var noOfTry = 0;
 
 
    function createCurrentStatus(isLoad) {
@@ -878,8 +879,12 @@ function setClipBoard(version){
 	        });
 
             // TODO: support for other app types
-            if(defaultSubDomain && ('<%=isAllowDomainMapping%>' === 'true')) {
-                $('#urlMapper').show();
+            if ('<%=isAllowDomainMapping%>' === 'true' && defaultSubDomain) {
+                    $('#urlMapper').show();
+            } else if(!defaultSubDomain && noOfTry < '<%=MAX_NO_OF_TRY_FOR_ADD_DEFAULT_DOMAIN%>'){
+                    $('#urlMapper').hide();
+                    noOfTry++;
+                    addDefaultProdUrlIfNotExist();
             } else {
                  // hide domain mapping div, if production url is not defined
                 $('#urlMapper').hide();
@@ -985,6 +990,25 @@ function setClipBoard(version){
             }
 	    }
    }
+
+   function addDefaultProdUrlIfNotExist(){
+         jagg.post("../blocks/urlmapper/add/ajax/add.jag", {
+	           action:"addDefaultProdUrl",
+	           applicationKey:applicationKey
+	       },function (result) {
+	    	   hideNotification();
+	    	   jagg.message({
+                    content: "Default production url added successfully",
+                    type: 'success',
+                    id:'notification'
+                });
+	    	   createCurrentStatus(false);
+	       },function (jqXHR, textStatus, errorThrown) {
+	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+	           createCurrentStatus(false);
+	       });
+   }
+
 
     /**
      * Remove previous domain and remap new domain to the given version

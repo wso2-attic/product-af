@@ -119,8 +119,10 @@ var changePassword=function(oldPassword,newPassword){
         var claimValue=userStoreManager.setUserClaimValue(user,"http://wso2.org/claims/firstlogin","false",null);
 
     }catch (e){
-         log.error("Error occured while changing password");
-         throw "Error occured while changing password";
+        log.error("Error occurred while changing password for the user : " + user + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
     }finally{
         context.endTenantFlow();
     }

@@ -74,8 +74,10 @@ var addDatabaseUser = function (databaseUserName, application, environment) {
     	 context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
          rssAdapter.addDatabaseUser(databaseUserName, application, environment);
 	}catch(e){
-       		log.error(e);
-       		throw e; 
+        log.error("Error while adding database user : " + databaseUserName + " to application :  " + application
+                  + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
 	}finally {
     		context.endTenantFlow();
 	}
@@ -94,8 +96,10 @@ var addDatabaseTemplate = function (databaseTemplateName, application, environme
     	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         rssAdapter.addDatabaseUserPermissionTemplate(databaseTemplateName, application, environment); 
     }catch(e){
-       log.error(e);
-       throw e; 
+        log.error("Error while adding database template : " + databaseTemplateName + " to application : " + application
+                  + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
    }finally {
 
     context.endTenantFlow();
@@ -123,8 +127,10 @@ var getAllDatabases = function (application, environment, allDatabases) {
     	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         names = rssAdapter.getAllDatabases(application, environment);
     }catch(e){
-       log.error(e);
-       throw e; 
+        log.error("Error while getting all databases of application : " + application + " in environment : "
+                  + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     }finally {
       context.endTenantFlow();
    }
@@ -161,8 +167,10 @@ var getAllDatabaseUsers = function (application, environment, allUsers) {
     	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         userNames = rssAdapter.getAllDatabaseUsers(application, environment);
      }catch(e){
-       log.error(e);
-       throw e; 
+         log.error("Error while getting all database users of application : " + application + " in environment : "
+                   + environment + " of tenant domain : " + tenantDomain);
+         log.error(e);
+         throw e;
     }finally {
     context.endTenantFlow();
     }
@@ -195,7 +203,10 @@ var isDatabaseUserExists = function (application, environment, user) {
     	 context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
          return rssAdapter.isDatabaseUserExist(application,user,environment);
     }catch(e){
-       	 log.error(e);
+       log.error("Error while checking database user : " + user + " of application : " + application
+                 + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+       log.error(e);
+       throw e;
     }finally {
     context.endTenantFlow();
     }
@@ -215,8 +226,10 @@ var getAllDatabaseTemplates = function (application, environment, allTemplates) 
     		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                 templateNames = rssAdapter.getAllDatabasePrivilegeTemplates(application, environment);
 	}catch(e){
-       		log.error(e);
-       		throw e; 
+        log.error("Error while retrieving  all database templates of application : " + application
+                  + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
 	}finally {
     		context.endTenantFlow();
 	}
@@ -250,8 +263,10 @@ var deleteDatabase = function (databaseName, application, environment) {
     		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                 rssAdapter.deleteDatabase(databaseName, application, environment);  
 	}catch(e){
-       		log.error(e);
-       		throw e; 
+        log.error("Error while deleting database : " + databaseName + " of application : " + application
+                  + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
 	}finally {
     		context.endTenantFlow();
 	}
@@ -270,8 +285,10 @@ var deleteDatabaseUser = function (databaseUserName, application, environment) {
     	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         rssAdapter.deleteDatabaseUser(databaseUserName, application, environment);
     }catch(e){
-       log.error(e);
-       throw e; 
+        log.error("Error while deleting database user : " + databaseUserName + " of application : "
+                  + application + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
    }finally {
        context.endTenantFlow();
    } 
@@ -289,8 +306,10 @@ var deleteDatabaseTemplate = function (databaseTemplateName, application, enviro
     		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                 rssAdapter.deleteDatabaseUserPermissionTemplate(databaseTemplateName, application, environment);
     }catch(e){
-       		log.error(e);
-       		throw e; 
+        log.error("Error while deleting database template : " + databaseTemplateName + " of application : "
+                  + application + " in environment : " + environment + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
     }finally {
     context.endTenantFlow();
    }

@@ -317,7 +317,8 @@ var log=new Log();
         appKey=request.getParameter("applicationKey");
         version=request.getParameter("version");
         modApp = jagg.module("application");
-        response=modApp.getAppVersionInfoByVersion(appKey,version);
+        userName = request.getParameter("userName");
+        response=modApp.getAppVersionInfoByVersion(appKey,version,userName);
         print(response);
     }else {
         throw new Error("No action specified"+action);

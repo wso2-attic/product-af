@@ -30,8 +30,9 @@ var createResourceObject = function () {
     try {
         return registry.newResource();
     } catch (e) {
-        log.error("Error while creating registry resource \n" + e.message);
-        throw "Error while creating registry resource";
+        log.error("Error while creating registry resource.");
+        log.error(e);
+        throw e;
     }
 };
 
@@ -40,8 +41,9 @@ var getResource = function (path) {
     try {
         return registry.get(path);
     } catch (e) {
-        log.error("Error while retrieving registry resource \n" + path);
-        throw "Error while retrieving registry resource";
+        log.error("Error while retrieving registry resource in path : " + path);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -50,8 +52,9 @@ var putResource = function (path, resource) {
     try {
         registry.put(path, resource);
     } catch (e) {
-        log.error("Error while storing registry resource \n" + e.message);
-        throw "Error while storing registry resource";
+        log.error("Error while storing registry resource in path : " + path);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -65,8 +68,9 @@ var resourceExists = function (path) {
             return false;
         }
     } catch (e) {
-        log.error("Error while accessing registry resource \n" + e.message);
-        return false;
+        log.error("Error while accessing registry resource in path : " + path);
+        log.error(e);
+        throw e;
     }
 };
 %>

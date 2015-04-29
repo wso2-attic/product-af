@@ -18,20 +18,20 @@ package org.wso2.appfactory.integration.test.utils;
 /**
  * Custom exception class for App Factory integration tests
  */
-public class AppFactoryIntegrationTestException extends Exception {
+public class AFIntegrationTestException extends Exception {
 
-    public AppFactoryIntegrationTestException() {
+    public AFIntegrationTestException() {
     }
 
-    public AppFactoryIntegrationTestException(String s) {
+    public AFIntegrationTestException(String s) {
         super(s);
     }
 
-    public AppFactoryIntegrationTestException(String s, Throwable throwable) {
+    public AFIntegrationTestException(String s, Throwable throwable) {
         super(s, throwable);
     }
 
-    public AppFactoryIntegrationTestException(Throwable throwable) {
+    public AFIntegrationTestException(Throwable throwable) {
         super(throwable);
     }
 }

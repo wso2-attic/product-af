@@ -18,18 +18,17 @@ package org.wso2.appfactory.tests.scenarios;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
 /**
  * This is sample test case
  */
-public class SampleTestCase extends AppFactoryIntegrationTest {
+public class SampleTestCase extends AFIntegrationTest {
 
 	@BeforeClass(alwaysRun = true)
 	public void setEnvironment() throws Exception {
-		initWithTenantAndApplicationCreation();
 	}
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by punnadi on 4/16/15.
+ *  Application version related Tester.
  */
 public class JDBCAppVersionDAOTest extends BaseTestCase {
     public JDBCAppVersionDAOTest(String name) {

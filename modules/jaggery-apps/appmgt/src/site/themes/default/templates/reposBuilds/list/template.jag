@@ -216,6 +216,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 	jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
                 action: "getBuildAndRepoDataForVersion",
                 applicationKey: applicationKey,
+                userName:userName,
                 version:selectedVersion
             }, function (result) {
 		        masterJSON = jQuery.parseJSON(result);

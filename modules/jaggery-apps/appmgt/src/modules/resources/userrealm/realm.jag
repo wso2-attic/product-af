@@ -44,8 +44,9 @@ var setUserRealmSupport = function (appId, isSet) {
         }
 
     } catch (e) {
-        log.error("Error while setting user realm support\n" + e.message);
-        throw "Error while setting user realm support";
+        log.error("Error while setting user realm support for application id : " + appId);
+        log.error(e);
+        throw e;
     }
 };
 var isUserRealmSupported = function (appId) {
@@ -70,8 +71,9 @@ var isUserRealmSupported = function (appId) {
         return result;
 
     } catch (e) {
-        log.error("Error while setting user realm support\n" + e.message);
-        throw "Error while setting user realm support";
+        log.error("Error while checking user realm support for application id : " + appId);
+        log.error(e);
+        throw e;
     }
 };
 %>

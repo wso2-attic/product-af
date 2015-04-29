@@ -4,9 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by punnadi on 4/28/15.
+ * Application version stub
  */
 public class AppVersionRestClient extends BaseRestClient {
+
+    public static final String APPLICATION_KEY = "applicationKey";
+    public static final String SRC_VERSION = "srcVersion";
+    public static final String TARGET_VERSION = "targetVersion";
+    public static final String LIFECYCLE_NAME = "lifecycleName";
+    public static final String LIFECYCLE = "ApplicationLifecycle";
+    private static final String REQUEST_KEY_ACTION ="Action" ;
+    public static final String INVOKE_DO_VERSION = "invokeDoVersion";
+
     /**
      * Construct authenticates REST client to invoke appmgt functions
      *
@@ -27,11 +36,11 @@ public class AppVersionRestClient extends BaseRestClient {
      */
     public void createVersion(String applicationKey, String srcVersion, String targetVersion) throws Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
-        msgBody.put("applicationKey", applicationKey);
-        msgBody.put("srcVersion", srcVersion);
-        msgBody.put("targetVersion", targetVersion);
-        msgBody.put("lifecycleName", "Development");
+        msgBody.put(APPLICATION_KEY, applicationKey);
+        msgBody.put(SRC_VERSION, srcVersion);
+        msgBody.put(TARGET_VERSION, targetVersion);
+        msgBody.put(LIFECYCLE_NAME, LIFECYCLE);
+        msgBody.put(REQUEST_KEY_ACTION, INVOKE_DO_VERSION);
         doPostRequest(APPMGT_LIFECYCLE_ADD, msgBody);
     }
-
 }

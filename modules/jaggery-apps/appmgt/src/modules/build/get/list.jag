@@ -108,7 +108,7 @@ var getTagNamesOfPersistedArtifacts = function(applicationId, version) {
         modManager.setAuthHeaders(options);
         var payload = '<p:getTagNamesOfPersistedArtifacts xmlns:p="http://deploy.core.appfactory.carbon.wso2.org"><p:applicationId>' + applicationId + '</p:applicationId><p:version>' + version + '</p:version></p:getTagNamesOfPersistedArtifacts>';
         var result;
-
+        var tenantDomain = modManager.getTenantDomain();
         try {
         	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationDeployer";
         	getTagNames.open(options,endPoint, false);
@@ -121,8 +121,10 @@ var getTagNamesOfPersistedArtifacts = function(applicationId, version) {
         	}
         	return result;
         } catch (e) {
-        	log.error("Error while tag names of persisted artifacts : " + e.message);
-        	throw "Error while tag names of persisted artifacts";
+            log.error("Error while retrieving tag names of persisted artifacts  of the application : " + applicationId
+                      + " and version : " + version + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
         return arrApplications;
     }
@@ -141,7 +143,7 @@ var getJenkinsBuilds = function(applicationKey) {
         options.action = "urn:getJsonTree";
         modManager.setAuthHeaders(options);
         var payload = '<p:getJsonTree xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:jobName>' + jobName + '</p:jobName><p:treeStructure>' + treeStructure + '</p:treeStructure></p:getJsonTree>';
-
+        var tenantDomain = modManager.getTenantDomain();
         try {
         	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
         	buildService.open(options,endPoint, false);
@@ -150,8 +152,10 @@ var getJenkinsBuilds = function(applicationKey) {
         	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
         	webServiceResponseText = webServiceResponse.ns::["return"].text();
         } catch (e) {
-        	log.error("Error while getting builds information : " + e.message);
-        	throw "Error while while getting builds information";
+            log.error("Error while getting jenkins builds information for the application : " + applicationKey
+                      + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
 
         if (webServiceResponseText != null && webServiceResponseText.length != 0) {
@@ -180,8 +184,10 @@ var getJenkinsBuilds = function(applicationKey) {
                 }
                 returnObject.labels = buildsArray;
             } catch (ex) {
-                print("Error while generating builds chart information : " + ex.message);
-                throw "Error while generatiing builds chart information";
+                log.error("Error while generating builds chart information for the application : " + applicationKey
+                          + " of tenant domain : " + tenantDomain);
+                log.error(e);
+                throw e;
             }
         }
         return returnObject;
@@ -199,7 +205,7 @@ var getAllJenkinsBuildsStats = function(applicationKey) {
         options.action = "urn:getJsonTree";
         modManager.setAuthHeaders(options);
         var payload = '<p:getJsonTree xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:jobName>all</p:jobName><p:treeStructure>' + treeStructure + '</p:treeStructure></p:getJsonTree>';
-
+        var tenantDomain = modManager.getTenantDomain();
         try {
         	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
         	buildService.open(options,endPoint, false);
@@ -209,8 +215,10 @@ var getAllJenkinsBuildsStats = function(applicationKey) {
         	webServiceResponseText = webServiceResponse.ns::["return"].text();
         	log.debug("webServiceResponseText > "+webServiceResponseText);
         } catch (e) {
-        	log.error("Error while getting builds information : " + e.message);
-        	throw "Error while while getting builds information";
+            log.error("Error while invoking ContinuousIntegrationStatisticsService to get jenkins build stats for " +
+                      "application : " + applicationKey + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
         }
 
         if (webServiceResponseText != null && webServiceResponseText.length != 0) {
@@ -239,10 +247,12 @@ var getAllJenkinsBuildsStats = function(applicationKey) {
                 var abortedArray=['aborted', aborted];
 
                 returnObject = [successArray,failureArray,abortedArray];
-                
-            } catch (ex) {
-                print("Error while generating builds chart information : " + ex.message);
-                throw "Error while generatiing builds chart information";
+
+            } catch (e) {
+                log.error("Error while generating builds chart information for the application : " + applicationKey
+                          + " of tenant domain : " + tenantDomain);
+                log.error(e);
+                throw e;
             }
         }
         return returnObject;

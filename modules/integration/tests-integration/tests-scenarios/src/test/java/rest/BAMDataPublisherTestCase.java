@@ -35,16 +35,18 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
 import org.wso2.carbon.analytics.hive.stub.HiveExecutionServiceStub;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 
 /**
  * Telemetry test case
  */
-public class BAMDataPublisherTestCase extends AppFactoryIntegrationTest {
+public class BAMDataPublisherTestCase extends AFIntegrationTest {
 	private static final int HIVE_STUB_TIMEOUT = 60000;
 
 	String activityJSON = "['{'\"timestamp\":\"{0}\",\"item\":\"{1}\",\"action\":\"click\"'}'," +
@@ -55,7 +57,6 @@ public class BAMDataPublisherTestCase extends AppFactoryIntegrationTest {
 
 	@BeforeClass(alwaysRun = true)
 	public void setEnvironment() throws Exception {
-		initWithTenantAndApplicationCreation();
 	}
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })
@@ -66,10 +67,9 @@ public class BAMDataPublisherTestCase extends AppFactoryIntegrationTest {
 		activityJSON = MessageFormat.format(activityJSON, values);
 		ApplicationRestClient appMgtRestClient =
 		                                    new ApplicationRestClient(
-		                                                         getPropertyValue(AFConstants.URLS_APPFACTORY),
-		                                                         getAdminUsername(tenantInfoBean.getAdmin(),
-		                                                                                tenantInfoBean.getTenantDomain()), 
-		                                                         getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+                                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                                    AFIntegrationTestUtils.getAdminUsername(),
+                                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
 		appMgtRestClient.publishUserActivity(activityJSON);
 		verify(itemValue);
 
@@ -94,10 +94,13 @@ public class BAMDataPublisherTestCase extends AppFactoryIntegrationTest {
 	private HiveExecutionServiceStub getHiveExecutionStub() throws Exception {
 		ConfigurationContext configContext =
 		                                     ConfigurationContextFactory.createConfigurationContextFromFileSystem(null);
-		String backendUrl = getPropertyValue(AFConstants.URLS_BAM);
-		String loggedInSessionCookie =
-		                               super.login(backendUrl, context.getSuperTenant().getTenantAdmin().getUserName(), context.getSuperTenant().getTenantAdmin().getPassword(),
-		                                           InetAddress.getLocalHost().getHostAddress());
+		String backendUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BAM);
+        final AutomationContext automationContext = AFIntegrationTestUtils.getAutomationContext();
+        String loggedInSessionCookie =
+		                               super.login(backendUrl,
+                                                   automationContext.getSuperTenant().getTenantAdmin().getUserName(),
+                                                   automationContext.getSuperTenant().getTenantAdmin().getPassword(),
+                                                   InetAddress.getLocalHost().getHostAddress());
 
 		String EPR = backendUrl + "services/HiveExecutionService";
 		HiveExecutionServiceStub hiveStub = new HiveExecutionServiceStub(configContext, EPR);

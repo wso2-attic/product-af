@@ -20,17 +20,16 @@
 
 <suite name="AppFTestSuite" parallel="false">
     <listeners>
-        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestManagerListener"/>
+        <listener class-name="org.wso2.appfactory.testlisteners.AppFactoryTestManagerListener"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestReportListener"/>
-        <listener
-                class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestSuiteListener"/>
-        <listener
-                class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
     </listeners>
 
     <test name="AppF-Sample-Test" preserve-order="true" verbose="2">
         <classes>
+            <class name="org.wso2.appfactory.tests.scenarios.ApplicationCreationTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.SampleTestCase"/>
             <!--class name="rest.BAMDataPublisherTestCase"/ -->
             <class name="org.wso2.appfactory.tests.scenarios.PomXmlUpdateTestCase"/>
@@ -38,5 +37,5 @@
             <class name="org.wso2.appfactory.tests.scenarios.DomainMappingTestCase"/>
         </classes>
     </test>
-
 </suite>
+
