@@ -15,7 +15,7 @@
 *specific language governing permissions and limitations
 *under the License.
 */
-package rest;
+package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import java.io.BufferedReader;
 import java.io.File;

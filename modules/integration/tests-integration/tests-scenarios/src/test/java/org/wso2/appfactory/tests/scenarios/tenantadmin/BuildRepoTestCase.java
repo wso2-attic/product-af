@@ -1,4 +1,4 @@
-package rest.admin;
+package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
