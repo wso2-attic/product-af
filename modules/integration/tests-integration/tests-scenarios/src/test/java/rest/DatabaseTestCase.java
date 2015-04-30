@@ -37,14 +37,13 @@ public class DatabaseTestCase extends AFIntegrationTest {
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })
 	@Test(description = "Testing create database")
-	public void testCreateDatabase() throws Exception {
+	public void testDatabase() throws Exception {
 
 
 		//String[]  dbs = getDatabases
 		
 
 		//createDatabaseWithAttachedUsers
-
 
 	}
 

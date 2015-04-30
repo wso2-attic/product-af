@@ -47,9 +47,13 @@ public class AFDefaultDataPopulator {
      * @throws java.lang.Exception
      */
     private void init() throws Exception {
-
         superTenantSession = login(context = AFIntegrationTestUtils.getAutomationContext());
-        tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
+        tenantDomain = AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
+        if (System.getenv().get(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
+            tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
+        }
+        System.getenv().put(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
         tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         tenantAwareAdminUsername = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
         fullyQualifiedTenantAdmin = tenantAwareAdminUsername + "@" + tenantDomain;
@@ -64,13 +68,14 @@ public class AFDefaultDataPopulator {
      */
     public void initTenantApplicationAndVersionCreation() throws Exception {
         init();
-        boolean tenantAlreadyExists = createTenant(
+
+        boolean tenantSuccessful = createTenant(
                 AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
                 AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
                 AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
                 AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
 
-        if (!tenantAlreadyExists) {
+        if (!tenantSuccessful) {
             createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
