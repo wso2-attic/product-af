@@ -25,7 +25,7 @@ import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GovernanceRestClient extends BaseRestClient {
+public class GovernanceClient extends BaseClient {
 
     /**
      * Construct authenticates REST client to invoke appmgt functions
@@ -35,7 +35,7 @@ public class GovernanceRestClient extends BaseRestClient {
      * @param password   password
      * @throws Exception
      */
-    public GovernanceRestClient(String backEndUrl, String username, String password) throws Exception {
+    public GovernanceClient(String backEndUrl, String username, String password) throws Exception {
         super(backEndUrl, username, password);
     }
 

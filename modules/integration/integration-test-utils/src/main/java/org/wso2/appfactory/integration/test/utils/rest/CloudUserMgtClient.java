@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Rest client for handle user management functionalities in cloudmgt app
  */
-public class CloudUserMgtClient extends BaseRestClient {
+public class CloudUserMgtClient extends BaseClient {
 
     // Endpoints
     private static final String EP_TENANT_USER_ADD = "tenant/users/add/ajax/add.jag";

@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Base REST client.
  */
-public class BaseRestClient {
+public class BaseClient {
 
     protected static final String APPMGT_URL_SURFIX = "appmgt/site/blocks/";
     protected static final String CLOUDMGT_URL_SURFIX = "cloudmgt/site/blocks/";
@@ -87,7 +87,7 @@ public class BaseRestClient {
      * @param password   password
      * @throws Exception
      */
-    public BaseRestClient(String backEndUrl, String username, String password) throws Exception {
+    public BaseClient(String backEndUrl, String username, String password) throws Exception {
         setBackEndUrl(backEndUrl);
 
         if (getRequestHeaders().get(HEADER_CONTENT_TYPE) == null) {

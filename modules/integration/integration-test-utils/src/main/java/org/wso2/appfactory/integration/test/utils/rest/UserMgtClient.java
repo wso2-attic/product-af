@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * User management client
  */
-public class UserMgtClient extends BaseRestClient {
+public class UserMgtClient extends BaseClient {
 
     //Endpoints
     public static final String EP_GET_USERS = "application/users/get/ajax/list.jag";

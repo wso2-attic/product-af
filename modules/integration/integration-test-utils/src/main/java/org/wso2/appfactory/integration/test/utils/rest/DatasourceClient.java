@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Datasource related stub
  */
-public class DatasourceRestClient extends BaseRestClient {
+public class DatasourceClient extends BaseClient {
 
     private static final String DATASOURCE_NAME = "datasourceName";
     private static final String RSS_INSTANCE_NAME = "rssInstanceName";
@@ -39,7 +39,7 @@ public class DatasourceRestClient extends BaseRestClient {
      * @param password   password
      * @throws Exception
      */
-    public DatasourceRestClient(String backEndUrl, String username, String password) throws Exception {
+    public DatasourceClient(String backEndUrl, String username, String password) throws Exception {
         super(backEndUrl, username, password);
     }
 
