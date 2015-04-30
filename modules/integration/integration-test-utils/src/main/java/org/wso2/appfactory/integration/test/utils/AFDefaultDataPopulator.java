@@ -111,7 +111,7 @@ public class AFDefaultDataPopulator {
      * @throws XMLStreamException
      * @throws InterruptedException
      */
-    protected boolean createTenant(String firstName, String lastName, String email, String usagePlan)
+    private boolean createTenant(String firstName, String lastName, String email, String usagePlan)
             throws XPathExpressionException, RemoteException, TenantMgtAdminServiceExceptionException,
                    FileNotFoundException, XMLStreamException, InterruptedException {
 
@@ -227,7 +227,7 @@ public class AFDefaultDataPopulator {
      * @param applicationType        application type
      * @throws Exception
      */
-    protected void createApplication(String applicationName, String applicationKey, String applicationDescription,
+    private void createApplication(String applicationName, String applicationKey, String applicationDescription,
                                      String applicationType)
             throws Exception {
         ApplicationRestClient appMgtRestClient = new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(
@@ -249,7 +249,7 @@ public class AFDefaultDataPopulator {
      * @param sourceVersion  source version
      * @param targetVersion  target version
      */
-    protected void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
+    private void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
             throws Exception {
         AppVersionRestClient appVersionRestClient =
                 new AppVersionRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
@@ -314,7 +314,7 @@ public class AFDefaultDataPopulator {
      * @throws LoginAuthenticationExceptionException
      */
 
-    protected String login(AutomationContext context)
+    private String login(AutomationContext context)
             throws IOException, XPathExpressionException, URISyntaxException, SAXException,
                    XMLStreamException, LoginAuthenticationExceptionException {
         LoginLogoutClient loginLogoutClient = new LoginLogoutClient(context);
@@ -332,7 +332,7 @@ public class AFDefaultDataPopulator {
      * @throws RemoteException
      * @throws LoginAuthenticationExceptionException
      */
-    protected String login(String backendUrl, String username, String password, String host)
+    private String login(String backendUrl, String username, String password, String host)
             throws RemoteException, LoginAuthenticationExceptionException {
         AuthenticatorClient client = new AuthenticatorClient(backendUrl + "services/");
         return client.login(username, password, host);
