@@ -43,6 +43,39 @@ var initiatePasswordReset = function(username,secretKey, userAnswer) {
         return "true";
     }
 
+function login(userName, password){
+    var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+    if (userName.indexOf("@") != -1) {
+        tenantDomain = userName.substring(userName.lastIndexOf('@') + 1);
+    } else {	// else assume super tenant
+        tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+    }
+    log.debug("user logs in module called for user " + userName);
+    var ws = require('ws');
+    var finalResult={
+    };
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    var finalResult={};
+    try{
+        var result = server.Server.prototype.authenticate(userName,password);
+        if(result === true){
+            jagg.setUser(userName);
+            finalResult.error="false";
+            finalResult.message="User successfully logged in";
+            finalResult.username=userName;
+        }else{
+            finalResult.error="true";
+            finalResult.message="Authenitcation Failed.";
+        }
+        return stringify(finalResult);
+    } catch(e){
+        log.error("Error while authenticating user : " + userName);
+        log.error(e);
+        throw e;
+    }
+}
+
 
 
 %>
