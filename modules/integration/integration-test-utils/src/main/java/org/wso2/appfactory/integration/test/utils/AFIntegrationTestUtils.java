@@ -1,6 +1,8 @@
 package org.wso2.appfactory.integration.test.utils;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
@@ -12,10 +14,18 @@ import javax.xml.xpath.XPathExpressionException;
  * Utility methods
  */
 public class AFIntegrationTestUtils {
-    private static AFIntegrationTestUtils appFactoryIntegrationTestUtils;
     private static AutomationContext context;
     private static String tenantDomain;
+    private static final Log log = LogFactory.getLog(AFIntegrationTestUtils.class);
 
+    static {
+        try {
+            context = getAutomationContext();
+        } catch (XPathExpressionException e) {
+            log.error("Error occurred while initializing automation context",e);
+        }
+
+    }
 
     public static AutomationContext getAutomationContext() throws XPathExpressionException {
         if(context == null) {
