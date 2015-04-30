@@ -41,7 +41,9 @@ public class AppFactoryTestManagerListener extends TestManagerListener{
     public void onStart(ITestContext iTestContext) {
         super.onStart(iTestContext);
         try {
-            new AFDefaultDataPopulator().initTenantApplicationAndVersionCreation();
+            AFDefaultDataPopulator AFDefaultDataPopulator= new AFDefaultDataPopulator();
+            AFDefaultDataPopulator.initTenantApplicationAndVersionCreation();
+            AFDefaultDataPopulator.addAPI();
         } catch (Exception e) {
             log.error("Error occurred while populating initial data ", e);
         }

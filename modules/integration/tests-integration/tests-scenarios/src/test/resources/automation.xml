@@ -291,6 +291,8 @@
             <bps>https://process.appfactory.private.wso2.com:9543/</bps>
             <git>https://git.appfactory.private.wso2.com:8443/</git>
             <bam>https://bam.appfactory.private.wso2.com:9446/</bam>
+            <api>http://apimanager.appfactory.private.wso2.com:9769/</api>
+
         </urls>
 
         <defaultTenant>
@@ -330,3 +332,5 @@
 
     </appFactoryProperties>
 </automation>
+
+

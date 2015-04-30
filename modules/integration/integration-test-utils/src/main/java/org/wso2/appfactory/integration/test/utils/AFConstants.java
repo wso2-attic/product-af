@@ -31,6 +31,7 @@ public class AFConstants {
 	public static final String URLS_BPS = "//appFactoryProperties/urls/bps";
 	public static final String URLS_GIT = "//appFactoryProperties/urls/git";
 	public static final String URLS_BAM = "//appFactoryProperties/urls/bam";
+    public static final String URLS_API = "//appFactoryProperties/urls/api";
 
 	public static final String ENV_CREATE_RANDOM_TENANT = "af.test.createRandomTenant";
 	public static final String ENV_CREATED_RANDOM_TENANT_DOMAIN = "af.test.tenant.domain";
