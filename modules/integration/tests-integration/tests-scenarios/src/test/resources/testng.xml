@@ -29,11 +29,7 @@
 
     <test name="AppF-Sample-Test" preserve-order="true" verbose="2">
         <classes>
-            <class name="org.wso2.appfactory.tests.scenarios.SampleTestCase"/>
-            <!--class name="rest.BAMDataPublisherTestCase"/ -->
-            <class name="org.wso2.appfactory.tests.scenarios.PomXmlUpdateTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.GitOperationsTestCase"/>
-            <class name="org.wso2.appfactory.tests.scenarios.DomainMappingTestCase"/>
+            <class name="org.wso2.appfactory.tests.scenarios.ApplicationCreationTestCase"/>
         </classes>
     </test>
 </suite>

@@ -37,7 +37,8 @@ public class AFDefaultDataPopulator {
     protected String superTenantSession;
     protected static AutomationContext context;
     private static String tenantDomain;
-    String tenantAdminUsername;
+    String fullyQualifiedTenantAdmin;
+    String tenantAwareAdminUsername;
     String tenantAdminPassword;
 
     /**
@@ -47,8 +48,15 @@ public class AFDefaultDataPopulator {
      */
     private void init() throws Exception {
         superTenantSession = login(context = AFIntegrationTestUtils.getAutomationContext());
-        tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
-        tenantAdminUsername = AFIntegrationTestUtils.getAdminUsername();
+        tenantDomain = AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
+        if (System.getenv().get(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
+            tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
+        }
+        System.getenv().put(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
+        tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+        tenantAwareAdminUsername = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
+        fullyQualifiedTenantAdmin = tenantAwareAdminUsername + "@" + tenantDomain;
         tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
     }
 
@@ -60,12 +68,14 @@ public class AFDefaultDataPopulator {
      */
     public void initTenantApplicationAndVersionCreation() throws Exception {
         init();
-        boolean tenantAlreadyExists = createTenant(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
-                                            AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
-                                            AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
-                                            AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
 
-        if(!tenantAlreadyExists) {
+        boolean tenantSuccessful = createTenant(
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
+
+        if (!tenantSuccessful) {
             createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
@@ -89,10 +99,10 @@ public class AFDefaultDataPopulator {
     /**
      * Create Tenant flow
      *
-     * @param firstName     first name
-     * @param lastName      last name
-     * @param email         email
-     * @param usagePlan     usage plan
+     * @param firstName first name
+     * @param lastName  last name
+     * @param email     email
+     * @param usagePlan usage plan
      * @return tenant info
      * @throws XPathExpressionException
      * @throws java.rmi.RemoteException
@@ -132,7 +142,7 @@ public class AFDefaultDataPopulator {
 
             TenantInfoBean newTenant = new TenantInfoBean();
             newTenant.setActive(true);
-            newTenant.setAdmin(tenantAdminUsername);
+            newTenant.setAdmin(tenantAwareAdminUsername);
             newTenant.setAdminPassword(tenantAdminPassword);
             newTenant.setCreatedDate(calendar);
             newTenant.setEmail(email);
@@ -156,7 +166,7 @@ public class AFDefaultDataPopulator {
                                                superTenantSession);
 
             String result = createTenantBPELClient
-                    .createTenant(context, tenantAdminUsername, tenantInfoBean, tenantAdminPassword,
+                    .createTenant(context, tenantAwareAdminUsername, tenantInfoBean, tenantAdminPassword,
                                   "key", "WSO2 App Factory");
             Assert.assertNotNull(result,
                                  "Result of createTenantBPELClient.createTenant() is null ");
@@ -167,7 +177,7 @@ public class AFDefaultDataPopulator {
         }
         // Wait until tenant creation completes
         Assert.assertTrue(
-                waitUntilTenantCreationCompletes(10000L, 10, tenantAdminUsername, tenantAdminPassword),
+                waitUntilTenantCreationCompletes(10000L, 10, fullyQualifiedTenantAdmin, tenantAdminPassword),
                 "Tenant creation unsuccessful");
         log.info("Tenant domain " + tenantDomain + " completed successfully");
         return tenantAlreadyExists;
@@ -184,8 +194,7 @@ public class AFDefaultDataPopulator {
      * @throws InterruptedException
      */
     protected boolean waitUntilTenantCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
-                                                       String adminPassword) throws InterruptedException
-    {
+                                                       String adminPassword) throws InterruptedException {
         boolean isTenantLoggedIn = false;
         int round = 1;
         while (round <= retryCount) {
@@ -223,12 +232,12 @@ public class AFDefaultDataPopulator {
             throws Exception {
         ApplicationRestClient appMgtRestClient = new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.URLS_APPFACTORY)
-                                                , tenantAdminUsername, tenantAdminPassword);
+                , fullyQualifiedTenantAdmin, tenantAdminPassword);
         appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
-                                                  tenantAdminUsername, applicationDescription);
+                                              fullyQualifiedTenantAdmin, applicationDescription);
 
         // Wait till Create Application completion
-        waitUntilApplicationCreationCompletes(5000L, 5, tenantAdminUsername, tenantAdminPassword, applicationKey,
+        waitUntilApplicationCreationCompletes(5000L, 5, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
                                               applicationName);
     }
 
@@ -237,14 +246,14 @@ public class AFDefaultDataPopulator {
      * Create a version
      *
      * @param applicationKey application key
-     * @param sourceVersion source version
-     * @param targetVersion target version
+     * @param sourceVersion  source version
+     * @param targetVersion  target version
      */
     protected void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
-            throws Exception{
+            throws Exception {
         AppVersionRestClient appVersionRestClient =
                 new AppVersionRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
-                                         tenantAdminUsername, tenantAdminPassword);
+                                         fullyQualifiedTenantAdmin, tenantAdminPassword);
         appVersionRestClient.createVersion(applicationKey, sourceVersion, targetVersion);
 
     }
@@ -260,7 +269,7 @@ public class AFDefaultDataPopulator {
      * @param applicationName     application name
      * @throws Exception
      */
-    protected void waitUntilApplicationCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
+    public void waitUntilApplicationCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
                                                          String adminPassword, String applicationKey,
                                                          String applicationName) throws Exception {
         ApplicationRestClient appMgtRestClient =

@@ -32,6 +32,10 @@ public class AFConstants {
 	public static final String URLS_GIT = "//appFactoryProperties/urls/git";
 	public static final String URLS_BAM = "//appFactoryProperties/urls/bam";
 
+	public static final String ENV_CREATE_RANDOM_TENANT = "af.test.createRandomTenant";
+	public static final String ENV_CREATED_RANDOM_TENANT_DOMAIN = "af.test.tenant.domain";
+
+
 	public static final String DEFAULT_TENANT_FIRST_NAME =
 	                                                       "//appFactoryProperties/defaultTenant/firstName";
 	public static final String DEFAULT_TENANT_LAST_NAME =
@@ -40,10 +44,11 @@ public class AFConstants {
 	public static final String DEFAULT_TENANT_ADMIIN = "//appFactoryProperties/defaultTenant/admin";
 	public static final String DEFAULT_TENANT_ADMIN_PASSWORD =
 	                                                           "//appFactoryProperties/defaultTenant/adminPassword";
-	public static final String DEFAULT_TENANT_TENANT_DOMAIN =
-	                                                          "//appFactoryProperties/defaultTenant/tenantDomain";
 	public static final String DEFAULT_TENANT_USAGE_PLAN =
 	                                                       "//appFactoryProperties/defaultTenant/usagePlan";
+
+    //this is package private by design. do not change without design review
+	static final String DEFAULT_TENANT_TENANT_DOMAIN = "//appFactoryProperties/defaultTenant/tenantDomain";
 
 	public static final String DEFAULT_APP_APP_NAME =
 	                                                  "//appFactoryProperties/defaultApplication/applicationName";
