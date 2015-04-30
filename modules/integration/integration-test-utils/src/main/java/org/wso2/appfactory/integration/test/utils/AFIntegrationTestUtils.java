@@ -104,7 +104,7 @@ public class AFIntegrationTestUtils {
     }
 
     public static String getDefaultTenantDomain() {
-        String tenantDomain = System.getenv().get(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN);
+        String tenantDomain = System.getProperty(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN);
         if (tenantDomain == null) {
             tenantDomain = getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
         }

@@ -50,10 +50,10 @@ public class AFDefaultDataPopulator {
         superTenantSession = login(context = AFIntegrationTestUtils.getAutomationContext());
         tenantDomain = AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
-        if (System.getenv().get(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
+        if (System.getProperty(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
             tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
+            System.setProperty(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
         }
-        System.getenv().put(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
         tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         tenantAwareAdminUsername = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
         fullyQualifiedTenantAdmin = tenantAwareAdminUsername + "@" + tenantDomain;
