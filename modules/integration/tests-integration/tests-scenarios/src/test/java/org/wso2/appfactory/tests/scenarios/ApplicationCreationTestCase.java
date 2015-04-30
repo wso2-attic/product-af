@@ -44,7 +44,7 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
     public void testWarAppType() throws Exception {
         String appName = "foo_" + APP_TYPE_WAR;
         log.info("Creating application of type :" + APP_TYPE_WAR + " with name :" + appName);
-        createApplication(AFIntegrationTestUtils.getRandomTenantDomain(),
+        createApplication(AFIntegrationTestUtils.getDefaultTenantDomain(),
                           AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
                           AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
                           appName, appName, appName, APP_TYPE_WAR);
