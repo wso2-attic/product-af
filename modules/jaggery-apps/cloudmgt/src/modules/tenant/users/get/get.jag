@@ -14,7 +14,7 @@ var multitenancy = carbon.multitenancy;
 var userName =  session.get("LOGGED_IN_USER");
 
 var getUsersofTenant = function getUsersofTenant() {
-    var user=session.get('LOGGED_IN_USER').split('@')[0];
+    var user=jagg.getUser().split('@')[0];
     var tenantDomain=modManager.getTenantDomain();
     var context=multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();    
