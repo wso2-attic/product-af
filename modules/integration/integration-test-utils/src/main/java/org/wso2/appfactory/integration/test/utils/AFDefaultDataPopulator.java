@@ -34,12 +34,12 @@ import java.util.GregorianCalendar;
 public class AFDefaultDataPopulator {
 
     private static final Log log = LogFactory.getLog(AFDefaultDataPopulator.class);
-    protected String superTenantSession;
-    protected static AutomationContext context;
+    private String superTenantSession;
+    private static AutomationContext context;
     private static String tenantDomain;
-    String fullyQualifiedTenantAdmin;
-    String tenantAwareAdminUsername;
-    String tenantAdminPassword;
+    private String fullyQualifiedTenantAdmin;
+    private String tenantAwareAdminUsername;
+    private String tenantAdminPassword;
 
     /**
      * Start test execution with super tenant login
@@ -52,8 +52,8 @@ public class AFDefaultDataPopulator {
                 AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
         if (System.getProperty(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
             tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
-            System.setProperty(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
         }
+        System.setProperty(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
         tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         tenantAwareAdminUsername = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
         fullyQualifiedTenantAdmin = tenantAwareAdminUsername + "@" + tenantDomain;
