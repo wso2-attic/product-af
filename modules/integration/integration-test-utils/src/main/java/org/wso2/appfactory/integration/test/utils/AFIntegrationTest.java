@@ -36,10 +36,8 @@ public class AFIntegrationTest {
     protected String AFserverUrl;
 
     public AFIntegrationTest() {
-        defaultAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) +
-                       "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
-
-        defaultAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
+        defaultAdmin = AFIntegrationTestUtils.getAdminUsername();
+        defaultAdminPassword = AFIntegrationTestUtils.getAdminPassword();
         defaultAppKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
         AFserverUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
     }
@@ -67,10 +65,6 @@ public class AFIntegrationTest {
         return client.login(username, password, host);
     }
 
-    public String getAdminUsername() throws XPathExpressionException {
-        return AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) +
-               "@" + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
-    }
 
 
 }

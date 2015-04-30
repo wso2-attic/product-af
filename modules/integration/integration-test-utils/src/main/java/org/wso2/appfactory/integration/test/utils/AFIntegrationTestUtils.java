@@ -16,6 +16,7 @@ public class AFIntegrationTestUtils {
     private static AutomationContext context;
     private static String tenantDomain;
 
+
     public static AutomationContext getAutomationContext() throws XPathExpressionException {
         if(context == null) {
             synchronized (AFIntegrationTestUtils.class) {
@@ -32,7 +33,7 @@ public class AFIntegrationTestUtils {
      * @return
      * @throws XPathExpressionException
      */
-    public static String getRandomTenantDomain() throws XPathExpressionException {
+    static String getRandomTenantDomain() throws XPathExpressionException {
         if(tenantDomain == null){
             synchronized (AFIntegrationTestUtils.class) {
                 if (tenantDomain == null) {
@@ -87,15 +88,24 @@ public class AFIntegrationTestUtils {
      *
      * @return tenant admin username
      */
-    public static String getAdminUsername() throws XPathExpressionException {
+    public static String getAdminUsername() {
+        String tenantDomain = getDefaultTenantDomain();
         return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" + tenantDomain;
     }
 
-    public static String getAdminPassword() throws XPathExpressionException {
+    public static String getDefaultTenantDomain() {
+        String tenantDomain = System.getenv().get(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN);
+        if (tenantDomain == null) {
+            tenantDomain = getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
+        }
+        return tenantDomain;
+    }
+
+    public static String getAdminPassword() {
         return getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
     }
 
-    public static String getBEServerURL() throws XPathExpressionException {
+    public static String getBEServerURL() {
         return getPropertyValue(AFConstants.URLS_APPFACTORY);
     }
 }
