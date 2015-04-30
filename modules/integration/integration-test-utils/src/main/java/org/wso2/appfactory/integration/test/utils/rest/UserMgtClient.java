@@ -1,6 +1,7 @@
 package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.json.JSONArray;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
@@ -36,17 +37,37 @@ public class UserMgtClient extends BaseClient {
      * Get users of application
      *
      * @param appKey application key
-     * @return
+     * @return JSONArray of users
+     * Sample
+     * [
+     *  {
+     *      "userName": "devUser",
+     *      "firstName": null,
+     *      "lastName": "devUser",
+     *      "email": "devUser",
+     *      "roles": ["developer"],
+     *      "displayName": " devUser",
+     *      "displayRoles": ["Developer"]
+     *  },
+     *  {
+     *      "userName": "allUser",
+     *      "firstName": null,
+     *      "lastName": "allUser",
+     *      "email": "allUser",
+     *      "roles": ["devops","qa","cxo","appowner","developer"],
+     *      "displayName": " allUser","displayRoles": ["DevOps","QA","CXO","Application Owner","Developer"]
+     *  }
+     * ]
      * @throws Exception
      */
-    public String getUsersOfApplication(String appKey) throws Exception {
+    public JSONArray getUsersOfApplication(String appKey) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTON_GET_USERS_OF_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);
         HttpResponse response = super.doPostRequest(EP_GET_USERS, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return response.getData();
+            JSONArray jsonObject = new JSONArray(response.getData());
+            return jsonObject;
         } else {
             throw new AFIntegrationTestException("getUsersOfApplication failed. HTTP status: " + response
                     .getResponseMessage() + ", Response message: " + response.getResponseMessage());
