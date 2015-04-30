@@ -2,16 +2,20 @@ package org.wso2.appfactory.testlisteners;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.carbon.automation.engine.testlisteners.TestManagerListener;
+
+import java.util.MissingResourceException;
 
 /**
  * Does the initial appfactory related data population
  */
 public class AppFactoryTestManagerListener extends TestManagerListener{
     private static final Log log = LogFactory.getLog(AppFactoryTestManagerListener.class);
+
     @Override
     public void onTestStart(ITestResult iTestResult) {
         super.onTestStart(iTestResult);
@@ -43,7 +47,14 @@ public class AppFactoryTestManagerListener extends TestManagerListener{
         try {
             new AFDefaultDataPopulator().initTenantApplicationAndVersionCreation();
         } catch (Exception e) {
-            log.error("Error occurred while populating initial data ", e);
+            final String msg = "Error occurred while populating initial data ";
+            log.error(msg, e);
+            class DefaultDataPopulationException extends RuntimeException{
+                public DefaultDataPopulationException(String msg, Exception e) {
+                    super(msg, e);
+                }
+            }
+            throw new DefaultDataPopulationException(msg, e);
         }
     }
 

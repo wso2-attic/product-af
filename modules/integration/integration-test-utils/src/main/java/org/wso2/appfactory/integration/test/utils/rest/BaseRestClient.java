@@ -43,6 +43,7 @@ public class BaseRestClient {
     protected static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
     protected static final String APPMGT_LIFECYCLE_ADD= "lifecycle/add/ajax/add.jag";
     protected static final String APPMGT_DATASOURCE_ADD= "resources/datasource/add/ajax/add.jag";
+    protected static final String APPMGT_DATASOURCE_GET= "resources/datasource/get/ajax/list.jag";
     protected static final String APPMGT_LIFECYCLE_GET = "lifecycle/get/ajax/get.jag";
 
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
