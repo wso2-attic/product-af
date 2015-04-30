@@ -15,7 +15,7 @@
 *specific language governing permissions and limitations
 *under the License.
 */
-package rest;
+package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

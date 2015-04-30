@@ -1,4 +1,4 @@
-package rest;
+package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
