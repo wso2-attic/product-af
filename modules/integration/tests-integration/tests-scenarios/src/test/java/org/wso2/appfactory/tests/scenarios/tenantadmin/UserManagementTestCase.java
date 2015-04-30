@@ -1,7 +1,6 @@
 package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -12,6 +11,7 @@ import org.wso2.appfactory.integration.test.utils.rest.UserMgtClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,12 +19,12 @@ import java.util.Map;
  * Test Case for test adding users to tenant and application
  */
 public class UserManagementTestCase extends AFIntegrationTest {
-    private static final Log log = LogFactory.getLog(UserManagementTestCase.class);
     public static final String USER_DEVELOPER = "devUser";
     public static final String USER_ALL_ROLES = "allUser";
     public static final String DEFAULT_PASSWORD = "user";
     public static final String USERNAME_SEPARATOR = ",";
-    private UserMgtClient userMgtClient;    //client to manage users for application
+    public static final String JS_OBJECT_KEY_USER_NAME = "userName";
+    private UserMgtClient userMgtClient;        //client to manage users for application
     private CloudUserMgtClient cloudMgtClient;  //cloudmgt client to manage users for tenants
 
     // map of userName - roles as a key-value pair
@@ -64,8 +64,15 @@ public class UserManagementTestCase extends AFIntegrationTest {
     @Test(description = "Get all users of the tenant", dependsOnMethods = {"updateUserRoles"},
             groups = {"user-to-tenant"})
     public void getUsersOfTenant() throws Exception {
-        String getUsersOfTenant = cloudMgtClient.getUsersOfTenant();
-        log.info(getUsersOfTenant);
+        JSONArray users = cloudMgtClient.getUsersOfTenant();
+        ArrayList<String> returnedUsers = new ArrayList<String>();
+        for (int i = 0; i < users.length(); i++) {
+            returnedUsers.add(users.getJSONObject(i).getString(JS_OBJECT_KEY_USER_NAME));
+        }
+        Assert.assertTrue(returnedUsers.contains(USER_DEVELOPER), "User :" + USER_DEVELOPER + " not found in retrieved " +
+                                                                  "tenant user list");
+        Assert.assertTrue(returnedUsers.contains(USER_ALL_ROLES), "User :" + USER_ALL_ROLES + " not found in retrieved " +
+                                                                  "tenant user list");
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -83,8 +90,15 @@ public class UserManagementTestCase extends AFIntegrationTest {
     @Test(description = "Get users of application ", dependsOnMethods = {"inviteUsersToApplication"},
             groups = {"user-to-application"})
     public void getUsersOfApplication() throws Exception {
-        String users = userMgtClient.getUsersOfApplication(defaultAppKey);
-        log.info("Users: " + users);
+        JSONArray users = userMgtClient.getUsersOfApplication(defaultAppKey);
+        ArrayList<String> returnedUsers = new ArrayList<String>();
+        for (int i = 0; i < users.length(); i++) {
+            returnedUsers.add(users.getJSONObject(i).getString(JS_OBJECT_KEY_USER_NAME));
+        }
+        Assert.assertTrue(returnedUsers.contains(USER_DEVELOPER), "User :" + USER_DEVELOPER + " not found in retrieved " +
+                                                                  "application user list");
+        Assert.assertTrue(returnedUsers.contains(USER_ALL_ROLES), "User :" + USER_ALL_ROLES + " not found in retrieved " +
+                                                                  "application user list");
 
     }
 
