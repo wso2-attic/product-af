@@ -20,21 +20,14 @@ public class AFIntegrationTestUtils {
 
     static {
         try {
-            context = getAutomationContext();
+            context = new AutomationContext(AFConstants.AF_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
         } catch (XPathExpressionException e) {
             log.error("Error occurred while initializing automation context",e);
         }
 
     }
 
-    public static AutomationContext getAutomationContext() throws XPathExpressionException {
-        if(context == null) {
-            synchronized (AFIntegrationTestUtils.class) {
-                if(context == null) {
-                context = new AutomationContext(AFConstants.AF_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
-                }
-            }
-        }
+    public static AutomationContext getAutomationContext(){
         return context;
     }
 

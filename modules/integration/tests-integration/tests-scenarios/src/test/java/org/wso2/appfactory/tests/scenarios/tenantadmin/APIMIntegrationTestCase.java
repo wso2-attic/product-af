@@ -1,3 +1,4 @@
+<<<<<<< HEAD:modules/integration/tests-integration/tests-scenarios/src/test/java/rest/APIMIntegrationTestCase.java
 /*
 *Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -17,22 +18,23 @@
 */
 
 package rest;
+=======
+package org.wso2.appfactory.tests.scenarios.tenantadmin;
+>>>>>>> d56c99ef7f7d3706db8ff7dfc761a2f1d9e7e519:modules/integration/tests-integration/tests-scenarios/src/test/java/org/wso2/appfactory/tests/scenarios/tenantadmin/APIMIntegrationTestCase.java
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.appfactory.integration.test.utils.rest.APIMIntegrationRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.APIMIntegrationClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
 public class APIMIntegrationTestCase extends AFIntegrationTest {
 
-	private APIMIntegrationRestClient client;
+	private APIMIntegrationClient client;
 
 	public APIMIntegrationTestCase() throws Exception {
-		client = new APIMIntegrationRestClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
+		client = new APIMIntegrationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
 	}
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })

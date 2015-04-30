@@ -23,13 +23,13 @@ import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.appfactory.integration.test.utils.rest.GovernanceRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.GovernanceClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
 public class GovernanceTestCase extends AFIntegrationTest {
 
-    private static GovernanceRestClient governanceRestClient = null;
+    private static GovernanceClient governanceRestClient = null;
     private static String applicationKey = null;
     private static final String INITIAL_STAGE = "Development";
     private static final String TAG_NAME = "";
@@ -46,7 +46,7 @@ public class GovernanceTestCase extends AFIntegrationTest {
         String tenantAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
         String tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         String afUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
-        governanceRestClient = new GovernanceRestClient(afUrl, tenantAdmin, tenantAdminPassword);
+        governanceRestClient = new GovernanceClient(afUrl, tenantAdmin, tenantAdminPassword);
         applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
         initialVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC);
         firstVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_TARGET);

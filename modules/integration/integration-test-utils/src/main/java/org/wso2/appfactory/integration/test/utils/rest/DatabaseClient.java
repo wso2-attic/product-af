@@ -27,9 +27,9 @@ import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DatabaseRestClient extends BaseRestClient {
+public class DatabaseClient extends BaseClient {
 
-	public DatabaseRestClient(String backEndUrl, String username, String password) throws Exception {
+	public DatabaseClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
 	}
 
