@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Application version stub
  */
-public class AppVersionRestClient extends BaseRestClient {
+public class AppVersionClient extends BaseClient {
 
     public static final String APPLICATION_KEY = "applicationKey";
     public static final String SRC_VERSION = "srcVersion";
@@ -24,7 +24,7 @@ public class AppVersionRestClient extends BaseRestClient {
      * @param password   password
      * @throws Exception
      */
-    public AppVersionRestClient(String backEndUrl, String username, String password) throws Exception {
+    public AppVersionClient(String backEndUrl, String username, String password) throws Exception {
         super(backEndUrl, username, password);
     }
 

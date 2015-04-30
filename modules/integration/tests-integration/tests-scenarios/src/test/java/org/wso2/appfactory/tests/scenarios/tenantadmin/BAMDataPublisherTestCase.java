@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.analytics.hive.stub.HiveExecutionServiceStub;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
@@ -65,8 +65,8 @@ public class BAMDataPublisherTestCase extends AFIntegrationTest {
 		String itemValue = UUID.randomUUID().toString();
 		Object[] values = new Object[] { Long.toString(new Date().getTime()), itemValue };
 		activityJSON = MessageFormat.format(activityJSON, values);
-		ApplicationRestClient appMgtRestClient =
-		                                    new ApplicationRestClient(
+		ApplicationClient appMgtRestClient =
+		                                    new ApplicationClient(
                                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                                     AFIntegrationTestUtils.getAdminUsername(),
                                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));

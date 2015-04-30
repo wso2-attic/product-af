@@ -6,8 +6,8 @@ import org.json.JSONObject;
 import org.testng.Assert;
 import org.wso2.appfactory.integration.admin.clients.TenantManagementServiceClient;
 import org.wso2.appfactory.integration.test.utils.bpel.CreateTenantBPELClient;
-import org.wso2.appfactory.integration.test.utils.rest.AppVersionRestClient;
-import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.AppVersionClient;
+import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
@@ -230,7 +230,7 @@ public class AFDefaultDataPopulator {
     private void createApplication(String applicationName, String applicationKey, String applicationDescription,
                                      String applicationType)
             throws Exception {
-        ApplicationRestClient appMgtRestClient = new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(
+        ApplicationClient appMgtRestClient = new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.URLS_APPFACTORY)
                 , fullyQualifiedTenantAdmin, tenantAdminPassword);
         appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
@@ -251,8 +251,8 @@ public class AFDefaultDataPopulator {
      */
     private void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
             throws Exception {
-        AppVersionRestClient appVersionRestClient =
-                new AppVersionRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+        AppVersionClient appVersionRestClient =
+                new AppVersionClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                          fullyQualifiedTenantAdmin, tenantAdminPassword);
         appVersionRestClient.createVersion(applicationKey, sourceVersion, targetVersion);
 
@@ -272,8 +272,8 @@ public class AFDefaultDataPopulator {
     public void waitUntilApplicationCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
                                                          String adminPassword, String applicationKey,
                                                          String applicationName) throws Exception {
-        ApplicationRestClient appMgtRestClient =
-                new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+        ApplicationClient appMgtRestClient =
+                new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                           tenantAdminUsername, adminPassword);
 
         HttpResponse httpResponse = null;

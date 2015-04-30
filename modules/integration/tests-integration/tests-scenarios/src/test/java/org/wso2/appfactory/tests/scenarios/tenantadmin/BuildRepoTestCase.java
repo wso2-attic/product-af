@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.appfactory.integration.test.utils.rest.BuildRepoRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.BuildRepoClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
@@ -16,7 +16,7 @@ import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
  */
 public class BuildRepoTestCase extends AFIntegrationTest {
 
-	private static BuildRepoRestClient buildRepoRestClient = null;
+	private static BuildRepoClient buildRepoRestClient = null;
 	private static String applicationKey = null;
 	private static final String INITIAL_STAGE = "Development";
 	private static final String TAG_NAME = "";
@@ -31,7 +31,7 @@ public class BuildRepoTestCase extends AFIntegrationTest {
 		String tenantAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
 		String tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
 		String afUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
-		buildRepoRestClient = new BuildRepoRestClient(afUrl, tenantAdmin, tenantAdminPassword);
+		buildRepoRestClient = new BuildRepoClient(afUrl, tenantAdmin, tenantAdminPassword);
 		applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
 		initialVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC);
 		firstVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_TARGET);
