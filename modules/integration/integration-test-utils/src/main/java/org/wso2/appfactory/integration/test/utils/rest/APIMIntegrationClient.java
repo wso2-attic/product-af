@@ -55,14 +55,6 @@ public class APIMIntegrationClient extends BaseClient {
     public static final String APPLICATION_ID="applicationId";
     public static final String APP_OWNER="appowner";
     public static final String USER_NAME="userName";
-    public static final String APPIMGT_URL_SURFIX="/store/";
-    public static final String API_NAME="name";
-    public static final String API_VERSION="version";
-    public static final String API_PROVIDER="provider";
-    public static final String API_STATUS="status";
-    public static final String PUBLISH_TO_GATWAY="publishToGateway";
-    public static final String API_ACTION="action";
-
 
 	public APIMIntegrationClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
@@ -172,30 +164,5 @@ public class APIMIntegrationClient extends BaseClient {
             throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
         }
     }
-    public  void  addPAI() throws Exception {
-        Map<String, String> msgBodyMap = new HashMap<String, String>();
-        msgBodyMap.put(API_NAME, "YoutubeFeeds");
-        msgBodyMap.put(API_VERSION, "1.0");
-        msgBodyMap.put(API_PROVIDER, "provider1");
-        msgBodyMap.put(API_STATUS, "PUBLISHED");
-        msgBodyMap.put(PUBLISH_TO_GATWAY, "true");
-        msgBodyMap.put(API_ACTION, "updateStatus");
-
-        String urlSuffix="9769/store/?tenant=binali.com";
-        String postBody = generateMsgBody(msgBodyMap);
-
-//        HttpResponse response=HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPIMGT_URL_SURFIX + urlSuffix), postBody,
-//                getRequestHeaders());
-//        if (response.getResponseCode() == HttpStatus.SC_OK) {
-//            //TODO
-//            return;
-//        } else {
-//            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
-//        }
-    }
-
-
-
-
 
 }
