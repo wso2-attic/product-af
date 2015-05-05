@@ -30,7 +30,7 @@ import java.net.URL;
  * REST client for AppMgt
  * TODO: use {@link this#generateMsgBody(java.util.Map)} method to generate the message body
  */
-public class ApplicationRestClient extends BaseRestClient {
+public class ApplicationClient extends BaseClient {
 
 	/**
 	 * Construct authenticates REST client to invoke appmgt functions
@@ -40,7 +40,7 @@ public class ApplicationRestClient extends BaseRestClient {
 	 * @param password   password
 	 * @throws Exception
 	 */
-	public ApplicationRestClient(String backEndUrl, String username, String password) throws Exception {
+	public ApplicationClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
 	}
 

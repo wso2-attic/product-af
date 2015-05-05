@@ -325,6 +325,27 @@
                 </version>
             </versions>
         </defaultApplication>
+        <defaultAPI>
+            <addPayload>
+                action=addAPI&amp;name=PhoneVerification&amp;context=/phoneverify&amp;version=1.0.0&amp;visibility=public&amp;
+                thumbUrl=&amp;description=Verify a phone number&amp;tags=phone,mobile,multimedia&amp;endpointType=nonsecured&amp;
+                wsdl=&amp;wadl=&amp;tiersCollection=Gold,Bronze&amp;http_checked=http&amp;https_checked=https&amp;resourceCount=0&amp;
+                resourceMethod-0=GET&amp;resourceMethodAuthType-0=Application&amp;resourceMethodThrottlingTier-0=Unlimited&amp;
+                uriTemplate-0=/*&amp;default_version_checked=default_version&amp;bizOwner=xx&amp;bizOwnerMail=xx@ee.com&amp;
+                techOwner=xx&amp;techOwnerMail=ggg@ww.com"
+            </addPayload>
+            <publishPayload>
+                name=PhoneVerification&amp;version=1.0.0&amp;provider=admin&amp;status=PUBLISHED&amp;publishToGateway=true&amp;
+                action=updateStatus
+            </publishPayload>
+            <subscribePayload>
+                action=addAPISubscription&amp;name=PhoneVerification&amp;version=1.0.0&amp;provider=admin&amp;tier=Gold&amp;
+                applicationName=DefaultApplication
+            </subscribePayload>
+
+        </defaultAPI>
+
+
 
         <domainMapping>
             <domainName>example.com</domainName>

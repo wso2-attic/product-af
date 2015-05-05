@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by muthulee on 4/29/15.
  */
-public class APIMIntegrationRestClient extends BaseRestClient {
+public class APIMIntegrationClient extends BaseClient {
 
 	//src/site/blocks
 	//resources/apis/add/ajax/add.jag - createApplication
@@ -37,7 +37,7 @@ public class APIMIntegrationRestClient extends BaseRestClient {
     public static final String API_ACTION="action";
 
 
-	public APIMIntegrationRestClient(String backEndUrl, String username, String password) throws Exception {
+	public APIMIntegrationClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
 	}
 

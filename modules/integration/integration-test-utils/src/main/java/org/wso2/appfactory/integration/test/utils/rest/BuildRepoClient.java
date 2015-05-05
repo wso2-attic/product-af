@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * REST client for build and repo rest apis
  */
-public class BuildRepoRestClient extends BaseRestClient {
+public class BuildRepoClient extends BaseClient {
 
 	private final static String REPOANDBUILD_ADD_ENDPOINT = "reposBuilds/add/ajax/add.jag";
 	private final static String REPOANDBUILD_GET_ENDPOINT = "reposBuilds/get/ajax/get.jag";
@@ -28,7 +28,7 @@ public class BuildRepoRestClient extends BaseRestClient {
 	 * @param password   password
 	 * @throws Exception
 	 */
-	public BuildRepoRestClient(String backEndUrl, String username, String password) throws Exception {
+	public BuildRepoClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
 	}
 

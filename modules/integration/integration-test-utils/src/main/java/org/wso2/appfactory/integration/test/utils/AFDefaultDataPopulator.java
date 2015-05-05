@@ -7,8 +7,9 @@ import org.testng.Assert;
 import org.wso2.appfactory.integration.admin.clients.TenantManagementServiceClient;
 import org.wso2.appfactory.integration.test.utils.bpel.CreateTenantBPELClient;
 import org.wso2.appfactory.integration.test.utils.rest.APIRestClient;
-import org.wso2.appfactory.integration.test.utils.rest.AppVersionRestClient;
-import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.AppVersionClient;
+import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
+
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
@@ -35,12 +36,12 @@ import java.util.GregorianCalendar;
 public class AFDefaultDataPopulator {
 
     private static final Log log = LogFactory.getLog(AFDefaultDataPopulator.class);
-    protected String superTenantSession;
-    protected static AutomationContext context;
+    private String superTenantSession;
+    private static AutomationContext context;
     private static String tenantDomain;
-    String fullyQualifiedTenantAdmin;
-    String tenantAwareAdminUsername;
-    String tenantAdminPassword;
+    private String fullyQualifiedTenantAdmin;
+    private String tenantAwareAdminUsername;
+    private String tenantAdminPassword;
 
     /**
      * Start test execution with super tenant login
@@ -51,10 +52,10 @@ public class AFDefaultDataPopulator {
         superTenantSession = login(context = AFIntegrationTestUtils.getAutomationContext());
         tenantDomain = AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
-        if (System.getenv().get(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
+        if (System.getProperty(AFConstants.ENV_CREATE_RANDOM_TENANT) != null ) {
             tenantDomain = AFIntegrationTestUtils.getRandomTenantDomain();
         }
-        System.getenv().put(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
+        System.setProperty(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN, tenantDomain);
         tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         tenantAwareAdminUsername = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
         fullyQualifiedTenantAdmin = tenantAwareAdminUsername + "@" + tenantDomain;
@@ -112,7 +113,7 @@ public class AFDefaultDataPopulator {
      * @throws XMLStreamException
      * @throws InterruptedException
      */
-    protected boolean createTenant(String firstName, String lastName, String email, String usagePlan)
+    private boolean createTenant(String firstName, String lastName, String email, String usagePlan)
             throws XPathExpressionException, RemoteException, TenantMgtAdminServiceExceptionException,
                    FileNotFoundException, XMLStreamException, InterruptedException {
 
@@ -228,10 +229,10 @@ public class AFDefaultDataPopulator {
      * @param applicationType        application type
      * @throws Exception
      */
-    protected void createApplication(String applicationName, String applicationKey, String applicationDescription,
+    private void createApplication(String applicationName, String applicationKey, String applicationDescription,
                                      String applicationType)
             throws Exception {
-        ApplicationRestClient appMgtRestClient = new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(
+        ApplicationClient appMgtRestClient = new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.URLS_APPFACTORY)
                 , fullyQualifiedTenantAdmin, tenantAdminPassword);
         appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
@@ -250,10 +251,10 @@ public class AFDefaultDataPopulator {
      * @param sourceVersion  source version
      * @param targetVersion  target version
      */
-    protected void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
+    private void createApplicationVersion(String applicationKey, String sourceVersion, String targetVersion)
             throws Exception {
-        AppVersionRestClient appVersionRestClient =
-                new AppVersionRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+        AppVersionClient appVersionRestClient =
+                new AppVersionClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                          fullyQualifiedTenantAdmin, tenantAdminPassword);
         appVersionRestClient.createVersion(applicationKey, sourceVersion, targetVersion);
 
@@ -273,8 +274,8 @@ public class AFDefaultDataPopulator {
     public void waitUntilApplicationCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
                                                          String adminPassword, String applicationKey,
                                                          String applicationName) throws Exception {
-        ApplicationRestClient appMgtRestClient =
-                new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+        ApplicationClient appMgtRestClient =
+                new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                           tenantAdminUsername, adminPassword);
 
         HttpResponse httpResponse = null;
@@ -315,7 +316,7 @@ public class AFDefaultDataPopulator {
      * @throws LoginAuthenticationExceptionException
      */
 
-    protected String login(AutomationContext context)
+    private String login(AutomationContext context)
             throws IOException, XPathExpressionException, URISyntaxException, SAXException,
                    XMLStreamException, LoginAuthenticationExceptionException {
         LoginLogoutClient loginLogoutClient = new LoginLogoutClient(context);
@@ -333,7 +334,7 @@ public class AFDefaultDataPopulator {
      * @throws RemoteException
      * @throws LoginAuthenticationExceptionException
      */
-    protected String login(String backendUrl, String username, String password, String host)
+    private String login(String backendUrl, String username, String password, String host)
             throws RemoteException, LoginAuthenticationExceptionException {
         AuthenticatorClient client = new AuthenticatorClient(backendUrl + "services/");
         return client.login(username, password, host);
@@ -348,7 +349,11 @@ public class AFDefaultDataPopulator {
     public void addAPI()throws Exception {
         APIRestClient apiRestClient = new APIRestClient(AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.URLS_API), fullyQualifiedTenantAdmin, tenantAdminPassword);
-        apiRestClient.addAPI(fullyQualifiedTenantAdmin,tenantAdminPassword);
+
+        apiRestClient.addAPI(fullyQualifiedTenantAdmin,tenantAdminPassword,AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_ADD_API_PAYLOAD),AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_PUBLISH_API_PAYLOAD),AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_SUBSCRIBE_API_PAYLOAD));
 
 
     }

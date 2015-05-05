@@ -1,6 +1,8 @@
 package org.wso2.appfactory.integration.test.utils;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
@@ -12,19 +14,20 @@ import javax.xml.xpath.XPathExpressionException;
  * Utility methods
  */
 public class AFIntegrationTestUtils {
-    private static AFIntegrationTestUtils appFactoryIntegrationTestUtils;
     private static AutomationContext context;
     private static String tenantDomain;
+    private static final Log log = LogFactory.getLog(AFIntegrationTestUtils.class);
 
-
-    public static AutomationContext getAutomationContext() throws XPathExpressionException {
-        if(context == null) {
-            synchronized (AFIntegrationTestUtils.class) {
-                if(context == null) {
-                context = new AutomationContext(AFConstants.AF_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
-                }
-            }
+    static {
+        try {
+            context = new AutomationContext(AFConstants.AF_PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
+        } catch (XPathExpressionException e) {
+            log.error("Error occurred while initializing automation context",e);
         }
+
+    }
+
+    public static AutomationContext getAutomationContext(){
         return context;
     }
 
@@ -94,7 +97,7 @@ public class AFIntegrationTestUtils {
     }
 
     public static String getDefaultTenantDomain() {
-        String tenantDomain = System.getenv().get(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN);
+        String tenantDomain = System.getProperty(AFConstants.ENV_CREATED_RANDOM_TENANT_DOMAIN);
         if (tenantDomain == null) {
             tenantDomain = getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
         }

@@ -1,11 +1,9 @@
-package rest;
+package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.appfactory.integration.test.utils.rest.APIMIntegrationRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.APIMIntegrationClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
@@ -14,10 +12,10 @@ import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
  */
 public class APIMIntegrationTestCase extends AFIntegrationTest {
 
-	private APIMIntegrationRestClient client;
+	private APIMIntegrationClient client;
 
 	public APIMIntegrationTestCase() throws Exception {
-		client = new APIMIntegrationRestClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
+		client = new APIMIntegrationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
 	}
 
 	@SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM })

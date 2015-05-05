@@ -26,7 +26,7 @@ import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.appfactory.integration.test.utils.rest.ApplicationRestClient;
+import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
@@ -60,8 +60,8 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
                                      String applicationKey, String applicationDescription, String applicationType)
             throws Exception {
         String tenantAdminUsername = admin + "@" + tenantDomain;
-        ApplicationRestClient appMgtRestClient =
-                new ApplicationRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+        ApplicationClient appMgtRestClient =
+                new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                           tenantAdminUsername, adminPassword);
 
         if (appMgtRestClient.isAppNameAlreadyAvailable(applicationName) &&

@@ -93,4 +93,10 @@ public class AFConstants {
 	// Domain mapping
 	public static final String DOMAIN_MAPPING_DEFAULT_HOST =  "//appFactoryProperties/domainMapping/domainName";
 
+    public static final String DEFAULT_API_ADD_API_PAYLOAD="//appFactoryProperties/defaultAPI/addPayload";
+
+    public static final String DEFAULT_API_PUBLISH_API_PAYLOAD="//appFactoryProperties/defaultAPI/publishPayload";
+
+    public static final String DEFAULT_API_SUBSCRIBE_API_PAYLOAD="//appFactoryProperties/defaultAPI/subscribePayload";
+
 }
