@@ -292,7 +292,6 @@
             <git>https://git.appfactory.private.wso2.com:8443/</git>
             <bam>https://bam.appfactory.private.wso2.com:9446/</bam>
             <api>http://apimanager.appfactory.private.wso2.com:9769/</api>
-
         </urls>
 
         <defaultTenant>
@@ -345,13 +344,9 @@
 
         </defaultAPI>
 
-
-
         <domainMapping>
             <domainName>example.com</domainName>
         </domainMapping>
 
     </appFactoryProperties>
 </automation>
-
-

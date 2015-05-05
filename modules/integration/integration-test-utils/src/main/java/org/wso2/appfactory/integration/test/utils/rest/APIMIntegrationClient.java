@@ -19,21 +19,15 @@
 package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
-import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.appfactory.integration.test.utils.external.HttpHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
-
 import java.net.URLEncoder;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +53,6 @@ public class APIMIntegrationClient extends BaseClient {
 	public APIMIntegrationClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
 	}
-
 
     @Override
     protected void login(String userName, String password) throws Exception {

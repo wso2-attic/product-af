@@ -10,7 +10,6 @@ import org.wso2.appfactory.integration.test.utils.bpel.CreateTenantBPELClient;
 import org.wso2.appfactory.integration.test.utils.rest.APIRestClient;
 import org.wso2.appfactory.integration.test.utils.rest.AppVersionClient;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
-
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
@@ -340,8 +339,6 @@ public class AFDefaultDataPopulator {
                 AFConstants.DEFAULT_API_ADD_API_PAYLOAD),AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.DEFAULT_API_PUBLISH_API_PAYLOAD),AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.DEFAULT_API_SUBSCRIBE_API_PAYLOAD));
-
-
     }
 
 }
