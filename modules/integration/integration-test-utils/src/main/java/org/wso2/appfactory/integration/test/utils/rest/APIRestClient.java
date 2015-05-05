@@ -48,10 +48,17 @@ public class APIRestClient extends BaseClient {
     /**
      * Get app info
      * @param userName   username
+     *
      * @param password   password
-     * @param addAPIPayload payload for add API
-     * @param subscribeAPIPayload payload for subscribe API
-     * @param publishAPIPayload  payload for publish api in APIM store
+     *
+     * @param addAPIPayload
+     *              Content of the post request for add API
+     *
+     * @param subscribeAPIPayload
+     *              Content of the post request for subscribe API
+     *
+     * @param publishAPIPayload
+     *              Content of the post request for publish api in APIM store
      *
      */
     public  void addAPI(String userName,String password,String addAPIPayload,String publishAPIPayload,
