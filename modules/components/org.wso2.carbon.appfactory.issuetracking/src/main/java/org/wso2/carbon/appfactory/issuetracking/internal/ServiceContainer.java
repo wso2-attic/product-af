@@ -32,12 +32,4 @@ public class ServiceContainer {
         ServiceContainer.appFactoryConfiguration = appFactoryConfiguration;
     }
 
-    public static void setApplicationManagementService(
-            ApplicationManagementService applicationManagementService) {
-        ServiceContainer.applicationManagementService = applicationManagementService;
-    }
-
-    public static ApplicationManagementService getApplicationManagementService() {
-        return applicationManagementService;
-    }
 }

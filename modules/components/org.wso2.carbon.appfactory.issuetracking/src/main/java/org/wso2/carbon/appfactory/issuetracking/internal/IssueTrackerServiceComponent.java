@@ -35,11 +35,6 @@ import org.wso2.carbon.appfactory.jenkins.build.JenkinsApplicationEventsListener
  * cardinality="1..1" policy="dynamic"
  * bind="setAppFactoryConfiguration"
  * unbind="unsetAppFactoryConfiguration"
- * @scr.reference name="appfactory.application.mgt.service" interface=
- * "org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService"
- * cardinality="1..1" policy="dynamic"
- * bind="setApplicationManagementService"
- * unbind="unsetApplicationManagementService"
  */
 public class IssueTrackerServiceComponent {
     private static final Log log = LogFactory.getLog(IssueTrackerServiceComponent.class);
@@ -85,13 +80,4 @@ public class IssueTrackerServiceComponent {
         ServiceContainer.setAppFactoryConfiguration(null);
     }
 
-    protected void setApplicationManagementService(
-            ApplicationManagementService applicationManagementService) {
-        ServiceContainer.setApplicationManagementService(applicationManagementService);
-    }
-
-    protected void unsetApplicationManagementService(
-            ApplicationManagementService applicationManagementService) {
-        ServiceContainer.setApplicationManagementService(null);
-    }
 }
