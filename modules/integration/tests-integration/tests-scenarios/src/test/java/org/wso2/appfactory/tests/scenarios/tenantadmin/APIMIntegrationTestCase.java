@@ -1,4 +1,3 @@
-<<<<<<< HEAD:modules/integration/tests-integration/tests-scenarios/src/test/java/rest/APIMIntegrationTestCase.java
 /*
 *Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -17,10 +16,7 @@
 *under the License.
 */
 
-package rest;
-=======
 package org.wso2.appfactory.tests.scenarios.tenantadmin;
->>>>>>> d56c99ef7f7d3706db8ff7dfc761a2f1d9e7e519:modules/integration/tests-integration/tests-scenarios/src/test/java/org/wso2/appfactory/tests/scenarios/tenantadmin/APIMIntegrationTestCase.java
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -48,7 +44,5 @@ public class APIMIntegrationTestCase extends AFIntegrationTest {
 		String[] savedKeys = client.getSavedKeys(defaultAppKey, defaultAdmin);
 		//Assertion whether number of savedKeys are 4
 	}
-
-
 
 }
