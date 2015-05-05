@@ -19,9 +19,16 @@
 package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
+import org.wso2.appfactory.integration.test.utils.external.HttpHandler;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +36,7 @@ import java.util.Map;
  * Created by muthulee on 4/29/15.
  */
 public class APIMIntegrationClient extends BaseClient {
+    private static final Log log = LogFactory.getLog(APIMIntegrationClient.class);
 
 	//src/site/blocks
 	//resources/apis/add/ajax/add.jag - createApplication
@@ -42,7 +50,50 @@ public class APIMIntegrationClient extends BaseClient {
 		super(backEndUrl, username, password);
 	}
 
-	/**
+    @Override
+    protected void login(String userName, String password) throws Exception {
+        retrieveSAMLToken(userName, password);
+    }
+
+    private void retrieveSAMLToken(String userName, String password) throws Exception {
+
+        String ssoUrl = getBackEndUrl()+ "/samlsso";
+        String webAppurl = getBackEndUrl() + "/appmgt/site/pages/index.jag";
+        String loginHtmlPage;
+        String commonAuthUrl;
+        String responceHtml = null;
+        HttpHandler httpHandler = new HttpHandler();
+        try {
+            loginHtmlPage = httpHandler.getHtml(webAppurl);
+            Document html = Jsoup.parse(loginHtmlPage);
+            Element samlRequestElement = html.select("input[name=SAMLRequest]").first();
+            String samlRequest = samlRequestElement.val();
+            Element relayStateElement = html.select("input[name=RelayState]").first();
+            String relayState = relayStateElement.val();
+            Element ssoAuthSessionIDElement = html.select("input[name=SSOAuthSessionID]").first();
+            String ssoAuthSessionID = ssoAuthSessionIDElement.val();
+            samlRequest = samlRequest.replace("+","%2B");
+            samlRequest = samlRequest.replace("=","%3D");
+
+            commonAuthUrl = httpHandler.getRedirectionUrl(ssoUrl+"?SAMLRequest="+samlRequest+"&RelayState="+relayState+"&SSOAuthSessionID="+ssoAuthSessionID);
+            responceHtml = httpHandler.doPostHttps(commonAuthUrl,
+                     "username="+userName+"&password="+password, "none", "application/x-www-form-urlencoded");
+            Document postHtml = Jsoup.parse(responceHtml);
+            Element postHTMLResponse = postHtml.select("input[name=SAMLResponse]").first();
+            String samlResponse = postHTMLResponse.val();
+            String appmSamlSsoTokenId = httpHandler.doPostHttp(webAppurl,
+                                                               "SAMLResponse=" + URLEncoder.encode(samlResponse,
+                                                                                                   "UTF-8"), "appmSamlSsoTokenId",
+                                                               "application/x-www-form-urlencoded; charset=UTF-8");
+        } catch (Exception e) {
+            final String msg = "Error occurred while retrieving SAML token ";
+            log.error(msg, e);
+            throw new AFIntegrationTestException(msg, e);
+        }
+    }
+
+
+    /**
 	 *
 	 * @param applicationKey
 	 * @param username
