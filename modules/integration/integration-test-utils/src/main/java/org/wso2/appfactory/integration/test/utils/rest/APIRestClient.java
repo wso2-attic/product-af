@@ -19,12 +19,13 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
+import org.wso2.appfactory.integration.test.utils.external.HttpHandler;
 import java.net.URL;
 
 
 public class APIRestClient extends BaseClient {
 
-    private static HTTPHandler httpHandler;
+    private static HttpHandler httpHandler;
     private static String session;
     public static final String APPMGT_ADDAPI_URL_SURFIX="/publisher/site/blocks/item-add/ajax/add.jag";
     public static final String APPMGT_LOGGIN_URL_SURFIX="/publisher/site/blocks/user/login/ajax/login.jag";
@@ -78,7 +79,6 @@ public class APIRestClient extends BaseClient {
                 "application/x-www-form-urlencoded; charset=UTF-8");
 
         //subscribe to API
-        System.out.println("---subscribe to store----");
         httpHandler.doPostHttp(getBackEndUrl()+APPMGT_SUBSCRIBE_API_URL_SURFIX,subscribeAPIPayload,session,
                 "application/x-www-form-urlencoded; charset=UTF-8");
 

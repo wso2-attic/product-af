@@ -1,5 +1,6 @@
 package org.wso2.appfactory.integration.test.utils;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -70,14 +71,13 @@ public class AFDefaultDataPopulator {
      */
     public void initTenantApplicationAndVersionCreation() throws Exception {
         init();
+        if (!isTenantExists()) {
+            createTenant(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
+                         AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
+                         AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
+                         AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
 
-        boolean tenantSuccessful = createTenant(
-                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_FIRST_NAME),
-                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_LAST_NAME),
-                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
-                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
-
-        if (!tenantSuccessful) {
+            //TODO: isAppExists
             createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
@@ -99,6 +99,19 @@ public class AFDefaultDataPopulator {
     }
 
     /**
+     * Check if the tenant already exists or not
+     * @return
+     * @throws Exception
+     */
+    private boolean isTenantExists() throws Exception {
+        TenantManagementServiceClient tenantManagementServiceClient =
+                new TenantManagementServiceClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                                  superTenantSession);
+        TenantInfoBean tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
+        return tenantInfoBean.getTenantId() == 0 ? false : true;
+    }
+
+    /**
      * Create Tenant flow
      *
      * @param firstName first name
@@ -113,76 +126,49 @@ public class AFDefaultDataPopulator {
      * @throws XMLStreamException
      * @throws InterruptedException
      */
-    private boolean createTenant(String firstName, String lastName, String email, String usagePlan)
+    private void createTenant(String firstName, String lastName, String email, String usagePlan)
             throws XPathExpressionException, RemoteException, TenantMgtAdminServiceExceptionException,
                    FileNotFoundException, XMLStreamException, InterruptedException {
 
-        boolean tenantAlreadyExists = false;
         // Check whether tenant is exist
-        TenantManagementServiceClient tenantManagementServiceClient =
-                new TenantManagementServiceClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
-                                                  superTenantSession);
+        TenantManagementServiceClient tenantManagementServiceClient = new TenantManagementServiceClient(
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY), superTenantSession);
+        TenantInfoBean newTenant = new TenantInfoBean();
+        newTenant.setActive(true);
+        newTenant.setAdmin(tenantAwareAdminUsername);
+        newTenant.setAdminPassword(tenantAdminPassword);
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date());
+        newTenant.setCreatedDate(calendar);
+        newTenant.setEmail(email);
+        newTenant.setFirstname(firstName);
+        newTenant.setLastname(lastName);
+        newTenant.setOriginatedService("WSO2 Stratos Manager");
+        newTenant.setTenantDomain(tenantDomain);
+        newTenant.setUsagePlan(usagePlan);
+        tenantManagementServiceClient.addTenant(newTenant);
+        tenantManagementServiceClient.activateTenant(tenantDomain);
 
-        /* tenantManagementServiceClient.getTenant() method always return a TenantInfoBean object
-        although the tenantDomain is not exist.
-        if tenantDomain is exist and inactive:
-        tenantInfoBean.getActive() == false && tenantInfoBean.getTenantId() > 0
-        if tenantDomain is not exist:
-        tenantInfoBean.getActive() == false && tenantInfoBean.getTenantId() == 0 */
+        // Get created tenant
         TenantInfoBean tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
+        Assert.assertTrue(tenantInfoBean.getActive(), "Tenant is not active");
+        Assert.assertTrue(tenantInfoBean.getTenantId() > 0, "Tenant Id is not more than 0");
 
-        if (!tenantInfoBean.getActive() && tenantInfoBean.getTenantId() > 0) {
-            tenantManagementServiceClient.activateTenant(tenantDomain);
-            tenantInfoBean.setActive(true);
-            log.info("Tenant domain " + tenantDomain + " Activated");
-            tenantAlreadyExists = true;
+        // Invoke CreateTenant BPEL
+        CreateTenantBPELClient createTenantBPELClient =
+                new CreateTenantBPELClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BPS),
+                                           superTenantSession);
 
-        } else if (!tenantInfoBean.getActive() && tenantInfoBean.getTenantId() == 0) {
-            Date date = new Date();
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(date);
+        String result = createTenantBPELClient
+                .createTenant(context, tenantAwareAdminUsername, tenantInfoBean, tenantAdminPassword,
+                              "key", "WSO2 App Factory");
+        Assert.assertNotNull(result, "Result of createTenantBPELClient.createTenant() is null ");
+        Assert.assertTrue(result.contains("true"), "Result of createTenantBPELClient.createTenant() is not true ");
 
-            TenantInfoBean newTenant = new TenantInfoBean();
-            newTenant.setActive(true);
-            newTenant.setAdmin(tenantAwareAdminUsername);
-            newTenant.setAdminPassword(tenantAdminPassword);
-            newTenant.setCreatedDate(calendar);
-            newTenant.setEmail(email);
-            newTenant.setFirstname(firstName);
-            newTenant.setLastname(lastName);
-            newTenant.setOriginatedService("WSO2 Stratos Manager");
-            newTenant.setTenantDomain(tenantDomain);
-            newTenant.setUsagePlan(usagePlan);
-
-            tenantManagementServiceClient.addTenant(newTenant);
-            tenantManagementServiceClient.activateTenant(tenantDomain);
-
-            // Get created tenant
-            tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
-            Assert.assertTrue(tenantInfoBean.getActive(), "Tenant is not active");
-            Assert.assertTrue(tenantInfoBean.getTenantId() > 0, "Tenant Id is not more than 0");
-
-            // Invoke CreateTenant BPEL
-            CreateTenantBPELClient createTenantBPELClient =
-                    new CreateTenantBPELClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BPS),
-                                               superTenantSession);
-
-            String result = createTenantBPELClient
-                    .createTenant(context, tenantAwareAdminUsername, tenantInfoBean, tenantAdminPassword,
-                                  "key", "WSO2 App Factory");
-            Assert.assertNotNull(result,
-                                 "Result of createTenantBPELClient.createTenant() is null ");
-            Assert.assertTrue(result.contains("true"),
-                              "Result of createTenantBPELClient.createTenant() is not true ");
-
-            log.info("Tenant domain " + tenantDomain + " created and activated");
-        }
         // Wait until tenant creation completes
-        Assert.assertTrue(
-                waitUntilTenantCreationCompletes(10000L, 10, fullyQualifiedTenantAdmin, tenantAdminPassword),
+        Assert.assertTrue(waitUntilTenantCreationCompletes(10000L, 10, fullyQualifiedTenantAdmin, tenantAdminPassword),
                 "Tenant creation unsuccessful");
         log.info("Tenant domain " + tenantDomain + " completed successfully");
-        return tenantAlreadyExists;
     }
 
     /**

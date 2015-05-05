@@ -1992,9 +1992,9 @@ public class RestBasedJenkinsCIConnector {
 				JenkinsCIConstants.JENKINS_CLIENT_RETRY_COUNT));
 		int retryDelay = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
 				JenkinsCIConstants.JENKINS_CLIENT_RETRY_DELAY));
-		if (log.isDebugEnabled()) {
-			log.debug("Jenkins client retry count :" + retryCount + " and retry delay in seconds :" + retryDelay);
-		}
+		log.info("Jenkins client retry count :" + retryCount + " and retry delay in seconds :" +
+		         retryDelay + " for " + method.getQueryString());
+		//TODO - Send mail to cloud
 		try {
 			// retry retryCount times to process the request
 			for (int i = 0; i < retryCount; i++) {
@@ -2044,9 +2044,8 @@ public class RestBasedJenkinsCIConnector {
 				JenkinsCIConstants.JENKINS_CLIENT_RETRY_COUNT));
 		int retryDelay = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
 				JenkinsCIConstants.JENKINS_CLIENT_RETRY_DELAY));
-		if (log.isDebugEnabled()) {
-			log.debug("Jenkins client retry count :" + retryCount + " and retry delay in seconds :" + retryDelay);
-		}
+		log.info("Jenkins client retry count :" + retryCount + " and retry delay in seconds :"
+			          + retryDelay + " for " + method.getRequestCharSet());
 		try {
 			// retry retryCount times to process the request
 			for (int i = 0; i < retryCount; i++) {

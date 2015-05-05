@@ -21,7 +21,7 @@ public class DatasourceClient extends BaseClient {
     private static final String DB_PASSWORD = "dbPassword";
     private static final String COPY_TO_ALL = "copyToAll";
     private static final String IS_EDIT = "isEdit";
-    private static final String REQUEST_KEY_ACTION = "Action";
+    private static final String REQUEST_KEY_ACTION = "action";
     public static final String STAGE = "stage";
     public static final String APP_KEY = "applicationKey";
 
