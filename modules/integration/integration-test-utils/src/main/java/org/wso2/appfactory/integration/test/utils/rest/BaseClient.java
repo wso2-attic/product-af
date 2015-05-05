@@ -17,6 +17,8 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.CharEncoding;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -35,6 +37,7 @@ import java.util.Map;
  * Base REST client.
  */
 public class BaseClient {
+    private static final Log log = LogFactory.getLog(BaseClient.class);
 
     protected static final String APPMGT_URL_SURFIX = "appmgt/site/blocks/";
     protected static final String CLOUDMGT_URL_SURFIX = "cloudmgt/site/blocks/";
