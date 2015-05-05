@@ -42,7 +42,7 @@ function HELP {
   echo -e \\n"Help documentation for ${BOLD}${SCRIPT}.${NORM}"\\n
   echo -e "${REV}Basic usage:${NORM} ${BOLD}$SCRIPT -s SERVER_IP${NORM}"\\n
   echo "Command line switches are optional. The following switches are recognized."
-  echo "${REV}-i${NORM}  --Sets the value for option ${BOLD}ip of the remote server${NORM}."
+  echo "${REV}-i${NORM}  --Sets the value for option ${BOLD}ip of the remote server${NORM}. If you have not provided this option, it will tail the local server instances"
   echo "${REV}-u${NORM}  --Sets the value for option ${BOLD}username${NORM}. Default is ${BOLD}${REMOTE_USER}${NORM}."
   echo "${REV}-s${NORM}  --Sets the value for option ${BOLD}servers${NORM} to be tailed."
   echo "${NORM}    --Default is ${BOLD}\"${SERVERS}\"${NORM}."
@@ -50,7 +50,8 @@ function HELP {
   echo "${NORM}    --ex: ${BOLD}\"af jenkins\"${NORM}."
   echo -e "${REV}-h${NORM}  --Displays this help message. No further functions are performed."\\n
   echo -e "Example: to tail Remote servers"
-  echo -e "       >> ${BOLD}$SCRIPT -s 192.168.16.2 -u afpuppet -s \"af jenkins\"${NORM}"\\n
+  echo -e "       >> ${BOLD}$SCRIPT -s 192.168.16.2 -s \"af jenkins\"${NORM}"
+  echo -e "       >> ${BOLD}$SCRIPT -s 192.168.16.2 -s \"af jenkins\" -u afpuppet${NORM}"\\n
   echo -e "       : to tail Local servers"
   echo -e "       >> ${BOLD}$SCRIPT"\\n
   exit 1
