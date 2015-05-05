@@ -19,7 +19,6 @@
 
 # Important: this script will not work in all environments, you need to install xdotool and sshpass
 . ./config.properties
-APPFACTORY_VERSION=2.2.0-SNAPSHOT
 wso2asversion=5.2.1
 WID=$(xprop -root | grep "_NET_ACTIVE_WINDOW(WINDOW)"| awk '{print $5}')
 xdotool windowfocus $WID
