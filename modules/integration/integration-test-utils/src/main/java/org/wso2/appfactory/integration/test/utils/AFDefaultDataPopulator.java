@@ -331,14 +331,11 @@ public class AFDefaultDataPopulator {
      *
      * @throws Exception
      */
-    public void addAPI()throws Exception {
+    public void addDefaultAPI()throws Exception {
         APIRestClient apiRestClient = new APIRestClient(AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.URLS_API), fullyQualifiedTenantAdmin, tenantAdminPassword);
-
-        apiRestClient.addAPI(fullyQualifiedTenantAdmin,tenantAdminPassword,AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.DEFAULT_API_ADD_API_PAYLOAD),AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.DEFAULT_API_PUBLISH_API_PAYLOAD),AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.DEFAULT_API_SUBSCRIBE_API_PAYLOAD));
+                AFConstants.URLS_API), AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_USER_NAME), AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_PASSWORD));
     }
 
 }

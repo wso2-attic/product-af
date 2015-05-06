@@ -99,4 +99,8 @@ public class AFConstants {
 
     public static final String DEFAULT_API_SUBSCRIBE_API_PAYLOAD="//appFactoryProperties/defaultAPI/subscribePayload";
 
+    public static final String DEFAULT_API_USER_NAME="//appFactoryProperties/defaultAPI/useNAme";
+
+    public static final String DEFAULT_API_PASSWORD="//appFactoryProperties/defaultAPI/password";
+
 }

@@ -8,8 +8,6 @@ import org.testng.ITestResult;
 import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.carbon.automation.engine.testlisteners.TestManagerListener;
 
-import java.util.MissingResourceException;
-
 /**
  * Does the initial appfactory related data population
  */
@@ -47,7 +45,7 @@ public class AppFactoryTestManagerListener extends TestManagerListener{
         try {
             AFDefaultDataPopulator AFDefaultDataPopulator= new AFDefaultDataPopulator();
             AFDefaultDataPopulator.initTenantApplicationAndVersionCreation();
-            AFDefaultDataPopulator.addAPI();
+            //AFDefaultDataPopulator.addDefaultAPI();
         } catch (Exception e) {
             final String msg = "Error occurred while populating initial data ";
             log.error(msg, e);
