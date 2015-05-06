@@ -163,10 +163,14 @@ public class BaseClient {
      * @param keyVal  post body
      * @return httpResponse
      */
-    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws Exception {
+    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws AFIntegrationTestException {
         String postBody = generateMsgBody(keyVal);
-        return HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + urlSuffix), postBody,
-                                      getRequestHeaders());
+        try {
+            return HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + urlSuffix), postBody,
+                                          getRequestHeaders());
+        } catch (Exception e) {
+            throw new AFIntegrationTestException("Error occurred while doing post request to appmgt app",e);
+        }
 
     }
 
@@ -177,10 +181,14 @@ public class BaseClient {
      * @param keyVal  post body
      * @return httpResponse
      */
-    public HttpResponse doCloudMgtPostRequest(String urlSuffix, Map<String, String> keyVal) throws Exception {
+    public HttpResponse doCloudMgtPostRequest(String urlSuffix, Map<String, String> keyVal) throws AFIntegrationTestException {
         String postBody = generateMsgBody(keyVal);
-        return HttpRequestUtil.doPost(new URL(getBackEndUrl() + CLOUDMGT_URL_SURFIX + urlSuffix), postBody,
-                                      getRequestHeaders());
+        try {
+            return HttpRequestUtil.doPost(new URL(getBackEndUrl() + CLOUDMGT_URL_SURFIX + urlSuffix), postBody,
+                                          getRequestHeaders());
+        } catch (Exception e) {
+            throw new AFIntegrationTestException("Error occurred while doing post request to cloudmgt app",e);
+        }
 
     }
 
