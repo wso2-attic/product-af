@@ -76,9 +76,9 @@ public class UserMgtClient extends BaseClient {
      *      "displayName": " allUser","displayRoles": ["DevOps","QA","CXO","Application Owner","Developer"]
      *  }
      * ]
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
-    public JSONArray getUsersOfApplication(String appKey) throws Exception {
+    public JSONArray getUsersOfApplication(String appKey) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTON_GET_USERS_OF_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);
@@ -99,9 +99,9 @@ public class UserMgtClient extends BaseClient {
      * @param appKey    application key
      * @param userNames user names as comma separated values. ex: "user1,user2"
      * @return success or not
-     * @throws Exception if an error occurred
+     * @throws AFIntegrationTestException if an error occurred
      */
-    public boolean inviteUsersToApplication(String appKey, String userNames) throws Exception {
+    public boolean inviteUsersToApplication(String appKey, String userNames) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_INVITE_USER_TO_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);
@@ -122,9 +122,9 @@ public class UserMgtClient extends BaseClient {
      * @param appKey    application key
      * @param userNames user names as comma separated values. ex: "user1,user2"
      * @return success or not
-     * @throws Exception if an error occurred
+     * @throws AFIntegrationTestException if an error occurred
      */
-    public boolean removeUsersFromApplication(String appKey, String userNames) throws Exception {
+    public boolean removeUsersFromApplication(String appKey, String userNames) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_REMOVE_USER_FROM_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);
