@@ -24,6 +24,8 @@ import static org.testng.Assert.assertTrue;
  * 03.) Add users to an application
  * 04.) Remove users from the application
  * 05.) Remove users from the tenant
+ *
+ * TODO: Add after class method to cleanup
  */
 public class UserManagementTestCase extends AFIntegrationTest {
     public static final String USER_DEVELOPER = "devUser";
