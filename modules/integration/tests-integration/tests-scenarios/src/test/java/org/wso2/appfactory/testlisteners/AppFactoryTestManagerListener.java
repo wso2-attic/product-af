@@ -49,12 +49,7 @@ public class AppFactoryTestManagerListener extends TestManagerListener{
         } catch (Exception e) {
             final String msg = "Error occurred while populating initial data ";
             log.error(msg, e);
-            class DefaultDataPopulationException extends RuntimeException{
-                public DefaultDataPopulationException(String msg, Exception e) {
-                    super(msg, e);
-                }
-            }
-            throw new DefaultDataPopulationException(msg, e);
+            throw new IllegalStateException(msg, e);
         }
     }
 

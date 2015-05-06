@@ -1,6 +1,7 @@
 package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.json.JSONObject;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
@@ -12,6 +13,8 @@ import java.util.Map;
  */
 public class DatasourceClient extends BaseClient {
 
+    public static final String STAGE = "stage";
+    public static final String APP_KEY = "applicationKey";
     private static final String DATASOURCE_NAME = "datasourceName";
     private static final String RSS_INSTANCE_NAME = "rssInstanceName";
     private static final String URL = "url";
@@ -22,9 +25,6 @@ public class DatasourceClient extends BaseClient {
     private static final String COPY_TO_ALL = "copyToAll";
     private static final String IS_EDIT = "isEdit";
     private static final String REQUEST_KEY_ACTION = "action";
-    public static final String STAGE = "stage";
-    public static final String APP_KEY = "applicationKey";
-
     private static final String CREATE_DATASOURCE = "createDatasource";
     private static final String DELETE_DATASOURCE = "deleteDatasource";
     private static final String EDIT_DATASOURCE = "editDatasource";
@@ -58,8 +58,9 @@ public class DatasourceClient extends BaseClient {
      * @param applicationKey
      * @throws Exception
      */
-    public void createDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
-                       String dbUserName, String password, boolean copyToAll, String applicationKey) throws Exception {
+    public JSONObject createDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
+                                       String dbUserName, String password, boolean copyToAll, String applicationKey)
+            throws AFIntegrationTestException {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, CREATE_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -73,7 +74,8 @@ public class DatasourceClient extends BaseClient {
         msgBody.put(DB_PASSWORD, password);
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_ADD, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
+            checkErrors(response);
+            return new JSONObject(response.getData());
         } else {
             throw new AFIntegrationTestException("Error occurred while creating a new datasource :" +
                                                  response.getResponseCode() + response.getData());
@@ -81,14 +83,15 @@ public class DatasourceClient extends BaseClient {
     }
 
     /**
-     *Delete given datasource
+     * Delete given datasource
      *
      * @param dsName
      * @param stage
      * @param applicationKey
      * @throws Exception
      */
-    public void deleteDatasource(String dsName, String stage, String applicationKey) throws Exception {
+    public JSONObject deleteDatasource(String dsName, String stage, String applicationKey) throws
+                                                                                           AFIntegrationTestException {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, DELETE_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -96,7 +99,8 @@ public class DatasourceClient extends BaseClient {
         msgBody.put(APP_KEY, applicationKey);
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_ADD, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
+            checkErrors(response);
+            return new JSONObject(response.getData());
         } else {
             throw new AFIntegrationTestException("Error occurred while deleting a new datasource :" +
                                                  response.getResponseCode() + response.getData());
@@ -104,7 +108,7 @@ public class DatasourceClient extends BaseClient {
     }
 
     /**
-     *Edit existing datasource
+     * Edit existing datasource
      *
      * @param dsName
      * @param stage
@@ -117,8 +121,9 @@ public class DatasourceClient extends BaseClient {
      * @param applicationKey
      * @throws Exception
      */
-    public void editDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
-                       String dbUserName, String password, boolean isEdit, String applicationKey) throws Exception {
+    public JSONObject editDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
+                               String dbUserName, String password, boolean isEdit, String applicationKey)
+            throws AFIntegrationTestException {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, EDIT_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -132,7 +137,8 @@ public class DatasourceClient extends BaseClient {
         msgBody.put(DB_PASSWORD, password);
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_ADD, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
+            checkErrors(response);
+            return new JSONObject(response.getData());
         } else {
             throw new AFIntegrationTestException("Error occurred while updating existing datasource :" +
                                                  response.getResponseCode() + response.getData());
@@ -140,7 +146,8 @@ public class DatasourceClient extends BaseClient {
     }
 
     /**
-     *Get all datasource information of a particular application
+     * Get all datasource information of a particular application
+     *
      * @param applicationKey
      * @throws Exception
      */
