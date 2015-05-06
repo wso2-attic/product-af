@@ -31,6 +31,7 @@ public class AFConstants {
 	public static final String URLS_BPS = "//appFactoryProperties/urls/bps";
 	public static final String URLS_GIT = "//appFactoryProperties/urls/git";
 	public static final String URLS_BAM = "//appFactoryProperties/urls/bam";
+    public static final String URLS_API = "//appFactoryProperties/urls/api";
 
 	public static final String ENV_CREATE_RANDOM_TENANT = "af.test.createRandomTenant";
 	public static final String ENV_CREATED_RANDOM_TENANT_DOMAIN = "af.test.tenant.domain";
@@ -91,5 +92,15 @@ public class AFConstants {
 	                                                                 "keystores/products/client-truststore.jks";
 	// Domain mapping
 	public static final String DOMAIN_MAPPING_DEFAULT_HOST =  "//appFactoryProperties/domainMapping/domainName";
+
+    public static final String DEFAULT_API_ADD_API_PAYLOAD="//appFactoryProperties/defaultAPI/addPayload";
+
+    public static final String DEFAULT_API_PUBLISH_API_PAYLOAD="//appFactoryProperties/defaultAPI/publishPayload";
+
+    public static final String DEFAULT_API_SUBSCRIBE_API_PAYLOAD="//appFactoryProperties/defaultAPI/subscribePayload";
+
+    public static final String DEFAULT_API_USER_NAME="//appFactoryProperties/defaultAPI/useNAme";
+
+    public static final String DEFAULT_API_PASSWORD="//appFactoryProperties/defaultAPI/password";
 
 }

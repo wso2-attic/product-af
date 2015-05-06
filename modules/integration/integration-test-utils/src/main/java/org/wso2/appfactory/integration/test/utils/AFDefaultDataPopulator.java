@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.testng.Assert;
 import org.wso2.appfactory.integration.admin.clients.TenantManagementServiceClient;
 import org.wso2.appfactory.integration.test.utils.bpel.CreateTenantBPELClient;
+import org.wso2.appfactory.integration.test.utils.rest.APIRestClient;
 import org.wso2.appfactory.integration.test.utils.rest.AppVersionClient;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
@@ -322,6 +323,19 @@ public class AFDefaultDataPopulator {
             throws RemoteException, LoginAuthenticationExceptionException {
         AuthenticatorClient client = new AuthenticatorClient(backendUrl + "services/");
         return client.login(username, password, host);
+    }
+
+    /**
+     * Create API and Publish in APIM
+     *
+     *
+     * @throws Exception
+     */
+    public void addDefaultAPI()throws Exception {
+        APIRestClient apiRestClient = new APIRestClient(AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.URLS_API), AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_USER_NAME), AFIntegrationTestUtils.getPropertyValue(
+                AFConstants.DEFAULT_API_PASSWORD));
     }
 
 }

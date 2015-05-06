@@ -27,7 +27,6 @@ import org.wso2.appfactory.integration.test.utils.external.HttpHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +44,11 @@ public class APIMIntegrationClient extends BaseClient {
 	//resources/apis/get/block.jag
 	//resources/apis/key/ajax/key.jag - getSavedKeys, keysExistsInAllStages
 
+    public static final String ACTION = "applicationKey";
+    public static final String APPLICATION_KEY="applicationKey";
+    public static final String APPLICATION_ID="applicationId";
+    public static final String APP_OWNER="appowner";
+    public static final String USER_NAME="userName";
 
 	public APIMIntegrationClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
@@ -96,63 +100,62 @@ public class APIMIntegrationClient extends BaseClient {
     /**
 	 *
 	 * @param applicationKey
-	 * @param username
+	 * @param userName
 	 * @throws Exception
 	 */
-	public void createApplication(String applicationKey, String username) throws Exception {
+	public void createApplication(String applicationKey, String userName) throws Exception {
+
 		Map<String, String> msgBodyMap = new HashMap<String, String>();
-		msgBodyMap.put("action", "createApplication");
-		msgBodyMap.put("applicationKey", applicationKey);
-		msgBodyMap.put("username", username);
-		HttpResponse response = doPostRequest("resources/apis/add/ajax/add.jag", msgBodyMap);
+		msgBodyMap.put(ACTION, "createApplication");
+		msgBodyMap.put(APPLICATION_KEY, applicationKey);
+		msgBodyMap.put(USER_NAME, userName);
+		HttpResponse response = super.doPostRequest("resources/apis/add/ajax/add.jag", msgBodyMap);
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			//TODO
 			return;
 		} else {
-			throw new AFIntegrationTestException(response.getResponseCode() + " " + response.getData());
+			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
 		}
 	}
 
-	/**
-	 *
-	 * @param applicationKey
-	 * @param appOwner
-	 * @return
-	 * @throws Exception
-	 */
-	public String[] getAPIsOfApp(String applicationKey, String appOwner) throws Exception {
-		Map<String, String> msgBodyMap = new HashMap<String, String>();
-		msgBodyMap.put("action", "getAPIsOfApp");
-		msgBodyMap.put("applicationKey", applicationKey);
-		msgBodyMap.put("appOwner", applicationKey);
-		HttpResponse response = doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
-		if (response.getResponseCode() == HttpStatus.SC_OK) {
-			//TODO
-			System.out.println(response.getData());
-			return new String[0];
-		} else {
-			throw new AFIntegrationTestException(response.getResponseCode() + " " + response.getData());
-		}
-	}
-
-	/**
-	 * This method will always sync and read the saved keys
-	 * @param applicationKey
-	 * @param appOwner
-	 * @return
-	 */
-	public String[] getSavedKeys(String applicationKey, String appOwner) throws Exception {
-		Map<String, String> msgBodyMap = new HashMap<String, String>();
-		msgBodyMap.put("applicationKey", applicationKey);
-		msgBodyMap.put("isSync", "true");
-		msgBodyMap.put("userName", appOwner);
-		HttpResponse response = doPostRequest("resources/apis/key/ajax/key.jag", msgBodyMap);
-		if (response.getResponseCode() == HttpStatus.SC_OK) {
-			//TODO
-			System.out.println(response.getData());
-			return new String[0];
-		} else {
-			throw new AFIntegrationTestException(response.getResponseCode() + " " + response.getData());
-		}
-	}
+    public void getAPIsOfApp(String applicationKey,String appOwner ) throws Exception {
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put(ACTION, "getAPIsOfApp");
+        msgBodyMap.put(APPLICATION_KEY, applicationKey);
+        msgBodyMap.put(APP_OWNER, appOwner);
+        HttpResponse response = super.doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            //TODO
+            return;
+        } else {
+            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+        }
+    }
+    public void getSavedKeys(String applicationKey,String appOwner) throws Exception {
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put(ACTION, "getSavedKeys");
+        msgBodyMap.put(APPLICATION_KEY, applicationKey);
+        msgBodyMap.put(APP_OWNER, appOwner);
+        HttpResponse response = super.doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            //TODO
+            return;
+        } else {
+            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+        }
+    }
+    public void keysExistsInAllStages(String applicationId,String userName) throws Exception {
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put(ACTION, "keysExistsInAllStages");
+        msgBodyMap.put(APPLICATION_ID, applicationId);
+        msgBodyMap.put(USER_NAME, userName);
+        HttpResponse response = super.doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            //TODO
+            return;
+        } else {
+            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+        }
+    }
 
 }
