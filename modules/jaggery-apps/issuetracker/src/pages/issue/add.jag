@@ -3,24 +3,30 @@ var caramel;
 
 (function () {
     var login = require('/modules/login.js');
-    if(!login.isLogged()){
+    if(!login.isLogged() && session.get("logged.user") == null ){
         return;
     }
-
     project = require('/modules/project.js');
     user = require('/modules/user.js');
 	caramel = require('caramel');
 
     include('/jagg/jagg.jag');
     var appkey = request.getParameter('appkey');
+    var isRedirection = request.getParameter('isRedirection')
 
 	userName = context.get(LOGGED_IN_USER);
 	domain = context.get(DOMAIN);
-	caramel.render({
-		title  : { text : 'Issue Tracker | Add Issue'},
-		header : { domain : domain, userName : userName},
-		body   : { project: project.getProjectsOfDomain(), users: user.getUsersOfApp(), appkey: appkey, isEnabled: 'disabled'}
-	});
-
+    if(isRedirection){
+        var response = {}
+        response.project = project.getProjectsOfDomain();
+        response.users = user.getUsersOfApp();
+        print(response);
+    }else{
+        caramel.render({
+            title  : { text : 'Issue Tracker | Add Issue'},
+            header : { domain : domain, userName : userName},
+            body   : { project: project.getProjectsOfDomain(), users: user.getUsersOfApp(), appkey: appkey, isEnabled: 'disabled'}
+        });
+    }
 }());
 %>

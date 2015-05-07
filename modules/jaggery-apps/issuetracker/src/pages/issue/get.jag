@@ -2,23 +2,27 @@
 var caramel = require('caramel');
 (function () {
     var login = require('/modules/login.js');
-    if(!login.isLogged()){
+    if(!login.isLogged() && session.get("logged.user") == null){
         return;
     }
     issue = require('/modules/issue.js'),
 
     pkey = request.getParameter('issuePkey');
+    var isRedirection = request.getParameter('isRedirection');
     var appkey = request.getParameter('appkey');
     include('/jagg/jagg.jag');
-
-	userName = context.get(LOGGED_IN_USER);
+    userName = context.get(LOGGED_IN_USER);
 	domain = context.get(DOMAIN);
 
-    caramel.render({
-        title  : { text : 'Issue Tracker | View Issue'},
-        header : { domain : domain, userName : userName},
-        body   : { data : issue.getIssueByKey(pkey), appkey: appkey }
-    });
+    if(isRedirection){
+        print(issue.getIssueByKey(pkey));
+    }else{
+        caramel.render({
+            title  : { text : 'Issue Tracker | View Issue'},
+            header : { domain : domain, userName : userName},
+            body   : { data : issue.getIssueByKey(pkey), appkey: appkey }
+        });
+    }
 }());
 %>
 

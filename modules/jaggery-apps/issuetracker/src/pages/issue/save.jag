@@ -2,7 +2,7 @@
 var caramel = require('caramel');
 (function () {
     var login = require('/modules/login.js');
-    if(!login.isLogged()){
+    if(!login.isLogged() && session.get("logged.user") == null){
         return;
     }
 
@@ -11,7 +11,6 @@ var caramel = require('caramel');
     var jsonString = request.getParameter('jsonString'),
     projectKey  = request.getParameter('projectKey'),
     action      = request.getParameter('action');
-
     var result;
     if (action === 'addIssue') {
         result = issue.addIssue(projectKey, jsonString);

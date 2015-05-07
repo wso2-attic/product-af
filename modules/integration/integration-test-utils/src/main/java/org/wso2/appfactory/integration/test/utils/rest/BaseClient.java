@@ -27,6 +27,7 @@ import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,14 @@ public class BaseClient {
     protected static final String APPMGT_DATASOURCE_ADD= "resources/datasource/add/ajax/add.jag";
     protected static final String APPMGT_DATASOURCE_GET= "resources/datasource/get/ajax/list.jag";
     protected static final String APPMGT_LIFECYCLE_GET = "lifecycle/get/ajax/get.jag";
+
+    protected static final String ISSUETRACKER_URL_SURFIX = "issuetracker/pages/issue";
+    protected static final String ISSUETRACKER_USER_LOGIN = "/login.jag";
+    protected static final String ISSUETRACKER_ISSUE_SAVE = "/save.jag";
+    protected static final String ISSUETRACKER_ISSUE_ADD = "/add.jag";
+    protected static final String ISSUETRACKER_ISSUE_GET = "/get.jag";
+    protected static final String ISSUETRACKER_ISSUE_GETPROJECTVERSION = "/getProjectVersion.jag";
+    protected static final String ISSUETRACKER_URL_COMMENT = "issuetracker/pages/comment/save.jag";
 
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HEADER_COOKIE = "Cookie";
@@ -162,7 +171,7 @@ public class BaseClient {
      * @param keyVal  post body
      * @return httpResponse
      */
-    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws AFIntegrationTestException {
+    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws Exception {
         String postBody = generateMsgBody(keyVal);
         try {
             return HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + urlSuffix), postBody,

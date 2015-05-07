@@ -3,7 +3,7 @@ var caramel = require('caramel');
 
 (function () {
     var login = require('/modules/login.js');
-    if(!login.isLogged()){
+    if(!login.isLogged() && session.get("logged.user") == null){
         return;
     }
 
@@ -15,16 +15,10 @@ var caramel = require('caramel');
 
     action = request.getParameter('action');
 
-
     var result;
     if (action === 'addComment') {
         result = comment.addComment(issueUniqueKey, commentJsonString);
-    } else if (action === 'editComment') {
-        result = comment.editComment(issueUniqueKey, commentId, commentJsonString);
-    } else if(action === 'deleteComment'){
-        result = comment.deleteComment(issueUniqueKey, commentId);
     }
-
     print(stringify(result));
 
 }());
