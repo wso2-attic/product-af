@@ -27,7 +27,6 @@ import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -171,7 +170,7 @@ public class BaseClient {
      * @param keyVal  post body
      * @return httpResponse
      */
-    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws Exception {
+    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws AFIntegrationTestException {
         String postBody = generateMsgBody(keyVal);
         try {
             return HttpRequestUtil.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + urlSuffix), postBody,
