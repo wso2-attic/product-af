@@ -6,7 +6,11 @@
     </formats>
     <fileSets>
         <fileSet>
+<<<<<<< HEAD
             <filtered>false</filtered>
+=======
+            <filtered>true</filtered>
+>>>>>>> modified war archetype by adding deployable artifact generation
             <directory>built_artifact</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
