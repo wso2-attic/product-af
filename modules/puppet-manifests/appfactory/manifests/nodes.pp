@@ -705,7 +705,7 @@ include 'wso2base::maven'
 $server_ip= $ipaddress
 
 class { "appfactory":
-  version            => "2.1.0",
+  version            => "2.2.0-SNAPSHOT",
   offset             => 0,
   localmember_port   => 4000,
   clustering         => 'false',
