@@ -1,0 +1,7 @@
+<%
+jagg.module("user/login", {
+    login: function () {
+        return jagg.require(jagg.getModulesDir() + "user/login.jag").login.apply(this, arguments);
+    }
+});
+%>

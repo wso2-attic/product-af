@@ -3,20 +3,18 @@
 
     (function () {
         var login = require('/modules/login.js');
-        if(!login.isLogged()){
+        if(!login.isLogged() && session.get("logged.user") == null ){
             return;
         }
 
-         project = require('/modules/project.js'),
+        project = require('/modules/project.js'),
+        projectKey = request.getParameter('projectKey');
+        var result = project.getAllVersionOfProject(projectKey);
 
-         projectKey = request.getParameter('projectKey');
-         var result = project.getAllVersionOfProject(projectKey);
-
-         for(var i in result){
+        for(var i in result){
             result[i].id = Number(result[i].id);
-         }
-
-         print(result);
+        }
+        print(result);
 
     }());
 %>

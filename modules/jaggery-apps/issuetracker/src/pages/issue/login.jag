@@ -1,0 +1,16 @@
+<%
+var caramel = require('caramel');
+(function () {
+    var login = require('/modules/user/login.jag');
+
+    var userName = request.getParameter('username');
+    var password= request.getParameter('password');
+    var action = request.getParameter('action');
+    var result;
+    if (action === 'login') {
+       result =  login.login(userName,password);
+    }
+    print(stringify(result));
+
+}());
+%>

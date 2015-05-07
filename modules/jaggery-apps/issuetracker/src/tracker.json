@@ -1,8 +1,8 @@
 {
     "ssoConfiguration": {
         "enabled": true,
-        "issuer": "tracker",
-        "identityProviderURL": "https://appfactory.private.wso2.com:9443/samlsso",
+        "issuer": "TRACKER",
+        "identityProviderURL": "https://apps.appfactory.private.wso2.com:9443/samlsso",
         "keyStorePassword": "wso2carbon",
         "identityAlias": "wso2carbon",
         "responseSigningEnabled": "true",
