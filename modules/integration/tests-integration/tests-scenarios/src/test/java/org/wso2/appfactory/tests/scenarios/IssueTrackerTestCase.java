@@ -35,7 +35,7 @@ public class IssueTrackerTestCase extends AFIntegrationTest{
 
     private static final String SUMMARY = "Testing issue tracker ";
     private static final String DESCRIPTION = "NPE when login in to issue";
-    private static final String type = "NEW_FEATURE";
+    private static final String TYPE = "NEW_FEATURE";
     private static final String PRIORITY = "HIGH";
     private static final String STATUS = "RESOLVED";
     private static final String ASSIGNEE = "admin";
@@ -82,7 +82,7 @@ public class IssueTrackerTestCase extends AFIntegrationTest{
         JSONObject issueString = new JSONObject();
         issueString.put("summary", SUMMARY);
         issueString.put("description", DESCRIPTION);
-        issueString.put("type",type);
+        issueString.put("type", TYPE);
         issueString.put("priority", PRIORITY);
         issueString.put("status", STATUS);
         issueString.put("assignee", ASSIGNEE);
