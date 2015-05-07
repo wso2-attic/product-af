@@ -66,11 +66,15 @@ public class IssueTrackerRestClient extends BaseClient {
     }
 
     @Override
-    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws Exception {
+    public HttpResponse doPostRequest(String urlSuffix, Map<String, String> keyVal) throws AFIntegrationTestException {
         String postBody = generateMsgBody(keyVal);
-        return HttpRequestUtil.doPost(new URL(getBackEndUrl() + ISSUETRACKER_URL_SURFIX
-                        + urlSuffix),postBody,
-                getRequestHeaders());
+        try {
+            return HttpRequestUtil.doPost(new URL(getBackEndUrl() + ISSUETRACKER_URL_SURFIX
+                            + urlSuffix),postBody,
+                    getRequestHeaders());
+        } catch (Exception e) {
+            throw new AFIntegrationTestException(e);
+        }
     }
 
     /**

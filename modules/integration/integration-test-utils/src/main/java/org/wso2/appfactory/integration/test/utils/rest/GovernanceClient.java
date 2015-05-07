@@ -19,6 +19,7 @@
 package org.wso2.appfactory.integration.test.utils.rest;
 
 import org.apache.commons.httpclient.HttpStatus;
+import org.json.JSONArray;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
@@ -54,7 +55,7 @@ public class GovernanceClient extends BaseClient {
     public void Promote(String appKey, String stageName, String version, String tagName, String comment, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "Promote");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("stageName", stageName);
         msgBodyMap.put("version", version);
         msgBodyMap.put("tagName", tagName);
@@ -84,7 +85,7 @@ public class GovernanceClient extends BaseClient {
     public void Demote(String appKey, String stageName, String version, String tagName, String comment, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "Demote");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("stageName", stageName);
         msgBodyMap.put("version", version);
         msgBodyMap.put("tagName", tagName);
@@ -114,7 +115,7 @@ public class GovernanceClient extends BaseClient {
     public void Retire(String appKey, String stageName, String version, String tagName, String comment, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "Retire");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("stageName", stageName);
         msgBodyMap.put("version", version);
         msgBodyMap.put("tagName", tagName);
@@ -145,7 +146,7 @@ public class GovernanceClient extends BaseClient {
     public void createArtifact(String appKey, String version, String revision, String stage, String doDeploy, String tagName, String repoFrom) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "createArtifact");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("revision", revision);
         msgBodyMap.put("stage", stage);
         msgBodyMap.put("doDeploy", doDeploy);
@@ -172,7 +173,7 @@ public class GovernanceClient extends BaseClient {
     public void invokeUpdateLifeCycleCheckList(String appKey, String version, String stage) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "invokeUpdateLifeCycleCheckList");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("revision", version);
         msgBodyMap.put("stage", stage);
 
@@ -199,7 +200,7 @@ public class GovernanceClient extends BaseClient {
     public String itemChecked(String appKey, String stageName, String version, String itemName, String checked) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "itemChecked");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("stageName", stageName);
         msgBodyMap.put("version", version);
         msgBodyMap.put("itemName", itemName);
@@ -207,8 +208,7 @@ public class GovernanceClient extends BaseClient {
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return new String();
+            return response.getData();
         } else {
             throw new AFIntegrationTestException("Checklist item checking Failed" + response.getData());
         }
@@ -223,16 +223,16 @@ public class GovernanceClient extends BaseClient {
      * @throws Exception
      */
 
-    public String[] getAppVersionsInStagesWithLifeCycleInfo(String appKey, String userName) throws Exception {
+    public JSONArray getAppVersionsInStagesWithLifeCycleInfo(String appKey, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "getAppVersionsInStagesWithLifeCycleInfo");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("userName", userName);
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return new String[0];
+            JSONArray jsonObject = new JSONArray(response.getData());
+            return jsonObject;
         } else {
             throw new AFIntegrationTestException("Checklist item checking Failed" + response.getData());
         }
@@ -252,7 +252,7 @@ public class GovernanceClient extends BaseClient {
     public String[] getLifeCycleHistoryForApplication(String appKey, String version, String stageName, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "getLifeCycleHistoryForApplication");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("version", version);
         msgBodyMap.put("stageName", stageName);
         msgBodyMap.put("userName", userName);
@@ -276,17 +276,17 @@ public class GovernanceClient extends BaseClient {
      * @param lifecycleName  name of the lifecycle to use
      * @throws Exception
      */
-    public void invokeDoVersion(String appKey, String srcVersion, String targetVersion, String lifecycleName)
+    public String invokeDoVersion(String appKey, String srcVersion, String targetVersion, String lifecycleName)
             throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "invokeDoVersion");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("srcVersion", srcVersion);
         msgBodyMap.put("targetVersion", targetVersion);
         msgBodyMap.put("lifecycleName", lifecycleName);
         HttpResponse response = doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            return;
+            return response.getData();
         } else {
             throw new AFIntegrationTestException("Creating a version failed " + response.getData());
         }
@@ -305,7 +305,7 @@ public class GovernanceClient extends BaseClient {
     public void copyNewDependenciesAndDeployArtifact(String appKey, String stage, String version, String tagName, String deployAction) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "copyNewDependenciesAndDeployArtifact");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("stage", stage);
         msgBodyMap.put("version", version);
         msgBodyMap.put("tagName", tagName);
@@ -331,7 +331,7 @@ public class GovernanceClient extends BaseClient {
     public void uploadNewVersionOfExistingApp(String existingVersion, String lifecycleName, String appKey, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "uploadNewVersionOfExistingApp");
-        msgBodyMap.put("appKey", appKey);
+        msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("existingVersion", existingVersion);
         msgBodyMap.put("lifecycleName", lifecycleName);
         msgBodyMap.put("userName", userName);
