@@ -101,7 +101,7 @@ public class GovernanceTestCase extends AFIntegrationTest {
         for (int i = 0; i < allAppVersionsWithLifeCycleInfo.length(); i++) {
 
         }
-        
+
     }
 }
 
