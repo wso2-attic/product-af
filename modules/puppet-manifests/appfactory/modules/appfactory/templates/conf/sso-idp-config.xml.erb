@@ -25,11 +25,17 @@
            <Issuer>APPFACTORY</Issuer>
            <AssertionConsumerService>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/appmgt/jagg/jaggery_acs.jag</AssertionConsumerService>
            <CustomLoginPage>appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+           <SignAssertion>true</SignAssertion>
+           <SignResponse>true</SignResponse>
+           <EnableAttributeProfile>false</EnableAttributeProfile>
        </ServiceProvider>
 	<ServiceProvider>
            <Issuer>APPSERVER</Issuer>
            <AssertionConsumerService>https://cloudmgt.<%= @wso2_env_domain %>:<%= @af_port %>/cloudmgt/jagg/jaggery_acs.jag</AssertionConsumerService>
            <CustomLoginPage>appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+           <SignAssertion>true</SignAssertion>
+           <SignResponse>true</SignResponse>
+           <EnableAttributeProfile>false</EnableAttributeProfile>
        </ServiceProvider>
          <ServiceProvider>
             <Issuer>API_PUBLISHER</Issuer>
