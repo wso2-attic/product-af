@@ -18,15 +18,19 @@
 package org.wso2.carbon.appfactory.application.mgt.listners;
 
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.lang.WordUtils;
 import org.apache.stratos.messaging.message.receiver.tenant.TenantManager;
 import org.wso2.carbon.appfactory.application.mgt.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.deployers.InitialArtifactDeployer;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -46,7 +50,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 
 	@Override
 	public int getPriority() {
-		return 45;
+		return priority;
 	}
 
 	public InitialArtifactDeployerHandler(String identifier, int priority) {
@@ -57,9 +61,17 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 	@Override
 	public void onCreation(Application application, String userName, String tenantDomain,
 	                                 boolean isUploadableAppType) throws AppFactoryException {
-		String stage = AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue();
+		String stage = WordUtils.capitalize(
+				AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue());
 		List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getType(),
 		                                         stage, AppFactoryConstants. ORIGINAL_REPOSITORY);
+
+		ApplicationTypeBean type = ApplicationTypeManager.getInstance().getApplicationTypeBean(
+				                                 application.getType());
+		if(!type.isBuildable()) {
+			return;
+		}
+
 		params.add(new NameValuePair("tenantUserName", userName + "@" + tenantDomain));
 		Map<String, String[]> deployInfoMap = new HashMap<String, String[]>();
 		for (Iterator<NameValuePair> ite = params.iterator() ; ite.hasNext() ;  ) {
@@ -71,7 +83,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 		try {
 			tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
 		    InitialArtifactDeployer deployer = new InitialArtifactDeployer(deployInfoMap, tenantId, tenantDomain);
-		    deployer.run();
+		    deployer.deployLatestSuccessArtifact(deployInfoMap);
 		} catch (UserStoreException e) {
 			throw new AppFactoryException("Initial code committing error " + application.getName() , e);
 		}

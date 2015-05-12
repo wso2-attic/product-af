@@ -153,13 +153,21 @@ public class ApplicationManagementServiceComponent {
 			log.error("Invalid priority provided for ApplicationInfomationChangeListner", nfe);
 		}
 
-		bundleContext.registerService(ApplicationEventsHandler.class.getName(),
-		                              new InitialArtifactDeployerHandler("InitialArtifactDeployerHandler", 45), null);
+		try {
+			priority =
+					Integer.parseInt(appFactoryConfiguration.getFirstProperty("EventHandlers.InitialArtifactDeployerHandler.priority"));
+
+			bundleContext.registerService(ApplicationEventsHandler.class.getName(),
+			                              new InitialArtifactDeployerHandler(
+					                              "InitialArtifactDeployerHandler", 45), null);
+		} catch (NumberFormatException nfe) {
+			log.error("Invalid priority provided for InitialArtifactDeployerHandler", nfe);
+		}
+
 
 		if (log.isDebugEnabled()) {
 			log.debug("Application Management Service  bundle is activated ");
 		}
-
 	}
 
     protected void deactivate(ComponentContext context) {
