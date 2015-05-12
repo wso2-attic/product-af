@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><beans xmlns="http://www.springframework.org/schema/beans" xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:soap="http://cxf.apache.org/bindings/soap" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+    <jaxws:server id="jaxWebService" serviceClass="org.appfac.jaxws.sample.JaxWebService" address="/jax_web_service">
+        <jaxws:serviceBean>
+            <bean  class="org.appfac.jaxws.sample.JaxWSServiceImpl"/>
+        </jaxws:serviceBean>
+    </jaxws:server>
+</beans>
