@@ -3,7 +3,11 @@
 	<id>appfactory-jaxrs</id>
 	<resources>
 		<resource>src/*</resource>
+<<<<<<< HEAD
 		<resource>built_artifact/*</resource>
+=======
+        <resource>built_artifact/*</resource>
+>>>>>>> modified jaxrs archetype by adding deployable artifact generation
 		<resource>.project</resource>
 	</resources>
 </archetype>
