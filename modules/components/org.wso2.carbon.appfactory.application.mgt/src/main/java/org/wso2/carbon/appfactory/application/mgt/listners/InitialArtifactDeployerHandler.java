@@ -63,8 +63,8 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 	                                 boolean isUploadableAppType) throws AppFactoryException {
 		String stage = WordUtils.capitalize(
 				AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue());
-		List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getType(),
-		                                         stage, AppFactoryConstants. ORIGINAL_REPOSITORY);
+		List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getId(), application.getType(),
+		                                         stage,AppFactoryConstants. ORIGINAL_REPOSITORY);
 
 		ApplicationTypeBean type = ApplicationTypeManager.getInstance().getApplicationTypeBean(
 				                                 application.getType());
@@ -72,6 +72,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			return;
 		}
 
+		//TODO - Fix properly in 2.2.0-M1
 		params.add(new NameValuePair("tenantUserName", userName + "@" + tenantDomain));
 		Map<String, String[]> deployInfoMap = new HashMap<String, String[]>();
 		for (Iterator<NameValuePair> ite = params.iterator() ; ite.hasNext() ;  ) {

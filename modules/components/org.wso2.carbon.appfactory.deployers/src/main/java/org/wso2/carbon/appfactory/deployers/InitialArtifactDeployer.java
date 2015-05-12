@@ -82,7 +82,7 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 			throws AppFactoryException {
 
 		String dirPath = CarbonUtils.getTmpDir() + File.separator + "create" +
-		                 File.separator + applicationId + File.separator + "_deploy_artifact";
+		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
 		return dirPath;
 
 	}
@@ -92,7 +92,7 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 	                                               String artifactType, String stage,
 	                                               String tenantDomain) throws AppFactoryException {
 		String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" +
-		                 File.separator + applicationId + File.separator + "_deploy_artifact";
+		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
 		return dirpath;
 	}
 
