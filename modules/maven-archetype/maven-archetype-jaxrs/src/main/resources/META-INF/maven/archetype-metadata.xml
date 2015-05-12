@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archetype-descriptor name="appfactory">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> modified jaxws archetype by adding deployable artifact generation
     <fileSets>
         <fileSet filtered="true" encoding="UTF-8">
             <directory>.</directory>
@@ -34,6 +37,7 @@
             </includes>
         </fileSet>
         <fileSet filtered="false" encoding="UTF-8">
+<<<<<<< HEAD
             <directory>built_artifact</directory>
             <includes>
                 <include>**/*.class</include>
@@ -78,16 +82,19 @@
       </includes>
     </fileSet>
 	<fileSet filtered="false" encoding="UTF-8">
+=======
+>>>>>>> modified jaxws archetype by adding deployable artifact generation
             <directory>built_artifact</directory>
             <includes>
-                <include>servicelist.css</include>
-		<include>WEB-INF/*.xml</include>
-                <include>WEB-INF/classes/demo/jaxrs/client/*.xml</include>
-		<include>WEB-INF/classes/demo/jaxrs/**/*.class</include>
-                <include>META-INF/*.*</include>
+                <include>**/*</include>
             </includes>
+<<<<<<< HEAD
      </fileSet>
   </fileSets>
 >>>>>>> modified jaxrs archetype by adding deployable artifact generation
+=======
+        </fileSet>
+    </fileSets>
+>>>>>>> modified jaxws archetype by adding deployable artifact generation
 </archetype-descriptor>
 
