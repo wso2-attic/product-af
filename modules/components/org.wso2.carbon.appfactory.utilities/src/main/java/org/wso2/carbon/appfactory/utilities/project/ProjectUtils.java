@@ -64,7 +64,7 @@ import java.util.List;
  * ProjectUtil class holds the utility methods to generate projects
  */
 public class ProjectUtils {
-
+    private static final String DEPLOY_ARTIFACT_SUFFIX = "_deploy_artifact";
     private static final Log log = LogFactory.getLog(ProjectUtils.class);
 	public static JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
 
@@ -200,8 +200,7 @@ public class ProjectUtils {
         });
         try {
             result = invoker.execute(deployArtifactCreateReq);
-            File deployArtifact = new File(archetypeDir + File.separator + appId +
-                                           AppFactoryConstants.DEPLOY_ARTIFACT_SUFFIX);
+            File deployArtifact = new File(archetypeDir + File.separator + appId + DEPLOY_ARTIFACT_SUFFIX);
             if(deployArtifact.exists()){
                 return deployArtifact;
             }else{
