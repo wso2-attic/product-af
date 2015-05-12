@@ -120,6 +120,7 @@ public class AppFactoryConstants {
     public static final String ARTIFACT_NAME = "${artifactId}-${version}";
 	public static final String MAVEN_ARTIFACT_ID_REPLACEMENT = " -DartifactId=";
 	public static final String MAVEN_ARTIFACT_ID = "-DartifactId=";
+    public static final String DEPLOY_ARTIFACT_SUFFIX = "_deploy_artifact";
 
 	/**
 	 * Defining repository related constants
