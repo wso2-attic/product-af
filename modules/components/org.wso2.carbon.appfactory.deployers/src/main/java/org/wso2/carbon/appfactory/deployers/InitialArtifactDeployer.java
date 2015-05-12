@@ -34,7 +34,7 @@ import java.util.Map;
  * The deployer that deploys the code during app creation. During app creation we keep an already
  * built code and commit it.
  */
-public class InitialArtifactDeployer extends AbstractStratosDeployer implements Runnable {
+public class InitialArtifactDeployer extends AbstractStratosDeployer {
 
 	private static final Log log = LogFactory.getLog(InitialArtifactDeployer.class.getName());
 
@@ -46,15 +46,15 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer implements 
 		this.parameters = parameters;
 	}
 
-	@Override
-	public void run() {
-		try {
-			deployLatestSuccessArtifact(parameters);
-		} catch (AppFactoryException e) {
-			log.error("Deploying the initial artifact failed for application " +
-			          DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID));
-		}
-	}
+//	@Override
+//	public void run() {
+//		try {
+//			deployLatestSuccessArtifact(parameters);
+//		} catch (AppFactoryException e) {
+//			log.error("Deploying the initial artifact failed for application " +
+//			          DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID));
+//		}
+//	}
 
 	protected String getBaseRepoUrl() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
@@ -82,7 +82,7 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer implements 
 			throws AppFactoryException {
 
 		String dirPath = CarbonUtils.getTmpDir() + File.separator + "create" +
-		                 File.separator + applicationId + File.separator + "build";
+		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
 		return dirPath;
 
 	}
@@ -92,7 +92,7 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer implements 
 	                                               String artifactType, String stage,
 	                                               String tenantDomain) throws AppFactoryException {
 		String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" +
-		                 File.separator + applicationId + File.separator + "build";
+		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
 		return dirpath;
 	}
 

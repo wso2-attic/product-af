@@ -227,7 +227,7 @@ public class AppFactoryCoreUtil {
     }
 
 
-	public static List<NameValuePair> getDeployParameterMap(String artifactType, String stage, String repoFrom) throws AppFactoryException{
+	public static List<NameValuePair> getDeployParameterMap(String appId, String artifactType, String stage, String repoFrom) throws AppFactoryException{
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
@@ -258,7 +258,10 @@ public class AppFactoryCoreUtil {
 		parameters.add(new NameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
 
 		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
-        addRunTimeParameters(stage, parameters, runtimeBean);
+		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_ID, appId));
+
+
+		addRunTimeParameters(stage, parameters, runtimeBean);
 
 		return parameters;
 
