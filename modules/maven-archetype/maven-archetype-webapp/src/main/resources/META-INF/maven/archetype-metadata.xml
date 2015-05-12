@@ -53,9 +53,7 @@
   <fileSet filtered="false" encoding="UTF-8">
             <directory>built_artifact</directory>
             <includes>
-                  <include>WEB-INF/classes/com/HelloApp/HelloServlet.class</include>
-                  <include>WEB-INF/web.xml</include>
-                  <include>index.jsp</include>
+                  <include>**/*</include>
             </includes>
         </fileSet>
 <fileSet filtered="true" encoding="UTF-8">
