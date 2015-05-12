@@ -69,7 +69,7 @@ public class SubscriptionHandler {
      * @return                  repo url for the subscription
      * @throws AppFactoryException {@link AppFactoryException} When subscription fails
      */
-    public String createSubscription(Map deployerInfo, String stage, String username, int tenantID,
+    public String createSubscription(Map<String,String[]> deployerInfo, String stage, String username, int tenantID,
                                      String applicationID, String tenantDomain) throws AppFactoryException {
 
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
@@ -80,8 +80,8 @@ public class SubscriptionHandler {
                 AppFactoryConstants.TENANT_MGT_URL);
 
         StratosRestService restService = new StratosRestService(serverURL,username, "");
-        deployerInfo.put(AppFactoryConstants.RUNTIME_ALIAS_PREFIX, applicationID + tenantDomain
-                .replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT));
+        deployerInfo.put(AppFactoryConstants.RUNTIME_ALIAS_PREFIX, new String[]{applicationID + tenantDomain
+                .replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)});
         String repoUrl = null;
         String className = appfactoryConfiguration.getFirstProperty(
                 AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_CLASS_NAME);
@@ -110,7 +110,7 @@ public class SubscriptionHandler {
                 repoProvider.setRepoName(generateRepoUrlFromTemplate(repoURLforDeployer,aliasPrefix,
                         tenantID, stage, applicationID));
                 repoUrl = repoProvider.createRepository();
-                deployerInfo.put(AppFactoryConstants.RUNTIME_REPO_PROVIDER_URL, repoUrl);
+                deployerInfo.put(AppFactoryConstants.RUNTIME_REPO_PROVIDER_URL, new String[]{repoUrl});
 
                 String cartridgeTypePrefix = DeployerUtil.getParameterValue(
                         deployerInfo,AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX);
