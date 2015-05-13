@@ -55,7 +55,7 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 			String uploadedFileName = applicationID + "-" + targetVersion + "." + applicationExtenstion
 			                          + AppFactoryConstants.UPPLOADABLE_SUFFIX;
 
-	        copyUploadedAppToRepositoryLocation(uploadedFileName, workingDirectory);
+	        copyUploadedAppToLocation(uploadedFileName, workingDirectory);
 	        
 	        if (log.isDebugEnabled()) {
 				log.debug("Version creation hanlded for Uploaded application type with application key -" + applicationID);
@@ -68,7 +68,7 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 
 	}
 
-	@Override
+    @Override
 	public void generateApplicationSkeleton(String applicationID, String workingDirectory)
 			throws AppFactoryException {
 
@@ -78,7 +78,7 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 					ProjectUtils.getApplicationExtenstion(applicationID,
 					                                      tenantDomain);
 			String uploadedFileName = applicationID + "-1.0.0." + applicationExtenstion + AppFactoryConstants.UPPLOADABLE_SUFFIX;
-			copyUploadedAppToRepositoryLocation(uploadedFileName , workingDirectory);
+            copyUploadedAppToLocation(uploadedFileName , workingDirectory);
 			
 			if (log.isDebugEnabled()) {
 				log.debug("Application skeleton creation hanlded for Uploaded application type with application key -" + applicationID);
@@ -87,27 +87,6 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 			log.error(e);
 			throw new AppFactoryException("Error when generating uploaded application skeleton", e);
 		}
-	}
-
-	private void copyUploadedAppToRepositoryLocation(String uploadedFileName, String workingDirectory) throws IOException{
-		
-		File sourceFile =
-				new File(getUploadedApplicationTmpPath() + File.separator +
-				         uploadedFileName);
-		File desFile = new File(workingDirectory + File.separator + uploadedFileName.replace(AppFactoryConstants.UPPLOADABLE_SUFFIX,""));
-		FileUtils.copyFile(sourceFile, desFile);
-
-		if (log.isDebugEnabled()) {
-			log.debug("Uploaded application file "+ sourceFile.getName() + " successfully copied to location - " +
-			          desFile.getAbsolutePath());
-		}
-		FileUtils.forceDelete(sourceFile);
-
-	}
-
-	private String getUploadedApplicationTmpPath() {
-		return CarbonUtils.getCarbonRepository() + File.separator + "jaggeryapps/appmgt/" +
-				AppFactoryConstants.UPLOADED_APPLICATION_TMP_FOLDER_NAME;
 	}
 
 	@Override
@@ -182,4 +161,41 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 
 		return jobConfigTemplate;
 	}
+
+    private void copyUploadedAppToLocation(String uploadedFileName, String workingDirectory) throws IOException {
+        File sourceFile =
+                new File(getUploadedApplicationTmpPath() + File.separator +
+                         uploadedFileName);
+        copyUploadedAppToRepositoryLocation(sourceFile, uploadedFileName, workingDirectory);
+        copyUplodedAppToDepolyArtifactLocation(sourceFile, uploadedFileName, workingDirectory);
+        FileUtils.forceDelete(sourceFile);
+    }
+
+    private void copyUploadedAppToRepositoryLocation(File sourceFile, String uploadedFileName, String workingDirectory)
+            throws IOException {
+        File desFile = new File(workingDirectory + File.separator +
+                                uploadedFileName.replace(AppFactoryConstants.UPPLOADABLE_SUFFIX, ""));
+        FileUtils.copyFile(sourceFile, desFile);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Uploaded application file " + sourceFile.getName() + " successfully copied to location - " +
+                      desFile.getAbsolutePath());
+        }
+    }
+
+    private void copyUplodedAppToDepolyArtifactLocation(File sourceFile, String uploadedFileName,
+                                                        String deployArtifactLocation) throws IOException {
+        File desFile = new File(deployArtifactLocation + "_deploy_artifact" + File.separator +
+                                uploadedFileName.replace(AppFactoryConstants.UPPLOADABLE_SUFFIX, ""));
+        FileUtils.copyFile(sourceFile, desFile);
+        if (log.isDebugEnabled()) {
+            log.debug("Copied uploaded application from " + sourceFile.getName() + " to deploy artifact location " +
+                      desFile.getAbsolutePath());
+        }
+    }
+
+    private String getUploadedApplicationTmpPath() {
+        return CarbonUtils.getCarbonRepository() + File.separator + "jaggeryapps/appmgt/" +
+               AppFactoryConstants.UPLOADED_APPLICATION_TMP_FOLDER_NAME;
+    }
 }

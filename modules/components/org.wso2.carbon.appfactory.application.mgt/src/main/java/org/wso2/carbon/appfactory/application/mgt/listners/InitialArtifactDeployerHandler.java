@@ -61,16 +61,11 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 	@Override
 	public void onCreation(Application application, String userName, String tenantDomain,
 	                                 boolean isUploadableAppType) throws AppFactoryException {
-		String stage = WordUtils.capitalize(
-				AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue());
+        String stage = isUploadableAppType ?
+                       WordUtils.capitalize(AppFactoryConstants.ApplicationStage.PRODUCTION.getStageStrValue()) :
+                       WordUtils.capitalize(AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue());
 		List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getId(), application.getType(),
 		                                         stage,AppFactoryConstants. ORIGINAL_REPOSITORY);
-
-		ApplicationTypeBean type = ApplicationTypeManager.getInstance().getApplicationTypeBean(
-				                                 application.getType());
-		if(!type.isBuildable()) {
-			return;
-		}
 
 		//TODO - Fix properly in 2.2.0-M1
 		params.add(new NameValuePair("tenantUserName", userName + "@" + tenantDomain));

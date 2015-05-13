@@ -64,7 +64,6 @@ import java.util.List;
  * ProjectUtil class holds the utility methods to generate projects
  */
 public class ProjectUtils {
-    private static final String DEPLOY_ARTIFACT_SUFFIX = "_deploy_artifact";
     private static final Log log = LogFactory.getLog(ProjectUtils.class);
 	public static JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
 
@@ -133,7 +132,6 @@ public class ProjectUtils {
             if (result != null && result.getExitCode() == 0) {
                 log.info("Maven archetype generation completed successfully");
 
-             //TODO: use AppFactoryCoreUtil.isBuildServerRequiredProject check when uploadable archetypes are also done
                 if (AppFactoryCoreUtil.isBuildable(ApplicationManager.getInstance().getApplicationType(appId))) {
                     File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
                     moveDepolyArtifact(deployArtifact, workDir.getParentFile());
@@ -160,7 +158,7 @@ public class ProjectUtils {
         try {
             FileUtils.copyDirectoryToDirectory(deployAtrifact, parentFile);
         } catch (IOException e) {
-            String msg = "Error while copying deploy artifact from "+ deployAtrifact.getAbsolutePath()
+            String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
                          + " to " + parentFile.getAbsolutePath();
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
@@ -200,7 +198,7 @@ public class ProjectUtils {
         });
         try {
             result = invoker.execute(deployArtifactCreateReq);
-            File deployArtifact = new File(archetypeDir + File.separator + appId + DEPLOY_ARTIFACT_SUFFIX);
+            File deployArtifact = new File(archetypeDir + File.separator + appId + "_deploy_artifact");
             if(deployArtifact.exists()){
                 return deployArtifact;
             }else{
