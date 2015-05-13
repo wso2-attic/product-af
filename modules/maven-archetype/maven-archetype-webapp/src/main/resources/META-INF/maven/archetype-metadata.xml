@@ -30,13 +30,13 @@
 		<include>org.eclipse.wst.jsdt.ui.superType.name</include>
             </includes>
         </fileSet>
- <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="true" encoding="UTF-8">
             <directory>build</directory>
             <includes>
                 <include>classes/</include>
             </includes>
         </fileSet>
-  <fileSet filtered="false" encoding="UTF-8">
+       <fileSet filtered="false" encoding="UTF-8">
             <directory>built_artifact</directory>
             <includes>
                   <include>**/*</include>
