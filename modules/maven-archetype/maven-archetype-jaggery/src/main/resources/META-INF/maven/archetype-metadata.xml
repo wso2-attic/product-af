@@ -4,10 +4,23 @@
         <fileSet filtered="false">
             <directory>.</directory>
         </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory />
+            <includes>
+                <include>bin.xml</include>
+		<include>assembly.xml</include>
+            </includes>
+        </fileSet>
         <fileSet filtered="false">
             <directory></directory>
             <includes>
                 <include>*/**</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="false" encoding="UTF-8">
+            <directory>built_artifact</directory>
+            <includes>
+                  <include>**/*</include>
             </includes>
         </fileSet>
     </fileSets>
