@@ -92,11 +92,6 @@ public class RestBasedJenkinsCIConnector {
 	private HttpClient httpClient;
 
 	/**
-	 * Base url of the jenkins
-	 */
-	private String jenkinsUrl;
-
-	/**
 	 * Flag weather this connector needs to authenticate it self.
 	 */
 	private boolean authenticate;
@@ -134,21 +129,13 @@ public class RestBasedJenkinsCIConnector {
 		this.apiKeyOrPassword = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
 				JenkinsCIConstants.JENKINS_SERVER_ADMIN_PASSWORD);
 
-		this.jenkinsUrl = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-				JenkinsCIConstants.BASE_URL_CONFIG_SELECTOR);
-
 		if (log.isDebugEnabled()) {
 			log.debug(String.format("Authenticate : %s", this.authenticate));
 			log.debug(String.format("Jenkins user name : %s", this.username));
-			log.debug(String.format("Jenkins url : %s", this.jenkinsUrl));
 		}
 
 		this.httpClient = new HttpClient(
 				new MultiThreadedHttpConnectionManager());
-		if (StringUtils.isBlank(this.jenkinsUrl)) {
-			throw new IllegalArgumentException(
-					"Jenkins server url is unspecified");
-		}
 	}
 
 	/**
@@ -185,17 +172,16 @@ public class RestBasedJenkinsCIConnector {
 
 	/**
 	 * @return
+	 * @param tenantDomain
 	 */
-	public String getJenkinsUrl() {
-		return jenkinsUrl;
-	}
-
-	/**
-	 * @param jenkinsUrl
-	 */
-	@SuppressWarnings("UnusedDeclaration")
-	public void setJenkinsUrl(String jenkinsUrl) {
-		this.jenkinsUrl = jenkinsUrl;
+	public String getJenkinsUrl(String tenantDomain) throws AppFactoryException {
+		int tenantBucketId = ServiceContainer.getBucketSelectingStrategy().getTenantBucketId(tenantDomain);
+		String bucketClusterId = ServiceContainer.getClusterSelectingStrategy().getBucketClusterId(tenantBucketId);
+		if (StringUtils.isBlank(bucketClusterId)) {
+			throw new IllegalArgumentException(
+					"Jenkins server url is unspecified");
+		}
+		return bucketClusterId;
 	}
 
 	/**
@@ -533,6 +519,75 @@ public class RestBasedJenkinsCIConnector {
 	}
 
 	/**
+	 * Create tenant job. This will create "Folder Job"(folder with the name of {@code jobName} in
+	 * $JENKINS_HOME/jobs directory) to represent the tenant in the jenkins
+	 *
+	 * TODO Refactor this method
+	 * @param jobName
+	 * @param jobConfiguration
+	 * @param tenantDomain
+	 * @throws AppFactoryException
+	 */
+	public void createTenantJob(String jobName, OMElement jobConfiguration,
+	                      String tenantDomain) throws AppFactoryException {
+
+
+		NameValuePair[] queryParams = { new NameValuePair(AppFactoryConstants.JOB_NAME_KEY, jobName) };
+		PostMethod createJob = null;
+		boolean jobCreatedFlag = false;
+
+		try {
+			createJob = createPost(
+					"/createItem",
+					queryParams,
+					new StringRequestEntity(jobConfiguration
+							                        .toStringWithConsume(), "text/xml", "utf-8"),
+					tenantDomain);
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(createJob);
+
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
+				httpStatusCode = resendRequest(createJob);
+			}
+
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
+				String errorMsg = String.format(
+						"Unable to create the job: [%s]. jenkins "
+						+ "returned, http status : %d", jobName,
+						httpStatusCode);
+				log.error(errorMsg);
+				throw new AppFactoryException(errorMsg);
+			} else {
+				jobCreatedFlag = true;
+			}
+		} catch (Exception ex) {
+			String errorMsg = "Error while trying creating job: " + jobName;
+			log.error(errorMsg, ex);
+
+			if (jobCreatedFlag) {
+				// the job was created but setting svn
+				// credentials failed. Therefore try
+				// deleting the entire job (instead of
+				// keeping a unusable job in jenkins)
+				try {
+					deleteJob(jobName, tenantDomain);
+				} catch (AppFactoryException delExpception) {
+					log.error(
+							"Unable to delete the job after failed attempt set svn credentials,"
+							+ " job: " + jobName, delExpception);
+				}
+			}
+
+			throw new AppFactoryException(errorMsg, ex);
+		} finally {
+
+			if (createJob != null) {
+				createJob.releaseConnection();
+			}
+		}
+	}
+
+
+	/**
 	 * Create a job in Jenkins
 	 * 
 	 * @param jobName
@@ -556,7 +611,7 @@ public class RestBasedJenkinsCIConnector {
 
 		try {
 			createJob = createPost(
-					"/createItem",
+					"/job/"+tenantDomain+"/createItem", //TODO extract this url fragment
 					queryParams,
 					new StringRequestEntity(jobConfiguration
 							.toStringWithConsume(), "text/xml", "utf-8"),
@@ -688,7 +743,7 @@ public class RestBasedJenkinsCIConnector {
 	public boolean deleteJob(String jobName, String tenantDomain)
 			throws AppFactoryException {
 		PostMethod deleteJobMethod = createPost(
-				String.format("/job/%s/doDelete", jobName), null, null,
+				String.format("/job/"+tenantDomain+"/job/%s/doDelete", jobName), null, null,
 				tenantDomain);
 		int httpStatusCode = -1;
 		try {
@@ -778,7 +833,7 @@ public class RestBasedJenkinsCIConnector {
 		}
 
 		PostMethod startBuildMethod = createPost(
-				String.format("/job/%s/buildWithParameters", jobName),
+				String.format("/job/"+tenantDomain+"/job/%s/buildWithParameters", jobName), //TODO extract this url fragment
 				parameters.toArray(new NameValuePair[parameters.size()]), null,
 				tenantDomain);
 
@@ -1090,9 +1145,10 @@ public class RestBasedJenkinsCIConnector {
 		if (jobName == null || jobName.isEmpty()
 		    || jobName.equalsIgnoreCase(AppFactoryConstants.ALL_JOB_NAME) ||
 		    jobName.equals(AppFactoryConstants.ASTERISK)) {
-			buildUrl = this.getJenkinsUrl() + AppFactoryConstants.URL_SEPERATOR;
+			buildUrl = this.getJenkinsUrl(tenantDomain) + AppFactoryConstants.URL_SEPERATOR;
 		} else {
-			buildUrl = String.format("%s/job/%s/", this.getJenkinsUrl(),
+			//TODO check usage of this method and remove it.
+			buildUrl = String.format("%s/job/%s/job/%s/", this.getJenkinsUrl(tenantDomain),tenantDomain,
 					jobName);
 		}
 
@@ -1236,6 +1292,10 @@ public class RestBasedJenkinsCIConnector {
 				throw new AppFactoryException("Runtime details cannot be found");
 			}
 
+			parameters.add(new NameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
+			int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+			//TODO move tenantId to a constant
+			parameters.add(new NameValuePair("tenantId",Integer.toString(tenantId)));
 			parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,runtimeNameForAppType));
 			parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
 			                                 Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
@@ -1319,6 +1379,10 @@ public class RestBasedJenkinsCIConnector {
 		addRunTimeParameters(stage, parameters, runtimeBean);
 		String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
 		String tenantUserName = userName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+		parameters.add(new NameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+		//TODO move tenantId to a constant
+		parameters.add(new NameValuePair("tenantId",Integer.toString(tenantId)));
 		parameters.add(new NameValuePair(AppFactoryConstants.TENANT_USER_NAME, tenantUserName));
 		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_ID, applicationId));
 		parameters.add(new NameValuePair(AppFactoryConstants.APP_TYPE, applicationType));
@@ -1381,6 +1445,10 @@ public class RestBasedJenkinsCIConnector {
 		}
 
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new NameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+		//TODO move tenantId to a constant
+		parameters.add(new NameValuePair("tenantId",Integer.toString(tenantId)));
 		parameters.add(new NameValuePair(AppFactoryConstants.JOB_NAME, jobName));
 		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
 
@@ -1687,7 +1755,7 @@ public class RestBasedJenkinsCIConnector {
 
 		try {
 			createJob = createPost(
-					String.format("/job/%s/config.xml", jobName),
+					String.format("/job/"+tenantDomain+"/job/%s/config.xml", jobName),
 					queryParams,
 					new StringRequestEntity(jobConfiguration
 							.toStringWithConsume(), "text/xml", "utf-8"),
@@ -1744,8 +1812,8 @@ public class RestBasedJenkinsCIConnector {
 	 * @return a {@link GetMethod}
 	 */
 	private GetMethod createGet(String urlFragment,
-			NameValuePair[] queryParameters, String tenantDomain) {
-		return createGet(getJenkinsUrl(), urlFragment, queryParameters,
+			NameValuePair[] queryParameters, String tenantDomain) throws AppFactoryException {
+		return createGet(getJenkinsUrl(tenantDomain), urlFragment, queryParameters,
 				tenantDomain);
 	}
 
@@ -1761,7 +1829,7 @@ public class RestBasedJenkinsCIConnector {
 	 * @return a {@link GetMethod}
 	 */
 	private GetMethod createGet(String baseUrl, String urlFragment,
-			NameValuePair[] queryParameters, String tenantDomain) {
+			NameValuePair[] queryParameters, String tenantDomain) throws AppFactoryException {
 		String url = getJenkinsUrlByTenantDomain(urlFragment, tenantDomain);
 
 		GetMethod get = new GetMethod(url);
@@ -1789,7 +1857,7 @@ public class RestBasedJenkinsCIConnector {
 	 */
 	private PostMethod createPost(String urlFragment,
 			NameValuePair[] queryParameters, RequestEntity requestEntity,
-			String tenantDomain) {
+			String tenantDomain) throws AppFactoryException {
 		return createPost(urlFragment, queryParameters, requestEntity, null,
 				tenantDomain);
 	}
@@ -1804,13 +1872,8 @@ public class RestBasedJenkinsCIConnector {
 	 * @return Jenkins URL
 	 */
 	private String getJenkinsUrlByTenantDomain(String urlFragment,
-			String tenantDomain) {
-		if (tenantDomain != null && !tenantDomain.equals(""))
-			return getJenkinsUrl() + File.separator + Constants.TENANT_SPACE
-					+ File.separator + tenantDomain + Constants.JENKINS_WEBAPPS
-					+ File.separator + urlFragment;
-		else
-			return getJenkinsUrl() + urlFragment;
+			String tenantDomain) throws AppFactoryException {
+		return getJenkinsUrl(tenantDomain) + urlFragment;
 	}
 
 	/**
@@ -1830,7 +1893,7 @@ public class RestBasedJenkinsCIConnector {
 	 */
 	private PostMethod createPost(String urlFragment,
 			NameValuePair[] queryParameters, RequestEntity requestEntity,
-			NameValuePair[] postParameters, String tenantDomain) {
+			NameValuePair[] postParameters, String tenantDomain) throws AppFactoryException {
 		String url = getJenkinsUrlByTenantDomain(urlFragment, tenantDomain);
 		// getJenkinsUrl() + urlFragment
 		PostMethod post = new PostMethod(url);
