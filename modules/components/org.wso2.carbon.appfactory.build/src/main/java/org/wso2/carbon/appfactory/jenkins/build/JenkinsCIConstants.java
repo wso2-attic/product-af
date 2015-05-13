@@ -92,7 +92,24 @@ public class JenkinsCIConstants {
     
     public static final String JENKINS_SERVER_ADMIN_USERNAME = "JenkinsServerAdminUsername";
     public static final String JENKINS_SERVER_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
-    
+
+    /**
+     * Jenkins bucket-cluster
+     */
+    public static final String JENKINS_LB_BASE_ELEMENT = "JenkinsLBConfig";
+    public static final String JENKINS_LB_BUCKET_COUNT = JENKINS_LB_BASE_ELEMENT+".BucketCount";
+    public static final String JENKINS_LB_BUCKET_LIST = JENKINS_LB_BASE_ELEMENT+".BucketList.Property";
+    public static final String JENKINS_LB_BUCKET_SELECTING_STRATEGY = JENKINS_LB_BASE_ELEMENT+"" +
+                                                                      ".BucketSelectingStrategy";
+    public static final String JENKINS_LB_CLUSTER_SELECTING_STRATEGY =
+            JENKINS_LB_BASE_ELEMENT+".ClusterSelectingStrategy";
+    /**
+     * Jenkins job config
+     */
+    public static final String CONFIG_FOLDER = "jenkins";
+    public static final String TENANT_FOLDER_CONFIG_FILE = "tenant_folder_config.xml";
+    public static final String TENANT_FOLDER_CONFIG_DISPLAY_NAME = "displayName";
+    public static final String TENANT_FOLDER_CONFIG_DISCRIPTION = "description";
     /**
      * Defines constants related to jenkins role-strategy-pugin
      */

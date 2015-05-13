@@ -57,7 +57,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String currentVersion = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_VERSION);
         String deployStage = DeployerUtil.getParameter(parameters,AppFactoryConstants.DEPLOY_STAGE);
         String serverDeploymentPath = DeployerUtil.getParameter(parameters,AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
-        String tenantDomain = getTenantDomain();
+        String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
+        //TODO move tenantId to a constant
+        int tenantId = Integer.parseInt(DeployerUtil.getParameter(parameters, "tenantId"));
 
         String condition = applicatonId + AppFactoryConstants.MINUS + currentVersion + AppFactoryConstants.MINUS +
                            deployStage + AppFactoryConstants.MINUS + tenantDomain;
@@ -65,7 +67,8 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
             File artifactToDeploy = artifactsToDeploy[0];
             String fileName = artifactToDeploy.getName();
-            addToGitRepo(fileName, artifactToDeploy, parameters, artifactType, serverDeploymentPath, null);
+            addToGitRepo(fileName, artifactToDeploy, parameters, artifactType, serverDeploymentPath, null,
+                         tenantDomain,tenantId);
 
             if (notify) {
                 // git uses "master" for the main branch while , we need to parse "trunk" here for the main branch
@@ -81,7 +84,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
     private void addToGitRepo(String fileName, File artifacts, Map metadata,
                               String appTypeName, String serverDeploymentPath,
-                              String relativePathFragment) throws AppFactoryException {
+                              String relativePathFragment,String tenantDomain,int tenantId) throws AppFactoryException {
 
         // subscribeOnDeployment is true or not
         boolean subscribeOnDeployment = Boolean.parseBoolean(
@@ -89,7 +92,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String applicationId = DeployerUtil.getParameterValue(metadata,
                                                               AppFactoryConstants.APPLICATION_ID);
 
-        int tenantId = getTenantID();
+
         String gitRepoUrl = generateRepoUrl(applicationId, metadata, tenantId,
                                             appTypeName, subscribeOnDeployment);
         String stageName = DeployerUtil.getParameterValue(metadata,
@@ -101,7 +104,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
                 log.debug("SubscribeOnDeployment is true");
             }
             SubscriptionHandler.getInstance().createSubscription(metadata, stageName, username,
-                                                                 tenantId, applicationId, getTenantDomain());
+                                                                 tenantId, applicationId, tenantDomain);
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("SubscribeOnDeployment is false");

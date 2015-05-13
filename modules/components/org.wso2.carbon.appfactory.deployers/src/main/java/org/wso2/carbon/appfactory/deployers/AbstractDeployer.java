@@ -80,7 +80,7 @@ public abstract class AbstractDeployer implements Deployer {
 				AppFactoryConstants.APPLICATION_VERSION);
 		String extension = DeployerUtil.getParameter(parameters,
 		        AppFactoryConstants.APPLICATION_EXTENSION);
-		String tenantDomain = getTenantDomain();
+		String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
 		String pathToPromotedArtifact = getArtifactStoragePath(applicationId,
 				version, artifactType, stageName, tenantDomain);
 
@@ -108,7 +108,7 @@ public abstract class AbstractDeployer implements Deployer {
 				AppFactoryConstants.ARTIFACT_TYPE);
 		String version = DeployerUtil.getParameter(parameters,
 				AppFactoryConstants.APPLICATION_VERSION);
-		String tenantDomain = getTenantDomain();
+		String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
 		String extension = DeployerUtil.getParameter(parameters,
 		        AppFactoryConstants.APPLICATION_EXTENSION);
 	    String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);

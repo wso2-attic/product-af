@@ -18,6 +18,12 @@
 
 package org.wso2.carbon.appfactory.jenkins;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -33,8 +39,11 @@ import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
@@ -44,26 +53,38 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerAppFactoryExceptionException;
 import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerStub;
+import org.wso2.carbon.appfactory.build.stub.xsd.BuildStatusBean;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.jenkins.build.notify.BuildStatusReceiverClient;
-import org.wso2.carbon.appfactory.build.stub.xsd.BuildStatusBean;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.ServletException;
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The plugin for storing build artifact permanently, deploy artifacts and
  * notify appfactory with build status
  */
 public class AppfactoryPluginManager extends Notifier implements Serializable {
-	
+
     private static final Log log = LogFactory.getLog(AppfactoryPluginManager.class);
-    
+    public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
+    public static final String JAVAX_NET_SSL_CLIENT_TRUST_STORE_PASSWORD = "javax.net.ssl.clientTrustStorePassword";
+    public static final String JKS = "jks";
+
     // these are the parameters that we defined in config.jelly
     private final String applicationId;
     private final String applicationVersion;
@@ -110,6 +131,8 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 
         final String APPFACTORY_SERVER_URL = getDescriptor().getAppfactoryServerURL();
         String serviceURL = APPFACTORY_SERVER_URL + BUILDSTATUS_RECEIVER_NAME;
+        System.setProperty(JAVAX_NET_SSL_TRUST_STORE, getDescriptor().getClientTrustStore());
+        System.setProperty(JAVAX_NET_SSL_CLIENT_TRUST_STORE_PASSWORD, getDescriptor().getClientTrustStorePassword());
         BuildStatusReceiverClient client = new BuildStatusReceiverClient(serviceURL, getDescriptor().getAdminUserName(),
                                                                          getDescriptor().getAdminPassword());
 
@@ -271,10 +294,15 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
         private String adminPassword;
         private String clientTrustStore;
         private String clientTrustStorePassword;
+        private String keyStore;
+        private String keyStorePassword;
         private String appfactoryServerURL;
         private String storagePath;
         private String tempPath;
-       // private String jenkinsHome;String applicationId, String artifactType, String stage, String tenantDomainString applicationId, String artifactType, String stage, String tenantDomain
+        private String baseDeployUrl;
+        private String stratosAdminUsername;
+        private String stratosAdminPassword;
+        // private String jenkinsHome;String applicationId, String artifactType, String stage, String tenantDomainString applicationId, String artifactType, String stage, String tenantDomain
 
         public DescriptorImpl() {
             super(AppfactoryPluginManager.class);
@@ -335,6 +363,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 
         /**
          * This method is used to configure the values defined in global.jelly
+         *
          * @param req
          * @param formData
          * @return
@@ -348,9 +377,14 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             setAdminPassword(formData.getString("adminPassword"));
             setClientTrustStore(formData.getString("clientTrustStore"));
             setClientTrustStorePassword(formData.getString("clientTrustStorePassword"));
+            setKeyStore(formData.getString("keyStore"));
+            setKeyStorePassword(formData.getString("keyStorePassword"));
             setAppfactoryServerURL(formData.getString("appfactoryServerURL"));
             setStoragePath(formData.getString("storagePath"));
             setTempPath(formData.getString("tempPath"));
+            setBaseDeployUrl(formData.getString("baseDeployUrl"));
+            setStratosAdminUsername(formData.getString("stratosAdminUsername"));
+            setStratosAdminPassword(formData.getString("stratosAdminPassword"));
 
             //To persist global configuration information
             save();
@@ -412,6 +446,47 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
         public void setTempPath(String tempPath) {
             this.tempPath = tempPath;
         }
+
+        public String getBaseDeployUrl() {
+            return baseDeployUrl;
+        }
+
+        public String getStratosAdminUsername() {
+            return stratosAdminUsername;
+        }
+
+        public String getStratosAdminPassword() {
+            return stratosAdminPassword;
+        }
+
+        public void setBaseDeployUrl(String baseDeployUrl) {
+            this.baseDeployUrl = baseDeployUrl;
+        }
+
+        public void setStratosAdminUsername(String stratosAdminUsername) {
+            this.stratosAdminUsername = stratosAdminUsername;
+        }
+
+        public void setStratosAdminPassword(String stratosAdminPassword) {
+            this.stratosAdminPassword = stratosAdminPassword;
+        }
+
+
+        public String getKeyStore() {
+            return keyStore;
+        }
+
+        public String getKeyStorePassword() {
+            return keyStorePassword;
+        }
+
+        public void setKeyStore(String keyStore) {
+            this.keyStore = keyStore;
+        }
+
+        public void setKeyStorePassword(String keyStorePassword) {
+            this.keyStorePassword = keyStorePassword;
+        }
     }
 
     /**
@@ -435,7 +510,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                 try {
                     clientStub = new ApplicationDeployerStub(applicationDeployerEPR);
                     ServiceClient deployerClient = clientStub._getServiceClient();
-                    AppFactoryUtil.setAuthHeaders(deployerClient, tenantUserName);
+                    setAuthHeaders(deployerClient, tenantUserName);
                     //wait for symlink to appear
                     Thread.sleep(1000);
                     clientStub.deployArtifact(applicationId, stage, version, "", deployAction, repoFrom);
@@ -449,12 +524,64 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
                     log.error("Error while sending deployment message " + e.getMessage(), e);
                 } catch (AppFactoryException e) {
                     log.error("Error while sending deployment message " + e.getMessage(), e);
+                } finally {
+                    if(clientStub != null) {
+                        try {
+                            clientStub._getServiceClient().cleanupTransport();
+                            clientStub._getServiceClient().cleanup();
+                        } catch (AxisFault ignore) {
+                            log.error("Failed to clean up application deployer stub.", ignore);
+                        }
+                    }
                 }
             }
         });
         clientCaller.start();
     }
-    
+
+    /**
+     * Set authorization header to service client
+     * @param serviceClient Service client
+     * @param username username
+     * @throws AppFactoryException
+     */
+    public void setAuthHeaders(ServiceClient serviceClient, String username) throws AppFactoryException {
+        List headerList = new ArrayList();
+        Header header = new Header();
+        header.setName(HTTPConstants.HEADER_AUTHORIZATION);
+        header.setValue(getAuthHeader(username));
+        headerList.add(header);
+        serviceClient.getOptions().setProperty(HTTPConstants.HTTP_HEADERS, headerList);
+    }
+
+    /**
+     * Get auth header
+     * @param username username
+     * @return Bearer header
+     * @throws AppFactoryException
+     */
+    public String getAuthHeader(String username) throws AppFactoryException {
+        String keyStoreCredential = getDescriptor().getKeyStorePassword();
+        try {
+            KeyStore ks = KeyStore.getInstance(JKS);
+            ks.load(new FileInputStream(getDescriptor().getKeyStore()), keyStoreCredential.toCharArray());
+            PrivateKey key = (PrivateKey)ks.getKey(keyStoreCredential, keyStoreCredential.toCharArray());
+            JWSSigner signer = new RSASSASigner((RSAPrivateKey) key);
+            JWTClaimsSet claimsSet = new JWTClaimsSet();
+            claimsSet.setClaim(AppFactoryConstants.SIGNED_JWT_AUTH_USERNAME, username);
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS512), claimsSet);
+            signedJWT.sign(signer);
+
+            // generate authorization header value
+            return "Bearer " + Base64Utils.encode(signedJWT.serialize().getBytes());
+        } catch (Exception e) {
+            String msg = "Failed to get primary default certificate";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+    }
+
+
     
 
     private Policy getPolicy() throws XMLStreamException {

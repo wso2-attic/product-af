@@ -56,7 +56,7 @@ public class DeployNotifier {
 			String buildNumber = lastBuildInformation.get("number");*/
 
             // as temp solution get last build id
-            String lastSuccessBuildId = buildAPI.getLastSuccessfulBuildId(applicationId, version, userName, "");
+            String lastSuccessBuildId = buildAPI.getLastSuccessfulBuildId(applicationId, version, userName, "", tenantDomain);
 
 			String serviceEndpoint = endpoint + "/services/ApplicationDeployer";
 

@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ /*
+  ~ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ *  WSO2 Inc. licenses this file to you under the Apache License,
+  ~ *  Version 2.0 (the "License"); you may not use this file except
+  ~ *  in compliance with the License.
+  ~ *  You may obtain a copy of the License at
+  ~ *
+  ~ *    http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing,
+  ~ * software distributed under the License is distributed on an
+  ~ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ * KIND, either express or implied.  See the License for the
+  ~ * specific language governing permissions and limitations
+  ~ * under the License.
+  ~ */
+  -->
+
+<com.cloudbees.hudson.plugins.folder.Folder plugin="cloudbees-folder@4.7">
+    <actions/>
+    <description>VAL</description>
+    <displayName>VAL</displayName>
+    <properties>
+        <com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider_-FolderCredentialsProperty>
+            <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash">
+                <entry>
+                    <com.cloudbees.plugins.credentials.domains.Domain plugin="credentials@1.18">
+                        <specifications/>
+                    </com.cloudbees.plugins.credentials.domains.Domain>
+                    <java.util.concurrent.CopyOnWriteArrayList/>
+                </entry>
+            </domainCredentialsMap>
+        </com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider_-FolderCredentialsProperty>
+    </properties>
+    <icon class="com.cloudbees.hudson.plugins.folder.icons.StockFolderIcon"/>
+    <views>
+        <hudson.model.AllView>
+            <owner class="com.cloudbees.hudson.plugins.folder.Folder" reference="../../.."/>
+            <name>All</name>
+            <filterExecutors>false</filterExecutors>
+            <filterQueue>false</filterQueue>
+            <properties class="hudson.model.View$PropertyList"/>
+        </hudson.model.AllView>
+    </views>
+    <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+    <primaryView>All</primaryView>
+    <healthMetrics>
+        <com.cloudbees.hudson.plugins.folder.health.WorstChildHealthMetric/>
+    </healthMetrics>
+</com.cloudbees.hudson.plugins.folder.Folder>
