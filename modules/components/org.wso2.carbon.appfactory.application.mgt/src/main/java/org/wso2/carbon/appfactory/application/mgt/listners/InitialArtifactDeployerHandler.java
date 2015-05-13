@@ -78,6 +78,8 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 		int tenantId = -1;
 		try {
 			tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
+			deployInfoMap.put(AppFactoryConstants.TENANT_DOMAIN, new String[] { tenantDomain });
+			deployInfoMap.put("tenantId", new String[] { Integer.toString(tenantId) });
 		    InitialArtifactDeployer deployer = new InitialArtifactDeployer(deployInfoMap, tenantId, tenantDomain);
 		    deployer.deployLatestSuccessArtifact(deployInfoMap);
 		} catch (UserStoreException e) {

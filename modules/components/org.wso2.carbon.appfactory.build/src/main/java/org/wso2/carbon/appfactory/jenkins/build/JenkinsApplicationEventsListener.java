@@ -95,11 +95,11 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, userName,
                 repoURL, AppFactoryConstants.ORIGINAL_REPOSITORY);
 
-        jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
-        // adding app creator to jenkins
-        jenkinsCISystemDriver.addUsersToApplication(application.getId(),
-                new String[]{userName.split("@")[0]},
-                tenantDomain);
+//        jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
+//        // adding app creator to jenkins
+//        jenkinsCISystemDriver.addUsersToApplication(application.getId(),
+//                new String[]{userName.split("@")[0]},
+//                tenantDomain);
         try {
             String infoMsg = "Jenkins space created for " + application.getName() + ".";
 
