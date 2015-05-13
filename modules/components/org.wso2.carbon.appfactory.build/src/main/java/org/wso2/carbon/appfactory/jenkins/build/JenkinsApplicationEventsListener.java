@@ -100,14 +100,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         jenkinsCISystemDriver.addUsersToApplication(application.getId(),
                 new String[]{userName.split("@")[0]},
                 tenantDomain);
-        Version[] versions = ProjectUtils.getVersions(application.getId(), tenantDomain);
-        String stage = rxtManager.getStage(application.getId(), versions[0].getId(), tenantDomain);
-        if (ArrayUtils.isNotEmpty(versions)) {
-            // No need to create job.
-            jenkinsCISystemDriver.startBuild(application.getId(), versions[0].getId(), true, stage,
-                    "", tenantDomain, userName,
-                    AppFactoryConstants.ORIGINAL_REPOSITORY);
-        }
         try {
             String infoMsg = "Jenkins space created for " + application.getName() + ".";
 
