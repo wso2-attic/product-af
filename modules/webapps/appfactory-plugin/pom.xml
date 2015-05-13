@@ -16,97 +16,142 @@
       <groupId>org.apache.axis2.wso2</groupId>
       <artifactId>axis2-client</artifactId>
       <version>1.6.1.wso2v10</version>
-      <scope>provided</scope>
+
     </dependency>
     <dependency>
       <groupId>org.apache.neethi</groupId>
       <artifactId>neethi</artifactId>
       <version>3.0.2</version>
-      <scope>provided</scope>
+
     </dependency>
     <dependency>
       <groupId>org.apache.rampart.wso2</groupId>
       <artifactId>rampart-core</artifactId>
       <version>1.6.1.wso2v10</version>
-      <scope>provided</scope>
+
     </dependency>
     <dependency>
       <groupId>commons-io.wso2</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.0.0.wso2v2</version>
-      <scope>provided</scope>
+
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.artifact.storage.stub</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.build.stub</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.application.deployer.stub</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.core</artifactId>
       <version>4.2.0</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.application.mgt.stub</artifactId>
       <version>4.2.0</version>
+      
+    </dependency>
+    <dependency>
+      <groupId>org.wso2.carbon</groupId>
+      <artifactId>org.wso2.carbon.logging</artifactId>
+      <version>4.2.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-nop</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>jcl-over-slf4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-nop</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>jcl-over-slf4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.webapp.mgt.stub</artifactId>
       <version>4.2.0</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.jaggeryjs</groupId>
       <artifactId>org.jaggeryjs.jaggery.app.mgt.stub</artifactId>
       <version>0.9.0.ALPHA2-wso2v3</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.dataservices.fileupload.stub</artifactId>
       <version>4.2.0</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.bpel.stub</artifactId>
       <version>4.1.0</version>
-      <scope>provided</scope>
+      
     </dependency>
+
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
       <version>4.2.0</version>
-      <scope>provided</scope>
+      
+    </dependency>
+    <dependency>
+      <groupId>jsch</groupId>
+      <artifactId>jsch</artifactId>
+      <version>0.1.44</version>
+      <!--<scope>system</scope>-->
+      <!--<systemPath>/home/samith/WSO2/AppFactory/Redmine/Jenkins_3757/runtimeJars/plugins/jsch_0.1.49.wso2v1.jar</systemPath>-->
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.common</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      
     </dependency>
     <!-- need to ship it with plugin  it require maven scm .maven scm depends on pluxes.But
         jenkins also has pluxes but different version.So there was a class loading issue-->
@@ -125,7 +170,7 @@
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.core</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      
       <exclusions>
         <exclusion>
           <groupId>org.wso2.carbon</groupId>
@@ -157,7 +202,7 @@
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
       <version>2.1.0-SNAPSHOT</version>
-      <scope>provided</scope>
+      
       <exclusions>
         <exclusion>
           <groupId>org.wso2.carbon</groupId>
@@ -179,7 +224,7 @@
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.mediation.configadmin.stub</artifactId>
       <version>4.1.0</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
@@ -192,7 +237,7 @@
       <groupId>org.jenkins-ci.main</groupId>
       <artifactId>jenkins-core</artifactId>
       <version>1.522</version>
-      <scope>provided</scope>
+      
     </dependency>
     <dependency>
       <groupId>org.jenkins-ci.main</groupId>
@@ -205,6 +250,11 @@
       <artifactId>ui-samples-plugin</artifactId>
       <version>1.522</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>maven-plugin</artifactId>
+      <version>1.522</version>
     </dependency>
   </dependencies>
   <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->

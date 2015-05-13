@@ -20,9 +20,13 @@ package org.wso2.carbon.appfactory.jenkins.api;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.commons.httpclient.*;
+import hudson.model.Job;
+import jenkins.model.Jenkins;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
@@ -33,10 +37,8 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.deployers.build.api.BuildStatusProvider;
 import org.wso2.carbon.appfactory.deployers.build.api.BuildStatusProviderException;
 import org.wso2.carbon.appfactory.jenkins.Constants;
-import org.wso2.carbon.appfactory.jenkins.artifact.storage.Utils;
 import org.wso2.carbon.appfactory.jenkins.util.JenkinsUtility;
 
-import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +46,13 @@ import java.util.Map;
 public class JenkinsBuildStatusProvider implements BuildStatusProvider {
 
 	private static final Log log = LogFactory.getLog(JenkinsBuildStatusProvider.class);
+	public static final String FOLDER_JB_SEPARATOR = "/";
 
 
 	private HttpClient client = null;
 
-	public Map<String, String> getLastBuildInformation(String applicationId, String version, String userName, String repoFrom)
+	public Map<String, String> getLastBuildInformation(String applicationId, String version, String userName,
+	                                                   String repoFrom, String tenantDomain)
 			throws BuildStatusProviderException {
 		String jobName = JenkinsUtility.getJobName(applicationId, version,userName,repoFrom);
 		String url = null;
@@ -59,7 +63,6 @@ public class JenkinsBuildStatusProvider implements BuildStatusProvider {
 			String msg = "Error occuered while calling the API";
 			throw new BuildStatusProviderException(msg);
 		}
-		String tenantDomain = Utils.getEnvironmentVariable("TENANT_DOMAIN");
 		url += "/t/" + tenantDomain + "/webapps/jenkins/"  + "job/" + jobName + "/api/json";
 		log.info("Calling jenkins api : " + url);
 		GetMethod get = new GetMethod(url);
@@ -140,71 +143,12 @@ public class JenkinsBuildStatusProvider implements BuildStatusProvider {
 		this.client = client;
 	}
 
-    public String getLastSuccessfulBuildId(String applicationId, String version, String userName, String repoFrom) throws BuildStatusProviderException {
+    public String getLastSuccessfulBuildId(String applicationId, String version, String userName, String repoFrom,
+                                           String tenantDomain) throws BuildStatusProviderException {
 
-    	String jobName = JenkinsUtility.getJobName(applicationId, version) ;  	
-    	
-        String buildUrl ="";
-        try {
-            buildUrl = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-		            "ContinuousIntegrationProvider.jenkins.Property.BaseURL");
-        } catch (AppFactoryException e) {
-            String msg = "Error occuered while calling the API";
-            throw new BuildStatusProviderException(msg);
-        }
-        String tenantDomain = Utils.getEnvironmentVariable("TENANT_DOMAIN");
-        buildUrl += "/t/" + tenantDomain + "/webapps/jenkins/"  + "job/" + jobName + "/api/xml";
-        String lastSuccessBuildId = null;
-        GetMethod checkJobExistsMethod = new GetMethod(buildUrl);
-        try {
-            getHttpClient().getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(
-		            AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-				            Constants.JENKINS_ADMIN_USERNAME_PATH),
-		            AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-				            Constants.JENKINS_ADMIN_PASSWORD_PATH)));
-        } catch (AppFactoryException e) {
-            String msg = "Error occuered while calling the API";
-            throw new BuildStatusProviderException(msg);
-        }
-        getHttpClient().getParams().setAuthenticationPreemptive(true);
-
-        try {
-            int httpStatusCode = getHttpClient().executeMethod(checkJobExistsMethod);
-
-            if(HttpStatus.SC_SERVICE_UNAVAILABLE == httpStatusCode) {
-                httpStatusCode = resendRequest(checkJobExistsMethod);
-            }
-
-            if (HttpStatus.SC_OK != httpStatusCode) {
-                final String errorMsg = String.format("Unable to check the status  of build: [%s]" +
-                        ". jenkins returned, http status : %d",
-                        buildUrl, httpStatusCode);
-
-                log.error(errorMsg);
-                throw new BuildStatusProviderException(errorMsg);
-            }
-
-            StAXOMBuilder builder =
-                    new StAXOMBuilder(
-                            checkJobExistsMethod.getResponseBodyAsStream());
-            OMElement resultElement = builder.getDocumentElement();
-
-            if (resultElement != null) {
-                OMElement lastSuccessfulBuild = (resultElement.
-                        getFirstChildWithName(new QName("lastSuccessfulBuild")));
-                if (lastSuccessfulBuild != null) {
-                    lastSuccessBuildId = lastSuccessfulBuild.getFirstChildWithName(new QName("number")).getText();
-                }
-            }
-
-        } catch (Exception ex) {
-            String errorMsg = "Error while checking the status of build: " + buildUrl;
-            log.error(errorMsg, ex);
-            throw new BuildStatusProviderException(errorMsg);
-        } finally {
-            checkJobExistsMethod.releaseConnection();
-        }
-
+    	String jobName = JenkinsUtility.getJobName(applicationId, version);
+	    Job job = (Job)Jenkins.getInstance().getItemByFullName(tenantDomain + FOLDER_JB_SEPARATOR + jobName);
+        String lastSuccessBuildId = job.getLastSuccessfulBuild().getId();
         return lastSuccessBuildId;
     }
 
