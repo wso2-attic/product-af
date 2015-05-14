@@ -35,6 +35,7 @@ var set = function (applicationId, stage, version, user, etaFrom, etaTo) {
     var options = new Array();
   	options.useSOAP = 1.1;
   	options.action = "urn:publishSetETA";
+	options.mep = "in-only";
   	modManager.setAuthHeaders(options);
   	
   	try{			

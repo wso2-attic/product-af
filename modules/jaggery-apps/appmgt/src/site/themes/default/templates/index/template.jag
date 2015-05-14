@@ -154,18 +154,18 @@ function reloadAppsInPendingState(){
 		 * After App creation form submitted, App Creation verification process
 		 * request is polled back-end in following time order. First request is
 		 * send 15Sec after app created If app creation process hasn't completed
-		 * poll request in every 5Sec (120times) If Creation hasn't succeeded
-		 * after 10min, display Error message as "Error Application Creation"
+		 * poll request in every 5Sec (12times) If Creation hasn't succeeded
+		 * after 135 Sec, display Error message as "Error Application Creation"
 		 * and stop calling further
 	 */
 
     if (noOfRequest == 0) {
         noOfRequest++;
         setPendingAppRefreshTimeOut(10000);
-    } else if (noOfRequest <= 120) {
+    } else if (noOfRequest <= 12) {
         noOfRequest++;
         setPendingAppRefreshTimeOut(5000);
-    } else if (noOfRequest == 120) { // if still application creation process happens in back-end
+    } else if (noOfRequest == 13) { // if still application creation process happens in back-end
         var errMsg = "Application creation was not successful for APP_DETAILS. Please retry later ";
         if(applicationsInProgress.length > 0){
             if(applicationsInProgress.length == 1){
