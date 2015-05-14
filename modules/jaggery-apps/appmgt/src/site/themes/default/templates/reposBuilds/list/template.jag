@@ -19,48 +19,125 @@
 jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
 <%
-include("/jagg/config_reader.jag");
-var baseURL = getProperty(BASE_URL);
-var gitBaseUrl = getProperty(GIT_BASE_URL);
-var appDomain = getProperty("DomainName");
-var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
-var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
-var loggedInUser = jagg.getUser();
-var gitURL = null;
-var gitURLForked = null ;
-var applicationKey = request.getParameter("applicationKey");
-var applicationName = request.getParameter("applicationName");
-var mod = jagg.module("manager");
-var tenantDomain = mod.getTenantDomain();
-var allStages = getProperties(DEPLOYMENT_STAGES);
-var appDetails = outputs.appDetails;
-var buildableStages = outputs.buildableStages;
-var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
-var isCodeEditorSupported = outputs.isCodeEditorSupported;
-%>
-<style>
-.popover_form input.branch-txt-width-fix {
-	width: 240px;
-}
-#select2-drop-mask{display:none !important;}
-#d_clip_button {
-	text-align: center;
-	border: 1px solid black;
-	background-color: #ccc;
-	margin: 10px;
-	padding: 10px;
-}
+    include("/jagg/config_reader.jag");
+    var baseURL = getProperty(BASE_URL);
+    var gitBaseUrl = getProperty(GIT_BASE_URL);
+    var appDomain = getProperty("DomainName");
+    var enablePerDeveloperRepos = getProperty(REPO_ACCESSABILITY);
+    var enablePerDeveloperBuild = getProperty(PER_DEVELOEPR_BUILD);
+    var loggedInUser = jagg.getUser();
+    var gitURL = null;
+    var gitURLForked = null ;
+    var applicationKey = request.getParameter("applicationKey");
+    var applicationName = request.getParameter("applicationName");
+    var mod = jagg.module("manager");
+    var tenantDomain = mod.getTenantDomain();
+    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var appDetails = outputs.appDetails;
+    var buildableStages = outputs.buildableStages;
+    var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+    var isCodeEditorSupported = outputs.isCodeEditorSupported;
+    var autoDeployCheckBoxValue=null;
+    var autoBuildCheckBoxValue=null;
+    var appVersionId=null;
+    %>
+    <style>
+    .popover_form input.branch-txt-width-fix {
+        width: 240px;
+    }
+    #select2-drop-mask{display:none !important;}
+    #d_clip_button {
+        text-align: center;
+        border: 1px solid black;
+        background-color: #ccc;
+        margin: 10px;
+        padding: 10px;
+    }
 
-#d_clip_button.zeroclipboard-is-hover {
-	background-color: #eee;
-}
+    #d_clip_button.zeroclipboard-is-hover {
+        background-color: #eee;
+    }
 
 #d_clip_button.zeroclipboard-is-active {
 	background-color: #aaa;
 }
+
+/*=============MODAL STYLES=============*/
+.btn-close {
+  color: #aaaaaa;
+  font-size: 30px;
+  text-decoration: none;
+  position: absolute;
+  right: 5px;
+  top: 0;
+}
+.btn-close:hover {
+  color: #919191;
+}
+.modal:before {
+  content: "";
+  display: none;
+  background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+}
+.modal:target:before {
+  display: block;
+}
+.modal:target .modal-dialog {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  transform: translate(0, 0);
+  top: 20%;
+}
+.modal-dialog {
+  background: #fefefe;
+  border: #333333 solid 1px;
+  border-radius: 5px;
+  margin-left: -400px;
+  position: absolute;
+  overflow:scroll;
+  left: 50%;
+  top: -100%;
+  z-index: 11;
+  width: 920px;
+  -webkit-transform: translate(0, -500%);
+  -ms-transform: translate(0, -500%);
+  transform: translate(0, -500%);
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+  -moz-transition: -moz-transform 0.3s ease-out;
+  -o-transition: -o-transform 0.3s ease-out;
+  transition: transform 0.3s ease-out;
+}
+.modal-body {
+  padding: 20px;
+}
+.modal-header,
+.modal-footer {
+  padding: 10px 20px;
+}
+.modal-header {
+  border-bottom: #eeeeee solid 1px;
+}
+.modal-header h2 {
+  font-size: 20px;
+}
+.modal-footer {
+  border-top: #eeeeee solid 1px;
+  text-align: right;
+}
+/*ADDED TO STOP SCROLLING TO TOP*/
+#close {
+  display: none;
+}
+/*=====================================*/
 </style>
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
     //[cdata[
     var registerPopRemover = function(){
@@ -78,6 +155,29 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
 
     $(document).ready(function(){
     	initializeUserActivity("reposBuild", '<%=applicationKey%>', null);
+
+	/*model onclick javascript*/
+	$('#tenant_jenkins_url').click(function(){
+
+	$.ajax({
+	url: '../blocks/build/get/ajax/get.jag',
+	data: {
+	     tenantDomain : "<%=tenantDomain%>",
+	   	 action:"printBuildLogs",
+         base_url: encodeURIComponent("<%=baseURL%>"),
+         applicationKey:applicationKey,
+         applicationVersion:selectedAppVersion
+
+      	},   
+   	error: function() {
+  	 },
+   	success: function(data) {
+  	 $('#build_logs').html(data);
+	},
+   	type: 'POST'
+	});
+
+	});
     });
 
     var subDomain;
@@ -113,7 +213,7 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
     function createCodeEnvyUrl(version,appType,gitURL,elementClassName){
 
         var codeEnvyUrl = null;
-
+        var newWindow = window.open('','_blank');
         jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
                 action: "createCodeEnvyUrl",
                 gitURL: gitURL,
@@ -130,7 +230,7 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
                         });
 
                     }else{
-                        window.open(codeEnvyUrl,'_blank');
+                         newWindow.location = codeEnvyUrl;
                     }
         });
        // return nonEncodedUrl;
@@ -150,7 +250,8 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
             version:version
         }, function (result) {
         	//drawForkedVersionsList();
-        	loadRepositories(null,null);
+        	//loadRepositories(null,null);
+		    updateForkedVersionList();
 		    drawVersion(applicationKey , selectedVersion);
 		    element.attr('disabled',false);
             //forcePageAppRefresh = true;
@@ -394,9 +495,18 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
             $('.js_build_option').click(function(event){
                 $(this).toggleClass("active");
                 var $next = $(this).next();
+                var autoBuild, autoDeploy = false;
                 if($next.is(":visible")){
                     $next.hide();
-                }else{
+                } else{
+                    if(autoDeployCheckBoxValue == 'true'){
+                        autoDeploy = true;
+                    }
+                    if(autoBuildCheckBoxValue == 'true'){
+                        autoBuild = true;
+                    }
+                    $("#auto_deploy_"+appVersionId).attr('checked',autoDeploy);
+ 		            $("#auto_build_"+appVersionId).attr('checked',autoBuild);
                     $next.show();
                 }
             });
@@ -647,8 +757,8 @@ $('js_build_option').removeClass("active");
                 action: "getJenkinsURL"
             }, function (result) {
                 var jenkinsUrl = jQuery.parseJSON(result);
-                $('#tenant_jenkins_url').attr("href",jenkinsUrl);
-                $('#tenant_jenkins_url_img').attr("href",jenkinsUrl);
+               // $('#tenant_jenkins_url').attr("href",jenkinsUrl);
+               // $('#tenant_jenkins_url_img').attr("href",jenkinsUrl);
             });
     }
 
@@ -817,12 +927,15 @@ $.cookie('selectedStage', selectedStage);
 
     function constructRow(element){
 	    var versionInfo = element.versions[0];
+	 	autoDeployCheckBoxValue = versionInfo.isAutoDeploy;
+        autoBuildCheckBoxValue = versionInfo.isAutoBuild;
         var statusStyle="";
         var version=versionInfo.version;
         selectedAppVersion = version;
 	    var isBuildableArtifact = '<%= appDetails[0].isBuildable%>';
         var stage=versionInfo.stage;
         var versionForIds=version.replace(/\./g,'_');
+        appVersionId=versionForIds;
         var buildHidden="";
         var delpoyHidden="";
         var buildDeployHide="";
@@ -887,7 +1000,7 @@ $.cookie('selectedStage', selectedStage);
         }
 
         var hiddenForkedBranch = 'style="display:none"' ;
-        if(enablePerDeveloperRepos === "true" && isAlreadyForked && isVersionAlreadyForked(versionInfo.version)){
+        if(enablePerDeveloperRepos === "true" && isAlreadyForked && !isVersionAlreadyForked(versionInfo.version)){
         	hiddenForkedBranch = "" ;
         }
 
@@ -962,7 +1075,7 @@ $.cookie('selectedStage', selectedStage);
 		                                    '<label for="auto_deploy"><input id="auto_deploy_'+versionForIds+'" type="checkbox" name="auto_deploy" '+ isAutoDeploymentChecked+'/> Auto Deploy</label><br />'+
 		                                '</div>'+
 		                                '<div class="input_row">'+
-		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#" onClick="window.location.reload(true);">Cancel</a>'+
+		                                    '<input type="button" value="Save" class="btn main small config_save-action" data-version="'+version+'" data-stage="'+stage+'" /> <a class="cancel" href="#">Cancel</a>'+
 		                                '</div>'+
 		                            '</form>'+
 		                        '</div>'+
@@ -1392,7 +1505,7 @@ $.cookie('selectedStage', selectedStage);
                             <div class="col-12">
                                 <div class="right link-container link-container-top">
                                     <a  id="dev_studio_url" href="<%=devStudioLink%>" class="link-with-icons" target="_blank">Developer Studio <div class="icon-boxer"><span class="icon-globe "></span></div></a>
-                                    <a  id="tenant_jenkins_url" href="<%=baseURL%>" class="link-with-icons" target="_blank">Build Server <div class="icon-boxer"><span class="icon-globe "></span></div></a>
+                                    <a  id="tenant_jenkins_url" href="#modal-one" class="link-with-icons">Build Logs <div class="icon-boxer"><span class="icon-globe "></span></div></a>
                                     <a id="original_gitbrowseurl" class="copy_link original_gitbrowseurl link-with-icons" target="_blank" href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" title="Browse Git Server " data-clipboard-text="">Browse GIT <div class="icon-boxer"><span class="icon-globe"></span></div></a>
                                 </div>
                                 <div style="clear:both"></div>
@@ -1442,6 +1555,29 @@ $.cookie('selectedStage', selectedStage);
             <!--<div class="clearfix separator"></div>-->
         </article>
     </div><!-- /container -->
+
+
+<!-- Modal -->
+<div class="modal" id="modal-one" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h2>Jenkins Build Log</h2>
+      <a href="#close" class="btn-close" aria-hidden="true">x</a>
+      <!--CHANGED TO "#close"-->
+    </div>
+    <div class="modal-body">
+      <pre id="build_logs">We are sorry. No build logs available. </pre>
+    </div>
+    <div class="modal-footer">
+      <a href="#close" class="btn">Close</a>
+      <!--CHANGED TO "#close"-->
+    </div>
+  </div>
+</div>
+</div>
+<!-- /Modal -->
+
+
     <%
 }); %>
 

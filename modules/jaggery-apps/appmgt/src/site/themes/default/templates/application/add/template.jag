@@ -246,6 +246,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
         }
 
         function validateApplicationName() {
+	    $("#appcreationerrormsg").remove();
             var appNameLength = ($("#applicationName").val()).length;
             var isNameValid = validateApplicationNameForQuotes();
             if(appNameLength == 0){
@@ -573,6 +574,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     }
 
     function checkUploadedApptype(){
+	$("#appcreationerrormsg").remove();
         var filedetail = $('#uploaded_application');
         var fileTypeArr = filedetail.val().split(".");
         var fileType = fileTypeArr[fileTypeArr.length - 1];

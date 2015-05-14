@@ -170,6 +170,23 @@ var log = new Log();
             print(response);
         }
 
+    } else if (action === "getApplicationsCreatedByUser") {
+        mod = jagg.module("application");
+        var user = request.getParameter("userName");
+        var response = {};
+        if (modPermission.hasTenantLevelUserMgtPermission()) {
+            try {
+                print(mod.getApplicationsCreatedByUser(user));
+            } catch (e) {
+                log.error("Error while retrieving applications created by user");
+                log.error(e);
+                throw "Error while retrieving applications created by user : " + user;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to get the application created by user : " + user;
+            print(response);
+        }
     }
     else {
 

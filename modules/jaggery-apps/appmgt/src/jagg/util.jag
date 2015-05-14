@@ -50,20 +50,10 @@ var hasUILevelResourceDeletePermission = function hasUILevelResourceDeletePermis
         //This always returns one stage
     var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
     if(stageOfResource) {
-        return permissionModule.isUserAccessGranted(applicationKey,
+        return (stageOfResource == initialStage) && permissionModule.isUserAccessGranted(applicationKey,
                                                     PERMISSION_RESOURCES_CREATE_FOR_STAGE + initialStage) &&
                permissionModule.isUserAccessGranted(applicationKey,
                                                     PERMISSION_RESOURCES_CREATE_FOR_STAGE + stageOfResource);
-    }
-    else {
-        return false;
-    }
-};
-
-var isDeleteButtonVisible = function isDeleteButtonVisible(stageOfResource) {
-    var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
-    if (stageOfResource == initialStage) {
-        return true;
     }
     else {
         return false;
