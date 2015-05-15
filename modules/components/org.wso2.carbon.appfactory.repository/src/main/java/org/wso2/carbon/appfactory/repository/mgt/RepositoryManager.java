@@ -121,12 +121,16 @@ public class RepositoryManager {
      * @throws RepositoryMgtException
      */
     public String getURLForAppversion(String applicationKey, String version, String type,
-                                      String tenantName) throws RepositoryMgtException {
+                                      String tenantName, boolean isForked, String userName) throws RepositoryMgtException {
         RepositoryProvider provider = Util.getRepositoryProvider(type);
 
         if (provider != null) {
-            return provider.getBranchingStrategy().getURLForAppVersion(applicationKey, version,
-                                                                       tenantName);
+            if(isForked){
+                return provider.getForkedAppRepositoryURL(applicationKey, tenantName, userName);
+            } else {
+                return provider.getBranchingStrategy().getURLForAppVersion(applicationKey, version,
+                                                                           tenantName);
+            }
         } else {
             handleException(new StringBuilder().append("Repository provider for the type ")
                                                .append(type).append(" not found").toString());
