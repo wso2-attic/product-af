@@ -20,6 +20,9 @@ package org.wso2.appfactory.integration.test.utils.external;
 
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -27,10 +30,13 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -39,12 +45,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
 
 /**
  * This class is use as a http client
  *
  */
 public class HttpHandler {
+
+
+    private static final Log log = LogFactory.getLog(HttpHandler.class);
 
     static {
         HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
@@ -67,8 +80,17 @@ public class HttpHandler {
      * @throws  java.io.IOException
      *            Throws this when failed to retrieve web page
      */
-    public static String getHtml(String url) throws IOException {
+    public static String getHtml(String url,Map<String,String> headers) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        System.out.println("-------------------------------------------------------"+url);
+        final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
+        sslContext.init(null,null,null);
+
+        SSLSocketFactory sf = new SSLSocketFactory(sslContext,
+                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        Scheme sch = new Scheme("https", 443, sf);
+
         HttpClient httpclient = new DefaultHttpClient();
+        httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         HttpGet httpget = new HttpGet(url);
         HttpResponse response = httpclient.execute(httpget);
         HttpEntity entity = response.getEntity();
@@ -91,12 +113,25 @@ public class HttpHandler {
      * @return
      * @throws IOException
      */
-    public static String getRedirectionUrl(String url) throws IOException {
+    public static String getRedirectionUrl(String url,Map<String,String> headers) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
+        sslContext.init(null,null,null);
+
+        SSLSocketFactory sf = new SSLSocketFactory(sslContext,
+                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        Scheme sch = new Scheme("https", 443, sf);
+
         HttpClient httpclient = new DefaultHttpClient();
+        httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         HttpPost httpPost = new HttpPost(url);
         HttpResponse response = httpclient.execute(httpPost);
+
         final int statusCode = response.getStatusLine().getStatusCode();
         if(statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY ){
+            for(Header header:response.getAllHeaders()){
+            if(!header.getName().equals(HTTPConstants.HEADER_CONTENT_LENGTH))
+                headers.put(header.getName(),header.getValue());
+            }
             return response.getFirstHeader(HTTPConstants.HEADER_LOCATION).getValue();
         }
         return null;
@@ -121,60 +156,31 @@ public class HttpHandler {
      * @param url
      *           request url
      *
-     * @param payload
-     *            Content of the post request
-     *
-     * @param sessionId
-     *            sessionId for authentication
-     *
-     * @param contentType
-     *            content type of the post request
      *
      * @return response
      *
      * @throws  java.io.IOException
      *             - Throws this when failed to fulfill a https post request
      */
-    public String doPostHttps(String url, String payload, String sessionId, String contentType)
-            throws IOException {
-        URL obj = new URL(url);
+    public Header doPostHttps(String url,Map<String,String> headers)
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        System.out.print("---------------------"+url);
 
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-        //add reuqest header
-        con.setRequestMethod("POST");
-        if (!sessionId.equals("")) {
-            con.setRequestProperty(
-                    "Cookie", "JSESSIONID=" + sessionId);
-        }
-        if (!contentType.equals("")) {
-            con.setRequestProperty("Content-Type", contentType);
-        }
-        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-        con.setDoOutput(true);
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(payload);
-        wr.flush();
-        wr.close();
-        int responseCode = con.getResponseCode();
-        if (responseCode == 200) {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            if (sessionId.equals("")) {
-                String session_id = response.substring((response.lastIndexOf(":") + 3), (response.lastIndexOf("}") - 2));
-                return session_id;
-            } else if (sessionId.equals("header")) {
-                return con.getHeaderField("Set-Cookie");
-            }
+        final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
+        sslContext.init(null,null,null);
 
-            return response.toString();
+        SSLSocketFactory sf = new SSLSocketFactory(sslContext,
+                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        Scheme sch = new Scheme("https", 443, sf);
+
+        HttpClient httpclient = new DefaultHttpClient();
+        httpclient.getConnectionManager().getSchemeRegistry().register(sch);
+        HttpPost httpPost = new HttpPost(url);
+        for(Map.Entry<String, String> entry : headers.entrySet()) {
+            httpPost.setHeader(entry.getKey(), entry.getValue());
         }
-        return null;
+        HttpResponse response = httpclient.execute(httpPost);
+        return response.getFirstHeader("Set-Cookie");
     }
 
     /**
@@ -198,7 +204,16 @@ public class HttpHandler {
      *             - Throws this when failed to fulfill a http post request
      */
     public String doPostHttp(String url, String payload, String sessionId, String contentType)
-            throws IOException {
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
+        sslContext.init(null,null,null);
+
+        SSLSocketFactory sf = new SSLSocketFactory(sslContext,
+                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        Scheme sch = new Scheme("https", 443, sf);
+
+        HttpClient httpclient = new DefaultHttpClient();
+        httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         //add reuqest header

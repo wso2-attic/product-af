@@ -333,9 +333,7 @@ public class AFDefaultDataPopulator {
      */
     public void addDefaultAPI()throws Exception {
         APIRestClient apiRestClient = new APIRestClient(AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.URLS_API), AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.DEFAULT_API_USER_NAME), AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.DEFAULT_API_PASSWORD));
+                AFConstants.URLS_API), fullyQualifiedTenantAdmin, tenantAdminPassword);
     }
 
 }

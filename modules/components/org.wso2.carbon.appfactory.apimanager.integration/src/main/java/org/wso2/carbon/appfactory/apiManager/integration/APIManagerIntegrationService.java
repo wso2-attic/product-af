@@ -101,11 +101,14 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 
 	public boolean createApplication(String applicationId, String samlToken) throws AppFactoryException {
 
+
 		HttpClient httpClient = new DefaultHttpClient();
 		try {
+
 			loginToStore(httpClient, samlToken);
 
 			if (!isApplicationNameInUse(applicationId, samlToken)) {
+
 				URL apiManagerUrl = getApiManagerURL();
 
 				List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -121,7 +124,9 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 				                                            CREATE_APPLICATION_ENDPOINT);
 				HttpResponse response = executeHttpMethod(httpClient, postMethod);
 
+
 				if (response != null) {
+
 					try {
 						EntityUtils.consume(response.getEntity());
 					} catch (IOException e) {
@@ -130,6 +135,7 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 						throw new AppFactoryException(msg, e);
 					}
 				}
+
 			}
 			return true;
 		} finally {

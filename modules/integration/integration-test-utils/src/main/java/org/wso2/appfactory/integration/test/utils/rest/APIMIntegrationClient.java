@@ -18,60 +18,86 @@
 
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
-import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.appfactory.integration.test.utils.external.HttpHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import java.net.URLEncoder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 /**
- * Created by muthulee on 4/29/15.
+ * Rest client for handle api invocations for apps
  */
 public class APIMIntegrationClient extends BaseClient {
     private static final Log log = LogFactory.getLog(APIMIntegrationClient.class);
+    private static final String ACTION = "action";
+    private static final String APPLICATION_KEY="applicationKey";
+    private static final String APP_OWNER="appowner";
+    private static final String USER_NAME="username";
+    private static final String ISSYNC = "isSync";
+    private static final String USER = "userName";
+    public static String samlRequest=null;
+    private Header cookie=null;
+    private static SSLContext sslContext =null;
+    private static HttpClient httpclient=null;
 
-	//src/site/blocks
-	//resources/apis/add/ajax/add.jag - createApplication
-	//resources/apis/add/block.jag
-	//resources/apis/get/ajax/get.jag -getAPIsOfApp
-	//resources/apis/get/block.jag
-	//resources/apis/key/ajax/key.jag - getSavedKeys, keysExistsInAllStages
-
-    public static final String ACTION = "applicationKey";
-    public static final String APPLICATION_KEY="applicationKey";
-    public static final String APPLICATION_ID="applicationId";
-    public static final String APP_OWNER="appowner";
-    public static final String USER_NAME="userName";
-
-	public APIMIntegrationClient(String backEndUrl, String username, String password) throws Exception {
+    public APIMIntegrationClient(String backEndUrl, String username, String password) throws Exception {
 		super(backEndUrl, username, password);
-	}
+    }
 
     @Override
     protected void login(String userName, String password) throws Exception {
+        super.login(userName,password);
         retrieveSAMLToken(userName, password);
     }
 
-    private void retrieveSAMLToken(String userName, String password) throws Exception {
-
-        String ssoUrl = getBackEndUrl()+ "/samlsso";
-        String webAppurl = getBackEndUrl() + "/appmgt/site/pages/index.jag";
-        String loginHtmlPage;
-        String commonAuthUrl;
+    private void retrieveSAMLToken(String userName, String password) throws KeyManagementException,
+            NoSuchAlgorithmException, IOException {
+        System.out.print("USERNAME------------"+userName+" "+password);
+        String ssoUrl = getBackEndUrl()+ "samlsso";
+        String url = getBackEndUrl()+ "commonauth";
+        String webAppurl = getBackEndUrl() + "appmgt/site/pages/index.jag";
+        String loginHtmlPage = null;
+        String commonAuthUrl=null;
         String responceHtml = null;
         HttpHandler httpHandler = new HttpHandler();
+        Map<String,String> headers=getRequestHeaders();
         try {
-            loginHtmlPage = httpHandler.getHtml(webAppurl);
+            loginHtmlPage = httpHandler.getHtml(webAppurl,headers );
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
             Document html = Jsoup.parse(loginHtmlPage);
             Element samlRequestElement = html.select("input[name=SAMLRequest]").first();
-            String samlRequest = samlRequestElement.val();
+            samlRequest = samlRequestElement.val();
             Element relayStateElement = html.select("input[name=RelayState]").first();
             String relayState = relayStateElement.val();
             Element ssoAuthSessionIDElement = html.select("input[name=SSOAuthSessionID]").first();
@@ -79,82 +105,198 @@ public class APIMIntegrationClient extends BaseClient {
             samlRequest = samlRequest.replace("+","%2B");
             samlRequest = samlRequest.replace("=","%3D");
 
-            commonAuthUrl = httpHandler.getRedirectionUrl(ssoUrl+"?SAMLRequest="+samlRequest+"&RelayState="+relayState+"&SSOAuthSessionID="+ssoAuthSessionID);
-            responceHtml = httpHandler.doPostHttps(commonAuthUrl,
-                     "username="+userName+"&password="+password, "none", "application/x-www-form-urlencoded");
-            Document postHtml = Jsoup.parse(responceHtml);
-            Element postHTMLResponse = postHtml.select("input[name=SAMLResponse]").first();
-            String samlResponse = postHTMLResponse.val();
-            String appmSamlSsoTokenId = httpHandler.doPostHttp(webAppurl,
-                                                               "SAMLResponse=" + URLEncoder.encode(samlResponse,
-                                                                                                   "UTF-8"), "appmSamlSsoTokenId",
-                                                               "application/x-www-form-urlencoded; charset=UTF-8");
-        } catch (Exception e) {
-            final String msg = "Error occurred while retrieving SAML token ";
-            log.error(msg, e);
-            throw new AFIntegrationTestException(msg, e);
+        try {
+            commonAuthUrl = httpHandler.getRedirectionUrl(ssoUrl + "?SAMLRequest=" + samlRequest + "&RelayState=" + relayState + "&SSOAuthSessionID="
+                    + ssoAuthSessionID,headers);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
         }
+        String val = commonAuthUrl.split("sessionDataKey=")[1].split("&")[0];
+            cookie = httpHandler.doPostHttps(url+"?sessionDataKey="+val+"&username="+userName+"&password="+password,headers);
+        System.out.print("--------------"+cookie);
     }
+    /**
+     *
+     * @param parameters Map<String, String> parameters
+     * @param path path
+     * @return value of data element of the response
+     * @throws Exception
+     */
+    public HttpPost getHttpClient(Map<String, String> parameters,String path) throws NoSuchAlgorithmException,
+            KeyManagementException, UnsupportedEncodingException {
+        sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
+        sslContext.init(null,null,null);
+        SSLSocketFactory sf = new SSLSocketFactory(sslContext,
+                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        Scheme sch = new Scheme("https", 443, sf);
+        httpclient = new DefaultHttpClient();
+        httpclient.getConnectionManager().getSchemeRegistry().register(sch);
+        HttpPost post = new HttpPost(getBackEndUrl()+ path);
+        post.setHeader(cookie);
 
+        Map<String,String> headers=getRequestHeaders();
+        for(Map.Entry<String, String> entry : headers.entrySet()) {
+            post.setHeader(entry.getKey(), entry.getValue());
+        }
+        // add headers
+        List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
+        for(Map.Entry<String, String> entry:parameters.entrySet()){
+            urlParameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        }
+        post.setEntity(new UrlEncodedFormEntity(urlParameters));
+        return post;
+
+    }
 
     /**
 	 *
-	 * @param applicationKey
-	 * @param userName
-	 * @throws Exception
+	 * @param applicationKey applicationKey
+	 * @param userName userName
+     * @return value of data element of the response
+     * @throws Exception
 	 */
-	public void createApplication(String applicationKey, String userName) throws Exception {
+	public boolean createApplication(String action,String applicationKey, String userName) throws Exception {
+        // add header
+        Map<String, String> entry =new HashMap<String,String>();
+        entry.put(ACTION, action);
+        entry.put(APPLICATION_KEY,applicationKey);
+        entry.put(USER_NAME,userName);
+        entry.put("SAML_TOKEN",samlRequest);
 
-		Map<String, String> msgBodyMap = new HashMap<String, String>();
-		msgBodyMap.put(ACTION, "createApplication");
-		msgBodyMap.put(APPLICATION_KEY, applicationKey);
-		msgBodyMap.put(USER_NAME, userName);
-		HttpResponse response = super.doPostRequest("resources/apis/add/ajax/add.jag", msgBodyMap);
-		if (response.getResponseCode() == HttpStatus.SC_OK) {
-			//TODO
-			return;
-		} else {
-			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
-		}
-	}
+        HttpPost post=getHttpClient(entry,CREAT_APP_URL);
+        HttpResponse response = (HttpResponse) httpclient.execute(post);
 
-    public void getAPIsOfApp(String applicationKey,String appOwner ) throws Exception {
-        Map<String, String> msgBodyMap = new HashMap<String, String>();
-        msgBodyMap.put(ACTION, "getAPIsOfApp");
-        msgBodyMap.put(APPLICATION_KEY, applicationKey);
-        msgBodyMap.put(APP_OWNER, appOwner);
-        HttpResponse response = super.doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
+        /* process response */
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            try {
+                String responseString = response.getData();
+                JsonParser jsonParser = new JsonParser();
+                JsonElement jsonElement = jsonParser.parse(responseString);
+                boolean addIssueResponse = jsonElement.getAsBoolean();
+                if(addIssueResponse)
+                    return true;
+            }catch(Exception e){
+                return false;
+            }
         } else {
-            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
+        return false;
     }
-    public void getSavedKeys(String applicationKey,String appOwner) throws Exception {
-        Map<String, String> msgBodyMap = new HashMap<String, String>();
-        msgBodyMap.put(ACTION, "getSavedKeys");
-        msgBodyMap.put(APPLICATION_KEY, applicationKey);
-        msgBodyMap.put(APP_OWNER, appOwner);
-        HttpResponse response = super.doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
+    /**
+     *
+     * @param applicationKey applicationKey
+     * @param appOwner appOwner
+     * @throws Exception
+     * @return value of data element of the response
+     * @throws Exception
+     */
+    public boolean getAPIsOfApp(String action,String applicationKey,String appOwner ) throws Exception {
+        // add header
+        Map<String, String> entry =new HashMap<String,String>();
+        entry.put(ACTION, "getAPIsOfApp");
+        entry.put(APPLICATION_KEY,applicationKey);
+        entry.put(APP_OWNER,appOwner);
+        entry.put("SAML_TOKEN",samlRequest);
+        HttpPost post = getHttpClient(entry,GETAPIS_URL);
+
+        HttpResponse response = (HttpResponse) httpclient.execute(post);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            try {
+                String responseString = response.getData();
+                JsonParser jsonParser = new JsonParser();
+                JsonElement jsonElement = jsonParser.parse(responseString);
+                JsonArray jsonArray = jsonElement.getAsJsonArray();
+                if(jsonArray.size() > 0){
+                    return true;
+                }else{
+                    return  false;
+                }
+            }catch (Exception e){
+            }
+
         } else {
-            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+
         }
+        return false;
     }
-    public void keysExistsInAllStages(String applicationId,String userName) throws Exception {
-        Map<String, String> msgBodyMap = new HashMap<String, String>();
-        msgBodyMap.put(ACTION, "keysExistsInAllStages");
-        msgBodyMap.put(APPLICATION_ID, applicationId);
-        msgBodyMap.put(USER_NAME, userName);
-        HttpResponse response = super.doPostRequest("resources/apis/get/ajax/get.jag", msgBodyMap);
+    /**
+     *
+     * @param applicationKey applicationKey
+     * @param appOwner appOwner
+     * @throws Exception
+     * @return value of data element of the response
+     * @throws Exception
+     */
+    public boolean getSavedKeys(String action,String applicationKey,String appOwner) throws Exception {
+        // add header
+        Map<String, String> entry =new HashMap<String,String>();
+        entry.put(ACTION,action);
+        entry.put(APPLICATION_KEY,applicationKey);
+        entry.put(USER,appOwner);
+        entry.put(ISSYNC,"true");
+        entry.put("SAML_TOKEN",samlRequest);
+        HttpPost post = getHttpClient(entry,GETSAVEDKEYS_URL);
+
+        HttpResponse response = (HttpResponse) httpclient.execute(post);
+        /* process response */
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            try {
+                String responseString = response.getData();
+                JsonParser jsonParser = new JsonParser();
+                JsonElement jsonElement = jsonParser.parse(responseString);
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                if(!jsonObject.get("keyName").equals(null))
+                    return true;
+            }catch(Exception e){
+                return false;
+            }
         } else {
-            throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
+        }
+        return false;
+    }
+    /**
+     *
+     * @param applicationId applicationId
+     * @param userName userName
+     * @throws Exception
+     * @return value of data element of the response
+     * @throws Exception
+     */
+    public boolean keysExistsInAllStages(String action,String applicationId,String userName,String IsSync) throws Exception {
+        // add header
+        Map<String, String> entry =new HashMap<String,String>();
+        entry.put(ACTION, action);
+        entry.put(APPLICATION_KEY,applicationId);
+        entry.put(USER,userName);
+        entry.put(ISSYNC,IsSync);
+        entry.put("SAML_TOKEN",samlRequest);
+        HttpPost post = getHttpClient(entry,KEYEXISTS_URL);
+
+        HttpResponse response = (HttpResponse) httpclient.execute(post);
+            /* process response */
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            try {
+                String responseString = response.getData();
+                JsonParser jsonParser = new JsonParser();
+                JsonElement jsonElement = jsonParser.parse(responseString);
+                boolean iskeysExistsInAllStages = jsonElement.getAsBoolean();
+                if (iskeysExistsInAllStages) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            throw new AFIntegrationTestException("" + response.getResponseCode() + response.getData());
         }
     }
 
