@@ -67,7 +67,31 @@
                 }
         return appsOfUser;
     };
-    
+
+/**
+ *
+ * @param userName user name eg:user@tenant.com
+ * @returns {*} an array of applications.
+ */
+    var getApplicationsCreatedByUser = function (userName) {
+        var appsCreatedByUser;
+        var tenantDomain = modManager.getTenantDomain();
+        var context = multitenancy.getPrivilegedCarbonContext();
+        var tenantManager = multitenancy.getTenantManager();
+        try {
+            context.startTenantFlow();
+            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService');
+            appsCreatedByUser = service.getApplicationsCreatedByUser(userName);
+        } catch (e) {
+            throw e;
+        } finally {
+            context.endTenantFlow();
+        }
+        return appsCreatedByUser;
+    };
+
     var getRepoURL = function(applicationKey, version, auth)
     {
         if (auth) {
