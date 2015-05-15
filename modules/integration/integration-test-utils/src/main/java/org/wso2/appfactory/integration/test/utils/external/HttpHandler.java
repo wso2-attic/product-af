@@ -81,14 +81,11 @@ public class HttpHandler {
      *            Throws this when failed to retrieve web page
      */
     public static String getHtml(String url,Map<String,String> headers) throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        System.out.println("-------------------------------------------------------"+url);
         final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
         sslContext.init(null,null,null);
-
         SSLSocketFactory sf = new SSLSocketFactory(sslContext,
                 SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         Scheme sch = new Scheme("https", 443, sf);
-
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         HttpGet httpget = new HttpGet(url);
@@ -116,16 +113,13 @@ public class HttpHandler {
     public static String getRedirectionUrl(String url,Map<String,String> headers) throws IOException, NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
         sslContext.init(null,null,null);
-
         SSLSocketFactory sf = new SSLSocketFactory(sslContext,
                 SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         Scheme sch = new Scheme("https", 443, sf);
-
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         HttpPost httpPost = new HttpPost(url);
         HttpResponse response = httpclient.execute(httpPost);
-
         final int statusCode = response.getStatusLine().getStatusCode();
         if(statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY ){
             for(Header header:response.getAllHeaders()){
@@ -164,15 +158,11 @@ public class HttpHandler {
      */
     public Header doPostHttps(String url,Map<String,String> headers)
             throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        System.out.print("---------------------"+url);
-
         final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
         sslContext.init(null,null,null);
-
         SSLSocketFactory sf = new SSLSocketFactory(sslContext,
                 SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         Scheme sch = new Scheme("https", 443, sf);
-
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         HttpPost httpPost = new HttpPost(url);
@@ -207,11 +197,9 @@ public class HttpHandler {
             throws IOException, NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sslContext = SSLContext.getInstance(SSLSocketFactory.TLS);
         sslContext.init(null,null,null);
-
         SSLSocketFactory sf = new SSLSocketFactory(sslContext,
                 SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         Scheme sch = new Scheme("https", 443, sf);
-
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getConnectionManager().getSchemeRegistry().register(sch);
         URL obj = new URL(url);

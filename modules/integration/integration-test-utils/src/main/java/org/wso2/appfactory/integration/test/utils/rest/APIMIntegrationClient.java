@@ -117,8 +117,7 @@ public class APIMIntegrationClient extends BaseClient {
         }
         String val = commonAuthUrl.split("sessionDataKey=")[1].split("&")[0];
             cookie = httpHandler.doPostHttps(url+"?sessionDataKey="+val+"&username="+userName+"&password="+password,headers);
-        System.out.print("--------------"+cookie);
-    }
+            }
     /**
      *
      * @param parameters Map<String, String> parameters
