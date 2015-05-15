@@ -80,7 +80,7 @@
         </dependency>
 	    <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.user.core</artifactId
+            <artifactId>org.wso2.carbon.user.core</artifactId>
 <!--        <scope>system</scope>
             <systemPath>${basedir}/lib/org.wso2.carbon.user.core-4.2.0.jar</systemPath>
 -->    
