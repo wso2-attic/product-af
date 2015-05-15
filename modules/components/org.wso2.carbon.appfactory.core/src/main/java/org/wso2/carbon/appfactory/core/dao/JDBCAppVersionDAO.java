@@ -329,7 +329,8 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_SQL);
             preparedStatement.setString(1, applicationKey);
-            preparedStatement.setString(2, versionName);
+            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.setString(3, versionName);
             allVersions = preparedStatement.executeQuery();
             if (allVersions.next()) {
                 version = new Version();
@@ -359,6 +360,49 @@ public class JDBCAppVersionDAO {
         return version;
     }
 
+    public ArrayList<Version> getAllApplicationVersionsOfUser(String applicationKey, String userName)
+            throws AppFactoryException {
+        Connection databaseConnection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        ArrayList<Version> versionList;
+        Version version;
+
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_APPLICATION_VERSION_PER_USER);
+            preparedStatement.setString(1, applicationKey);
+            preparedStatement.setInt(2, tenantId);
+            preparedStatement.setString(3, userName);
+            preparedStatement.setInt(4, tenantId);
+            resultSet = preparedStatement.executeQuery();
+            versionList = new ArrayList<Version>();
+            while (resultSet.next()){
+                version = new Version();
+                version.setApplicationKey(applicationKey);
+                version.setVersion(resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+                version.setStage(resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
+                version.setPromoteStatus(resultSet.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
+                version.setAutoBuild(resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD) == 1 ? true : false);
+                version.setAutoDeploy(resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY) == 1 ? true : false);
+                version.setProductionMappedDomain(resultSet.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
+
+                versionList.add(version);
+            }
+        } catch (SQLException e) {
+            String msg = "Error while retrieving application versions of a user from database";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            AppFactoryDBUtil.closeResultSet(resultSet);
+            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+
+        return versionList;
+    }
+
     /**
      * This method is used to get a list of all {@link org.wso2.carbon.appfactory.core.dto.Version} versions of the a application
      *
@@ -382,6 +426,7 @@ public class JDBCAppVersionDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
             preparedStatement.setString(1, applicationKey);
+            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             resultSet = preparedStatement.executeQuery();
             versionList = new ArrayList<String>();
             while (resultSet.next()) {

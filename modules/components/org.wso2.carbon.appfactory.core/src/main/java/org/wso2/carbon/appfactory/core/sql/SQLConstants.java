@@ -53,9 +53,17 @@ public class SQLConstants {
             "STATUS FROM AF_APPLICATION WHERE TENANT_ID=?";
     public static final String GET_APPLICATION_VERSION_SQL = "SELECT VERSION_NAME,STAGE,PROMOTE_STATUS,AUTO_BUILD," +
                                                              "AUTO_DEPLOY,SUBDOMAIN FROM AF_VERSION JOIN " +
-                                                             "(SELECT ID FROM AF_APPLICATION WHERE APPLICATION_KEY=?) " +
+                                                             "(SELECT ID FROM AF_APPLICATION WHERE APPLICATION_KEY=? AND TENANT_ID = ?) " +
                                                              "AS AF_APP ON AF_APP.ID=AF_VERSION.APPLICATION_ID " +
                                                              "WHERE VERSION_NAME=?";
+
+    public static final String GET_APPLICATION_VERSION_PER_USER = "SELECT * FROM ((SELECT ID,VERSION_NAME,APPLICATION_ID,STAGE," +
+                                                          "PROMOTE_STATUS,AUTO_BUILD,AUTO_DEPLOY,SUBDOMAIN FROM AF_VERSION) " +
+                                                          "AS VERSION JOIN (SELECT ID FROM AF_APPLICATION WHERE APPLICATION_KEY=? " +
+                                                          "AND TENANT_ID = ?) AS AF_APP ON AF_APP.ID=VERSION.APPLICATION_ID " +
+                                                          "JOIN (SELECT VERSION_ID FROM AF_REPOSITORY WHERE GIT_USER_ID = ? " +
+                                                          "AND TENANT_ID = ? AND IS_FORKED = 1) AS AF_REPO ON VERSION.ID=AF_REPO.VERSION_ID)";
+
     public static final String GET_APPLICATION_REPOSITORY_ID_SQL = "SELECT ID FROM " +
             "AF_REPOSITORY WHERE VERSION_ID=? AND IS_FORKED=0 AND GIT_USER_ID IS NULL";
     public static final String GET_ALL_APPLICATION_REPOSITORY_ID_SQL = "SELECT ID FROM " +
@@ -101,7 +109,7 @@ public class SQLConstants {
                                                           "APPLICATION_KEY = ? AND TENANT_ID = ?";
 
     public static final String GET_ALL_VERSIONS_OF_APPLICATION = "SELECT VERSION_NAME FROM AF_VERSION JOIN " +
-            "(SELECT ID FROM AF_APPLICATION WHERE APPLICATION_KEY=?) AS AF_APP ON AF_APP.ID=AF_VERSION.APPLICATION_ID";
+            "(SELECT ID FROM AF_APPLICATION WHERE APPLICATION_KEY = ? AND TENANT_ID = ? ) AS AF_APP ON AF_APP.ID=AF_VERSION.APPLICATION_ID";
 
 
     //**************************************************Delete Queries
