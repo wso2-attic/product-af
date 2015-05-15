@@ -42,7 +42,19 @@
                 tagNames.push(user);
             }
             print(tagNames);
-        } else if (action == "getBuildLogsUrl") {
+        } else if (action == "printBuildLogs") {
+            mod = jagg.module("build");
+            var applicationKey = request.getParameter("applicationKey");
+            var applicationVersion = request.getParameter("applicationVersion");
+            var tenantDomain = request.getParameter("tenantDomain");
+            var buildLogUrl = getProperty(BASE_URL) + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                                      + applicationVersion + "-default/1/consoleText/";
+            var AuthHeaderVal = " Basic " + mod.getBasicAuthHeaderValue();
+            var headers = {"Authorization": AuthHeaderVal};
+            var test = get(buildLogUrl, {}, headers, "text/html");
+            print(test.data);
+        }
+        else if (action == "getBuildLogsUrl") {
             mod = jagg.module("build");
             var userName = request.getParameter("userName");		
             var applicationKey = request.getParameter("applicationKey");

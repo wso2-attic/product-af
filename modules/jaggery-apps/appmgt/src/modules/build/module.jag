@@ -36,6 +36,9 @@ jagg.module("build", {
 	},
     getAllJenkinsBuildsStats:function(){
         return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getAllJenkinsBuildsStats.apply(this, arguments);
+    },
+    getBasicAuthHeaderValue:function(){
+        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getBasicAuthHeaderValue.apply(this, arguments);
     }
 });
 %>
