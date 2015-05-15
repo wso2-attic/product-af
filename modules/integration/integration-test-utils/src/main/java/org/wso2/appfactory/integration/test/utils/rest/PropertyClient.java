@@ -102,11 +102,8 @@ public class PropertyClient extends BaseClient {
         msgBodyMap.put(STAGE, stage);
         HttpResponse response = super.doPostRequest(ADD_PROPERTY_URL, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            boolean isResourseCreate=getResource(applicationKey, resourceName, resourceDesc, contentValue,
-                    resourceMediaType, stage);
-            if(!isResourseCreate) {
+            if(response.getData().equals(null))
                 return true;
-            }
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
                     response.getData());

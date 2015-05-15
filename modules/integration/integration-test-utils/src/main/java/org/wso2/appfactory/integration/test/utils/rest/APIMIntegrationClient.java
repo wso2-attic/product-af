@@ -77,7 +77,6 @@ public class APIMIntegrationClient extends BaseClient {
 
     private void retrieveSAMLToken(String userName, String password) throws KeyManagementException,
             NoSuchAlgorithmException, IOException {
-        System.out.print("USERNAME------------"+userName+" "+password);
         String ssoUrl = getBackEndUrl()+ "samlsso";
         String url = getBackEndUrl()+ "commonauth";
         String webAppurl = getBackEndUrl() + "appmgt/site/pages/index.jag";
