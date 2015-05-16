@@ -25,6 +25,37 @@
             <version>1.2.11.wso2v4</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>4.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jsch</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.44</version>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>/home/samith/WSO2/AppFactory/Redmine/Jenkins_3757/runtimeJars/plugins/jsch_0.1.49.wso2v1.jar</systemPath>-->
+        </dependency>
         <!-- need to ship it with plugin  it require maven scm .maven scm depends on pluxes.But
             jenkins also has pluxes but different version.So there was a class loading issue-->
         <dependency>
@@ -36,6 +67,10 @@
                     <groupId>org.apache.ws.commons.axiom</groupId>
                     <artifactId>axiom-api</artifactId>
                 </exclusion>
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.ws.commons.axiom.wso2</groupId>-->
+                    <!--<artifactId>axiom</artifactId>-->
+                <!--</exclusion>-->
                 <exclusion>
                     <groupId>org.apache.ws.commons.axiom</groupId>
                     <artifactId>axiom-impl</artifactId>
@@ -47,6 +82,18 @@
                 <exclusion>
                     <groupId>org.wso2.carbon.appfactory</groupId>
                     <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -61,6 +108,61 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.appfactory</groupId>
+            <artifactId>org.wso2.carbon.appfactory.application.deployer.stub</artifactId>
+            <version>2.1.0-SNAPSHOT</version>
+            <exclusions>
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+                    <!--<artifactId>axiom-api</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.ws.commons.axiom</groupId>-->
+                    <!--<artifactId>axiom-impl</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.axis2.wso2</groupId>-->
+                    <!--<artifactId>axis2-client</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.ws.commons.axiom.wso2</groupId>-->
+                    <!--<artifactId>axiom</artifactId>-->
+                <!--</exclusion>-->
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2-client</artifactId>
+            <version>1.6.1.wso2v10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.scm.wso2</groupId>
+            <artifactId>maven-scm</artifactId>
+            <version>1.7.0.wso2v3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-dom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom-impl</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-war</artifactId>
