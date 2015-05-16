@@ -30,6 +30,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+import org.wso2.carbon.appfactory.jenkins.Constants;
 
 import java.io.File;
 
@@ -38,8 +39,6 @@ import java.io.File;
  */
 public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
 
-    public static final String PLACEHOLDER_JEN_HOME = "$JENKINS_HOME";
-    public static final String PLACEHOLDER_TENANT_IDENTIFIER = "$TENANT_IDENTIFIER";
     public static final String DEFAULT_REPO_PATH_SUFFIX = ".repository";
 
     @DataBoundConstructor
@@ -49,13 +48,13 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
     @Override
     public FilePath locate(AbstractMavenBuild build) {
         //TODO add validation
-        String jenkinsHome = EnvVars.masterEnvVars.get("JENKINS_HOME");
+        String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
         String tenantGroup = build.getParent().getParent().getFullName();
         String tenantRepositoryDirPattern = getDescriptor().getTenantRepositoryDirPattern();
         String repoPath = jenkinsHome + File.separator + DEFAULT_REPO_PATH_SUFFIX;
         if (StringUtils.isNotEmpty(tenantRepositoryDirPattern)) {
-            repoPath = tenantRepositoryDirPattern.replace(PLACEHOLDER_JEN_HOME, jenkinsHome).replace
-                    (PLACEHOLDER_TENANT_IDENTIFIER, tenantGroup);
+            repoPath = tenantRepositoryDirPattern.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
+                    (Constants.PLACEHOLDER_TENANT_IDENTIFIER, tenantGroup);
 
         }
         return new FilePath(new File(repoPath));

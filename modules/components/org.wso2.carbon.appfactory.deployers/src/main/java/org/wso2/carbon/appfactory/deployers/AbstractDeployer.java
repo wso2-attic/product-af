@@ -308,13 +308,35 @@ public abstract class AbstractDeployer implements Deployer {
 		this.storagePath = storagePath;
 	}
 
+	@Deprecated
 	public String getStoragePath() {
+		//TODO: remove this method when removing the org.wso2.carbon.appfactory.nonbuild.NonBuildableArtifactDeployer
 		return this.storagePath;
 	}
+
+	/**
+	 * Storage path wrt {@code tenantDomain}
+	 * @param tenantDomain tenant domain
+	 * @return storage path
+	 */
+	public abstract String getStoragePath(String tenantDomain);
 
 	public void setTempPath(String tempPath) {
 		this.tempPath = tempPath;
 	}
+
+	@Deprecated
+	public String getTempPath() {
+		//TODO: remove this method when removing the org.wso2.carbon.appfactory.nonbuild.NonBuildableArtifactDeployer
+		return this.tempPath;
+	}
+
+	/**
+	 * Temp path wrt {@code tenantDomain}
+	 * @param tenantDomain tenant domain
+	 * @return temp path
+	 */
+	public abstract String getTempPath(String tenantDomain);
 
 	public int getTenantID() {
 		return tenantID;

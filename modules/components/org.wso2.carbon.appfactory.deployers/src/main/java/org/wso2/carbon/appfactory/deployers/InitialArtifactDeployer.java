@@ -24,7 +24,6 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
-import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
@@ -81,7 +80,7 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 	                                                             String jobName)
 			throws AppFactoryException {
 
-		String dirPath = CarbonUtils.getTmpDir() + File.separator + "create" +
+		String dirPath = getTempPath(tenantDomain) + File.separator + "create" +
 		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
 		return dirPath;
 
@@ -91,9 +90,21 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 	public String getArtifactStoragePath(String applicationId, String applicationVersion,
 	                                               String artifactType, String stage,
 	                                               String tenantDomain) throws AppFactoryException {
-		String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" +
+		String dirpath = getStoragePath(tenantDomain) + File.separator + "create" +
 		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
 		return dirpath;
+	}
+
+	@Override
+	public String getStoragePath(String tenantDomain) {
+		// TODO get the directory based on the tenantDomain
+		return CarbonUtils.getTmpDir();
+	}
+
+	@Override
+	public String getTempPath(String tenantDomain) {
+		// TODO get the directory based on the tenantDomain
+		return CarbonUtils.getTmpDir();
 	}
 
 	@Override
