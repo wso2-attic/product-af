@@ -18,7 +18,7 @@ $group              = $puppet_username
 
 $af_offset        = 0
 $bam_offset       = 3
-$jppserver_offset = 231
+$jppserver_offset = 57
 $bps_offset       = 100
 $apim_offset      = 6
 $ss_offset        = 40
