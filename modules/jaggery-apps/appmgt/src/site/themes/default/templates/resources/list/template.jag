@@ -24,7 +24,6 @@ jagg.template("resources/list", function(inputs, outputs, jagg) { %>
     var hasTenantAdminPermission = outputs.hasTenantAdminPermission;
     var log = new Log("site/themes/default/templates/resources/list/template.jag");
 
-    var showDataSource = outputs.dataSourceSupport;
     var apiManagerStoreUrl = getProperty(API_MANAGER_STORE_URL);
     var apiMStoreSubscriptionUrl = getProperty(API_MANAGER_STORE_SUBSCRIPTION_URL);
     var apiManagerServerUrl = getProperty(API_MANAGER_SERVER_URL);
@@ -38,7 +37,7 @@ jagg.template("resources/list", function(inputs, outputs, jagg) { %>
 
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
-       
+
 //this is for zeroclipboard pluging
      var _defaults = {
         moviePath:"<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
@@ -456,19 +455,12 @@ function toggleEditModeWithCancel(cancel) {
 }
 
 $(document).ready(function(){
-    initializeUserActivity("runtimeConfig", '<%=applicationKey%>', '<%=applicationName%>');
-    isAppOwner();
+	initializeUserActivity("runtimeConfig", '<%=applicationKey%>', '<%=applicationName%>');
+	isAppOwner();
     setOverviewHelpTips(<%= helpTips %>);
     convertDataSourcesToPrintableFormat();
     drawApisTable();
-    var showDataSource = <%=showDataSource%>;
     var hasTenantAdminPermission = ($("#hasTenantAdminPermission").val() === 'true');
-    if (showDataSource) {
-        convertDataSourcesToPrintableFormat();
-    } else {
-    	$("#dbSectionWithSeparator").hide();
-    	$("#configDatasourcesTab").hide();
-    }
     if(hasTenantAdminPermission){
         userRealmSupportedEventHandler();
         getUserRealmSupported();
@@ -560,9 +552,8 @@ function setOverviewHelpTips(helpTips){
 
             <% jagg.includeBlock("resources/menu", {page:'overview',applicationName:applicationName,applicationKey:applicationKey}); %>
             <% jagg.includeBlock("page/help", {"section": "resourcesOverview"}); %>
-            <div id="dbSectionWithSeparator">
             <section class="separator">
-                <div class="content clear" id="datasource-heading" >
+                <div class="content clear" >
                     <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Datasources<span class="icon-circle-arrow-right"></span></a></h2>
 
 			<div class="help-block"><span class="help-icon">?</span> <span id="datasourceHelp"></span></div>
@@ -592,10 +583,9 @@ function setOverviewHelpTips(helpTips){
                     </ul>
                 </div>
             </section>
-            <div class="clearfix"></div>
-            <hr></hr>
-            </div>
 
+            <div class="clearfix"></div>
+            <hr />
             <section class="separator">
                 <div class="content clear">
                     <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Enterprise APIs <span class="icon-circle-arrow-right"></span></a></h2>

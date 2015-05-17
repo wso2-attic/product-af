@@ -52,9 +52,10 @@ var loggedInUser = jagg.getUser();
         
         if(hasDbConfigPermission){
             try{
-                var notificationTitle  = "Database " + databaseName + " delete started in " + stage;
+                var notificationTitle  = "Database " + databaseName + " delete started. ";
+                var notificationMessage = "In environment: " + stage;
                 var correlationKey = applicationKey + "-" + stage + "-database-" + databaseName;
-                var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+                var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
                 log.error("Error while sending delete database start notification \n" + e.message);

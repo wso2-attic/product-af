@@ -147,16 +147,17 @@ var createDatabaseUser = function (applicationKey, password, rssInstance, userna
         var correlationKey = applicationKey + "-" + stage + "-dbuser-" + username;
 
         try{
-            var notificationTitle  = "Database user " + result + " created in " + stage;
-            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database user " + result + " created ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending create database user success notification \n" + e.message);
         }
 	} catch (e) {
         try{
-            var notificationTitle  = "Database user " + username + " creation failed in " + stage;
-	        var notificationMessage = "In environment: " + stage + "due to " + e.javaException.cause;
+            var notificationTitle  = "Database user " + username + " creation failed ";
+            var notificationMessage = "In environment: " + stage + "due to " + e.javaException.cause;
             var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
@@ -287,16 +288,18 @@ var deleteUser = function (applicationKey, name, rssInstanceName){
 
         var correlationKey = applicationKey + "-" + stage + "-dbuser-" + name;
         try{
-            var notificationTitle  = "Database user " + name + " deletion failed in " + stage;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database user " + name + " deleted ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete database user success notification \n" + e.message);
         }
 	} catch (e) {
         try{
-            var notificationTitle  = "Database user " + name + " delete failed in " + stage;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
+            var notificationTitle  = "Database user " + name + " delete failed ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete database user failure notification \n" + e.message);

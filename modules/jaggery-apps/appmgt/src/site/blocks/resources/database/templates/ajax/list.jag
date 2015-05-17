@@ -103,9 +103,10 @@ var loggedInUser = jagg.getUser();
 	        return;
         }
         try{
-            var notificationTitle  = "Database template " + name + " delete started in " + databaseServerInstanceName;
+            var notificationTitle  = "Database template " + name + " delete started ";
+            var notificationMessage = "In environment: " + databaseServerInstanceName;
             var correlationKey = applicationKey + "-" + environment + "-template-" + name;
-            var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO")
+            var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO")
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete db template success notification \n" + e.message);
@@ -155,24 +156,11 @@ var loggedInUser = jagg.getUser();
           var triggerPriv=createValue(request.getParameter("triggerPriv"));
           var updatePriv=createValue(request.getParameter("updatePriv"));
 
-        var rssFilter = jagg.module("rss-filter");
-        try{
-            if(rssFilter.isTemplateExist(name, applicationKey, databaseServerInstanceName)) {
-                print("template exists");
-                return;
-            }
-        } catch(e) {
-            var msg = "Error while checking whether template is exit, template name : " + name + " , stage : " +
-                databaseServerInstanceName + " , applicationKey :" + applicationKey;
-            log.error(msg);
-            log.error(e);
-            throw e;
-        }
-
         var correlationKey = applicationKey + "-" + databaseServerInstanceName + "-template-" + name;
         try{
-            var notificationTitle  = "Database template " + name + " creation started in " + databaseServerInstanceName;
-            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database template " + name + " creation started ";
+            var notificationMessage = "In environment: " + databaseServerInstanceName;
+            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending create db template start notification \n" + e.message);
@@ -183,7 +171,7 @@ var loggedInUser = jagg.getUser();
             result = mod.createTemplate(applicationKey,databaseServerInstanceName,name,alterPriv,
                     alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,
                     deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,
-                    referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv,false,false);
+                    referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv,null,copyToAll);
             print(result);
         } catch(e) {
             throw "Error while creating template";
@@ -229,8 +217,9 @@ var loggedInUser = jagg.getUser();
         var correlationKey = applicationKey + "-" + databaseServerInstanceName + "-template-" + name;
 
         try{
-            var notificationTitle  = "Database template " + name + " modification started in " + databaseServerInstanceName;
-            var eventBuilderInstance = EventBuilder.resourceUpdateStartEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database template " + name + " modification started ";
+            var notificationMessage = "In environment: " + databaseServerInstanceName;
+            var eventBuilderInstance = EventBuilder.resourceUpdateStartEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending edit db template failure notification \n" + e.message);

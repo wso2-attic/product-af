@@ -62,9 +62,6 @@ jagg.module("rss-filter", {
     isDataSourceExist: function () {
         return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isDataSourceExist.apply(this, arguments);
     },
-    isTemplateExist: function () {
-        return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").isTemplateExist.apply(this, arguments);
-    },
     getAllDatabasesInfo: function () {
         return jagg.require(jagg.getModulesDir() + "rss-filter/rss-filter.jag").getAllDatabasesInfo.apply(this, arguments);
     },

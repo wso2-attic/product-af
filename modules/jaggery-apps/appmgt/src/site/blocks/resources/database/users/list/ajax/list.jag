@@ -130,8 +130,9 @@ var result = {};
 
         var correlationKey = applicationKey + "-" + rssInstanceName + "-dbuser-" + name;
         try{
-            var notificationTitle  = "Database user " + name + " delete started in " + rssInstanceName;
-            var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser,  notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database user " + name + " delete started ";
+            var notificationMessage = "In environment: " + rssInstanceName;
+            var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser,  notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete database user start notification \n" + e.message);
@@ -166,8 +167,9 @@ var result = {};
 
         var correlationKey = applicationKey + "-" + rssInstance + "-dbuser-" + username;
         try{
-            var notificationTitle  = "Database user " + username + " creation started in " + rssInstance;
-            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database user" + username + " create started.";
+            var notificationMessage = "In environment: " + rssInstance;
+            var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending create database user start notification \n" + e.message);

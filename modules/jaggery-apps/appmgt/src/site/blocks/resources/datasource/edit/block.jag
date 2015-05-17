@@ -35,12 +35,14 @@ jagg.block("resources/datasource/edit", {
         var permissionModule = jagg.module("permission");
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var currentStage = request.getParameter("currentStage");
+        var deleteButtonVisibility = isDeleteButtonVisible(currentStage);
         var hasDeleteResourcePermissions = hasUILevelResourceDeletePermission(applicationKey, currentStage);
 
         return {
             "hasDataSourceUpdatePermissionInCurrentStage": permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + currentStage),
             "hasCreateResourcePermissions": hasUILevelResourceCreationPermission(applicationKey),
             "deploymentStages":deploymentStages,
+            "isDeleteButtonVisible":deleteButtonVisibility,
             "hasDeleteResourcePermissions":hasDeleteResourcePermissions
         };
     }
