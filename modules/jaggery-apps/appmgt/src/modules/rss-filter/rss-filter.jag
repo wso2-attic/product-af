@@ -519,28 +519,4 @@ var isDataSourceExist = function(datasourceName, applicationId, stage){
     }
     return result;
 }
-
-var isTemplateExist = function(templateName, applicationId, stage) {
-
-    var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    var result;
-
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
-        result = rssAdapter.isDatabaseUserPermissionTemplateExist(templateName, applicationId, stage);
-    } catch (e) {
-        var msg = "Error while checking template :" + templateName+ " from app factory db : tenant: " + tenantDomain +
-            ", application: " + applicationId + " and environment:" + stage;
-        log.error(e);
-        log.error(msg);
-        throw e;
-    } finally {
-        context.endTenantFlow();
-    }
-    return result;
-}
 %>

@@ -60,9 +60,6 @@ jagg.block("resources/list", {
     	var hasConfigureAPIManagerPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
         var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(inputs.applicationKey);
 	    var helpTips = jagg.module("help").getHelpTips("resourcesOverview");
-	    
-	 var dataSourceSupport = true; 
- // datasourceModule.checkDataSourceSupport(inputs.applicationKey);
     	return {
     	    "hasCreateResourcePermissions": hasCreateResourcePermissions,
     		"hasConfigureDbAdministrationPermission": hasConfigureDbAdministrationPermissions,
@@ -71,7 +68,6 @@ jagg.block("resources/list", {
     		"hasDataSourceCreatePermission":hasDataSourceCreatePermission,
     		"hasDataSourceModifyPermission":hasDataSourceModifyPermission,
             "hasTenantAdminPermission":hasTenantAdminPermission,
-    		"dataSourceSupport":dataSourceSupport,
 	        "helpTips":helpTips
     	};
     }

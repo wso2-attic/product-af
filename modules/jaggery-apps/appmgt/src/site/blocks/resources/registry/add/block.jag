@@ -41,6 +41,7 @@ jagg.block("resources/registry/add", {
         var hasAccessForAllstages=jagg.module("permission").hasPermissionForAllStages(applicationKey);
         var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
         var hasDeleteResourcePermissions= hasUILevelResourceDeletePermission(applicationKey, currentStage);
+        var deleteButtonVisibility = isDeleteButtonVisible(currentStage);
 
         if(!hasCreateResourcePermissions && isEdit && isEdit == "false"){
             throw "Unauthorized Access";
@@ -115,6 +116,7 @@ jagg.block("resources/registry/add", {
            "isUpdatePermitted":isUpdatePermitted,
            "hasCreateResourcePermissions":hasCreateResourcePermissions,
            "buttonValue":buttonValue,
+           "isDeleteButtonVisible": deleteButtonVisibility,
            "hasDeleteResourcePermissions":hasDeleteResourcePermissions
         };
     }

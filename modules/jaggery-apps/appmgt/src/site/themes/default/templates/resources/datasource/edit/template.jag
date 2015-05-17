@@ -27,6 +27,7 @@ var stages = getProperties('ApplicationDeployment.DeploymentStage');
 var hasDataSourceUpdatePermission = outputs.hasDataSourceUpdatePermissionInCurrentStage;
 var hasDataSourceCreatePermission = outputs.hasCreateResourcePermissions;
 var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
+var isDeleteButtonVisible = outputs.isDeleteButtonVisible;
 %>
 
 <script type="text/javascript">
@@ -78,8 +79,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
              url: varUrl,
              driverName: varDriverName,
              dbUsername: varDbUsername,
-             dbPassword: varDbPassword,
-	     isEdit: "true"
+             dbPassword: varDbPassword
          },
 
          function (result) {
@@ -375,7 +375,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
                                 class="breadcrumb_link">Datasources</a></li>
                         <li class="breadcrumb_item name"></li>
                     </ol>
-                    <% if(hasDataSourceDeletePermission){ %>
+                    <% if(isDeleteButtonVisible){ %>
                         <div class="right btn_group" id="delete_button_div">
                             <div class="right btn_list_box">
                                 <ul class="inline_box inline_list btn_list">

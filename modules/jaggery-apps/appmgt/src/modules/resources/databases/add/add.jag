@@ -78,7 +78,7 @@ var createDatabase = function (applicationKey, databaseName, databaseServerInsta
         //result is database name
         rssFilter.addDatabase(result, applicationKey, stage, databaseDescription);
         try{
-            var notificationTitle  = "Database " + databaseName + " added to " + stage;
+            var notificationTitle  = "Database " + databaseName + " added";
             var correlationKey = dbCorrelationKey(applicationKey, databaseName, stage);
             var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "" ,correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
@@ -87,7 +87,7 @@ var createDatabase = function (applicationKey, databaseName, databaseServerInsta
         }
 	} catch (e) {
         try{
-            var notificationTitle  = "Failed to add database " + databaseName + " to " + stage;
+            var notificationTitle  = "Failed to add database " + databaseName;
             var correlationKey = dbCorrelationKey(applicationKey, stage, databaseName);
             var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey , "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
@@ -329,28 +329,10 @@ var attachNewUser = function (applicationKey,rssInstance, dbname, users, templat
 		attachUserService.open(options, storageServerURL+'RSSAdmin', false);
 		attachUserService.send(payload);
 		result = "success";
-
-
-        try {
-            var notificationTitle = "New user attached to the database " + dbname + " in " + stage;
-            var notificationMessageDescription = "For user: " + users + " in environment: " + stage;
-            var eventBuilderInstance = EventBuilder.attachNewUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "INFO");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error("Error while sending notification when new user is attaching to the database \n" + e.message);
-        }
-
 	} catch (e) {
-        try {
-            var notificationTitle = "New user attach failed to the database " + dbname + " in " + stage;
-            var notificationMessageDescription = "For user: " + users + " in environment: " + stage;
-            var eventBuilderInstance = EventBuilder.attachNewUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "ERROR");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error("Error while sending notification when new user attachment to the database failed \n" + e.message);
-        }
-		log.error("Error while attaching a new user \n" + e.message);
-		throw "Error while attaching a new user";
+		//log.error("Error while attaching a new user \n" + e.message);
+		// throw "Error while attaching a new user";
+		//result = ""+e.javaException.cause;
 	}
 
 	return result;
@@ -385,27 +367,7 @@ var detachUser = function (applicationKey,rssInstance, dbname, username){
 		detachUserService.open(options, storageServerURL+'RSSAdmin', false);
 		detachUserService.send(payload);
 		result = true;//since detachUserService.responseE4X is null;
-
-        try {
-            var notificationTitle = "User detached successfully from database " + dbname + " in " + stage;
-            var notificationMessageDescription = "Detached user: " + username + " in environment: " + stage;
-            var eventBuilderInstance = EventBuilder.detachUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "INFO");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error("Error while sending notification when detaching a user from the database \n" + e.message);
-        }
-
 	} catch (e) {
-
-        try {
-            var notificationTitle = "Error while detaching the user from database " + dbname + " in " + stage;
-            var notificationMessageDescription = "Detached user: " + username + " in environment: " + stage;
-            var eventBuilderInstance = EventBuilder.detachUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "ERROR");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error("Error while sending notification when detaching a user from the database is failed \n" + e.message);
-        }
-
 		log.error("Error while detaching a user \n" + e.message);
 		throw "Error while detaching a user";
 	}
@@ -496,7 +458,7 @@ var editUserPermissions = function (applicationKey,dbname,rssInstance,username,a
 		editTemplateService.send(payload);
         var correlationKey = dbPrivilegeCorrelationKey(applicationKey, stage, dbname, username);
         try{
-            var notificationTitle  = "Privileges updated for database " + dbname + " in " + stage;
+            var notificationTitle  = "Privileges updated for database " + dbname ;
             var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
             var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessageDescription, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
@@ -507,7 +469,7 @@ var editUserPermissions = function (applicationKey,dbname,rssInstance,username,a
 
 	} catch (e) {
         try{
-            var notificationTitle  = "Privileges update failed for " + dbname  + " in " + stage;
+            var notificationTitle  = "Privileges update failed for " + dbname ;
             var notificationMessageDescription = "For user: " + username + " in " + stage + " environment";
             var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessageDescription, correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);

@@ -94,8 +94,9 @@ var loggedInUser = jagg.getUser();
 
                     var correlationKey = applicationKey + "-" + stage + "-datasource-" + datasourceName;
                     try {
-                        var notificationTitle = "Datasource " + datasourceName + " creation started in " + stage;
-                        var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+                        var notificationTitle = "Datasource " + datasourceName + " creation started";
+                        var notificationMessage = "In environment: " + stage;
+                        var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                         var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
                     } catch (e) {
                         log.error("Error while sending create datasource start notification \n" + e.message);
@@ -150,13 +151,12 @@ var loggedInUser = jagg.getUser();
     	var driverName=request.getParameter("driverName");
     	var dbUsername= request.getParameter("dbUsername");
     	var dbPassword= request.getParameter("dbPassword");
-	    var isEdit = request.getParameter("isEdit");
         var hasDatasourceUpdatePermission =  PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage;
         if (hasDatasourceUpdatePermission) {
             try {
-                mod.deleteDatasource(applicationKey, stage, datasourceName, isEdit);
+                mod.deleteDatasource(applicationKey, stage, datasourceName);
                 print(mod.addDataSource(applicationKey, stage, datasourceName, url,
-                        driverName, dbUsername, dbPassword, datasourceDescription, true));
+                        driverName, dbUsername, dbPassword, datasourceDescription));
             } catch (e) {
                 throw "Error while updating the datasource : " + datasourceName;
             }
@@ -178,7 +178,7 @@ var loggedInUser = jagg.getUser();
         if(dataSourceCreatePermission){
             var correlationKey = applicationKey + "-" + stage + "-datasource-" + datasourceName;
             try {
-                var notificationTitle = "Datasource " + datasourceName + " creation started in "+ stage;
+                var notificationTitle = "Datasource " + datasourceName + " creation started";
                 var notificationMessage = "In environment: " + stage;
                 var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
@@ -188,7 +188,7 @@ var loggedInUser = jagg.getUser();
 
             try {
                 print(mod.addDataSource(applicationKey, stage, datasourceName, url,
-                        driverName, dbUsername, dbPassword, datasourceDescriptioni, false));
+                        driverName, dbUsername, dbPassword, datasourceDescription));
             } catch(e) {
                 throw "Error while creating the datasource : " + datasourceName;
             }
