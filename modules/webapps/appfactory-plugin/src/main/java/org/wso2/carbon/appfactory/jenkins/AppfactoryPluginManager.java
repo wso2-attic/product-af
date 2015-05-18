@@ -430,7 +430,9 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 
 
         public String getTempPath(String tenantDomain) {
-            return tempPath.replace(Constants.PLACEHOLDER_TENANT_IDENTIFIER,tenantDomain);
+            String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
+            return tempPath.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
+                    (Constants.PLACEHOLDER_TENANT_IDENTIFIER, tenantDomain);
         }
 
         public void setTempPath(String tempPath) {
