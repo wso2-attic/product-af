@@ -26,6 +26,7 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import javax.mail.MethodNotSupportedException;
 import java.io.File;
 import java.util.Map;
 
@@ -72,40 +73,39 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME);
 	}
 
-	@Override
-	public String getSuccessfulArtifactTempStoragePath(String applicationId,
-	                                                             String applicationVersion,
-	                                                             String artifactType, String stage,
-	                                                             String tenantDomain,
-	                                                             String jobName)
-			throws AppFactoryException {
+    @Override
+    public String getSuccessfulArtifactTempStoragePath(String applicationId,
+                                                       String applicationVersion,
+                                                       String artifactType, String stage,
+                                                       String tenantDomain,
+                                                       String jobName)
+            throws AppFactoryException {
 
-		String dirPath = getTempPath(tenantDomain) + File.separator + "create" +
-		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
-		return dirPath;
+        String dirPath =
+                getTempPath(tenantDomain) + File.separator + applicationId + "_deploy_artifact" + File.separator;
+        return dirPath;
 
-	}
+    }
 
-	@Override
-	public String getArtifactStoragePath(String applicationId, String applicationVersion,
-	                                               String artifactType, String stage,
-	                                               String tenantDomain) throws AppFactoryException {
-		String dirpath = getStoragePath(tenantDomain) + File.separator + "create" +
-		                 File.separator + applicationId + "_deploy_artifact" + File.separator;
-		return dirpath;
-	}
+    @Override
+    public String getArtifactStoragePath(String applicationId, String applicationVersion,
+                                         String artifactType, String stage,
+                                         String tenantDomain) throws AppFactoryException {
+        String dirpath =
+                getTempPath(tenantDomain) + File.separator + applicationId + "_deploy_artifact" + File.separator;
+        return dirpath;
+    }
 
 	@Override
 	public String getStoragePath(String tenantDomain) {
-		// TODO get the directory based on the tenantDomain
-		return CarbonUtils.getTmpDir();
+        // This method doesn't applicable to InitialArtifactDeployer
+		throw new IllegalStateException();
 	}
 
-	@Override
-	public String getTempPath(String tenantDomain) {
-		// TODO get the directory based on the tenantDomain
-		return CarbonUtils.getTmpDir();
-	}
+    @Override
+    public String getTempPath(String tenantDomain) {
+        return CarbonUtils.getTmpDir() + File.separator + "create" + File.separator + tenantDomain;
+    }
 
 	@Override
 	public void postDeploymentNoifier(String message, String applicationId,

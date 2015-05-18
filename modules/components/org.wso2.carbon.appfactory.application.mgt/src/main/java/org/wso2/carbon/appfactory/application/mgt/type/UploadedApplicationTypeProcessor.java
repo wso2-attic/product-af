@@ -195,7 +195,8 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
     }
 
     private String getUploadedApplicationTmpPath() {
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         return CarbonUtils.getCarbonRepository() + File.separator + "jaggeryapps/appmgt/" +
-               AppFactoryConstants.UPLOADED_APPLICATION_TMP_FOLDER_NAME;
+               AppFactoryConstants.UPLOADED_APPLICATION_TMP_FOLDER_NAME + File.separator + tenantDomain;
     }
 }

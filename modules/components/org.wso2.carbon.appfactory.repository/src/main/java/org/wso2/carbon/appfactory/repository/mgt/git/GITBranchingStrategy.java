@@ -49,7 +49,7 @@ public class GITBranchingStrategy implements BranchingStrategy {
      */
     @Override
     public void prepareRepository(String applicationKey, String url, String tenantDomain) throws RepositoryMgtException {
-        String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" +
+        String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" + File.separator + tenantDomain +
                 File.separator + applicationKey + File.separator;
 
         File workDir = new File(dirpath);
