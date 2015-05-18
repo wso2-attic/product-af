@@ -22,8 +22,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager;
 import org.wso2.carbon.appfactory.jenkins.Constants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -48,9 +50,10 @@ public class Utils {
      */
     public static void getTagNamesOfPersistedArtifacts(StaplerRequest req, StaplerResponse rsp) {
 
-        String storagePath = descriptor.getStoragePath();
         String jobName = req.getParameter(Constants.JOB_NAME);
-
+        String tenantUserName = req.getParameter(AppFactoryConstants.TENANT_USER_NAME);
+        String tenantDomain = MultitenantUtils.getTenantDomain(tenantUserName);
+        String storagePath = descriptor.getStoragePath(tenantDomain);
         //artifact storage structure : <storage-path>/<job-name>/<tag-name>/artifact
         File jobDir = new File(storagePath + File.separator + jobName);
         String[] identifiers = jobDir.list();
@@ -63,10 +66,10 @@ public class Utils {
                 writer.flush();
                 writer.close();
             } catch (IOException e) {
-                log.error("Error while adding identifiers to response", e);
+                log.error("Error while adding identifiers to response for job: " + jobName +" tenant: "+tenantDomain, e);
             }
         } else {
-            log.info("No artifacts are tagged to persists for job " + jobName);
+            log.info("No artifacts are tagged to persists for job: " + jobName +" tenant: "+tenantDomain);
         }
     }
 

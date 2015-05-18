@@ -77,6 +77,18 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 		super.deployLatestSuccessArtifact(parameters);
 	}
 
+	@Override
+	public String getStoragePath(String tenantDomain) {
+		//  TODO: do necessary changes to get storage path
+		return super.getStoragePath();
+	}
+
+	@Override
+	public String getTempPath(String s) {
+		//  TODO: do necessary changes to get temp path
+		return super.getTempPath();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

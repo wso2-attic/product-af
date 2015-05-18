@@ -19,14 +19,6 @@
 package org.wso2.carbon.appfactory.jenkins.deploy;
 
 import hudson.EnvVars;
-import hudson.FilePath;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
@@ -39,24 +31,20 @@ import org.wso2.carbon.appfactory.jenkins.api.JenkinsBuildStatusProvider;
 import org.wso2.carbon.appfactory.jenkins.util.JenkinsUtility;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	private static final Log log = LogFactory.getLog(JenkinsArtifactDeployer.class);
 
-	protected AppfactoryPluginManager.DescriptorImpl descriptor;
+	private AppfactoryPluginManager.DescriptorImpl descriptor = new AppfactoryPluginManager.DescriptorImpl();
 	private String baseDeployUrl;
 	private String s2AdminUsername;
 	private String s2AdminPassword;
 
 	public JenkinsArtifactDeployer() {
-		descriptor = new AppfactoryPluginManager.DescriptorImpl();
 		super.setAdminUserName(descriptor.getAdminUserName());
 		super.setAdminPassword(descriptor.getAdminPassword());
 		super.setAppfactoryServerURL(descriptor.getAppfactoryServerURL());
-		super.setStoragePath(descriptor.getStoragePath());
-		super.setTempPath(descriptor.getTempPath());
 		setBaseDeployUrl(descriptor.getBaseDeployUrl());
 		setS2AdminPassword(descriptor.getStratosAdminPassword());
 		setS2AdminUsername(descriptor.getStratosAdminUsername());
@@ -145,141 +133,6 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 	}
 
-	/**
-	 * This method is used to build the specified job
-	 * build parameters are set in such a way that it does not execute any post build actions
-	 * 
-	 * @param jobName
-	 *            job that we need to build
-	 * @param buildUrl
-	 *            url used to trigger the build
-	 * @throws AppFactoryException
-	 */
-	protected void triggerBuild(String jobName, String buildUrl, NameValuePair[] queryParameters)
-	                                                                                             throws AppFactoryException {
-		PostMethod buildMethod = new PostMethod(buildUrl);
-		buildMethod.setDoAuthentication(true);
-		if (queryParameters != null) {
-			buildMethod.setQueryString(queryParameters);
-		}
-		HttpClient httpClient = new HttpClient();
-		httpClient.getState().setCredentials(AuthScope.ANY,
-		                                     new UsernamePasswordCredentials(getAdminUsername(),
-		                                                                     getServerAdminPassword()));
-		httpClient.getParams().setAuthenticationPreemptive(true);
-		int httpStatusCode = -1;
-		try {
-			httpStatusCode = httpClient.executeMethod(buildMethod);
-
-		} catch (Exception ex) {
-			String errorMsg = String.format("Unable to start the build on job : %s", jobName);
-			log.error(errorMsg);
-			throw new AppFactoryException(errorMsg, ex);
-		} finally {
-			buildMethod.releaseConnection();
-		}
-
-		if (HttpStatus.SC_FORBIDDEN == httpStatusCode) {
-			final String errorMsg =
-			                        "Unable to start a build for job [".concat(jobName)
-			                                                           .concat("] due to invalid credentials.")
-			                                                           .concat("Jenkins returned, http status : [")
-			                                                           .concat(String.valueOf(httpStatusCode))
-			                                                           .concat("]");
-			log.error(errorMsg);
-			throw new AppFactoryException(errorMsg);
-		}
-
-		if (HttpStatus.SC_NOT_FOUND == httpStatusCode) {
-			final String errorMsg =
-			                        "Unable to find the job [" + jobName + "Jenkins returned, " + "http status : [" +
-			                                httpStatusCode + "]";
-			log.error(errorMsg);
-			throw new AppFactoryException(errorMsg);
-		}
-	}
-
-	public void labelLastSuccessAsPromoted(String applicationId, String version, String artifactType, String extension,
-	                                       String jobName)
-			throws AppFactoryException, IOException, InterruptedException {
-
-		log.info("---------------------------Entering Deploy Procedure --------------------------");
-		String lastSucessBuildFilePath =
-		                                 getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType,
-		                                                                      null, null, jobName);
-		log.debug("Last success build path is :" + lastSucessBuildFilePath);
-
-		String dest = getArtifactStoragePath(applicationId, version, artifactType, null, null);
-
-		File destDir = new File(dest);
-		if (destDir.exists()) {
-			FileUtils.cleanDirectory(destDir.getParentFile());
-		}
-		if (!destDir.mkdirs()) {
-			log.error("Unable to create promoted tag for application :" + applicationId + ", version :" + version);
-			throw new AppFactoryException(
-			                              "Error occured while creating dir for last successful as PROMOTED: application :" +
-			                                      applicationId + ", version :" + version);
-		}
-
-		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, extension);
-		for (File lastSucessFile : lastSucessFiles) {
-			FilePath lastSuccessArtifactPath = new FilePath(lastSucessFile);
-			String promotedDestDirPath = destDir.getAbsolutePath();
-
-			File promotedDestDir = new File(promotedDestDirPath);
-			FilePath promotedDestDirFilePath = new FilePath(promotedDestDir);
-			if (!promotedDestDirFilePath.exists()) {
-				promotedDestDirFilePath.mkdirs();
-			}
-
-			File destFile =
-			                new File(promotedDestDir.getAbsolutePath() + File.separator +
-			                         lastSuccessArtifactPath.getName());
-
-			FilePath destinationFile = new FilePath(destFile);
-			if (lastSuccessArtifactPath.isDirectory()) {
-				lastSuccessArtifactPath.copyRecursiveTo(destinationFile);
-			} else {
-				lastSuccessArtifactPath.copyTo(destinationFile);
-			}
-			log.info("labeled the lastSuccessful as PROMOTED");
-		}
-	}
-
-	public void labelAsPromotedArtifact(String jobName, String tagName) {
-
-		try {
-
-			String path = descriptor.getStoragePath() + File.separator + jobName + File.separator + tagName;
-			FilePath tagPath = new FilePath(new File(path));
-
-			String jobPromotedPath =
-			                         descriptor.getStoragePath() + File.separator + "PROMOTED" + File.separator +
-			                                 jobName;
-			String dest = jobPromotedPath + File.separator + tagName;
-
-			File toBeCleaned = new File(jobPromotedPath);
-
-			if (toBeCleaned.exists()) {
-				// since only one artifact can be promoted for a version
-				FileUtils.cleanDirectory(toBeCleaned);
-			}
-
-			File destDir = new File(dest);
-			if (!destDir.mkdirs()) {
-				log.error("Unable to create promoted tag for job:" + jobName + "tag:" + tagName);
-			}
-			// given tag is copied to <jenkins-home>/storage/PROMOTED/<job-name>/<tag-name>/
-			tagPath.copyRecursiveTo(new FilePath(destDir));
-			log.info("labeled the tag: " + tagName + " as PROMOTED");
-
-		} catch (Exception e) {
-			log.error("Error while labeling the tag: " + tagName + "as PROMOTED", e);
-		}
-
-	}
-
 	@Override
 	public String getSuccessfulArtifactTempStoragePath(String applicationId, String applicationVersion,
 	                                                   String artifactType, String stage, String tenantDomain,
@@ -295,7 +148,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	                                     String stage, String tenantDomain) throws AppFactoryException {
 		String jobName = JenkinsUtility.getJobName(applicationId, applicationVersion);
 		String path =
-		              getStoragePath() + File.separator + "PROMOTED" + File.separator + jobName + File.separator +
+		              getStoragePath(tenantDomain) + File.separator + "PROMOTED" + File.separator + jobName + File.separator +
 		                      "lastSuccessful";
 		return path;
 	}
@@ -342,6 +195,16 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	@Override
 	protected String getAdminUserName() throws AppFactoryException {
 		return this.s2AdminPassword;
+	}
+
+	@Override
+	public String getStoragePath(String tenantDomain) {
+		return descriptor.getStoragePath(tenantDomain);
+	}
+
+	@Override
+	public String getTempPath(String tenantDomain) {
+		return descriptor.getTempPath(tenantDomain);
 	}
 
 	public void deployTaggedArtifact(Map<String, String[]> requestParameters) throws Exception {

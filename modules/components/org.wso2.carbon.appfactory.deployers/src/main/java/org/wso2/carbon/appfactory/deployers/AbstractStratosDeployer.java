@@ -114,11 +114,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String defaultPassword = getAdminPassword();
 
         // Create the temporary directory first. without this we can't proceed
-        File tempApptypeDirectory = new File(tempPath + File.separator
-                                             + stageName + File.separator +
-                                             StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_"));
-        String path = tempPath + File.separator
+        String path = getTempPath(tenantDomain) + File.separator
                       + stageName + File.separator + StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_");
+        File tempApptypeDirectory = new File(path);
         synchronized (path) {
             log.info("====================Thread name:========"+Thread.currentThread().getName());
             // <tempdir>/jaxrs,

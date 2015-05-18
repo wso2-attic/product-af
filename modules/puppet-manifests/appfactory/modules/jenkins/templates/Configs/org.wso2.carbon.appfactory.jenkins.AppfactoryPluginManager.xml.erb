@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager_-DescriptorImpl plugin="appfactory-plugin@2.1.0-SNAPSHOT">
+  <deployBpelEPR>https://<%= @bps_subdomain %>.<%= @wso2_env_domain %>:<%= @bps_port %>/services/DeployArtifact</deployBpelEPR>
+  <adminUserName><%= @jenkins_admin_username %></adminUserName>
+  <adminPassword><%= @jenkins_admin_pasword %></adminPassword>
+  <clientTrustStore><%= @clientTrustStore_location %>/client-truststore.jks</clientTrustStore>
+  <clientTrustStorePassword><%= @clientrustStore_password %></clientTrustStorePassword>
+  <keyStore><%= @keyStore_location %>/wso2carbon.jks</keyStore>
+  <keyStorePassword><%= @keyStorePassword %></keyStorePassword>
+  <appfactoryServerURL>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %></appfactoryServerURL>
+  <storagePath><%= @jenkins_storagePath %></storagePath>
+  <tempPath><%= @jenkins_tempPath %></tempPath>
+  <baseDeployUrl>https://<%= @s2gitblit_server %>:<%= @s2gitbit_https_port %>/</baseDeployUrl>
+  <stratosAdminUsername><%= @s2git_adminusername %></stratosAdminUsername>
+  <stratosAdminPassword><%= @s2git_adminpassword %></stratosAdminPassword>
+</org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager_-DescriptorImpl>
