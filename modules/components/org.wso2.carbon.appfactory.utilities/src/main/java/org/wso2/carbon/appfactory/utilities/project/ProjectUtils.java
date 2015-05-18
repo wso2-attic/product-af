@@ -94,8 +94,9 @@ public class ProjectUtils {
             log.warn(String.format("Work directory for application id : %s does not exist", appId));
             return;
         }
-
-        File archetypeDir = new File(CarbonUtils.getTmpDir() + File.separator + appId + File.separator +
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        File archetypeDir = new File(
+                CarbonUtils.getTmpDir() + File.separator + tenantDomain + File.separator + appId + File.separator +
                 AppFactoryConstants.MAVEN_ARCHETYPE_DIR);
         archetypeDir.mkdirs();
 
