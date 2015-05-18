@@ -61,6 +61,8 @@ var SCM_ADMIN_USER_NAME="RepositoryMGTConfig.SCMServerAdminUserName";
 var SCM_ADMIN_PASSWORD="RepositoryMGTConfig.SCMServerAdminPassword";
 var SCM_SERVER_URL="RepositoryMGTConfig.SCMServerURL";
 var BASE_URL="ContinuousIntegrationProvider.jenkins.Property.BaseURL";
+var JENKINS_ADMIN_USERNAME = "JenkinsServerAdminUsername";
+var JENKINS_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
 
 var WEB_CONTEXT_ROOT = "WebContextRoot";
 var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
