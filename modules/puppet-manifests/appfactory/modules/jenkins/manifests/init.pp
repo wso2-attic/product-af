@@ -11,7 +11,7 @@ class jenkins (
   $group        = 'root',
 ){
 
-  $jenkins_home = "${base_dir}/jenkins"
+  $jenkins_base_dir = "${base_dir}/jenkins"
   $jenkins_pack = "jenkins.war"
   $templates    = [
     'Configs/org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager.xml',
@@ -23,9 +23,9 @@ class jenkins (
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
       command => "mkdir -p ${base_dir} ${local_package_dir}";
 
-    "create_dirs_for_${jenkins_home}/tmp":
+    "create_dirs_for_${jenkins_base_dir}/tmp":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
-      command => "mkdir -p ${jenkins_home}/tmp";
+      command => "mkdir -p ${jenkins_base_dir}/tmp";
 
 
     'download_jenkins':
@@ -36,37 +36,32 @@ class jenkins (
 
     "extract_jenkins":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
-      command => "unzip ${local_package_dir}/${jenkins_pack} -d {jenkins_home}/tmp",
+      command => "unzip ${local_package_dir}/${jenkins_pack} -d {jenkins_base_dir}/tmp",
       require => Exec["download_jenkins"];
 
     "creating_proper_jenkins_war":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
       cwd     => $base_dir,
-      command => "zip -rq jenkins.war /mnt/10.100.1.75/jenkins/tmp/*",
+      command => "zip -rq jenkins.war ${jenkins_base_dir}/tmp/*",
       require => Exec["extract_jenkins"];
-
-    "create_dirs_for_${jenkins_home}/run":
-      path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
-      command => "mkdir -p ${jenkins_home}/run";
 
     "copying proper jenkins_war":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
       cwd     => $base_dir,
-      command => "cp jenkins.war ${jenkins_home}/run/",
+      command => "cp jenkins.war ${jenkins_base_dir}/",
       require => Exec["creating_proper_jenkins_war"];
 
     "creating JenkinsHome":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
-      unless  => "test -d ${jenkins_home}",
+      unless  => "test -d ${jenkins_base_dir}",
       cwd     => $base_dir,
-      command => "mkdir -p ${jenkins_home}/run/JenkinsHome",
-      require => Exec["create_dirs_for_${jenkins_home}/run"];
+      command => "mkdir -p ${jenkins_home}",
 
     "copying_jenkins_configs":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
-      unless  => "test -d ${jenkins_home}",
+      unless  => "test -d ${jenkins_base_dir}",
       cwd     => $base_dir,
-      command => "cp -r ${jenkins_home}/Configs/*  ${jenkins_home}/run/JenkinsHome/",
+      command => "cp -r ${jenkins_base_dir}/Configs/*  ${jenkins_home}/",
       require => Exec["creating JenkinsHome"];
   }
 
@@ -75,7 +70,7 @@ class jenkins (
       ensure => directory,
       require => Exec["create_dirs_for_${name}"];
 
-    $jenkins_home:
+    $jenkins_base_dir:
       owner   => $user,
       recurse => true,
       ignore  => '.svn',
@@ -85,17 +80,18 @@ class jenkins (
 
   apply_templates {
     $templates:
-      jenkins_home => $jenkins_home,
+      jenkins_base_dir => $jenkins_base_dir,
       require      => Exec["extract_jenkins"];
   }
 
   exec {
     'start jenkins':
       path        => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin'],
-      environment => "jenkins_home=${jenkins_home}",
-      cwd         => $jenkins_home,
+      environment => "jenkins_base_dir=${jenkins_base_dir}",
+      cwd         => $jenkins_base_dir,
       user        => $user,
-      command     => "mkdir -p ${jenkins_home}/logs; ${jenkins_home}/run_jenkins.sh",
-      require     => [ Apply_templates[$templates], File[$jenkins_home] ];
+      command     => "mkdir -p ${jenkins_base_dir}/logs; ${jenkins_base_dir}/run_jenkins.sh",
+      require     => [ Apply_templates[$templates], File[$jenkins_base_dir] ];
   }
 }
+
