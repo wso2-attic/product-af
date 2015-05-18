@@ -255,6 +255,8 @@ public class RestBasedJenkinsCIConnector {
 	 * @throws AppFactoryException
 	 *             if an error occurs
 	 */
+	@Deprecated
+	// TODO Remove these methods
 	public void assignUsers(String[] userIds, String[] projectRoleNames,
 			String[] globalRoleNames, String tenantDomain)
 			throws AppFactoryException {
