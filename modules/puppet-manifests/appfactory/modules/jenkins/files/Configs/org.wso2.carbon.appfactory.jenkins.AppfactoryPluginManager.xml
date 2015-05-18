@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager_-DescriptorImpl plugin="appfactory-plugin@2.1.0-SNAPSHOT">
+    <deployBpelEPR>https://process.appfactory.private.wso2.com:9543/services/DeployArtifact</deployBpelEPR>
+    <adminUserName>admin</adminUserName>
+    <adminPassword>password</adminPassword>
+    <clientTrustStore>/mnt/192.168.16.2/jenkins/security/client-truststore.jks</clientTrustStore>
+    <clientTrustStorePassword>wso2carbon</clientTrustStorePassword>
+    <keyStore>/mnt/192.168.16.2/jenkins/security/wso2carbon.jks</keyStore>
+    <keyStorePassword>wso2carbon</keyStorePassword>
+    <appfactoryServerURL>https://apps.appfactory.private.wso2.com:9443</appfactoryServerURL>
+    <storagePath>/mnt/192.168.16.2/jenkins/setup/run/JenkinsHome/jobs/$TENANT_IDENTIFIER/storage</storagePath>
+    <tempPath>/mnt/192.168.16.2/jenkins/setup/run/JenkinsHome/jobs/$TENANT_IDENTIFIER/temp</tempPath>
+    <baseDeployUrl>https://s2git.appfactory.private.wso2.com:8444/</baseDeployUrl>
+    <stratosAdminUsername>admin</stratosAdminUsername>
+    <stratosAdminPassword>admin</stratosAdminPassword>
+</org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager_-DescriptorImpl>
