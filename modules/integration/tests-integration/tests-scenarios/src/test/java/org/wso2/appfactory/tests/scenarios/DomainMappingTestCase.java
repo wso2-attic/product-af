@@ -24,7 +24,6 @@ import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
-import org.wso2.appfactory.integration.test.utils.rest.DomainMappingClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
@@ -56,19 +55,14 @@ public class DomainMappingTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Add new custom url test")
     public void addNewCustomUrlTest() throws Exception {
-        DomainMappingClient domainMappingClient = new
-                DomainMappingClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
-                                    AFIntegrationTestUtils.getAdminUsername(),
-                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
-        domainMappingClient.addNewCustomUrl();
-//        String newUrl = generateCustomUrl(NEW_URL_STEM);
-//        Map<String, String> msgBodyMap = new HashMap<String, String>();
-//        msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_ADD_NEW_CUSTOM_URL);
-//        msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
-//        msgBodyMap.put(REQUEST_KEY_NEW_URL, newUrl);
-//        HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_ADD_NEW_CUSTOM_URL);
-//        Assert.assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_OK,
-//                            "Adding new custom url is not success.");
+        String newUrl = generateCustomUrl(NEW_URL_STEM);
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_ADD_NEW_CUSTOM_URL);
+        msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        msgBodyMap.put(REQUEST_KEY_NEW_URL, newUrl);
+        HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_ADD_NEW_CUSTOM_URL);
+        Assert.assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_OK,
+                            "Adding new custom url is not success.");
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
