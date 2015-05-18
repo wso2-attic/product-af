@@ -157,7 +157,7 @@ public class ProjectUtils {
      */
     private static void moveDepolyArtifact(File deployAtrifact, File parentFile) throws AppFactoryException{
         try {
-            FileUtils.copyDirectoryToDirectory(deployAtrifact, parentFile);
+            FileUtils.moveDirectoryToDirectory(deployAtrifact, parentFile, false);
         } catch (IOException e) {
             String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
                          + " to " + parentFile.getAbsolutePath();
