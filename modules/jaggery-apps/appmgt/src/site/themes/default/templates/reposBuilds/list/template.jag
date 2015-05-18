@@ -37,6 +37,7 @@ var appDetails = outputs.appDetails;
 var buildableStages = outputs.buildableStages;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var isCodeEditorSupported = outputs.isCodeEditorSupported;
+var lastBuildId;
 %>
 <style>
 .popover_form input.branch-txt-width-fix {
@@ -162,7 +163,8 @@ var isCodeEditorSupported = outputs.isCodeEditorSupported;
 	   	 action:"printBuildLogs",
          base_url: encodeURIComponent("<%=baseURL%>"),
          applicationKey:applicationKey,
-         applicationVersion:selectedAppVersion
+         applicationVersion:selectedAppVersion,
+         lastBuildId:lastBuildId
 
       	},
    	error: function() {
@@ -924,7 +926,7 @@ $.cookie('selectedStage', selectedStage);
         var buildDeployHide="";
         var currentBuildStatusHidden = "" ;
         var launchHide="";
-	    var lastBuildId = versionInfo.lastBuildResult.split(' ')[1];
+	    lastBuildId = versionInfo.lastBuildResult.split(' ')[1];
 	    var isBuildableForStage;
 	    var buildableStages = '<%= buildableStages %>';
 	    if ( buildableStages.indexOf(stage) > -1 ){
@@ -1246,7 +1248,6 @@ $.cookie('selectedStage', selectedStage);
 				$('#build_status_'+jagg.getConvertedVersion(version)).removeClass();
 				$('#build_status_'+jagg.getConvertedVersion(version)).addClass(getStatusStyleForBuildStatus(result.buildStatus));
 				$('#deploy_id_'+jagg.getConvertedVersion(version)).html('Build '+result.deployedId+' Deployed');
-
 				if(result.buildId != undefined && result.buildStatus != undefined && result.deployedId != undefined){
 				    $('.build_status').show();
 				    $('.deployment_status').show();
