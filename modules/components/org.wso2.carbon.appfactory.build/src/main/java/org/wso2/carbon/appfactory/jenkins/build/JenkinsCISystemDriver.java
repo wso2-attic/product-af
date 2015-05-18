@@ -137,6 +137,11 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
         return connector.getAllJobs(tenantDomain);
     }
 
+
+    public void extractMvnRepo(String tenantDomain) throws AppFactoryException {
+        connector.extractMvnRepo(tenantDomain);
+    }
+
     /**
      * {@inheritDoc}
      */

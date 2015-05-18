@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.appfactory.jenkins.artifact.storage;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.StaplerRequest;
@@ -31,10 +32,16 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 
 public class Utils {
@@ -107,6 +114,60 @@ public class Utils {
 			log.error("Unable to read " + variableName + " from the environment");
 		}
     	return variableValue;
+    }
+
+    /**
+     * Unzip a zipfile to a destination specified. N
+     *
+     * @param zipFilename
+     *            input zip file
+     * @param destDirname
+     *            destination directory
+     * @throws IOException
+     *             an error
+     */
+
+    public static void unzip(String zipFilename, String destDirname)
+            throws IOException {
+
+        File distinationDir = new File(destDirname);
+        if (!distinationDir.isDirectory()) {
+
+            if (!distinationDir.mkdirs()) {
+
+                throw new IOException("Unable to create output directory :"
+                                      + distinationDir);
+
+            }
+        }
+
+        ZipFile zipFile = new ZipFile(zipFilename);
+        try {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                File entryDestination = new File(distinationDir,
+                                                 entry.getName());
+                if (!entry.isDirectory()) {
+                    entryDestination.getParentFile().mkdirs(); // TO ensure that parent path already exists.
+                    InputStream in = zipFile.getInputStream(entry);
+                    OutputStream out = new FileOutputStream(entryDestination);
+                    IOUtils.copy(in, out);
+                    IOUtils.closeQuietly(in);
+                    IOUtils.closeQuietly(out);
+
+                } else {
+                    if (!entryDestination.mkdirs()) {
+                        log.warn("Couldn't create the directory :"
+                                 + entryDestination.getAbsolutePath());
+                    }
+                }
+            }
+
+        } finally {
+            zipFile.close();
+        }
+
     }
 
 }

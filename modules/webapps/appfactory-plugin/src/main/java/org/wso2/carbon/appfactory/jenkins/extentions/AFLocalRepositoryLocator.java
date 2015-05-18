@@ -50,12 +50,10 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
         //TODO add validation
         String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
         String tenantGroup = build.getParent().getParent().getFullName();
-        String tenantRepositoryDirPattern = getDescriptor().getTenantRepositoryDirPattern();
+        String tenantRepositoryDirPattern = getDescriptor().getTenantRepositoryDirPattern(tenantGroup);
         String repoPath = jenkinsHome + File.separator + DEFAULT_REPO_PATH_SUFFIX;
         if (StringUtils.isNotEmpty(tenantRepositoryDirPattern)) {
-            repoPath = tenantRepositoryDirPattern.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
-                    (Constants.PLACEHOLDER_TENANT_IDENTIFIER, tenantGroup);
-
+            repoPath = tenantRepositoryDirPattern;
         }
         return new FilePath(new File(repoPath));
     }
@@ -73,6 +71,15 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
         }
 
         private String tenantRepositoryDirPattern;
+        private String preConfiguredMvnRepoArchive;
+
+        public String getPreConfiguredMvnRepoArchive() {
+            return preConfiguredMvnRepoArchive;
+        }
+
+        public void setPreConfiguredMvnRepoArchive(String preConfiguredMvnRepoArchive) {
+            this.preConfiguredMvnRepoArchive = preConfiguredMvnRepoArchive;
+        }
 
         public void setTenantRepositoryDirPattern(String tenantRepositoryDirPattern) {
             this.tenantRepositoryDirPattern = tenantRepositoryDirPattern;
@@ -82,9 +89,16 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
             return tenantRepositoryDirPattern;
         }
 
+        public String getTenantRepositoryDirPattern(String tenantDomain) {
+            String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
+            return this.tenantRepositoryDirPattern.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
+                    (Constants.PLACEHOLDER_TENANT_IDENTIFIER, tenantDomain);
+        }
+
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             setTenantRepositoryDirPattern(formData.getString("tenantRepositoryDirPattern"));
+            setPreConfiguredMvnRepoArchive(formData.getString("preConfiguredMvnRepoArchive"));
             save();
             return super.configure(req, formData);
         }
