@@ -72,7 +72,10 @@ node basenode {
   $jenkins_admin_pasword    = "password"
   $jenkins_storagePath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/storage"
   $jenkins_tempPath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/temp"
-
+  $jenkins_admin_fullname = 'jenkins admin'
+  $jenkins_admin_api_token = 'm440RGgFw5VpPUCFZ6L1yICUCv2IhwAqTfY27R1GCsdXIvN5A2bfHn0tpSbbcrDi'
+  $jenkins_admin_password_hash = '#jbcrypt:$2a$10$WuhaeQqp36TXkTbUWZLxiOUkfJabKS1Ex4tFNqoRlzpeXhK7hY3am'
+  $jenkins_admin_email = 'jenkinsadmin@cloud.com'
 ############## Stratos DBS for Dev Setup #########################
 
 ## Dev ##

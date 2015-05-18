@@ -19,6 +19,7 @@ class jenkins (
     'Configs/org.wso2.carbon.appfactory.jenkins.extentions.AFLocalRepositoryLocator.xml.erb'
     'Configs/hudson.plugins.git.GitSCM.xml.erb'
     'Configs/config.xml.erb'
+    'users/user-config.xml.erb'
   ]
   exec {
     "create_dirs_for_${name}":
@@ -58,6 +59,20 @@ class jenkins (
       unless  => "test -d ${jenkins_base_dir}",
       cwd     => $base_dir,
       command => "mkdir -p ${jenkins_home}",
+
+    "creating JenkinsUsersLocation":
+      path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
+      unless  => "test -d ${jenkins_base_dir}",
+      cwd     => $base_dir,
+      command => "mkdir -p ${jenkins_home}/users/${jenkins_admin_username}",
+      require => Exec["creating JenkinsHome"];
+
+    "copying_jenkins_user_configs":
+      path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
+      unless  => "test -d ${jenkins_base_dir}",
+      cwd     => $base_dir,
+      command => "mv ${jenkins_base_dir}/users/*  ${jenkins_home}/users/${jenkins_admin_username}",
+      require => Exec["creating JenkinsUsersLocation"],
 
     "copying_jenkins_configs":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
