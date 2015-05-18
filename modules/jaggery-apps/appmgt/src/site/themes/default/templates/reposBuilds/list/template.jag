@@ -1488,7 +1488,7 @@ $.cookie('selectedStage', selectedStage);
                             <div class="col-12">
                                 <div class="right link-container link-container-top">
                                     <a  id="dev_studio_url" href="<%=devStudioLink%>" class="link-with-icons" target="_blank">Developer Studio <div class="icon-boxer"><span class="icon-globe "></span></div></a>
-                                    <a  id="tenant_jenkins_url" href="#modal-one" class="link-with-icons" >Build Server <div class="icon-boxer"><span class="icon-globe "></span></div></a>
+                                    <a  id="tenant_jenkins_url" href="#modal-one" class="link-with-icons" >Build Logs <div class="icon-boxer"><span class="icon-globe "></span></div></a>
                                     <a id="original_gitbrowseurl" class="copy_link original_gitbrowseurl link-with-icons" target="_blank" href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" title="Browse Git Server " data-clipboard-text="">Browse GIT <div class="icon-boxer"><span class="icon-globe"></span></div></a>
                                 </div>
                                 <div style="clear:both"></div>
