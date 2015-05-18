@@ -46,6 +46,7 @@ public class TenantBuildManagerInitializerImpl implements
 		log.info("Initializing jenkins for tenant "+ tenantDomain);
 		try {
 			createTenantFolder(tenantDomain);
+			RestBasedJenkinsCIConnector.getInstance().extractMvnRepo(tenantDomain);
 		} catch (AppFactoryException e) {
 			String msg = "Error occurred while tenant creation in jenkins";
 			log.error(msg, e);

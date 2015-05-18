@@ -61,11 +61,14 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 	@Override
 	public void onCreation(Application application, String userName, String tenantDomain,
 	                                 boolean isUploadableAppType) throws AppFactoryException {
+        String version = isUploadableAppType ? "1.0.0" : "trunk";
         String stage = isUploadableAppType ?
                        WordUtils.capitalize(AppFactoryConstants.ApplicationStage.PRODUCTION.getStageStrValue()) :
                        WordUtils.capitalize(AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue());
-		List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getId(), application.getType(),
-		                                         stage,AppFactoryConstants. ORIGINAL_REPOSITORY);
+        List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getId(),
+                                                                              application.getType(),
+                                                                              stage,
+                                                                              AppFactoryConstants.ORIGINAL_REPOSITORY);
 
 		//TODO - Fix properly in 2.2.0-M1
 		params.add(new NameValuePair("tenantUserName", userName + "@" + tenantDomain));
@@ -79,6 +82,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 		try {
 			tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
 			deployInfoMap.put(AppFactoryConstants.TENANT_DOMAIN, new String[] { tenantDomain });
+            deployInfoMap.put(AppFactoryConstants.APPLICATION_VERSION, new String[] { version });
 			deployInfoMap.put("tenantId", new String[] { Integer.toString(tenantId) });
 		    InitialArtifactDeployer deployer = new InitialArtifactDeployer(deployInfoMap, tenantId, tenantDomain);
 		    deployer.deployLatestSuccessArtifact(deployInfoMap);
