@@ -28,10 +28,10 @@ public class BuildRepoTestCase extends AFIntegrationTest {
 
 	@BeforeClass(alwaysRun = true)
 	public void setEnvironment() throws Exception {
-		String tenantAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
-		String tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
-		String afUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
-		buildRepoRestClient = new BuildRepoClient(afUrl, tenantAdmin, tenantAdminPassword);
+		buildRepoRestClient = new
+				BuildRepoClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+				                AFIntegrationTestUtils.getAdminUsername(),
+				                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
 		applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
 		initialVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC);
 		firstVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_TARGET);
