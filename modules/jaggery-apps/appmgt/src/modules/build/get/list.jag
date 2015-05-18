@@ -54,49 +54,14 @@ var getBuildInfoByApplicationId = function(applicationId) {
 	return elementsArray;
     };
 
-
-/*var getBuildInfoByApplicationId = function(applicationId) {
-    jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_BUILD);
-        var ws = require("ws");
-        var buildService = new ws.WSRequest();
-        var options = new Array();
-        options.useSOAP = 1.2;
-        options.action = "urn:getApplicationStatistics";
-        modManager.setAuthHeaders(options);
-        var payload = '<p:getApplicationStatistics xmlns:p="http://build.core.appfactory.carbon.wso2.org"><p:applicationId>' + applicationId + '</p:applicationId></p:getApplicationStatistics>';
-        var result;
-
-        try {
-        	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ContinuousIntegrationStatisticsService";
-        	buildService.open(options,endPoint, false);
-        	buildService.send(payload);
-        	result = buildService.responseE4X;
-        	var ns = new Namespace("http://build.core.appfactory.carbon.wso2.org");
-        	var ax225 = new Namespace("http://dto.core.appfactory.carbon.wso2.org/xsd");
-        	result = result.ns::["return"];
-
-        	var elementsArray = new Array();
-
-        	for (var buildData in result) {
-        		var buildInfo = result[buildData];
-        		var name = buildInfo.ax225::["name"].text();
-        		var value = buildInfo.ax225::["value"].text();
-
-        		var innerElement = {};
-        		innerElement.name = name;
-        		innerElement.value = value;
-
-        		elementsArray.push(innerElement);
-        	}
-
-        	return elementsArray;
-        } catch (e) {
-        	log.error("Error while getting build information \n" + e.message);
-        	throw "Error while getting build information";
-        }
-
-        return arrApplications;
-    };*/
+var getBasicAuthHeaderValue = function () {
+    var userName = getProperty(JENKINS_ADMIN_USERNAME);
+    var password = getProperty(JENKINS_ADMIN_PASSWORD);
+    var String = Packages.java.lang.String;
+    var byteVal = new String(userName + " : " + password).getBytes();
+    var Base64 = Packages.org.apache.commons.codec.binary.Base64;
+    return new String(Base64.encodeBase64(byteVal));
+}
 
 var getTagNamesOfPersistedArtifacts = function(applicationId, version) {
     jagg.module("permission").checkUserActionPermission(applicationId,PERMISSION_BUILD);
