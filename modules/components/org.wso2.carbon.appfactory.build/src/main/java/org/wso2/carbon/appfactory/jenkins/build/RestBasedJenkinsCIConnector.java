@@ -407,7 +407,7 @@ public class RestBasedJenkinsCIConnector {
 				new NameValuePair(AppFactoryConstants.WRAPPER_TAG_KEY, wrapperTag),
 				new NameValuePair(AppFactoryConstants.XPATH_EXPRESSION_KEY, xpathExpression) };
 
-		GetMethod getJobsMethod = createGet("/view/All/api/xml",
+		GetMethod getJobsMethod = createGet("/job/"+tenantDomain+"/view/All/api/xml",
 				queryParameters, tenantDomain);
 		try {
 			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getJobsMethod);
@@ -451,7 +451,7 @@ public class RestBasedJenkinsCIConnector {
 	public File getArtifact(String jobName, String artifactName,
 			String tenantDomain) throws AppFactoryException {
 		File file = null;
-		String url = "/job/" + jobName + "/ws/" + artifactName;
+		String url = "/job/"+tenantDomain+"/job/" + jobName + "/ws/" + artifactName;
 		GetMethod getArtifactMethod = createGet(url, null, tenantDomain);
 		InputStream ins = null;
 		FileOutputStream out = null;
@@ -693,7 +693,7 @@ public class RestBasedJenkinsCIConnector {
 				new NameValuePair("xpath", String.format(
 						"/*/job/name[text()='%s']", jobName)) };
 
-		GetMethod checkJobExistsMethod = createGet("/api/xml", queryParameters,
+		GetMethod checkJobExistsMethod = createGet("/job/"+tenantDomain+"/api/xml", queryParameters,
 				tenantDomain);
 
 		boolean isExists = false;
@@ -976,8 +976,7 @@ public class RestBasedJenkinsCIConnector {
 			throws AppFactoryException {
 
 		String buildStatus = AppFactoryConstants.BUILD_STATUS_UNKNOWN;
-		GetMethod checkJobExistsMethod = createGet(buildUrl, "api/xml", null,
-				tenantDomain);
+		GetMethod checkJobExistsMethod = createGetByBaseUrl(buildUrl, "api/xml", null);
 
 		try {
 			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
@@ -1033,7 +1032,7 @@ public class RestBasedJenkinsCIConnector {
 				new NameValuePair(AppFactoryConstants.XPATH_EXPRESSION_KEY, "/*/build/url") };
 
 		GetMethod getBuildsMethod = createGet(
-				String.format("/job/%s/api/xml", jobName), queryParameters,
+				String.format("/job/%s/job/%s/api/xml", tenantDomain, jobName), queryParameters,
 				tenantDomain);
 		try {
 			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(getBuildsMethod);
@@ -1147,17 +1146,16 @@ public class RestBasedJenkinsCIConnector {
 		if (jobName == null || jobName.isEmpty()
 		    || jobName.equalsIgnoreCase(AppFactoryConstants.ALL_JOB_NAME) ||
 		    jobName.equals(AppFactoryConstants.ASTERISK)) {
-			buildUrl = this.getJenkinsUrl(tenantDomain) + AppFactoryConstants.URL_SEPERATOR;
+			buildUrl = String.format("/job/%s/api/json", tenantDomain);
 		} else {
 			//TODO check usage of this method and remove it.
-			buildUrl = String.format("%s/job/%s/job/%s/", this.getJenkinsUrl(tenantDomain),tenantDomain,
-					jobName);
+			buildUrl = String.format("/job/%s/job/%s/api/json", tenantDomain,jobName);
 		}
 
 		NameValuePair[] queryParameters = { new NameValuePair(AppFactoryConstants.JSON_TREE_STRUCTURE,
 				treeStructure) };
 
-		GetMethod getBuildsHistoryMethod = createGet(buildUrl, "api/json",
+		GetMethod getBuildsHistoryMethod = createGet(buildUrl,
 				queryParameters, tenantDomain);
 
 		try {
@@ -1633,7 +1631,7 @@ public class RestBasedJenkinsCIConnector {
 			String repositoryType, boolean isAutoBuild, int pollingPeriod,
 			String tenantDomain) throws AppFactoryException {
 		GetMethod getFetchMethod = createGet(
-				String.format("/job/%s/config.xml", jobName), null,
+				String.format("/job/%s/job/%s/config.xml", tenantDomain, jobName), null,
 				tenantDomain);
 		OMElement configurations = null;
 		try {
@@ -1719,7 +1717,7 @@ public class RestBasedJenkinsCIConnector {
 	private OMElement getConfiguration(String jobName, String updateState,
 			int pollingPeriod, String tenantDomain) throws AppFactoryException {
 		GetMethod getFetchMethod = createGet(
-				String.format("/job/%s/config.xml", jobName), null,
+				String.format("/job/%s/job/%s/config.xml", tenantDomain, jobName), null,
 				tenantDomain);
 		OMElement configurations = null;
 
@@ -1794,7 +1792,7 @@ public class RestBasedJenkinsCIConnector {
 
 		try {
 			createJob = createPost(
-					String.format("/job/"+tenantDomain+"/job/%s/config.xml", jobName),
+					String.format("/job/%s/job/%s/config.xml",tenantDomain, jobName),
 					queryParams,
 					new StringRequestEntity(jobConfiguration
 							.toStringWithConsume(), "text/xml", "utf-8"),
@@ -1842,35 +1840,35 @@ public class RestBasedJenkinsCIConnector {
 	}
 
 	/**
-	 * Util method to create a http GET method.
-	 * 
-	 * @param urlFragment
-	 *            Url fragments
-	 * @param queryParameters
-	 *            query parameters.
-	 * @return a {@link GetMethod}
-	 */
-	private GetMethod createGet(String urlFragment,
-			NameValuePair[] queryParameters, String tenantDomain) throws AppFactoryException {
-		return createGet(getJenkinsUrl(tenantDomain), urlFragment, queryParameters,
-				tenantDomain);
-	}
-
-	/**
 	 * Util method to create a http get method
-	 * 
-	 * @param baseUrl
-	 *            the base url //TODO:should be irrelevant
 	 * @param urlFragment
 	 *            the url fragment
 	 * @param queryParameters
 	 *            query parameters
 	 * @return a {@link GetMethod}
 	 */
-	private GetMethod createGet(String baseUrl, String urlFragment,
+	private GetMethod createGet(String urlFragment,
 			NameValuePair[] queryParameters, String tenantDomain) throws AppFactoryException {
 		String url = getJenkinsUrlByTenantDomain(urlFragment, tenantDomain);
+		return getGetMethod(queryParameters, url);
+	}
 
+	/**
+	 * Util method to create a http get method by providing {@code baseUrl}.
+	 * NOTE: This method should only use if you get the {@code baseUrl} wrt tenant domain.
+	 *
+	 * @param baseUrl         base url
+	 * @param urlFragment     url fragment
+	 * @param queryParameters query params
+	 * @return {@link GetMethod}
+	 * @throws AppFactoryException
+	 */
+	private GetMethod createGetByBaseUrl(String baseUrl, String urlFragment,
+	                                     NameValuePair[] queryParameters) throws AppFactoryException {
+		return getGetMethod(queryParameters, baseUrl + urlFragment);
+	}
+
+	private GetMethod getGetMethod(NameValuePair[] queryParameters, String url) {
 		GetMethod get = new GetMethod(url);
 		if (authenticate) {
 			get.setDoAuthentication(true);
@@ -1996,7 +1994,7 @@ public class RestBasedJenkinsCIConnector {
 		OMElement configurations = null;
 
 		GetMethod getFetchMethod = createGet(
-				String.format("/job/%s/config.xml", jobName), null,
+				String.format("/job/%s/job/%s/config.xml",tenantDomain, jobName), null,
 				tenantDomain);
 
 		try {
