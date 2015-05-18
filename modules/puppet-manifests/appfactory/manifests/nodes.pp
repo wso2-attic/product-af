@@ -62,14 +62,16 @@ node basenode {
 # Jenkins Configs
   $jenkins_domain = 'jenkins'
   $jenkins_port = '9500'
+  $jenkins_home = "/mnt/${ipaddress}/jenkins/jenkins_home"
   $clientTrustStore_location = "/mnt/${ipaddress}/jenkins/security"
   $clientrustStore_password = 'wso2carbon'
   $keyStore_location = "/mnt/${ipaddress}/jenkins/security"
+  $pre_conf_mvn_repo = "/mnt/${ipaddress}/jenkins/preMvnRepo"
   $keyStorePassword =  'wso2carbon'
   $jenkins_admin_username   = "admin"
   $jenkins_admin_pasword    = "password"
-  $jenkins_storagePath = "/mnt/${ipaddress}/jenkins/storage"
-  $jenkins_tempPath = "/mnt/${ipaddress}/jenkins/tmp_dir"
+  $jenkins_storagePath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/storage"
+  $jenkins_tempPath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/temp"
 
 ############## Stratos DBS for Dev Setup #########################
 

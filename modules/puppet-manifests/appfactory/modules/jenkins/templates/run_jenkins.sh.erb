@@ -3,8 +3,8 @@
 MY_PATH="`dirname \"$0\"`"
 MY_PATH="`( cd \"$MY_PATH\" && pwd )`"
 cd $MY_PATH/run/
-mkdir -p $MY_PATH/run/JenkinsHome
-export JENKINS_HOME=$MY_PATH/run/JenkinsHome
+mkdir -p <%= @jenkins_home %>
+export JENKINS_HOME=<%= @jenkins_home %>
 echo "Jenkins home "$JENKINS_HOME
 echo "Running jenkins.war..."
 #java -jar jenkins.war
