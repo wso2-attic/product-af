@@ -16,8 +16,10 @@ class jenkins (
   $templates    = [
     'Configs/org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager.xml',
     'Configs/jenkins.model.JenkinsLocationConfiguration.xml'
+    'Configs/org.wso2.carbon.appfactory.jenkins.extentions.AFLocalRepositoryLocator.xml.erb'
+    'Configs/hudson.plugins.git.GitSCM.xml.erb'
+    'Configs/config.xml.erb'
   ]
-
   exec {
     "create_dirs_for_${name}":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
