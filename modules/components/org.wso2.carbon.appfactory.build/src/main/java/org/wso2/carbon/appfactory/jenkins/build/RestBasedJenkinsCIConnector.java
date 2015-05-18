@@ -255,6 +255,8 @@ public class RestBasedJenkinsCIConnector {
 	 * @throws AppFactoryException
 	 *             if an error occurs
 	 */
+	@Deprecated
+	// TODO Remove these methods
 	public void assignUsers(String[] userIds, String[] projectRoleNames,
 			String[] globalRoleNames, String tenantDomain)
 			throws AppFactoryException {
@@ -1496,6 +1498,43 @@ public class RestBasedJenkinsCIConnector {
 		}
 	}
 
+
+	/**
+	 * This will extract pre configured mvn repo to tenant
+	 * @param tenantDomain
+	 * @throws AppFactoryException
+	 */
+	public void extractMvnRepo(String tenantDomain) throws AppFactoryException {
+		String extractMvnRepoUrl = "/plugin/appfactory-plugin/extractMvnRepo";
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new NameValuePair(AppFactoryConstants.TENANT_DOMAIN, tenantDomain));
+		PostMethod extractMvnRepoMethod = createPost(
+				extractMvnRepoUrl,
+				parameters.toArray(new NameValuePair[parameters.size()]), null,
+				tenantDomain);
+		try {
+			int httpStatusCode = getAuthenticatedHttpClient().executeMethod(
+					extractMvnRepoMethod);
+
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
+				httpStatusCode = resendRequest(extractMvnRepoMethod);
+			}
+
+			log.info("status code for extractMvnRepo in for : " + tenantDomain + " is " + httpStatusCode);
+			if (!isSuccessfulStatusCode(httpStatusCode)) {
+				String errorMsg = "Unable extract maven repo for tenant: "+tenantDomain+". jenkins "
+				                  + "returned, http status : " + httpStatusCode;
+				log.error(errorMsg);
+				throw new AppFactoryException(errorMsg);
+			}
+		} catch (Exception ex) {
+			String errorMsg = "Error while extracting maven repo for tenant: "+tenantDomain;
+			log.error(errorMsg, ex);
+			throw new AppFactoryException(errorMsg, ex);
+		} finally {
+			extractMvnRepoMethod.releaseConnection();
+		}
+	}
 
 	/**
 	 * This will return the tag names of the persisted artifact of the given job
