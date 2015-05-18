@@ -1,13 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager_-DescriptorImpl plugin="appfactory-plugin@2.1.0-SNAPSHOT">
   <deployBpelEPR>https://<%= @bps_subdomain %>.<%= @wso2_env_domain %>:<%= @bps_port %>/services/DeployArtifact</deployBpelEPR>
-  <adminUserName><%= @jenkins_admin_username %></adminUserName>
-  <adminPassword><%= @jenkins_admin_pasword %></adminPassword>
+  <adminUserName><%= adminuser_name %></adminUserName>
+  <adminPassword><%= adminuser_passwd %></adminPassword>
   <clientTrustStore><%= @clientTrustStore_location %>/client-truststore.jks</clientTrustStore>
   <clientTrustStorePassword><%= @clientrustStore_password %></clientTrustStorePassword>
   <keyStore><%= @keyStore_location %>/wso2carbon.jks</keyStore>
   <keyStorePassword><%= @keyStorePassword %></keyStorePassword>
   <appfactoryServerURL>https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %></appfactoryServerURL>
+
+  <!--If you set $JENKINS_HOME and $TENANT_IDENTIFIER as place holders for storagePath and tempPath, it will replace
+  $JENKINS_HOME with envirenment variable $JENKINS_HOME and $TENANT_IDENTIFIER will replaced by the tenantDomain from
+   the code
+
+   ex:
+   if $JENKINS_HOME is /mnt/192.168.16.2/jenkins/run/Jenkins_Home and storagePath is set as below
+   <storagePath>$JENKINS_HOME/jobs/$TENANT_IDENTIFIER/storage</storagePath>
+
+   storage path for tenantDomain foo.com is /mnt/192.168.16.2/jenkins/run/Jenkins_Home/jobs/foo.com/storage
+   -->
   <storagePath><%= @jenkins_storagePath %></storagePath>
   <tempPath><%= @jenkins_tempPath %></tempPath>
   <baseDeployUrl>https://<%= @s2gitblit_server %>:<%= @s2gitbit_https_port %>/</baseDeployUrl>
