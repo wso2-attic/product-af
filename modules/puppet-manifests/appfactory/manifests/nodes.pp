@@ -60,7 +60,7 @@ node basenode {
 
 
 # Jenkins Configs
-  $jenkins_keystore_name = '/mnt/${ipaddress}/jenkins/security/wso2carbon.jks'
+  $jenkins_keystore_name = "/mnt/${ipaddress}/jenkins/security/wso2carbon.jks"
   $jenkins_keystore_password = 'wso2carbon'
   $jenkins_log_file_location = "/mnt/${ipaddress}/jenkins/logs"
   $jenkins_package_name = 'jenkins.war'
