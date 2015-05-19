@@ -12,7 +12,7 @@ class jenkins (
 ){
 
   $jenkins_base_dir = "${base_dir}/jenkins"
-  $jenkins_pack = "jenkins.war"
+  $jenkins_pack_location = "${jenkins_base_dir}/${jenkins_package_name}"
   $templates    = [
     'Configs/org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager.xml',
     'Configs/jenkins.model.JenkinsLocationConfiguration.xml',
@@ -66,6 +66,13 @@ class jenkins (
       ignore  => '.svn',
       source  => 'puppet:///modules/jenkins',
       require => Exec["creating_jenkins_home"];
+
+    $jenkins_pack_location:
+      owner   => $user,
+      group   => $user,
+      recurse => true,
+      mode => '0755',
+      require => Exec["download_jenkins"];
   }
 
   apply_templates {
@@ -81,6 +88,6 @@ class jenkins (
       cwd         => $jenkins_home,
       user        => $user,
       command     => "mkdir -p ${jenkins_home}/logs; /bin/bash ${jenkins_base_dir}/run_jenkins.sh",
-      require     => [ Apply_templates[$templates], File[$jenkins_base_dir], Exec["copying_jenkins_user_configs"], Exec["download_jenkins"]];
+      require     => [ Apply_templates[$templates], File[$jenkins_base_dir], File[$jenkins_pack_location], Exec["copying_jenkins_user_configs"], Exec["download_jenkins"]];
   }
 }
