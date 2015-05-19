@@ -51,6 +51,10 @@ public class BaseClient {
     protected static final String APPMGT_DATASOURCE_ADD= "resources/datasource/add/ajax/add.jag";
     protected static final String APPMGT_DATASOURCE_GET= "resources/datasource/get/ajax/list.jag";
     protected static final String APPMGT_LIFECYCLE_GET = "lifecycle/get/ajax/get.jag";
+    protected static final String APPMGT_DATABASE_ADD = "resources/database/add/ajax/add.jag";
+    protected static final String APPMGT_DATABASE_DROP = "resources/database/drop/ajax/drop.jag";
+    protected static final String APPMGT_DATABASE_USER = "resources/database/users/list/ajax/list.jag";
+    protected static final String APPMGT_DATABASE_TEMPLATE = "resources/database/templates/ajax/list.jag";
 
     protected static final String ISSUETRACKER_URL_SURFIX = "issuetracker/pages/issue";
     protected static final String ISSUETRACKER_USER_LOGIN = "/login.jag";
