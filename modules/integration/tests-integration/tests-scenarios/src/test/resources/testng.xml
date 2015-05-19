@@ -35,11 +35,7 @@
             <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BAMDataPublisherTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.DomainMappingTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.UserManagementTestCase"/>
-<<<<<<< Updated upstream
-            -->
-=======
->>>>>>> Stashed changes
-            <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BuildRepoTestCase"/>
+            <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BuildRepoTestCase"/>-->
         </classes>
     </test>
 </suite>
