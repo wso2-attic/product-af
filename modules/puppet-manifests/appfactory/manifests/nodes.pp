@@ -60,6 +60,10 @@ node basenode {
 
 
 # Jenkins Configs
+  $jenkins_keystore_name = '/mnt/${ipaddress}/jenkins/security/wso2carbon.jks'
+  $jenkins_keystore_password = 'wso2carbon'
+  $jenkins_log_file_location = "/mnt/${ipaddress}/jenkins/logs"
+  $jenkins_package_name = 'jenkins.war'
   $jenkins_domain = 'jenkins'
   $jenkins_port = '9500'
   $jenkins_home = "/mnt/${ipaddress}/jenkins/jenkins_home"
@@ -68,11 +72,14 @@ node basenode {
   $keyStore_location = "/mnt/${ipaddress}/jenkins/security"
   $pre_conf_mvn_repo = "/mnt/${ipaddress}/jenkins/preMvnRepo"
   $keyStorePassword =  'wso2carbon'
-  $jenkins_admin_username   = "admin"
+  $jenkins_admin_username   = "jenkinssystemadmin"
   $jenkins_admin_pasword    = "password"
   $jenkins_storagePath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/storage"
   $jenkins_tempPath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/temp"
-
+  $jenkins_admin_fullname = 'jenkins admin'
+  $jenkins_admin_api_token = 'm440RGgFw5VpPUCFZ6L1yICUCv2IhwAqTfY27R1GCsdXIvN5A2bfHn0tpSbbcrDi'
+  $jenkins_admin_password_hash = '#jbcrypt:$2a$10$WuhaeQqp36TXkTbUWZLxiOUkfJabKS1Ex4tFNqoRlzpeXhK7hY3am'
+  $jenkins_admin_email = 'jenkinsadmin@cloud.com'
 ############## Stratos DBS for Dev Setup #########################
 
 ## Dev ##
