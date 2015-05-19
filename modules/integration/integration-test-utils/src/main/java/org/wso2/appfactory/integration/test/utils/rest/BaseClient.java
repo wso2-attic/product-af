@@ -27,6 +27,7 @@ import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ public class BaseClient {
     protected static final String APPMGT_USER_LOGIN = "user/login/ajax/login.jag";
     protected static final String APPMGT_APPLICATION_GET = "application/get/ajax/list.jag";
     protected static final String APPMGT_APPLICATION_ADD = "application/add/ajax/add.jag";
+    protected static final String APPMGT_APPLICATION_DELETE= "application/delete/ajax/delete.jag";
     protected static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
     protected static final String APPMGT_LIFECYCLE_ADD= "lifecycle/add/ajax/add.jag";
     protected static final String APPMGT_DATASOURCE_ADD= "resources/datasource/add/ajax/add.jag";

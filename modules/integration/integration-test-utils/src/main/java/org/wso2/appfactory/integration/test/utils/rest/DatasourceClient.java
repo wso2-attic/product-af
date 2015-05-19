@@ -60,7 +60,7 @@ public class DatasourceClient extends BaseClient {
      */
     public JSONObject createDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
                                        String dbUserName, String password, boolean copyToAll, String applicationKey)
-            throws AFIntegrationTestException {
+            throws Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, CREATE_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -91,7 +91,7 @@ public class DatasourceClient extends BaseClient {
      * @throws Exception
      */
     public JSONObject deleteDatasource(String dsName, String stage, String applicationKey) throws
-                                                                                           AFIntegrationTestException {
+            Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, DELETE_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -123,7 +123,7 @@ public class DatasourceClient extends BaseClient {
      */
     public JSONObject editDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
                                String dbUserName, String password, boolean isEdit, String applicationKey)
-            throws AFIntegrationTestException {
+            throws Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, EDIT_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);

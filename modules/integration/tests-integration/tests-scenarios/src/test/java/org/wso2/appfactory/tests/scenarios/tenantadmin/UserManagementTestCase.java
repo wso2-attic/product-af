@@ -122,7 +122,7 @@ public class UserManagementTestCase extends AFIntegrationTest {
         return returnedUsers;
     }
 
-    private ArrayList<String> getApplicationUsers(String defaultAppKey) throws AFIntegrationTestException {
+    private ArrayList<String> getApplicationUsers(String defaultAppKey) throws Exception {
         JSONArray users = userMgtClient.getUsersOfApplication(defaultAppKey);
         ArrayList<String> returnedUsers = new ArrayList<String>();
         for (int i = 0; i < users.length(); i++) {
