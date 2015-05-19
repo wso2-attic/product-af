@@ -4,6 +4,7 @@
     <resources>
         <resource>src/*</resource>
         <resource>.project</resource>
+        <resource>built_artifact/*</resource>
     </resources>
 </archetype>
 

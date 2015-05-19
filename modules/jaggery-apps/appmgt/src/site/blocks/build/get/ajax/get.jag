@@ -47,8 +47,20 @@
             var applicationKey = request.getParameter("applicationKey");
             var applicationVersion = request.getParameter("applicationVersion");
             var tenantDomain = request.getParameter("tenantDomain");
-            var buildLogUrl = getProperty(BASE_URL) + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
-                                      + applicationVersion + "-default/1/consoleText/";
+            var buildId = request.getParameter("lastBuildId");
+            var forkedRepository = request.getParameter("forkedRepository");
+            var jenkinsUrl = mod.getJenkinsBaseUrl(tenantDomain);
+            var userName = jagg.getUser();
+            var tenantAwareUserName = userName.split("@")[0];
+            var buildLogUrl;
+            if (forkedRepository == "true") {
+                buildLogUrl = jenkinsUrl + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                              + applicationVersion + "-default-" + tenantAwareUserName + "/" + buildId + "/consoleText/";
+            }
+            else {
+                buildLogUrl = jenkinsUrl + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                              + applicationVersion + "-default/" + buildId + "/consoleText/";
+            }
             var AuthHeaderVal = " Basic " + mod.getBasicAuthHeaderValue();
             var headers = {"Authorization": AuthHeaderVal};
             var test = get(buildLogUrl, {}, headers, "text/html");
