@@ -112,7 +112,6 @@ public class BuildRepoTestCase extends AFIntegrationTest {
         Assert.assertEquals(response,"null", "Application deploying failed");
         JsonObject jsonObject = buildRepoRestClient.getBuildAndRepoDataForkedRepo(applicationKey,
                 "false", "false", "true",tenantAdmin);
-        System.out.println(jsonObject+">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         int deploymentID = jsonObject.get("trunk").getAsJsonObject().get("deployment").getAsJsonObject().
                 get("deployedBuildId").getAsInt();
         boolean isAssert = false;
