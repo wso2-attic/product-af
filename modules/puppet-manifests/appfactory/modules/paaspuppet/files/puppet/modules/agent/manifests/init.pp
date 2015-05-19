@@ -25,7 +25,7 @@ class agent(
   $auto_commit            = false,
   $auto_checkout          = true,
   $mb_ip                  = "puppet",
-  $mb_port                = 61616
+  $mb_port                = 61636
 ){
 
   $deployment_code = 'cartridge-agent'
