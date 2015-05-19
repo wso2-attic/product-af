@@ -33,6 +33,7 @@ class jenkins (
 
     'download_jenkins':
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
+      unless  => "test -f ${local_package_dir}/${jenkins_pack}",
       cwd     => $local_package_dir,
       command => "wget -q ${package_repo}/${jenkins_pack}",
       require => Exec["create_dirs_for_${name}"];
