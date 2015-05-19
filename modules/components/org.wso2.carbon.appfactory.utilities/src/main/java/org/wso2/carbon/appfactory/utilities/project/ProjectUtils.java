@@ -16,11 +16,10 @@
 
 package org.wso2.carbon.appfactory.utilities.project;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
@@ -31,7 +30,6 @@ import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.Artifact;
-import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
@@ -41,7 +39,6 @@ import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.governance.api.exception.GovernanceException;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifactImpl;
@@ -133,7 +130,7 @@ public class ProjectUtils {
             if (result != null && result.getExitCode() == 0) {
                 log.info("Maven archetype generation completed successfully");
 
-                if (AppFactoryCoreUtil.isBuildable(ApplicationManager.getInstance().getApplicationType(appId))) {
+                if (AppFactoryCoreUtil.isBuildServerRequiredProject(ApplicationManager.getInstance().getApplicationType(appId))) {
                     File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
                     moveDepolyArtifact(deployArtifact, workDir.getParentFile());
                 }
