@@ -131,18 +131,21 @@ _update_common_jars APPSERVER_COMMON[@] paaspuppet/files/puppet/modules/appserve
 _update_common_jars SM_COMMON[@] privatepaas/files/appfactory_deployment/repository/components/dropins "*" "*"
 
 
-echo "[Build Server] Creating minimal jenkins.war and runtime"
+echo "[Jenkins] Creating jenkins.war"
 mkdir -p ${PACKS_DIR}/tmp
 cd ${PACKS_DIR}
 unzip -q ${PACKS_DIR}/jenkins.war -d tmp
 
 #pack jenkins plugins placed in resources folder to minimal jenkins.war
 cp -rf ${PUPPET_MODULES_HOME}/jenkins/files/plugins/* tmp/WEB-INF/plugins
+
+#removing existing appfactory-plugin
+rm -rf tmp/WEB-INF/plugins/appfactory-plugin*.hpi
 cp -rf ${AF_HOME}/resources/plugins/jenkins/appfactory-plugin*.hpi tmp/WEB-INF/plugins
 cd tmp
 zip -rq jenkins.war *
 cd ..
-cp tmp/jenkins.war ${PUPPET_MODULES_HOME}/jenkins/files/
+cp tmp/jenkins.war ${PACKS_DIR}/
 rm -rf tmp
 
 #copying BPEL to BPS
