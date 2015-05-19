@@ -240,13 +240,15 @@ var stroreUploadedApplication = function (uploadedApplicationName, file, type) {
         log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
     }
 
-    var tenantDomain = modManager.getTenantDomain();
-    var destination = TMP_UPLOADED_APPLICATIONS_PATH + "/" + tenantDomain;
-    var destinationDir = new File("/" + tenantDomain);
+    var destination = "/" + TMP_UPLOADED_APPLICATIONS_PATH + "/" + modManager.getTenantDomain();
+    var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
     if (!destinationDir.isExists()) {
         destinationDir.mkdir();
     }
-
+    destinationDir = new File(destination);
+    if (!destinationDir.isExists()) {
+        destinationDir.mkdir();
+    }
     var tmpFileName = destination + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) +
                       UPPLOADABLE_SUFFIX;
     file.move(tmpFileName);
