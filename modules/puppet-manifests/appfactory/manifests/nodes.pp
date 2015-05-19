@@ -68,7 +68,7 @@ node basenode {
   $keyStore_location = "/mnt/${ipaddress}/jenkins/security"
   $pre_conf_mvn_repo = "/mnt/${ipaddress}/jenkins/preMvnRepo"
   $keyStorePassword =  'wso2carbon'
-  $jenkins_admin_username   = "admin"
+  $jenkins_admin_username   = "jenkinssystemadmin"
   $jenkins_admin_pasword    = "password"
   $jenkins_storagePath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/storage"
   $jenkins_tempPath = "${jenkins_home}/jobs/\$TENANT_IDENTIFIER/temp"

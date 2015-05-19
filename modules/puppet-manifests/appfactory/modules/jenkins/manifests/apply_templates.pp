@@ -1,10 +1,10 @@
 #Apply templates
 
 define jenkins::apply_templates (
-  $jenkins_home,
+  $jenkins_base_dir,
 ){
   file {
-    "${jenkins_home}/${name}":
+    "${jenkins_base_dir}/${name}":
       owner   => $user,
       group   => $group,
       mode    => '0644',
