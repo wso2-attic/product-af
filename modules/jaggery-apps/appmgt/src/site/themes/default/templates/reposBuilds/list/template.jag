@@ -38,6 +38,8 @@ var buildableStages = outputs.buildableStages;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var isCodeEditorSupported = outputs.isCodeEditorSupported;
 var lastBuildId;
+var forkLastBuildId;
+
 %>
 <style>
 .popover_form input.branch-txt-width-fix {
@@ -152,30 +154,6 @@ var lastBuildId;
 
     $(document).ready(function(){
     	initializeUserActivity("reposBuild", '<%=applicationKey%>', null);
-    	+
-	/*model onclick javascript*/
-	$('#tenant_jenkins_url').click(function(){
-
-	$.ajax({
-	url: '../blocks/build/get/ajax/get.jag',
-	data: {
-	     tenantDomain : "<%=tenantDomain%>",
-	   	 action:"printBuildLogs",
-         base_url: encodeURIComponent("<%=baseURL%>"),
-         applicationKey:applicationKey,
-         applicationVersion:selectedAppVersion,
-         lastBuildId:lastBuildId
-
-      	},
-   	error: function() {
-  	 },
-   	success: function(data) {
-  	 $('#build_logs').html(data);
-	},
-   	type: 'POST'
-	});
-
-	});
     });
 
     var subDomain;
@@ -544,6 +522,39 @@ var lastBuildId;
                 doDeploy(applicationKey,"deploy",tmpstage,"",tmpSrcVersion ,$(this));
             });
 
+             $('.master_build_logs').click(function(event){
+                    jagg.post("../blocks/build/get/ajax/get.jag", {
+                         action : "printBuildLogs",
+                         tenantDomain : "<%=tenantDomain%>",
+                         applicationKey : applicationKey,
+                         applicationVersion : selectedAppVersion,
+                         lastBuildId : lastBuildId,
+                         forkedRepository : false 
+                    }, function (result) {
+                        $('#build_logs').html(result); 
+                    },
+                function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status != 0){
+                }
+                    });
+            });
+
+            $(document).on('click', '.forked_build_logs', function(event){
+                      jagg.post("../blocks/build/get/ajax/get.jag", {
+                           action : "printBuildLogs",
+                           tenantDomain : "<%=tenantDomain%>",
+                           applicationKey : applicationKey,
+                           applicationVersion : selectedAppVersion,
+                           lastBuildId : forkLastBuildId,
+                           forkedRepository : true
+                      }, function (result) {
+                          $('#build_logs').html(result);
+                      },
+                  function (jqXHR, textStatus, errorThrown) {
+                  if (jqXHR.status != 0){
+                  }
+                     });
+             });
             $('.launch_action').click(function(event){
                 var tmpAppType=$(this).attr('data-type');
                 var tmpSrcVersion=$(this).attr('data-version');
@@ -1015,6 +1026,7 @@ $.cookie('selectedStage', selectedStage);
                             '</span>'+
                             '<span '+currentBuildStatusHidden+' class="build_status" >'+currentBuildStatus+' ' +
                             '</span>'+
+'<a href="#modal-one" class="btn main small master_build_logs" name="master_build_logs" style="margin-left: 20px;">Build Logs</a>'+
                         '</div>' +
                         '</td>'+
                         '<td class="td-3">' +
@@ -1093,6 +1105,7 @@ $.cookie('selectedStage', selectedStage);
         var buildDeployHide="";
         var currentBuildStatusHidden = "" ;
         var launchHide="";
+        forkLastBuildId = element.build.lastBuildId;
         if(element.build.lastBuildId===null || element.build.lastBuildId===""){
             //hide build id,status
             var buildHidden="hidden";
@@ -1160,7 +1173,7 @@ $.cookie('selectedStage', selectedStage);
                                     '<span class="'+statusStyle+'" id="build_status_'+jagg.getConvertedVersion(version)+'">'+element.build.status + '</span>' +
                                     '</span>'+
                                     '<span '+currentBuildStatusHidden+' class="build_status">'+currentBuildStatus+' ' +
-                                    '</span>'+
+                                    '</span>'+'<a href="#modal-one" class="btn main small forked_build_logs" name="forked_build_logs"  style="margin-left: 20px;">Build Logs</a>'+
                                 '</div>'+
                                 '<div class="fork-data-buttons">'+
                                     '<ul class="inline_list" '+buildDeployHide+'>'+
@@ -1489,7 +1502,6 @@ $.cookie('selectedStage', selectedStage);
                             <div class="col-12">
                                 <div class="right link-container link-container-top">
                                     <a  id="dev_studio_url" href="<%=devStudioLink%>" class="link-with-icons" target="_blank">Developer Studio <div class="icon-boxer"><span class="icon-globe "></span></div></a>
-                                    <a  id="tenant_jenkins_url" href="#modal-one" class="link-with-icons" >Build Logs <div class="icon-boxer"><span class="icon-globe "></span></div></a>
                                     <a id="original_gitbrowseurl" class="copy_link original_gitbrowseurl link-with-icons" target="_blank" href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" title="Browse Git Server " data-clipboard-text="">Browse GIT <div class="icon-boxer"><span class="icon-globe"></span></div></a>
                                 </div>
                                 <div style="clear:both"></div>
