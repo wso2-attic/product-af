@@ -2,7 +2,7 @@
 
 MY_PATH="`dirname \"$0\"`"
 MY_PATH="`( cd \"$MY_PATH\" && pwd )`"
-cd $MY_PATH/run/
+cd $MY_PATH
 mkdir -p <%= @jenkins_home %>
 export JENKINS_HOME=<%= @jenkins_home %>
 echo "Jenkins home "$JENKINS_HOME
