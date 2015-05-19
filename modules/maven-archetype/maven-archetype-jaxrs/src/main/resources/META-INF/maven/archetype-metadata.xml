@@ -35,8 +35,12 @@
         <fileSet filtered="false" encoding="UTF-8">
             <directory>built_artifact</directory>
             <includes>
-                <include>**/*</include>
+                <include>**/*.class</include>
             </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>built_artifact</directory>
+            <exclude name="**/*.class"/>
         </fileSet>
     </fileSets>
 </archetype-descriptor>
