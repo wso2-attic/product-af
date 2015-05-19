@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="appfactory">
+  <fileSets>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>.</directory>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory />
+      <includes>
+        <include>pom.xml</include>
+        <include>.project</include>
+        <include>.buildpath</include>
+      </includes>
+    </fileSet>
+   <fileSet filtered="false" encoding="UTF-8">
+      <directory>src</directory>
+      <includes>
+        <!--<include>favicon.ico</include>
+		<include>index.jag</include>
+		<include>jaggery.conf</include>
+		<include>README.TXT</include>
+		<include>controller/order.jag</include>
+		<include>controller/payment.jag</include>
+		<include>css/bootstrap.css</include>
+		<include>css/bootstrap.min.css</include>
+		<include>css/bootstrap-responsive.css</include>
+		<include>css/bootstrap-responsive.min.css</include>
+		<include>css/styles.css</include>
+		<include>img/bg.jpg</include>
+		<include>img/close.png</include>
+		<include>img/glyphicons-halflings.png</include>
+		<include>img/logo.jpg</include>
+&lt;!&ndash;		<include>js/bootstrap.js</include>
+		<include>js/bootstrap.min.js</include>
+		<include>js/coffeeshopclient.js</include>
+		<include>js/coffeeshop.js</include>
+		<include>js/jquery.min.js</include>
+		<include>js/mustache.js</include>
+		<include>js/util.js</include>&ndash;&gt;
+		<include>model/orderQuery.jag</include>
+		<include>model/paymentQuery.jag</include>
+		<include>template/order.html</include>-->
+          <include>**/*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>
