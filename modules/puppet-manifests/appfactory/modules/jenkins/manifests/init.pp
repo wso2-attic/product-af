@@ -58,7 +58,7 @@ class jenkins (
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
       unless  => "test -d ${jenkins_base_dir}",
       cwd     => $base_dir,
-      command => "mkdir -p ${jenkins_home}",
+      command => "mkdir -p ${jenkins_home}";
 
     "creating JenkinsUsersLocation":
       path    => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
@@ -97,7 +97,7 @@ class jenkins (
 
   apply_templates {
     $templates:
-      jenkins_base_dir => $jenkins_base_dir,
+      jenkins_home => $jenkins_base_dir,
       require      => Exec["extract_jenkins"];
   }
 
