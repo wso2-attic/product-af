@@ -18,12 +18,16 @@
 
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONObject;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -155,6 +159,24 @@ public class ApplicationClient extends BaseClient {
 		}
 	}
 
-
-
+    /**
+     * Delete application
+     *
+     * @param userName usernam
+     * @param applicationKey application key
+     * @throws Exception
+     */
+    public JsonObject deleteApplication(String userName, String applicationKey) throws Exception {
+        HttpResponse response = HttpRequestUtil
+                .doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX +APPMGT_APPLICATION_DELETE),
+                        "userName="+userName+"&appKey="+applicationKey, getRequestHeaders());
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(response.getData());
+            return jsonElement.getAsJsonObject();
+        } else {
+            throw new AFIntegrationTestException("Delete application failed " +response.getResponseCode()+" "
+                    + response.getData());
+        }
+    }
 }

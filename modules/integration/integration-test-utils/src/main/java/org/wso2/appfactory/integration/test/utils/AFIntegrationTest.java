@@ -34,12 +34,14 @@ public class AFIntegrationTest {
     protected String defaultAdminPassword;
     protected String defaultAppKey;
     protected String AFserverUrl;
+    protected String tenantDomain;
 
     public AFIntegrationTest() {
         defaultAdmin = AFIntegrationTestUtils.getAdminUsername();
         defaultAdminPassword = AFIntegrationTestUtils.getAdminPassword();
         defaultAppKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
         AFserverUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
+        tenantDomain =  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN);
     }
     /**
      * Clean up the changes
