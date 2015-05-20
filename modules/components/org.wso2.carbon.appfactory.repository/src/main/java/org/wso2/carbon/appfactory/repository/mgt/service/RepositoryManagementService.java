@@ -92,21 +92,22 @@ public class RepositoryManagementService extends AbstractAdmin {
      *
      * @param applicationKey
      * @param version
-     * @param tenantDomain   Tenant Domain of application
+     * @param userName
+     * @param isForked
      * @return
      * @throws RepositoryMgtException
      */
-    public String getURLForAppVersion(String applicationKey, String version, String tenantDomain)
+    public String getURLForAppVersion(String applicationKey, String version, String userName, boolean isForked)
             throws RepositoryMgtException {
 
         // Getting the tenant ID from the CarbonContext since this is called as
         // a SOAP service.
-        tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
         return repositoryManager.getURLForAppversion(applicationKey,
                 version,
                 getRepositoryType(applicationKey, tenantDomain),
-                tenantDomain);
+                tenantDomain, isForked, userName);
     }
 
     /**

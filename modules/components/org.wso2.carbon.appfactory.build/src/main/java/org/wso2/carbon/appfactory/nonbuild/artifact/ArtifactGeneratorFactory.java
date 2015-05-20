@@ -154,7 +154,7 @@ public class ArtifactGeneratorFactory {
 			RepositoryManager repositoryManager = new RepositoryManager();
 			String appfactoryGitRepoURL =
 					repositoryManager.getURLForAppversion(applicationId, version, "git",
-					                                      tenantDomain);
+					                                      tenantDomain, false, "");
 			appfactoryGitClient.checkOut(appfactoryGitRepoURL, version, filePath);
 
 		} catch (RepositoryMgtException e) {
