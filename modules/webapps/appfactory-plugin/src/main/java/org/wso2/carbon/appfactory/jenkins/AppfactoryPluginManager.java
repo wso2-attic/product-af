@@ -24,6 +24,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -35,7 +36,6 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
@@ -49,7 +49,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerAppFactoryExceptionException;
 import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerStub;
@@ -58,8 +57,8 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.jenkins.build.notify.BuildStatusReceiverClient;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.ServletException;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -73,6 +72,7 @@ import java.security.PrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * The plugin for storing build artifact permanently, deploy artifacts and
@@ -81,6 +81,7 @@ import java.util.List;
 public class AppfactoryPluginManager extends Notifier implements Serializable {
 
     private static final Log log = LogFactory.getLog(AppfactoryPluginManager.class);
+    private static final Logger LOGGER = Logger.getLogger(AppfactoryPluginManager.class.getName());
     public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
     public static final String JAVAX_NET_SSL_CLIENT_TRUST_STORE_PASSWORD = "javax.net.ssl.clientTrustStorePassword";
     public static final String JKS = "jks";
@@ -103,10 +104,10 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 		this.applicationArtifactExtension = applicationArtifactExtension;
 		this.userName = userName ;
 		this.repositoryFrom = repositoryFrom ;
-		log.debug("Construct AppfactoryPluginManager  for : appid="
-				+ applicationId + ",version=" + applicationVersion
-				+ ",applicationArtifactExtension="
-				+ applicationArtifactExtension + ",username=" + userName + ", repoFrom="+repositoryFrom);
+        LOGGER.fine("Construct AppfactoryPluginManager  for : appid="
+                    + applicationId + ",version=" + applicationVersion
+                    + ",applicationArtifactExtension="
+                    + applicationArtifactExtension + ",username=" + userName + ", repoFrom=" + repositoryFrom);
 	}
 
 
@@ -125,10 +126,13 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
+        LOGGER.fine("Perform action triggered for "+ this.userName + " for " + this.applicationId + " - " +
+                    this.applicationVersion + " in " + this.repositoryFrom + ". Build status is " + build.getResult()) ;
+
+        // logger for the console output of the build job
         PrintStream logger = listener.getLogger();
         logger.append("The build started by " + this.userName + " for " + this.applicationId + " - " +
                       this.applicationVersion + " in " + this.repositoryFrom + " is notified as " + build.getResult());
-
         final String APPFACTORY_SERVER_URL = getDescriptor().getAppfactoryServerURL();
         String serviceURL = APPFACTORY_SERVER_URL + BUILDSTATUS_RECEIVER_NAME;
         System.setProperty(JAVAX_NET_SSL_TRUST_STORE, getDescriptor().getClientTrustStore());
@@ -215,9 +219,9 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 //                    Using the old logic. There should only be 1 artifact.
 //                    Taking the first and ignoring the rest
                     FilePath sourceFilePath = files[0];
-
+                    String tenantDomain = MultitenantUtils.getTenantDomain(tenantUserName);
 //                    We need to create the target folder the file should be copied
-                    String filePath = this.getDescriptor().getStoragePath()
+                    String filePath = this.getDescriptor().getStoragePath(tenantDomain)
                             + File.separator + build.getEnvironment(listener).get("JOB_NAME") +
                             File.separator + tagName;
                     File persistArtifact = new File(filePath);
@@ -321,33 +325,6 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             this.adminPassword = adminPassword;
         }
 
-        /**
-         * Performs on-the-fly validation of the form field 'storagePath'
-         * Check whether the given storage path is a valid directory
-         * @param value value entered by the user
-         * @return
-         * @throws IOException
-         * @throws ServletException
-         */
-        @SuppressWarnings("unused")
-        public FormValidation doCheckStoragePath(@QueryParameter String value) throws
-                                                                               IOException,
-                                                                               ServletException {
-            if (value.length() == 0) {
-                return FormValidation.error("Please set required fields");
-            }
-
-            File path = new File(value);
-            FormValidation formValidation;
-
-            if (path.isDirectory()) {
-                formValidation = FormValidation.ok();
-            } else {
-                formValidation = FormValidation.error("Invalid directory specified");
-            }
-            return formValidation;
-        }
-
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             // Indicates that this builder can be used with all kinds of project
             // types
@@ -427,8 +404,15 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             this.appfactoryServerURL = appfactoryServerURL;
         }
 
+        @Deprecated
         public String getStoragePath() {
             return storagePath;
+        }
+
+        public String getStoragePath(String tenantDomain) {
+            String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
+            return storagePath.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
+                    (Constants.PLACEHOLDER_TENANT_IDENTIFIER, tenantDomain);
         }
 
         public void setStoragePath(String storagePath) {
@@ -439,8 +423,16 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             this.storagePath = storagePath;
         }
 
+        @Deprecated
         public String getTempPath() {
             return tempPath;
+        }
+
+
+        public String getTempPath(String tenantDomain) {
+            String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
+            return tempPath.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
+                    (Constants.PLACEHOLDER_TENANT_IDENTIFIER, tenantDomain);
         }
 
         public void setTempPath(String tempPath) {

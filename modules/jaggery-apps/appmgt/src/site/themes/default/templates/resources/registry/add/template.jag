@@ -39,6 +39,7 @@ var headerMsg = outputs.headerMsg;
 var isUpdatePermitted = outputs.isUpdatePermitted;
 var hasDeleteResourcePermissions = outputs.hasDeleteResourcePermissions;
 var buttonValue = outputs.buttonValue;
+var isDeleteButtonVisible = outputs.isDeleteButtonVisible;
 
 %>
 <script type="text/javascript">
@@ -321,7 +322,7 @@ function validatePropertyNameAndCreate() {
                                         <%}%>
                                     </ol>
                                     <%
-                                      	if(isEdit == "true" && hasDeleteResourcePermissions){
+                                      	if(isEdit == "true" && isDeleteButtonVisible){
                                       %>
                                     <div class="right btn_group" id="delete_button_div">
                                         <ul class="inline_box inline_list btn_group_list">

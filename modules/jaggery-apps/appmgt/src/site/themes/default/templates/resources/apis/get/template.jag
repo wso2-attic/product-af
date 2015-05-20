@@ -157,7 +157,7 @@ var helpTips = outputs.helpTips;
     		          	var url = '<%=apiMStoreSubscriptionUrl%>' + "?tenant=" + tenant;
     		            var $elm = $('<a class="btn main" href="'+ url +'" target="_blank"><%=apiManagerButton%></a>').click(function(){addApi('<%=applicationKey%>')});
                         $('#btnItem').append($elm);
-                        $('#renewbtnContainer').append('<button type="button" id="renewApiBtnDisabled" class="btn main push_top_20 push_bottom_40" disabled="true">Sync Keys</button>');
+                        $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys()" disabled="true">Sync Keys</button>');
                         //drawAPIsTable();
                     }else{
                     	$('#renewbtnContainer').append('<div class="main push_top_20 push_bottom_40"></div>');
@@ -180,7 +180,7 @@ var helpTips = outputs.helpTips;
         },
         function (result) {
         	parsedResult=jQuery.parseJSON(result);
-        	if(parsedResult && parsedResult.length == 0){
+        	if(parsedResult.length == 0){
                 if(isAppOwner){
                     var url = '<%=apiManagerStoreUrl%>' + "?tenant=" + tenant;
                     var $elm = $('<a class="btn main" href="'+ url +'" target="_blank"><%=apiManagerButton%></a>').click(function(){addApi('<%=applicationKey%>')});
@@ -189,8 +189,7 @@ var helpTips = outputs.helpTips;
         		$("#apiSection").empty().append("<div class='noData-message'>APIs have not been subscribed yet.</div>");
         	}
         	else{
-                    $("#renewApiBtnDisabled").hide();
-   	            $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys()">Sync Keys</button>');
+        		$("#renewApiBtn").removeAttr("disabled");
 	            var tableBodyHTML = '<li class="list_row_item first_list_row_item">'
 	            						+'<ul class="list_row first_list_row">'
 	            							+'<li class="list_col col-2">'

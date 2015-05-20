@@ -233,23 +233,29 @@ var isAppNameAlreadyAvailable = function (applicationName) {
 
 }
 
-var stroreUploadedApplication = function(uploadedApplicationName , file, type){
+var stroreUploadedApplication = function (uploadedApplicationName, file, type) {
 
-	   validateUploadedApplication(file, type);
-        if (log.isDebugEnabled){
-            log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
-        }
+    validateUploadedApplication(file, type);
+    if (log.isDebugEnabled) {
+        log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
+    }
 
-	   var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
-           if(!destinationDir.isExists()){
-                destinationDir.mkdir();
-           }
-	   var tmpFileName = TMP_UPLOADED_APPLICATIONS_PATH + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) + UPPLOADABLE_SUFFIX;
-	   file.move(tmpFileName);
+    var destination = "/" + TMP_UPLOADED_APPLICATIONS_PATH + "/" + modManager.getTenantDomain();
+    var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
+    if (!destinationDir.isExists()) {
+        destinationDir.mkdir();
+    }
+    destinationDir = new File(destination);
+    if (!destinationDir.isExists()) {
+        destinationDir.mkdir();
+    }
+    var tmpFileName = destination + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) +
+                      UPPLOADABLE_SUFFIX;
+    file.move(tmpFileName);
 
-	   if(log.isDebugEnabled()){
-	   	log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH);
-	   }
+    if (log.isDebugEnabled()) {
+        log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH);
+    }
 
 };
 

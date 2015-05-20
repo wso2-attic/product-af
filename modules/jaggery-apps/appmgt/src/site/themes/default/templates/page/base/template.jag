@@ -127,7 +127,7 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
               <ul class="dropdown-menu">
                    <li><a href="http://wso2.com/support/" target="_blank" >Support</a></li>
                     <li><a href="https://wso2.org/jira/browse/APPFAC" target="_blank">Feedback</a></li>
-                    <li><a href="http://docs.wso2.org/wiki/display/AF210/User+Guide" target="_blank">User Guide</a></li>
+                    <li><a href="http://docs.wso2.org/wiki/display/AF100/User+Guide" target="_blank">User Guide</a></li>
                     <li><a href="http://wso2.org/more-downloads/developer-studio" target="_blank">Tooling</a></li>
                     <li><a href="http://wso2.com/contact/" target="_blank">Contacts</a></li>
                </ul>

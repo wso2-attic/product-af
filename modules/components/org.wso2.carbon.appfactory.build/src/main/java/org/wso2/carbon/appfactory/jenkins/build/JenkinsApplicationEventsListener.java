@@ -156,9 +156,9 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         log.info("User Addition event recieved for : " + application.getId() + " " +
                 application.getName() + " User Name : " + user.getUserName());
 
-        ServiceContainer.getJenkinsCISystemDriver()
-                .addUsersToApplication(application.getId(),
-                        new String[]{user.getUserName()}, tenantDomain);
+//        ServiceContainer.getJenkinsCISystemDriver()
+//                .addUsersToApplication(application.getId(),
+//                        new String[]{user.getUserName()}, tenantDomain);
     }
 
     /**
@@ -303,10 +303,10 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     @Override
     public void onUserDeletion(Application application, UserInfo user, String tenantDomain)
             throws AppFactoryException {
-        ServiceContainer.getJenkinsCISystemDriver()
-                .removeUsersFromApplication(application.getId(),
-                        new String[]{user.getUserName()},
-                        tenantDomain);
+//        ServiceContainer.getJenkinsCISystemDriver()
+//                .removeUsersFromApplication(application.getId(),
+//                        new String[]{user.getUserName()},
+//                        tenantDomain);
     }
 
 
@@ -365,10 +365,10 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                         AppFactoryConstants.FORK_REPOSITORY);
             }
 
-            jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
-            // adding app creator to jenkins
-            jenkinsCISystemDriver.addUsersToApplication(application.getId(),
-                    new String[]{forkedUser}, tenantDomain);
+//            jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
+//            // adding app creator to jenkins
+//            jenkinsCISystemDriver.addUsersToApplication(application.getId(),
+//                    new String[]{forkedUser}, tenantDomain);
 
 
             String perDeveloperAutoBuild = configuration.getFirstProperty("EnablePerDeveloperAutoBuild");

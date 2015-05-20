@@ -42,18 +42,26 @@ function login(userName, password){
 	};
 	var context=multitenancy.getPrivilegedCarbonContext();
  	var tenantManager= multitenancy.getTenantManager();
-	var finalResult={};
-	try{
-		var result = server.Server.prototype.authenticate(userName,password);
-		if(result === true){
-			jagg.setUser(userName);
-			finalResult.error="false";
-			finalResult.message="User successfully logged in";
-			finalResult.username=userName;
-		}else{
-			finalResult.error="true";
-			finalResult.message="Authenitcation Failed.";
-		}
+ 	try{
+ 		//Start tenant flow
+ 		context.startTenantFlow();
+ 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+ 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+		context.getThreadLocalCarbonContext().setUsername(userName);
+		
+		//Get STS token
+		var stsUtil = Packages.org.wso2.carbon.appfactory.utilities.sts.STSUtil;
+		var response = stsUtil.getEncodedTokenFromSTS(session.getId(),userName,password);
+		var token = response;
+		
+		//Store token in session
+		session.put(SAML_ASSERTION_TOKEN_SESSION_KEY, stringify(token));
+		jagg.setUser(userName);
+		
+		//build final result
+		finalResult.error="false";
+		finalResult.message="User successfully logged in";
+		finalResult.username=userName;
 		return stringify(finalResult);
 	} catch(e){
 		log.error(e);
@@ -61,7 +69,10 @@ function login(userName, password){
 		finalResult.error="true";
 		finalResult.message="Internal Error Occured";
 		return stringify(finalResult);
-	}
+	} finally{
+ 		context.endTenantFlow();
+ 	}
+
 }
 
 function logout(){

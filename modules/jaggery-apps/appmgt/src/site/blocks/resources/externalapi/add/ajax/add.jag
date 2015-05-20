@@ -83,7 +83,7 @@ var loggedInUser = jagg.getUser();
                 log.debug("Adding property:" + propname + " url value: " + url);
 
                 try{
-                    var notificationTitle = "Property " + apiName + " creation started in " + stage;
+                    var notificationTitle = "Property " + apiName + " creation started";
                     var correlationKey = applicationKey + "-" + stage + "-property-" + apiName;
                     var eventBuilderInstance = EventBuilder.resourceCreationStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
                     var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);

@@ -53,8 +53,9 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 		rssFilter.deleteDatabase(rssFilter.getTenantAwareDBName(databaseName), applicationKey, stage);
 
         try{
-            var notificationTitle  = "Database " + databaseName + " deleted in " + stage;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey,loggedInUser, notificationTitle, "", correlationKey, "INFO");
+            var notificationTitle  = "Database " + databaseName + " deleted. ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey,loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete database success notification \n" + e.message);
@@ -62,8 +63,9 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 
 	} catch (e) {
         try{
-            var notificationTitle  = "Database " + databaseName + " deletion failed in " + stage;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
+            var notificationTitle  = "Database " + databaseName + " deletion failed ";
+            var notificationMessage = "In environment: " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete database failure notification \n" + e.message);

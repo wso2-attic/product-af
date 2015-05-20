@@ -970,7 +970,6 @@
 
     <!-- API-Token should be set according to the running instance of Jenkins-->
     <ContinuousIntegrationProvider name="jenkins" enabled="true">
-        <Property name="BaseURL">http://jenkins.appfactory.private.wso2.com:8080</Property>
         <Property name="Authenticate">true</Property>
         <Property name="Maven3ConfigName">m3</Property>
         <Property name="DefaultGlobalRoles">readonly</Property>
@@ -985,8 +984,8 @@
     <JenkinsLBConfig>
         <BucketCount>2</BucketCount>
         <BucketList>
-            <Property name="0">http://jenkins.appfactory.private.wso2.com:8080</Property>
-            <Property name="1">http://jenkins.appfactory.private.wso2.com:8080</Property>
+            <Property name="0">https://jenkins.appfactory.private.wso2.com:9500</Property>
+            <Property name="1">https://jenkins.appfactory.private.wso2.com:9500</Property>
         </BucketList>
         <BucketSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategyImpl</BucketSelectingStrategy>
         <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>

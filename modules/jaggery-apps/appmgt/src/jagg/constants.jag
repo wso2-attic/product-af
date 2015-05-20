@@ -63,6 +63,7 @@ var SCM_SERVER_URL="RepositoryMGTConfig.SCMServerURL";
 var BASE_URL="ContinuousIntegrationProvider.jenkins.Property.BaseURL";
 var JENKINS_ADMIN_USERNAME = "JenkinsServerAdminUsername";
 var JENKINS_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
+
 var WEB_CONTEXT_ROOT = "WebContextRoot";
 var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 var BPS_SERVER_URL = "ServerUrls.BPS";
@@ -218,9 +219,6 @@ var SAML_ASSERTION_TOKEN_SESSION_KEY = "SAML_ASSERTION_TOKEN";
 //For uploading existing application flow (WAR)
 var TMP_UPLOADED_APPLICATIONS_PATH = "tmpUploadedApps"
 var UPPLOADABLE_SUFFIX = ".uploaded";
-
-//for applicaiton icon file size
-var APP_ICON_MAX_SIZE = 51200;
 //For claims
 
 var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";

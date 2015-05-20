@@ -8,12 +8,20 @@
             <directory />
             <includes>
                 <include>.project</include>
+                <include>bin.xml</include>
+                <include>assembly.xml</include>
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
             <directory>src</directory>
             <includes>
                 <include>main/dataservice/CustomerDS.dbs</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>built_artifact</directory>
+            <includes>
+                <include>**/*</include>
             </includes>
         </fileSet>
     </fileSets>
