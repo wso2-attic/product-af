@@ -148,8 +148,10 @@ public abstract class AbstractSingleTenantApplicationTypeProcessor extends Abstr
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
 
         try {
-            int retryCount = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(RETRY_COUNT);
-            int retryDelay = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(RETRY_DELAY);
+            int retryCount = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration()
+                                                      .getFirstProperty(RETRY_COUNT));
+            int retryDelay = Integer.parseInt(AppFactoryUtil.getAppfactoryConfiguration()
+                                                      .getFirstProperty(RETRY_DELAY));
             // retry retryCount times to process the request
             for (int i = 0; i < retryCount; i++) {
                 CartridgeCluster cartridgeCluster = jdbcApplicationDAO.getCartridgeClusterByClusterId(clusterId);
