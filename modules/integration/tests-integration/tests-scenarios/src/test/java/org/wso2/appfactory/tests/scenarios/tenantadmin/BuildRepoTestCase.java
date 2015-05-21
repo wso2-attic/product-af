@@ -63,13 +63,7 @@ public class BuildRepoTestCase extends AFIntegrationTest {
         applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
         String tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         String afUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
-        ApplicationClient applicationClient = new ApplicationClient(afUrl, tenantAdmin, tenantAdminPassword);
-        //delete default application
-        applicationClient.deleteApplication(tenantAdmin, applicationKey);
-        //create default application
-        applicationClient.createNewApplication(applicationKey, applicationKey, APPLICATION_TYPE, tenantAdmin,
-                "Default Application");
-        Thread.sleep(5000);
+
         GovernanceClient governanceClient = new GovernanceClient(afUrl,tenantAdmin,tenantAdminPassword);
         governanceClient.invokeDoVersion(applicationKey,initialVersion,firstVersion,APPLICATION_LIFECYCLE);
         buildRepoRestClient = new BuildRepoClient(afUrl, tenantAdmin, tenantAdminPassword);

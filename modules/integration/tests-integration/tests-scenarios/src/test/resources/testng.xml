@@ -36,8 +36,9 @@
             <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BAMDataPublisherTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.DomainMappingTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.DatabaseTestCase"/>
+		 <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BuildRepoTestCase"/>
         -->
-            <class name="org.wso2.appfactory.tests.scenarios.tenantadmin.BuildRepoTestCase"/>
+            <class name="org.wso2.appfactory.tests.scenarios.BuildRepoTestCase"/>
         </classes>
     </test>
 </suite>
