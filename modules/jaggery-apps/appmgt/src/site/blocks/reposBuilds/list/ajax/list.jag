@@ -20,10 +20,8 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
-var log=new Log();
-
+var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
 (function () {
-
     var mod, obj, result,
     action = request.getParameter("action"),
     site = require("/site/conf/site.json");
@@ -34,16 +32,26 @@ var log=new Log();
         print(UNAUTHORIZED_ERROR_RESPONSE);
         return;
     }
-    if(action=="getbuildandrepodata"){
-
+    if (action === "buildinfobyappid") {
+   	     mod = jagg.module("build");
+	  	 var applicationKey = request.getParameter("applicationKey");
+         var response = {};
+         if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_MEMBER)){
+             print(mod.getBuildInfoByApplicationId(applicationKey));
+         } else {
+             response.result = 0;
+             response.message = "You don't have permission to get the build information";
+             print(response);
+         }
+    }else if(action=="getbuildandrepodata"){
         var modBuild = jagg.module("build");
         //gathering request parameters
         var applicationKey = request.getParameter("applicationKey");
-        var userName = request.getParameter("userName");
+        var userName = jagg.getUser();
         var isRoleBasedPermissionAllowed = request.getParameter("isRoleBasedPermissionAllowed");
         var metaDataNeed = request.getParameter("metaDataNeed");
         var buildableforstage = request.getParameter("buildableforstage");
-	var applicationType = modManager.getApplicationType(applicationKey);
+    	var applicationType = modManager.getApplicationType(applicationKey);
 
         modApp = jagg.module("application");
 
@@ -53,26 +61,19 @@ var log=new Log();
             if(x !=null){
                 var appInfo=parse(x);
             }
-            
             var appDetails=[];
-
             for(var appIndex in appInfo ){
                 var elementAppInfo=appInfo[appIndex];
 
                 //Identifying separately whether artifact type is buildable or non-buildable.
                 var isBuildableArtifact = modManager.getApplicationTypeBean(applicationType).isBuildable();
-
                 var versions=elementAppInfo.versions;
-
                 for(var index in versions){
-
-
                     var tempAppDetail={};
                     var version={};
                     var build={};
                     var deployment={};
                     var versionElement=versions[index];
-                    
                     version.current=versionElement.version;
                     version.stage=versionElement.stage;
                     version.artifactType=elementAppInfo.type;
@@ -109,23 +110,18 @@ var log=new Log();
             response.message = "You don't have permission to get build and repo data";
             print(response);
         }
-
-
-    }else if(action=="getJenkinsURL"){
+    } else if(action=="getJenkinsURL"){
         var response = {};
         if (modPermission.isUserAccessGrantedForPlatform(PERMISSION_BUILD)){
             var tenantDomain = modManager.getTenantDomain();
             var jenkinsUrl = getProperty(BASE_URL) + "/t/" + tenantDomain + "/webapps/jenkins/";
-
             print(stringify(jenkinsUrl));
         } else {
             response.result = 0;
             response.message = "You don't have permission to check the application key availability";
             print(response);
         }
-
-
-    }else if(action=="createCodeEnvyUrl"){
+    } else if(action=="createCodeEnvyUrl"){
         var response = {};
         var gitUrl = request.getParameter("gitURL");
         var applicationKey = request.getParameter("applicationKey");
@@ -228,10 +224,7 @@ var log=new Log();
             response.message = "You don't have permission to get the codenvy URL";
             print(response);
         }
-
-
-
-    }else if(action=="getbuildandrepodataforkedrepo"){
+    } else if(action=="getbuildandrepodataforkedrepo"){
 
         var modBuild = jagg.module("build");
 
@@ -241,7 +234,7 @@ var log=new Log();
         var isRoleBasedPermissionAllowed = request.getParameter("isRoleBasedPermissionAllowed");
         var metaDataNeed = request.getParameter("metaDataNeed");
         var buildableforstage = request.getParameter("buildableforstage");
-	var applicationType = modManager.getApplicationType(applicationKey);
+	    var applicationType = modManager.getApplicationType(applicationKey);
 
         modApp = jagg.module("application");
         if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)){
@@ -252,17 +245,12 @@ var log=new Log();
             }
             var buildableStages=parse(modApp.getBuildableStages());
             var appDetails={};
-
             for(var appIndex in appInfo ){
                 var elementAppInfo=appInfo[appIndex];
-
                 //Identifying separately whether artifact type is buildable or non-buildable.
                 var isBuildableArtifact =  modManager.getApplicationTypeBean(applicationType).isBuildable();
-
                 var versions=elementAppInfo.versions;
-
                 for(var index in versions){
-                	
                     var tempAppDetail={};
                     var version={};
                     var build={};
@@ -274,7 +262,7 @@ var log=new Log();
                     version.artifactType=elementAppInfo.type;
                     version.isBuildableArtifact = isBuildableArtifact ;
                     version.parent=" ";
-                    version.repoURL=versionElement.repoURL;
+                    version.repoURL=modApp.getRepoURL(applicationKey, versionElement.version, true, true);
                     version.isAutoDeploy=versionElement.isAutoDeploy;
                     version.isAutoBuild=versionElement.isAutoBuild;
                     version.currentBuildStatus=versionElement.currentBuildStatus;
@@ -303,27 +291,23 @@ var log=new Log();
             response.message = "You don't have permission to get forked build and repo data";
             print(response);
         }
-
-
-    }else if(action=="getBuildAndDeployStatusForVersion"){
+    } else if(action=="getBuildAndDeployStatusForVersion"){
     	var response={};
     	appKey=request.getParameter("applicationKey");
     	version=request.getParameter("version");
     	modApp = jagg.module("application");
     	response=modApp.getBuildandDelpoyedStatus(appKey,version);
     	print(response);
-    }else if(action=="getBuildAndRepoDataForVersion"){
+    } else if(action=="getBuildAndRepoDataForVersion"){
         var response={};
         appKey=request.getParameter("applicationKey");
         version=request.getParameter("version");
         modApp = jagg.module("application");
-        userName = request.getParameter("userName");
+        userName = jagg.getUser();
         response=modApp.getAppVersionInfoByVersion(appKey,version,userName);
         print(response);
-    }else {
+    } else {
         throw new Error("No action specified"+action);
     }
-
 }());
 %>
-
