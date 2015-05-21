@@ -39,6 +39,7 @@ if (uriMatcher.match(PAGE_URL)) {
         try {
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+            context.getThreadLocalCarbonContext().setUsername(jagg.getUser());
             include(args.suffix);
         } finally {
             context.endTenantFlow();

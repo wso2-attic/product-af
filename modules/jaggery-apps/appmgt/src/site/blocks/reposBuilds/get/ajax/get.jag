@@ -25,26 +25,14 @@
         var mod, obj, result,
                 action = request.getParameter("action"),
                 site = require("/site/conf/site.json");
-        var log = new Log();
+        var log = new Log("blocks/reposBuilds/get/ajax/get.jag");
         if (!jagg.getUser()) {
             print(UNAUTHORIZED_ERROR_RESPONSE);
             return;
         }
-        if (action == "getTagNamesOfPersistedArtifacts") {
+        if (action == "getBuildLogsUrl") {
             mod = jagg.module("build");
-            var applicationKey = request.getParameter("applicationKey");
-            var applicationVersion = request.getParameter("applicationVersion");
-            var tags = mod.getTagNamesOfPersistedArtifacts(applicationKey, applicationVersion);
-            var tagNames = new Array();
-            for (var index in
-            tags){
-                var user = tags[index];
-                tagNames.push(user);
-            }
-            print(tagNames);
-        } else if (action == "getBuildLogsUrl") {
-            mod = jagg.module("build");
-            var userName = request.getParameter("userName");		
+            var userName = jagg.getUser();
             var applicationKey = request.getParameter("applicationKey");
             var applicationVersion = request.getParameter("applicationVersion");
             var lastBuildNo = request.getParameter("lastBuildNo");

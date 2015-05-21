@@ -26,7 +26,7 @@ include("/jagg/config_reader.jag");
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     
-    var log = new Log();
+    var log = new Log("blocks/reposBuilds/set/ajax/set.jag");
     var modPermission = jagg.module("permission");
     if (!jagg.getUser()) {
         print(UNAUTHORIZED_ERROR_RESPONSE);
@@ -127,7 +127,7 @@ include("/jagg/config_reader.jag");
             print(response);
         }
 
-    }else {
+    } else {
         throw new Error("No action specified");
     }
 }());
