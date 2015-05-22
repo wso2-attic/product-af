@@ -11,7 +11,7 @@
     <AdminUserName><%= @adminuser_name %></AdminUserName>
     <AdminPassword><%= @adminuser_passwd %></AdminPassword>
     <AdminEmail></AdminEmail>
-    <AppfactoryVersion>2.1.0 RC1</AppfactoryVersion>
+    <AppfactoryVersion>2.2.0 M1</AppfactoryVersion>
     <!--Configure the maximum size of the uploadable artifact in Bits, 1k=1024, default size is 200MB-->
     <UploadableArtifactMaxSize>1677721600</UploadableArtifactMaxSize>
     <JenkinsServerAdminUsername><%= @jenkins_admin_user %></JenkinsServerAdminUsername>
@@ -27,7 +27,12 @@
     <SignUpText>Sign up and start developing</SignUpText>
     <SignInText>Already a Member? Sign In.</SignInText>
 
-    
+    <HttpClient>
+    	<allowAllHostNameVerifier>true</allowAllHostNameVerifier>
+	<defaultMaxConnectionsPerRoute>1000</defaultMaxConnectionsPerRoute>
+	<maxTotalConnections>1000</maxTotalConnections>
+    </HttpClient> 
+   
     <NotificationConfig>
         <Social>
             <!--in milliseconds-->

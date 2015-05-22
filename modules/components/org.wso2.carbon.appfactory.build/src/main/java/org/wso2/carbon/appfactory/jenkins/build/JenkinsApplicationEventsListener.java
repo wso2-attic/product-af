@@ -28,9 +28,9 @@ import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
@@ -44,7 +44,6 @@ import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
@@ -284,12 +283,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             deploymentState = "removeAD";
         }
 
-        ServiceContainer.getJenkinsCISystemDriver().editADJobConfiguration(application.getId(),
-                version.getVersion(),
-                deploymentState,
-                pollingPeriod,
-                tenantDomain);
-
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -305,28 +298,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                 application.getName() + " From Version : " + previousVersion.getVersion() +
                 " To Version : " + newVersion.getVersion());
         int pollingPeriod = 0;
-
-        // noinspection ConstantConditions
-        if (previousVersion != null) {
-            ServiceContainer.getJenkinsCISystemDriver()
-                    .editADJobConfiguration(application.getId(), previousVersion.getVersion(),
-                            "removeAD", pollingPeriod, tenantDomain);
-        }
-
-        // noinspection ConstantConditions
-        if (newVersion != null) {
-            AppFactoryConfiguration configuration = ServiceContainer.getAppFactoryConfiguration();
-            pollingPeriod =
-                    Integer.parseInt(configuration.getFirstProperty("ApplicationDeployment.DeploymentStage." +
-                            newStage +
-                            ".AutomaticDeployment.PollingPeriod"));
-            ServiceContainer.getJenkinsCISystemDriver().editADJobConfiguration(application.getId(),
-                    newVersion.getVersion(),
-                    "addAD",
-                    pollingPeriod,
-                    tenantDomain);
-
-        }
 
     }
 

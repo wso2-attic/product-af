@@ -16,6 +16,10 @@
             <directory>src</directory>
             <includes>
                 <include>main/java/com/HelloApp/HelloServlet.java</include>
+		<include>main/webapp/index.jsp</include>
+		<include>main/webapp/WEB-INF/web.xml</include>
+		<include>main/webapp/WEB-INF/lib</include>
+		<include>META-INF/MANIFEST.MF</include>
             </includes>
         </fileSet>
 	  <fileSet filtered="true" encoding="UTF-8">
@@ -35,7 +39,7 @@
             </includes>
         </fileSet>
 
-<fileSet filtered="true" encoding="UTF-8">
+<!--<fileSet filtered="true" encoding="UTF-8">
             <directory>WebContent</directory>
             <includes>
                 <include>META-INF</include>
@@ -45,7 +49,7 @@
                 <include>WEB-INF/web.xml</include>
                 <include>index.jsp</include>
             </includes>
-        </fileSet>
+        </fileSet>-->
     </fileSets>
 </archetype-descriptor>
 
