@@ -64,7 +64,12 @@
             var AuthHeaderVal = " Basic " + mod.getBasicAuthHeaderValue();
             var headers = {"Authorization": AuthHeaderVal};
             var test = get(buildLogUrl, {}, headers, "text/html");
-            print(test.data);
+            if (test.xhr.status == "200") {
+                print(test.data);
+            }
+            else {
+                print("No Build logs available.");
+            }
         }
         else if (action == "getBuildLogsUrl") {
             mod = jagg.module("build");
