@@ -22,13 +22,12 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
-import org.wso2.carbon.appfactory.core.dto.Statistic;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.Statistic;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
 
     public File getArtifact(String applicationId, String version, String artifactName, String tenantDomain)
             throws AppFactoryException {
-        return this.connector.getArtifact(getJobName(applicationId, version, ""), artifactName, tenantDomain);
+        return null;
     }
 
     /**
@@ -132,7 +131,7 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
      * {@inheritDoc}
      */
     public List<String> getAllJobNames( String tenantDomain) throws AppFactoryException {
-        return connector.getAllJobs(tenantDomain);
+        return null;
     }
 
     /**
@@ -219,10 +218,9 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     @Deprecated
     public void editADJobConfiguration(String applicationId, String version,  String updateState,
                                   int pollingPeriod, String tenantDomain) throws AppFactoryException {
-        connector.editJob(getJobName(applicationId, version, ""), updateState, pollingPeriod, tenantDomain);
 
     }
-    
+
     public void setJobAutoBuildable(String applicationId, String version,  boolean isAutoBuild,
                                        int pollingPeriod, String tenantDomain) throws AppFactoryException {
         String repositoryType=ProjectUtils.getRepositoryType(applicationId, tenantDomain);
@@ -239,8 +237,8 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
         // get load statistics
         List<Statistic> stats = connector.getOverallLoad(tenantDomain);
         // get build statistics for all jobs
-        List<String> allJobNames = connector.getAllJobs(tenantDomain);
-        Collections.addAll(stats, getBuildStatistics(allJobNames, tenantDomain));
+//        List<String> allJobNames = connector.getAllJobs(tenantDomain);
+//        Collections.addAll(stats, getBuildStatistics(allJobNames, tenantDomain));
         return stats.toArray(new Statistic[stats.size()]);
     }
 
@@ -250,12 +248,11 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     @Override
     public Statistic[] getApplicationStatistics(String applicationId, Map<String, String> parameters, String tenantDomain)
             throws AppFactoryException {
-        List<String> jobsNames = connector.getJobNames(applicationId, tenantDomain);
-        return getBuildStatistics(jobsNames, tenantDomain);
+        return null;
     }
     
     public String getJsonTree(String jobName,String treeStructure, String tenantDomain)throws AppFactoryException{
-        return connector.getJsonTree(jobName, treeStructure, tenantDomain);
+        return null;
     }
 
     /**
