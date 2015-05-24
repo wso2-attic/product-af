@@ -255,7 +255,7 @@ $bps_password           = 'root'
 $cloud_mgt_user         = 'cloud'
 $cloud_mgt_password     = 'root'
 $issue_tracker_password = 'root'
-$issue_tracker_version  = "2.1.0"
+$issue_tracker_version  = "2.2.0-SNAPSHOT"
 
 $bpel_mysql_username   = 's2user'
 $bpel_mysql_password   = 'password'
@@ -289,7 +289,7 @@ $af_registration_link = "https://${af_subdomain}.${wso2_env_domain}:${af_port}/c
 $af_identity_provider = "https://${af_subdomain}.${wso2_env_domain}/samlsso"
 $af_keystore_passwd   = 'wso2carbon'
 $af_keystore_alias    = 'wso2carbon'
-$archetype_version    = "2.1.0"
+$archetype_version    = "2.2.0-SNAPSHOT"
 
 $af_keystore          = 'repository/resources/security/wso2carbon.jks'
 $jenkins_resource_uid = 'admin'
