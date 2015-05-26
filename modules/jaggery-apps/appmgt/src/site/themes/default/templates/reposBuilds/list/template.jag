@@ -226,8 +226,9 @@ var forkLastBuildId;
             version:version
         }, function (result) {
         	//drawForkedVersionsList();
-        	loadRepositories(null,null);
-		    drawVersion(applicationKey , selectedVersion);
+        //	loadRepositories(null,selectedVersion);
+		    updateForkedVersionList();
+            drawVersion(applicationKey , selectedVersion);
 		    element.attr('disabled',false);
             //forcePageAppRefresh = true;
         },
@@ -678,7 +679,7 @@ $('js_build_option').removeClass("active");
 
             $('.fork_root_button').click(function(event){
                 var fType = "git";
-                doFork(applicationKey, userName, fType, "", $(this));
+                doFork(applicationKey, userName, fType, selectedVersion, $(this));
             });
 
             ZeroClipboard.setDefaults(_defaults);
