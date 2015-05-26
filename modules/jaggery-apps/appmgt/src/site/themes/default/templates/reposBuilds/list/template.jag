@@ -402,15 +402,17 @@ var forkLastBuildId;
                 '</div>'+
             '</div>');
 
-        if(masterJSON != "undefined" || masterJSON != null){
+        if(masterJSON != "undefined" && masterJSON != null){
             element = masterJSON[0];
         }
+         if(Object.keys(element).length > 0){
 	    var versionInfo = element.versions[0];
             if(element.type == "war" && versionInfo.productionMappedDomain != null && versionInfo.productionMappedDomain != "" ){
             	domainMappedVersion = versionInfo.version;
             }
             $('table', $repoTable).append(constructRow(element));
             currentStage = versionInfo.stage;
+            }
         $('#repositories_and_builds_list_master span.icon-spinner').remove();
         $("#repositories_and_builds_list_master").empty();
         $("#repositories_and_builds_list_master").append($repoTable);
@@ -1492,7 +1494,7 @@ $.cookie('selectedStage', selectedStage);
                <!-- <form class="left fw_250 form-container search_form" onSubmit="return false;">
                         <input id="filter_repos_or_stages" type="text" class="fw_250 margin_15" placeholder="Filter Repos or Stages" name="filter_repos_or_stages" value=""  /><span class="icon-search"></span>
                 </form>-->
-
+    </div>
             </header>
             <% jagg.includeBlock("page/help", {"section": "repoAndBuild"}); %>
 
