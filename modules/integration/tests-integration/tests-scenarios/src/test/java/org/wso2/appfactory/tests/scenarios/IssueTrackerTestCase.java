@@ -107,10 +107,7 @@ public class IssueTrackerTestCase extends AFIntegrationTest {
         issueString.put(VERSION_KEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC));
         JsonObject dataObject = issueTrackerRestClient.saveIssue(applicationKey, issueString.toJSONString());
         issuePKey = dataObject.get(DATA_KEY).getAsString();
-        System.out.println("########################## : " + issuePKey);
-        Assert.assertEquals(issuePKey.startsWith(applicationKey), true,
-                "Issue creating failed");
-
+        Assert.assertEquals(issuePKey.startsWith(applicationKey), true, "Issue creating failed");
         JsonObject issueDetailObject = issueTrackerRestClient.getIssue(issuePKey, applicationKey, UPDATE_TYPE);
         JsonObject issueObject = issueDetailObject.getAsJsonObject().get(ISSUE_KEY).getAsJsonObject();
         String responseIssuType = issueObject.get(TYPE_KEY).getAsString();
