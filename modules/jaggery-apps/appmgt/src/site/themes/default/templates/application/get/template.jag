@@ -365,7 +365,7 @@ function validateIconImage(filename,fileSize) {
 
    function copyNewDependenciesDeployAndLaunchArtifact(applicationKey, version, stage, deployAction, state, type){
        launchApp(applicationKey, version,stage,state,type);
-       jagg.post("../blocks/build/add/ajax/add.jag", {
+       jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
                action: "copyNewDependenciesAndDeployArtifact",
                applicationKey: applicationKey,
                deployAction:deployAction,
@@ -492,7 +492,7 @@ function setClipBoard(version){
 
 
    function deployApp(applicationKey, version, stage, deployAction, state, type){
-       jagg.post("../blocks/build/add/ajax/add.jag", {
+       jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
                action: "copyNewDependenciesAndDeployArtifact",
                applicationKey: applicationKey,
                deployAction:deployAction,

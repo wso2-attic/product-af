@@ -21,12 +21,14 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import java.util.Random;
 
@@ -46,34 +48,55 @@ public class DomainMappingListener extends ApplicationEventsHandler {
      * {@inheritDoc}
      */
     @Override
-    public void onCreation(Application application, String userName, String tenantDomain, boolean isUploadableAppType)
+    public void onCreation(final Application application, final String userName, final String tenantDomain,
+                           final boolean isUploadableAppType)
             throws AppFactoryException {
 
-        String defaultHostName = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty("DomainName");
-        String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(application.getId(), tenantDomain, defaultHostName);
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
 
-        try {
-            if (AppFactoryCoreUtil.isDomainMappingAllowedAppType(application.getType())) {
-                setDefaultProdUrl(application.getId(), defaultUrl, isUploadableAppType);
-                log.info("Successfully added default production url:" + defaultUrl + " for application " + application.getId() + " for tenant:" + tenantDomain);
+                String defaultHostName = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
+                        "DomainName");
+                String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(application.getId(), tenantDomain,
+                                                                              defaultHostName);
+                try {
+
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
+                            userName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER)[0]);
+
+                    if (AppFactoryCoreUtil.isDomainMappingAllowedAppType(application.getType())) {
+                        setDefaultProdUrl(application.getId(), defaultUrl, isUploadableAppType);
+                        log.info("Successfully added default production url:" + defaultUrl + " for application " +
+                                 application.getId() + " for tenant:" + tenantDomain);
+                    }
+                } catch (AppFactoryException e) {
+                    // no need to throw an error here since this operation should not interrupt the app creation procedure
+                    log.error("Error while adding default url for application:" + application.getId() + ", tenant:" +
+                              tenantDomain + ", default url: " + defaultUrl);
+
+                    // retying again assuming defaultProdUrl is already taken.
+                    try {
+                        defaultUrl = DomainMappingUtils.
+                                generateDefaultProdUrl(application.getId() + "_" + (new Random()).nextInt(1000),
+                                                       tenantDomain, defaultHostName);
+                        setDefaultProdUrl(application.getId(), defaultUrl, isUploadableAppType);
+                        log.info("Successfully added default production url:" + defaultUrl + " for application " +
+                                 application.getId() + " for tenant:" + tenantDomain);
+                    } catch (AppFactoryException e1) {
+                        // no need to throw an error here since this operation should not interrupt the app creation procedure
+                        log.error("Error while retrying to add default url for application:" + application.getId() +
+                                  ", " +
+                                  "tenant:" + tenantDomain + ", default url: " + defaultUrl);
+                    }
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
+                }
             }
-        } catch (AppFactoryException e) {
-            // no need to throw an error here since this operation should not interrupt the app creation procedure
-            log.error("Error while adding default url for application:" + application.getId() + ", tenant:" + tenantDomain + ", default url: " + defaultUrl);
-
-            // retying again assuming defaultProdUrl is already taken.
-            try {
-                defaultUrl = DomainMappingUtils.
-                        generateDefaultProdUrl(application.getId() + "_" + (new Random()).nextInt(1000), tenantDomain, defaultHostName);
-                setDefaultProdUrl(application.getId(), defaultUrl, isUploadableAppType);
-                log.info("Successfully added default production url:" + defaultUrl + " for application " + application.getId() + " for tenant:" + tenantDomain);
-            } catch (AppFactoryException e1) {
-                // no need to throw an error here since this operation should not interrupt the app creation procedure
-                log.error("Error while retrying to add default url for application:" + application.getId() + ", " +
-                        "tenant:" + tenantDomain + ", default url: " + defaultUrl);
-            }
-        }
-
+        };
+        new Thread(runnable).start();
     }
 
     /**
@@ -95,12 +118,12 @@ public class DomainMappingListener extends ApplicationEventsHandler {
                 ServiceReferenceHolder.getInstance().getDomainMappingManagementService().
                         removeDomainMappingFromApplication(stage, application.getId(), null, false);
                 log.info("Successfully removed domain mapping from application : " + application.getId() +
-                        " in " + stage + " environment for tenant domain : " + tenantDomain);
+                         " in " + stage + " environment for tenant domain : " + tenantDomain);
             }
         } catch (AppFactoryException e) {
             // no need to throw an error here since this operation should not interrupt the app deletion procedure
             log.error("Error while removing default and custom urls for application:" + application.getId() +
-                    " for tenant domain :" + tenantDomain, e);
+                      " for tenant domain :" + tenantDomain, e);
         }
     }
 
@@ -156,13 +179,15 @@ public class DomainMappingListener extends ApplicationEventsHandler {
      * @param isUploadableAppType boolean variable for determine whether the app is uploaded or created
      * @throws AppFactoryException
      */
-    private void setDefaultProdUrl(String applicationKey, String defaultUrl, boolean isUploadableAppType) throws AppFactoryException {
+    private void setDefaultProdUrl(String applicationKey, String defaultUrl, boolean isUploadableAppType)
+            throws AppFactoryException {
         String version = null;
         if (isUploadableAppType) {
             version = AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION;
         }
         ServiceReferenceHolder.getInstance().getDomainMappingManagementService().addNewSubscriptionDomain(
-                ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty("FineGrainedDomainMappingAllowedStage"),
+                ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
+                        "FineGrainedDomainMappingAllowedStage"),
                 defaultUrl, applicationKey, version, false);
     }
 }

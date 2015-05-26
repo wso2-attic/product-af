@@ -169,10 +169,6 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
     var tenantManager = multitenancy.getTenantManager();
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-
         var key = 'appversion';
         var content ='<metadata xmlns="http://www.wso2.org/governance/metadata">' +
                 '<appversion>' +
@@ -203,8 +199,6 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
                   + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
 
 };

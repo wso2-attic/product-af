@@ -117,7 +117,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
         var codeEnvyUrl = null;
         var newWindow = window.open('','_blank');
-        jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
+        jagg.syncPost("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "createCodeEnvyUrl",
                 gitURL: gitURL,
                 applicationKey: applicationKey,
@@ -145,7 +145,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
     function doFork(applicationKey, userName, type, version, element) {
         element.attr('disabled',true);
-        jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
+        jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
             action:"createFork",
             applicationKey:applicationKey,
             userNameArray:userName,
@@ -174,7 +174,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
     function doForkBranch(applicationKey, userName, type, version,element) {
         element.attr('disabled',true);
-        jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
+        jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
                     action:"createForkBranch",
                     applicationKey:applicationKey,
                     userNameArray:userName,
@@ -213,7 +213,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
     // Adding a spinner until versions are drawn
     $("#repositories_and_builds_list_master").empty().append('<span style="margin-left:35px; margin-top:40px;" class="icon-spinner icon-spin icon-large spin-large"></span>');
 
-	jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+	jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "getBuildAndRepoDataForVersion",
                 applicationKey: applicationKey,
                 userName:userName,
@@ -330,15 +330,17 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
                 '</div>'+
             '</div>');
 
-        if(masterJSON != "undefined" || masterJSON != null){
+        if(masterJSON != "undefined" && masterJSON != null){
             element = masterJSON[0];
         }
-	    var versionInfo = element.versions[0];
-            if(element.type == "war" && versionInfo.productionMappedDomain != null && versionInfo.productionMappedDomain != "" ){
-            	domainMappedVersion = versionInfo.version;
-            }
+        if(Object.keys(element).length > 0){
+	        var versionInfo = element.versions[0];
+                if(element.type == "war" && versionInfo.productionMappedDomain != null && versionInfo.productionMappedDomain != "" ){
+            	    domainMappedVersion = versionInfo.version;
+                }
             $('table', $repoTable).append(constructRow(element));
             currentStage = versionInfo.stage;
+        }
         $('#repositories_and_builds_list_master span.icon-spinner').remove();
         $("#repositories_and_builds_list_master").empty();
         $("#repositories_and_builds_list_master").append($repoTable);
@@ -524,7 +526,7 @@ $('js_build_option').removeClass("active");
      * version list
      */
     function updateForkedVersionList(){
-        jagg.syncPost("../blocks/buildandrepo/list/ajax/list.jag", {
+        jagg.syncPost("../blocks/reposBuilds/list/ajax/list.jag", {
             action: "getbuildandrepodataforkedrepo",
             buildableforstage:"true",
             metaDataNeed:"false",
@@ -657,7 +659,7 @@ $('js_build_option').removeClass("active");
 
 
     function setJenkinsURL(){
-        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+        jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "getJenkinsURL"
             }, function (result) {
                 var jenkinsUrl = jQuery.parseJSON(result);
@@ -927,14 +929,14 @@ $.cookie('selectedStage', selectedStage);
 		                '<span  class="build_version" ><strong> Version  '+version+'</strong></span>'+
 
 		                '</td>' +
-		                '<td class="td-6">' +
+		                '<td class="td-6">' + (lastBuildId == "null" ? "" :
 		                '<div class="data-message">'+
                             '<span '+buildHidden+' class="build_status"  >Build <span id="build_id_'+jagg.getConvertedVersion(version)+'">'+lastBuildId+' ' +
                                 '</span><span class="'+statusStyle+'" id="build_status_'+jagg.getConvertedVersion(version)+'">'+lastBuildStatus + '</span>' +
                             '</span>'+
                             '<span '+currentBuildStatusHidden+' class="build_status" >'+currentBuildStatus+' ' +
                             '</span>'+
-                        '</div>' +
+                        '</div>') +
                         '</td>'+
                         '<td class="td-3">' +
 		                '<div class="data-message">'+
@@ -1073,14 +1075,14 @@ $.cookie('selectedStage', selectedStage);
                             '<td class="td-3 ">' +
                             '<i class="icon-code-fork fork-icon-colored"></i>' +
                             '</td>' +
-                            '<td class="td-6">' +
+                            '<td class="td-6">' + (element.build.lastBuildId == "null" ? "" :
                                 '<div class="data-message ">'+
                                     '<span '+buildHidden+' class="build_status">Build '+element.build.lastBuildId+' ' +
                                     '<span class="'+statusStyle+'" id="build_status_'+jagg.getConvertedVersion(version)+'">'+element.build.status + '</span>' +
                                     '</span>'+
                                     '<span '+currentBuildStatusHidden+' class="build_status">'+currentBuildStatus+' ' +
                                     '</span>'+
-                                '</div>'+
+                                '</div>')+
                                 '<div class="fork-data-buttons">'+
                                     '<ul class="inline_list" '+buildDeployHide+'>'+
                                         '<li class="inline_item"><a href="#" class="btn main small createForkedCodeEnvyUrl" name="codenvyforked_action" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li><a href="#" target="_blank" id="createForkedCodeEnvyUrl_hidden" style="display: none"></a></li>'+
@@ -1153,7 +1155,7 @@ $.cookie('selectedStage', selectedStage);
     }
 
     function getBuildAndDeploymentInfo(version){
-    	jagg.post("../blocks/buildandrepo/list/ajax/list.jag",{
+    	jagg.post("../blocks/reposBuilds/list/ajax/list.jag",{
             action: "getBuildAndDeployStatusForVersion",
             applicationKey:'<%=applicationKey%>',
             version:version
@@ -1226,7 +1228,7 @@ $.cookie('selectedStage', selectedStage);
 
     function doDeploy(applicationKey,deployAction,stage,tagName,version ,element){
         element.attr('disabled',true);
-        jagg.post("../blocks/build/add/ajax/add.jag", {
+        jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                     action: "deployArtifact",
                     applicationKey: applicationKey,
                     deployAction:deployAction,
@@ -1306,7 +1308,7 @@ $.cookie('selectedStage', selectedStage);
 
     function doSetBuildDeployConfigs(applicationKey, version,stage,autoBuild,autoDeploy,element){
         element.attr('disabled',true);
-        jagg.post("../blocks/buildandrepo/set/ajax/set.jag", {
+        jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
                     action: "setBuildDelpymentConfigs",
                     applicationKey: applicationKey,
                     version: version,

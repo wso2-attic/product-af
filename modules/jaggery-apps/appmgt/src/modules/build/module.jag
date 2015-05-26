@@ -30,12 +30,6 @@ jagg.module("build", {
     },
 	deployArtifact:function () {
         return jagg.require(jagg.getModulesDir() + "build/add/add.jag").deployArtifact.apply(this, arguments);
-    },
-    getJenkinsBuilds:function () {
-		return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getJenkinsBuilds.apply(this, arguments);
-	},
-    getAllJenkinsBuildsStats:function(){
-        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getAllJenkinsBuildsStats.apply(this, arguments);
     }
 });
 %>

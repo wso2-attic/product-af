@@ -447,6 +447,7 @@ return getThemePath() + path;
         try {
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+            context.getThreadLocalCarbonContext().setUsername(jagg.getUser());
             var init, fn, inputs, outputs, name = obj.name, log = new Log("jagg/jagg.jag"), blok;
             setData(obj);
             initializeBlock(obj);

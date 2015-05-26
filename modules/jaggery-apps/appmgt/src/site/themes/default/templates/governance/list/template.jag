@@ -183,7 +183,7 @@ function deployPromotedAppToNextStage(actionName, stage, version){
 }
 
 function deployApp(version, nextStage){
-    jagg.post("../blocks/build/add/ajax/add.jag", {
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
             action: "copyNewDependenciesAndDeployArtifact",
             applicationKey: $("#applicationKey").attr('value'),
             deployAction:"",
