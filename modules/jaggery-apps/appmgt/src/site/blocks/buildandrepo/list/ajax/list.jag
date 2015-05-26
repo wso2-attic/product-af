@@ -251,7 +251,7 @@ var log=new Log();
                 var appInfo=parse(x);
             }
             var buildableStages=parse(modApp.getBuildableStages());
-            var appDetails={};
+            var appDetails=[];
 
             for(var appIndex in appInfo ){
                 var elementAppInfo=appInfo[appIndex];
@@ -294,9 +294,10 @@ var log=new Log();
                     tempAppDetail.build=build;
                     tempAppDetail.deployment=deployment;
 
-                    appDetails[versionElement.version] = tempAppDetail;
+                    appDetails.push(tempAppDetail);
                 }
             }
+            appDetails.buildableStages=buildableStages;
             print(appDetails);
         } else {
             response.result = 0;
