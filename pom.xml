@@ -1305,7 +1305,7 @@
       <!-- Apache other -->      
       <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
       <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
-      <apache.httpclient>4.2.3.wso2v1</apache.httpclient>
+      <apache.httpclient>4.1.1.wso2v1</apache.httpclient>
       <apache.httpcore>4.1.3.wso2v3</apache.httpcore>
       <version.rampart>1.6.1.wso2v10</version.rampart>
       
