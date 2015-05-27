@@ -37,11 +37,17 @@ class mysql($user,$password){
   #  enable  => true,
   #  require => File["/etc/mysql/my.cnf"]
   #}
-
+  if $operatingsystem == "Darwin"{
   exec { "create mysql users":
+    unless  => "/usr/local/mysql/bin/mysql -u$user -p$password",
+    command => "/usr/local/mysql/bin/mysql -u$root_user -p$root_password -e \"create user '$user'@'%' identified by '$password'; grant all privileges on *.* to $user@'%' identified by '$password'\"",
+ }
+}else{
+exec { "create mysql users":
     unless  => "/usr/bin/mysql -u$user -p$password",
     command => "/usr/bin/mysql -u$root_user -p$root_password -e \"create user '$user'@'%' identified by '$password'; grant all privileges on *.* to $user@'%' identified by '$password'\"",
  }
+}
 
 }
 
