@@ -246,26 +246,23 @@ public class ApplicationInfoService {
         try {
             JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
             JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
-            String[] versionNames = appVersionsDAO.getAllVersionsOfApplication(applicationId);
-            Version[] versions = new Version[versionNames.length];
-            for (int i = 0; i < versions.length; i++) {
-                String currentVersionName = versionNames[i];
-                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, currentVersionName);
-                BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, currentVersionName,
-                                                                        userName == null ? false : true, userName);
-                versions[i].setLastBuildStatus(
+            BuildStatus buildStatus;
+            DeployStatus deployStatus;
+            ArrayList<Version> versionList = appVersionsDAO.getAllApplicationVersionsOfUser(applicationId,
+                                                                                            userName.split("@")[0]);
+            for (Version version : versionList) {
+                buildStatus = applicationDAO.getBuildStatus(applicationId, version.getVersion(), true, userName.split("@")[0]);
+                version.setLastBuildStatus(
                         "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
-                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, currentVersionName,
-                                                                           AppFactoryConstants.ApplicationStage.
-                                                                                   DEVELOPMENT.getStageStrValue(),
-                                                                           userName == null ? false : true,
-                                                                           userName);
-                versions[i].setLastDeployedId(deployStatus.getLastDeployedId());
+                deployStatus = applicationDAO.getDeployStatus(applicationId, version.getVersion(),
+                                                              AppFactoryConstants.ApplicationStage.
+                                                                      DEVELOPMENT.getStageStrValue(), true, userName.split("@")[0]);
+                version.setLastDeployedId(deployStatus.getLastDeployedId());
             }
-            return versions;
+            return versionList.toArray(new Version[versionList.size()]);
         } catch (AppFactoryException e) {
-            String msg = "Error while retrieving artifact information from database for application id : " + applicationId
-                         + " of tenant domain : " + domainName;
+            String msg = "Error while retrieving all the versions of application : " + applicationId + " of user : " +
+                         userName + " from database";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
@@ -281,7 +278,31 @@ public class ApplicationInfoService {
      */
     //TODO Modify this method with new UX improvements. Simply use Version name list String list. Must do item.
     public Version[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
-        return getAllVersionsOfApplicationPerUser(domainName, applicationId , null);
+        try {
+            JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
+            JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
+            String[] versionNames = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+            Version[] versions = new Version[versionNames.length];
+            for (int i = 0; i < versions.length; i++) {
+                String currentVersionName = versionNames[i];
+                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, currentVersionName);
+                BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, currentVersionName, false, null);
+                versions[i].setLastBuildStatus(
+                        "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
+                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, currentVersionName,
+                                                                           AppFactoryConstants.ApplicationStage.
+                                                                                   DEVELOPMENT.getStageStrValue(),
+                                                                           false, null);
+                versions[i].setLastDeployedId(deployStatus.getLastDeployedId());
+            }
+            return versions;
+        } catch (AppFactoryException e) {
+            String msg =
+                    "Error while retrieving artifact information from database for application id : " + applicationId
+                    + " of tenant domain : " + domainName;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
     }
 
     /**

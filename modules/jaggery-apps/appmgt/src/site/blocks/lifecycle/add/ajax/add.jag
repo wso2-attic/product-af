@@ -184,7 +184,40 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         }
 	    
 
-	} else if(action == "invokeDoVersion") {
+	} else if ( action == "copyNewDependenciesAndDeployArtifact"){
+
+        ////COPY THE NEW RESOURCES.
+
+        buildModule = jagg.module("build");
+        resourcesModule = jagg.module("resources");
+        lifeCycleModule = jagg.module("lifecycle");
+
+      	var applicationId = request.getParameter("applicationKey");
+      	var stage = request.getParameter("stage");
+      	var version = request.getParameter("version");
+      	var tagName = request.getParameter("tagName");
+      	var deployAction = request.getParameter("deployAction");
+        var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
+      	if (jagg.module("permission").isUserAccessGrantedForPlatform(deployToStagePermission)){
+      		try{
+      			if (! lifeCycleModule.isInitialLifeCycleStage(stage)){
+      				var sourceStage = lifeCycleModule.getPreviousLifeCycleStage(stage);
+      				resourcesModule.copyNewProperties(applicationId, sourceStage, stage);
+      				resourcesModule.copyNewDataSources(applicationId, sourceStage, stage);
+      			}
+      		}catch(exx){
+      			throw new Error("Error , Resource creation fail, " + exx);
+      		}
+      	    var result =  buildModule.deployArtifact(applicationId, stage, version, tagName, deployAction);
+      		print(result);
+      	}else {
+            var response={};
+            response.result = 0;
+            response.message = "You don't have permission to deploy an artifact";
+            print(response);
+        }
+
+    } else if(action == "invokeDoVersion") {
     	mod = jagg.module("lifecycle");
 
     	var applicationKey = request.getParameter("applicationKey");
@@ -264,6 +297,7 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         }
 
     }else if ( action == "itemChecked"){
+        print("true");
         var appKey = request.getParameter("applicationKey");
         var stageName = request.getParameter("stageName");
         var version = request.getParameter("version");

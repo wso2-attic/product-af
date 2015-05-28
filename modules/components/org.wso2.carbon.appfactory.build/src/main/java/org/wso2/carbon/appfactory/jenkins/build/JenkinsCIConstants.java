@@ -92,6 +92,10 @@ public class JenkinsCIConstants {
     
     public static final String JENKINS_SERVER_ADMIN_USERNAME = "JenkinsServerAdminUsername";
     public static final String JENKINS_SERVER_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
+
+    public static final String ALLOW_ALL_HOSTNAME_VERIFIER = "HttpClient.allowAllHostNameVerifier";
+    public static final String DEFAULT_MAX_CONNECTIONS_PER_ROUTE = "HttpClient.defaultMaxConnectionsPerRoute";
+    public static final String MAX_TOTAL_CONNECTIONS = "HttpClient.maxTotalConnections";
     
     /**
      * Defines constants related to jenkins role-strategy-pugin

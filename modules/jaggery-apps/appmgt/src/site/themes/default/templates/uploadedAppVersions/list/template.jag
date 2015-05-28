@@ -62,7 +62,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
             versions = [],
             element = {},
             count = 0;
-        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+        jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "getbuildandrepodata",
                 buildableforstage:"true",
                 metaDataNeed:"false",
@@ -250,7 +250,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
 
     function doDeploy(applicationKey,deployAction,stage,tagName,version,element){
         element.attr('disabled',true);
-        jagg.post("../blocks/build/add/ajax/add.jag", {
+        jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                     action: "deployArtifact",
                     applicationKey: applicationKey,
                     deployAction:deployAction,

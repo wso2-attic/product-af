@@ -29,7 +29,7 @@ public class DatasourceTestCase extends AFIntegrationTest {
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Add new datasource")
-    public void testAddNewDatasource() throws AFIntegrationTestException {
+    public void testAddNewDatasource() throws Exception {
         JSONObject responseObj = datasourceClient.createDatasource(TEST_DATA_SOURCE, "Development",
                                                                    "jdbc:mysql://localhost:3306/test12345",
                                                                    "My test datasource", "mysql", "root",
@@ -55,7 +55,7 @@ public class DatasourceTestCase extends AFIntegrationTest {
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Delete a datasource", dependsOnMethods = {"testAddNewDatasource"})
-    public void testDeleteExistingDatasource() throws AFIntegrationTestException {
+    public void testDeleteExistingDatasource() throws Exception {
         JSONObject responseObj = datasourceClient.deleteDatasource(TEST_DATA_SOURCE, "Development",
                                                                    AFIntegrationTestUtils.getPropertyValue(
                                                                            AFConstants.DEFAULT_APP_APP_KEY));
