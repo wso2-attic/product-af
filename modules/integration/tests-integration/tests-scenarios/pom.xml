@@ -169,6 +169,12 @@
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.ecyrd.speed4j</groupId>
+            <artifactId>speed4j</artifactId>
+            <version>0.9</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <!--<properties>-->

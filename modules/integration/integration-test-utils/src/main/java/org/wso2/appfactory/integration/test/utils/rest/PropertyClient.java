@@ -27,7 +27,11 @@ import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Rest client for the property test case
+ *
+ * @throws AFIntegrationTestException
+ */
 public class PropertyClient extends BaseClient {
 
     private static final String ACTION="action";
@@ -57,8 +61,8 @@ public class PropertyClient extends BaseClient {
      * @param applicationKey applicationKey
      * @throws AFIntegrationTestException
      */
-    public boolean createResource(String action,String applicationKey,String resourceName,String resourceDesc,
-                                  String resourceMediaType,String contentValue,String stage,String isCopyToAll)
+    public JsonObject createResource(String action,String applicationKey,String resourceName,String resourceDesc,
+                                     String resourceMediaType,String contentValue,String stage,String isCopyToAll)
             throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(ACTION, action);
@@ -72,15 +76,12 @@ public class PropertyClient extends BaseClient {
 
         HttpResponse response = super.doPostRequest(ADD_PROPERTY_URL, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            boolean isResourseCreate=getResource(applicationKey,resourceName,resourceDesc,contentValue,
-                    resourceMediaType,stage);
-            if(isResourseCreate){
-                return true;
-            }
-            return false;
+            return getResource(applicationKey,resourceName,resourceDesc,contentValue,
+                               resourceMediaType,stage);
+
         }else{
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
     }
     /**
@@ -89,8 +90,8 @@ public class PropertyClient extends BaseClient {
      * @param applicationKey applicationKey
      * @throws AFIntegrationTestException
      */
-    public boolean deleteResource(String action,String applicationKey,String resourceName,String resourceDesc,
-                                  String resourceMediaType,String contentValue,String stage)
+    public JsonObject deleteResource(String action,String applicationKey,String resourceName,String resourceDesc,
+                                     String resourceMediaType,String contentValue,String stage)
             throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(ACTION, action);
@@ -102,13 +103,14 @@ public class PropertyClient extends BaseClient {
         msgBodyMap.put(STAGE, stage);
         HttpResponse response = super.doPostRequest(ADD_PROPERTY_URL, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            if(response.getData().equals(null))
-                return true;
+            return getResource(applicationKey, resourceName, resourceDesc, contentValue,
+                               resourceMediaType, stage);
+
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
-    return false;
+
 
     }
     /**
@@ -131,7 +133,7 @@ public class PropertyClient extends BaseClient {
             return;
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
 
     }
@@ -142,8 +144,8 @@ public class PropertyClient extends BaseClient {
      * @throws AFIntegrationTestException
      */
 
-    public boolean updateResource(String action,String applicationKey,String resourceName,String resourceDesc,
-                                  String resourceMediaType,String contentValue,String stage)
+    public JsonObject updateResource(String action,String applicationKey,String resourceName,String resourceDesc,
+                                     String resourceMediaType,String contentValue,String stage)
             throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(ACTION, action);
@@ -155,16 +157,15 @@ public class PropertyClient extends BaseClient {
         msgBodyMap.put(CONTENT_VALUE, contentValue);
         HttpResponse response = super.doPostRequest(UPDATE_DESC_URL, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            boolean isResourseCreate=getResource(applicationKey, resourceName, resourceDesc, contentValue,
-                    resourceMediaType, stage);
-            if(isResourseCreate)
-                return true;
+            return getResource(applicationKey, resourceName, resourceDesc, contentValue,
+                               resourceMediaType, stage);
+
 
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
-        return false;
+
     }
 
     /**
@@ -173,7 +174,7 @@ public class PropertyClient extends BaseClient {
      * @param applicationKey applicationKey
      * @throws AFIntegrationTestException
      */
-    public boolean getAllDependencies(String action,String applicationKey,String resourceName)
+    public JsonObject getAllDependencies(String action,String applicationKey,String resourceName)
             throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(ACTION, "getAllDependencies");
@@ -185,14 +186,11 @@ public class PropertyClient extends BaseClient {
             JsonParser jsonParser = new JsonParser();
             JsonElement jsonElement = jsonParser.parse(stringResponse);
             JsonObject addIssueResponse = jsonElement.getAsJsonObject();
-            if(addIssueResponse.has(resourceName)){
-                return true;
-            }
-            return false;
+            return addIssueResponse;
 
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
     }
     /**
@@ -206,8 +204,8 @@ public class PropertyClient extends BaseClient {
      * @throws AFIntegrationTestException
      */
 
-    public boolean getResource(String applicationKey,String resourceName,String description,String value,
-                               String mediaType,String stage)
+    public JsonObject getResource(String applicationKey,String resourceName,String description,String value,
+                                  String mediaType,String stage)
             throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(ACTION, "getResource");
@@ -215,29 +213,21 @@ public class PropertyClient extends BaseClient {
         msgBodyMap.put(RESOURCE_NAME, resourceName);
         msgBodyMap.put(STAGE, stage);
 
-
         HttpResponse response = super.doPostRequest(GET_RESOURCE_URL, msgBodyMap);
 
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            try {
-                JsonParser jsonParser = new JsonParser();
-                JsonElement jsonElement = jsonParser.parse(response.getData());
-                JsonObject editResponse = jsonElement.getAsJsonObject();
-                if (editResponse.getAsJsonObject().get("name").getAsString().equals(resourceName) &&
-                        editResponse.getAsJsonObject().get("description").getAsString().equals(description) &&
-                        editResponse.getAsJsonObject().get("value").getAsString().equals(value) &&
-                        editResponse.getAsJsonObject().get("mediaType").getAsString().equals(mediaType)) {
-                    return true;
-                }
-            }catch (Exception e){
-                return false;
-            }
+
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(response.getData());
+            JsonObject editResponse = jsonElement.getAsJsonObject();
+            return editResponse;
 
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
-        return false;
+
+
     }
     /**
      * Get Stages of the property in the application
@@ -260,7 +250,7 @@ public class PropertyClient extends BaseClient {
             return;
         } else {
             throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() +
-                    response.getData());
+                                                         response.getData());
         }
 
     }
