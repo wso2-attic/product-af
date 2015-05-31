@@ -410,21 +410,19 @@ public class JDBCAppVersionDAO {
      * @return {@link org.wso2.carbon.appfactory.core.dto.Version}
      * @throws AppFactoryException if SQL operation fails
      */
-    public String[] getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
+    public String[] getAllVersionNamesOfApplication(String applicationKey) throws AppFactoryException {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        List<String> versionList = JDBCApplicationCacheManager.getAppVersionListCache().
+        List<String> versionList = JDBCApplicationCacheManager.getAppVersionNameListCache().
                                                                get(JDBCApplicationCacheManager
-                                                                           .constructAppVersionListCacheKey(
-                                                                                   applicationKey));
+                                                                           .constructAppVersionNameListCacheKey(applicationKey));
         if (versionList != null) {
             return versionList.toArray(new String[versionList.size()]);
         }
-
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
-            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_ALL_VERSION_NAMES_OF_APPLICATION);
             preparedStatement.setString(1, applicationKey);
             preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
             resultSet = preparedStatement.executeQuery();
@@ -432,8 +430,8 @@ public class JDBCAppVersionDAO {
             while (resultSet.next()) {
                 versionList.add(resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
             }
-            JDBCApplicationCacheManager.getAppVersionListCache().
-                    put(JDBCApplicationCacheManager.constructAppVersionListCacheKey(applicationKey), versionList);
+            JDBCApplicationCacheManager.getAppVersionNameListCache().
+                    put(JDBCApplicationCacheManager.constructAppVersionNameListCacheKey(applicationKey), versionList);
         } catch (SQLException e) {
             String msg = "Error while getting all the version of application key : " + applicationKey;
             log.error(msg, e);
@@ -447,6 +445,50 @@ public class JDBCAppVersionDAO {
             log.debug("List of Version IDs of application key : " + applicationKey + " are : " + versionList);
         }
         return versionList.toArray(new String[versionList.size()]);
+    }
+
+    public ArrayList<Version> getAllVersionsOfApplication(String applicationKey) throws AppFactoryException {
+        Connection datConnection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ArrayList<Version> versionList;
+        Version version;
+
+        versionList = (ArrayList)JDBCApplicationCacheManager.getAppVersionListCache().get(applicationKey);
+        if(versionList != null){
+            return  versionList;
+        }
+
+        try {
+            datConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = datConnection.prepareStatement(SQLConstants.GET_ALL_VERSIONS_OF_APPLICATION);
+            preparedStatement.setString(1, applicationKey);
+            preparedStatement.setInt(2, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            resultSet = preparedStatement.executeQuery();
+            versionList = new ArrayList<Version>();
+            while (resultSet.next()){
+                version = new Version();
+                version.setApplicationKey(applicationKey);
+                version.setVersion(resultSet.getString(SQLParameterConstants.COLUMN_NAME_VERSION_NAME));
+                version.setStage(resultSet.getString(SQLParameterConstants.COLUMN_NAME_STAGE));
+                version.setPromoteStatus(resultSet.getString(SQLParameterConstants.COLUMN_NAME_PROMOTE_STATUS));
+                version.setAutoBuild(resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_BUILD) == 1 ? true : false);
+                version.setAutoDeploy(resultSet.getInt(SQLParameterConstants.COLUMN_NAME_AUTO_DEPLOY) == 1 ? true : false);
+                version.setProductionMappedDomain(resultSet.getString(SQLParameterConstants.COLUMN_NAME_SUB_DOMAIN));
+
+                versionList.add(version);
+            }
+            JDBCApplicationCacheManager.getAppVersionListCache().put(applicationKey, versionList);
+        } catch (SQLException e) {
+            String msg = "Error while retrieving the list of versions from database for application : " + applicationKey;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            AppFactoryDBUtil.closeResultSet(resultSet);
+            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+            AppFactoryDBUtil.closeConnection(datConnection);
+        }
+        return versionList;
     }
 
     /**

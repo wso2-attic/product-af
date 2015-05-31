@@ -41,6 +41,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -272,9 +273,10 @@ public class JDBCApplicationDAO {
             if (affectedRowCount > 0) {
 
                 //removing the older cache while adding new version for an app.
-                JDBCApplicationCacheManager.getAppVersionListCache().remove(JDBCApplicationCacheManager
-                                    .constructAppVersionListCacheKey(applicationKey));
+                JDBCApplicationCacheManager.getAppVersionNameListCache().remove(JDBCApplicationCacheManager
+                                    .constructAppVersionNameListCacheKey(applicationKey));
                 applicationBranchCountCache.remove(applicationAppsBranchCountKey);
+                JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
                 if (log.isDebugEnabled()) {
                     String msg = "successfully added application of tenant " +
                                  CarbonContext.getThreadLocalCarbonContext().getTenantDomain() + " version : " +
@@ -551,8 +553,9 @@ public class JDBCApplicationDAO {
                                "deletion of application version information");
             }
             preparedStatement.executeBatch();
-            JDBCApplicationCacheManager.getAppVersionListCache().remove(JDBCApplicationCacheManager
-                                                                      .constructAppVersionListCacheKey(applicationKey));
+            JDBCApplicationCacheManager.getAppVersionNameListCache().remove(
+                    JDBCApplicationCacheManager.constructAppVersionNameListCacheKey(applicationKey));
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
             handleDebugLog("Successfully deleted all application version information of application : " +
                            applicationKey);
         } catch (SQLException e) {
@@ -1002,8 +1005,19 @@ public class JDBCApplicationDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             getAppLastBuildPreparedStatement = databaseConnection.prepareStatement(
                     SQLConstants.GET_APPLICATION_LAST_BUILD_SQL);
-            int repositoryID = getRepositoryID(applicationKey, isForked, username, version, databaseConnection);
-            getAppLastBuildPreparedStatement.setInt(1, repositoryID);
+            if(isForked) {
+                getAppLastBuildPreparedStatement.setInt(1, 1);
+                getAppLastBuildPreparedStatement.setString(2, username);
+                getAppLastBuildPreparedStatement.setString(3, username);
+            } else {
+                getAppLastBuildPreparedStatement.setInt(1, 0);
+                getAppLastBuildPreparedStatement.setNull(2, Types.VARCHAR);
+                getAppLastBuildPreparedStatement.setNull(3, Types.VARCHAR);
+            }
+            getAppLastBuildPreparedStatement.setString(4, version);
+            getAppLastBuildPreparedStatement.setString(5, applicationKey);
+            getAppLastBuildPreparedStatement.setInt(6, tenantId);
+
             buildResultSet = getAppLastBuildPreparedStatement.executeQuery();
             if (buildResultSet.next()) {
                 buildStatus.setLastBuildId(buildResultSet.getString(SQLParameterConstants.COLUMN_NAME_LAST_BUILD_ID));
@@ -1190,9 +1204,20 @@ public class JDBCApplicationDAO {
             databaseConnection = AppFactoryDBUtil.getConnection();
             getAppLastDeployPreparedStatement = databaseConnection.prepareStatement(SQLConstants
                                                                               .GET_APPLICATION_LAST_DEPLOY_SQL);
-            int repositoryID = getRepositoryID(applicationKey, isForked, username, version, databaseConnection);
-            getAppLastDeployPreparedStatement.setInt(1, repositoryID);
-            getAppLastDeployPreparedStatement.setString(2, environment);
+            getAppLastDeployPreparedStatement.setString(1, environment);
+            if(isForked){
+                getAppLastDeployPreparedStatement.setInt(2, 1);
+                getAppLastDeployPreparedStatement.setString(3, username);
+                getAppLastDeployPreparedStatement.setString(4, username);
+            } else {
+                getAppLastDeployPreparedStatement.setInt(2, 0);
+                getAppLastDeployPreparedStatement.setNull(3, Types.VARCHAR);
+                getAppLastDeployPreparedStatement.setNull(4, Types.VARCHAR);
+            }
+            getAppLastDeployPreparedStatement.setString(5, version);
+            getAppLastDeployPreparedStatement.setString(6, applicationKey);
+            getAppLastDeployPreparedStatement.setInt(7, tenantId);
+
             deployResultSet = getAppLastDeployPreparedStatement.executeQuery();
             if (deployResultSet.next()) {
                 deployStatus.setLastDeployedId(deployResultSet.getString(SQLParameterConstants.
