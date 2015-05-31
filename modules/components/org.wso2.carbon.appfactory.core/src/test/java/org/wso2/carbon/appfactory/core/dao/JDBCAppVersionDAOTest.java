@@ -5,11 +5,7 @@ import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.Constants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  *  Application version related Tester.
@@ -35,7 +31,7 @@ public class JDBCAppVersionDAOTest extends BaseTestCase {
         version.setStage("Development");
         appVersionDAO.addVersion("appx", version);
 
-        String[] applicationVersions = appVersionDAO.getAllVersionsOfApplication("appx");
+        String[] applicationVersions = appVersionDAO.getAllVersionNamesOfApplication("appx");
         assertTrue( Arrays.asList(applicationVersions).contains("trunk"));
         assertTrue(Arrays.asList(applicationVersions).contains("1.0.0"));
         assertEquals(2, applicationDAO.getBranchCount("appx"));

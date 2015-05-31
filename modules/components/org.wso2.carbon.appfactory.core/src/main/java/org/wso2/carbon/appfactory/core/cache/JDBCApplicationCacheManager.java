@@ -51,8 +51,9 @@ public class JDBCApplicationCacheManager {
 
     private static final String AF_APPLICATION_ARTIFACT_CACHE = "af.application.artifact.cache";
 
-    public static final String AF_APPVERSION_LIST_CACHE = "af.appversion.list.cache";
+    public static final String AF_APPVERSION_NAME_LIST_CACHE = "af.appversion.name.list.cache";
 
+    public static final String AF_APPVERSION_LIST_CACHE = "af.appversion.list.cache";
 
     // The cache key separator value. This value is used to combine different parameters to generate the cache key
     public static final String KEY_SEPARATOR = "_";
@@ -143,7 +144,11 @@ public class JDBCApplicationCacheManager {
      *
      * @return
      */
-    public static Cache<String, List<String>> getAppVersionListCache() {
+    public static Cache<String, List<String>> getAppVersionNameListCache() {
+        return getCacheManager().getCache(AF_APPVERSION_NAME_LIST_CACHE);
+    }
+
+    public static Cache<String, List<Version>> getAppVersionListCache(){
         return getCacheManager().getCache(AF_APPVERSION_LIST_CACHE);
     }
 
@@ -254,7 +259,7 @@ public class JDBCApplicationCacheManager {
         return tenantId + KEY_SEPARATOR + applicationKey + KEY_SEPARATOR + version;
     }
 
-    public static String constructAppVersionListCacheKey(String applicationKey) {
+    public static String constructAppVersionNameListCacheKey(String applicationKey) {
         int tenantId =  CarbonContext.getThreadLocalCarbonContext().getTenantId();
         return tenantId + KEY_SEPARATOR + applicationKey;
     }

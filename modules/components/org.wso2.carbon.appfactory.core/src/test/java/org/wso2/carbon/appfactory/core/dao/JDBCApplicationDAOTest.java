@@ -28,9 +28,7 @@ import org.wso2.carbon.appfactory.core.util.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * JDBCApplicationDAO Tester.
@@ -212,7 +210,7 @@ public class JDBCApplicationDAOTest extends BaseTestCase {
         }
 
         assertEquals("Expected application is not found", false, applicationKeys.contains("appd1"));
-        assertEquals(0, appVersionDAO.getAllVersionsOfApplication("appd1").length);
+        assertEquals(0, appVersionDAO.getAllVersionNamesOfApplication("appd1").length);
         assertEquals(0, resourceDAO.getResources("appd1", "DATABASE", "Development").length);
     }
 
@@ -254,7 +252,7 @@ public class JDBCApplicationDAOTest extends BaseTestCase {
         }
 
         assertEquals("Expected application is not found", false, applicationKeys.contains("appd"));
-        assertEquals(0, appVersionDAO.getAllVersionsOfApplication("appd").length);
+        assertEquals(0, appVersionDAO.getAllVersionNamesOfApplication("appd").length);
         assertEquals(0, resourceDAO.getResources("appd", "DATABASE", "Development").length);
 
         applicationDAO.deleteApplication("app0");
@@ -267,7 +265,7 @@ public class JDBCApplicationDAOTest extends BaseTestCase {
         }
 
         assertEquals("Expected application is not found", false, applicationKeys.contains("app0"));
-        String[] versions = appVersionDAO.getAllVersionsOfApplication("app0");
+        String[] versions = appVersionDAO.getAllVersionNamesOfApplication("app0");
         assertEquals(0, versions.length);
 
     }
