@@ -67,7 +67,11 @@ var manager = jagg.module("manager");
             version = UPLOADABLE_APPLICATION_INITIAL_VERSION;
         }
         try {
-            mod.addDefaultProdUrl(appKey, version);
+            if(manager.getApplicationTypeBean(applicationType).isAllowDomainMapping()) {
+                mod.addDefaultProdUrl(appKey, version);
+                print(true);
+            }
+            print(false);
         } catch (e) {
             var msg = "Error while adding default production url";
             log.error(msg);

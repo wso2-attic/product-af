@@ -446,7 +446,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
                 var version=$(this).attr('data-version');
                 var appType=$(this).attr('data-type');
                 $(this).attr('disabled',true);
-                if('<%=isCodeEditorSupported%>' === 'true'){
+                if('<%=isCodeEditorSupported%>' === 'false'){
                     jagg.message({
                         content: "Code editor not supported for the " + appType + " application type!",
                         type: 'error',
@@ -1115,7 +1115,7 @@ $.cookie('selectedStage', selectedStage);
         	$(button).attr('disabled','disabled').val('Create');
         	$(button).parent().children('.submit_note').children('.cancel').css('visibility', 'hidden');
 
-            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
@@ -1184,7 +1184,7 @@ $.cookie('selectedStage', selectedStage);
 
     function doBuild(applicationKey,revision,stage,tagName,version,autoDeploy,repoFrom ,element){
         element.attr('disabled',true);
-        jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                     action: "createArtifact",
                     applicationKey: applicationKey,
                     revision:revision,

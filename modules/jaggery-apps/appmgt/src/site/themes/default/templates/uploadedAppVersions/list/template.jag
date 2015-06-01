@@ -211,7 +211,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
     function doCreateBranch(applicationKey,srcVersion,targetVersion,button){
         if(validateBranch(targetVersion)){
             $(button).attr('disabled','disabled').val('Creating..');
-            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,

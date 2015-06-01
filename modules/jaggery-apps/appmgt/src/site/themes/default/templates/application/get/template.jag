@@ -997,12 +997,14 @@ function setClipBoard(version){
 	           applicationKey:applicationKey
 	       },function (result) {
 	    	   hideNotification();
-	    	   jagg.message({
-                    content: "Default production url added successfully",
-                    type: 'success',
-                    id:'notification'
+	    	   if(jQuery.parseJSON(result) == true){
+                  jagg.message({
+                  content: "Default production url added successfully",
+                  type: 'success',
+                  id:'notification'
                 });
 	    	   createCurrentStatus(false);
+	    	   }
 	       },function (jqXHR, textStatus, errorThrown) {
 	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
 	           createCurrentStatus(false);
