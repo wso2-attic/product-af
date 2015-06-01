@@ -41,7 +41,7 @@ file { '/opt/apache-maven-3.0.5/':
   }
 
   exec { "execute_mvn_command":
-      path    => ["/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/mvn/bin"],
+      path    => ["/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/mvn/bin:/opt/java/bin"],
       cwd     => "/tmp/",
       command => "mvn clean install";
   }
