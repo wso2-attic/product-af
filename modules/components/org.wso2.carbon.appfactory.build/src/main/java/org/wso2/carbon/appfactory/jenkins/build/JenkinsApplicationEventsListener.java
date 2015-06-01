@@ -100,7 +100,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         jenkinsCISystemDriver.addUsersToApplication(application.getId(), new String[]{userName.split("@")[0]},
                                                     tenantDomain);
         JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
-        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
+        String[] versions = appVersionDAO.getAllVersionNamesOfApplication(application.getId());
         String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0]);
         if (ArrayUtils.isNotEmpty(versions)) {
 
@@ -148,7 +148,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                             application.getId() + " for tenant domain: " + tenantDomain);
         }
         JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
-        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
+        String[] versions = appVersionDAO.getAllVersionNamesOfApplication(application.getId());
         String deployerType = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
                                                     .getProperty(AppFactoryConstants.DEPLOYER_TYPE).toString();
         JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
@@ -357,7 +357,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             }
 
             if (version == null || version.trim().equals("")) {
-                String[] versions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(application.getId());
+                String[] versions = JDBCAppVersionDAO.getInstance().getAllVersionNamesOfApplication(application.getId());
                 for (String version2 : versions) {
                     jenkinsCISystemDriver.createJob(application.getId(), version2, "",
                             tenantDomain, forkedUser, repoURL,
