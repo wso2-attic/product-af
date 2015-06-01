@@ -40,6 +40,7 @@ class privatepaas (
                   "repository/conf/json/partition.json",
                   "repository/conf/json/autoscale-policy.json",
                   "repository/conf/json/cartridge-definition.json",
+                  "repository/conf/json/nodejs-cart.json",
                   "repository/conf/json/deployment-policy.json",
                   "repository/conf/json/service-deployment.json",
                   "repository/conf/json/executor.sh",

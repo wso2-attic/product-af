@@ -209,7 +209,6 @@ public class AppFactoryCoreUtil {
 	    return null;
     }
 
-
     /**
      * Generate the unique cartridge alias
      *
@@ -217,20 +216,12 @@ public class AppFactoryCoreUtil {
      * @param tenantDomain  Tenant domain which application belongs to
      * @return Generated cartridge alias
      */
-    public static String getCartridgeAlias(String applicationId, String applicationVersion,String tenantDomain, boolean subscribeOnDeployment) {
+    public static String getCartridgeAlias(String applicationId, String tenantDomain) {
         if (StringUtils.isBlank(applicationId) || StringUtils.isBlank(tenantDomain)) {
             return null;
         }
-        String cartridgeAlias = null;
         tenantDomain = tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT);
-        if (subscribeOnDeployment) {
-            applicationVersion = applicationVersion.replaceAll("\\.+",AppFactoryConstants.MINUS);
-            cartridgeAlias = applicationId + AppFactoryConstants.MINUS + applicationVersion + tenantDomain;
-        }else{
-            cartridgeAlias = applicationId + tenantDomain;
-        }
-
-        return cartridgeAlias;
+        return applicationId + tenantDomain;
     }
 
 
