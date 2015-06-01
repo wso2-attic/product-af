@@ -18,14 +18,23 @@
 
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * Rest Client for the Governance test case
+ *
+ * @throws AFIntegrationTestException
+ */
 public class GovernanceClient extends BaseClient {
 
     /**
@@ -52,7 +61,8 @@ public class GovernanceClient extends BaseClient {
      * @param userName  username of the promoter
      * @throws Exception
      */
-    public void Promote(String appKey, String stageName, String version, String tagName, String comment, String userName) throws Exception {
+    public JsonObject promote(String appKey, String stageName, String version, String tagName, String comment,
+                              String userName, JSONArray checkItems) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "Promote");
         msgBodyMap.put("applicationKey", appKey);
@@ -61,13 +71,19 @@ public class GovernanceClient extends BaseClient {
         msgBodyMap.put("tagName", tagName);
         msgBodyMap.put("comment", comment);
         msgBodyMap.put("userName", userName);
+        msgBodyMap.put("checkItems", checkItems.toString());
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            String responseString = response.getData();
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(responseString);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            return jsonObject;
+
         } else {
-            throw new AFIntegrationTestException("Application Promotion failed " + response.getResponseCode() + response.getData());
+            throw new AFIntegrationTestException(
+                    "Application Promotion failed " + response.getResponseCode() + response.getData());
         }
     }
 
@@ -80,9 +96,10 @@ public class GovernanceClient extends BaseClient {
      * @param tagName   tag name
      * @param comment   comment given when demoting
      * @param userName  username of the demoter
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
-    public void Demote(String appKey, String stageName, String version, String tagName, String comment, String userName) throws Exception {
+    public JsonObject demote(String appKey, String stageName, String version, String tagName, String comment,
+                             String userName, JSONArray checkItems) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "Demote");
         msgBodyMap.put("applicationKey", appKey);
@@ -91,11 +108,15 @@ public class GovernanceClient extends BaseClient {
         msgBodyMap.put("tagName", tagName);
         msgBodyMap.put("comment", comment);
         msgBodyMap.put("userName", userName);
+        msgBodyMap.put("checkItems", checkItems.toString());
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            String responseString = response.getData();
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(responseString);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            return jsonObject;
         } else {
             throw new AFIntegrationTestException("Application Demote failed " + response.getData());
         }
@@ -110,9 +131,10 @@ public class GovernanceClient extends BaseClient {
      * @param tagName   tag name
      * @param comment   comment given when retiring
      * @param userName  username of the person invoking retire
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
-    public void Retire(String appKey, String stageName, String version, String tagName, String comment, String userName) throws Exception {
+    public JsonObject retire(String appKey, String stageName, String version, String tagName, String comment,
+                             String userName, JSONArray checkItems) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "Retire");
         msgBodyMap.put("applicationKey", appKey);
@@ -121,11 +143,15 @@ public class GovernanceClient extends BaseClient {
         msgBodyMap.put("tagName", tagName);
         msgBodyMap.put("comment", comment);
         msgBodyMap.put("userName", userName);
+        msgBodyMap.put("checkItems", checkItems.toString());
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            String responseString = response.getData();
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(responseString);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            return jsonObject;
         } else {
             throw new AFIntegrationTestException("Application Retire failed " + response.getData());
         }
@@ -141,11 +167,14 @@ public class GovernanceClient extends BaseClient {
      * @param doDeploy should deploy or not
      * @param tagName  tag name
      * @param repoFrom whether the repo is original or fork
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
-    public void createArtifact(String appKey, String version, String revision, String stage, String doDeploy, String tagName, String repoFrom) throws Exception {
+    public JsonObject createArtifact(String appKey, String version, String revision, String stage, String doDeploy,
+                                     String tagName, String repoFrom, String userName) throws
+            AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "createArtifact");
+        msgBodyMap.put("version", version);
         msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("revision", revision);
         msgBodyMap.put("stage", stage);
@@ -155,8 +184,8 @@ public class GovernanceClient extends BaseClient {
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            return getAppVersionsInStagesWithLifeCycleInfo(appKey, userName);
+
         } else {
             throw new AFIntegrationTestException("Artifact Creation Failed " + response.getData());
         }
@@ -165,22 +194,24 @@ public class GovernanceClient extends BaseClient {
     /**
      * Test to update to lifecycle checklist
      *
-     * @param appKey application key
+     * @param appKey  application key
      * @param version application version
-     * @param stage stage which application resides in
-     * @throws Exception
+     * @param stage   stage which application resides in
+     * @throws AFIntegrationTestException
      */
-    public void invokeUpdateLifeCycleCheckList(String appKey, String version, String stage) throws Exception {
+    public JsonObject invokeUpdateLifeCycleCheckList(String appKey, String version, String stage, JSONArray checkItems,
+                                                     String userName) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "invokeUpdateLifeCycleCheckList");
         msgBodyMap.put("applicationKey", appKey);
-        msgBodyMap.put("revision", version);
+        msgBodyMap.put("version", version);
         msgBodyMap.put("stage", stage);
+        msgBodyMap.put("checkItems", checkItems.toString());
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return;
+            return getAppVersionsInStagesWithLifeCycleInfo(appKey, userName);
+
         } else {
             throw new AFIntegrationTestException("Invoking Update Lifecycle Checklist Failed " + response.getData());
         }
@@ -189,15 +220,16 @@ public class GovernanceClient extends BaseClient {
     /**
      * Test to check on an check list item
      *
-     * @param appKey application key
+     * @param appKey    application key
      * @param stageName stage name
-     * @param version application version
-     * @param itemName check list item name
-     * @param checked whether checked or not
+     * @param version   application version
+     * @param itemName  check list item name
+     * @param checked   whether checked or not
      * @return
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
-    public String itemChecked(String appKey, String stageName, String version, String itemName, String checked) throws Exception {
+    public String itemChecked(String appKey, String stageName, String version, String itemName, String checked) throws
+            AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "itemChecked");
         msgBodyMap.put("applicationKey", appKey);
@@ -217,13 +249,14 @@ public class GovernanceClient extends BaseClient {
     /**
      * Test to get application versions in the stages with life cycle info
      *
-     * @param appKey application key
+     * @param appKey   application key
      * @param userName username
      * @return
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
 
-    public JSONArray getAppVersionsInStagesWithLifeCycleInfo(String appKey, String userName) throws Exception {
+    public JsonObject getAppVersionsInStagesWithLifeCycleInfo(String appKey, String userName) throws
+            AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "getAppVersionsInStagesWithLifeCycleInfo");
         msgBodyMap.put("applicationKey", appKey);
@@ -231,8 +264,11 @@ public class GovernanceClient extends BaseClient {
 
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            JSONArray jsonObject = new JSONArray(response.getData());
-            return jsonObject;
+            String jsonString = response.getData();
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(jsonString);
+            JsonObject addIssueResponse = jsonElement.getAsJsonObject();
+            return addIssueResponse;
         } else {
             throw new AFIntegrationTestException("Checklist item checking Failed" + response.getData());
         }
@@ -241,43 +277,50 @@ public class GovernanceClient extends BaseClient {
     /**
      * Test to get the life cycle history for the application
      *
-     * @param appKey application key
-     * @param version application version
+     * @param appKey    application key
+     * @param version   application version
      * @param stageName stage name
-     * @param userName username
+     * @param userName  username
      * @return
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
 
-    public String[] getLifeCycleHistoryForApplication(String appKey, String version, String stageName, String userName) throws Exception {
+    public String getLifeCycleHistoryForApplication(String appKey, String version, String stageName,
+                                                    String userName) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "getLifeCycleHistoryForApplication");
         msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("version", version);
         msgBodyMap.put("stageName", stageName);
         msgBodyMap.put("userName", userName);
-
-
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_GET, msgBodyMap);
+
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            //TODO
-            return new String[0];
+//                String jsonString = response.getData();
+//                JsonParser jsonParser = new JsonParser();
+//                JsonElement jsonElement = jsonParser.parse(jsonString);
+//                JsonObject addIssueResponse = jsonElement.getAsJsonObject();
+            return response.getData();
+
+
         } else {
-            throw new AFIntegrationTestException("Getting LifeCycle History for Application Failed" + response.getData());
+            throw new AFIntegrationTestException(
+                    "Getting LifeCycle History for Application Failed" + response.getData());
         }
     }
 
     /**
      * Test to check the version creation
      *
-     * @param appKey application Key
-     * @param srcVersion     source version name
-     * @param targetVersion  target version name
-     * @param lifecycleName  name of the lifecycle to use
-     * @throws Exception
+     * @param appKey        application Key
+     * @param srcVersion    source version name
+     * @param targetVersion target version name
+     * @param lifecycleName name of the lifecycle to use
+     * @throws AFIntegrationTestException
      */
-    public String invokeDoVersion(String appKey, String srcVersion, String targetVersion, String lifecycleName)
-            throws Exception {
+    public JsonObject invokeDoVersion(String appKey, String srcVersion, String targetVersion, String lifecycleName,
+                                      String userName)
+            throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "invokeDoVersion");
         msgBodyMap.put("applicationKey", appKey);
@@ -286,7 +329,8 @@ public class GovernanceClient extends BaseClient {
         msgBodyMap.put("lifecycleName", lifecycleName);
         HttpResponse response = doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            return response.getData();
+            return getAppVersionsInStagesWithLifeCycleInfo(appKey, userName);
+
         } else {
             throw new AFIntegrationTestException("Creating a version failed " + response.getData());
         }
@@ -295,14 +339,16 @@ public class GovernanceClient extends BaseClient {
     /**
      * Test to copy new dependencies and deploy artifacts when promoting an application
      *
-     * @param appKey application key
-     * @param stage stage name
-     * @param version application version
-     * @param tagName tag name
+     * @param appKey       application key
+     * @param stage        stage name
+     * @param version      application version
+     * @param tagName      tag name
      * @param deployAction deployaction
-     * @throws Exception
+     * @throws AFIntegrationTestException
      */
-    public void copyNewDependenciesAndDeployArtifact(String appKey, String stage, String version, String tagName, String deployAction) throws Exception {
+    public JsonObject copyNewDependenciesAndDeployArtifact(String appKey, String stage, String version, String tagName,
+                                                           String deployAction, String userName) throws
+            AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "copyNewDependenciesAndDeployArtifact");
         msgBodyMap.put("applicationKey", appKey);
@@ -312,23 +358,23 @@ public class GovernanceClient extends BaseClient {
         msgBodyMap.put("deployAction", deployAction);
         HttpResponse response = doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            return;
+            return getAppVersionsInStagesWithLifeCycleInfo(appKey, userName);
         } else {
             throw new AFIntegrationTestException("Copying New Dependencies and deploy artifact " + response.getData());
         }
     }
 
-
     /**
      * Test to upload new versions of existing application
      *
      * @param existingVersion existing app version
-     * @param lifecycleName name of the lifecycle to use
-     * @param appKey application Key
-     * @param userName username
-     * @throws Exception
+     * @param lifecycleName   name of the lifecycle to use
+     * @param appKey          application Key
+     * @param userName        username
+     * @throws AFIntegrationTestException
      */
-    public void uploadNewVersionOfExistingApp(String existingVersion, String lifecycleName, String appKey, String userName) throws Exception {
+    public void uploadNewVersionOfExistingApp(String existingVersion, String lifecycleName, String appKey,
+                                              String userName) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "uploadNewVersionOfExistingApp");
         msgBodyMap.put("applicationKey", appKey);
@@ -339,7 +385,8 @@ public class GovernanceClient extends BaseClient {
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return;
         } else {
-            throw new AFIntegrationTestException("Uploading new version of an existing app is failed " + response.getData());
+            throw new AFIntegrationTestException(
+                    "Uploading new version of an existing app is failed " + response.getData());
         }
     }
 

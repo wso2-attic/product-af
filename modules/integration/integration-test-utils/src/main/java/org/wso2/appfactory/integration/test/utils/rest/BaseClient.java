@@ -64,10 +64,19 @@ public class BaseClient {
     protected static final String ISSUETRACKER_ISSUE_GETPROJECTVERSION = "/getProjectVersion.jag";
     protected static final String ISSUETRACKER_URL_COMMENT = "issuetracker/pages/comment/save.jag";
 
+    protected static final String CREAT_APP_URL ="appmgt/site/blocks/resources/apis/add/ajax/add.jag";
+    protected static final String GETAPIS_URL =  "appmgt/site/blocks/resources/apis/get/ajax/get.jag";
+    protected static final String GETSAVEDKEYS_URL = "appmgt/site/blocks/resources/apis/key/ajax/key.jag";
+    protected static final String KEYEXISTS_URL = "appmgt/site/blocks/resources/apis/key/ajax/key.jag";
+    protected static final String ADD_PROPERTY_URL="resources/registry/add/ajax/add.jag";
+    protected static final String UPDATE_DESC_URL="resources/registry/edit/ajax/edit.jag";
+    protected static final String GET_RESOURCE_URL="resources/registry/get/ajax/get.jag";
+
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HEADER_COOKIE = "Cookie";
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String MEDIA_TYPE_X_WWW_FORM = "application/x-www-form-urlencoded";
+
 
     private String backEndUrl;
     private Map<String, String> requestHeaders = new HashMap<String, String>();
