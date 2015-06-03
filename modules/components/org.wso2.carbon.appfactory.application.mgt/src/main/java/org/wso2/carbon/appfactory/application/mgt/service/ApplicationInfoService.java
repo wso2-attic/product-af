@@ -25,17 +25,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
-import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.dto.Application;
-import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
-import org.wso2.carbon.appfactory.core.dto.BuildStatus;
-import org.wso2.carbon.appfactory.core.dto.BuildandDeployStatus;
-import org.wso2.carbon.appfactory.core.dto.DeployStatus;
+import org.wso2.carbon.appfactory.core.dto.*;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -601,60 +595,6 @@ public class ApplicationInfoService {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return true;
-    }
-
-    /**
-     * Gets application information of the user to populate the user home
-     *
-     * @param userName username of the user for whom application summary list needs to be loaded
-     * @return ApplicationSummary[]
-     * @throws ApplicationManagementException
-     */
-    public ApplicationSummary[] getApplicationSummaryForUser(String userName)
-            throws ApplicationManagementException {
-
-        String[] applicationKeys = getApplicationKeysOfUser(userName);
-        String tenantDomain = getTenantDomain();
-        List<ApplicationSummary> applicationSummaryList = new ArrayList<ApplicationSummary>();
-        try {
-            applicationSummaryList =
-                    ApplicationDAO.getInstance().getSummarizedApplicationInfo(applicationKeys);
-        } catch (AppFactoryException e) {
-            String msg =
-                    "Error while getting application summary info for user " + userName +
-                    " of tenant" + tenantDomain;
-            log.error(msg, e);
-        }
-        ApplicationsOfUserCache applicationsOfUserCache = new ApplicationsOfUserCache();
-        if (applicationsOfUserCache.isUserInvitedToApplication(userName)) {
-            applicationsOfUserCache.clearCacheForUserName(userName);
-        }
-        return
-                applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
-    }
-
-    /**
-     * Returns the list of applications that user belongs to
-     *
-     * @param userName
-     * @return <b>Application</b> Array
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicaitonsOfTheUser(String userName)
-            throws ApplicationManagementException {
-        long startTime = System.currentTimeMillis();
-        try {
-            Application[] apps = ApplicationDAO.getInstance().getAllApplicationsOfUser(userName);
-            long endTime = System.currentTimeMillis();
-            if (perfLog.isDebugEnabled()) {
-                perfLog.debug("AFProfiling getApplicaitonsOfTheUser : " + (endTime - startTime));
-            }
-            return apps;
-        } catch (AppFactoryException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message, e);
-            throw new ApplicationManagementException(message, e);
-        }
     }
 
     /**
