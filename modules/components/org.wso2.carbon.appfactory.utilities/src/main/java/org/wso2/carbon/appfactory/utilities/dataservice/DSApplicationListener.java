@@ -28,9 +28,9 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.utilities.security.authorization.RemoteAuthorizationMgtClient;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -81,6 +81,8 @@ public class DSApplicationListener extends ApplicationEventsHandler {
         String stages[] = config.getProperties("ApplicationDeployment.DeploymentStage");
         String tenantUserName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        ServiceClient client = null;
+        OMElement payload = null;
 
         for (String stage : stages) {
 
@@ -93,7 +95,7 @@ public class DSApplicationListener extends ApplicationEventsHandler {
 	            RemoteAuthorizationMgtClient authorizationMgtClient = new RemoteAuthorizationMgtClient(serverUrl);
 	            AppFactoryUtil.setAuthHeaders(authorizationMgtClient.getStub()._getServiceClient(), tenantUserName);
 
-                ServiceClient client = new ServiceClient();
+                client = new ServiceClient();
 
                 client.getOptions()
                         .setTo(new EndpointReference(serviceURL));
@@ -133,12 +135,27 @@ public class DSApplicationListener extends ApplicationEventsHandler {
                     log.debug("payload to create sample data source:" + payloadString);
                 }
 
-                OMElement payload = new StAXOMBuilder(new ByteArrayInputStream(payloadString.getBytes())).getDocumentElement();
+                payload = new StAXOMBuilder(new ByteArrayInputStream(payloadString.getBytes())).getDocumentElement();
                 client.sendRobust(payload);
 
             } catch (AxisFault e) {
-                log.error("Error while creating the sample data source for stage " + stage + " " + e);
-	            throw new AppFactoryException("Error while creating the sample data source for stage " + stage + " " + e);
+                String errorMsg = "Error while creating the sample data source for stage " + stage;
+                log.error(errorMsg);
+
+                //if the tenant is unloaded in app server it will throw AxisFault exception. So retrying again.
+                if(client != null && payload != null) {
+                    log.info("Resending the request to create the sample data source for stage : " + stage);
+                    try {
+                        client.sendRobust(payload);
+                    } catch (AxisFault axisFault) {
+                        String msg =
+                                "Error during the second attempt of creating the sample data source for stage " + stage;
+                        log.error(msg, axisFault);
+                        throw new AppFactoryException(msg, axisFault);
+                    }
+                } else {
+                    throw new AppFactoryException(errorMsg, e);
+                }
             } catch (XMLStreamException e) {
                 log.error("Error while creating the sample data source for stage " + stage + " " + e);
 	            throw new AppFactoryException("Error while creating the sample data source for stage " + stage + " " + e);

@@ -103,4 +103,6 @@ public class AFConstants {
 
     public static final String DEFAULT_API_PASSWORD="//appFactoryProperties/defaultAPI/password";
 
+    public static final String TRUE = "true";
+    public static final String FALSE= "false";
 }

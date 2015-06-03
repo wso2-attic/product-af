@@ -103,6 +103,7 @@
     <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
     <authToken>build</authToken>
     <concurrentBuild>false</concurrentBuild>
+    <goals>mvn clean install</goals>
     <mavenName>m3</mavenName>
     <mavenOpts>-Xmx4048M -XX:MaxPermSize=4048M</mavenOpts>
     <aggregatorStyleBuild>true</aggregatorStyleBuild>

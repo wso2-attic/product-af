@@ -62,10 +62,10 @@ public class ArtifactCreator extends AbstractAdmin {
             boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
 
             boolean performBuild = true;
-            boolean performDeploy = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId, version);
+            boolean performDeploy = JDBCAppVersionDAO.getInstance().getAutoDeployStatusOfVersion(applicationId, version);
             if (doDeploy) {
                 //triggered by auto commit
-                performBuild = JDBCAppVersionDAO.getInstance().getAutoDeployStatusOfVersion(applicationId, version);
+                performBuild = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId, version);
                 if (log.isDebugEnabled()) {
                     log.error("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " +
                               repoFrom);
@@ -91,6 +91,7 @@ public class ArtifactCreator extends AbstractAdmin {
             }
             if (performDeploy) {
                 ApplicationDeployer applicationDeployer = new ApplicationDeployer();
+                log.info("*****************coming from artifact creator: create artifacts");
                 applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy", repoFrom);
                 log.info("Start artifact deploying  job for Application ID : " + applicationId + " , version " + version
                          + " by " + tenantDomain + " repoFrom " + repoFrom);
