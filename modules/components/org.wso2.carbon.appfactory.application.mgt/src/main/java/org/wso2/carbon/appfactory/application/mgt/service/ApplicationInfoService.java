@@ -25,11 +25,17 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
-import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
+import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.*;
+import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.core.dto.Application;
+import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
+import org.wso2.carbon.appfactory.core.dto.BuildStatus;
+import org.wso2.carbon.appfactory.core.dto.BuildandDeployStatus;
+import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -70,29 +76,6 @@ public class ApplicationInfoService {
     private Application getBasicApplicationInfo(String applicationKey) throws AppFactoryException {
         Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
         return application;
-    }
-
-    /**
-     * Gets application information of the user to populate the user home
-     *
-     * @param userName user name
-     * @return
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicationInfoForUser(String userName) throws ApplicationManagementException {
-        List<Application> appInfoList = new ArrayList<Application>();
-        String[] applicationKeys = getApplicationKeysOfUser(userName);
-        for (String applicationKey : applicationKeys) {
-            try {
-                Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
-                appInfoList.add(application);
-            } catch (AppFactoryException e) {
-                String msg = "Error while getting application info for user : " + userName + " of tenant : " +
-                             getTenantDomain();
-                log.error(msg, e);
-            }
-        }
-        return appInfoList.toArray(new Application[appInfoList.size()]);
     }
 
     /**
@@ -593,6 +576,36 @@ public class ApplicationInfoService {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return true;
+    }
+
+    /**
+     * Gets application information of the user to populate the user home
+     *
+     * @param userName username of the user for whom application summary list needs to be loaded
+     * @return ApplicationSummary[]
+     * @throws ApplicationManagementException
+     */
+    public ApplicationSummary[] getApplicationSummaryForUser(String userName)
+            throws ApplicationManagementException {
+
+        String[] applicationKeys = getApplicationKeysOfUser(userName);
+        String tenantDomain = getTenantDomain();
+        List<ApplicationSummary> applicationSummaryList = new ArrayList<ApplicationSummary>();
+        try {
+            applicationSummaryList =
+                    ApplicationDAO.getInstance().getSummarizedApplicationInfo(applicationKeys);
+        } catch (AppFactoryException e) {
+            String msg =
+                    "Error while getting application summary info for user " + userName +
+                    " of tenant" + tenantDomain;
+            log.error(msg, e);
+        }
+        ApplicationsOfUserCache applicationsOfUserCache = new ApplicationsOfUserCache();
+        if (applicationsOfUserCache.isUserInvitedToApplication(userName)) {
+            applicationsOfUserCache.clearCacheForUserName(userName);
+        }
+        return
+                applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
     }
 
     /**
