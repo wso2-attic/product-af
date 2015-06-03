@@ -91,6 +91,7 @@ public class ArtifactCreator extends AbstractAdmin {
             }
             if (performDeploy) {
                 ApplicationDeployer applicationDeployer = new ApplicationDeployer();
+                log.info("*****************coming from artifact creator: create artifacts");
                 applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy", repoFrom);
                 log.info("Start artifact deploying  job for Application ID : " + applicationId + " , version " + version
                          + " by " + tenantDomain + " repoFrom " + repoFrom);
