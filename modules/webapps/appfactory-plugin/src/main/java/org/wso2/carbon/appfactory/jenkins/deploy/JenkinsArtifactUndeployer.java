@@ -129,10 +129,10 @@ public class JenkinsArtifactUndeployer extends AbstractStratosUndeployer {
                                                                     AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN);
         boolean subscribeOnDeployment = Boolean.parseBoolean(
                 DeployerUtil.getParameterValue(parameters, AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT));
-        int tenantId = Integer.parseInt(Utils.getEnvironmentVariable(AppFactoryConstants.EVN_VAR_TENANT_ID));
+        int tenantId = Integer.parseInt(DeployerUtil.getParameter(parameters, "tenantId"));
         String applicationId = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID);
         String stage = DeployerUtil.getParameterValue(parameters, AppFactoryConstants.DEPLOY_STAGE);
-        String tenantDomain = Utils.getEnvironmentVariable(AppFactoryConstants.EVN_VAR_TENANT_DOMAIN);
+        String tenantDomain = DeployerUtil.getParameterValue(parameters, AppFactoryConstants.TENANT_DOMAIN);
         String baseUrl = getBaseRepoUrl();
         String gitRepoUrl;
         if (subscribeOnDeployment) {
