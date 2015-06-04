@@ -67,13 +67,13 @@ public class ArtifactCreator extends AbstractAdmin {
                 //triggered by auto commit
                 performBuild = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId, version);
                 if (log.isDebugEnabled()) {
-                    log.error("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " +
+                    log.debug("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " +
                               repoFrom);
                 }
             } else {
                 //triggered by manual build
                 if (log.isDebugEnabled()) {
-                    log.error("Triggered by manual build " + performBuild + " and " + performDeploy + " repoFrom " +
+                    log.debug("Triggered by manual build " + performBuild + " and " + performDeploy + " repoFrom " +
                               repoFrom);
                 }
             }
@@ -89,9 +89,8 @@ public class ArtifactCreator extends AbstractAdmin {
                          " version : " + version + " tenant domain : " + tenantDomain + " repoFrom : " + repoFrom);
 
             }
-            if (performDeploy) {
+            if (!appIsBuilServerRequired && performDeploy) {
                 ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-                log.info("*****************coming from artifact creator: create artifacts");
                 applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy", repoFrom);
                 log.info("Start artifact deploying  job for Application ID : " + applicationId + " , version " + version
                          + " by " + tenantDomain + " repoFrom " + repoFrom);
