@@ -36,7 +36,9 @@ import java.io.File;
 import java.util.Date;
 import java.util.Map;
 
-
+/**
+ * Nodejs application type processor
+ */
 public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
 
     private static final Log log = LogFactory.getLog(NodejsApplicationTypeProcessor.class);

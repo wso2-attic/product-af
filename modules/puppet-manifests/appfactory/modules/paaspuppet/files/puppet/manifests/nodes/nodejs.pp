@@ -28,3 +28,4 @@ class {'nodejs':
    }
 
 Class['stratos_base'] -> Class['java'] -> Class['nodejs'] ~> Class['agent']
+}
