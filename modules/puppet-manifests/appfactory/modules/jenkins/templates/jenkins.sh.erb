@@ -17,7 +17,7 @@ DEFAULT_JAVA_OPTS=" -Djavax.net.ssl.trustStore=<%= @clientTrustStore_location %>
 DEFAULT_JENKINS_OPTS=" --httpPort=-1 --httpsPort=9500
                     --httpsKeyStore=<%= @jenkins_keystore_name %>
                     --httpsKeyStorePassword=<%= @jenkins_keystore_password %> "
-LOGS_OPTS=" > /mnt/10.100.5.95/jenkins/logs/jenkins.log 2>&1 & echo $! > ${PIDFILE}"
+LOGS_OPTS=" > /mnt/10.100.5.95/jenkins/logs/jenkins.log 2>&1 & echo \$! > ${PIDFILE}"
 
 if [ -e "${PIDFILE}" ]; then
   PID=`cat ${PIDFILE}`
