@@ -46,5 +46,7 @@ public class Constants {
     
     public static final String JENKINS_HOME = "JENKINS_HOME";
     public static final String JOB_CONFIG_XPATH = "/*/publishers/org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager/applicationArtifactExtension";
-    
+
+    public static final String PLACEHOLDER_JEN_HOME = "$JENKINS_HOME";
+    public static final String PLACEHOLDER_TENANT_IDENTIFIER = "$TENANT_IDENTIFIER";
 }

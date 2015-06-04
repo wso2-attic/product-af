@@ -67,12 +67,12 @@ import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.xml.stream.XMLStreamException;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -91,6 +91,7 @@ import java.util.Map;
 public class RestBasedJenkinsCIConnector {
 
     private static final Log log = LogFactory.getLog(RestBasedJenkinsCIConnector.class);
+    public static final String URL_SUFFIX_FORMAT_CREATE_JOB = "/job/%s/createItem";
     private static RestBasedJenkinsCIConnector restBasedJenkinsCIConnector;
     private static final String CREATE_ROLE_URL = "/descriptorByName/com.michelin.cio.hudson.plugins.rolestrategy"
                                                   + ".RoleBasedAuthorizationStrategy/createProjectRoleSubmit";
@@ -172,9 +173,6 @@ public class RestBasedJenkinsCIConnector {
         this.apiKeyOrPassword = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
                 JenkinsCIConstants.JENKINS_SERVER_ADMIN_PASSWORD);
 
-        this.jenkinsUrl = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
-                JenkinsCIConstants.BASE_URL_CONFIG_SELECTOR);
-
         this.allowAllHostNameVerifier = Boolean.parseBoolean(
                 AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
                         JenkinsCIConstants.ALLOW_ALL_HOSTNAME_VERIFIER));
@@ -189,18 +187,12 @@ public class RestBasedJenkinsCIConnector {
         if (log.isDebugEnabled()) {
             log.debug(String.format("Authenticate : %s", this.authenticate));
             log.debug(String.format("Jenkins user name : %s", this.username));
-            log.debug(String.format("Jenkins url : %s", this.jenkinsUrl));
         }
 
         ThreadSafeClientConnManager threadSafeClientConnManager = new ThreadSafeClientConnManager();
         threadSafeClientConnManager.setDefaultMaxPerRoute(this.defaultMaxConnectionsPerRoute);
         threadSafeClientConnManager.setMaxTotal(this.maxTotalConnections);
         this.httpClient = new DefaultHttpClient(threadSafeClientConnManager);
-
-        if (StringUtils.isBlank(this.jenkinsUrl)) {
-            throw new IllegalArgumentException(
-                    "Jenkins server url is unspecified");
-        }
     }
 
 
@@ -235,220 +227,21 @@ public class RestBasedJenkinsCIConnector {
     }
 
     /**
-     * @return
-     */
-    public String getJenkinsUrl() {
-        return jenkinsUrl;
-    }
-
-    /**
-     * Creates a project/job role in jenkins server
-     * <p>
-     * <b>NOTE: this method assumes a modified version (by WSO2) of
-     * 'role-strategy' plugin is installed in jenkins server</b>
-     * </p>
+     * Get jenkins URL by {@code tenantDomain}. Since we are using a bucket strategy to select jenkins cluster, and
+     * bucket(therefore jenkins cluster) depends on the {@code tenantDomain}. correct {@code tenantDomain} should be
+     * passed here.
      *
-     * @param roleName     Name of the role.
-     * @param pattern      a regular expression to match jobs (e.g. app1.*)
-     * @param permissions
-     * @param tenantDomain tenant domain, to which the application belongs
-     * @throws AppFactoryException if an error occurs
-     */
-    public void createRole(String roleName, String pattern, String permissions[], String tenantDomain)
-            throws AppFactoryException {
-
-        ArrayList<NameValuePair> parameters = new ArrayList<NameValuePair>();
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.ROLE_NAME, roleName));
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.ROLE_PATTERN, pattern));
-        for (String permission : permissions) {
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.ROLE_PERMISSION, permission));
-        }
-
-        HttpPost addRoleMethod;
-        addRoleMethod = createPost(CREATE_ROLE_URL, parameters, null, tenantDomain);
-
-        HttpResponse addRoleResponse = null;
-        try {
-            addRoleResponse = httpClient.execute(addRoleMethod, getHttpContext());
-            int httpStatusCode = addRoleResponse.getStatusLine().getStatusCode();
-
-            if (!isSuccessfulStatusCode(httpStatusCode)) {
-                addRoleResponse = resendRequest(addRoleMethod, addRoleResponse);
-                httpStatusCode = addRoleResponse.getStatusLine().getStatusCode();
-            }
-
-            if (!isSuccessfulStatusCode(httpStatusCode)) {
-                String errorMsg = String.format("Unable to create the role. jenkins returned, " + "http status : %d",
-                                                httpStatusCode);
-                log.error(errorMsg);
-                throw new AppFactoryException(errorMsg);
-            }
-        } catch (ClientProtocolException e) {
-            String msg = "Error while executing the HttpPost method for create role with role name : " + roleName +
-                         " in tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } catch (IOException e) {
-            String msg = "Error while executing the HttpPost method for create role with role name : " + roleName +
-                         " in tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } finally {
-            if (addRoleResponse != null) {
-                try {
-                    EntityUtils.consume(addRoleResponse.getEntity());
-                } catch (IOException e) {
-                    String msg = "Error while consuming create role response for role : " + roleName + " in tenant : " +
-                                 tenantDomain;
-                    log.error(msg, e);
-                    throw new AppFactoryException(msg, e);
-                }
-            }
-        }
-
-    }
-
-    /**
-     * Assigns a set of global and/or project roles(s) to a specified user(s)
-     * <p>
-     * <b>NOTE: this method assumes a modified version (by WSO2) of
-     * 'role-strategy' plugin is installed in jenkins server</b>
-     * </p>
-     *
-     * @param userIds          list of user Ids
-     * @param projectRoleNames list of project roles
-     * @param globalRoleNames  list of global roles
-     * @param tenantDomain     tenant domain
-     * @throws AppFactoryException if an error occurs
-     */
-    public void assignUsers(String[] userIds, String[] projectRoleNames, String[] globalRoleNames, String tenantDomain)
-            throws AppFactoryException {
-
-        String assignURL = JenkinsCIConstants.RoleStrategy.ASSIGN_ROLE_SERVICE;
-
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        for (String id : userIds) {
-            params.add(new BasicNameValuePair(AppFactoryConstants.ASSIGN_USER_ID, id));
-        }
-
-        if (projectRoleNames != null) {
-            for (String role : projectRoleNames) {
-                params.add(new BasicNameValuePair(AppFactoryConstants.PROJECT_ROLE, role));
-            }
-        }
-
-        if (globalRoleNames != null) {
-            for (String role : globalRoleNames) {
-                params.add(new BasicNameValuePair(AppFactoryConstants.GLOBAL_ROLE, role));
-            }
-        }
-
-        HttpPost assignRolesMethod;
-        assignRolesMethod = createPost(assignURL, params, null, tenantDomain);
-
-        HttpResponse assignUserResponse = null;
-        try {
-            assignUserResponse = httpClient.execute(assignRolesMethod, getHttpContext());
-            int httpStatusCode = assignUserResponse.getStatusLine().getStatusCode();
-
-            if (!isSuccessfulStatusCode(httpStatusCode)) {
-                assignUserResponse = resendRequest(assignRolesMethod, assignUserResponse);
-                httpStatusCode = assignUserResponse.getStatusLine().getStatusCode();
-            }
-            if (!isSuccessfulStatusCode(httpStatusCode)) {
-                String errorMsg =
-                        "Unable to assign roles to given sides. jenkins " + "returned, http status : " + httpStatusCode;
-                log.error(errorMsg);
-                throw new AppFactoryException(errorMsg);
-            }
-        } catch (ClientProtocolException e) {
-            String msg = "Error while executing the HttpPost method for assigning users in tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } catch (IOException e) {
-            String msg = "Error while executing the HttpPost method for assigning users in tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } finally {
-            if (assignUserResponse != null) {
-                try {
-                    EntityUtils.consume(assignUserResponse.getEntity());
-                } catch (IOException e) {
-                    String msg = "Error while consuming assign users response in tenant : " + tenantDomain;
-                    log.error(msg, e);
-                    throw new AppFactoryException(msg, e);
-                }
-            }
-        }
-
-    }
-
-    /**
-     * Assign set of users to the application given.
-     * <p>
-     * <b>NOTE: this method assumes a modified version (by WSO2) of
-     * 'role-strategy' plugin is installed in jenkins server</b>
-     * </p>
-     *
-     * @param applicationKey Application ID
-     * @param users          Users List
-     * @param tenantDomain   tenant domain
+     * @param tenantDomain tenant Domain
+     * @return jenkins url
      * @throws AppFactoryException
      */
-    public void unAssignUsers(String applicationKey, String[] users, String tenantDomain) throws AppFactoryException {
-        if (applicationKey == null) {
-            throw new NullPointerException("Application cannot be null.");
+    public String getJenkinsUrl(String tenantDomain) throws AppFactoryException {
+        int tenantBucketId = ServiceContainer.getBucketSelectingStrategy().getTenantBucketId(tenantDomain);
+        String bucketClusterId = ServiceContainer.getClusterSelectingStrategy().getBucketClusterId(tenantBucketId);
+        if (StringUtils.isBlank(bucketClusterId)) {
+            throw new IllegalArgumentException("Jenkins server url is unspecified for bucket:"+tenantBucketId);
         }
-
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        for (String user : users) {
-            params.add(new BasicNameValuePair(AppFactoryConstants.ASSIGN_USER_ID, user));
-        }
-        params.add(new BasicNameValuePair(AppFactoryConstants.PROJECT_ROLE, applicationKey));
-
-        HttpPost assignRolesMethod;
-        assignRolesMethod = createPost(JenkinsCIConstants.RoleStrategy.UNASSIGN_ROLE_SERVICE, params, null,
-                                       tenantDomain);
-        HttpResponse unAssignRespone = null;
-        try {
-            unAssignRespone = httpClient.execute(assignRolesMethod, getHttpContext());
-            int httpStatusCode = unAssignRespone.getStatusLine().getStatusCode();
-
-            if (!isSuccessfulStatusCode(httpStatusCode)) {
-                unAssignRespone = resendRequest(assignRolesMethod, unAssignRespone);
-                httpStatusCode = unAssignRespone.getStatusLine().getStatusCode();
-            }
-
-            if (!isSuccessfulStatusCode(httpStatusCode)) {
-                String msg = "Unable to un-assign roles to given application. jenkins returned, http status : " +
-                             httpStatusCode;
-                log.error(msg);
-                throw new AppFactoryException(msg);
-            }
-        } catch (ClientProtocolException e) {
-            String msg =
-                    "Error while executing the post method for un assigning users for application : " + applicationKey +
-                    " in tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } catch (IOException e) {
-            String msg =
-                    "Error while executing the post method for un assigning users for application : " + applicationKey +
-                    " in tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        } finally {
-            if (unAssignRespone != null) {
-                try {
-                    EntityUtils.consume(unAssignRespone.getEntity());
-                } catch (IOException e) {
-                    String msg = "Error while consuming unassign users response for application : " + applicationKey +
-                                 "  in tenant : " + tenantDomain;
-                    log.error(msg, e);
-                    throw new AppFactoryException(msg, e);
-                }
-            }
-        }
+        return bucketClusterId;
     }
 
     /**
@@ -471,9 +264,80 @@ public class RestBasedJenkinsCIConnector {
         HttpResponse createJobResponse = null;
 
         try {
-            createJob = createPost("/createItem", queryParams,
+            createJob = createPost(String.format(URL_SUFFIX_FORMAT_CREATE_JOB, tenantDomain), queryParams,
                                    new StringEntity(jobConfiguration.toStringWithConsume(), "text/xml", "utf-8"),
                                    tenantDomain);
+            createJobResponse = httpClient.execute(createJob, getHttpContext());
+            int httpStatusCode = createJobResponse.getStatusLine().getStatusCode();
+
+            if (!isSuccessfulStatusCode(httpStatusCode)) {
+                createJobResponse = resendRequest(createJob, createJobResponse);
+                httpStatusCode = createJobResponse.getStatusLine().getStatusCode();
+            }
+
+            if (!isSuccessfulStatusCode(httpStatusCode)) {
+                String errorMsg =
+                        "Unable to create the job : " + jobName + ". jenkins returned, http status : " + httpStatusCode;
+                log.error(errorMsg);
+                throw new AppFactoryException(errorMsg);
+            }
+        } catch (ClientProtocolException e) {
+            String msg =
+                    "Error while executing HttpPost method for creating job for job : " + jobName + " in tenant : " +
+                    tenantDomain;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } catch (IOException e) {
+            String msg =
+                    "Error while executing HttpPost method for creating job for job : " + jobName + " in tenant : " +
+                    tenantDomain;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } catch (XMLStreamException e) {
+            String msg = "Error while converting OMElement to string when creating job for job : " + jobName +
+                         " in tenant : " + tenantDomain;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            if (createJobResponse != null) {
+                try {
+                    EntityUtils.consume(createJobResponse.getEntity());
+                } catch (IOException e) {
+                    String msg =
+                            "Error while consuming the create job response for job : " + jobName + " in tenant : " +
+                            tenantDomain;
+                    log.error(msg, e);
+                    throw new AppFactoryException(msg, e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Create tenant job. This will create "Folder Job"(folder with the name of {@code jobName} in
+     * $JENKINS_HOME/jobs directory) to represent the tenant in the jenkins
+     *
+     * TODO Refactor this method
+     * @param jobName
+     * @param jobConfiguration
+     * @param tenantDomain
+     * @throws AppFactoryException
+     */
+    public void createTenantJob(String jobName, OMElement jobConfiguration,
+                                String tenantDomain) throws AppFactoryException {
+
+
+        List<NameValuePair> queryParams = new ArrayList<NameValuePair>();
+        queryParams.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME_KEY, jobName));
+        HttpPost createJob;
+        HttpResponse createJobResponse = null;
+
+        try {
+            createJob = createPost(
+                    "/createItem",
+                    queryParams,
+                    new StringEntity(jobConfiguration.toStringWithConsume(), "text/xml", "utf-8"),
+                    tenantDomain);
             createJobResponse = httpClient.execute(createJob, getHttpContext());
             int httpStatusCode = createJobResponse.getStatusLine().getStatusCode();
 
@@ -538,7 +402,7 @@ public class RestBasedJenkinsCIConnector {
         queryParameters.add(new BasicNameValuePair("wrapper", wrapperTag));
         queryParameters.add(new BasicNameValuePair("xpath", String.format("/*/job/name[text()='%s']", jobName)));
 
-        HttpGet checkJobExistsMethod = createGet("/api/xml", queryParameters, tenantDomain);
+        HttpGet checkJobExistsMethod = createGet("/job/"+tenantDomain+"/api/xml", queryParameters, tenantDomain);
 
         boolean isExists = false;
         HttpResponse jobExistResponse = null;
@@ -607,7 +471,7 @@ public class RestBasedJenkinsCIConnector {
     public boolean deleteJob(String jobName, String tenantDomain) throws AppFactoryException {
 
         HttpPost deleteJobMethod;
-        deleteJobMethod = createPost(String.format("/job/%s/doDelete", jobName), null, null, tenantDomain);
+        deleteJobMethod = createPost(String.format("/job/"+tenantDomain+"/job/%s/doDelete", jobName), null, null, tenantDomain);
         int httpStatusCode = -1;
         HttpResponse deleteJobResponse = null;
 
@@ -697,7 +561,7 @@ public class RestBasedJenkinsCIConnector {
         }
 
         HttpPost startBuildMethod;
-        startBuildMethod = createPost(String.format("/job/%s/buildWithParameters", jobName), parameters, null,
+        startBuildMethod = createPost(String.format("/job/"+tenantDomain+"/job/%s/buildWithParameters", jobName), parameters, null,
                                       tenantDomain);
 
         int httpStatusCode;
@@ -838,6 +702,7 @@ public class RestBasedJenkinsCIConnector {
 
 
     /**
+     * //TODO NEED TO CHANGE,
      * Method to get the status of the build
      *
      * @param buildUrl     url of the build
@@ -848,7 +713,7 @@ public class RestBasedJenkinsCIConnector {
     public String getbuildStatus(String buildUrl, String tenantDomain) throws AppFactoryException {
 
         String buildStatus = AppFactoryConstants.BUILD_STATUS_UNKNOWN;
-        HttpGet checkJobExistsMethod = createGet("api/xml", null, tenantDomain);
+        HttpGet checkJobExistsMethod = createGetByBaseUrl(buildUrl,"api/xml", null);
 
         HttpResponse getBuildStatusResponse = null;
         try {
@@ -927,7 +792,7 @@ public class RestBasedJenkinsCIConnector {
         queryParameters.add(new BasicNameValuePair(AppFactoryConstants.WRAPPER_TAG_KEY, wrapperTag));
         queryParameters.add(new BasicNameValuePair(AppFactoryConstants.XPATH_EXPRESSION_KEY, "/*/build/url"));
 
-        HttpGet getBuildsMethod = createGet(String.format("/job/%s/api/xml", jobName), queryParameters, tenantDomain);
+        HttpGet getBuildsMethod = createGet(String.format("/job/%s/job/%s/api/xml", tenantDomain, jobName), queryParameters, tenantDomain);
         HttpResponse getBuildUrlResponse = null;
 
         try {
@@ -1096,6 +961,9 @@ public class RestBasedJenkinsCIConnector {
                         jobName + ", stage : " + stage + " for username: " + userName);
             }
 
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE, runtimeNameForAppType));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
                                                   Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
@@ -1191,6 +1059,9 @@ public class RestBasedJenkinsCIConnector {
         }
 
         List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME, jobName));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
 
@@ -1258,6 +1129,62 @@ public class RestBasedJenkinsCIConnector {
     }
 
     /**
+     * This will extract pre configured mvn repo to tenant
+     * @param tenantDomain
+     * @throws AppFactoryException
+     */
+    public void extractMvnRepo(String tenantDomain) throws AppFactoryException {
+        String extractMvnRepoUrl = "/plugin/appfactory-plugin/extractMvnRepo";
+        List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN, tenantDomain));
+        HttpResponse extractResponse = null;
+        HttpPost extractMvnRepoMethod = createPost(
+                extractMvnRepoUrl,
+                parameters, null,
+                tenantDomain);
+        try {
+            extractResponse = httpClient.execute(extractMvnRepoMethod, getHttpContext());
+            int httpStatusCode = extractResponse.getStatusLine().getStatusCode();
+
+            if (!isSuccessfulStatusCode(httpStatusCode)) {
+                extractResponse = resendRequest(extractMvnRepoMethod, extractResponse);
+                httpStatusCode = extractResponse.getStatusLine().getStatusCode();
+            }
+
+            if (!isSuccessfulStatusCode(httpStatusCode)) {
+                String errorMsg = "Unable to extract pre configured maven repo for tenant: "+ tenantDomain
+                                  + ". jenkins returned, http status : "
+                                  + httpStatusCode;
+                log.error(errorMsg);
+                throw new AppFactoryException(errorMsg);
+            }
+        } catch (ClientProtocolException e) {
+            String msg =
+                    "Error while executing HttpPost method for extract pre configured maven repo for tenant: "+
+                    tenantDomain;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } catch (IOException e) {
+            String msg =
+                    "Error while executing HttpPost method for extract pre configured maven repo for tenant: "+
+                    tenantDomain;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            if (extractResponse != null) {
+                try {
+                    EntityUtils.consume(extractResponse.getEntity());
+                } catch (IOException e) {
+                    String msg = "Error while consuming  extract pre configured maven repo for tenant: "+
+                                 tenantDomain;
+                    log.error(msg, e);
+                    throw new AppFactoryException(msg, e);
+                }
+            }
+        }
+    }
+
+    /**
      * Method to set an application auto buildable
      *
      * @param jobName        name of the job
@@ -1293,7 +1220,7 @@ public class RestBasedJenkinsCIConnector {
                                                        int pollingPeriod, String tenantDomain)
             throws AppFactoryException {
 
-        HttpGet getFetchMethod = createGet(String.format("/job/%s/config.xml", jobName), null, tenantDomain);
+        HttpGet getFetchMethod = createGet(String.format("/job/%s/job/%s/config.xml", tenantDomain, jobName), null, tenantDomain);
         OMElement configurations = null;
         HttpResponse buildUpdateResponse = null;
 
@@ -1401,7 +1328,7 @@ public class RestBasedJenkinsCIConnector {
         HttpResponse setConfigurationResponse = null;
 
         try {
-            createJob = createPost(String.format("/job/%s/config.xml", jobName), queryParams,
+            createJob = createPost(String.format("/job/%s/job/%s/config.xml",tenantDomain, jobName), queryParams,
                                    new StringEntity(jobConfiguration.toStringWithConsume(), "text/xml", "utf-8"),
                                    tenantDomain);
             setConfigurationResponse = httpClient.execute(createJob, getHttpContext());
@@ -1490,7 +1417,7 @@ public class RestBasedJenkinsCIConnector {
         HttpResponse autoDeployUpdateResponse = null;
         int httpStatusCode;
 
-        HttpGet getFetchMethod = createGet(String.format("/job/%s/config.xml", jobName), null, tenantDomain);
+        HttpGet getFetchMethod = createGet(String.format("/job/%s/job/%s/config.xml",tenantDomain, jobName), null, tenantDomain);
 
         try {
             autoDeployUpdateResponse = httpClient.execute(getFetchMethod, getHttpContext());
@@ -1557,6 +1484,48 @@ public class RestBasedJenkinsCIConnector {
         }
 
         return configurations;
+    }
+
+    private HttpGet createGetByBaseUrl(String baseUrl, String relativePath,
+                                       List<NameValuePair> queryParameters) throws AppFactoryException {
+        String query = null;
+        URL url = null;
+        URI uri = null;
+        HttpGet get;
+
+        if (queryParameters != null) {
+            query = URLEncodedUtils.format(queryParameters, HTTP.UTF_8);
+        }
+        try {
+            url = new URL(baseUrl+relativePath);
+            if (url != null) {
+                uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), url.getPath(), query, null);
+            }
+            if (uri == null) {
+                throw new AppFactoryException(
+                        "Unable to generate URI for path : " + relativePath );
+            }
+
+        } catch (MalformedURLException e) {
+            String msg = "Error while generating URL for the path : " + baseUrl + " in tenant : "  +
+                         " during the creation of HttpGet method";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } catch (URISyntaxException e) {
+            String msg =
+                    "Error while constructing the URI for url : " + url.toString() + " in tenant : " + 
+                    " during the creation of HttpGet method";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+
+        get = new HttpGet(uri);
+        if (authenticate) {
+            get.addHeader(
+                    BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
+                                             HTTP.UTF_8, false));
+        }
+        return get;
     }
 
     /**
@@ -1646,8 +1615,8 @@ public class RestBasedJenkinsCIConnector {
             throw new AppFactoryException(msg, e);
         } catch (URISyntaxException e) {
             String msg =
-                    "Error while constructing the URI for url : " + url.toString() + " in tenant : " + tenantDomain +
-                    " during the creation of HttpGet method";
+                    "Error while constructing the URI for tenant : " + tenantDomain + " during the creation of " +
+                    "HttpPosts method";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
@@ -1667,19 +1636,20 @@ public class RestBasedJenkinsCIConnector {
     }
 
     /**
+     * TODO: Refactor this method and remove depreciated methods
      * Get Jenkins URL for a given Tenant Domain
      *
-     * @param urlFragment  Url fragments
-     * @param tenantDomain Tenant domain of the application
-     * @return Jenkins URL
+     * @param relativePath relative path from base url ex: /job/sam.com/api/xml
+     * @param tenantDomain tenant Domain
+     * @param query
+     * @return
+     * @throws AppFactoryException
+     * @throws URISyntaxException
      */
-    private String getJenkinsUrlByTenantDomain(String urlFragment, String tenantDomain) {
-        if (tenantDomain != null && !tenantDomain.equals("")) {
-            return getJenkinsUrl() + File.separator + Constants.TENANT_SPACE + File.separator + tenantDomain +
-                   Constants.JENKINS_WEBAPPS + File.separator + urlFragment;
-        } else {
-            return getJenkinsUrl() + urlFragment;
-        }
+    private String getJenkinsUrlByTenantDomain(String relativePath,
+                                            String tenantDomain)
+            throws AppFactoryException {
+        return getJenkinsUrl(tenantDomain) +relativePath;
     }
 
     /**

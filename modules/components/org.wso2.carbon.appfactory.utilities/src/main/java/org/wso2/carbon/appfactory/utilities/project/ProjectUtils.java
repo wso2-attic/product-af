@@ -35,14 +35,12 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
+import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
-import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
@@ -54,7 +52,6 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
-import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
@@ -72,7 +69,6 @@ import java.util.List;
  * ProjectUtil class holds the utility methods to generate projects
  */
 public class ProjectUtils {
-
     private static final Log log = LogFactory.getLog(ProjectUtils.class);
     public static JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
 
@@ -104,8 +100,10 @@ public class ProjectUtils {
             log.warn(String.format("Work directory for application key : %s does not exist", appId));
             return;
         }
-        File archetypeDir = new File(CarbonUtils.getTmpDir() + File.separator + appId + File.separator +
-                                     AppFactoryConstants.MAVEN_ARCHETYPE_DIR);
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        File archetypeDir = new File(
+                CarbonUtils.getTmpDir() + File.separator + tenantDomain + File.separator + appId + File.separator +
+                AppFactoryConstants.MAVEN_ARCHETYPE_DIR);
         archetypeDir.mkdirs();
         List<String> goals = new ArrayList<String>();
         goals.add(AppFactoryConstants.GOAL_MAVEN_ARCHETYPE_GENERATE);
@@ -134,12 +132,97 @@ public class ProjectUtils {
         } finally {
             if (result != null && result.getExitCode() == 0) {
                 log.info("Maven archetype generation completed successfully");
+                String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
+                if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
+                    File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
+                    moveDepolyArtifact(deployArtifact, workDir.getParentFile());
+                }
                 configureFinalName(archetypeDir.getAbsolutePath());
                 copyArchetypeToTrunk(archetypeDir.getAbsolutePath(), workDir.getAbsolutePath());
                 boolean deleteResult = FileUtils.deleteQuietly(archetypeDir);
                 if (!deleteResult) {
                     log.warn("Error while deleting the archetype directory");
                 }
+            }
+        }
+    }
+
+    /**
+     * Move deploy artifact to a new path
+     *
+     * @param deployAtrifact
+     * @param parentFile
+     * @throws AppFactoryException
+     */
+    private static void moveDepolyArtifact(File deployAtrifact, File parentFile) throws AppFactoryException{
+        try {
+            FileUtils.moveDirectoryToDirectory(deployAtrifact, parentFile, false);
+        } catch (IOException e) {
+            String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
+                         + " to " + parentFile.getAbsolutePath();
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+    }
+
+    /**
+     * Generate the deploy artifact
+     *
+     * @param appId application key
+     * @param archetypeDir Parent directory where the project has been created
+     * @param mavenHome maven home
+     * @return Root directory in which deploy artifact is available
+     * @throws AppFactoryException
+     */
+    private static File generateDeployArtifact(final String appId, final String archetypeDir, String mavenHome)
+            throws AppFactoryException {
+        File projectDir = new File(archetypeDir + File.separator + appId);
+        List<String> newGoals = new ArrayList<String>();
+        newGoals.add("clean");
+        newGoals.add("install");
+        newGoals.add("-f assembly.xml");
+        InvocationRequest deployArtifactCreateReq = new DefaultInvocationRequest();
+        deployArtifactCreateReq.setBaseDirectory(projectDir);
+        deployArtifactCreateReq.setShowErrors(true);
+        deployArtifactCreateReq.setGoals(newGoals);
+        InvocationResult result = null;
+        Invoker invoker = new DefaultInvoker();
+        InvocationOutputHandler outputHandler = new SystemOutHandler();
+        invoker.setErrorHandler(outputHandler);
+        invoker.setMavenHome(new File(mavenHome));
+        invoker.setOutputHandler(new InvocationOutputHandler() {
+            @Override
+            public void consumeLine(String s) {
+                log.info(appId + ":" + s);
+            }
+        });
+        try {
+            result = invoker.execute(deployArtifactCreateReq);
+            File deployArtifact = new File(archetypeDir + File.separator + appId + "_deploy_artifact");
+            if(deployArtifact.exists()){
+                return deployArtifact;
+            }else{
+                throw new AppFactoryException("Deployable artifact has not generated in path "+ deployArtifact.getAbsolutePath());
+            }
+        } catch (MavenInvocationException e) {
+            String msg = "Failed to invoke deployable artifact generation";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            if (result != null && result.getExitCode() == 0) {
+                try {
+                    File builtArtifactDir = new File(projectDir + "/built_artifact/");
+                    FileUtils.deleteDirectory(builtArtifactDir);
+                    File assemblyFile = new File(projectDir + "/assembly.xml");
+                    FileUtils.forceDelete(assemblyFile);
+                    File assemblyDescriptorFile = new File(projectDir + "/bin.xml");
+                    FileUtils.forceDelete(assemblyDescriptorFile);
+                } catch (IOException e) {
+                    String msg = "Error occurred while deleting files used in deploy artifact generation";
+                    log.error(msg, e);
+                    throw new AppFactoryException(msg, e);
+                }
+                log.info("Deployable artifact generation completed successfully");
             }
         }
     }

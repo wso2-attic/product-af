@@ -72,7 +72,7 @@
         <input type="submit" value="Invoke"/>
 </form>
 <%
-    String applicationName = pageContext.getServletContext().getInitParameter("applicationKey");
+    String applicationName = pageContext.getServletContext().getInitParameter("applicationName");
     String accessToken = "";
     if (endpoint != null && endpoint.length() > 0) {
 
