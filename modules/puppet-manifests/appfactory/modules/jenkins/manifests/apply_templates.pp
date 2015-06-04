@@ -5,9 +5,10 @@ define jenkins::apply_templates (
 ){
   file {
     "${jenkins_base_dir}/${name}":
-      owner   => $user,
+      ensure  => present,
+      owner   => $owner,
       group   => $group,
-      mode    => '0644',
+      mode    => '0755',
       content => template("jenkins/${name}.erb");
   }
 }

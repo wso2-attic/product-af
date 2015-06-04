@@ -20,7 +20,6 @@ class jenkins (
     'Configs/hudson.plugins.git.GitSCM.xml',
     'Configs/config.xml',
     'Configs/user-config.xml',
-    'jenkins.sh'
   ]
 
   exec {
@@ -73,6 +72,24 @@ class jenkins (
       recurse => true,
       mode => '0755',
       require => Exec["download_jenkins"];
+
+    $jenkins_home:
+      owner   => $user,
+      group   => $user,
+      mode   => '0755',
+      recurse => true,
+      ignore  => '.svn',
+      source  => 'puppet:///modules/jenkins/jenkins_home',
+      require => Exec["creating_jenkins_home"];
+  }
+
+  file { "${jenkins_base_dir}/jenkins.sh":
+    ensure    => present,
+    owner     => $owner,
+    group     => $group,
+    mode      => '0755',
+    content   => template("jenkins/jenkins.sh.erb"),
+    require   => Exec["copying_jenkins_configs"];
   }
 
   apply_templates {
@@ -84,10 +101,10 @@ class jenkins (
   exec {
     'start jenkins':
       path        => ['/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin'],
-      environment => "jenkins_home=${jenkins_home}",
+      environment => "JENKINS_HOME=${jenkins_home}",
       cwd         => $jenkins_home,
       user        => $user,
       command     => "mkdir -p ${jenkins_home}/logs; /bin/bash ${jenkins_base_dir}/jenkins.sh",
-      require     => [ Apply_templates[$templates], File[$jenkins_base_dir], File[$jenkins_pack_location], Exec["copying_jenkins_user_configs"], Exec["download_jenkins"]];
+      require     => [ Apply_templates[$templates], File[$jenkins_base_dir], File[$jenkins_pack_location],File[$jenkins_home], File["${jenkins_base_dir}/jenkins.sh"],Exec["copying_jenkins_user_configs"], Exec["download_jenkins"]];
   }
 }
