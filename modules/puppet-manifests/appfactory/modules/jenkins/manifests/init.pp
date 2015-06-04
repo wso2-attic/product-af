@@ -104,7 +104,7 @@ class jenkins (
       environment => "JENKINS_HOME=${jenkins_home}",
       cwd         => $jenkins_home,
       user        => $user,
-      command     => "mkdir -p ${jenkins_home}/logs; /bin/bash ${jenkins_base_dir}/jenkins.sh",
+      command     => "mkdir -p ${jenkins_home}/logs; /bin/bash ${jenkins_base_dir}/jenkins.sh start",
       require     => [ Apply_templates[$templates], File[$jenkins_base_dir], File[$jenkins_pack_location],File[$jenkins_home], File["${jenkins_base_dir}/jenkins.sh"],Exec["copying_jenkins_user_configs"], Exec["download_jenkins"]];
   }
 }
