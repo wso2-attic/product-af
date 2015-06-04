@@ -276,7 +276,7 @@ node confignode inherits basenode  {
   $cloud_mgt_user         = 'cloud'
   $cloud_mgt_password     = 'root'
   $issue_tracker_password = 'root'
-  $issue_tracker_version  = "2.1.0"
+  $issue_tracker_version  = "2.2.0-SNAPSHOT"
 
   $bpel_mysql_username   = 's2user'
   $bpel_mysql_password   = 'password'

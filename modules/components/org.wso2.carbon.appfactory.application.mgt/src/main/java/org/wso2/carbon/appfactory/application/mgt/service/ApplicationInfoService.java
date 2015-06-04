@@ -79,29 +79,6 @@ public class ApplicationInfoService {
     }
 
     /**
-     * Gets application information of the user to populate the user home
-     *
-     * @param userName user name
-     * @return
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicationInfoForUser(String userName) throws ApplicationManagementException {
-        List<Application> appInfoList = new ArrayList<Application>();
-        String[] applicationKeys = getApplicationKeysOfUser(userName);
-        for (String applicationKey : applicationKeys) {
-            try {
-                Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
-                appInfoList.add(application);
-            } catch (AppFactoryException e) {
-                String msg = "Error while getting application info for user : " + userName + " of tenant : " +
-                             getTenantDomain();
-                log.error(msg, e);
-            }
-        }
-        return appInfoList.toArray(new Application[appInfoList.size()]);
-    }
-
-    /**
      * Gets application creation status of the {@code applicationKeys}.
      *
      * @param applicationKeys application keys
@@ -281,25 +258,23 @@ public class ApplicationInfoService {
         try {
             JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
             JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
-            String[] versionNames = appVersionsDAO.getAllVersionsOfApplication(applicationId);
-            Version[] versions = new Version[versionNames.length];
-            for (int i = 0; i < versions.length; i++) {
-                String currentVersionName = versionNames[i];
-                versions[i] = appVersionsDAO.getApplicationVersion(applicationId, currentVersionName);
-                BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, currentVersionName, false, null);
-                versions[i].setLastBuildStatus(
-                        "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
-                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, currentVersionName,
-                                                                           AppFactoryConstants.ApplicationStage.
-                                                                                   DEVELOPMENT.getStageStrValue(),
+            ArrayList<Version> versionList = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+
+            for(Version version : versionList){
+                BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, version.getVersion(), false, null);
+                version.setLastBuildStatus("build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
+
+                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, version.getVersion(),
+                                                                           AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue(),
                                                                            false, null);
-                versions[i].setLastDeployedId(deployStatus.getLastDeployedId());
+                version.setLastDeployedId(deployStatus.getLastDeployedId());
             }
-            return versions;
+
+            return versionList.toArray(new Version[versionList.size()]);
         } catch (AppFactoryException e) {
             String msg =
-                    "Error while retrieving artifact information from database for application id : " + applicationId
-                    + " of tenant domain : " + domainName;
+                    "Error while retrieving all versions of application : " + applicationId +
+                    " from database in tenant domain : " + domainName;
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
@@ -631,30 +606,6 @@ public class ApplicationInfoService {
         }
         return
                 applicationSummaryList.toArray(new ApplicationSummary[applicationSummaryList.size()]);
-    }
-
-    /**
-     * Returns the list of applications that user belongs to
-     *
-     * @param userName
-     * @return <b>Application</b> Array
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicaitonsOfTheUser(String userName)
-            throws ApplicationManagementException {
-        long startTime = System.currentTimeMillis();
-        try {
-            Application[] apps = ApplicationDAO.getInstance().getAllApplicationsOfUser(userName);
-            long endTime = System.currentTimeMillis();
-            if (perfLog.isDebugEnabled()) {
-                perfLog.debug("AFProfiling getApplicaitonsOfTheUser : " + (endTime - startTime));
-            }
-            return apps;
-        } catch (AppFactoryException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message, e);
-            throw new ApplicationManagementException(message, e);
-        }
     }
 
     /**

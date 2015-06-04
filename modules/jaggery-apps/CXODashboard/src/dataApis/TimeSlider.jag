@@ -5,14 +5,18 @@ var dbConfig = require('commons/dbConfig.js');
 var isUserLoggedIn = userConfig.isUserLoggedIn();
 
 var tenantID = userConfig.getTenantID();
+var log = new Log();
 
 function getSliderEndpoints (){
 
     if (isUserLoggedIn) {
         var query = "SELECT START_DATE FROM SLIDER_ENDPOINTS WHERE TENANT_ID=" + tenantID + ";";
         var dbResult = dbConfig.queryDb(query);
-
-        return dbResult[0]['START_DATE'];
+	if(util.isValidDbResult(dbResult[0], ['START_DATE'])){
+             return dbResult[0]['START_DATE'];
+        } else {
+             return null;
+        }
     }
 }
 print(getSliderEndpoints());
