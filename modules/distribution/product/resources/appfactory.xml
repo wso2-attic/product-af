@@ -707,7 +707,6 @@
 
     <!-- API-Token should be set according to the running instance of Jenkins-->
     <ContinuousIntegrationProvider name="jenkins" enabled="true">
-        <Property name="BaseURL">https://jenkins.AF_HOST:9674</Property>
         <Property name="Authenticate">true</Property>
         <Property name="Maven3ConfigName">m3</Property>
         <Property name="DefaultGlobalRoles">readonly</Property>
@@ -724,6 +723,16 @@
         <!--Retry delay is configured in seconds.-->
         <Property name="RetryDelay">20</Property>
     </ContinuousIntegrationProvider>
+    <JenkinsLBConfig>
+        <BucketCount>2</BucketCount>
+        <BucketList>
+            <Property name="0">https://jenkins.appfactory.private.wso2.com:9500</Property>
+            <Property name="1">https://jenkins.appfactory.private.wso2.com:9500</Property>
+        </BucketList>
+        <BucketSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategyImpl</BucketSelectingStrategy>
+        <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>
+    </JenkinsLBConfig>
+
     <OtherServices>
         <Service name="ViewVC">
             <Link>http://www.viewvc.org/</Link>

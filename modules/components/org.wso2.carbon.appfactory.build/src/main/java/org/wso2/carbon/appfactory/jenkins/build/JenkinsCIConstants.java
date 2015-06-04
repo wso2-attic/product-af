@@ -96,7 +96,25 @@ public class JenkinsCIConstants {
     public static final String ALLOW_ALL_HOSTNAME_VERIFIER = "HttpClient.allowAllHostNameVerifier";
     public static final String DEFAULT_MAX_CONNECTIONS_PER_ROUTE = "HttpClient.defaultMaxConnectionsPerRoute";
     public static final String MAX_TOTAL_CONNECTIONS = "HttpClient.maxTotalConnections";
-    
+
+    /**
+     * Jenkins bucket-cluster
+     */
+    public static final String JENKINS_LB_BASE_ELEMENT = "JenkinsLBConfig";
+    public static final String JENKINS_LB_BUCKET_COUNT = JENKINS_LB_BASE_ELEMENT+".BucketCount";
+    public static final String JENKINS_LB_BUCKET_LIST = JENKINS_LB_BASE_ELEMENT+".BucketList.Property";
+    public static final String JENKINS_LB_BUCKET_SELECTING_STRATEGY = JENKINS_LB_BASE_ELEMENT+"" +
+                                                                      ".BucketSelectingStrategy";
+    public static final String JENKINS_LB_CLUSTER_SELECTING_STRATEGY =
+            JENKINS_LB_BASE_ELEMENT+".ClusterSelectingStrategy";
+    /**
+     * Jenkins job config
+     */
+    public static final String CONFIG_FOLDER = "jenkins";
+    public static final String TENANT_FOLDER_CONFIG_FILE = "tenant_folder_config.xml";
+    public static final String TENANT_FOLDER_CONFIG_DISPLAY_NAME = "displayName";
+    public static final String TENANT_FOLDER_CONFIG_DESCRIPTION = "description";
+
     /**
      * Defines constants related to jenkins role-strategy-pugin
      */

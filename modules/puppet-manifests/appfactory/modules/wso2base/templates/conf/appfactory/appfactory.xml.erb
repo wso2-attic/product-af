@@ -76,6 +76,9 @@
         <DomainMappingListener>
          <priority>10</priority>
         </DomainMappingListener>
+        <InitialArtifactDeployerHandler>
+            <priority>45</priority>
+        </InitialArtifactDeployerHandler>
     </EventHandlers>
 
     <!--
@@ -712,7 +715,6 @@
 
     <!-- API-Token should be set according to the running instance of Jenkins-->
     <ContinuousIntegrationProvider name="jenkins" enabled="true">
-        <Property name="BaseURL">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
         <Property name="Authenticate">true</Property>
         <Property name="Maven3ConfigName">m3</Property>
         <Property name="DefaultGlobalRoles">readonly</Property>
@@ -727,6 +729,15 @@
         <!--Retry delay is configured in seconds.-->
         <Property name="RetryDelay">20</Property>
     </ContinuousIntegrationProvider>
+        <JenkinsLBConfig>
+        <BucketCount>2</BucketCount>
+        <BucketList>
+            <Property name="0">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
+            <Property name="1">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
+        </BucketList>
+        <BucketSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategyImpl</BucketSelectingStrategy>
+        <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>
+    </JenkinsLBConfig>
     <OtherServices>
         <Service name="ViewVC">
             <Link>http://www.viewvc.org/</Link>

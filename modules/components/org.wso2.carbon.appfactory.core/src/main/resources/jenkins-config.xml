@@ -101,6 +101,7 @@
     <disabled>false</disabled>
     <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
     <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <localRepository class="org.wso2.carbon.appfactory.jenkins.extentions.AFLocalRepositoryLocator"/>
     <authToken>build</authToken>
     <concurrentBuild>false</concurrentBuild>
     <mavenName>m3</mavenName>

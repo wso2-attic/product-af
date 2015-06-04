@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.appfactory.jenkins.build;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
@@ -92,22 +91,8 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         if(isUploadableAppType){
         	initialVersion = AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION;
         }
-        jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, userName, repoURL,
-                                        AppFactoryConstants.ORIGINAL_REPOSITORY);
-        jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
-
-        // adding app creator to jenkins
-        jenkinsCISystemDriver.addUsersToApplication(application.getId(), new String[]{userName.split("@")[0]},
-                                                    tenantDomain);
-        JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
-        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
-        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0]);
-        if (ArrayUtils.isNotEmpty(versions)) {
-
-            // No need to create job.
-            jenkinsCISystemDriver.startBuild(application.getId(), versions[0], true, stage, "", tenantDomain,
-                                             userName, AppFactoryConstants.ORIGINAL_REPOSITORY);
-        }
+        jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, userName,
+                                        repoURL, AppFactoryConstants.ORIGINAL_REPOSITORY);
         try {
             String infoMsg = "Jenkins space created for application id: " + application.getId() + ".";
             EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(infoMsg,
@@ -181,17 +166,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     @Override
     public void onUserAddition(Application application, UserInfo user, String tenantDomain)
             throws AppFactoryException {
-
-        if (!AppFactoryCoreUtil.isBuildServerRequiredProject(application.getType())) {
-            return;
-        }
-
-        log.info("User Addition event recieved for : " + application.getId() + " " +
-                application.getName() + " User Name : " + user.getUserName());
-
-        ServiceContainer.getJenkinsCISystemDriver()
-                .addUsersToApplication(application.getId(),
-                        new String[]{user.getUserName()}, tenantDomain);
+        // User addition/removal is disabled for the jenkins since appfactory 2.2.0
     }
 
     /**
@@ -307,10 +282,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     @Override
     public void onUserDeletion(Application application, UserInfo user, String tenantDomain)
             throws AppFactoryException {
-        ServiceContainer.getJenkinsCISystemDriver()
-                .removeUsersFromApplication(application.getId(),
-                        new String[]{user.getUserName()},
-                        tenantDomain);
+        // User addition/removal is disabled for the jenkins since appfactory 2.2.0
     }
 
 
@@ -368,13 +340,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                         forkedUser, repoURL,
                         AppFactoryConstants.FORK_REPOSITORY);
             }
-
-            jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
-            // adding app creator to jenkins
-            jenkinsCISystemDriver.addUsersToApplication(application.getId(),
-                    new String[]{forkedUser}, tenantDomain);
-
-            //TO-DO give the user the ability to select auto build for a particular forked version
         }
 
     }

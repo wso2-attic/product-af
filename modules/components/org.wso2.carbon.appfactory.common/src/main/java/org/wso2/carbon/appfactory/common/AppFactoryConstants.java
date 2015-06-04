@@ -16,8 +16,9 @@
 
 package org.wso2.carbon.appfactory.common;
 
-import java.io.File;
 import org.apache.commons.lang3.text.WordUtils;
+
+import java.io.File;
 
 /**
  * Constants for AppFactory configuration
@@ -309,6 +310,7 @@ public class AppFactoryConstants {
 	public static final String APPLICATION_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
 	public static final String APPLICATION_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
 	public static final String IS_UPLOADABLE_APP_TYPE="IsUploadableAppType";
+	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";
 	public static final String USER_NAME = "username";

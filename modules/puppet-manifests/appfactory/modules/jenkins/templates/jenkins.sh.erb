@@ -1,0 +1,23 @@
+# !/bin/bash
+
+set -e
+MY_PATH="`dirname \"$0\"`"
+MY_PATH="`( cd \"$MY_PATH\" && pwd )`"
+NAME=jenkins
+cd ${MY_PATH}
+mkdir -p <%= @jenkins_home %>
+export JENKINS_HOME=<%= @jenkins_home %>
+echo "Jenkins home "$JENKINS_HOME
+echo "Running jenkins.war..."
+#java -jar jenkins.war
+mkdir -p <%= @jenkins_log_file_location %>
+PIDFILE=<%= @jenkins_log_file_location %>/${NAME}.pid
+nohup java -jar \
+    -Djavax.net.ssl.trustStore=<%= @clientTrustStore_location %> \
+    -Djavax.net.ssl.trustStorePassword=<%= @clientrustStore_password %> ${NAME}.war \
+    --httpPort=-1 --httpsPort=9500 \
+    --httpsKeyStore=<%= @jenkins_keystore_name %> \
+    --httpsKeyStorePassword=<%= @jenkins_keystore_password %> > \
+    <%= @jenkins_log_file_location %>/jenkins.log 2>&1 & echo $! > ${PIDFILE}
+#For debug
+#java    -jar -Xdebug -Xrunjdwp:transport=dt_socket,address=9000,server=y,suspend=n  jenkins.war
