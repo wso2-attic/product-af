@@ -722,6 +722,11 @@
         <Property name="RetryCount">4</Property>
         <!--Retry delay is configured in seconds.-->
         <Property name="RetryDelay">20</Property>
+	<HttpClient>
+                <allowAllHostNameVerifier>true</allowAllHostNameVerifier>
+                <defaultMaxConnectionsPerRoute>1000</defaultMaxConnectionsPerRoute>
+                <maxTotalConnections>1000</maxTotalConnections>
+        </HttpClient>
     </ContinuousIntegrationProvider>
     <JenkinsLBConfig>
         <BucketCount>2</BucketCount>
