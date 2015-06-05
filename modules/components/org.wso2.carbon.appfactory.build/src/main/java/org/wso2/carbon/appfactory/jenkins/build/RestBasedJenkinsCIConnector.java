@@ -696,8 +696,7 @@ public class RestBasedJenkinsCIConnector {
 
         EventNotifier.getInstance().notify(
                 ContinousIntegrationEventBuilderUtil.buildTriggerBuildEvent(applicationId, repoFrom, userName,
-                                                                            infoMessage, infoMessage, category,
-                                                                            correlationKey, userName));
+                                                                            infoMessage, category, correlationKey));
     }
 
 
