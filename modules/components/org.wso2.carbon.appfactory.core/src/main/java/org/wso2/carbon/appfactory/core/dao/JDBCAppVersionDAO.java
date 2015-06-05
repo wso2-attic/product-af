@@ -91,6 +91,7 @@ public class JDBCAppVersionDAO {
         } finally {
             JDBCApplicationCacheManager.getAppVersionCache().
                     remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -133,6 +134,7 @@ public class JDBCAppVersionDAO {
         } finally {
             JDBCApplicationCacheManager.getAppVersionCache().
                     remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -176,6 +178,7 @@ public class JDBCAppVersionDAO {
         } finally {
             JDBCApplicationCacheManager.getAppVersionCache().
                     remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -219,6 +222,7 @@ public class JDBCAppVersionDAO {
         } finally {
             JDBCApplicationCacheManager.getAppVersionCache().
                     remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
@@ -275,6 +279,7 @@ public class JDBCAppVersionDAO {
         } finally {
             JDBCApplicationCacheManager.getAppVersionCache().
                     remove(JDBCApplicationCacheManager.constructAppVersionCacheKey(applicationKey, version));
+            JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
             AppFactoryDBUtil.closePreparedStatement(preparedStatement);
             AppFactoryDBUtil.closeConnection(databaseConnection);
         }
