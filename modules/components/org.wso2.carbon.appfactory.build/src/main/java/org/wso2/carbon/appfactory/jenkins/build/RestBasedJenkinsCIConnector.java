@@ -1636,8 +1636,9 @@ public class RestBasedJenkinsCIConnector {
                 uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), url.getPath(), query, null);
             }
             if (uri == null) {
-                throw new AppFactoryException(
-                        "Unable to generate URI for path : " + urlFragment + " in tenant : " + tenantDomain);
+                String errorMsg = "Unable to generate URI for path : " + urlFragment + " in tenant : " + tenantDomain;
+                log.error(errorMsg);
+                throw new AppFactoryException(errorMsg);
             }
         } catch (MalformedURLException e) {
             String msg = "Error while generating URL for the path : " + urlFragment + " in tenant : " + tenantDomain +
