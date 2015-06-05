@@ -81,7 +81,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
     $(document).ready(function(){
     	initializeUserActivity("reposBuild", '<%=applicationKey%>', null);
-    });
+ });
 
     var subDomain;
     var appType;
@@ -657,7 +657,6 @@ $('js_build_option').removeClass("active");
     }
 
 
-
     function setJenkinsURL(){
         jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "getJenkinsURL"
@@ -970,7 +969,7 @@ $.cookie('selectedStage', selectedStage);
 	                    '<td class="td-6 data-buttons">' +
 		                    '<ul class="inline_list" '+buildDeployHide+'>'+
 		                        '<li class="inline_item"><a href="#" class="btn main small createCodeEnvyUrl" name="codenvy_action" data-type="'+element.type+'" data-version="'+version+'" >Edit Code</a></li><a href="#" target="_blank" id="createCodeEnvyUrl_hidden" style="display: none"></a></li>'+
-		                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small build_action" name="build_action" data-version="'+version+'" data-stage="'+stage+'">Build</a></li>'+
+		                        '<li class="inline_item" ' + hiddenForNonBuildableArtifact + '><a href="#" class="btn main small build_action" name="build_action" data-version="'+version+'" data-stag1e="'+stage+'">Build</a></li>'+
 		                        '<li class="inline_item"><a href="#" class="btn main small deploy_action" name="deploy_action" data-version="'+version+'" data-stage="'+stage+'">Deploy</a></li>'+
 		                        '<li class="inline_item relative">'+
 		                            '<a class="icon_link js_build_option" title="Change auto build,auto deployment settings"><span class="icon-cog"></span></a>'+
@@ -1383,6 +1382,8 @@ $.cookie('selectedStage', selectedStage);
     }
 
 
+
+
 </script>
     <div class="container">
         <article class="main">
@@ -1409,6 +1410,9 @@ $.cookie('selectedStage', selectedStage);
                     <div class="af_container">
                         <div class="af_row">
                             <div class="col-12">
+                                <div>
+                                <a href="#" class="btn main small old_build_logs" id="old_build_logs" >Older Build Logs</a>
+                                </div>
                                 <div class="right link-container link-container-top">
                                     <a  id="dev_studio_url" href="<%=devStudioLink%>" class="link-with-icons" target="_blank">Developer Studio <div class="icon-boxer"><span class="icon-globe "></span></div></a>
                                     <a  id="tenant_jenkins_url" href="<%=baseURL%>" class="link-with-icons" target="_blank">Build Server <div class="icon-boxer"><span class="icon-globe "></span></div></a>
@@ -1423,7 +1427,34 @@ $.cookie('selectedStage', selectedStage);
                         </div>
                 </div>
             </div>
+<script type="text/javascript">
+$('.old_build_logs').click(function(){
+alert("haka haka");
 
+    jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
+                action: "getBuildAndRepoDataForVersion",
+                applicationKey: applicationKey,
+                userName:userName,
+                version:selectedVersion
+            }, function (result) {
+                masterJSON = jQuery.parseJSON(result);
+                drawMasterVersion(selectedVersion);
+                drawForkedVersions(selectedVersion);
+            },
+                function (jqXHR, textStatus, errorThrown) {
+
+                    if (jqXHR.status != 0){
+                        jagg.message({
+                            content: "Error occurred while reading build and repo data for version" + selectedVersion,
+                            type: 'error',
+                            id:'message_id'
+                        });
+                }
+
+                });
+
+});
+</script>
 
       <!--      <div id="repositories_and_builds_list_fork">-->
                 <!--span class="icon-spinner icon-spin icon-large spin-large"></span-->
@@ -1462,6 +1493,8 @@ $.cookie('selectedStage', selectedStage);
         </article>
     </div><!-- /container -->
     <%
+
+
 }); %>
 
 
