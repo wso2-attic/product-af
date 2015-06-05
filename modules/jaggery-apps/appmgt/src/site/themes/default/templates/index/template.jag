@@ -418,60 +418,89 @@ function hideNotification() {
 
 </script>
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
- <div class="container">
-                	<article class="main">
-                	    <% jagg.includeBlock("page/messages", null); %>
-                	    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.USER_HOME}); %>
-                	    <% jagg.includeBlock("page/notification-wall", {"wall_name":"My Wall","applicationKey":null,"pageName":PAGES.USER_HOME}); %>
-                        <header class="separator">
-                        	<div class="content">
-                                <% if (outputs.hasAppCreationPermission) { %>
-                                <a class="btn main left margin_15" href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>'">Add New Application</a>
-                                <% } %>
-								<ul class="screen_option right">
-                                    <li class="screen_option_item">
-                                        <ul class="viewswitcher">
-                                            <li><a class="icon-th block_view active" href="#"></a></li>
-                                            <li><a class="icon-th-list table_view" href="#"></a></li>
-                                        </ul>
-                                    </li>
-									<li class="screen_option_item">
 
-									<!--// TODO: post 1.0-->
-									<!--form class=" left fw_250 form-container filter_form">
-											<div class="input_row">
-												 <div class="select2-container select_list error" id="s2id_application_type" style="width: 248px;"><a tabindex="-1" class="select2-choice" onclick="return false;" href="javascript:void(0)">   <span>Show last accessed first</span><abbr class="select2-search-choice-close"></abbr>   <div><b></b></div></a><input type="text" class="select2-focusser select2-offscreen" id="s2id_autogen1" tabindex="0"><div class="select2-drop select2-display-none">   <div class="select2-search select2-search-hidden select2-offscreen">       <input type="text" class="select2-input" spellcheck="false" autocapitilize="off" autocorrect="off" autocomplete="off">   </div>   <ul class="select2-results">   </ul></div></div><select class="select_list select2-offscreen" id="application_type" tabindex="-1">
-													<option>Show last accessed first</option>
-													<option>Show last accessed first</option>
-													<option>Show last accessed first</option>
-												</select>
-											</div>
-									</form-->
-									</li>
-                                    <li class="screen_option_item">
-                                    <form class="left fw_250 form-container search_form">
-                                            <div class="input_row">
-                                                <label class="hide" for="filter_apps">Filter Apps</label>
-                                                <input type="text" value="" name="Filter Apps" placeholder="Filter Apps" class="fw_250" id="search"><span class="icon-search"></span>
-                                            </div>
-                                    </form>
-                                    </li>
-								</ul>
-                            </div>
-                        </header>
-		        <% jagg.includeBlock("page/help", {"section": "userhome"}); %>
-			    <section class="content push_top_40">
-                            <ul class="" id="item_list"></ul>
-                            <div class="pagination" id="app-list-footer">
-                                <ul></ul>
-                            </div>
-                                <span id="eventbody"></span>
-                        <div class="clearfix"></div>
-                        </section>
-                        <div class="clearfix"></div>
-                      </article>
+<!--##################################################-->
+
+ <div class="inner-wrapper">
+    <!-- BOF App factory menu -->
+    <div class="navbar navbar-secondary">
+        <div class="container-fliud">
+            <div class="row">
+                <div class="col-md-3 breadcrumb-secondary">
+                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                </div>
+            </div>
+        </div>
+    </div><!-- EOF App factory menu -->
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+       <% if (outputs.hasAppCreationPermission) { %>
+
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Add New Application</span>
+        </a>
+       <% } %>
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-up-arrow fw-stack-1x"></i>
+                </span> <span class="hidden-xs">upload exsisting</span>
+        </a>
+        <a href="#" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw  fw-deploy fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Deploy Sample Application</span>
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+
+    <div class="container-fluid">
+        <div class="row row-centered">
+            <div class="col-centered col-md-4 ">
+                <div class="cloud-new-content">
+                    <h1>New to our Application Cloud ?</h1>
+                    <button type="button" class="cu-btn cu-btn-md cu-btn-blue">Create your first application</button>
+                    <div class="help">
+                        <i class="fa fa-2x fa-book"></i> Need help ? Read App creation guide first..
+                    </div>
+                </div>
 
             </div>
+
+        </div>
+    </div><!-- /.container -->
+    <div id="push"></div>
+</div>
+<div id="footer">
+    <div class="container-fluid">
+        <div class="footer-text">WSO2 Cloud V: 1.2 . &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
+    </div>
+</div>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<!--#################################################-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	<style>
 

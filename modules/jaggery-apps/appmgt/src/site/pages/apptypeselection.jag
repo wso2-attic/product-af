@@ -17,9 +17,30 @@
  *   under the License.
  */
 
-jagg.template("layout/base", function(inputs, outputs, jagg) { %>
+include("/jagg/jagg.jag");
+var site = require("/site/conf/site.json");
 
-    <% //jagg.includeBlocks(outputs.breadcrumb); %>
-    <% jagg.includeBlocks(outputs.middle); %>
+(function () {
 
-<% }); %>
+    jagg.render({
+        "name":"page/base",
+        "inputs":{
+            "title":"WSO2 App Factory",
+            "pagePath":"/site/pages/apptypeselection.jag",
+            "body":[
+                {
+                    "name":"layout/base",
+                    "inputs":{
+                        "title":"WSO2 App Factory",
+                        "middle":[
+                            {
+                            	"name":"application/select"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
+}());
+%>
