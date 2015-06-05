@@ -1,4 +1,21 @@
 # !/bin/bash
+#
+#   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+#   WSO2 Inc. licenses this file to you under the Apache License,
+#   Version 2.0 (the "License"); you may not use this file except
+#   in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
 
 set -e
 MY_PATH="`dirname \"$0\"`"
@@ -51,8 +68,7 @@ if [ "$CMD" = "--debug" ]; then
   echo "Please start the remote debugging client to continue..."
 elif [ "$CMD" = "start" ]; then
   if [ -e "${PIDFILE}" ] && [ ! -z "$PID" ]; then
-echo "INSIDE "    
-if  ps -p ${PID}  > /dev/null ; then
+    if  ps -p ${PID}  > /dev/null ; then
       echo "Process is already running"
       exit 0
     fi
@@ -72,7 +88,7 @@ else
   LOGS_OPTS=""
 fi
 
-echo "Jenkins home "${JENKINS_HOME}
+echo "JENKINS_HOME "${JENKINS_HOME}
 echo "Running jenkins.war..."
 RUN_JENKINS_CMD=${JAVA_CMD}" "${DEFAULT_JAVA_OPTS}" "${OPTIONAL_JAVA_OPTS}" ${NAME}.war  "${DEFAULT_JENKINS_OPTS}" "${LOGS_OPTS}
 eval ${RUN_JENKINS_CMD}

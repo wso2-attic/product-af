@@ -92,6 +92,20 @@ class jenkins (
     require   => Exec["copying_jenkins_configs"];
   }
 
+  file { "/home/${owner}/.gitconfig":
+    ensure  => present,
+    owner   => $owner,
+    group   => $group,
+    content => template("jenkins/gitconfig.erb");
+  }
+
+  file { "/home/${owner}/.netrc":
+    ensure  => present,
+    owner   => $owner,
+    group   => $group,
+    content => template("jenkins/netrc.erb");
+  }
+
   apply_templates {
     $templates:
       jenkins_base_dir => $jenkins_base_dir,
