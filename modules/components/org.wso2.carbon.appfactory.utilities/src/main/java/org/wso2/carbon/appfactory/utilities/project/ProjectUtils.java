@@ -125,7 +125,6 @@ public class ProjectUtils {
                 }
             });
             result = invoker.execute(request);
-
         } catch (MavenInvocationException e) {
             String msg = "Failed to invoke maven archetype generation";
             log.error(msg, e);
@@ -133,6 +132,7 @@ public class ProjectUtils {
         } finally {
             if (result != null && result.getExitCode() == 0) {
                 log.info("Maven archetype generation completed successfully");
+<<<<<<< HEAD
 <<<<<<< HEAD
                 String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
                 if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
@@ -142,6 +142,10 @@ public class ProjectUtils {
 
              //TODO: use AppFactoryCoreUtil.isBuildServerRequiredProject check when uploadable archetypes are also done
                 if (AppFactoryCoreUtil.isBuildable(ApplicationDAO.getInstance().getApplicationType(appId))) {
+=======
+                String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
+                if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
+>>>>>>> conflict resolving
                     File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
                     moveDepolyArtifact(deployArtifact, workDir.getParentFile());
 >>>>>>> added deployable artifact generation
@@ -181,10 +185,16 @@ public class ProjectUtils {
      */
     private static void moveDepolyArtifact(File deployAtrifact, File parentFile) throws AppFactoryException{
         try {
+<<<<<<< HEAD
             FileUtils.copyDirectoryToDirectory(deployAtrifact, parentFile);
         } catch (IOException e) {
             String msg = "Error while copying deploy artifact from "+ deployAtrifact.getAbsolutePath()
 >>>>>>> added deployable artifact generation
+=======
+            FileUtils.moveDirectoryToDirectory(deployAtrifact, parentFile, false);
+        } catch (IOException e) {
+            String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
+>>>>>>> conflict resolving
                          + " to " + parentFile.getAbsolutePath();
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
@@ -225,11 +235,15 @@ public class ProjectUtils {
         try {
             result = invoker.execute(deployArtifactCreateReq);
 <<<<<<< HEAD
+<<<<<<< HEAD
             File deployArtifact = new File(archetypeDir + File.separator + appId + "_deploy_artifact");
 =======
             File deployArtifact = new File(archetypeDir + File.separator + appId +
                                            AppFactoryConstants.DEPLOY_ARTIFACT_SUFFIX);
 >>>>>>> added deployable artifact generation
+=======
+            File deployArtifact = new File(archetypeDir + File.separator + appId + "_deploy_artifact");
+>>>>>>> conflict resolving
             if(deployArtifact.exists()){
                 return deployArtifact;
             }else{
@@ -415,7 +429,7 @@ public class ProjectUtils {
             }
         } catch (RegistryException e) {
             String errorMsg = String.format("Unable to find the repository type for application key : %s",
-                                  applicationId);
+                                            applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
@@ -482,11 +496,11 @@ public class ProjectUtils {
             UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext.
                     getThreadLocalCarbonContext().getTenantId());
             Resource resource = userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                                  RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR +
-                                  AppFactoryConstants.RXT_KEY_APPINFO);
+                                                 RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR +
+                                                 AppFactoryConstants.RXT_KEY_APPINFO);
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
-                                               AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
+                                                                                AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
             String[] prodVersionsArr = artifact.getAttributes(AppFactoryConstants.RXT_KEY_APPINFO_PRODUCTION_VERSION);
             List<String> prodVersions = Arrays.asList(prodVersionsArr);
@@ -500,7 +514,7 @@ public class ProjectUtils {
             }
         } catch (RegistryException e) {
             String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
+                                            applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
@@ -519,13 +533,13 @@ public class ProjectUtils {
         try {
             RegistryService registryService = ServiceReferenceHolder.getInstance().getRegistryService();
             UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext.
-                                                            getThreadLocalCarbonContext().getTenantId());
+                    getThreadLocalCarbonContext().getTenantId());
             Resource resource = userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                                   RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR
-                                     + AppFactoryConstants.RXT_KEY_APPINFO);
+                                                 RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR
+                                                 + AppFactoryConstants.RXT_KEY_APPINFO);
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
-                                               AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
+                                                                                AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
             String[] prodVersionsArr = artifact.getAttributes(AppFactoryConstants.RXT_KEY_APPINFO_PRODUCTION_VERSION);
             List<String> prodVersions = Arrays.asList(prodVersionsArr);
@@ -539,7 +553,7 @@ public class ProjectUtils {
             }
         } catch (RegistryException e) {
             String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
+                                            applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
