@@ -429,6 +429,7 @@ public class AppFactoryConstants {
 	public static final String PROPERTY_VALUE_SEPERATOR =",";
     public static final String UNDER_SCORE = "_";
     public static final String DOT = ".";
+    public static final String HYPHEN = "-";
 
 
     public static final String TENANT_MGT_URL = "TenantMgtUrl";
@@ -471,9 +472,13 @@ public class AppFactoryConstants {
 	public static final String SUPPORT_DATASOURCE = "SupportDataSource";
 
     /**
+     * AF DEPLOY Status
+     */
+    public static final String DEPLOY_SUCCESS = "Success";
+
+    /**
      * Symbols
      */
-
 
 
 	/**

@@ -15,7 +15,32 @@
 # specific language governing permissions and limitations
 # under the License.
 
+#export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
+#NODEJS_HOME=<%= @stratos_app_path %>
+#npm install express
+#node web.js > /dev/null 2&1 &
+
+
+CD=`Change directory : `
+PWD=`pwd`
+
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
-NODEJS_HOME=<%= @stratos_app_path %>
-npm install express
-node web.js > /dev/null 2&1 &
+cd <%=@docroot%>
+SERVICE='node'
+#check if nodejs service is already running
+if ps ax | grep -v grep | grep $SERVICE > /dev/null
+then
+ echo "$SERVICE service running." | tee -a service_status.log
+ npm install | tee -a npm_install.log
+else
+#if nodejs service is not running install dependencies and start application
+ cd nodejsapps/
+ echo "$CD $PWD" | tee -a nodejs_setting_up.log
+ unzip -d app/ *.zip
+ cd app/
+ echo "$CD $PWD" | tee -a nodejs_setting_up.log
+ npm install  | tee -a npm_install.log
+ nohup npm start > npm_start.log 2>&1 &
+fi
+
+

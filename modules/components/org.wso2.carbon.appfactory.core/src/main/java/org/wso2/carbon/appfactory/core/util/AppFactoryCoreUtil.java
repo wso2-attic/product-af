@@ -92,9 +92,9 @@ public class AppFactoryCoreUtil {
 	        }
 	        return stage;
 	    }
-    
+
 	/**
-	 * 
+	 *
 	 * @param applicationId
 	 * @param tenantDomain
 	 * @return

@@ -92,8 +92,10 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String applicationId = DeployerUtil.getParameterValue(metadata,
                                                               AppFactoryConstants.APPLICATION_ID);
 
-
-        String gitRepoUrl = generateRepoUrl(applicationId, metadata, tenantId,
+        String version = DeployerUtil.getParameterValue(metadata,
+                                                        AppFactoryConstants.APPLICATION_VERSION);
+        version = version.replaceAll("\\.+",AppFactoryConstants.MINUS);
+        String gitRepoUrl = generateRepoUrl(applicationId, version, metadata, tenantId,
                                             appTypeName, subscribeOnDeployment);
         String stageName = DeployerUtil.getParameterValue(metadata,
                                                           AppFactoryConstants.DEPLOY_STAGE);
@@ -104,7 +106,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
                 log.debug("SubscribeOnDeployment is true");
             }
             SubscriptionHandler.getInstance().createSubscription(metadata, stageName, username,
-                                                                 tenantId, applicationId, tenantDomain);
+                                                                 tenantId, applicationId + AppFactoryConstants.MINUS
+                                                                  + version, tenantDomain);
+
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("SubscribeOnDeployment is false");
@@ -311,7 +315,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         }
     }
 
-    protected String generateRepoUrl(String applicationId, Map metadata,
+    protected String generateRepoUrl(String applicationId,String version, Map metadata,
                                      int tenantId, String appType, boolean subscribeOnDeployment)
             throws AppFactoryException {
         String paasRepositoryURLPattern = DeployerUtil.getParameter(metadata,
@@ -322,6 +326,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         if (subscribeOnDeployment) {
             gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                          + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR + applicationId
+                         + AppFactoryConstants.MINUS +version
                          + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
                                            AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
                          + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;

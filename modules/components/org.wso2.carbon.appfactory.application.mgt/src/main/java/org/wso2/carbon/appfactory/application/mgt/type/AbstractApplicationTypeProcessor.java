@@ -18,6 +18,7 @@ package org.wso2.carbon.appfactory.application.mgt.type;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
@@ -152,4 +153,27 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
 			throw new AppFactoryException(msg, e);
 		}
 	}
+
+    /**
+     * Generate the unique cartridge alias
+     *
+     * @param applicationId Unique ID of the user application
+     * @param tenantDomain  Tenant domain which application belongs to
+     * @return Generated cartridge alias
+     */
+    public static String getCartridgeAlias(String applicationId, String applicationVersion,String tenantDomain, boolean subscribeOnDeployment) {
+
+        if (StringUtils.isBlank(applicationId) || StringUtils.isBlank(tenantDomain)) {
+            return null;
+        }
+        String cartridgeAlias = null;
+        tenantDomain = tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT);
+        if (subscribeOnDeployment) {
+            applicationVersion = applicationVersion.replaceAll("\\.+",AppFactoryConstants.HYPHEN);
+            cartridgeAlias = applicationId + AppFactoryConstants.HYPHEN + applicationVersion + tenantDomain;
+        }else{
+            cartridgeAlias = applicationId + tenantDomain;
+        }
+        return cartridgeAlias;
+    }
 }

@@ -1,0 +1,11 @@
+<Runtime>
+    <Runtime>nodejs</Runtime>
+    <DeployerClassName>org.wso2.carbon.appfactory.jenkins.deploy.JenkinsArtifactDeployer</DeployerClassName>
+    <PAASArtifactStorageURLPattern>{@stage}/nodejs</PAASArtifactStorageURLPattern>
+    <AliasPrefix>{@appName}</AliasPrefix>
+    <CartridgeTypePrefix>nodejs</CartridgeTypePrefix>
+    <DeploymentPolicy>af-deployment</DeploymentPolicy>
+    <AutoscalePolicy>economy</AutoscalePolicy>
+    <SubscribeOnDeployment>true</SubscribeOnDeployment>
+    <UndeployerClassName>org.wso2.carbon.appfactory.deployers.StratosUndeployer</UndeployerClassName>
+</Runtime>

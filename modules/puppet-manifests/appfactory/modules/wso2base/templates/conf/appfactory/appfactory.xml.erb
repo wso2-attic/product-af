@@ -808,5 +808,9 @@
         <AdminPassword><%= @s2git_adminpassword %></AdminPassword>
     </PAASArtifactStorageRepositoryProvider>
     <AppendStageToCartridgeInfo>true</AppendStageToCartridgeInfo>
+    <AbstractSingleTenantApplicationTypeProcessor>
+    	<RetryCount>7</RetryCount>
+    	<RetryDelay>5</RetryDelay>
+    </AbstractSingleTenantApplicationTypeProcessor>
 </AppFactory>
 
