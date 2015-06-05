@@ -44,6 +44,12 @@ public class JenkinsCIConstants {
             "ContinuousIntegrationProvider.jenkins.Property.RetryCount";
     public static final String JENKINS_CLIENT_RETRY_DELAY =
             "ContinuousIntegrationProvider.jenkins.Property.RetryDelay";
+    public static final String ALLOW_ALL_HOSTNAME_VERIFIER =
+            "ContinuousIntegrationProvider.jenkins.HttpClient.allowAllHostNameVerifier";
+    public static final String DEFAULT_MAX_CONNECTIONS_PER_ROUTE =
+            "ContinuousIntegrationProvider.jenkins.HttpClient.defaultMaxConnectionsPerRoute";
+    public static final String MAX_TOTAL_CONNECTIONS =
+            "ContinuousIntegrationProvider.jenkins.HttpClient.maxTotalConnections";
     public static final String REPOSITORY_TYPE = "repository.type";
     public static final String REPOSITORY_URL = "repository.url";
     public static final String SVN_REPOSITORY_XPATH_SELECTOR =
@@ -92,10 +98,6 @@ public class JenkinsCIConstants {
     
     public static final String JENKINS_SERVER_ADMIN_USERNAME = "JenkinsServerAdminUsername";
     public static final String JENKINS_SERVER_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
-
-    public static final String ALLOW_ALL_HOSTNAME_VERIFIER = "HttpClient.allowAllHostNameVerifier";
-    public static final String DEFAULT_MAX_CONNECTIONS_PER_ROUTE = "HttpClient.defaultMaxConnectionsPerRoute";
-    public static final String MAX_TOTAL_CONNECTIONS = "HttpClient.maxTotalConnections";
 
     /**
      * Jenkins bucket-cluster
