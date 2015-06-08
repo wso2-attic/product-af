@@ -135,7 +135,7 @@ public class ProjectUtils {
                 String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
                 if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
                     File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
-                    moveDepolyArtifact(deployArtifact, workDir.getParentFile());
+                    moveDepolyArtifact(deployArtifact, workDir.getParentFile(), appId);
                 }
                 configureFinalName(archetypeDir.getAbsolutePath());
                 copyArchetypeToTrunk(archetypeDir.getAbsolutePath(), workDir.getAbsolutePath());
@@ -152,10 +152,17 @@ public class ProjectUtils {
      *
      * @param deployAtrifact
      * @param parentFile
+     * @param appId id of the application
      * @throws AppFactoryException
      */
-    private static void moveDepolyArtifact(File deployAtrifact, File parentFile) throws AppFactoryException{
+    private static void moveDepolyArtifact(File deployAtrifact, File parentFile, String appId) throws
+                                                                                               AppFactoryException {
         try {
+            String deployArtifactPath = parentFile.getAbsolutePath() + File.separator + appId + "_deploy_artifact";
+            File deployArtifactFile = new File(deployArtifactPath);
+            if (deployArtifactFile.exists()) {
+                FileUtils.forceDelete(deployArtifactFile);
+            }
             FileUtils.moveDirectoryToDirectory(deployAtrifact, parentFile, false);
         } catch (IOException e) {
             String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
