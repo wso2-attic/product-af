@@ -74,17 +74,9 @@ public class IssueTrackerTestCase extends AFIntegrationTest {
     public void setEnvironment() throws Exception {
         userName = AFIntegrationTestUtils.getAdminUsername();
         applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
-        ApplicationClient  applicationClient = new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants
-                .URLS_APPFACTORY),userName,AFIntegrationTestUtils.getPropertyValue(
-                AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
-//        applicationClient.deleteApplication(userName,applicationKey);
-//        applicationClient.createNewApplication(applicationKey,applicationKey,APPLICATION_TYPE,userName,
-//                "Default Application");
-//        Thread.sleep(60000);
         issueTrackerRestClient = new IssueTrackerRestClient(AFIntegrationTestUtils.getPropertyValue(AFConstants
                                 .URLS_APPFACTORY),userName, AFIntegrationTestUtils.getPropertyValue(AFConstants
                                 .DEFAULT_TENANT_ADMIN_PASSWORD));
-
     }
 
     /**

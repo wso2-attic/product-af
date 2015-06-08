@@ -70,8 +70,8 @@ public class DatabaseTestCase extends AFIntegrationTest {
         databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
         databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserOneActualName);
         //Delete users if exists
-        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
-        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
+//        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
+//        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
         //Delete databases if exists 
         databaseClient.dropDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, "false");
         databaseClient.dropDatabase(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, "false");
