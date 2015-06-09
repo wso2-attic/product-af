@@ -38,7 +38,7 @@ Steps for Sample
 3. Go to Repos and Build page and copy git URL(https://git.appfactory.private.wso2.com:8443/git/samples.com/apiinvoker.git) and clone it to your local directory(developer_workspace).
         git clone https://git.appfactory.private.wso2.com:8443/git/samples.com/apiinvoker.git
         You need to provide the username as admin@samples.com and password of admin user.
-4. Copy WebContent directory to developer_workspace/apiinvoker. Copy src directory from sample location to developer_workspace/apiinvoker/src.
+4. Copy API_Invoker/src/main/webapp/index.jsp file to developer_workspace/apiinvoker/src/main/webapp/.
 5. Commit and push the changes we did.
         cd developer_workspace/apiinvoker
         git add *
