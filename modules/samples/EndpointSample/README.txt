@@ -28,8 +28,7 @@ Steps for Sample
 5. Go to Repos and Build page and copy git URL(https://git.appfactory.private.wso2.com:8443/git/samples.com/endpoint.git) and clone it to your local directory(developer_workspace).
 	git clone https://git.appfactory.private.wso2.com:8443/git/samples.com/endpoint.git
 	You need to provide the username as devUser@samples.com and password of devUser.
-6. Copy src directory from sample location to developer_workspace/endpoint/src.
-	Copy WebContent directory to developer_workspace/endpoint.
+6. Copy EndpointSample//src/main/webapp/index.jsp file to developer_workspace/endpoint/src/main/webapp/.
 7. Commit and push the changes we did.
 	cd developer_workspace/endpoint
 	git add *
