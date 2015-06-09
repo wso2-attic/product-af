@@ -34,18 +34,18 @@
         username = "";
         password = "";
     } else {
-        String applicationName = pageContext.getServletContext().getInitParameter("applicationName");
+        String applicationKey = pageContext.getServletContext().getInitParameter("applicationKey");
         CarbonContext cCtx = CarbonContext.getThreadLocalCarbonContext();
         Registry registry = (Registry) cCtx.getRegistry(RegistryType.SYSTEM_GOVERNANCE);
 
-        Resource resource = registry.get("dependencies/" + applicationName + "/ConsumerKey");
+        Resource resource = registry.get("dependencies/" + applicationKey + "/ConsumerKey");
         if (resource.getContent() instanceof String) {
             consumerkey = (String) resource.getContent();
         } else {
             consumerkey = new String((byte[]) resource.getContent());
         }
 
-        resource = registry.get("dependencies/" + applicationName + "/ConsumerSecret");
+        resource = registry.get("dependencies/" + applicationKey + "/ConsumerSecret");
         if (resource.getContent() instanceof String) {
             secretkey = (String) resource.getContent();
         } else {
