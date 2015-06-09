@@ -1,6 +1,5 @@
 package org.wso2.appfactory.integration.test.utils;
 
-import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -42,6 +41,7 @@ public class AFDefaultDataPopulator {
     private String fullyQualifiedTenantAdmin;
     private String tenantAwareAdminUsername;
     private String tenantAdminPassword;
+    private  ApplicationClient applicationClient;
 
     /**
      * Start test execution with super tenant login
@@ -76,11 +76,15 @@ public class AFDefaultDataPopulator {
                          AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_EMAIL),
                          AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
 
-            //TODO: isAppExists
+        }
+        if (!isDefaultApplicationExists()) {
+            log.info("Default application doesn't exist, Creating "
+                     + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME));
             createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE));
+            Thread.sleep(40000);
             createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
                                      AFIntegrationTestUtils.getPropertyValue(
@@ -93,8 +97,26 @@ public class AFDefaultDataPopulator {
                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_SRC),
                                      AFIntegrationTestUtils.getPropertyValue(
                                              AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));
+        } else {
+            log.info("Default application  exists.");
         }
+    }
 
+    /**
+     * Delete default application "appla"
+     * @throws Exception
+     */
+    public void deleteDefaultApplication() throws Exception {
+        if (isDefaultApplicationExists()) {
+            ApplicationClient appMgtRestClient = new
+                    ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" +
+                                      AFIntegrationTestUtils.getDefaultTenantDomain(),
+                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+            appMgtRestClient.deleteApplication(AFIntegrationTestUtils.getAdminUsername(),
+                                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+            Thread.sleep(20000);
+        }
     }
 
     /**
@@ -108,6 +130,28 @@ public class AFDefaultDataPopulator {
                                                   superTenantSession);
         TenantInfoBean tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
         return tenantInfoBean.getTenantId() == 0 ? false : true;
+    }
+
+    /**
+     * Check if the default application already exists or not.
+     *
+     * @return
+     * @throws Exception
+     */
+    private boolean isDefaultApplicationExists() throws Exception {
+        applicationClient = new
+                ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" +
+                                  AFIntegrationTestUtils.getDefaultTenantDomain(),
+                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+        if (!applicationClient.isAppNameAlreadyAvailable(
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME)) &&
+            !applicationClient.isApplicationKeyAvailable(
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

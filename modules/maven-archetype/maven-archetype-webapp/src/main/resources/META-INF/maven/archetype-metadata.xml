@@ -5,7 +5,7 @@
             <directory>.</directory>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
-            <directory />
+            <directory/>
             <includes>
                 <include>.classpath</include>
                 <include>.project</include>
@@ -18,13 +18,13 @@
             <directory>src</directory>
             <includes>
                 <include>main/java/com/HelloApp/HelloServlet.java</include>
-		<include>main/webapp/index.jsp</include>
-		<include>main/webapp/WEB-INF/web.xml</include>
-		<include>main/webapp/WEB-INF/lib</include>
-		<include>META-INF/MANIFEST.MF</include>
+                <include>main/webapp/index.jsp</include>
+                <include>main/webapp/WEB-INF/web.xml</include>
+                <include>main/webapp/WEB-INF/lib</include>
+                <include>META-INF/MANIFEST.MF</include>
             </includes>
         </fileSet>
-	  <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="true" encoding="UTF-8">
             <directory>.settings</directory>
             <includes>
                 <include>org.eclipse.jdt.core.prefs</include>
@@ -34,7 +34,7 @@
                 <include>org.eclipse.wst.jsdt.ui.superType.name</include>
             </includes>
         </fileSet>
- <fileSet filtered="true" encoding="UTF-8">
+        <fileSet filtered="true" encoding="UTF-8">
             <directory>build</directory>
             <includes>
                 <include>classes/</include>
@@ -51,15 +51,8 @@
             <exclude name="**/*.class"/>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
-            <directory>WebContent</directory>
-            <includes>
-                <include>META-INF</include>
-                <include>META-INF/MANIFEST.MF</include>
-                <include>WEB-INF</include>
-                <include>WEB-INF/lib</include>
-                <include>WEB-INF/web.xml</include>
-                <include>index.jsp</include>
-            </includes>
+            <directory>resources</directory>
+            <exclude name="**/*.class"/>
         </fileSet>
     </fileSets>
 </archetype-descriptor>

@@ -64,6 +64,17 @@ public class DatabaseTestCase extends AFIntegrationTest {
         dbUserTwoActualName = getFullyQualifiedUsername(DB_USER_TWO);
         defaultTemplate = defaultAppKey + "_admin@" + STAGE_DEVELOPMENT;
         customTemplateActualName = CUSTOM_TEMPLATE + "@" + STAGE_DEVELOPMENT;
+
+        // Detach users if exists
+        databaseClient.detachUser(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
+        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
+        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserOneActualName);
+        //Delete users if exists
+//        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
+//        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
+        //Delete databases if exists 
+        databaseClient.dropDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, "false");
+        databaseClient.dropDatabase(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, "false");
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
