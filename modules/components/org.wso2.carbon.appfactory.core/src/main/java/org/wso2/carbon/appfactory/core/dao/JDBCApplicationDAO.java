@@ -1143,10 +1143,11 @@ public class JDBCApplicationDAO {
                 // We remove the cache entry here before the return.
                 int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
                 String deployCacheKey = JDBCApplicationCacheManager.constructDeployStatusCacheKey(applicationKey,
-                                                                    tenantId, version, environment, isForked, username);
+                                                                    tenantId, version, environment, isForked, username).toLowerCase();
                 Cache<String, DeployStatus> deployCache = JDBCApplicationCacheManager.getApplicationDeployStatusCache();
                 handleDebugLog("Removing data from the deployment status cache for application key : " + applicationKey);
                 deployCache.remove(deployCacheKey);
+                JDBCApplicationCacheManager.getAppVersionListCache().remove(applicationKey);
                 return true;
             }
             handleException("Error while updating deployed build id for version : " + version + " application key : " +
@@ -1187,7 +1188,7 @@ public class JDBCApplicationDAO {
         // We get the value from cache
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String deployCacheKey = JDBCApplicationCacheManager.constructDeployStatusCacheKey(applicationKey, tenantId,
-                                version, environment, isForked, username);
+                                version, environment, isForked, username).toLowerCase();
         Cache<String, DeployStatus> deployCache = JDBCApplicationCacheManager.getApplicationDeployStatusCache();
         if (deployCache.containsKey(deployCacheKey)) {
             handleDebugLog("Retrieving data from the deployment status cache for application key : " + applicationKey);

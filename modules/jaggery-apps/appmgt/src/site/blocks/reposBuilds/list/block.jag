@@ -39,48 +39,53 @@ jagg.block("reposBuilds/list", {
     	var hasRepoReadWritePermission =true;// jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_REPOSITORY_READ_WRITE);
     	
     	var map = {};
-    	var stages = lifeCycleModule.getAllLifeCycleStages();
-    	
-    	for(var index in stages){
-    		var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO+stages[index]);
-    		map[stages[index]] = isAllowed ;
-    	}
-    	
-       var hasBranchingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_REPOSITORY_BRANCH);
+        var userName = jagg.getUser();
+        if(userName) {
+            var stages = lifeCycleModule.getAllLifeCycleStages();
 
-       modApp = jagg.module("application");
-       var buildableStages;
-       var appDetails = [];
-       if(jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)){
-            //calling module app
-            var x = modApp.getAppVersionsInStages(applicationKey, jagg.getUser(), false, true, false);
-            if(x !=null){
-                var appInfo=parse(x);
+            for (var index in stages) {
+                var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
+                                                                              PERMISSION_DEPLOY_TO + stages[index]);
+                map[stages[index]] = isAllowed;
             }
-	    buildableStages=parse(modApp.getBuildableStages());
-            for(var appIndex in appInfo ){
-                var elementAppInfo=appInfo[appIndex];
 
-                var versions=elementAppInfo.versions;
+            var hasBranchingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
+                                                                                       PERMISSION_REPOSITORY_BRANCH);
 
-                for(var index in versions){
-                    var version={};
-                    var versionElement=versions[index];
-		            var tempAppDetail = {};
+            modApp = jagg.module("application");
+            var buildableStages;
+            var appDetails = [];
+            if (jagg.module("permission").isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)) {
+                //calling module app
+                var x = modApp.getAppVersionsInStages(applicationKey, jagg.getUser(), false, true, false);
+                if (x != null) {
+                    var appInfo = parse(x);
+                }
+                buildableStages = parse(modApp.getBuildableStages());
+                for (var appIndex in appInfo) {
+                    var elementAppInfo = appInfo[appIndex];
 
-                    version.current=versionElement.version;
-                    version.stage=versionElement.stage;
-                    tempAppDetail.type=appInfo[0].type;
-                    tempAppDetail.version=version;
-                    tempAppDetail.isBuildable=mod.getApplicationTypeBean(appInfo[0].type).isBuildable();
+                    var versions = elementAppInfo.versions;
 
-                    appDetails.push(tempAppDetail);
+                    for (var index in versions) {
+                        var version = {};
+                        var versionElement = versions[index];
+                        var tempAppDetail = {};
+
+                        version.current = versionElement.version;
+                        version.stage = versionElement.stage;
+                        tempAppDetail.type = appInfo[0].type;
+                        tempAppDetail.version = version;
+                        tempAppDetail.isBuildable = mod.getApplicationTypeBean(appInfo[0].type).isBuildable();
+
+                        appDetails.push(tempAppDetail);
+                    }
                 }
             }
+            var tenantDomain = mod.getTenantDomain();
+            var applicationType = mod.getApplicationType(applicationKey);
+            var isCodeEditorSupported = mod.getApplicationTypeBean(applicationType).isCodeEditorSupported();
         }
-       var tenantDomain = mod.getTenantDomain();
-       var applicationType = mod.getApplicationType(applicationKey);
-       var isCodeEditorSupported = mod.getApplicationTypeBean(applicationType).isCodeEditorSupported();
        return {
     	    "tenantDomain":tenantDomain,
             "hasBranchingPermission":hasBranchingPermission,

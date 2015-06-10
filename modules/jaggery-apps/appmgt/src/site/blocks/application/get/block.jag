@@ -39,27 +39,33 @@ jagg.block("application/get", {
     	var hasRepoReadWritePermission =true;// jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_REPOSITORY_READ_WRITE);
     	
     	var map = {};
-    	var stages = lifeCycleModule.getAllLifeCycleStages();
-    	
-    	for(var index in stages){
-    		var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO+stages[index]);
-    		map[stages[index]] = isAllowed ;
-    	}
+        var userName = jagg.getUser();
+        if(userName) {
+            var stages = lifeCycleModule.getAllLifeCycleStages();
 
-         var permissionModule = jagg.module("permission");
-    	 var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+            for (var index in stages) {
+                var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
+                                                                              PERMISSION_DEPLOY_TO + stages[index]);
+                map[stages[index]] = isAllowed;
+            }
 
-         var tenantDomain = mod.getTenantDomain();
-	     var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
-		 var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
-	     var helpTips = jagg.module("help").getHelpTips("applicationHome");
+            var permissionModule = jagg.module("permission");
+            var hasCXOPermissionOnApps = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
+            var isTenantAdmin = permissionModule.hasTenantLevelUserMgtPermission();
+            var deploymentStages = getProperties(DEPLOYMENT_STAGES);
 
-		var applicationType = mod.getApplicationType(applicationKey);
-		var executionType = mod.getApplicationTypeBean(applicationType).getExecutionType();
-		var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
-		var hasAppCreationPermission = jagg.module("permission").hasAppCreationPermission();
-		var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
+            var tenantDomain = mod.getTenantDomain();
+            var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+            var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
+                                                                                           PERMISSION_DOMAIN_MAPPING);
+            var helpTips = jagg.module("help").getHelpTips("applicationHome");
 
+            var applicationType = mod.getApplicationType(applicationKey);
+            var executionType = mod.getApplicationTypeBean(applicationType).getExecutionType();
+            var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+            var hasAppCreationPermission = jagg.module("permission").hasAppCreationPermission();
+            var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
+        }
     	return {
 			"tenantDomain": tenantDomain,
 			"hasConfigureAPIManagerPermission": hasConfigureAPIManagerPermission,
@@ -71,7 +77,9 @@ jagg.block("application/get", {
 			"executionType": executionType,
 			"isAllowDomainMapping": isAllowDomainMapping,
 			"hasAppCreationPermission": hasAppCreationPermission,
-			"isUploadableAppType": isUploadableAppType
+			"isUploadableAppType": isUploadableAppType,
+			"hasCXOPermissionOnApps":hasCXOPermissionOnApps,
+			"isTenantAdmin":isTenantAdmin
     	};
     }
 

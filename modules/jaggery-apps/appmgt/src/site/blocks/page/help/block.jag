@@ -20,6 +20,14 @@
 jagg.block("page/help", {
     initialize:function (data) {
 
+    },
+    getOutputs:function (inputs) {
+           var section = inputs.section;
+           var modHelp = jagg.module("help");
+           var helpDetails = modHelp.getHelpMessage(section)
+           return {
+        	    "helpDetails":helpDetails
+           };
     }
 });
 %>

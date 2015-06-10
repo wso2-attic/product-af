@@ -22,7 +22,6 @@ jagg.template("application/user/invite", function(inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
-    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
 %>
 

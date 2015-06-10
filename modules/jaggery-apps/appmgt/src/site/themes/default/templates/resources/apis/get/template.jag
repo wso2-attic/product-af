@@ -211,17 +211,26 @@ var helpTips = outputs.helpTips;
 							              +'</ul>'
 	                                 +'</li>';
 
+                var codeSnippetHTML=codeSnippet.generate("<%=language%>","Properties","<%=applicationKey%>",name);
+			    var snippets=(codeSnippetHTML!=undefined);
+			    var elementIds=[];
+
 	        	for(var i=0; i < parsedResult.length;i++){
 	        		var API = parsedResult[i];
+	        		elementIds.push(API.name);
 	                	var endpointUrl = ' <%=apiManagerStoreUrl%>'+'/'+API.name+'/'+API.version;
 	            		 tableBodyHTML +='<li class="list_row_item first_list_row_item">'+
 	                     '<ul class="list_row first_list_row ">'+
 	                         '<li class="list_col col-2">'+
-	                             '<div class="list_col_content">'+
-	                                      API.name +
-	                             '</div>'+
-	                         '</li>'+
-	                         '<li class="list_col col-1">'+
+	                             '<div class="list_col_content"> ' +
+	                                '<ul class="list"> ' +
+	                                 '  <li>' + API.name + '</li> ' +
+                                    '</ul>';
+                                    if(snippets)
+				                        tableBodyHTML+='<span id="snippet_'+API.name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;'
+				            				+'<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
+
+	                         tableBodyHTML+='</div> </li> <li class="list_col col-1">'+
 	                             '<div class="list_col_content">'+
 	                                  API.version +
 	                             '</div>'+
@@ -237,11 +246,29 @@ var helpTips = outputs.helpTips;
 	                         '<li class="list_col col-3">'+
 	                             '<div class="list_col_content css_trim"  title="'+ endpointUrl + '">'+ endpointUrl + '</div>'+
 	                         '</li>'+
-	                     '</ul>'+
-	                '</li>';
+	                     '</ul>';
+	                     if(snippets)
+				   		    tableBodyHTML+='<div id="code'+API.name+'" style="display: none;" class="code">'
+										+codeSnippet.generate("Java","ApiKeys","<%=applicationKey%>",API.name,API);
+										+'</div>';
+
+	                tableBodyHTML+='</li>';
+
 	        	}
 
 	        	$("#apiSection").empty().append(tableBodyHTML);
+	        	for (var index in elementIds) {
+				    var name = elementIds[index];
+
+				    //tableBodyHTML += '<ul class="list_row first_list_row">'
+					$("#snippet_"+name).click(function(){
+						$crtl=$(this);
+		 				$(this).parent().parent().parent().next().slideToggle( "fast", function(){
+		  	 				});
+						});
+				}
+
+				$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
                 saveAndRetrieve(false);
         	}
         },

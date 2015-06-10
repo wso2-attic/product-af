@@ -40,7 +40,7 @@ var site = require("/site/conf/site.json");
         }
 
         if(session.get("PERMISSION_CACHE") == null){
-            var optimizedPermissions = permissionModule.getOptimizedPermissions(null);
+            var optimizedPermissions = permissionModule.getOptimizedPermissions("/");
             var userCache={};
             var permissionCache={};
             var tenantPermissionCache={};

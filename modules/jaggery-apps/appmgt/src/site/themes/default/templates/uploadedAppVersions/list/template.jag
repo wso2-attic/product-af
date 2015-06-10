@@ -22,8 +22,6 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
 <%
     var baseURL = getProperty(BASE_URL);
     var gitURL = null;
-    var mod = jagg.module("manager");
-    var tenantDomain = mod.getTenantDomain();
     var loggedInUser = jagg.getUser();
     var appDomain = getProperty("DomainName");
     var applicationName = request.getParameter("applicationName");
@@ -211,7 +209,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
     function doCreateBranch(applicationKey,srcVersion,targetVersion,button){
         if(validateBranch(targetVersion)){
             $(button).attr('disabled','disabled').val('Creating..');
-            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
