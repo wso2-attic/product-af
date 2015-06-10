@@ -334,7 +334,7 @@ function validateIconImage(filename,fileSize) {
          break;
         }
 
-        if(fileSize > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
+        if((fileSize/1024) > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
             fileSizeStatus = false;
             jagg.message({
                    content: "Image file should be less than 5MB",
