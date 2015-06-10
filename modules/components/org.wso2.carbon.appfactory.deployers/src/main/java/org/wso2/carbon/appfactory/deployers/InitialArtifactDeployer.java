@@ -55,6 +55,10 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 //		}
 //	}
 
+	protected File[] getLastBuildArtifact(String path, String extension) throws AppFactoryException {
+		return getArtifact(path, extension);
+	}
+
 	protected String getBaseRepoUrl() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
 				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
