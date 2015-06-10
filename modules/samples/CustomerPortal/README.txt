@@ -28,7 +28,9 @@ Steps for Sample
 	git clone https://git.appfactory.private.wso2.com:8443/git/samples.com/customerportal.git
 	You need to provide the username as devUser@samples.com and password of devUser.
 6. Copy src directory from sample location to developer_workspace/customerportal/src.
-	Copy WebContent/index.jsp to developer_workspace/customerportal/WebContent/index.jsp
+	Make folder called "webapp" inside src/main
+	Copy WebContent/WEB-INF folder to webapp folder.
+	Copy WebContent/index.jsp to webapp folder.
 7. Commit and push the changes we did.
 	cd developer_workspace/customerportal
 	git add *
