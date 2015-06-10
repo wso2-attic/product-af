@@ -27,7 +27,7 @@ jagg.template("deployment/list", function(inputs, outputs, jagg) { %>
 	<script type="text/javascript" charset="utf-8">
 
 	    function doDeployDirectly(stage, versionId, shouldBuild) {
-            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
             action:"directdeploy",
             applicationKey:$("#applicationKey").attr('value'),
             stageName:stage,
@@ -40,7 +40,7 @@ jagg.template("deployment/list", function(inputs, outputs, jagg) { %>
         }
 
         function doCreateArtifact(versionId) {
-            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
             action:"createArtifact",
             applicationKey:$("#applicationKey").attr('value'),
             version:versionId,

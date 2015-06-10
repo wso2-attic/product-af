@@ -23,6 +23,53 @@ codeSnippet.generate=function(language,section,applicationKey,PropertyName,detai
 };
 }());
 
+var getJavaCodeForApiKeys = function (appplicationKey, apiName){
+    var code = '';
+    code = '<pre class="clipboard">'
+           +'import org.wso2.carbon.registry.core.exceptions.RegistryException;</br>'
+           +'import org.wso2.carbon.registry.core.utils.RegistryUtils;</br>'
+           +'import org.wso2.carbon.context.CarbonContext;</br>'
+           +'import org.wso2.carbon.context.RegistryType;</br>'
+           +'import org.wso2.carbon.registry.core.Registry;</br>'
+           +'import org.wso2.carbon.registry.core.Resource;</br></br>'
+           +'CarbonContext cCtx = CarbonContext.getThreadLocalCarbonContext();</br>'
+           +'Registry registry = (Registry) cCtx.getRegistry(RegistryType.SYSTEM_GOVERNANCE);</br>'
+           +'try{</br>'
+           +'String consumerkey = "";</br>'
+           +'String consumerKeyPath = "dependencies/' + appplicationKey + '/ConsumerKey";</br>'
+           +'          if (registry.resourceExists(consumerKeyPath)) {</br>'
+           +'                  Resource resource = registry.get(consumerKeyPath);</br>'
+           +'                  if (resource.getContent() != null) {</br>'
+           +'                        if (resource.getContent() instanceof String) {</br>'
+           +'                                consumerkey = (String) resource.getContent();</br>'
+           +'                        } else if (resource.getContent() instanceof byte[]) {</br>'
+           +'                                consumerkey = new String((byte[]) resource.getContent());</br>'
+           +'                        }</br>'
+           +'                   }</br>'
+           +'           } else {</br>'
+           +'                  consumerkey = "consumerkey doesn\'t exists";</br>'
+           +'           }</br></br>'
+           +'String consumerSecret = "";</br>'
+           +'String consumerSecretPath = "dependencies/' + appplicationKey + '/ConsumerSecret";</br>'
+           +'          if (registry.resourceExists(consumerSecretPath)) {</br>'
+           +'                  Resource resource = registry.get(consumerSecretPath);</br>'
+           +'                  if (resource.getContent() != null) {</br>'
+           +'                        if (resource.getContent() instanceof String) {</br>'
+           +'                                consumerSecret = (String) resource.getContent();</br>'
+           +'                        } else if (resource.getContent() instanceof byte[]) {</br>'
+           +'                                consumerSecret = new String((byte[]) resource.getContent());</br>'
+           +'                        }</br>'
+           +'                   }</br>'
+           +'           } else {</br>'
+           +'                  consumerkey = "consumerSecret doesn\'t exists";</br>'
+           +'           }</br>'
+           +'}catch(RegistryException e) {</br>'
+           +'       consumerkey = "Unable to read the resource content";</br>'
+           +'}</br>'
+           +'</pre>';
+    return code;
+}
+
 var getJavaCodeForProperties=function(applicaitonKey,propertyName){
     var code='';
     code='<pre class="clipboard">'

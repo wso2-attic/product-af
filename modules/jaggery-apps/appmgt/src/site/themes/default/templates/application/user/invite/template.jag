@@ -23,7 +23,6 @@ include("/jagg/constants.jag"); %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
-    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
     var isOTTenant=outputs.isOTTenant;
     var helpTips = outputs.helpTips;

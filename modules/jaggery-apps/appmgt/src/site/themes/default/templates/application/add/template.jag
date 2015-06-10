@@ -20,12 +20,11 @@
 jagg.template("application/add", function (inputs, outputs, jagg) { %>
 
 <%
-    var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
-    var webContext = getProperty(WEB_CONTEXT_ROOT);
+    var appFacURL = outputs.appFacURL;
+    var webContext = outputs.webContext;
     var helpTips = outputs.helpTips;
     var uploadableAppExts = outputs.uploadableAppExts;
-    var mod = jagg.module("manager");
-    var uploadableApplicationMaxSize=mod.getUploadableApplicationMaxSize();
+    var uploadableApplicationMaxSize=outputs.uploadableApplicationMaxSize;
     %>
 
 

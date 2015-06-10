@@ -30,7 +30,7 @@ jagg.template("resources/list", function(inputs, outputs, jagg) { %>
     var apiManagerServerUrl = getProperty(API_MANAGER_SERVER_URL);
     var apiManagerButton = getProperty(API_MANAGER_BUTTON);
 
-    var hasCreatePermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DATASOURCE_CREATE);
+    var hasCreatePermission = outputs.hasCreatePermission;
     var helpTips = outputs.helpTips;
     %>
 

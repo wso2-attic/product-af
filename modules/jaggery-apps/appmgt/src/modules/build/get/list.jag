@@ -127,5 +127,19 @@ var getTagNamesOfPersistedArtifacts = function(applicationId, version) {
             throw e;
         }
         return arrApplications;
-    }
+    };
+
+var getJenkinsBaseUrl = function (tenantDomain) {
+	var ciConnector = Packages.org.wso2.carbon.appfactory.jenkins.build.RestBasedJenkinsCIConnector.getInstance();
+	return ciConnector.getJenkinsUrl(tenantDomain);
+};
+
+var getBasicAuthHeaderValue = function () {
+	var userName = getProperty(JENKINS_ADMIN_USERNAME);
+	var password = getProperty(JENKINS_ADMIN_PASSWORD);
+	var String = Packages.java.lang.String;
+	var byteVal = new String(userName + ":" + password).getBytes();
+	var Base64 = Packages.org.apache.commons.codec.binary.Base64;
+	return new String(Base64.encodeBase64(byteVal));
+};
  %>

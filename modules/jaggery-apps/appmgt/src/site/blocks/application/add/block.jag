@@ -31,6 +31,9 @@ jagg.block("application/add", {
 		var supportiveHTML = "";
 		var uploadableAppTypesHTML = "";
 		var uploadableAppExts = [];
+		var uploadableApplicationMaxSize;
+		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+		var webContext = getProperty(WEB_CONTEXT_ROOT);
 
         if (!applicationTypes || applicationTypes.length === 0) {
 
@@ -39,6 +42,7 @@ jagg.block("application/add", {
 
         } else {
 
+            uploadableApplicationMaxSize = modManager.getUploadableApplicationMaxSize()
             mainHTML = '<select id="applicationType" name="applicationType" onChange="selectAppCreationType(this)">';
             uploadableAppTypesHTML = '<select id="uploadableAppType" name="uploadableAppType">';
 
@@ -103,7 +107,10 @@ jagg.block("application/add", {
 			"isUploadableAppTypeAvailable":isUploadableAppTypeAvailable,
 			"helpTips":helpTips,
             "hasApplicationAccessPermission":hasApplicationAccessPermission,
-		    "uploadableAppExts":uploadableAppExts
+		    "uploadableAppExts":uploadableAppExts,
+		    "uploadableApplicationMaxSize":uploadableApplicationMaxSize,
+		    "appFacURL":appFacURL,
+		    "webContext":webContext
 		};
     }
 });

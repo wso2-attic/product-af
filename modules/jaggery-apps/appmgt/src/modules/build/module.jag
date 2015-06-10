@@ -30,6 +30,12 @@ jagg.module("build", {
     },
 	deployArtifact:function () {
         return jagg.require(jagg.getModulesDir() + "build/add/add.jag").deployArtifact.apply(this, arguments);
+    },
+    getJenkinsBaseUrl:function(){
+        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getJenkinsBaseUrl.apply(this, arguments);
+    },
+    getBasicAuthHeaderValue:function(){
+        return jagg.require(jagg.getModulesDir() + "build/get/list.jag").getBasicAuthHeaderValue.apply(this, arguments);
     }
 });
 %>
