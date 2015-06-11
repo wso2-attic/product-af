@@ -18,10 +18,6 @@
 
 package org.wso2.carbon.appfactory.tenant.mgt.service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -34,12 +30,12 @@ import org.wso2.carbon.appfactory.tenant.mgt.beans.UserInfoBean;
 import org.wso2.carbon.appfactory.tenant.mgt.util.AppFactoryTenantMgtUtil;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import com.sun.xml.xsom.impl.scd.Iterators.Map;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class TenantManagementService extends AbstractAdmin {
 	private static final String CLAIMS_FIRSTLOGIN = "http://wso2.org/claims/firstlogin";
@@ -316,6 +312,29 @@ public class TenantManagementService extends AbstractAdmin {
             return true;
     }
 
+	/**
+	 * Get roles of user except the default (carbon) tenant roles and the application roles
+	 * @param username username of the user
+	 * @return Appfactory roles of the user
+	 * @throws TenantManagementException When CC is not populated correctly and getRoleList of user is failed
+	 */
+	public String[] getFilteredUserRoles(String username) throws TenantManagementException {
+		UserStoreManager userStoreManager;
+		try {
+			userStoreManager = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
+		} catch (UserStoreException e) {
+			String msg = "Error while obtaining the userstore manager from the carbon context";
+			log.error(msg, e);
+			throw new TenantManagementException(msg, e);
+		}
+		try {
+			return AppFactoryTenantMgtUtil.filterDefaultUserRoles(userStoreManager.getRoleListOfUser(username));
+		} catch (UserStoreException e) {
+			String msg = "Error while obtaining the roles from userstore manager";
+			log.error(msg, e);
+			throw new TenantManagementException(msg, e);
+		}
+	}
 
     /**
      * Update stats on BAM
