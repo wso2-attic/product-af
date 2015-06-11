@@ -16,7 +16,6 @@ import org.wso2.carbon.context.CarbonContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  * Concrete implementation of Stratos Undeployer.
@@ -89,12 +88,11 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
         repositoryClient.retireveMetadata(gitRepoUrl, false, applicationTempLocation);
         File applicationRootLocation = new File(applicationTempLocation, serverDeploymentPath);
 
-        @SuppressWarnings("unchecked")
-        Collection<File> filesToDelete = getFilesToDelete(
-                applicationId, version, fileExtension, applicationRootLocation);
+        // Get file or directory to delete
+        File file = getFileToDelete(applicationId, version, fileExtension, applicationRootLocation);
 
         // Removing files from git
-        for (File file : filesToDelete) {
+        if (file.exists()) {
             if (log.isDebugEnabled()) {
                 log.debug("Removing the file in the path : " + file.getAbsolutePath()+" from dep sync git repo");
             }
@@ -104,15 +102,20 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
                 String msg = "Unable to remove the file from dep sync git repository : " + file.getAbsolutePath();
                 throw new AppFactoryException(msg);
             }
-        }
-
-        repositoryClient.commitLocally("Undelpoying artifacts of applicationId : " + applicationId, true,
-                applicationTempLocation);
-        repositoryClient.pushLocalCommits(gitRepoUrl, AppFactoryConstants.MASTER, applicationTempLocation);
-        if (log.isDebugEnabled()) {
-            log.debug("Deleted artifact for applicationId : " + applicationId + " stage : " + stage + " version : "
-                    + version + " server deployment path : " + serverDeploymentPath +
-                    " application root location : " + applicationRootLocation);
+            repositoryClient.commitLocally("Undelpoying artifacts of applicationId : " + applicationId, true,
+                                           applicationTempLocation);
+            repositoryClient.pushLocalCommits(gitRepoUrl, AppFactoryConstants.MASTER, applicationTempLocation);
+            if (log.isDebugEnabled()) {
+                log.debug("Deleted artifact for applicationId : " + applicationId + " stage : " + stage + " version : "
+                          + version + " server deployment path : " + serverDeploymentPath +
+                          " application root location : " + applicationRootLocation);
+            }
+        } else {
+            if(log.isDebugEnabled()) {
+                log.debug("Unable to remove the file from dep sync git repository: " + file.getAbsolutePath()+
+                          ". File: "+file.getName()+" does not exists in the dep sync git repository: "+gitRepoUrl +
+                          " in server deployment path: "+serverDeploymentPath);
+            }
         }
     }
 
