@@ -217,11 +217,10 @@ public abstract class AbstractDeployer implements Deployer {
      * @throws AppFactoryException If there is an issue in filtering last build artifacts
      */
     protected File[] getLastBuildArtifact(String path, String extension) throws AppFactoryException {
-        // Archive folder is considered for freestyle projects.
-        if (StringUtils.isBlank(extension)) {
-            path = path + File.separator + FREE_STYLE_APP_TYPE_FILE_PATH;
-        }
-        return getArtifact(path, extension);
+	    if (StringUtils.isBlank(extension)) {
+		    path = path + File.separator + FREE_STYLE_APP_TYPE_FILE_PATH;
+	    }
+	    return getArtifact(path, extension);
     }
 
 	/**

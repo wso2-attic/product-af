@@ -38,9 +38,6 @@ if(pagePath != null && pagePath.equals("apimanager")){
 var headerMsg = "Add New External API";
 var buttonValue = "Add API";
 
-var mod = jagg.module("resources");
-var modPermission = jagg.module("permission");
-
 if(isEdit != null && isEdit == "true"){
 	var log = new Log();
     headerMsg = resourceName;

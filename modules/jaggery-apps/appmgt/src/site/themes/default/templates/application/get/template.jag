@@ -26,11 +26,9 @@ include("/jagg/constants.jag"); %>
     var stagesMap = outputs.stagesMap;
     var hasDomainMappingPermission = outputs.hasDomainMappingPermission;
     var fineGrainedDomainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
-    var mod = jagg.module("manager");
-    var permissionMod = jagg.module("permission");
-    var tenantDomain = mod.getTenantDomain();
-    var hasCXOPermissionOnApps = permissionMod.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
-    var isTenantAdmin = permissionMod.hasTenantLevelUserMgtPermission();
+    var tenantDomain = outputs.tenantDomain;
+    var hasCXOPermissionOnApps = outputs.hasCXOPermissionOnApps;
+    var isTenantAdmin = outputs.isTenantAdmin;
     var appDomain = getProperty(DOMAIN_NAME);
     var isUploadableApp = outputs.isUploadableAppType;
     var helpTips = outputs.helpTips;
@@ -336,7 +334,7 @@ function validateIconImage(filename,fileSize) {
          break;
         }
 
-        if(fileSize > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
+        if((fileSize/1024) > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
             fileSizeStatus = false;
             jagg.message({
                    content: "Image file should be less than 5MB",
@@ -765,7 +763,7 @@ function setClipBoard(version){
 	            if(success.test(builResultStatus)){
 	                buildStatus='<span>Build ' + buildSplitted[1] + ' ' +
 	                    '<strong class="status success ">'+builResultStatus+'</strong></span>';
-	            }else if(lasbuildinfo.length>0){
+	            } else if(lasbuildinfo.length > 0 && builResultStatus != "null"){
 	                buildStatus='<span>Build ' + buildSplitted[1] + ' ' +
 	                    '<strong class="status failed ">'+builResultStatus+'</strong></span>';
 	            }
@@ -997,12 +995,14 @@ function setClipBoard(version){
 	           applicationKey:applicationKey
 	       },function (result) {
 	    	   hideNotification();
-	    	   jagg.message({
-                    content: "Default production url added successfully",
-                    type: 'success',
-                    id:'notification'
+	    	   if(jQuery.parseJSON(result) == true){
+                  jagg.message({
+                  content: "Default production url added successfully",
+                  type: 'success',
+                  id:'notification'
                 });
 	    	   createCurrentStatus(false);
+	    	   }
 	       },function (jqXHR, textStatus, errorThrown) {
 	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
 	           createCurrentStatus(false);

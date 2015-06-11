@@ -41,7 +41,7 @@ var log = new Log();
         // for user home
         if (pageName == PAGES.USER_HOME) {
             response.retrievedTime = new Date().getTime();
-            response.list = mod.listen(userName);
+            response.list = mod.listen(userName).sort();
             print(response);
         } else {
             // app home

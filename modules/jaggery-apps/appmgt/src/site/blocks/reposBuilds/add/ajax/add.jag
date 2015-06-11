@@ -25,6 +25,7 @@ include("/jagg/config_reader.jag");
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     var log = new Log("blocks/reposBuilds/add/ajax/add.jag");
+    var modPermission = jagg.module("permission");
     if (!jagg.getUser()) {
         print(UNAUTHORIZED_ERROR_RESPONSE);
         return;
@@ -50,7 +51,80 @@ include("/jagg/config_reader.jag");
         }
 		//var result =  buildModule.deployTaggedArtifact(applicationId, stage, version, tagName);
 
-	} else {
+	} else if(action == "invokeDoVersion") {
+        mod = jagg.module("lifecycle");
+
+        var applicationKey = request.getParameter("applicationKey");
+        var srcVersion = request.getParameter("srcVersion");
+        var targetVersion = request.getParameter("targetVersion");
+        var lifecycleName = request.getParameter("lifecycleName");
+
+        var response = {};
+        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_REPOSITORY_BRANCH)){
+            try {
+                return mod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
+            } catch (e) {
+                log.error(e.message);
+                throw e.message;
+            }
+        } else{
+            response.result = 0;
+            response.message = "You don't have permission to create a version";
+            print(response);
+        }
+
+    } else if (action == "createArtifact") {
+        mod = jagg.module("lifecycle");
+        var applicationKey = request.getParameter("applicationKey");
+        var version = request.getParameter("version");
+        var revision = request.getParameter("revision");
+        var stage = request.getParameter("stage");
+        var doDeploy = request.getParameter("doDeploy");
+        var tagName = request.getParameter("tagName");
+        var repoFrom = request.getParameter("repoFrom");
+        var response = {};
+        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURE_GOVERNANCE)){
+            try {
+                return mod.invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName,repoFrom);
+            } catch (e) {
+                log.error(e.message);
+            }
+        } else{
+            response.result = 0;
+            response.message = "You don't have permission to create  artifacts";
+            print(response);
+        }
+
+    } else if(action == "directdeploy") {
+        mod = jagg.module("lifecycle");
+
+        var applicationKey = request.getParameter("applicationKey");
+        var stageName = request.getParameter("stageName");
+        var version = request.getParameter("version");
+        var build = request.getParameter("build");
+
+        var revision = "HEAD";
+        var isDirectlyDeploy = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.AllowDirectDeploy');
+        var permissionStageToDeploy = PERMISSION_DEPLOY_TO + stageName;
+
+        var response = {};
+        if (modPermission.isUserAccessGranted(applicationKey, permissionStageToDeploy)){
+            if (isDirectlyDeploy == "true"){
+                try{
+                    mod.invokeDeployToStage(applicationKey,revision,version,stageName,build);
+                } catch(e) {
+                    throw new Error(e.message);
+                }
+            } else {
+                log.debug("Artifact is not configured for direct deploy");
+            }
+        } else{
+            response.result = 0;
+            response.message = "You don't have permission to deploy";
+            print(response);
+        }
+
+    } else {
         throw new Error("Invalid action specified");
     }
 }());

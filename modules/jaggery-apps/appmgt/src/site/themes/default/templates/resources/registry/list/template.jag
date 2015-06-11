@@ -21,10 +21,8 @@ jagg.template("resources/registry/list", function(inputs, outputs, jagg) { %>
 <%
 var applicationKey = request.getParameter("applicationKey");
 var applicationName = request.getParameter("applicationName");
-
-    var mod = jagg.module("manager");
-    var tenantDomain = mod.getTenantDomain();
-    var tenantId = mod.getTenantId();
+var tenantDomain = outputs.tenantDomain;
+var tenantId = outputs.tenantId;
 var isNamesOnly = outputs.isNamesOnly;
 //var hasConfigureResourcePermissions=outputs.hasConfigureResourcePermissions;
 //var dependencies=outputs.dependencies;

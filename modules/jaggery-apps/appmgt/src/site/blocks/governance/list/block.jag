@@ -42,39 +42,52 @@ jagg.block("governance/list", {
         var previousStage = {};
         var hasDemotePermissions = {};
         var hasVisibilityPermissions = {};
-        
-        for (var i = 0; i < deploymentStages.length; i++) {
-        	
-        	var currentStage = deploymentStages[i];
-        	
-            var next = lifecycleModule.getNextLifeCycleStage(currentStage);
-            var prev = lifecycleModule.getPreviousLifeCycleStage(currentStage);
+        var userName = jagg.getUser();
 
-         
-            nextStage[currentStage]=next;
- 
-            //next stage null > final stage
-            if(next == null || next == undefined){
-                next= currentStage;
+        if(userName) {
+
+            for (var i = 0; i < deploymentStages.length; i++) {
+
+                var currentStage = deploymentStages[i];
+
+                var next = lifecycleModule.getNextLifeCycleStage(currentStage);
+                var prev = lifecycleModule.getPreviousLifeCycleStage(currentStage);
+
+
+                nextStage[currentStage] = next;
+
+                //next stage null > final stage
+                if (next == null || next == undefined) {
+                    next = currentStage;
+                }
+
+                hasPromotePermissions[currentStage] = permissionModule.isUserAccessGranted(inputs.applicationKey,
+                                                                                           PERMISSION_GOVERNANCE_PROMOTE_TO +
+                                                                                           next);
+
+                hasDemotePermissions[currentStage] = permissionModule.isUserAccessGranted(inputs.applicationKey,
+                                                                                          PERMISSION_GOVERNANCE_DEMOTE_TO +
+                                                                                          prev);
+                previousStage[currentStage] = prev;
+
+                hasVisibilityPermissions[currentStage] = permissionModule.isUserAccessGranted(inputs.applicationKey,
+                                                                                              PERMISSION_VISIBILITY_STAGE +
+                                                                                              deploymentStages[i]);
+
             }
 
-            hasPromotePermissions[currentStage] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_PROMOTE_TO + next);
-
-            hasDemotePermissions[currentStage] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + prev);
-            previousStage[currentStage]=prev;
-            
-            hasVisibilityPermissions[currentStage] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_VISIBILITY_STAGE + deploymentStages[i]);
-            
+            var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
+                                                                                           PERMISSION_DOMAIN_MAPPING);
+            var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+            var hasRetirePermission = permissionModule.isUserAccessGranted(inputs.applicationKey,
+                                                                           PERMISSION_GOVERNANCE_RETIRE);
+            var repositoryOperationsAllowed = permissionModule.isUserAccessGranted(inputs.applicationKey,
+                                                                                   PERMISSION_REPOSITORY_BRANCH);
+            var applicationType = mod.getApplicationType(applicationKey);
+            var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+            var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
+            var tenantDomain = mod.getTenantDomain();
         }
-
-        var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING); 
-        var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
-        var hasRetirePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_RETIRE);
-  	var repositoryOperationsAllowed = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_REPOSITORY_BRANCH);
-	var applicationType = mod.getApplicationType(applicationKey);
-        var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
-	var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType(); 
-        var tenantDomain = mod.getTenantDomain();
         return {
         	"tenantDomain": tenantDomain,
         	"nextStage": nextStage,

@@ -59,7 +59,7 @@
                     context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
                     context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
                     var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService') ;
-                    appsOfUser = service.getApplicationInfoForUser(userName);
+                    appsOfUser = service.getApplicationSummaryForUser(userName);
                 } catch (e) {
                     log.error("Error while getting list of all applications of the user : " + userName + " of tenant "
                               + "domain : " + tenantDomain);
