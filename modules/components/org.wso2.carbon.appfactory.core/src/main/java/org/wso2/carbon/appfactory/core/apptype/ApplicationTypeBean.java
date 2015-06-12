@@ -44,6 +44,9 @@ public class ApplicationTypeBean {
 	private String[] runtimes;
     private String executionType;
     private boolean isCodeEditorSupported;
+    private  String IconColorClass;
+    private  String IconImageClass;
+
 	public ApplicationTypeBean(){
 	}
 
@@ -204,5 +207,21 @@ public class ApplicationTypeBean {
 
     public void setIsCodeEditorSupported(boolean isCodeEditorSupported) {
         this.isCodeEditorSupported = isCodeEditorSupported;
+    }
+
+    public String getIconColorClass() {
+        return IconColorClass;
+    }
+
+    public void setIconColorClass(String iconColorClass) {
+        IconColorClass = iconColorClass;
+    }
+
+    public String getIconImageClass() {
+        return IconImageClass;
+    }
+
+    public void setIconImageClass(String iconImageClass) {
+        IconImageClass = iconImageClass;
     }
 }
