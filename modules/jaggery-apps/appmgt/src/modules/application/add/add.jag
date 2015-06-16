@@ -72,7 +72,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
 
 
                modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
-
+            log.info("*****************added registry entry for version: ")
                key = 'appversion';
                content = '<metadata xmlns="http://www.wso2.org/governance/metadata">'+
                             '<appversion>'+
@@ -88,6 +88,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
                lifecycleAttribute = 'serviceLifecycle_lifecycleName';
 
                modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
+            log.info("*****************added registry entry for version: ")
         } catch (e) {
             var msg = "Error while storing registry resource for the application with application key : "
                       + applicationKey + "of application type : " + applicationType + " with version : " + version
@@ -168,6 +169,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
         //var resultNS = new Namespace("http://wso2.org");
         //var repositoryPath = result.resultNS::["result"].text();
 
+        log.info("***********************************Invoking service endpoint:" + endPoint + " returned result:" + result);
         log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
 
         if (log.isDebugEnabled()) {

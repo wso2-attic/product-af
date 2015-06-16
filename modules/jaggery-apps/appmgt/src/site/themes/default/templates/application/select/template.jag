@@ -19,6 +19,18 @@
 
 jagg.template("application/select", function (inputs, outputs, jagg) { %>
 
+<%  
+    var type = request.getParameter("type");
+    var buttonCreateUpload;
+    if( type == "new"){
+        buttonCreateUpload = "Create Application";
+    }else{
+        buttonCreateUpload = "Upload Application";
+    }                                
+%>
+<script>
+var type = '<%=type%>';
+</script>
 <!--#############################################################-->
 <div class="inner-wrapper">
 
@@ -49,16 +61,18 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
 
     <div class="container-fluid">
         <div class="row listing " data-count="<%=outputs.applicationTypesHolder.length%>">
-      <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
-            <div class="col-md-3 col-lg-2 col-sm-6">
-                <div class="cloud-app-type app-color-one" id="<%=i+1%>"
-                 data-description="<%=outputs.applicationTypesHolder[i].applicationTypeBean.getDescription()%> "
-                 data-appname="<%=outputs.applicationTypesHolder[i].applicationTypeBean.getDisplayName()%>" >
-                    <i class="fw fw-java fw-5x"></i>
-                    <div class="type-name"><%=outputs.applicationTypesHolder[i].applicationTypeBean.getDisplayName()%></div>
+            <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
+                <% var appTypeBean = outputs.applicationTypesHolder[i].applicationTypeBean; %>
+                <div class="col-md-3 col-lg-2 col-sm-6">
+                    <div class="cloud-app-type <%=appTypeBean.getIconColorClass()%>" id="<%=i+1%>"
+                     data-description="<%=appTypeBean.getDescription()%> "
+                     data-appTypeDisplayName="<%=appTypeBean.getDisplayName()%>"
+                     data-apptype="<%=appTypeBean.getApplicationTypeName()%>">
+                        <i class="fw <%=appTypeBean.getIconImageClass()%> fw-5x"></i>
+                        <div class="type-name"><%=appTypeBean.getDisplayName()%></div>
+                    </div>
                 </div>
-            </div>
-      <%}%>
+            <%}%>
         </div>
 
     </div><!-- /.container -->
@@ -69,7 +83,7 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
             <div class="col-md-12 long">
                 <div class="row">
                     <div class="col-md-8 col-sm-8 col-lg-7">
-                        <h2>JAVA Appication</h2>
+                        <h2 class="app-name">JAVA Appication</h2>
                         <div class="app-description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. ultricies nec,
                             pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla
                             vel, aliquet nec, vulputate eget, arcu.
@@ -79,13 +93,15 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
                             <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a>
                         </div>
                     </div>
-
                     <div class="col-md-4 description-action">
-                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>" class="cu-btn cu-btn-md cu-btn-blue">
+                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>?type=<%=type%>&appTypeDisplayName=java-web"
+                         class="cu-btn cu-btn-md cu-btn-blue app-create-url">
                            <span class="fw-stack fw-lg btn-action-ico">
                            <i class="fw fw-ring fw-stack-2x"></i>
                            <i class="fw fw-add fw-stack-1x"></i>
-                           </span> Create Application</a>
+                           </span>
+                            <%=buttonCreateUpload%>
+                        </a>
                     </div>
                 </div>
             </div>

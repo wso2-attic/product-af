@@ -38,14 +38,25 @@ var log=new Log();
 	if (action == "createNewApplication") {
 		mod = jagg.module("application");
 		var registryMod = jagg.module("registry");
+
+        var repositoryProviders = getProperties("RepositoryProviderConfig");
+        var repositoryProvider = "";
+        var repoProviderCount = repositoryProviders.length;
+        for (var i = 0; i < repoProviderCount; i++) {
+             repositoryProvider = getProperty("RepositoryProviderConfig." + repositoryProviders[i] + ".Property.Provider");
+        }
 		var applicationName = request.getParameter("applicationName");
 		var applicationKey = request.getParameter("applicationKey");
+	//	var applicationKey = applicationName.replace(/[^a-zA-Z0-9]+/g, '');
+     //   applicationKey = applicationKey.toLowerCase();
 		var applicationDescription = request.getParameter("applicationDescription");
-		var applicationType = request.getParameter("applicationType");
-		var repositoryType = request.getParameter("repositoryType");
+		var applicationType = request.getParameter("appType");
+		var repositoryType = repositoryProvider;
                 var repoAccessibility = request.getParameter("repoAccessibility");
 		var userName = request.getParameter("userName");
 		var applicationURL = request.getParameter("applicationURL");
+        var appTypeDisplayName1 = request.getParameter("appTypeDisplayName");
+
 		var response = {};
 		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 			try {
@@ -54,7 +65,17 @@ var log=new Log();
 				var message = "Repository type ".concat(repositoryType).concat(" is not Configured!");
 				response.message = message;
 				response.result = 0;
+                log.info("***************************appTypeDisplayName: " +appTypeDisplayName1 + "**************" )
+                log.info("***************************mani printed applicationName: " +applicationName + "**************" )
+                log.info("***************************mani printed applicationKey: " +applicationKey + "**************" )
+                log.info("***************************mani printed: applicationDescription " +applicationDescription + "**************" )
+                log.info("***************************mani printed: applicationType" +applicationType + "**************" )
+                log.info("***************************mani printed: repositoryType " +repositoryType + "**************" )
+                log.info("***************************mani printed: repoAccessibility " +repoAccessibility + "**************" )
+                log.info("***************************mani printed: userName " +userName + "**************" )
+                log.info("***************************mani printed:  applicationURL " +applicationURL + "**************" )
                 var appTypeDisplayName = modManager.getApplicationTypeBean(applicationType).getDisplayName();
+                    log.info(appTypeDisplayName + "******************************");
 				if (appTypeDisplayName) {
 					// adds to session in 'Pending state', until the application
 					// is created.

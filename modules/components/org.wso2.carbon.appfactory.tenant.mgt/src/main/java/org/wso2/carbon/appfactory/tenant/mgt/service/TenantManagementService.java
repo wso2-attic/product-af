@@ -316,6 +316,29 @@ public class TenantManagementService extends AbstractAdmin {
             return true;
     }
 
+	/**
+	 * Get roles of user except the default (carbon) tenant roles and the application roles
+	 * @param username username of the user
+	 * @return Appfactory roles of the user
+	 * @throws TenantManagementException When CC is not populated correctly and getRoleList of user is failed
+	 */
+	public String[] getFilteredUserRoles(String username) throws TenantManagementException {
+		UserStoreManager userStoreManager;
+		try {
+			userStoreManager = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
+		} catch (UserStoreException e) {
+			String msg = "Error while obtaining the userstore manager from the carbon context";
+			log.error(msg, e);
+			throw new TenantManagementException(msg, e);
+		}
+		try {
+			return AppFactoryTenantMgtUtil.filterDefaultUserRoles(userStoreManager.getRoleListOfUser(username));
+		} catch (UserStoreException e) {
+			String msg = "Error while obtaining the roles from userstore manager";
+			log.error(msg, e);
+			throw new TenantManagementException(msg, e);
+		}
+	}
 
     /**
      * Update stats on BAM

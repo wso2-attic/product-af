@@ -30,10 +30,12 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.Deployer;
 import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
+import org.wso2.carbon.appfactory.jenkins.extentions.AFLocalRepositoryLocator;
 import org.wso2.carbon.appfactory.jenkins.util.JenkinsUtility;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -41,6 +43,8 @@ import java.util.Map;
 public class AppfactoryArtifactStoragePlugin extends Plugin {
 
     private static final Log log = LogFactory.getLog(AppfactoryArtifactStoragePlugin.class);
+    private AFLocalRepositoryLocator.DescriptorImpl descriptor = new AFLocalRepositoryLocator.DescriptorImpl();
+
     private static final String UNDEPLOY_ARTIFACT_ACTION="/undeployArtifact";
     private static final String DEPLOY_PROMOTED_ARTIFACT_ACTION = "/deployPromotedArtifact";
     private static final String DEPLOY_LATEST_SUCCESS_ARTIFACT_ACTION = "/deployLatestSuccessArtifact";
@@ -61,6 +65,9 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
         if ("/getTagNamesOfPersistedArtifacts".equals(action)) {
 
             Utils.getTagNamesOfPersistedArtifacts(req, rsp);
+        } else if("/extractMvnRepo".equalsIgnoreCase(action)){
+            String tenantDomain = req.getParameter(AppFactoryConstants.TENANT_DOMAIN);
+            extractPreConfiguredMavenRepo(tenantDomain);
         }else{
 //        First we check what is the class that we need to invoke
 
@@ -191,6 +198,23 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
         }
         Class<?> customCodeClass = Class.forName(className, true, loader);
         return customCodeClass.newInstance();
+    }
+
+    /**
+     * Extract the zip file which contains a pre-configured maven repository
+     * @param tenantDomain tenantDomain
+     * @throws IOException an error
+     */
+    private void extractPreConfiguredMavenRepo(String tenantDomain) throws IOException {
+        File repoArchieve =
+                new File(descriptor.getPreConfiguredMvnRepoArchive());
+        if (repoArchieve.canRead()) {
+            Utils.unzip(repoArchieve.getAbsolutePath(), descriptor.getTenantRepositoryDirPattern(tenantDomain));
+        } else {
+            log.warn("unable to find pre-configured maven repository achieve at : " +
+                     repoArchieve.getAbsolutePath());
+        }
+
     }
 
 }

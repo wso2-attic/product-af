@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.appfactory.deployers.notify;
 
-import java.rmi.RemoteException;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
@@ -28,6 +26,8 @@ import org.wso2.carbon.appfactory.application.deployer.stub.ApplicationDeployerS
 import org.wso2.carbon.appfactory.deployers.build.api.BuildStatusProvider;
 import org.wso2.carbon.appfactory.deployers.build.api.BuildStatusProviderException;
 import org.wso2.carbon.utils.CarbonUtils;
+
+import java.rmi.RemoteException;
 
 /**
  * Class which notifies registered observers when the Deployment
@@ -56,7 +56,7 @@ public class DeployNotifier {
 			String buildNumber = lastBuildInformation.get("number");*/
 
             // as temp solution get last build id
-            String lastSuccessBuildId = buildAPI.getLastSuccessfulBuildId(applicationId, version, userName, "");
+            String lastSuccessBuildId = buildAPI.getLastSuccessfulBuildId(applicationId, version, userName, "", tenantDomain);
 
 			String serviceEndpoint = endpoint + "/services/ApplicationDeployer";
 

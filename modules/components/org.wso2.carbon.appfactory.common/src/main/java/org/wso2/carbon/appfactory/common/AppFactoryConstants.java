@@ -309,6 +309,7 @@ public class AppFactoryConstants {
 	public static final String APPLICATION_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
 	public static final String APPLICATION_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
 	public static final String IS_UPLOADABLE_APP_TYPE="IsUploadableAppType";
+	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";
 	public static final String USER_NAME = "username";
@@ -427,6 +428,7 @@ public class AppFactoryConstants {
 	public static final String PROPERTY_VALUE_SEPERATOR =",";
     public static final String UNDER_SCORE = "_";
     public static final String DOT = ".";
+    public static final String HYPHEN = "-";
 
 
     public static final String TENANT_MGT_URL = "TenantMgtUrl";
@@ -469,9 +471,13 @@ public class AppFactoryConstants {
 	public static final String SUPPORT_DATASOURCE = "SupportDataSource";
 
     /**
+     * AF DEPLOY Status
+     */
+    public static final String DEPLOY_SUCCESS = "Success";
+
+    /**
      * Symbols
      */
-
 
 
 	/**

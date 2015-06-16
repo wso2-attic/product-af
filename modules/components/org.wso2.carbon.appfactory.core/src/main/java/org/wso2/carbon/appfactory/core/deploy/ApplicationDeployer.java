@@ -155,10 +155,6 @@ public class ApplicationDeployer {
             handleException(errorMsg, e);
         }
 
-        if (AppFactoryUtil.checkAuthorizationForUser(AppFactoryConstants.PERMISSION_DEPLOY_TO + stage,
-                                                     AppFactoryConstants.DEFAULT_ACTION) ||
-            AppFactoryCoreUtil.isUplodableAppType(applicationType)) {
-
             log.info("Deploy artifact is called for application key : " + applicationId + " stage : " + stage +
                      " version : " + version + " tag name : " + tagName + " deploy action : " + deployAction +
                      " in tenant: " + tenantDomain + " by user:" + userName);
@@ -175,7 +171,6 @@ public class ApplicationDeployer {
 
             storage.deployArtifact(applicationId, version, "", applicationType, stage, tenantDomain, userName,
                                    deployAction, repoFrom);
-        }
         return null;
     }
 
