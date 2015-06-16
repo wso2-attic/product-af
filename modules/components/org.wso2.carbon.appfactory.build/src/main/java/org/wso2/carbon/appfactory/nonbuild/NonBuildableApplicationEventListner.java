@@ -62,7 +62,6 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 			defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("EndStage");
 		}
 
-        log.info("*****************coming from non buildable application event listener: on creation");
 		applicationDeployer.deployArtifact(application.getId(), defaultStage, defaultVersion, "", "deploy","");
 
        }
@@ -111,7 +110,6 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 
         String defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("StartStage");
         ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-        log.info("*****************coming from non buildable application event listener: on version creation");
         applicationDeployer.deployArtifact(application.getId(), defaultStage, target.getVersion(), "", "deploy","");
 
 	}

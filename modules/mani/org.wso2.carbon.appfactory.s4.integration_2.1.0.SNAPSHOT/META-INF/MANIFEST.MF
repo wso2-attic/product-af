@@ -1,0 +1,31 @@
+Manifest-Version: 1
+Bnd-LastModified: 1428819785711
+Build-Jdk: 1.6.0_65
+Built-By: mcrox
+Bundle-Description: BE component for WSO2 Carbon
+Bundle-DocURL: http://wso2.com
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.wso2.carbon.appfactory.s4.integration
+Bundle-SymbolicName: org.wso2.carbon.appfactory.s4.integration
+Bundle-Vendor: WSO2 Inc
+Bundle-Version: 2.1.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+DynamicImport-Package: *
+Export-Package: org.wso2.carbon.appfactory.s4.integration.cloud;uses:="o
+ rg.wso2.carbon.appfactory.s4.integration.utils,org.wso2.carbon.appfacto
+ ry.s4.integration,org.wso2.carbon.appfactory.common";version="2.1.0.SNA
+ PSHOT",org.wso2.carbon.appfactory.s4.integration.utils;uses:="org.wso2.
+ carbon.appfactory.s4.integration.internal,org.wso2.carbon.appfactory.co
+ mmon,org.wso2.carbon.appfactory.s4.integration";version="2.1.0.SNAPSHOT
+ ",org.wso2.carbon.appfactory.s4.integration.internal;uses:="org.wso2.ca
+ rbon.appfactory.s4.integration.cloud,org.wso2.carbon.appfactory.s4.inte
+ gration,org.wso2.carbon.appfactory.common";version="2.1.0.SNAPSHOT",org
+ .wso2.carbon.appfactory.s4.integration;uses:="org.wso2.carbon.appfactor
+ y.common,org.wso2.carbon.appfactory.s4.integration.utils,org.wso2.carbo
+ n.appfactory.s4.integration.internal,org.wso2.carbon.appfactory.common.
+ util";version="2.1.0.SNAPSHOT"
+Import-Package: org.wso2.carbon.appfactory.common;version="[2.1,3)",org.
+ wso2.carbon.appfactory.common.util;version="[2.1,3)"
+Service-Component: OSGI-INF/serviceComponents.xml
+Tool: Bnd-1.43.0

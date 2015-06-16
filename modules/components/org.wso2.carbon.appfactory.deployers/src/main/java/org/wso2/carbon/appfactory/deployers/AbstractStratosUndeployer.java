@@ -18,8 +18,7 @@
 
 package org.wso2.carbon.appfactory.deployers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
@@ -28,7 +27,6 @@ import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 
 import java.io.File;
-import java.util.Collection;
 
 /**
  * This class is used to undeploy artifacts in Git repository.
@@ -54,11 +52,25 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
                                           ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
                                           throws AppFactoryException;
 
-    public Collection getFilesToDelete(String applicationId, String version, String fileExtension,
-                                       File applicationRootLocation) {
-        return FileUtils.listFiles(applicationRootLocation,
-                                   new ArtifactFileFilter(applicationId, version, fileExtension),
-                                   null);
+    /**
+     * Returns file/folder to delete from depsync repository based on the passed parameters
+     *
+     * @param applicationId           application Id
+     * @param version                 version
+     * @param fileExtension           file extension of the application type
+     * @param applicationRootLocation checked out directory
+     * @return
+     */
+    public File getFileToDelete(String applicationId, String version, String fileExtension,
+                                File applicationRootLocation) {
+        String fileName = applicationId + AppFactoryConstants.MINUS + version;
+        if (AppFactoryConstants.TRUNK.equals(version)) {
+            fileName = applicationId + AppFactoryConstants.SNAPSHOT;
+        }
+        if (StringUtils.isNotBlank(fileExtension)) {
+            fileName = fileName + AppFactoryConstants.DOT_SEPERATOR + fileExtension;
+        }
+        return new File(applicationRootLocation, fileName);
     }
 
     /**
@@ -104,51 +116,5 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
     public String getAdminUserName() throws AppFactoryException {
         return AppFactoryUtil.getAppfactoryConfiguration().
                 getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
-    }
-
-    /**
-     * Used to filter artifact(s)/ corresponding to specified application id, version and file extension
-     */
-    private static class ArtifactFileFilter implements IOFileFilter {
-
-        private String fileName;
-
-        /**
-         * Constructor of the class.
-         *
-         * @param applicationId application Id
-         * @param version       version
-         * @param extension     file extension
-         */
-
-        public ArtifactFileFilter(String applicationId, String version, String extension) {
-            if (AppFactoryConstants.TRUNK.equals(version)) {
-                fileName = applicationId + AppFactoryConstants.SNAPSHOT;
-            } else {
-                fileName = applicationId + AppFactoryConstants.MINUS + version;
-            }
-            fileName = fileName + AppFactoryConstants.DOT_SEPERATOR + extension;
-        }
-
-        /**
-         * Only files are accepted (not directories). they should match the expected file name.
-         *
-         * @param file file to be checked
-         */
-        @Override
-        public boolean accept(File file) {
-            return file.isFile() && file.getName().equals(fileName);
-        }
-
-        /**
-         * No directories are accepted.
-         *
-         * @param dir  the directory File to check
-         * @param name the filename within the directory to check
-         */
-        @Override
-        public boolean accept(File dir, String name) {
-            return false;
-        }
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<components xmlns:scr="http://www.osgi.org/xmlns/scr/v1.0.0">
+    <scr:component enabled="true" immediate="true" name="org.wso2.carbon.appfactory.s4.integration">
+        <implementation class="org.wso2.carbon.appfactory.s4.integration.internal.S4IntegrationServiceComponent"/>
+        <property name="service.pid" value="org.wso2.carbon.appfactory.s4.integration"/>
+        <reference name="appfactory.configuration" interface="org.wso2.carbon.appfactory.common.AppFactoryConfiguration" cardinality="1..1" policy="dynamic" bind="setAppFactoryConfiguration" unbind="unsetAppFactoryConfiguration"/>
+        <reference name="configuration.context.service" interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1" policy="dynamic" bind="setConfigurationContextService" unbind="unsetConfigurationContextService"/>
+        <reference name="domain.mapping.events.handler" interface="org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler" cardinality="0..n" policy="dynamic" bind="setDomainMapperEventsHandler" unbind="unsetDomainMapperEventsHandler"/>
+    </scr:component>
+</components>

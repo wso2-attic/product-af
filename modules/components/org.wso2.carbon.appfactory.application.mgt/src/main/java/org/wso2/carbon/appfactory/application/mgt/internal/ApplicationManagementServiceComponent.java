@@ -25,6 +25,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.application.mgt.listners.ApplicationInfomationChangeListner;
 import org.wso2.carbon.appfactory.application.mgt.listners.EnvironmentAuthorizationListener;
+import org.wso2.carbon.appfactory.application.mgt.listners.InitialArtifactDeployerHandler;
 import org.wso2.carbon.appfactory.application.mgt.listners.StatPublishEventsListener;
 import org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService;
 import org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService;
@@ -147,6 +148,19 @@ public class ApplicationManagementServiceComponent {
 		} catch (NumberFormatException nfe) {
 			log.error("Invalid priority provided for ApplicationInfomationChangeListner", nfe);
 		}
+
+		try {
+			priority =
+					Integer.parseInt(appFactoryConfiguration.getFirstProperty("EventHandlers.InitialArtifactDeployerHandler.priority"));
+
+			bundleContext.registerService(ApplicationEventsHandler.class.getName(),
+			                              new InitialArtifactDeployerHandler(
+					                              "InitialArtifactDeployerHandler", 45), null);
+		} catch (NumberFormatException nfe) {
+			log.error("Invalid priority provided for InitialArtifactDeployerHandler", nfe);
+		}
+
+
 		if (log.isDebugEnabled()) {
 			log.debug("Application Management Service  bundle is activated ");
 		}
