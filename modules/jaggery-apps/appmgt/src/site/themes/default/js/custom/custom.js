@@ -26,11 +26,25 @@ $(document).on('click', '.cloud-app-type', function(){
             currentcount = parseInt($(this).attr('id')),
             appDescription = $(this).attr('data-description'),
             appName = $(this).attr('data-appname'),
+            appTypeDisplayName = $(this).attr('data-appTypeDisplayName'),
+            apptype = $(this).attr('data-apptype'),
+            extension = "zip",
             dataCount = parseInt($('.listing').attr('data-count'));
 
     //content replace with data attributes
     $('.app-type-info-template').find('.app-name').html(appName);
     $('.app-type-info-template').find('.app-description').html(appDescription);
+    $('.app-type-info-template').find('.app-appTypeDisplayName').html(appTypeDisplayName);
+    $('.app-type-info-template').find('.app-apptype').html(apptype);
+
+    var _href = $('.app-type-info-template').find('.app-create-url').attr("href");
+    _href = _href.substring(0, _href.lastIndexOf("appTypeDisplayName=")) + "appTypeDisplayName=" + appTypeDisplayName + "&apptype=" + apptype;
+    if(type == "existing"){
+        _href = _href + "&extension=" + extension;
+    }
+    $('.app-type-info-template').find('.app-create-url').attr("href", _href);
+
+
     var appendHtml =$('.app-type-info-template').html();
 
 

@@ -464,7 +464,9 @@ function hideNotification() {
             <div class="col-centered col-md-4 ">
                 <div class="cloud-new-content">
                     <h1>New to our Application Cloud ?</h1>
-                    <button type="button" class="cu-btn cu-btn-md cu-btn-blue">Create your first application</button>
+
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new"
+                     class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
                     <div class="help">
                         <i class="fa fa-2x fa-book"></i> Need help ? Read App creation guide first..
                     </div>

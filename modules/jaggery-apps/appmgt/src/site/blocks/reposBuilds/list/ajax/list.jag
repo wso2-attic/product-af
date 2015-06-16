@@ -298,7 +298,8 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
     	modApp = jagg.module("application");
     	response=modApp.getBuildandDelpoyedStatus(appKey,version);
     	print(response);
-    } else if(action=="getBuildAndRepoDataForVersion"){
+    }
+    else if(action=="getBuildAndRepoDataForVersion"){
         var response={};
         appKey=request.getParameter("applicationKey");
         version=request.getParameter("version");

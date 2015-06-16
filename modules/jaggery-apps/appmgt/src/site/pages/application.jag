@@ -39,7 +39,7 @@ var isUploadableApp = request.getParameter("isUploadableApp");
                             {
                             	"name":"application/get",
                             	"inputs":{
-                                    "applicationKey":applicationKey,
+                                    "applicationName":applicationName,
                                     "pageName":"AppHome"
                                 }
                             }
