@@ -26,9 +26,11 @@ include("/jagg/constants.jag"); %>
     var stagesMap = outputs.stagesMap;
     var hasDomainMappingPermission = outputs.hasDomainMappingPermission;
     var fineGrainedDomainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
-    var tenantDomain = outputs.tenantDomain;
-    var hasCXOPermissionOnApps = outputs.hasCXOPermissionOnApps;
-    var isTenantAdmin = outputs.isTenantAdmin;
+    var mod = jagg.module("manager");
+    var permissionMod = jagg.module("permission");
+    var tenantDomain = mod.getTenantDomain();
+    var hasCXOPermissionOnApps = permissionMod.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
+    var isTenantAdmin = permissionMod.hasTenantLevelUserMgtPermission();
     var appDomain = getProperty(DOMAIN_NAME);
     var isUploadableApp = outputs.isUploadableAppType;
     var helpTips = outputs.helpTips;
@@ -334,7 +336,7 @@ function validateIconImage(filename,fileSize) {
          break;
         }
 
-        if((fileSize/1024) > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
+        if(fileSize > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
             fileSizeStatus = false;
             jagg.message({
                    content: "Image file should be less than 5MB",
@@ -763,7 +765,7 @@ function setClipBoard(version){
 	            if(success.test(builResultStatus)){
 	                buildStatus='<span>Build ' + buildSplitted[1] + ' ' +
 	                    '<strong class="status success ">'+builResultStatus+'</strong></span>';
-	            } else if(lasbuildinfo.length > 0 && builResultStatus != "null"){
+	            }else if(lasbuildinfo.length>0){
 	                buildStatus='<span>Build ' + buildSplitted[1] + ' ' +
 	                    '<strong class="status failed ">'+builResultStatus+'</strong></span>';
 	            }

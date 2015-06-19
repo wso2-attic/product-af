@@ -84,29 +84,18 @@ var addPropertyToStages = function (propname, propcontent, description, proptype
 
         try {
             var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
-
-                try{
-                    var notificationTitle = "Property " + propname + " created. ";
-                    var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(appId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
-                    var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-                }  catch (e) {
-                    //we don't throw here since this is message sending to wall.
-                    log.error("Error while sending property creation success notification for property : " + propname
-                              + " in stage : " + stage + " for application id : " + appId);
-                    log.error(e);
-                }
-
-            } finally {
-                context.endTenantFlow();
+            var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
+            try{
+                var notificationTitle = "Property " + propname + " created. ";
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(appId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            }  catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending property creation success notification for property : " + propname
+                          + " in stage : " + stage + " for application id : " + appId);
+                log.error(e);
             }
         } catch (e) {
 
@@ -139,27 +128,16 @@ var addPropertyCollectionToStages = function (path, description, mediatype, appI
             var context = multitenancy.getPrivilegedCarbonContext();
             var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-
-               var appFactoryResource = new org.wso2.carbon.appfactory.core.registry.AppFacResource(path,"");
-               appFactoryResource.setCollection(true);
-               appFactoryResource.setMediaType(mediatype);
-
-                regService.addOrUpdateResource(serverUrl, username, appId, appFactoryResource);
-
-            } finally {
-                context.endTenantFlow();
-            }
+            var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            var appFactoryResource = new org.wso2.carbon.appfactory.core.registry.AppFacResource(path,"");
+            appFactoryResource.setCollection(true);
+            appFactoryResource.setMediaType(mediatype);
+            regService.addOrUpdateResource(serverUrl, username, appId, appFactoryResource);
         } catch (e) {
             log.error("Error while putting collection : " + path + " in remote registry : " + serverUrl);
             log.error(e);
             throw e;
         }
-
         clearParentCache(stage, appId, context, tenantDomain);
     }
 };
@@ -178,19 +156,8 @@ var addPropertyToInitialStages = function (propname, propcontent, description, p
             var context=multitenancy.getPrivilegedCarbonContext();
             var tenantManager= multitenancy.getTenantManager();
             var username = jagg.getUser();
-            try{
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-
-               // createBaseAppPath(stage,appId);
-               // regService.putRegistryResource(serverUrl, cookie, path, propcontent, description, proptype);
-                regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
-
-            }finally{
-                context.endTenantFlow();
-            }
+            var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
 	    } catch (e) {
             log.error("Error while putting property : " + path + " to initial stages in remote registry : " + serverUrl);
             log.error(e);
@@ -213,22 +180,13 @@ var updatePropertyDescriptionInStages = function (propname, mediatype, descripti
             var context = multitenancy.getPrivilegedCarbonContext();
             var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+            var appFactoryResource = new org.wso2.carbon.appfactory.core.registry.AppFacResource(path,"");
+            appFactoryResource.setCollection(true);
+            appFactoryResource.setMediaType(mediatype);
+            appFactoryResource.setDescription(description);
 
-                var appFactoryResource = new org.wso2.carbon.appfactory.core.registry.AppFacResource(path,"");
-                appFactoryResource.setCollection(true);
-                appFactoryResource.setMediaType(mediatype);
-                appFactoryResource.setDescription(description);
-
-                var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                regService.addOrUpdateResource(serverUrl, username, appId, appFactoryResource);
-
-            } finally {
-                context.endTenantFlow();
-            }
+            var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            regService.addOrUpdateResource(serverUrl, username, appId, appFactoryResource);
 
         } catch (e) {
             log.error("Error while updating property description of property : " + path + " in remote registry : "
@@ -249,19 +207,8 @@ var getPropertyValueInStage = function (propname, appId, stage) {
     try {
         var tenantDomain = modManager.getTenantDomain();
         var username = modManager.getDomainlessUserName();
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
-        var regService;
-        try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-            context.getThreadLocalCarbonContext().setUsername(username);
-            regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
-            resourceValue = regService.getResourceValue(path);
-        } finally {
-            context.endTenantFlow();
-        }
-
+        var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
+        resourceValue = regService.getResourceValue(path);
         return resourceValue;
     } catch (e) {
         var msg = "Error while retrieving resource from registry : " + path + " for the application : " + appId +
@@ -284,20 +231,9 @@ var propertyExistsInStages = function (propname, appId, stages) {
 
         try {
             var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            var regService;
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                existsInSatges = regService.resourceExists(serverUrl, username, path);
-            } finally {
-                context.endTenantFlow();
-            }
-
+            var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            existsInSatges = regService.resourceExists(serverUrl, username, path);
             if (!existsInSatges) {
                 return false;
             }
@@ -322,19 +258,9 @@ var propertyExistsInAllStages = function (propname, appId) {
 
         try {
             var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            var regService;
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                existsInAllSatges = regService.resourceExists(serverUrl, username, path);
-            } finally {
-                context.endTenantFlow();
-            }
+            var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            existsInAllSatges = regService.resourceExists(serverUrl, username, path);
 
             if (!existsInAllSatges) {
                 return false;
@@ -361,20 +287,8 @@ var getPropertyValueInAllStages = function (propname, appId) {
         var value;
         try {
             var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
-            var regService;
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                value = regService.getRegistyResourceValue(serverUrl, cookie, path);
-            } finally {
-                context.endTenantFlow();
-            }
-
-            //var value = regService.getRegistyResourceValue(serverUrl, cookie, path);
+            var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            value = regService.getRegistyResourceValue(serverUrl, cookie, path);
             valueByStage[stage] = value;
         } catch (e) {
             log.error("Error in retrieving resource : " + path + " from remote registry : " + serverUrl
@@ -397,18 +311,9 @@ var getPropertiesInStage = function (appId, stage) {
     try {
         var resources;
         var tenantDomain = modManager.getTenantDomain();
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
         var regService;
-        try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-            resources = regService.getAllRegistryResources(serverUrl, cookie, path);
-        } finally {
-            context.endTenantFlow();
-        }
+        regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+        resources = regService.getAllRegistryResources(serverUrl, cookie, path);
 
         //var resources = regService.getAllRegistryResources(serverUrl, cookie, path);
         var dependencies = new Array();
@@ -445,15 +350,8 @@ var getDetailedPropertyValueInStage = function (propname, appId, stage) {
         var context = multitenancy.getPrivilegedCarbonContext();
         var tenantManager = multitenancy.getTenantManager();
         var regService;
-        try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-            resource = regService.getRegistryResource(serverUrl, username, path);
-        } finally {
-            context.endTenantFlow();
-        }
+        regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+        resource = regService.getRegistryResource(serverUrl, username, path);
 
         //var resource= regService.getRegistryResource(serverUrl, cookie, path);
         object.name = resource.name;
@@ -482,18 +380,8 @@ var getDetailedPropertyValuesInStages = function (appId, stages) {
             var resources;
             var tenantDomain = modManager.getTenantDomain();
             var username = modManager.getDomainlessUserName();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
-            var regService;
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-                context.getThreadLocalCarbonContext().setUsername(username);
-                regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
-                resources = regService.getAllResources(path);
-            } finally {
-                context.endTenantFlow();
-            }
+            var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
+            resources = regService.getAllResources(path);
 
             var dependencies = new Array();
             for (var k in resources) {
@@ -537,19 +425,9 @@ var putResourcesForCollectionInStages = function (dictionary, description, media
 	    }
         try {
             var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                var ret = regService.addOrUpdateResources(serverUrl, username, appId,reosurcesArray);
-
-            }finally {
-                context.endTenantFlow();
-            }
+            var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            var ret = regService.addOrUpdateResources(serverUrl, username, appId,reosurcesArray);
         } catch (e) {
             log.error("Error in updating remote registry : " + serverUrl + " with resource : " + elm.value
                       + " while putting resources for collection in stages.");
@@ -571,21 +449,10 @@ var updatePropertyInStages = function (propname, propcontent, description, propt
 
         try {
             var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
                 //TODO change to stub call
-
-                var status = regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
-
-            } finally {
-                context.endTenantFlow();
-            }
+            var status = regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
 
         } catch (e) {
             log.error("Error in updating resource : " + path + " in remote registry : " + serverUrl
@@ -680,14 +547,10 @@ var deleteAllRegistryResourcesFromAllStages = function (appId) {
  */
 var deleteResource = function(serverUrl, appId, propname, propcontent, description, proptype, stage){
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var username = jagg.getUser();
 
     try {
         var cookie = modManager.getBackendCookie(serverUrl);
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
         var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
         regService.deleteRegistryResource(serverUrl, username, appId, propname, propcontent, description, proptype, false);
     } catch (e) {
@@ -727,19 +590,11 @@ var copyNewProperties = function (appId, sourceStage, targetStage) {
                                    Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR +
                                    Packages.org.wso2.carbon.appfactory.core.util.Constants.DEPENDENCIES_HOME +
                                    Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + appId;
-    try {
-        var username = jagg.getUser();
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+    var username = jagg.getUser();
+    var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
 
-        regService.copyNonExistingResources(sourceServerUrl, applicationResourcesPath, targetServerUrl,
-                                                         appId, username);
-
-    } finally {
-        context.endTenantFlow();
-    }
+    regService.copyNonExistingResources(sourceServerUrl, applicationResourcesPath, targetServerUrl,
+                                                             appId, username);
 
     clearParentCache(targetStage, appId, context, tenantDomain);
 };
@@ -750,8 +605,6 @@ var clearResourceCache = function (stage, appId, propName, context, tenantDomain
                     Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + stage + DEPENDENCY_PATH +
                     appId + Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + propName;
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
         registryResourceService = server.osgiService("org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService");
         registryResourceService.removeRegistryCache(cachePath);
     } catch (e) {
@@ -760,9 +613,6 @@ var clearResourceCache = function (stage, appId, propName, context, tenantDomain
         log.error(e);
         throw e;
     }
-    finally {
-        context.endTenantFlow();
-    }
 };
 
 var clearParentCache = function(stage, appId, context, tenantDomain){
@@ -770,8 +620,6 @@ var clearParentCache = function(stage, appId, context, tenantDomain){
                     Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + stage + DEPENDENCY_PATH +
                     appId;
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
         registryResourceService = server.osgiService("org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService");
         registryResourceService.removeRegistryCache(cachePath);
     } catch (e) {
@@ -779,9 +627,6 @@ var clearParentCache = function(stage, appId, context, tenantDomain){
                   stage);
         log.error(e);
         throw e;
-    }
-    finally {
-        context.endTenantFlow();
     }
 }
 

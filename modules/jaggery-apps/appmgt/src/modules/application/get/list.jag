@@ -50,24 +50,17 @@
     // In index.jag page this method is called before rendering. via getAllAppsOfUser()
     // So untill we fix it from there dont remove start tenantflow here.
     var getAllApps = function(userName){
-                var appsOfUser;
-                var tenantDomain=modManager.getTenantDomain() ;
-                var context=multitenancy.getPrivilegedCarbonContext();
-                var tenantManager= multitenancy.getTenantManager();
-                try{
-                    context.startTenantFlow();
-                    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                    var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService') ;
-                    appsOfUser = service.getApplicationSummaryForUser(userName);
-                } catch (e) {
-                    log.error("Error while getting list of all applications of the user : " + userName + " of tenant "
-                              + "domain : " + tenantDomain);
-                    log.error(e);
-                    throw e;
-                } finally {
-                    context.endTenantFlow();
-                }
+        var appsOfUser;
+        var tenantDomain=modManager.getTenantDomain();
+        try{
+           var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService') ;
+           appsOfUser = service.getApplicationSummaryForUser(userName);
+        } catch (e) {
+           log.error("Error while getting list of all applications of the user : " + userName + " of tenant "
+                     + "domain : " + tenantDomain);
+           log.error(e);
+           throw e;
+        }
         return appsOfUser;
     };
 
@@ -143,12 +136,11 @@
              var result;
              result = getAllApps(userName.split('@')[0]);
              var elementsArray = new Array();
-             for (var applicationKey in
-            result){
+             for (var applicationKey in result){
                  var appInfo = convertAppInfo(result[applicationKey]);
                  if (appInfo != null) {
                      elementsArray.push(appInfo);
-                     modMananger.cacheTenantInfo(tenantDomain, appInfo.key , TENANT_INFO_APP_TYPE, appInfo.type);
+                     modMananger.cacheApplicationInfo(tenantDomain, appInfo.key , APPLICATION_INFO_APP_TYPE, appInfo.type);
                  }
              }
              return stringify(elementsArray);
@@ -253,10 +245,10 @@
         var visibilityPermissionToStage = PERMISSION_VISIBILITY_STAGE + stageName;
 
         var allAppVersionArray = new Array();
-        var applicationList = session.get("application_list");
+        var applicationList = session.get(APPLICATION_LIST_CACHE);
         if(applicationList == null) {
             applicationList = mod.getAllAppsOfUser(jagg.getUser());
-           session.put('application_list', applicationList);
+           session.put(APPLICATION_LIST_CACHE, applicationList);
         }
         var parsedArray = parse(applicationList);
 
@@ -805,10 +797,10 @@
     {
         jagg.module("permission").checkUserAuthenticated();
         var allAppVersionArray = new Array();
-        var applicationList = session.get("application_list");
+        var applicationList = session.get(APPLICATION_LIST_CACHE);
         if(applicationList == null) {
             applicationList = mod.getAllAppsOfUser(userName);
-            session.put('application_list', applicationList);
+            session.put(APPLICATION_LIST_CACHE, applicationList);
         }
         var allStages = getAllStages();
         var parsedStages = parse(allStages);
@@ -1091,7 +1083,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
                         + " with version : " + version);
               log.error(e);
               throw e;
-      	   }
+      	  }
           
       	  if(result !=null) {
       	      return stringify(result);
@@ -1103,19 +1095,12 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
     };
 
     var isApplicationsOfUserChanged = function(){
-       var tenantDomain=modManager.getTenantDomain() ;
-       var context=multitenancy.getPrivilegedCarbonContext();
-       var tenantManager= multitenancy.getTenantManager();
-
+       var tenantDomain=modManager.getTenantDomain();
        try{
-           context.startTenantFlow();
-           context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
            var isApplicationsOfUserChanged = ApplicationsOfUserCache.getApplicationsOfUserCache().isUserInvitedToApplication(MultitenantUtils.getTenantAwareUsername(jagg.getUser()));
        }catch (e){
            var errMsg = "Error  while checking user : " + jagg.getUser() + " added to an application \n" ;
            log.debug( errMsg );
-       }finally{
-           context.endTenantFlow();
        }
        return isApplicationsOfUserChanged;
     }

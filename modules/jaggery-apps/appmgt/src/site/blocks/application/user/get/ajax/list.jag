@@ -59,17 +59,58 @@
             }
             print(output);
         } else if(action==="getUserInfoBean"){
-    	mod = jagg.module("user");
-    	var userName = request.getParameter("userName");
-    	result = false ;
-    	try {
-    		result = mod.getUserInfoBean(userName);
-    		print(result);
-    	} catch(e) {
-    		throw "Error while getting userinfo bean";
-    	}
+            mod = jagg.module("user");
+            var userName = request.getParameter("userName");
+            result = false ;
+            try {
+                result = mod.getUserInfoBean(userName);
+                print(result);
+            } catch(e) {
+                throw "Error while getting userinfo bean";
+            }
 
-        }else {
+        } else if(action==="getAllUsersHavingName"){
+            mod = jagg.module("user");
+            var response = {};
+           // if (modPermission.isUserAccessGrantedForPlatform(PERMISSION_USER_INVITE)){
+                var userName = request.getParameter("userName");
+                var result = false ;
+                try {
+                    result = mod.getAllUsersHavingName(userName);
+                } catch(e) {
+                    throw "Error while searching the users";
+                }
+                print(result);
+           // } else {
+             //   response.result = 0;
+             //   response.message = "You don't have permission to get the user list";
+             //   print(response);
+           // }
+        } else if (action === "getUsersOfApplication") {
+            mod = jagg.module("application");
+            var appKey=request.getParameter("applicationKey");
+            var response = {};
+            if (modPermission.isUserAccessGranted(appKey, PERMISSION_APPLICATION_MEMBER)){
+                try {
+                    print(mod.getUsersOfApplication(appKey));
+                } catch(e) {
+                    throw "Error while retrieving users of application";
+                }
+            } else {
+                response.result = 0;
+                response.message = "You don't have permission to get the users of application";
+                print(response);
+            }
+
+        } else if(action === 'getUserConfirmationObject') {
+            mod = jagg.module("user");
+            var confirmation = request.getParameter("confirmation");
+            try {
+                return mod.getUserConfirmationObject(confirmation);
+            } catch(e) {
+                throw "Error while getting application of user";
+            }
+        } else {
             print('Action is not Specified');
         }
 

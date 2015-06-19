@@ -196,10 +196,10 @@ var log=new Log();
         var pendingApplications = [];
         
         //loads all the applications of the user: from database.
-        var loadedApplications = session.get("application_list");
+        var loadedApplications = session.get(APPLICATION_LIST_CACHE);
         if(loadedApplications == null) {
             loadedApplications = mod.getAllAppsOfUser(userName);
-            session.put('application_list', loadedApplications);
+            session.put(APPLICATION_LIST_CACHE, loadedApplications);
         }
         loadedApplications = parse(loadedApplications);
         

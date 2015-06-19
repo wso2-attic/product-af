@@ -29,21 +29,7 @@ var log = new Log();
         print(UNAUTHORIZED_ERROR_RESPONSE);
         return;
     }
-    if (action == "getUsersofTenant") {
-    	mod = jagg.module("tenant");
-
-        try {
-            var result = mod.getUsersofTenant();
-
-            if (result != null) {
-                print(result);
-            } else {
-                throw "Error while retrieving users of the tenant";
-            }
-        } catch(e) {
-            throw "Error while retrieving users of the tenant";
-        }
-    }else if(action=="getUserInfo"){
+    if(action=="getUserInfo"){
         mod = jagg.module("tenant");
         var userName=request.getParameter("userName");
         try {
@@ -62,7 +48,7 @@ var log = new Log();
             print(stringify(result));
         }
 
-    }else if(action=="isFirstLogin"){
+    } else if(action=="isFirstLogin"){
         mod = jagg.module("tenant");
         try {
             var result = mod.isFirstLogin();
@@ -75,21 +61,7 @@ var log = new Log();
           // throw
         }
 
-    }else if(action=="getApplicatioinKeysOfUser"){
-        mod = jagg.module("tenant");
-        var user=request.getParameter("userName");
-        try {
-            var result = mod.getApplicatioinKeysOfUser(user.split('@')[0]);
-
-            if (result != null) {
-                print(result);
-            }
-        } catch(e) {
-           // log.error("No user found with the name "+userName);
-          // throw
-        }
-
-    }else{
+    } else{
 	    throw new Error("No action specified");
     }
 

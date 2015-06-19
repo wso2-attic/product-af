@@ -68,8 +68,8 @@ jagg.block("tablinks", {
     			tenantDomain = mod.getTenantDomain();
     			tenantID = realmService.getTenantManager().getTenantId(tenantDomain);
     			hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
-    			if(session.get("TENANT_INFO")){
-    			    isOTtenant = session.get("TENANT_INFO").isOTTenant;
+    			if(session.get(TENANT_INFO)){
+    			    isOTtenant = session.get(TENANT_INFO).isOTTenant;
     			}
     			hasCXOPermission = permissionModule.isUserAccessGrantedForPlatform(PERMISSION_CXO_DASHBOARD);
     			dashboardPath = getProperty(TENANT_ADMIN__DASHBOARD_PATH);

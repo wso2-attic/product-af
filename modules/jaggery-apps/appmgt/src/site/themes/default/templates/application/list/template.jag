@@ -1,0 +1,512 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+
+jagg.template("application/list", function (inputs, outputs, jagg) {
+    var applicationKey = null;
+    var newApp = request.getParameter('newApp');
+    %>
+
+
+
+       <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery-ui.css'))%>">
+   <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+
+
+  <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html" charset="utf-8">
+var parsedAppArray = [];
+var filterArray = [];
+var applicationsInProgress = new Array();
+var timer;
+var noOfRequest = 0;
+var isAllAppCreated = true;
+var count = 0;
+var newApp = '<%=newApp%>';
+var APPLICATION_CREATION_STATUS = <%=APPLICATION_CREATION_STATUS%>;
+//var hasTriedOnce = false;
+
+/**
+*  Populate application overview as a grid.
+*  NOTE: we are actually not using table element here. We populate each app as a element in the grid
+*/
+function createTable() {
+   // addTableColumnHeaders();
+    isAllAppCreated = true;
+ //   alert("parsedAppArray.length: " + parsedAppArray.length);
+    for (var index = 0; index < parsedAppArray.length; index++) {
+        var application = parsedAppArray[index];
+        addTableRow(application);
+    }
+
+    //load app icons
+    for (var index = 0; index < parsedAppArray.length; index++) {
+        var application = parsedAppArray[index];
+        loadAppIcon(application.key);
+    }
+    // If there are any Apps which are in pending state
+    if (!isAllAppCreated) {
+    	reloadAppsInPendingState();
+    }
+}
+
+function addTableColumnHeaders() {
+    $("#item_list").html("");
+	var columnHeaderLi = '<li class="item item_header">' +
+    '<div class="th_name col">Application</div>' +
+    '<div class="th_type col">Type</div>' +
+    '</li>';
+	$("#item_list").append(columnHeaderLi);
+}
+
+/**
+* Pushes the app key to {@code applicationsInProgres} array if it is not exists
+*/
+function handlePendingApps(appKey){
+    if(applicationsInProgress.indexOf(appKey) == -1) {
+        applicationsInProgress.push(appKey);
+    }
+}
+
+/**
+* Removes the {@code appKey} from applicationsInProgress array
+*/
+function removeFromProgressList(appKey) {
+    var idx = applicationsInProgress.indexOf(appKey);
+    if (idx != -1) {
+        applicationsInProgress.splice(idx, 1); // The second parameter is the number of elements to remove.
+    }
+}
+
+/**
+* Add application as an item the applications grid
+*/
+function addTableRow(application) {
+    removeTableRow(application.key);            // remove the application from the grid if it is already exists
+    // This logic is specific to filter
+  //  alert("insideAddTableRow")
+    var displayName = "";
+    var defaultBranchCount = 1;
+    if (application.highlightedName === undefined || application.highlightedName === "") {
+        displayName = application.name;
+     //   alert("displayName" +  displayName)
+    } else {        // if this application is in search results
+        displayName = application.highlightedName;
+      //  alert("displayName" +  displayName)
+        // mark the search keyword in yellow in the app name
+        displayName = displayName.replace("^", "<b style=\"background-color:yellow;\">").replace("~", "</b>");
+        application.highlightedName = "";
+    }
+    var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key + "&isUploadableAppType=" + application.isUploadable;
+    if(application.isUploadable == true || application.isUploadable == "true"){
+        url += "&isUploadableAppType=" + application.isUploadable;
+    }
+    var theLi = '<div class="col-md-3 col-lg-2 col-sm-6"><div class="cloud-app-listing app-color-one">' +
+                        '<i class="fw fw-java fw-2x"></i>' +
+                        '<div class="app-icon"><img src="/appmgt/site/themes/default/assets/img/appico.png"></div>' ;
+
+    // If any of the branches are in production add the green icon
+    if (application.inProduction == true) {
+        theLi += '<img alt="Green tag" class="green_tag" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("assets/img/green_tag.png"))%>">';
+    }
+
+    if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.COMPLETED){
+
+        theLi += '<div class="app-name">' + application.name+ '</div>';
+        theLi += '</div></div>';
+        //if (application.branchCount > 1) {
+         //   theLi += '<div class="app_branches col"><h3>' + application.branchCount + ' Branches</h3></div>';
+       // } else {
+        //    theLi += '<div class="app_branches col"><h3>' + defaultBranchCount + ' Branch</h3></div>';
+        //}
+    } else if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING){
+        theLi = '<li id="'+application.key+'"class="item_disabled">' +
+            '<div style="width: 100%;z-index:20;background: transparent;position:absolute;margin: -10px;height: 100%;opacity: 0.1;"> ' +
+                '<span class="icon-spinner icon-spin" style="font-size: 60px; margin-top: 20px; margin-left:73px"></span>' +
+            '</div>' + '<div class="app_name col truncate">';
+        theLi += '<img id="' + application.key + '_icon" height="50px" width="40px" alt="icon" src="#" title="Application creation is in progress..."></a>';
+        theLi += '<h2>'+application.name+'</h2></div>';
+        theLi += '<div class="app_type col">' + 'Application creation is in progress...'+ '</div>';
+        isAllAppCreated = false;
+        handlePendingApps(application.key);
+    }
+    theLi += '</li>';
+    $("#item_list").append(theLi);
+}
+
+/**
+* Remove application represented by {@code appKey} from application grid
+*/
+function removeTableRow(appKey){
+	var theLi = $('#'+appKey);
+    theLi.remove();
+}
+
+function reloadAppsInPendingState(){
+     /*
+		 * After App creation form submitted, App Creation verification process
+		 * request is polled back-end in following time order. First request is
+		 * send 15Sec after app created If app creation process hasn't completed
+		 * poll request in every 5Sec (12times) If Creation hasn't succeeded
+		 * after 135 Sec, display Error message as "Error Application Creation"
+		 * and stop calling further
+	 */
+
+    if (noOfRequest == 0) {
+        noOfRequest++;
+        setPendingAppRefreshTimeOut(10000);
+    } else if (noOfRequest <= 12) {
+        noOfRequest++;
+        setPendingAppRefreshTimeOut(5000);
+    } else if (noOfRequest == 13) { // if still application creation process happens in back-end
+        var errMsg = "Application creation was not successful for APP_DETAILS. Please retry later ";
+        if(applicationsInProgress.length > 0){
+            if(applicationsInProgress.length == 1){
+                errMsg = errMsg.replace("APP_DETAILS" , "application "+applicationsInProgress[0]);
+            } else {
+                errMsg = errMsg.replace("APP_DETAILS" , "applications "+applicationsInProgress.join(", "));
+            }
+            jagg.message({
+                content: errMsg,
+                type: 'error',
+                id:'unsuccess'
+            });
+        }
+    	removeFailedPendingAppsFromSession();
+        setPageRefreshTimeOut(60000);
+    }
+}
+
+function removeFailedPendingAppsFromSession(appKeys) {
+    jagg.post("../blocks/application/update/ajax/update.jag", {
+            action: "removeFailedPendingApps"
+        },
+
+        function (result) {
+        	removeFailedPendingApps();
+        	applicationsInProgress = new Array();
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+           // alert('Error occured while removing timeout pending applications
+			// from session');
+        });
+}
+
+function loadAppIcon(appKey) {
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "isAppIconAvailable",
+            applicationKey: appKey
+        },
+
+        function (result) {
+         if(result == 101){
+        	 $("#"+appKey+"_icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+         }else{
+             <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+    var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=";
+    %>
+    var url='<%=iconUrl%>'+appKey;
+             $("#"+appKey+"_icon").attr('src',url);
+         }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        });
+}
+
+/**
+* Re-populate the pending apps.
+*/
+function repopulatePendingApps() {
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "getUpdatedPendingApps",
+            pendingAppKeys: JSON.stringify(applicationsInProgress)
+        },
+
+        function (result) {
+            var response = jQuery.parseJSON(result);
+            var completedAppArray = response[APPLICATION_CREATION_STATUS.COMPLETED];
+            var failedAppArray = response[APPLICATION_CREATION_STATUS.FAULTY];
+
+            // update pending apps to completed status
+            for (var i = 0; i < completedAppArray.length; i++) {
+            	var application = completedAppArray[i];
+            	removeFromProgressList(application.key);
+            	addTableRow(application);
+            	loadAppIcon(application.key);
+            }
+
+            // update pending apps to faulty status
+            for (var i = 0; i < failedAppArray.length; i++) {
+            	var application = failedAppArray[i];
+            	removeTableRow(application.key);
+                removeFromProgressList(application.key);
+            	jagg.message({
+        	        content: 'Application '+ application.name +' creation failed',
+        	        type: 'error',
+        	        id:'failure'
+            	});
+            	hideNotification();
+            }
+
+            if(applicationsInProgress.length > 0){
+            	reloadAppsInPendingState();
+            }
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+        	 if(applicationsInProgress.length > 0){
+             	reloadAppsInPendingState();
+             }
+        });
+}
+
+/**
+* initialize the user home page
+*/
+function init(){
+	createTable();
+}
+
+/**
+* Populate the user home page iwth required details
+*/
+function populateAppOverview() {
+    $('#item_list').parent().append($('<span class="icon-spinner icon-spin icon-large spin-large" id="main-spinner"></span>'));
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+            action: "getAllApps",
+            userName: '<%=userName%>'
+        },
+
+        function (result) {
+          //  alert(result)
+            parsedAppArray = jQuery.parseJSON(result);
+            parsedAppArray.sort(NameComparator);
+            init();
+            $('#main-spinner').remove();
+        },
+
+        function (jqXHR, textStatus, errorThrown) {
+            $('#main-spinner').remove();
+
+            if (jqXHR.status != 0){
+                jagg.message({
+                    content: 'Error occurred while loading user application list',
+                    type: 'error',
+                    id:'uniqueId1'
+                });
+            }
+
+
+        });
+}
+
+/**
+* Check for first login. If the user is logged in for the first time,
+* redirect to change default password page
+*/
+function checkFirstLogin() {
+    jagg.post("../blocks/tenant/users/get/ajax/get.jag", {
+                action: "isFirstLogin"
+            },
+
+            function (result) {
+                var isFirstLogin = jQuery.parseJSON(result);
+                if(isFirstLogin==true){
+                    window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/password-change.jag")%>");
+                }
+            },
+
+            function (jqXHR, textStatus, errorThrown) {
+
+            });
+}
+
+$(document).ready(function () {
+
+    //init user activity monitor
+	initializeUserActivity("userHome", null, null);
+
+	// check whether user is loggin in for first time, if it is redirect to change default password page
+    checkFirstLogin();
+
+    // populate the user home page
+    populateAppOverview();
+ //   alert("inDoc Ready");
+    /* filtering the application array */
+    $("#search").bind("keyup", function () {
+        if ($(this).val() === null || $(this).val() === undefined || $(this).val().length === 0) {
+        	init();
+        } else {
+            var finder = $(this).val();
+            var typingPattern = new RegExp($(this).val().replace(/^\s+|\s+$/g, ''), "gi");
+           // addTableColumnHeaders();
+            jQuery.grep(parsedAppArray, function (element, index) {
+                if (element.name.match(typingPattern) != null) {
+                    var matcher = element.name.match(typingPattern);
+
+                    if (finder.length > 2) {
+                        var pre = element.name.substr(0, element.name.indexOf(matcher));
+                        var highlight = element.name.substr(element.name.indexOf(matcher), (finder.length));
+                        var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
+
+                        element.highlightedName = pre + "^" + highlight + "~" + rest;
+
+                    }
+
+                    addTableRow(element);
+                    loadAppIcon(element.key);
+                }
+            });
+            // enf of "jQuery.grep.."
+
+            if ($("#item_list").children().length == 0) {
+                $("#item_list").append($('<div>"No matches found!"</div>'));
+            }
+
+
+        }
+    });
+    setApplicationListView('box_items');
+    $.cookie('selectedStage', null);
+    $.cookie('selectedVersion', null);
+});
+
+/** ***********************Utility Methods********************************** */
+function removeFailedPendingApps(){
+	for (var i = 0; i < applicationsInProgress.length; i++) {
+		removeTableRow(applicationsInProgress[i]);
+	}
+}
+
+function NameComparator(a, b) {
+    return a.name.localeCompare(b.name);
+}
+
+function setPendingAppRefreshTimeOut(intervalTime) {
+	// If timer is not null then clear existing timer
+    if (timer != null)
+        clearTimeout(timer);
+
+    // create new timer with given time interval
+    timer = setTimeout(function () {
+    	repopulatePendingApps();
+    }, intervalTime);
+}
+
+function setPageRefreshTimeOut(intervalTime) {
+	// If timer is not null then clear existing timer
+    if (timer != null)
+        clearTimeout(timer);
+
+    // create new timer with given time interval
+    timer = setTimeout(function () {
+    	populateAppOverview();
+    }, intervalTime);
+}
+
+function hideNotification() {
+  // create new timer with given time interval
+    setTimeout(function () {jagg.removeMessage('inProgress')}, 5000);
+}
+
+
+
+</script>
+<!--#######################################################################-->
+
+<div class="inner-wrapper">
+    <!-- BOF App factory menu -->
+    <div class="navbar navbar-secondary">
+        <div class="container-fliud">
+            <div class="row">
+                <div class="col-md-3 breadcrumb-secondary">
+                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                </div>
+            </div>
+        </div>
+    </div><!-- EOF App factory menu -->
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Add New Application</span>
+        </a>
+        <a href="#" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-up-arrow fw-stack-1x"></i>
+                </span> <span class="hidden-xs">upload exsisting</span>
+        </a>
+        <a href="#" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw  fw-deploy fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Deploy Sample Application</span>
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+
+    <div class="container-fluid">
+        <div class="row row-centered app-sort-bar">
+            <div class="col-centered col-md-5 search">
+                <input type="text" class="form-control" id="seach-apps" placeholder="Search applications">
+                <i class="fa fa-2x fa-search" ></i>
+            </div>
+            <!--<div class="col-centered col-md-1 sort">
+
+                <i class="fa fa-2x fa-list"></i>
+                <i class="fa fa-2x fa-th"></i>
+            </div>-->
+        </div>
+
+<div class="row row-centered app-listing">
+            <!-- BOF listing block -->
+                <ul class="" id="item_list"></ul>
+
+
+
+
+
+
+        </div>
+    </div><!-- /.container -->
+</div>
+<div id="footer">
+    <div class="container-fluid">
+        <div class="footer-text">WSO2 Cloud V: 1.2 . &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
+    </div>
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery-1.11.1/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap-3.2.0/bootstrap.min.js"></script>
+<!-- include custom js functions -->
+<script src="js/custom/custom.js"></script>
+<!--####################################################################### end-->
+<% }); %>

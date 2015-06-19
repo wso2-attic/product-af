@@ -41,11 +41,13 @@ var log=new Log();
 		var applicationName = request.getParameter("applicationName");
 		var applicationKey = request.getParameter("applicationKey");
 		var applicationDescription = request.getParameter("applicationDescription");
-		var applicationType = request.getParameter("applicationType");
+		var applicationType = request.getParameter("appType");
 		var repositoryType = request.getParameter("repositoryType");
                 var repoAccessibility = request.getParameter("repoAccessibility");
 		var userName = request.getParameter("userName");
 		var applicationURL = request.getParameter("applicationURL");
+        var appTypeDisplayName1 = request.getParameter("appTypeDisplayName");
+
 		var response = {};
 		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 			try {

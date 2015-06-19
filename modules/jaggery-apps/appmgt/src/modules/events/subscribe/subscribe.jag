@@ -34,78 +34,36 @@ var result = {};
 var subscribe = function (topic, subscriberId) {
     var user = jagg.getUser().split("@")[0];
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(user);
-        var subscriptionManager = SubscriptionManager.getInstance();
-        subscriptionManager.startSubscription(topic, subscriberId);
-    } finally {
-        context.endTenantFlow();
-    }
-
+    var subscriptionManager = SubscriptionManager.getInstance();
+    subscriptionManager.startSubscription(topic, subscriberId);
 };
 var pollMessages = function (topic, subscriberId) {
     var user = jagg.getUser().split("@")[0];
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var result = [];
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(user);
-        var messageStore = MessageStore.getInstance();
-        var messages = messageStore.getMessages(topic, subscriberId);
-        for (var i = 0; i < messages.length; i++) {
-            var message = {};
+    var messageStore = MessageStore.getInstance();
+    var messages = messageStore.getMessages(topic, subscriberId);
+    for (var i = 0; i < messages.length; i++) {
+        var message = {};
 	    message.topic = topic;
-            message.id = messages[i].getJMSMessageID();
-            message.messageBody = messages[i].getString('messageBody');
-            message.messageTitle = messages[i].getString('messageTitle');
-            result.push(message);
-        }
-    } finally {
-        context.endTenantFlow();
+        message.id = messages[i].getJMSMessageID();
+        message.messageBody = messages[i].getString('messageBody');
+        message.messageTitle = messages[i].getString('messageTitle');
+        result.push(message);
     }
     return result;
 };
 var acknowledgeMessage = function (topic, subscriberId, messageId) {
     var user = jagg.getUser().split("@")[0];
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(user);
-        var messageStore = MessageStore.getInstance();
-        messageStore.acknowledgeMessage(topic, subscriberId, messageId);
-    } finally {
-        context.endTenantFlow();
-    }
-
+    var messageStore = MessageStore.getInstance();
+    messageStore.acknowledgeMessage(topic, subscriberId, messageId);
 };
 var stopSubscription = function (topic, subscriberId) {
     var user = jagg.getUser().split("@")[0];
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(user);
-        var subscriptionManager = SubscriptionManager.getInstance();
-        subscriptionManager.stopSubscription(topic, subscriberId);
-    } finally {
-        context.endTenantFlow();
-    }
+    var subscriptionManager = SubscriptionManager.getInstance();
+    subscriptionManager.stopSubscription(topic, subscriberId);
 };
 
 
@@ -115,18 +73,8 @@ var stopAllSubscriptions = function (uid) {
     }
     var user = jagg.getUser().split("@")[0];
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(user);
-        var subscriptionManager = SubscriptionManager.getInstance();
-        subscriptionManager.stopAllSubscriptions(uid);
-    } finally {
-        context.endTenantFlow();
-    }
+    var subscriptionManager = SubscriptionManager.getInstance();
+    subscriptionManager.stopAllSubscriptions(uid);
 };
 
 
@@ -135,10 +83,10 @@ var restartSubscription = function (subscriber) {
 };
 var getUserTopics = function(){
        var topics = [];
-       var userApps = session.get("application_list");
+       var userApps = session.get(APPLICATION_LIST_CACHE);
        if(userApps == null) {
           userApps = mod.getAllAppsOfUser(jagg.getUser());
-          session.put('application_list', userApps);
+          session.put(APPLICATION_LIST_CACHE, userApps);
        }
 
        var parsedArray = parse(userApps);

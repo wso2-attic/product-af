@@ -237,8 +237,15 @@ var ERROR_NOTIFICATION_POLLING_PERIOD="NotificationConfig.MessageBroker.PollingP
 var GIT_BASE_URL="RepositoryProviderConfig.git.Property.BaseURL";
 
 // Tenant Info
-var TENANT_INFO_CACHE = "TENANT_INFO_CACHE";
-var TENANT_INFO_APP_TYPE = "APP_TYPE";
+var TENANT_INFO = "TENANT_INFO";
+var PERMISSION_CACHE = "PERMISSION_CACHE";
+var APPLICATION_CACHE = "APPLICATION_CACHE";
+var APPLICATION_LIST_CACHE = "application_list";
+var LAST_BACKEND_ACCESS_TIME_FOR_GETTING_APPLIST = "last_backend_access_time_for_getting_appList";
+var TENANT_PERM_CACHE = "tenantPermCache";
+var USER_ROLES = "USER_ROLES";
+var APPLICATION_INFO_CACHE = "APPLICATION_INFO_CACHE";
+var APPLICATION_INFO_APP_TYPE = "APP_TYPE";
 var UNAUTHORIZED_ERROR_RESPONSE ={"errorCode":"401","errorMessage":"Unauthorized access!!!"};
 
 // Cache

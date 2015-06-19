@@ -1,0 +1,135 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("application/select", function (inputs, outputs, jagg) { %>
+
+<%  
+    var type = request.getParameter("type");
+    var buttonCreateUpload;
+    if( type == "new"){
+        buttonCreateUpload = "Create Application";
+    }else{
+        buttonCreateUpload = "Upload Application";
+    }                                
+%>
+<script>
+    var type = '<%=type%>';
+</script>
+<!--#############################################################-->
+<div class="inner-wrapper">
+
+    <!-- BOF App factory menu -->
+    <div class="navbar navbar-secondary">
+        <div class="container-fliud">
+            <div class="row">
+                <div class="col-md-12 breadcrumb-secondary">
+                    <i class="fa fa-cubes visible-xs"></i>
+                    <span class="hidden-xs">Application Cloud /</span>
+                    <span class="">Project Type</span>
+                </div>
+            </div>
+        </div>
+    </div><!-- EOF App factory menu -->
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Application listing
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+  <% if (outputs.applicationTypesHolder) { %>
+
+    <div class="container-fluid">
+        <div class="row listing " data-count="<%=outputs.applicationTypesHolder.length%>">
+            <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
+                <% var appTypeBean = outputs.applicationTypesHolder[i].applicationTypeBean; %>
+                <div class="col-md-3 col-lg-2 col-sm-6">
+                    <div class="cloud-app-type <%=appTypeBean.getIconColorClass()%>" id="<%=i+1%>"
+                     data-description="<%=appTypeBean.getDescription()%> "
+                     data-appTypeDisplayName="<%=appTypeBean.getDisplayName()%>"
+                     data-apptype="<%=appTypeBean.getApplicationTypeName()%>">
+                        <i class="fw <%=appTypeBean.getIconImageClass()%> fw-5x"></i>
+                        <div class="type-name"><%=appTypeBean.getDisplayName()%></div>
+                    </div>
+                </div>
+            <%}%>
+        </div>
+
+    </div><!-- /.container -->
+    <!-- BOF template block appear on each click -->
+    <div class="app-type-info-template" style="display: none">
+        <div class="longme" style="display: none">
+            <div class="clearfix"></div>
+            <div class="col-md-12 long">
+                <div class="row">
+                    <div class="col-md-8 col-sm-8 col-lg-7">
+                        <h2 class="app-name">JAVA Appication</h2>
+                        <div class="app-description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. ultricies nec,
+                            pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla
+                            vel, aliquet nec, vulputate eget, arcu.
+                        </div>
+                        <div class="button-bar">
+                            <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-book"></i> Documentation</a>
+                            <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 description-action">
+
+
+
+                        <form id='testForm'  method='post' action='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>?type=<%=type%>'>
+                            <input type="hidden" id="appTypeDisplayName" name="appTypeDisplayName" value="" />
+                            <input type="hidden" id="apptype" name="apptype" value="" />
+                            <input type="hidden" id="apptypeExtension" name="apptypeExtension" value="" />
+                            <input type="hidden" id="apptypeIconColor" name="apptypeIconColor" value="" />
+                            <input type="hidden" id="apptypeIconImage" name="apptypeIconImage" value="" />
+
+                            <a href="#" class="cu-btn cu-btn-md cu-btn-blue app-create-url" onclick="document.getElementById('testForm').submit()">
+                               <span class="fw-stack fw-lg btn-action-ico">
+                               <i class="fw fw-ring fw-stack-2x"></i>
+                               <i class="fw fw-add fw-stack-1x"></i>
+                               </span>
+                                <%=buttonCreateUpload%>
+                            </a>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%}%>
+    <!-- EOF template block appear on each click -->
+    <div id="push"></div>
+</div>
+
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+
+<!--#############################################################-->
+
+<% }); %>

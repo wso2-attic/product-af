@@ -220,13 +220,9 @@ var getAllDatasourcesInfo = function (applicationKey, stage) {
  * This is for checking datasource support
  */
 var checkDataSourceSupport = function (applicationKey) {
-    var context=multitenancy.getPrivilegedCarbonContext();
     var modManager = jagg.module("manager");
     var tenantDomain=modManager.getTenantDomain();
     try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain,true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
         return regService.checkDataSourceSupport(applicationKey);
     }catch(e){
@@ -234,8 +230,6 @@ var checkDataSourceSupport = function (applicationKey) {
                   + tenantDomain);
         log.error(e);
         throw e;
-    }finally{
-        context.endTenantFlow();
     }
 }
 
