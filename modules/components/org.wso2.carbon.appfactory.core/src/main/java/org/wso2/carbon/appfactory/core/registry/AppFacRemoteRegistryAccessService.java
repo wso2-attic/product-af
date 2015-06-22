@@ -268,11 +268,12 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      * {@inheritDoc}
      */
     @Override
-    public String getRegistyResourceValue(String serverURL, String cookie, String resourcePath)
+    public String getRegistyResourceValue(String serverURL, String username, String resourcePath)
             throws AppFactoryException {
         String value = null;
         try {
-            WSRegistryServiceClient wsclient = new WSRegistryServiceClient(serverURL, cookie);
+            WSRegistryServiceClient wsclient = new WSRegistryServiceClient(serverURL, null);
+            AppFactoryUtil.setAuthHeaders(wsclient.getStub()._getServiceClient(), username);
             String absoluteResourcePath = getDependenciesPath(resourcePath);
             if (wsclient.resourceExists(absoluteResourcePath)) {
                 Resource resource = wsclient.get(absoluteResourcePath);
@@ -292,13 +293,14 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
      * {@inheritDoc}
      */
     @Override
-    public Dependency[] getAllRegistryResources(String serverURL, String cookie, String resourcePath)
+    public Dependency[] getAllRegistryResources(String serverURL, String username, String resourcePath)
             throws AppFactoryException {
         Registry governanceRegistry;
         Dependency[] dependencies = new Dependency[0];
 
         try {
-            WSRegistryServiceClient wsclient = new WSRegistryServiceClient(serverURL, cookie);
+            WSRegistryServiceClient wsclient = new WSRegistryServiceClient(serverURL, null);
+            AppFactoryUtil.setAuthHeaders(wsclient.getStub()._getServiceClient(), username);
             String dependencyCollectionPath = getDependenciesPath(resourcePath);
 
             if (wsclient.resourceExists(dependencyCollectionPath)) {
@@ -391,8 +393,9 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
             WSRegistryServiceClient destWsClient = new WSRegistryServiceClient(destServerUrl, null);
             AppFactoryUtil.setAuthHeaders(sourceWsClient.getStub()._getServiceClient(), username);
             AppFactoryUtil.setAuthHeaders(destWsClient.getStub()._getServiceClient(), username);
-            if (sourceWsClient.resourceExists(sourcePath)) {
-                String[] sourceResourcesPaths = sourceWsClient.getCollectionContent(sourcePath);
+            String absoluteResourcePath = getDependenciesPath(sourcePath);
+            if (sourceWsClient.resourceExists(absoluteResourcePath)) {
+                String[] sourceResourcesPaths = sourceWsClient.getCollectionContent(absoluteResourcePath);
 
                 for (String path : sourceResourcesPaths) {
                     String propertyName = path.substring(path.lastIndexOf(RegistryConstants.PATH_SEPARATOR) + 1);
