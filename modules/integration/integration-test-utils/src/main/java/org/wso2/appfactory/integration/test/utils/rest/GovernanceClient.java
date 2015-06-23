@@ -18,6 +18,10 @@
 
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONArray;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
@@ -223,16 +227,16 @@ public class GovernanceClient extends BaseClient {
      * @throws Exception
      */
 
-    public JSONArray getAppVersionsInStagesWithLifeCycleInfo(String appKey, String userName) throws Exception {
+    public JsonObject getAppVersionsInStagesWithLifeCycleInfo(String appKey, String userName) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put("action", "getAppVersionsInStagesWithLifeCycleInfo");
         msgBodyMap.put("applicationKey", appKey);
         msgBodyMap.put("userName", userName);
-
         HttpResponse response = super.doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            JSONArray jsonObject = new JSONArray(response.getData());
-            return jsonObject;
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(response.getData());
+            return jsonElement.getAsJsonObject();
         } else {
             throw new AFIntegrationTestException("Checklist item checking Failed" + response.getData());
         }
@@ -284,7 +288,7 @@ public class GovernanceClient extends BaseClient {
         msgBodyMap.put("srcVersion", srcVersion);
         msgBodyMap.put("targetVersion", targetVersion);
         msgBodyMap.put("lifecycleName", lifecycleName);
-        HttpResponse response = doPostRequest(APPMGT_LIFECYCLE_ADD, msgBodyMap);
+        HttpResponse response = doPostRequest(APPMGT_REPOSBUILDS_ADD, msgBodyMap);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             return response.getData();
         } else {

@@ -59,11 +59,11 @@ public class DatabaseClient extends BaseClient {
     public void createDatabaseAndAttachUser(String applicationKey, String dbName, String dbServerInstance,
                                             String customPassword, String dbDescription, String isBasic,
                                             String copyToAll, String createDatasource, String userName,
-                                            String templateName) throws AFIntegrationTestException {
+                                            String templateName, String dbSuffix) throws AFIntegrationTestException {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, "createDatabaseAndAttachUser");
         msgBodyMap.put(APP_KEY, applicationKey);
-        msgBodyMap.put("databaseName", dbName);
+        msgBodyMap.put("databaseName", dbName + dbSuffix);
         msgBodyMap.put("databaseServerInstanceName", dbServerInstance);
         msgBodyMap.put("customPassword", customPassword);
         msgBodyMap.put("databaseDescription", dbDescription);
