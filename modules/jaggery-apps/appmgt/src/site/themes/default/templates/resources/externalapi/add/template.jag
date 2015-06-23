@@ -243,6 +243,7 @@ function createResource(copyToAll) {
 	    applicationKey: '<%=applicationKey%>',
 	    apiName: $("#api_name").attr('value').trim(),
 	    authType:$("#api_auth").attr('value'),
+	    description: $("#api_description").attr('value'),
 	    givenValues: inputString,
 	    copyToAll:copyToAll
     },
@@ -384,6 +385,11 @@ function validatePropertyNameAndCreate() {
 		                        <label><strong>Environment</strong> <em>*</em></label>
 		                        <select class="select_list half big" id="api_stage" name="api_stage" onchange="updateUIForStage()"></select> 
                             </div>
+
+                             <div class="input_row">
+                                <label for="api_description"><strong>Description</strong></label>
+                                <textarea name="api_description" id="api_description" rows="5" <% if((isEdit && isEdit == "true") && !hasUpdateResourcePermissions ){ %>disabled<%}%>  class="full"/></textarea>
+                             </div>
 
                             <div class="input_row">
                                 <label><strong>Authentication</strong> <em>*</em></label>
