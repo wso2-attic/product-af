@@ -63,22 +63,22 @@ public class AFConstants {
 	                                                   "//appFactoryProperties/defaultApplication/repositoryType";
 
     public static final String DEFAULT_APP_VERSION_ONE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
-                                                             "version/v1/sourceVersion";
+                                                             "version[@key='v1']/sourceVersion";
 
     public static final String DEFAULT_APP_VERSION_ONE_TARGET = "//appFactoryProperties/defaultApplication/versions/" +
-                                                                "version/v1/targetVersion";
+                                                                "version[@key='v1']/targetVersion";
 
     public static final String DEFAULT_APP_VERSION_TWO_SRC = "//appFactoryProperties/defaultApplication/versions/" +
-                                                                "version/v2/sourceVersion";
+                                                                "version[@key='v2']/sourceVersion";
 
     public static final String DEFAULT_APP_VERSION_TWO_TARGET = "appFactoryProperties/defaultApplication/versions/" +
-                                                                "version/v2/targetVersion";
+                                                                "version[@key='v2']/targetVersion";
 
     public static final String DEFAULT_APP_VERSION_THREE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
-                                                               "version/v3/sourceVersion";
+                                                               "version[@key='v3']/sourceVersion";
 
     public static final String DEFAULT_APP_VERSION_THREE_TARGET = "appFactoryProperties/defaultApplication/versions/" +
-                                                                  "version/v3/targetVersion";
+                                                                  "version[@key='v3']/targetVersion";
 
 	// Security policy files in resources/security folder
 	public static final String SECURITY_POLICIES_SCENARIO1_POLICY_XML =
