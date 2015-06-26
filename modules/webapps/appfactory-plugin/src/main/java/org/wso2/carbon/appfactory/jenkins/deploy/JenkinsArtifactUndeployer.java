@@ -185,12 +185,12 @@ public class JenkinsArtifactUndeployer extends AbstractStratosUndeployer {
 
     @Override
     public String getS2AdminPassword() throws AppFactoryException {
-        return this.s2AdminUsername;
+        return this.s2AdminPassword;
     }
 
     @Override
     public String gets2AdminUserName() throws AppFactoryException {
-        return this.s2AdminPassword;
+        return this.s2AdminUsername;
     }
 
 
