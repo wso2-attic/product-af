@@ -26,7 +26,6 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.mail.MethodNotSupportedException;
 import java.io.File;
 import java.util.Map;
 
@@ -55,6 +54,10 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 //			          DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_ID));
 //		}
 //	}
+	@Override
+	protected File[] getLastBuildArtifact(String path, String extension) throws AppFactoryException {
+		return getArtifact(path, extension);
+	}
 
 	protected String getBaseRepoUrl() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().

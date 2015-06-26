@@ -20,11 +20,8 @@ package org.wso2.carbon.appfactory.deployers;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.Undeployer;
 
 import java.io.File;
@@ -62,10 +59,7 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
      * @return
      * @throws AppFactoryException
      */
-    public String getBaseRepoUrl() throws AppFactoryException {
-        return AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_BASE_URL);
-    }
+    public abstract  String getBaseRepoUrl() throws AppFactoryException;
 
     /**
      * Generates the repository url of the stratos storage repository provider based on the passed parameters.
@@ -84,10 +78,7 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
      * @return admin password
      * @throws AppFactoryException
      */
-    public String getAdminPassword() throws AppFactoryException {
-        return AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_PASSWORD);
-    }
+    public abstract String getS2AdminPassword() throws AppFactoryException;
 
     /**
      * Get s2git admin username
@@ -95,10 +86,7 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
      * @return admin user name
      * @throws AppFactoryException
      */
-    public String getAdminUserName() throws AppFactoryException {
-        return AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_STORAGE_REPOSITORY_PROVIDER_ADMIN_USER_NAME);
-    }
+    public abstract String gets2AdminUserName() throws AppFactoryException;
 
     /**
      * Used to filter artifact(s)/ corresponding to specified application id, version and file extension
