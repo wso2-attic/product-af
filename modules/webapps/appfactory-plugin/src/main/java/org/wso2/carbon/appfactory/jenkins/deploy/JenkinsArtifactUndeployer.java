@@ -8,7 +8,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.deployers.AbstractStratosUndeployer;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
-import org.wso2.carbon.appfactory.jenkins.artifact.storage.Utils;
+import org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
@@ -25,8 +25,15 @@ import java.util.Map;
  */
 public class JenkinsArtifactUndeployer extends AbstractStratosUndeployer {
     private static final Log log = LogFactory.getLog(JenkinsArtifactUndeployer.class);
+    private String baseDeployUrl;
+    private String s2AdminUsername;
+    private String s2AdminPassword;
 
     public JenkinsArtifactUndeployer() {
+        AppfactoryPluginManager.DescriptorImpl descriptor = new AppfactoryPluginManager.DescriptorImpl();
+        setBaseDeployUrl(descriptor.getBaseDeployUrl());
+        setS2AdminPassword(descriptor.getStratosAdminUsername());
+        setS2AdminUsername(descriptor.getStratosAdminPassword());
     }
 
     @Override
@@ -91,7 +98,7 @@ public class JenkinsArtifactUndeployer extends AbstractStratosUndeployer {
                                                     File applicationTempLocation, String gitRepoUrl)
             throws RepositoryMgtException, AppFactoryException {
         AppfactoryRepositoryClient repositoryClient = new GitRepositoryClient(new JGitAgent());
-        repositoryClient.init(getAdminUserName(), getAdminPassword());
+        repositoryClient.init(gets2AdminUserName(), getS2AdminPassword());
         repositoryClient.retireveMetadata(gitRepoUrl, false, applicationTempLocation);
         File applicationRootLocation = new File(applicationTempLocation, serverDeploymentPath);
 
@@ -158,5 +165,34 @@ public class JenkinsArtifactUndeployer extends AbstractStratosUndeployer {
         gitRepoUrl = gitRepoUrl.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
         return gitRepoUrl;
     }
+
+    public void setS2AdminUsername(String s2AdminUsername) {
+        this.s2AdminUsername = s2AdminUsername;
+    }
+
+    public void setBaseDeployUrl(String baseDeployUrl) {
+        this.baseDeployUrl = baseDeployUrl;
+    }
+
+    public void setS2AdminPassword(String s2AdminPassword) {
+        this.s2AdminPassword = s2AdminPassword;
+    }
+
+    @Override
+    public String getBaseRepoUrl() throws AppFactoryException {
+        return this.baseDeployUrl;
+    }
+
+    @Override
+    public String getS2AdminPassword() throws AppFactoryException {
+        return this.s2AdminUsername;
+    }
+
+    @Override
+    public String gets2AdminUserName() throws AppFactoryException {
+        return this.s2AdminPassword;
+    }
+
+
 
 }
