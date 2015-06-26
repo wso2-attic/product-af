@@ -660,11 +660,6 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>resources/appfactory.xml</source>
-            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory</outputDirectory>
-            <fileMode>644</fileMode>
-        </file>
-        <file>
             <source>resources/tenant_folder_config.xml</source>
             <outputDirectory>wso2appfactory-${pom.version}/repository/conf/jenkins</outputDirectory>
             <fileMode>644</fileMode>
