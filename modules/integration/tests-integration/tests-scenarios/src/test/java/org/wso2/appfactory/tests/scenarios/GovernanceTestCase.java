@@ -18,6 +18,7 @@
 
 package org.wso2.appfactory.tests.scenarios;
 
+import com.google.gson.JsonArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -51,10 +52,7 @@ public class GovernanceTestCase extends AFIntegrationTest {
 
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
-        String tenantAdmin = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN);
-        String tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
-        String afUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
-        governanceRestClient = new GovernanceClient(afUrl, tenantAdmin, tenantAdminPassword);
+        governanceRestClient = new GovernanceClient(AFserverUrl,defaultAdmin,defaultAdminPassword);
         applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
         sourceVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC);
         targeVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_TARGET);
@@ -67,7 +65,8 @@ public class GovernanceTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM})
     @Test(description = "Creating a new version of an existing application")
     public void createVersionTestCase() throws Exception {
-        String invokeVersionResponse = governanceRestClient.invokeDoVersion(applicationKey, sourceVersion, NEW_VERSION, LIFECYCLE_NAME);
+        String invokeVersionResponse =
+                governanceRestClient.invokeDoVersion(defaultAppKey, sourceVersion, targeVersion, LIFECYCLE_NAME);
         Assert.assertTrue(Boolean.parseBoolean(invokeVersionResponse));
     }
 
@@ -95,13 +94,9 @@ public class GovernanceTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = { ExecutionEnvironment.PLATFORM})
     @Test(description = "Get versions of all stages in the application with lifecycle info")
     public void getAppVersionsInStagesWithLifeCycleInfoTestCase() throws Exception {
-        String adminUsername = AFIntegrationTestUtils.getAdminUsername();
-        JSONArray allAppVersionsWithLifeCycleInfo = governanceRestClient.getAppVersionsInStagesWithLifeCycleInfo(applicationKey, adminUsername);
-        ArrayList<String> returnedUsers = new ArrayList<String>();
-        for (int i = 0; i < allAppVersionsWithLifeCycleInfo.length(); i++) {
-
+        Assert.assertEquals(governanceRestClient.getAppVersionsInStagesWithLifeCycleInfo(applicationKey, defaultAdmin)
+                                                .toString().contains(targeVersion), true,
+                            "Get versions of all stages in the application with lifecycle info not success.");
         }
-
     }
-}
 

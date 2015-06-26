@@ -38,11 +38,10 @@ public class DatabaseTestCase extends AFIntegrationTest {
 
     private static final String DB_ONE = "db1";
     private static final String DB_TWO = "db2";
+    private static final String DB_SUFFIX = "test";
     private static final String DB_PASSWORD = "123456";
     private static final String DB_DESCRIPTION = "test_db";
     private static final String STAGE_DEVELOPMENT = "Development";
-    private static final String CHOOSE_USER = "choose_user";
-    private static final String CHOOSE_TEMPLATE = "choose_template";
     private static final String DB_USER_TWO = "tom";
     private static final String CUSTOM_TEMPLATE = "testtemplate";
     private DatabaseClient databaseClient = null;
@@ -58,9 +57,9 @@ public class DatabaseTestCase extends AFIntegrationTest {
     public void setEnvironment() throws Exception {
         databaseClient = new DatabaseClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
         defaultTenantDomain = AFIntegrationTestUtils.getDefaultTenantDomain();
-        dbOneActualName = getActualDatabaseName(DB_ONE, AFIntegrationTestUtils.getDefaultTenantDomain());
-        dbTwoActualName = getActualDatabaseName(DB_TWO, AFIntegrationTestUtils.getDefaultTenantDomain());
-        dbUserOneActualName = getFullyQualifiedUsername(DB_ONE);
+        dbOneActualName = getActualDatabaseName(DB_ONE + DB_SUFFIX, AFIntegrationTestUtils.getDefaultTenantDomain());
+        dbTwoActualName = getActualDatabaseName(DB_TWO + DB_SUFFIX, AFIntegrationTestUtils.getDefaultTenantDomain());
+        dbUserOneActualName = getFullyQualifiedUsername(DB_ONE + DB_SUFFIX);
         dbUserTwoActualName = getFullyQualifiedUsername(DB_USER_TWO);
         defaultTemplate = defaultAppKey + "_admin@" + STAGE_DEVELOPMENT;
         customTemplateActualName = CUSTOM_TEMPLATE + "@" + STAGE_DEVELOPMENT;
@@ -72,7 +71,7 @@ public class DatabaseTestCase extends AFIntegrationTest {
         //Delete users if exists
 //        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
 //        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
-        //Delete databases if exists 
+        //Delete databases if exists
         databaseClient.dropDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, "false");
         databaseClient.dropDatabase(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, "false");
     }
@@ -83,13 +82,13 @@ public class DatabaseTestCase extends AFIntegrationTest {
 
         databaseClient.createDatabaseAndAttachUser(defaultAppKey, DB_ONE, STAGE_DEVELOPMENT, DB_PASSWORD,
                                                    DB_DESCRIPTION, AFConstants.TRUE, AFConstants.FALSE,
-                                                   AFConstants.FALSE, CHOOSE_USER, CHOOSE_TEMPLATE);
+                                                   AFConstants.FALSE, null, null, DB_SUFFIX);
         Assert.assertEquals(databaseClient.getDatabases(defaultAppKey).toString().contains(dbOneActualName), true,
                             "Creating database not success.");
 
         Assert.assertEquals(
                 databaseClient.getAttachedUsers(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT).toString()
-                        .contains(dbUserOneActualName), true, "Creating default database user not success.");
+                              .contains(dbUserOneActualName), true, "Creating default database user not success.");
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -98,7 +97,7 @@ public class DatabaseTestCase extends AFIntegrationTest {
         databaseClient.createDatabaseUser(defaultAppKey, DB_PASSWORD, STAGE_DEVELOPMENT, DB_USER_TWO);
         Assert.assertEquals(
                 databaseClient.getAvailableUsersToAttachToDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT)
-                        .toString().contains(dbUserTwoActualName), true, "Creating new database user not success.");
+                              .toString().contains(dbUserTwoActualName), true, "Creating new database user not success.");
         // permissions for the template
         Map<String, String> permissions = new HashMap<String, String>();
         permissions.put("alterPriv", AFConstants.TRUE);
@@ -124,11 +123,12 @@ public class DatabaseTestCase extends AFIntegrationTest {
         databaseClient.createTemplates(defaultAppKey, CUSTOM_TEMPLATE, STAGE_DEVELOPMENT, permissions);
         Assert.assertEquals(
                 databaseClient.getAvailableTemplatesToAttachToDatabase(defaultAppKey, STAGE_DEVELOPMENT)
-                        .contains(customTemplateActualName), true, "Creating new database user not success.");
+                              .contains(customTemplateActualName), true, "Creating new database user not success.");
 
         databaseClient.createDatabaseAndAttachUser(defaultAppKey, DB_TWO, STAGE_DEVELOPMENT, DB_PASSWORD,
                                                    DB_DESCRIPTION, AFConstants.FALSE, AFConstants.FALSE,
-                                                   AFConstants.FALSE, dbUserTwoActualName, customTemplateActualName);
+                                                   AFConstants.FALSE, dbUserTwoActualName, customTemplateActualName,
+                                                   DB_SUFFIX);
         Assert.assertEquals(databaseClient.getAllDatabasesInfo(defaultAppKey).entrySet().size(), 2,
                             "Creating database and attach user not success");
     }
@@ -162,7 +162,7 @@ public class DatabaseTestCase extends AFIntegrationTest {
         databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
         Assert.assertEquals(
                 databaseClient.getAvailableUsersToAttachToDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT)
-                        .size(), 0, "Delete database users not success.");
+                              .size(), 0, "Delete database users not success.");
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -182,9 +182,14 @@ public class DatabaseTestCase extends AFIntegrationTest {
      * @return
      */
     private String getActualDatabaseName(String db, String tenantDomain) {
-        String actualDb = null;
+        String actualDb;
         String[] tenantNameElements = tenantDomain.split("\\.");
-        actualDb = db + "_" + tenantNameElements[0] + "_" + tenantNameElements[1];
+        if (tenantNameElements.length == 2) {
+            actualDb = db + "_" + tenantNameElements[0] + "_" + tenantNameElements[1];
+        }
+        else {
+            actualDb = db + "_" + tenantDomain;
+        }
         return actualDb;
     }
 
