@@ -83,12 +83,10 @@ jagg.template("header", function(inputs, outputs, jagg) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery-1.7.1.min.js'))%>"></script>
-
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>
 	<script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jagg.js'))%>"></script>
     <script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/json2.js'))%>"></script>
-    
     <script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.form.js'))%>"></script>
     <script type="text/javascript" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.js'))%>"></script>
 <% }); %>

@@ -76,77 +76,70 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome.min.css'))%>">
-        <!--[if IE 7]>
-          <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome-ie7.min.css'))%>">
-        <![endif]-->
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">
+
+
+
+        <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))%>" rel="stylesheet">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2-extend.css'))%>">
+        <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/font-awesome-4.2.0/font-awesome.min.css'))%>" rel="stylesheet">
+        <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/web-fonts/Roboto.css'))%>" rel="stylesheet">
+
+
+
+       <!-- <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">-->
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/jquery.qtip.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.cookie.js'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>">
+<!--
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/development.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/custom.css'))%>">
+
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/grid.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.snippet.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.snippet.css'))%>">-->
         
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js'))%>"></script>
 		<link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
 		<link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
+		<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>">
     </head>
     <body <% if(applicationKey == null){ %>id="home"<% } %>>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
-     <header class="main_header">
-        <div class="right">
-            <h1 class="logo"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/appfactory_logo.png'))%>" alt="App Factory" /></a><span><%=getProperty(APPFAC_VERSION)%></span></h1>
-            <div class="dropdown user right">
+        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" id="cloud-menu-popover-xs" data-toggle="popover" data-placement="bottom"
+               class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
+                <i class="fw fw-tiles"></i>
+            </a>
+            <a class="navbar-brand" href="#"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/logo.png'))%>" alt="wso2-logo" >&nbsp;&nbsp;App Factory</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav menu-right">
 
+                <li class="dropdown user-name">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=userName%>
+                        <i class="fa fa-chevron-circle-down"></i>
+                        <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/user.png'))%>" alt="user" class="user-image"></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#" onclick="window.location.href='logout.jag'">Logout</a></li>
+                    </ul>
+                </li>
 
-              <%
-                if(userName!=null) {
-              %>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
 
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <!--<img class="user_photo" src="assets/img/avatar.png" alt="Avatar of avatar" />--> <%=userName%>
-                <span class="icon-chevron-down"></span>
-              </a>
-              <ul class="dropdown-menu">
-                     <!--li><a href="/your_profile">Your Profile</a></li-->
-                    <li><a href="#" onclick="window.location.href='logout.jag'">Sign Out</a></li>
-               </ul>
-               <%
-                }
-               %>
-            </div>
-
-            <div class="dropdown context_menu">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span title="Other Options" class="icon-reorder"></span></a>
-              <ul class="dropdown-menu">
-                   <li><a href="http://wso2.com/support/" target="_blank" >Support</a></li>
-                    <li><a href="https://wso2.org/jira/browse/APPFAC" target="_blank">Feedback</a></li>
-                    <li><a href="http://docs.wso2.org/wiki/display/AF210/User+Guide" target="_blank">User Guide</a></li>
-                    <li><a href="http://wso2.org/more-downloads/developer-studio" target="_blank">Tooling</a></li>
-                    <li><a href="http://wso2.com/contact/" target="_blank">Contacts</a></li>
-               </ul>
-            </div>
-         </div>
-
-        <h2><a href="<%=jagg.getAbsoluteUrl("/site/pages/")%>" class="icon-home" title="User Home"><span>Home</span></a></h2>
-
-
-        <% if(applicationKey != null && applicationName != null){ %>
-        <p class="sub_heading">
-	    <img id="icon" src="<%=iconUrl%>" alt="" height="50px" width="50px" />
-            <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-            <%=applicationName%></a>
-        </p>
-        <% } %>
-        <div class="clearfix"></div>
-
-    </header>
     <div class="wrapper">
         <% jagg.includeBlocks(outputs.body); %>
 
@@ -164,8 +157,9 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
             </nav>-->
 
      </div>
-
-
+     <%
+     jagg.includeBlock("footer", {});
+     %>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.sticky.js'))%>"></script>
@@ -174,7 +168,8 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.qtip.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/snippet/jquery.snippet.js'))%>"></script>
-				<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 		
     </body>
 </html>

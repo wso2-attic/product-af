@@ -98,33 +98,14 @@ jagg.module("application", {
         return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppCountInStage.apply(this, arguments);
     },
 
-	getAppUsersWithRoles:function () {
-        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getAppUsersWithRoles.apply(this, arguments);
-    },
-
-    getAppUsersByRoles:function () {
-        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getAppUsersByRoles.apply(this, arguments);
-    },
-
-    getRoles:function () {
-        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getRoles.apply(this, arguments);
-    },
-
     getUsersOfApplication:function () {
         return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUsersOfApplication.apply(this, arguments);
-    },
-
-    getUsersInfoOfApplication:function () {
-        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUsersInfoOfApplication.apply(this, arguments);
     },
 
     getUserAccess:function () {
         return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUserAccess.apply(this, arguments);
     },
 
-    getUserRolesForApplication:function () {
-        return jagg.require(jagg.getModulesDir() + "application/users/get/list.jag").getUserRolesForApplication.apply(this, arguments);
-    },
 
     getMetaDataForApplicationState:function () {
         return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getMetaDataForApplicationState.apply(this, arguments);

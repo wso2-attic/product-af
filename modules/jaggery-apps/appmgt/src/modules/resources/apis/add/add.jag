@@ -42,9 +42,6 @@ var createApplication = function (applicationKey){
 	var context=multitenancy.getPrivilegedCarbonContext();
 	var tenantManager= multitenancy.getTenantManager();
 	try{
-		context.startTenantFlow();
-		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
 		var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
 		result = service.createApplication(applicationKey, session.get("SAML_TOKEN"));
 
@@ -58,8 +55,6 @@ var createApplication = function (applicationKey){
 				  + " of tenant domain : " + tenantDomain);
 		log.error(e);
 		throw e;
-	}finally {
-		context.endTenantFlow();
 	}
 };
 

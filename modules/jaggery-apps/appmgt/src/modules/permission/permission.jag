@@ -26,10 +26,9 @@ var modManager = jagg.module("manager");
 var carbon = require('carbon');
 var server = carbon.server;
 var TABLINK_PERM_CACHE = "tablinkPermCache";
-var TENANT_PERM_CACHE = "tenantPermCache";
 
     var cacheAppLevelPermission=function(userName,applicationKey,permission,isAuthorized){
-        var permissionCache=session.get("PERMISSION_CACHE");
+        var permissionCache=session.get(PERMISSION_CACHE);
         var appPermissionCache;
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache = permissionCache[userName];
@@ -40,7 +39,7 @@ var TENANT_PERM_CACHE = "tenantPermCache";
             appPermissionCache[permission]=isAuthorized;
             userCache[applicationKey]=appPermissionCache;
             permissionCache[userName]=userCache;
-            session.put("PERMISSION_CACHE",permissionCache);
+            session.put(PERMISSION_CACHE,permissionCache);
 
         }else{
             var userCache={};
@@ -49,12 +48,12 @@ var TENANT_PERM_CACHE = "tenantPermCache";
             appPermissionCache[permission]=isAuthorized;
             userCache[applicationKey]=appPermissionCache;
             permissionCache[userName]=userCache;
-            session.put("PERMISSION_CACHE",permissionCache);
+            session.put(PERMISSION_CACHE,permissionCache);
         }
     };
 
     var cacheTenantLevelPermission=function(userName,permission,isAuthorized){
-        var permissionCache=session.get("PERMISSION_CACHE");
+        var permissionCache=session.get(PERMISSION_CACHE);
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache=permissionCache[userName];
             var tenantPermissionCache=userCache[TENANT_PERM_CACHE];
@@ -64,7 +63,7 @@ var TENANT_PERM_CACHE = "tenantPermCache";
             tenantPermissionCache[permission]=isAuthorized;
             userCache[TENANT_PERM_CACHE]=tenantPermissionCache;
             permissionCache[userName]=userCache;
-            session.put("PERMISSION_CACHE",permissionCache);
+            session.put(PERMISSION_CACHE,permissionCache);
 
         }else{
             var userCache={};
@@ -73,12 +72,12 @@ var TENANT_PERM_CACHE = "tenantPermCache";
             tenantPermissionCache[permission]=isAuthorized;
             userCache[TENANT_PERM_CACHE]=tenantPermissionCache;
             permissionCache[userName]=userCache;
-            session.put("PERMISSION_CACHE",permissionCache);
+            session.put(PERMISSION_CACHE,permissionCache);
         }
     };
 
     var checkPermissionFromCache=function(userName,appkey,permission){
-        var permissionCache = session.get("PERMISSION_CACHE");
+        var permissionCache = session.get(PERMISSION_CACHE);
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache=permissionCache[userName];
             var appPermissionCache=userCache[appkey];
@@ -90,7 +89,7 @@ var TENANT_PERM_CACHE = "tenantPermCache";
     };
 
     var checkUserPermissionForAppInCache = function(userName, appKey){
-        var applicationsCache = session.get("APPLICATION_CACHE");
+        var applicationsCache = session.get(APPLICATION_CACHE);
         if(applicationsCache != null || applicationsCache != undefined){
             var userApplicationsCache = applicationsCache[userName];
             var isAppAuthorized = userApplicationsCache[appKey];
@@ -103,7 +102,7 @@ var TENANT_PERM_CACHE = "tenantPermCache";
 
     var checkTenantPermissionFromCache = function(userName,permission){
         permission =  permission.toLowerCase();
-        var permissionCache = session.get("PERMISSION_CACHE");
+        var permissionCache = session.get(PERMISSION_CACHE);
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache = permissionCache[userName];
             var tenantPermissionCache = userCache[TENANT_PERM_CACHE];
@@ -153,19 +152,11 @@ var TENANT_PERM_CACHE = "tenantPermCache";
 
 var checkAuthorizationForUser =function (userName , permission) {
     var isUserAuthorized=false;
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantDomain=modManager.getTenantDomain();
     var tenantManager= multitenancy.getTenantManager();
     var tenantId=tenantManager.getTenantId(tenantDomain);
-    try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantId);
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
-        isUserAuthorized =realmService.getAuthorizationManager().isUserAuthorized(userName,permission,PERMISSION_EXECUTE);
-    }finally{
-        context.endTenantFlow();
-    }
+    var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
+    isUserAuthorized =realmService.getAuthorizationManager().isUserAuthorized(userName,permission,PERMISSION_EXECUTE);
     return isUserAuthorized;
 };
 
@@ -368,7 +359,7 @@ var checkAuthorizationForUser =function (userName , permission) {
      */
     var getUserCache =function(userName,cacheType){
         var cache = null;
-        var permissionCache=session.get("PERMISSION_CACHE");
+        var permissionCache=session.get(PERMISSION_CACHE);
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache=permissionCache[userName];
             var cache=userCache[cacheType];
@@ -385,7 +376,7 @@ var checkAuthorizationForUser =function (userName , permission) {
      * @return boolean or null - whether permission is granted or not. null if the request is cache a miss.
      */
     var checkTablinkPermissionFromCache=function(userName,permission){
-        var permissionCache=session.get("PERMISSION_CACHE");
+        var permissionCache=session.get(PERMISSION_CACHE);
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache=permissionCache[userName];
             var tablinksPermissionCache=userCache[TABLINK_PERM_CACHE];
@@ -461,7 +452,7 @@ var checkAuthorizationForUser =function (userName , permission) {
      */
     var cacheTablinksPermission=function(userName,permission,isAuthorized){
         // get permission cahce
-        var permissionCache=session.get("PERMISSION_CACHE");
+        var permissionCache=session.get(PERMISSION_CACHE);
         if(permissionCache!=null || permissionCache!=undefined){
             var userCache=permissionCache[userName];                                    // user cache
             var tablinksPermissionCache=userCache[TABLINK_PERM_CACHE];                  // tablinks cache
@@ -471,7 +462,7 @@ var checkAuthorizationForUser =function (userName , permission) {
             tablinksPermissionCache[permission]=isAuthorized;
             userCache[TABLINK_PERM_CACHE]=tablinksPermissionCache;
             permissionCache[userName]=userCache;
-            session.put("PERMISSION_CACHE",permissionCache);
+            session.put(PERMISSION_CACHE,permissionCache);
         }else{
             var userCache={};
             permissionCache={};
@@ -479,7 +470,7 @@ var checkAuthorizationForUser =function (userName , permission) {
             tablinksPermissionCache[permission]=isAuthorized;
             userCache[TABLINK_PERM_CACHE]=tablinksPermissionCache;
             permissionCache[userName]=userCache;
-            session.put("PERMISSION_CACHE",permissionCache);
+            session.put(PERMISSION_CACHE,permissionCache);
         }
     };
 

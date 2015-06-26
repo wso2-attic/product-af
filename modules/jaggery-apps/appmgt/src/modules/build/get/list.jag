@@ -34,14 +34,7 @@ var getBuildInfoByApplicationId = function(applicationId) {
     var statistics, tenantDomain=modManager.getTenantDomain();
  	var context=multitenancy.getPrivilegedCarbonContext();
  	var tenantManager= multitenancy.getTenantManager();
- 	try{
- 		context.startTenantFlow();
- 		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
- 		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
- 		statistics = server.osgiService('org.wso2.carbon.appfactory.core.build.ContinuousIntegrationStatisticsService').getApplicationStatistics(applicationId,[[]]);
- 	}finally{
- 		context.endTenantFlow();
- 	}
+ 	statistics = server.osgiService('org.wso2.carbon.appfactory.core.build.ContinuousIntegrationStatisticsService').getApplicationStatistics(applicationId,[[]]);
  	var elementsArray = new Array();
 
 	for (var data in statistics) {
@@ -52,7 +45,7 @@ var getBuildInfoByApplicationId = function(applicationId) {
 		elementsArray.push(innerElement);
 	}
 	return elementsArray;
-    };
+};
 
 
 /*var getBuildInfoByApplicationId = function(applicationId) {

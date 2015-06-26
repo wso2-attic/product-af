@@ -23,7 +23,6 @@ include("/jagg/config_reader.jag");
 
 var log = new Log("module/urlmapper/urlmapper.jag");
 var modManager = jagg.module("manager");
-var context=multitenancy.getPrivilegedCarbonContext();
 
 var addDefaultProdUrl = function(appKey, version){
     var service = getDomainMappingManagementService();
@@ -36,8 +35,6 @@ var addDefaultProdUrl = function(appKey, version){
         log.error("Error while adding default production url for application id : "+ appKey + " version : " + version);
         log.error(e);
         throw e.javaException.getMessage();
-    }finally {
-        context.endTenantFlow();
     }
 }
 
@@ -60,8 +57,6 @@ var addNewCustomUrl = function(stage,domain,appKey,version,isCustomDomain){
         // The message to display in the app wall is generated from the back end(java layer). Here we throw the
         // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
-    }finally{
-        context.endTenantFlow();
     }
 };
 
@@ -85,8 +80,6 @@ var updateExistingUnmappedCustomUrl = function(stage,newDomain,appKey){
         // The message to display in the app wall is generated from the back end(java layer). Here we throw the
         // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
-    }finally{
-        context.endTenantFlow();
     }
 };
 
@@ -110,8 +103,6 @@ var mapNewCustomUrlToVersion = function(stage,newDomain,appKey,version){
         // The message to display in the app wall is generated from the back end(java layer). Here we throw the
         // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
-    }finally{
-        context.endTenantFlow();
     }
 };
 
@@ -130,8 +121,6 @@ var remapDomainToVersion = function(stage, appKey, newVersion, previousVersion){
         // The message to display in the app wall is generated from the back end(java layer). Here we throw the
         // generated back end message to front end, such that it can be directly shown in the UI
         throw e.javaException.getMessage();
-    }finally{
-        context.endTenantFlow();
     }
 };
 
@@ -150,20 +139,12 @@ var removeDomainMappingFromApplication = function(stage, appKey, version, isCust
         // The message to display in the app wall is generated from the back end(java layer). Here we throw the
         // generated back end message to front end, such that it can be directly shown in the UI.
         throw e.javaException.getMessage();
-    }finally{
-        context.endTenantFlow();
     }
 };
 
 var getDomainMappingManagementService = function(){
     try{
         var carbon = require('carbon');
-        var tenantDomain=modManager.getTenantDomain() ;
-        var tenantManager= multitenancy.getTenantManager();
-
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         return carbon.server.osgiService('org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService');
     } catch(e) {
         log.error("Error while getting DomainMappingManagementService for tenant domain : " + tenantDomain);
