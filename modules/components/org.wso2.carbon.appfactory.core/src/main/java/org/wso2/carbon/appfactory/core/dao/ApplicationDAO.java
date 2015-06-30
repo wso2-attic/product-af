@@ -424,8 +424,8 @@ public class ApplicationDAO {
         try {
             appInfo =
                     new ApplicationSummary(
-                            artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_KEY),
                             artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_NAME),
+                            artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_KEY),
                             artifact.getAttribute(AppFactoryConstants.RXT_KEY_APPINFO_TYPE));
         } catch (GovernanceException e) {
             String errorMsg =
