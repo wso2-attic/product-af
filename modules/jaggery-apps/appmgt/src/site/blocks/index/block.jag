@@ -28,8 +28,8 @@ jagg.block("index", {
 
     getOutputs:function (inputs) {
        var hasAppCreationPermission=jagg.module("permission").hasAppCreationPermission();
-       return {
-            "hasAppCreationPermission":hasAppCreationPermission
+             return {
+            "hasAppCreationPermission":hasAppCreationPermission,
        };
     }
 

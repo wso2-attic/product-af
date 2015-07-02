@@ -62,8 +62,7 @@ include("/jagg/config_reader.jag");
         var response = {};
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_REPOSITORY_BRANCH)){
             try {
-                var res = mod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
-                print(res);
+                return mod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
             } catch (e) {
                 log.error(e.message);
                 throw e.message;
@@ -86,8 +85,7 @@ include("/jagg/config_reader.jag");
         var response = {};
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURE_GOVERNANCE)){
             try {
-                var res = mod.invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName, repoFrom);
-                print(res);
+                return mod.invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName,repoFrom);
             } catch (e) {
                 log.error(e.message);
             }

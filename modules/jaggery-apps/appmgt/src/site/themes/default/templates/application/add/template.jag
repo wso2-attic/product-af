@@ -29,9 +29,11 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var type = request.getParameter("type");
     var appTypeDisplayName = request.getParameter("appTypeDisplayName");
     var appType = request.getParameter("apptype");
-    var extension = request.getParameter("apptypeExtension");
+
+    var apptypeIconImageClass = request.getParameter("apptypeIconImageClass");
     var iconColor = request.getParameter("apptypeIconColor");
     var iconImage = request.getParameter("apptypeIconImage");
+
 
     var buttonCreateUpload = "Create";
     if( type == "existing"){
@@ -441,8 +443,8 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
  }());
  $(document).ready(function($) {
 
-     $("#appIcon").change(function() {
-         $("#icon").val($("#appIcon").val());
+     $("#icon").change(function() {
+         $("#icon").val($("#icon").val());
      });
      $("#appUpload").change(function() {
          $("#upload").val($("#appUpload").val());
@@ -566,7 +568,15 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                  var repositoryPath = response.toString();
 
                  if (response.result == 1.0) {
-                     window.location.replace("applicationlist.jag");
+                 var appKey = $("#applicationKey").attr('value');
+                 var appName = $("#applicationName").val();
+                 var isUploadable = false
+                 if ($("#action").val() == "uploadExistingApplication") {
+                   isUploadable = true;
+                }
+                 var redirectionPageParams = "application.jag?applicationName=" + appName + "&applicationKey=" +
+                    appKey + "&isUploadableAppType=" + isUploadable;
+                     window.location.replace(redirectionPageParams);
                  } else if (response.result == 0.0) {
                      //$("#appcreation").attr('disabled', false);
                  }
@@ -754,11 +764,12 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     </div><!-- EOF App factory menu actionbar-->
 
 
-    <div class="container-fluid">
+
+    <div class="container-fluid cloud-container">
         <div class="row">
             <div class="col-md-1">
-                <div class="cloud-selected-app-type app-color-one">
-                    <i class="fw fw-java fw-5x"></i>
+                <div class="cloud-selected-app-type <%=request.getParameter("apptypeIconColor")%>">
+                    <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-5x"></i>
                 </div>
             </div>
             <div class="col-md-6">
@@ -778,6 +789,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                     <input  type='hidden' maxlength="19" id='applicationKey' name="applicationKey" placeholder="Application Key" class="half required" />
                     <input  type='hidden' maxlength="19" id='appTypeDisplayName' name="appTypeDisplayName" value="<%=appTypeDisplayName%>"/>
                     <input  type='hidden' maxlength="19" id='appType' name="appType" value="<%=appType%>"/>
+                    <input  type='hidden' maxlength="19" id='repositoryType' name="repositoryType" value="git"/>
                     <input  type='hidden' maxlength="19" id='repoAccessibility' name="repoAccessibility" value="perDevRepo"/>
                     <div class="form-group">
                         <label for="application-description">Description: </label>
@@ -805,7 +817,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                             <input type="text" id="icon" class="form-control" readonly>
                             <span class="input-group-btn">
                                 <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input type="file" id="appIcon"/>
+                                    Upload&hellip; <input type="file" id="icon"/>
                                 </span>
                                 <span class="btn btn-primary btn-file">
                                     Clear <input onclick="clearUploadIconField()" id="clear"/>

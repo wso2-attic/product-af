@@ -35,4 +35,6 @@ public final class ApplicationTypeConstants {
     public static final String EXTENSION = "Extension";
     public static final String EXECUTION_TYPE = "ExecutionType";
     public static final String IS_CODE_EDITOR_SUPPORTED = "IsCodeEditorSupported";
+    public static final String ICON_COLOR_CLASS = "IconColorClass";
+    public static final String ICON_IMAGE_CLASS = "IconImageClass";
 }

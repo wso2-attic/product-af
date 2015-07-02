@@ -76,13 +76,14 @@
             var service = server
                     .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
             appsCreatedByUser = service.getApplicationsCreatedByUser(userName);
+            var obj = stringify(appsCreatedByUser)
         } catch (e) {
             log.error("Error while getting all applications created by user : " + userName + " of tenant domain : "
                       + tenantDomain);
             log.error(e);
             throw e;
         }
-        return appsCreatedByUser;
+        return obj;
     };
 
     var getRepoURL = function(applicationKey, version, auth, isForked)
@@ -153,8 +154,36 @@
     };
     
     var getAppInfo = function (applicationKey) {
+
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+
+        /*
+
+            create constant
+            seesion get the value 
+            if it is null
+            creat it and session put
+        */
+        /*
+        session.put("aabbcc","Hasitha");
+        var rrrrr = session.get("aabbcc");
+        log.info("RRRRRRRR  " + rrrrr);
+
+        var applicationsIconList = session.get("APPLICATIONS_ICON_LIST");
+        if(applicationsIconList == null){
+            server.osgiService('org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager').getApplicationTypeBean();
+            var obj[applicationKey] = "";
+        }
+        */
+
         var result;
         var tenantDomain=modManager.getTenantDomain();
+        
         try {
             result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
                     .getApplication(applicationKey);
@@ -164,16 +193,43 @@
             log.error(e);
             throw e;
         }
+
+
         if (result != null) {
-            return convertAppInfo(result);
+
+            var applicationsIconList = session.get("APPLICATIONS_ICON_LIST");
+            if(applicationsIconList == null){
+
+            }
+
+            
+
+            var application = convertAppInfo(result);
+            //log.info("\n\n" + stringify(application)+ "\n\n");
+            //log.info("Application type =>  " + application.type);
+            
+            // add icon this to application here!!!!!
+            return application;
+
         }
         return null;
     };
 
     var convertAppInfo =  function(resourceContent){
+        log.info("\n\n App info ============================+++++++ \n" + stringify(session.get("APP_INFO")) + "\n");
         var application = extractAppInfo(resourceContent,false);
         application.users=modApplication.getUsersOfApplication(resourceContent.id);
+
+        var applicationTypeManager = Packages.org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager.getInstance();
+        var applicationTypeBean = applicationTypeManager.getApplicationTypeBean(application.type);
+        application["iconColorClass"] = applicationTypeBean.getIconColorClass();
+        application["iconImageClass"] = applicationTypeBean.getIconImageClass();
+        log.info("====== " + applicationTypeBean.getIconColorClass());
+        log.info("====== " + applicationTypeBean.getIconImageClass());
+
         session.put("APP_INFO",application);
+        
+        //log.info("\n\n User home cache --- \n" + stringify(session.get(USER_HOME_CAHCE)) + "\n");
         return application;
     }
 
@@ -209,6 +265,8 @@
         application.isUploadable = modManager.getApplicationTypeBean(application.type).isUploadableAppType();	
 	    application.name = resourceContent.name;
         application.repoAccessability = resourceContent.repoAccessability;
+        application.appTypeIcon = modManager.getApplicationTypeBean(application.type).getIconImageClass();
+
 
         //TODO
         application.inProduction = false;
@@ -262,7 +320,6 @@
                 }
             }
         }
-
         return stringify(allAppVersionArray);
     };
 
@@ -347,6 +404,7 @@
 
     		 var elementsArray = new Array();
              for (var applicationKey in result){
+                 log.info("$$$$$$$$$applicationKey:  " + applicationKey)
                  var appInfo = convertAppInfoLightWeight(result[applicationKey]);
                  if (appInfo != null) {
                      elementsArray.push(appInfo);
@@ -527,8 +585,10 @@
             appList[APPLICATION_CREATION_STATUS.FAULTY] ={};
 
             for (var listKey in result){
+                log.info("$$$$$$$$$applicationKey:  " + listKey)
                 var appInfo = convertAppInfoLightWeight(result[listKey]);
                 if (appInfo != null) {
+                    log.info("***************appInfo.applicationCreationStatus: " + appInfo.key)
                     var creationStatus = (appInfo.applicationCreationStatus) ? (appInfo.applicationCreationStatus) :
                                          APPLICATION_CREATION_STATUS.PENDING;
                     appList[creationStatus][appInfo.key] = appInfo;
@@ -1013,6 +1073,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
                 if (applicationInfo == undefined) {
                     continue;
                 }
+                log.info("applicationInfo.versions: ***********************" + applicationList.length)
                 versionCount += applicationInfo.versions.length;
             }
 

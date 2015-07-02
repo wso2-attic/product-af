@@ -59,14 +59,16 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
 
   <% if (outputs.applicationTypesHolder) { %>
 
-    <div class="container-fluid">
+    <div class="container-fluid app-type-listing">
         <div class="row listing " data-count="<%=outputs.applicationTypesHolder.length%>">
             <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
                 <% var appTypeBean = outputs.applicationTypesHolder[i].applicationTypeBean; %>
-                <div class="col-md-3 col-lg-2 col-sm-6">
+                <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 ">
                     <div class="cloud-app-type <%=appTypeBean.getIconColorClass()%>" id="<%=i+1%>"
                      data-description="<%=appTypeBean.getDescription()%> "
                      data-appTypeDisplayName="<%=appTypeBean.getDisplayName()%>"
+                     data-apptypeIconImageClass="<%=appTypeBean.getIconImageClass()%>"
+                     data-apptypeIconColor="<%=appTypeBean.getIconColorClass()%>"
                      data-apptype="<%=appTypeBean.getApplicationTypeName()%>">
                         <i class="fw <%=appTypeBean.getIconImageClass()%> fw-5x"></i>
                         <div class="type-name"><%=appTypeBean.getDisplayName()%></div>
@@ -74,16 +76,15 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
                 </div>
             <%}%>
         </div>
-
     </div><!-- /.container -->
     <!-- BOF template block appear on each click -->
-    <div class="app-type-info-template" style="display: none">
+  <div class="app-type-info-template" style="display: none">
         <div class="longme" style="display: none">
             <div class="clearfix"></div>
             <div class="col-md-12 long">
                 <div class="row">
-                    <div class="col-md-8 col-sm-8 col-lg-7">
-                        <h2 class="app-name">JAVA Appication</h2>
+                    <div class="col-sm-8 col-md-8 col-lg-7">
+                        <h2 class="app-appTypeDisplayName">JAVA Appication</h2>
                         <div class="app-description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. ultricies nec,
                             pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla
                             vel, aliquet nec, vulputate eget, arcu.
@@ -93,16 +94,13 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
                             <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a>
                         </div>
                     </div>
-                    <div class="col-md-4 description-action">
-
-
-
-                        <form id='testForm'  method='post' action='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>?type=<%=type%>'>
+                    <div class="col-sm-4 col-md-4 col-lg-5 description-action">
+                          <form id='testForm'  method='post' action='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>?type=<%=type%>'>
                             <input type="hidden" id="appTypeDisplayName" name="appTypeDisplayName" value="" />
                             <input type="hidden" id="apptype" name="apptype" value="" />
                             <input type="hidden" id="apptypeExtension" name="apptypeExtension" value="" />
                             <input type="hidden" id="apptypeIconColor" name="apptypeIconColor" value="" />
-                            <input type="hidden" id="apptypeIconImage" name="apptypeIconImage" value="" />
+                            <input type="hidden" id="apptypeIconImageClass" name="apptypeIconImageClass" value="" />
 
                             <a href="#" class="cu-btn cu-btn-md cu-btn-blue app-create-url" onclick="document.getElementById('testForm').submit()">
                                <span class="fw-stack fw-lg btn-action-ico">
@@ -112,8 +110,6 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
                                 <%=buttonCreateUpload%>
                             </a>
                         </form>
-
-
                     </div>
                 </div>
             </div>
