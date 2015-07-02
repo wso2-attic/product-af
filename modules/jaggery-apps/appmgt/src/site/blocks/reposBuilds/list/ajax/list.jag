@@ -142,10 +142,8 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
             var codeEnvyUrl = getProperty(CODENVY_BASE_URL);
             var codeEnvyApiVersion = getProperty(CODENVY_API_VERSION);
             var projectName = applicationKey + "_project";
-            var versionControlSystem = getProperty(CODENVY_VCS_TYPE);
-            var vcsUrl = gitUrl;
-            var action = "openproject";
-            var repoType = "Jar";
+            var vcsType = getProperty(CODENVY_VCS_TYPE);
+            var vcsurl = gitUrl;
             var codeEnvyApiUrl = getProperty(CODENVY_API_URL);
             var codeEnvyUserName = getProperty(CODENVY_USERNAME);
             var codeEnvyPassword = getProperty(CODENVY_PASSWORD);
@@ -161,7 +159,7 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
             }else if(appType=="jaggery"){
                 repoType = "maven";
             }else{
-                repoType = "default";
+                repoType = "maven";
             }
 
             if(version=="trunk"){
@@ -188,20 +186,22 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
 
                 var factoryUrl = codeEnvyApiUrl + '/factory?token=' + token;
                 var fd = new FormData();
-                log.info("Token: " + token);
-                /**
-                 *
-                 *Need to create form data with factoryUrl like bellow
-                 // factoryUrl={"v":"1.2", "vcs":"git", "vcsurl":"https://git.cloudpreview.wso2.com/git/bizsynergix.com/bizhomepage.git",
-                        "vcsbranch":"1.0.0", "vcsinfo":"true", "action":"openproject","projectattributes":{"pname":"bizsynergix_project", "ptype":"War"}}
-                 */
+                //log.info("Token: " + token);
 
-                var welcomePage = '{"authenticated": {"title": "Welcome to AppFactory","iconurl": "","contenturl": "http://code.cloud.wso2.com"},"nonauthenticated": {"title":"Welcome to AppFactory","iconurl": "","contenturl": "http://code.cloud.wso2.com"}}';
+                //actions section: welcome page information comes here
+                var actions = '"actions": { "welcome": {"authenticated": {"title": "Welcome to WSO2 App Cloud","contenturl": "http://code.cloud.wso2.com"},"nonauthenticated": {"title": "Welcome to WSO2 App Cloud","contenturl": "http://code.cloud.wso2.com"}}}';
 
-                fd.append("factoryUrl",'{"warnonclose":"true", "v":"' + codeEnvyApiVersion + '", "welcome":' + welcomePage + ',"vcs":"' + versionControlSystem +
-                        '", "vcsurl":"' + vcsUrl + '", "vcsbranch":"' + version +
-                        '", "vcsinfo":"true", "action":"openproject","orgid":"' + codeEnvyOrgId + '","projectattributes":{"pname":"'
-                        + projectName + '", "ptype":"' + repoType + '", "buildername":"maven", "runnername":"JavaWeb", "runnerenvironmentid":"wso2as521"' + '}}');
+                //Source section: Git repo related information
+                //var source = '"source":{ "project":{"location":"' + vcsurl + '","type":"' + vcsType + '","parameters":{ "keepVcs" : true, "branch":"' + version + '"}}}';
+                var source = '"source":{ "runners":{  "/docker/wso2as521":{ "location":"https://gist.githubusercontent.com/sratnaweera/836941125636e45e8201/raw/436a37593da4ce7341894703a7a90c0e13a49a17/Dockerfileprod"}}, "project":{"location":"' + vcsurl + '","type":"' + vcsType + '","parameters":{ "keepVcs" : true, "branch":"' + version + '"}}}';
+
+                //Who creates the factory
+                var creator = '"creator":{"name":"Codenvy Factory","email":"' + codeEnvyUserName + '","accountId":"' + codeEnvyOrgId + '"}';
+
+                //Project relate information such as builders, runners etc.
+                var project = '"project":{"name":"'+ projectName + '", "type":"' + repoType + '", "builders":{"default":"maven"},"runners":{"default":"project:/docker/wso2as521"}}';
+
+                fd.append("factoryUrl",'{"warnOnClose":"true", "v":"' + codeEnvyApiVersion + '",' + actions + ',' + creator + ',' + project + ',' + source + '}');
 
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", factoryUrl);
@@ -209,8 +209,11 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
 
                 var responseText = xhr.responseText;
                 var response = parse(responseText);
-                var encodedUrl = {url : codeEnvyUrl + "?id=" + response.id};
-                /* ------------------------------- */
+    		log.info("Response for create factory: " + responseText);
+
+                var encodedUrl = codeEnvyUrl + "?id=" + response.id;
+    		log.info("Encoded URL: " + encodedUrl);
+
                 print(encodedUrl);
 
             } catch(e){
@@ -224,6 +227,7 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
             response.message = "You don't have permission to get the codenvy URL";
             print(response);
         }
+
     } else if(action=="getbuildandrepodataforkedrepo"){
 
         var modBuild = jagg.module("build");
