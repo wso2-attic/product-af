@@ -175,6 +175,8 @@ public class ApplicationTypeManager {
             }
 			applicationTypeBean.setJenkinsJobConfig(buildJob);
             applicationTypeBean.setExecutionType(properties.getProperty(ApplicationTypeConstants.EXECUTION_TYPE));
+            applicationTypeBean.setIconColorClass(properties.getProperty(ApplicationTypeConstants.ICON_COLOR_CLASS));
+            applicationTypeBean.setIconImageClass(properties.getProperty(ApplicationTypeConstants.ICON_IMAGE_CLASS));
             // We set the order here. This is used when displaying the apps in the UI
             // If there are no values for this, we give Integer.MAX_VALUE as the display order.
             // If there is an error in parsing the integer value, we should not stop the deployment.
