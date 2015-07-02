@@ -34,6 +34,7 @@ jagg.block("application/add", {
 		var uploadableApplicationMaxSize;
 		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
 		var webContext = getProperty(WEB_CONTEXT_ROOT);
+        var tempAppTypeArray = [];
 
         if (!applicationTypes || applicationTypes.length === 0) {
 
@@ -50,7 +51,7 @@ jagg.block("application/add", {
             var isUploadableAppTypeAvailable = false;
 
             //We need to sort the applications types first. There is no easy way to sort after adding the elements.
-            var tempAppTypeArray = [];
+
             for (var i = 0; i < applicationTypesCount; i++) {
                 var applicationTypeBean = modManager.getApplicationTypeBean(applicationTypes[i]);
                 var displayOrder = applicationTypeBean.getDisplayOrder();
@@ -102,6 +103,7 @@ jagg.block("application/add", {
         }
 
 		return {
+            "tempAppTypeArray":tempAppTypeArray,
 			"mainHTML":mainHTML,
 			"uploadableAppTypesHTML": uploadableAppTypesHTML,
 			"isUploadableAppTypeAvailable":isUploadableAppTypeAvailable,

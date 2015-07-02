@@ -5,7 +5,7 @@ body{font-family: 'Roboto', sans-serif;font-size: 14px;line-height: 1.42857143;c
 .user-name{background-color: #1c1c1c;}
 .navbar-default {background-color: #0068d4;  border-color: #0065CD;}
 .user-image{width: 20px; margin: 0 0px 0px 10px;}
-
+.cloud-container {position: relative;top: 105px;}
 .cloud-menu{background-color: #151515;  width: 58px;}
 .navbar-secondary {background-color: #0498d5;border-radius: 0;max-height: 50px;margin-bottom: 0px;position: fixed;
     width: 100%;top: 53px;z-index: 100;
@@ -35,6 +35,7 @@ body{font-family: 'Roboto', sans-serif;font-size: 14px;line-height: 1.42857143;c
 }
 .cu-btn-sm {padding: 3px 11px;}
 .cu-btn-blue { background-color:#0288c0 }
+.cu-btn-orange { background-color:#F0AD4E }
 .cu-btn-gr-dark { background-color:#1f1f1f }
 .cu-btn-gr-dark:hover { background-color:#111 }
 .cu-btn-gray{ background-color:#555555;}
@@ -64,7 +65,7 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
 .cloud-menu .popover.bottom>.arrow:after{border-bottom-color: #006690;}
 .cloud-block {float: left;width: 9em;height: 9em;background-color: #fff;margin: 0.5em 0em 0.5em 0.5em;padding: 2em;
     text-align: center;}
-.cloud-name {margin-top: .3em;}
+.cloud-name {margin-top: .3em;font-weight: 300;}
 .cloud-menu-popover{position: relative;float: right;padding: 1px 8px;margin-right: 15px;background-color: transparent;
     background-image: none;border: 1px solid transparent;border-radius: 4px;color: #fff;cursor: pointer;
 }
@@ -94,7 +95,12 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
         margin: 0px -15px;
     }
 
+}
 
+@media (min-width: 992px){
+    .description-action .cu-btn {
+        font-size: 23px !important;
+    }
 }
 
 @media (min-width: 1200px){
@@ -107,8 +113,9 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
 /* use for landing page blocks*/
 .cloud-app-select{background-color: white;
     padding: 1em;margin-top: 4em; min-height: 40em;  position: relative;}
-.coud-inro{margin-top: 12em; color: #fff;}
-.coud-inro .description{margin-top: 2em;}
+.cloud-intro{margin-top: 12em; color: #fff;}
+.cloud-intro .description{margin-top: 2em;}
+.cloud-intro h1{font-weight: 300;}
 .cloud-app-select .heading {margin: -14px -15px 0px;padding: 20px;text-align: center;
     background-color: rgb(100, 100, 100);color: #fff;font-size: 22px;
 }
@@ -116,8 +123,9 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
 .col-full-height {vertical-align: middle;}
 .row-same-height {display: table;width: 100%;table-layout: fixed;}
 
-.cloud-app-select .content {padding: .5em;max-height: 22em;overflow: hidden;}
-.cloud-app-select .btn-footer {position: absolute;bottom: 2em;left: 0em;background-color: red;width: 100%;margin-bottom: -2em;height: 8em;
+.cloud-app-select .content {padding: .5em;max-height: 22em;overflow: hidden; color: #646464;}
+.cloud-app-select .btn-footer {position: absolute;bottom: 2em;left: 0em;background-color: rgb(237, 237, 237);
+    width: 100%;margin-bottom: -2em;height: 8em;
 }
 
 .cloud-app-select .btn-footer button {margin-top: 3em;}
@@ -130,10 +138,19 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
 .cloud-app-type {background-color: #949494;margin-top: 3em;min-height: 13em;position: relative;z-index: 100;padding: 1em;
     text-align: center;color: #fff;cursor: pointer;
 }
+
 .cloud-app-type i{margin: .4em}
 .listing{position: relative; font-size: 16px;}
-.long {width: 100%;height: 13em;z-index: 99;background-color: #949494;margin-top: .6em;padding: 0em 2em;color: #fff;}
-.cloud-app-selected {height: 14em;margin-bottom: -0.6em;}
+.long {width: 100%;min-height: 13em;z-index: 99;background-color: #949494;margin-top: .6em;padding: 0em 2em 1em;
+    color: #fff;}
+.cloud-app-selected {height: 14em !important;margin-bottom: -0.6em;max-height: 14em;}
+.type-name {
+    position: absolute;
+    bottom: 0px;
+    margin-bottom: 11px;
+    text-align: center;
+    width: 85%;
+}
 
 .app-color-one{background-color: #676767;  border-color: #676767;}
 .app-color-two{background-color: #37678d; border-color: #37678d;}
@@ -150,6 +167,26 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
 .description-action .cu-btn{font-size: 31px;font-weight: 300;}
 .description-action span{font-size: 23px;}
 .cloud-selected-app-type-name h1{font-weight: 200;margin-top: 1.5em;}
+
+/* application landing */
+.app-preview {
+    background:#464646;
+    padding:50px;
+}
+
+.app-preview h2 {
+    color:#fff;
+    font-weight: 300;
+    margin-top:0;
+    margin-bottom:10px;
+    font-size: 2.5em;
+}
+
+.app-preview p {
+    color:#cecece;
+    font-weight: 400;
+    font-size:1em;
+}
 
 /* cloud new app creation */
 .cloud-selected-app-type {margin: 1em 2em 1em 0px;padding: 1.5em;}
@@ -241,3 +278,4 @@ a.btn-action{color: #fff;text-decoration: none;font-weight: 300;display: inline-
     padding: 10px 20px;}
 .block-description{font-size: 1.3em;font-weight: 300;}
 .btn-edit li{font-size: 1.42em;font-weight: 100;}
+.left-pane .selected{background-color: #101010;}

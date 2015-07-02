@@ -349,59 +349,88 @@ function convertProperties(properties){
    return result;
 }
 
-function drawApisTable() {
+  function prepareDataModel(resultJson){
+    	var tableModel = {};
+		var j = 0;
+		for(var apiName in resultJson){
+			var tableRowModel = {};
+			tableRowModel['name'] = apiName;
+			var details = resultJson[apiName];
+		    var stages = {};
+			for (var i = 0; i < details.length; i++) {
+				var envDetail = details[i];
+				var stageModel = {};
+				for(var envName in envDetail){
+					var apiData = envDetail[envName];
+					for (var k = 0; k < apiData.length; k++) {
+						var data = apiData[k];
+						if(data.name == 'authentication'){
+							tableRowModel[data.name] = data.value;
+						}else{
+							stageModel[data.name] = data.value;
+						}
 
+					}
+					stages[envName]	= stageModel;
+				}
+			}
+			 tableRowModel['stages']= stages;
+			 tableModel[j++] = tableRowModel;
+		}
+		return tableModel;
+    }
+
+function drawApisTable() {
     $("#externalapi").show();
-        $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
-        jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
-            action:"getAllDependencyList",
-            applicationKey:$("#applicationKey").val(),
-            resourceType:"External API"
+    $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+    jagg.post("../blocks/resources/externalapi/get/ajax/list.jag", {
+            action:"getExternalAPIs",
+            applicationKey:$("#applicationKey").val()
         },
         function (result) {
-
-			var externalApis = JSON.parse(result);
-			if(jQuery.isEmptyObject(externalApis)){
+            var elementIds=[];
+			var apiIndex;
+			var resultJson = JSON.parse(result);
+			if(jQuery.isEmptyObject(resultJson)){
         		$("#externalapi").empty().append("<div class='noData-message'>No External APIs are created yet.</div>");
         	}
-			else
-			{
+			else{
+				var tableModel = prepareDataModel(resultJson);
 				var tableBodyHTML = "";
+				var url = "#";
+				var count = 0;
+				for (var index in tableModel) {
+					tableBodyHTML += '<div class="list_col_content">';
+				    var row = tableModel[index];
+			        elementIds.push(row.name);
 
-				for (var externalApi in externalApis) {
+				      count = 0;
+				    for (var stageName in row.stages) {
+				        var stageValues = row.stages[stageName];
+				        url = "<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager&isEdit=true&resourceName=" + row.name+"&environment="+stageName;
 
-                    tableBodyHTML += '<div class="list_col_content"> ' +
-                                        '<li class="list_row_item first_list_row_item"> ' +
-                                            '<ul class="list_row first_list_row"> ' +
-                                                '<li class="col-3">' +
-                                                    '<div class="list_col_content">' +
-                                                        '<ul class="list">' +
-                                                            '<li>' + externalApi + '</li>' +
-                                                        '</ul> ' +
-                                                    '</div>' +
-                                                '</li>' +
-                                                '<li class="col-5">' +
-                                                    '<div class="list_col_content">' +
-                                                        '<ul class="list">' +
-                                                            '<li>' + externalApis[externalApi].description + '</li>' +
-                                                        '</ul> ' +
-                                                    '</div>' +
-                                                '</li>' +
-                                            '</ul>' +
-                                        '</li>' +
-                                    '</div>';
+				        if (count++ == 0) {
+				            tableBodyHTML += '<li class="list_row_item first_list_row_item">' + '<ul class="list_row first_list_row">'
+				            				+ '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">'
+				            				+ '<li>' + row.name + '</li>' + '</ul>';
+				            tableBodyHTML += '</div></li><li class="col-9">' + '<div class="list_col_content">' + '<ul class="list">'
+				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>';
+
+				        }
+				    }
+
+				   		tableBodyHTML+= '</li></ul>';
+						tableBodyHTML+='</div>';
 				}
-				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
-				                        '<ul class="list_row first_list_row">' +
-	            			                '<li class="col-3">' +
-	            			                    '<h2 class="list_col_heading">Name</h2>' +
-                                            '</li>' +
-                                            '<li class="col-5">' +
-	            			                    '<h2 class="list_col_heading">Description</h2>'+
-	            			                '</li>' +
-                                        '</ul> ' +
-                                    '</li>';
 
+				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
+	            			'<ul class="list_row first_list_row">' +
+	            			'<li class="col-3">' +
+	            			'<h2 class="list_col_heading">Name</h2>' +
+	            			'</li>' +
+	            			'<li class="col-9">' +
+	            			'<h2 class="list_col_heading">Authentication</h2>'+
+	            			'</li>';
 				$("#externalapi").empty().append(initTableTxt).append(tableBodyHTML);
         	}
         },

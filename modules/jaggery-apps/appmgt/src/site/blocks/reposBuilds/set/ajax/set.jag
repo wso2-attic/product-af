@@ -86,8 +86,7 @@ include("/jagg/config_reader.jag");
         //Check the permission for current logged in user whether he is already authorized to do this fork request or not
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_DEVELOP) && authorizedUsersToOwnForkedRepos.length != 0){
             try {
-                var result = mod.createFork(applicationKey, authorizedUsersToOwnForkedRepos, type, version);
-                print(result);
+                return mod.createFork(applicationKey, authorizedUsersToOwnForkedRepos, type,version);
             } catch (e) {
                 log.error(e.message);
                 throw e.message;
@@ -117,8 +116,7 @@ include("/jagg/config_reader.jag");
         //Check the permission for current logged in user whether he is already autherized to do this fork request or not
         if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_DEVELOP) && authorizedUsersToOwnForkedRepos.length != 0){
             try {
-                var res = mod.createForkBranch(applicationKey, authorizedUsersToOwnForkedRepos, type, version);
-                print(res);
+                return mod.createForkBranch(applicationKey, authorizedUsersToOwnForkedRepos, type,version);
             } catch (e) {
                 log.error(e.message);
                 throw e.message;

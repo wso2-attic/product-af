@@ -860,17 +860,20 @@ $.cookie('selectedStage', selectedStage);
   //  }
 
     function loadVersionList(selectedVersions,currentVersion){
-    	var versionString = "" ;
+	
+    var versionString = "" ;
 	var v;
 	if(currentVersion==null && selectedVersions==null){ //no versions available
 		versionString +="<option selected>"+"no versions"+"</option>";
-	}else if(currentVersion==null){
+	}
+    else if(currentVersion==null){
 		versionString +="<option selected>"+selectedVersions[0]+"</option>";
 		for (var i = 1; i < selectedVersions.length; i++) {
 		    var v  = selectedVersions[i];
 		    	versionString +="<option>"+v+"</option>";
 		}
-	}else{
+	}
+    else{
 		for (var i = 0; i < selectedVersions.length; i++) {
 		    var v  = selectedVersions[i];
 		    if(v==currentVersion){
@@ -880,10 +883,12 @@ $.cookie('selectedStage', selectedStage);
 		    }
 		}
 	}
+
 	$("#versionlist_masterrepo").empty().append(versionString);
 	$("#versionlist_masterrepo").select2("destroy");
     $('#versionlist_masterrepo').select2({minimumResultsForSearch: -1});
     }
+
     function loadStagesList(selectedStage){
 	    var allStages=<%=allStages%>;
     	var stageString = "" ;

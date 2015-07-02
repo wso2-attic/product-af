@@ -44,7 +44,7 @@ var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
 		reloadAllDS.send(payload);
 	   	result = reloadAllDS.responseE4X;
         if(log.isDebugEnabled()){
-            log.debug("Invoking service endpoint: "+epr+" returned result:"+result);
+            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
         }
         
  		return parseResponse(result);

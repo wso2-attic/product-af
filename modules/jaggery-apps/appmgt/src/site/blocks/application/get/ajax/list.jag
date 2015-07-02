@@ -91,6 +91,7 @@ var log=new Log();
                 loadedApplications.push(appsInStatus[appKey]);
             }
         }
+        log.info(loadedApplications)
         print(loadedApplications);
     }else if (action === "checkSystemStatus") {
     	mod = jagg.module("application");
@@ -185,8 +186,7 @@ var log=new Log();
         mod = jagg.module("application");
         var applicationKey = request.getParameter("applicationKey");
         var userName = request.getParameter("userName");
-
-        return getAppCountInStage(applicationKey, userName);
+        return mod.getAppCountInStage(applicationKey, userName);
     } else if (action === "getApplicationsOfUser") {
         
         mod = jagg.module("application");

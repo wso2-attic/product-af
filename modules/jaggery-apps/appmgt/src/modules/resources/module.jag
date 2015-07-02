@@ -226,22 +226,6 @@ jagg.module("resources", {
         return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").deletePropertyFromStages.apply(this, arguments);
     },
 
-    getAllPropertyList: function () {
-        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getAllPropertyList.apply(this, arguments);
-    },
-
-    addPropertyToDatabase: function () {
-        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").addPropertyToDatabase.apply(this, arguments);
-    },
-
-    copyNewPropertiesInDatabase: function () {
-        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").copyNewPropertiesInDatabase.apply(this, arguments);
-    },
-
-    getPropertiesInEnvironment: function () {
-        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getPropertiesInEnvironment.apply(this, arguments);
-    },
-
     deleteAllRegistryResourcesFromAllStages:function () {
         return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").deleteAllRegistryResourcesFromAllStages.apply(this, arguments);
     },

@@ -51,13 +51,10 @@ include("/jagg/config_reader.jag");
         	stages=allStages;
         }
         try{
-            mod.addPropertyToStages(resourceName, contentValue, resourceDescription, resourceMediaType, applicationKey,
-                                    stages);
-            mod.addPropertyToDatabase(resourceName, resourceMediaType, applicationKey, resourceDescription, stages);
+            mod.addPropertyToStages(resourceName, contentValue, resourceDescription,
+            resourceMediaType, applicationKey, stages);
         } catch(e) {
-            log.error("Error while creating resources");
-            log.error(e);
-            throw e;
+            throw "Error while creating resources";
         }
 
     } else if (action == "deleteResource") {
