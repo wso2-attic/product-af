@@ -300,7 +300,7 @@
             <email>firstName@example.com</email>
             <admin>admin</admin>
             <adminPassword>admin123</adminPassword>
-            <tenantDomain>rama15.com</tenantDomain>
+            <tenantDomain>rama.com</tenantDomain>
             <usagePlan>Demo</usagePlan>
         </defaultTenant>
 
