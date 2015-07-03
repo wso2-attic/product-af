@@ -18,6 +18,7 @@
 
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -29,12 +30,16 @@ import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * REST client for AppMgt
  * TODO: use {@link this#generateMsgBody(java.util.Map)} method to generate the message body
  */
 public class ApplicationClient extends BaseClient {
+
+	private static final String REQUEST_KEY_ACTION = "action";
 
 	/**
 	 * Construct authenticates REST client to invoke appmgt functions
@@ -125,7 +130,7 @@ public class ApplicationClient extends BaseClient {
 		HttpResponse response = HttpRequestUtil
 			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_ADD),
 					"action=createNewApplication&applicationName=" + applicationName + "&applicationKey=" +
-					applicationKey + "&creation_method=create_application" + "&applicationType=" + applicationType +
+					applicationKey + "&creation_method=create_application" + "&appType=" + applicationType +
 					"&uploadableAppType=Uploaded-App-Jax-WS" +
 					"&uploaded_application=&appIcon=&applicationDescription=" + applicationDescription +
 					"&repoAccessibility=perDevRepo&repositoryType=git" + "&userName=" + userName +
@@ -179,4 +184,47 @@ public class ApplicationClient extends BaseClient {
                     + response.getData());
         }
     }
+
+	/**
+	 * Get applications of a given user
+	 *
+	 * @param userName
+	 * @return
+	 */
+	public JsonArray getApplicationsOfUser(String userName) throws AFIntegrationTestException {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put(REQUEST_KEY_ACTION, "getApplicationsOfUser");
+		msgBodyMap.put("userName", userName);
+		HttpResponse response = super.doPostRequest(BaseClient.APPMGT_APPLICATION_GET, msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			JsonParser jsonParser = new JsonParser();
+			JsonElement jsonElement = jsonParser.parse(response.getData());
+			return jsonElement.getAsJsonArray();
+		} else {
+			throw new AFIntegrationTestException("Error while getting applications of user :  " + userName +
+			                                     response.getResponseCode() + response.getData());
+		}
+
+	}
+
+	public JsonArray getAppVersionsInStage(String userName, String stageName, String applicationKey) throws
+	                                                                                   AFIntegrationTestException {
+		Map<String, String> msgBodyMap = new HashMap<String, String>();
+		msgBodyMap.put(REQUEST_KEY_ACTION, "getAppVersionsInStage");
+		msgBodyMap.put("userName", userName);
+		msgBodyMap.put("stageName", stageName);
+		msgBodyMap.put("applicationKey", applicationKey);
+		HttpResponse response = super.doPostRequest(BaseClient.APPMGT_APPLICATION_GET, msgBodyMap);
+		if (response.getResponseCode() == HttpStatus.SC_OK) {
+			JsonParser jsonParser = new JsonParser();
+			JsonElement jsonElement = jsonParser.parse(response.getData());
+			return jsonElement.getAsJsonArray();
+		} else {
+			throw new AFIntegrationTestException(
+					"Error while getting app versions of stage :  " + stageName + " for user : " + userName +
+					" of application : " + applicationKey + response.getResponseCode() + response.getData());
+		}
+	}
+
+
 }

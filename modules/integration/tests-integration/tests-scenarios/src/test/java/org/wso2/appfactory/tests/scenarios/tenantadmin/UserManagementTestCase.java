@@ -77,7 +77,7 @@ public class UserManagementTestCase extends AFIntegrationTest {
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Invite user to application ", dependsOnMethods = {"testUpdateUserRoles"})
+    @Test(description = "Invite user to application <used in Dev Studio> ", dependsOnMethods = {"testUpdateUserRoles"})
     public void testInviteUsersToApplication() throws Exception {
         boolean success = userMgtClient.inviteUsersToApplication(
                 defaultAppKey, USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES);

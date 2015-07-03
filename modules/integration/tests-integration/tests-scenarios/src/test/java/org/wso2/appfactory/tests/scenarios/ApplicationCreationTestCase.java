@@ -17,14 +17,17 @@
  */
 package org.wso2.appfactory.tests.scenarios;
 
+import com.google.gson.JsonArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
@@ -33,10 +36,11 @@ import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 public class ApplicationCreationTestCase extends AFIntegrationTest {
     private static final Log log = LogFactory.getLog(ApplicationCreationTestCase.class);
     public static final String APP_TYPE_WAR = "war";
-
+    private static final String INITIAL_STAGE = "Development";
+    private ApplicationClient appMgtRestClient;
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
-
+        appMgtRestClient = new ApplicationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -44,35 +48,50 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
     public void testWarAppType() throws Exception {
         String appName = "foo_" + APP_TYPE_WAR;
         log.info("Creating application of type :" + APP_TYPE_WAR + " with name :" + appName);
-        createApplication(AFIntegrationTestUtils.getDefaultTenantDomain(),
-                          AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN),
-                          AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD),
-                          appName, appName, appName, APP_TYPE_WAR);
+        createApplication(appName, appName, appName, APP_TYPE_WAR);
         log.info("Application creation is completed.");
     }
+
+    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
+    @Test(description = "Get applications of user  <used in Dev Studio>")
+    public void testGetApplicationsOfUser() throws AFIntegrationTestException{
+        JsonArray resultArray =  appMgtRestClient.getApplicationsOfUser(defaultAdmin);
+        boolean isAssert = false;
+        if (resultArray.size()!=0){
+            isAssert=true;
+        }
+        Assert.assertEquals(isAssert,true,"Get applications of user failed.");
+    }
+
+    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
+    @Test(description = "Get application versions in stage  <used in Dev Studio>")
+    public void testGetAppVersionsInStage() throws AFIntegrationTestException{
+        JsonArray resultArray =  appMgtRestClient.getAppVersionsInStage(defaultAdmin,INITIAL_STAGE , defaultAppKey);
+        boolean isAssert = false;
+        if (resultArray.size()!=0){
+            isAssert=true;
+        }
+        Assert.assertEquals(isAssert,true,"Get application versions in stage failed.");
+    }
+
 
     @AfterClass(alwaysRun = true)
     public void destroy() throws Exception {
         super.cleanup();
     }
 
-    protected void createApplication(String tenantDomain, String admin, String adminPassword, String applicationName,
-                                     String applicationKey, String applicationDescription, String applicationType)
-            throws Exception {
-        String tenantAdminUsername = admin + "@" + tenantDomain;
-        ApplicationClient appMgtRestClient =
-                new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
-                                          tenantAdminUsername, adminPassword);
+    protected void createApplication(String applicationName, String applicationKey, String applicationDescription,
+                                     String applicationType) throws Exception {
 
         if (appMgtRestClient.isAppNameAlreadyAvailable(applicationName) &&
             appMgtRestClient.isApplicationKeyAvailable(applicationKey)) {
             appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
-                                                  tenantAdminUsername, applicationDescription);
+                                                  defaultAdmin, applicationDescription);
         }
 
         // Wait till Create Application completion
         AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-        populator.waitUntilApplicationCreationCompletes(5000L, 5, tenantAdminUsername, adminPassword,
+        populator.waitUntilApplicationCreationCompletes(5000L, 5, defaultAdmin, defaultAdminPassword,
                                                         applicationKey, applicationName);
     }
 }

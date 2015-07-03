@@ -1,5 +1,6 @@
 package org.wso2.appfactory.tests.scenarios;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -54,7 +55,15 @@ public class DatasourceTestCase extends AFIntegrationTest {
 */
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Delete a datasource", dependsOnMethods = {"testAddNewDatasource"})
+    @Test(description = "Get data source info url  <used in Dev Studio>", dependsOnMethods = {"testAddNewDatasource"})
+    public void testgetDataSourceInfoUrl() throws Exception {
+        String resultString = datasourceClient.getDataSourceInfoUrl("Development");
+        Assert.assertEquals(resultString.contains("services"),true, "Failed to get data source info url");
+
+    }
+
+    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
+    @Test(description = "Delete a datasource", dependsOnMethods = {"testgetDataSourceInfoUrl"})
     public void testDeleteExistingDatasource() throws Exception {
         JSONObject responseObj = datasourceClient.deleteDatasource(TEST_DATA_SOURCE, "Development",
                                                                    AFIntegrationTestUtils.getPropertyValue(

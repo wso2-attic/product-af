@@ -17,6 +17,8 @@
  */
 package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -144,7 +146,18 @@ public class DatabaseTestCase extends AFIntegrationTest {
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Test creating  database and attached user", dependsOnMethods = {"testAttachUserForDatabase"})
+    @Test(description = "Get db user temaplate info for stages<used in Dev Studio>", dependsOnMethods =
+            {"testAttachUserForDatabase"})
+    public void testGetDbUserTemplateInfoForStages() throws AFIntegrationTestException {
+
+        JsonArray resultAray = databaseClient.getDbUserTemplateInfoForStages(defaultAppKey);
+        Assert.assertEquals(resultAray.get(0).getAsJsonObject().get("templates").getAsJsonArray().size() != 0, true,
+                            "Get db user template info for stages failed");
+    }
+
+
+    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
+    @Test(description = "Test creating  database and attached user", dependsOnMethods = {"testGetDbUserTemplateInfoForStages"})
     public void testDetachUserFromDatabase() throws AFIntegrationTestException {
         databaseClient.detachUser(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
         Assert.assertEquals(databaseClient.getAttachedUsers(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT).size(),
