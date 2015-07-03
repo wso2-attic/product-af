@@ -550,7 +550,6 @@ var deleteResource = function(serverUrl, appId, propname, propcontent, descripti
     var username = jagg.getUser();
 
     try {
-        var cookie = modManager.getBackendCookie(serverUrl);
         var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
         regService.deleteRegistryResource(serverUrl, username, appId, propname, propcontent, description, proptype, false);
     } catch (e) {
@@ -558,8 +557,6 @@ var deleteResource = function(serverUrl, appId, propname, propcontent, descripti
                   + "of application id : " + appId + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    } finally {
-            context.endTenantFlow();
     }
 
     clearResourceCache(stage, appId, propname, context, tenantDomain);

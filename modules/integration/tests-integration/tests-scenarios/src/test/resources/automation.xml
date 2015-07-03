@@ -305,8 +305,8 @@
         </defaultTenant>
 
         <defaultApplication>
-            <applicationName>applao</applicationName>
-            <applicationKey>applao</applicationKey>
+            <applicationName>apptest</applicationName>
+            <applicationKey>apptest</applicationKey>
             <applicationType>war</applicationType>
             <applicationDescription>applicationDescription</applicationDescription>
             <versions>
