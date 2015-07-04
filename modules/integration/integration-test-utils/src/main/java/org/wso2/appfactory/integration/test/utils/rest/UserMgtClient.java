@@ -32,9 +32,9 @@ import java.util.Map;
 public class UserMgtClient extends BaseClient {
 
     //Endpoints
-    public static final String EP_GET_USERS = "application/users/get/ajax/list.jag";
-    public static final String EP_APP_ADD_USERS = "application/users/add/ajax/add.jag";
-    public static final String EP_APP_UPDATE_USERS = "application/users/update/ajax/update.jag";
+    public static final String EP_GET_USERS = "application/user/get/ajax/list.jag";
+    public static final String EP_APP_ADD_USERS = "application/user/add/ajax/add.jag";
+    public static final String EP_APP_UPDATE_USERS = "application/user/update/ajax/update.jag";
 
     // Request actions
     public static final String ACTON_GET_USERS_OF_APPLICATION = "getUsersOfApplication";

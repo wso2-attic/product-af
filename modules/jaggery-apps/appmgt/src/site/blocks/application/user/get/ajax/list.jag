@@ -27,6 +27,7 @@
 
         var mod, obj, result, stages, output =[],isAllowed = false,
             action = request.getParameter("action");
+        var modPermission = jagg.module("permission");
         if (!jagg.getUser()) {
             print(UNAUTHORIZED_ERROR_RESPONSE);
             return;
