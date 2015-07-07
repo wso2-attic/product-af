@@ -1,0 +1,14 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse" name="${rootArtifactId}SimpleProxyService" transports="https http" startOnLoad="true" trace="disable">
+    <target>
+        <endpoint key="conf:${rootArtifactId}/endpoints/echo/EchoServiceEP.xml"/>
+        <inSequence/>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence/>
+    </target>
+</proxy>
