@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacts>
+    <artifact name="EchoServiceEP-Testing" groupId="org.wso2.appfactory" version="2.2.0-SNAPSHOT" type="registry/resource" serverRole="GovernanceRegistry">
+        <item>
+            <file>Testing/EchoServiceEP.xml</file>
+            <path>/_system/config/${rootArtifactId}/endpoints/echo</path>
+            <mediaType>application/vnd.wso2.esb.endpoint</mediaType>
+        </item>
+    </artifact>
+    <artifact name="EchoServiceEP-Development" groupId="org.wso2.appfactory" version="2.2.0-SNAPSHOT" type="registry/resource" serverRole="GovernanceRegistry">
+        <item>
+            <file>Development/EchoServiceEP.xml</file>
+            <path>/_system/config/${rootArtifactId}/endpoints/echo</path>
+            <mediaType>application/vnd.wso2.esb.endpoint</mediaType>
+        </item>
+    </artifact>
+    <artifact name="EchoServiceEP-Production" groupId="org.wso2.appfactory" version="2.2.0-SNAPSHOT" type="registry/resource" serverRole="GovernanceRegistry">
+        <item>
+            <file>Production/EchoServiceEP.xml</file>
+            <path>/_system/config/${rootArtifactId}/endpoints/echo</path>
+            <mediaType>application/vnd.wso2.esb.endpoint</mediaType>
+        </item>
+    </artifact>
+</artifacts>
