@@ -691,6 +691,7 @@ public class RestBasedJenkinsCIConnector {
             category = Event.Category.INFO;
         } else {
             infoMessage = "Unable to start build for " + version + " in " + repoType + " by " + userName;
+            infoMessage.concat("\n Tenant domain: " + tenantUserName);
             category = Event.Category.ERROR;
         }
 

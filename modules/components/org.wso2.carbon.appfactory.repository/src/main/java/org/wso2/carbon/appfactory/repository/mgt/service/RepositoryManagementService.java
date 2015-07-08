@@ -146,7 +146,7 @@ public class RepositoryManagementService extends AbstractAdmin {
             }
         } catch (RepositoryMgtException e) {
             String error = "Error while creating branch " + targetVersion;
-            String errorMsg = e.getMessage();
+            String errorMsg = e.getMessage().concat("\n Tenant domain: " + tenantDomain);
             try {
                 EventNotifier.getInstance().notify(RepoCreationEventBuilderUtil.buildBranchCreationCompleteEvent(appId,
                         error, errorMsg, Event.Category.ERROR, correlationKey));

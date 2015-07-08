@@ -91,7 +91,6 @@ var log=new Log();
                 loadedApplications.push(appsInStatus[appKey]);
             }
         }
-        log.info(loadedApplications)
         print(loadedApplications);
     }else if (action === "checkSystemStatus") {
     	mod = jagg.module("application");

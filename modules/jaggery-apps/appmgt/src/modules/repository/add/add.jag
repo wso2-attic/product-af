@@ -107,6 +107,8 @@ function createFork(applicationKey, tenantAwareUserNameArray, type, version) {
                   " in tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
+    } finally {
+        context.endTenantFlow();
     }
     
 };

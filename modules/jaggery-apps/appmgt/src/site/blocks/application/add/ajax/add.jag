@@ -216,6 +216,7 @@ function isApplicationDuplicateWithSession(applicationKey, applicationName, repo
 		thisApplication.isPending = true;
         thisApplication.applicationCreationStatus = APPLICATION_CREATION_STATUS.PENDING;
         thisApplication.typeDisplayName = appTypeDisplayName;
+        thisApplication.appTypeIcon = modManager.getApplicationTypeBean(applicationType).getIconImageClass();
 
 		appContainer.app = thisApplication;
 

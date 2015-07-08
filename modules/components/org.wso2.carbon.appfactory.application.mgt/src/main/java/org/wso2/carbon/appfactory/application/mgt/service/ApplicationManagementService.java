@@ -27,12 +27,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
-import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
@@ -52,11 +51,7 @@ import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import org.wso2.carbon.registry.core.ActionConstants;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.user.api.AuthorizationManager;
-import org.wso2.carbon.user.api.Tenant;
-import org.wso2.carbon.user.api.TenantManager;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.api.*;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.ArrayList;
@@ -104,7 +99,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             String tenantId = "" + Util.getRealmService().getBootstrapRealmConfiguration().getTenantId();
             //TODO: Check if we need to put the repo accessibility into this also
             publisher.PublishAppCreationEvent(applicationName, applicationKey, applicationDescription, applicationType,
-                                              repositoryType, System.currentTimeMillis(), tenantId, userName);
+                    repositoryType, System.currentTimeMillis(), tenantId, userName);
 
         } catch (AppFactoryQueueException e) {
             String errorMsg = "Error occurred when adding an application in to queue";
@@ -173,14 +168,14 @@ public class ApplicationManagementService extends AbstractAdmin {
         // New application is created successfully so now time to clear realm in cache to reload
         // the new realm with updated permissions
 
-	    boolean isListnersCompletedSuccessfully = true;
+        boolean isListnersCompletedSuccessfully = true;
         clearRealmCache(applicationId);
         domainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String tenantAwareUserName = loggedInUser + "@" + domainName;
         if (log.isDebugEnabled()) {
             log.debug("Application creation is started by user:" + tenantAwareUserName + " in tenant domain:" +
-                      domainName);
+                    domainName);
         }
         Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
         ApplicationEventsHandler listener = null;
@@ -212,20 +207,48 @@ public class ApplicationManagementService extends AbstractAdmin {
                     listener = appEventListeners.next();
                     listener.onCreation(application, tenantAwareUserName, domainName, isUploadableAppType);
                 } catch (Throwable e) {
-	                isListnersCompletedSuccessfully = false;
+                    isListnersCompletedSuccessfully = false;
                     String error = "Error while executing onCreation method of ApplicationEventsListener : " + listener;
                     log.error(error, e);
                     this.deleteApplication(application, tenantAwareUserName, domainName);
                     try {
+
                         String errorMessage = "Error while creating the app " + applicationId;
                         if (error.contains("JenkinsApplicationEventsListener")) {
-                            errorMessage = "Error occurred while creating the Jenkins space for the app "
-                                           + applicationId;
+                            errorMessage = "Error occurred while creating the Jenkins space for the app " +
+                                    applicationId;
+                        } else if (error.contains("AppFactoryApplicationEventListener")) {
+                            errorMessage = "Error occurred while creating the Issue tracker provisioning for the app "
+                                    + applicationId;
+                        } else if (error.contains("ApplicationInfomationChangeListner")) {
+                            errorMessage = "Error occurred while invoking the ApplicationInfomationChangeListner " +
+                                    "for the app " + applicationId;
+                        } else if (error.contains("DSApplicationListener")) {
+                            errorMessage = "Error occurred while creating the data source for the app " + applicationId;
+                        } else if (error.contains("DomainMappingListener")) {
+                            errorMessage = "Error occurred while adding the domain mapping for the app " + applicationId;
+                        } else if (error.contains("EnvironmentAuthorizationListener")) {
+                            errorMessage = "Error occurred while creating environments for the app  " + applicationId;
+                        } else if (error.contains("InitialArtifactDeployerHandler")) {
+                            errorMessage = "Error occurred while initial code committing for the app " + applicationId;
+                        } else if (error.contains("IssueTrackerListener")) {
+                            errorMessage = "Error occurred while creating the issue tracker space for the app " +
+                                    applicationId;
+                        } else if (error.contains("NonBuildableApplicationEventListner")) {
+                            errorMessage = "Error occurred while invoking the NonBuildableApplicationEventListner " +
+                                    "for the app " + applicationId;
+                        } else if (error.contains("RepositoryHandler")) {
+                            errorMessage = "Error occurred while creating the source code repository for the " +
+                                    "app " + applicationId;
+                        } else if (error.contains("StatPublishEventsListener")) {
+                            errorMessage = "Error occurred while publishing stats related to the app " + applicationId;
+                        } else if (error.contains("UserProvisioningListener")) {
+                            errorMessage = "Error occurred while user provisioning for the app " + applicationId;
                         }
 
                         EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(
                                 "Application creation failed for " + application.getName(),
-                                errorMessage.concat(". Therefore application will be rollbacked."),
+                                errorMessage.concat(". Therefore application will rollback."),
                                 Event.Category.ERROR));
 
                     } catch (AppFactoryEventException e1) {
@@ -235,10 +258,10 @@ public class ApplicationManagementService extends AbstractAdmin {
                     break;
                 }
             }
-	        if(isListnersCompletedSuccessfully) {
-		        ProjectUtils
-				        .updateApplicationCreationStatus(applicationId, Constants.ApplicationCreationStatus.COMPLETED);
-	        }
+            if (isListnersCompletedSuccessfully) {
+                ProjectUtils
+                        .updateApplicationCreationStatus(applicationId, Constants.ApplicationCreationStatus.COMPLETED);
+            }
         } catch (AppFactoryException ex) {
             String errorMsg = "Unable to load registry rxt for application " + applicationId;
             log.error(errorMsg, ex);
@@ -310,9 +333,9 @@ public class ApplicationManagementService extends AbstractAdmin {
      * Updating DB value when do the  promote action
      *
      * @param applicationId id of the application
-     * @param stage current stage of the application
-     * @param version version of the application
-     * @param action promote action
+     * @param stage         current stage of the application
+     * @param version       version of the application
+     * @param action        promote action
      * @throws ApplicationManagementException
      */
 
@@ -326,11 +349,11 @@ public class ApplicationManagementService extends AbstractAdmin {
             JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(applicationId, version, state);
             if (log.isDebugEnabled()) {
                 log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
-                          " version : "+ version + " stage :" + stage);
+                        " version : " + version + " stage :" + stage);
             }
         } catch (AppFactoryException e) {
             String msg = "Error occurred while updating with promote status for application id : " + applicationId +
-                         " version : "+ version + " stage :" + stage;
+                    " version : " + version + " stage :" + stage;
             log.error(msg, e);
             throw new ApplicationManagementException(msg, e);
         }
@@ -352,7 +375,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
 
     public boolean deleteApplication(Application application, String userName, String domainName) throws
-                                                    AppFactoryException, ApplicationManagementException {
+            AppFactoryException, ApplicationManagementException {
         boolean completedSuccessfully = true;
 
         String applicationId = application.getId();
@@ -387,16 +410,16 @@ public class ApplicationManagementService extends AbstractAdmin {
             ApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
         } catch (UserStoreException e) {
             log.error("Error while deleting the application resource from registry for application " + applicationId,
-                      e);
+                    e);
         } catch (RegistryException e) {
             log.error("Error while deleting the application resource from registry for application " + applicationId,
-                      e);
+                    e);
         }
         JDBCApplicationDAO.getInstance().deleteApplication(applicationId);
 
         String adminEmail = AppFactoryUtil.getAdminEmail();
         new EmailSenderService().sendMail(adminEmail, "application-rollback-notice-email.xml",
-                                          createUserParams(application));
+                createUserParams(application));
 
         String title = "Application " + applicationId + " is deleted successfully";
         String messageDescription = "Deleted by: " + userName;
@@ -447,10 +470,10 @@ public class ApplicationManagementService extends AbstractAdmin {
         int tenantId = tenantManager.getTenantId(tenantDomain);
         String applicationName = null;
         UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
-        userStoreManager.addRole(AppFactoryUtil.getRoleNameForApplication(applicationKey),  new String[]
+        userStoreManager.addRole(AppFactoryUtil.getRoleNameForApplication(applicationKey), new String[]
                 {appOwner.split("@")[0]}, new org.wso2.carbon.user.core.Permission[]
                 {new org.wso2.carbon.user.core.Permission(AppFactoryConstants.PER_APP_ROLE_PERMISSION,
-                                                          CarbonConstants.UI_PERMISSION_ACTION)}, false);
+                        CarbonConstants.UI_PERMISSION_ACTION)}, false);
 
         // Publish user add event to BAM
         Application app = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
@@ -460,7 +483,7 @@ public class ApplicationManagementService extends AbstractAdmin {
         try {
             BamDataPublisher publisher = BamDataPublisher.getInstance();
             publisher.PublishUserUpdateEvent(applicationName, applicationKey, System.currentTimeMillis(),
-                                             "" + tenantId, appOwner.split("@")[0], AppFactoryConstants.BAM_ADD_DATA);
+                    "" + tenantId, appOwner.split("@")[0], AppFactoryConstants.BAM_ADD_DATA);
         } catch (AppFactoryException e) {
             String message = "Failed to publish user add event to bam on application " + applicationKey;
             log.error(message);
@@ -502,13 +525,13 @@ public class ApplicationManagementService extends AbstractAdmin {
         return true;
     }
 
-    private void addRegistryWritePermissionToApp(String applicationKey, String tenantDomain)throws UserStoreException {
+    private void addRegistryWritePermissionToApp(String applicationKey, String tenantDomain) throws UserStoreException {
         String roleName = AppFactoryUtil.getRoleNameForApplication(applicationKey);
         AuthorizationManager authMan = Util.getRealmService().getTenantUserRealm(Util.getRealmService()
-                                       .getTenantManager().getTenantId(tenantDomain)).getAuthorizationManager();
+                .getTenantManager().getTenantId(tenantDomain)).getAuthorizationManager();
         authMan.authorizeRole(roleName, RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                                        AppFactoryConstants.REGISTRY_APPLICATION_PATH + AppFactoryConstants.URL_SEPERATOR +
-                                        applicationKey, ActionConstants.PUT);
+                AppFactoryConstants.REGISTRY_APPLICATION_PATH + AppFactoryConstants.URL_SEPERATOR +
+                applicationKey, ActionConstants.PUT);
     }
 
 
@@ -549,10 +572,10 @@ public class ApplicationManagementService extends AbstractAdmin {
         DeployStatus deployStatus;
         try {
             deployStatus = JDBCApplicationDAO.getInstance().getDeployStatus(applicationId, version, stage,
-                                                          false, null);
+                    false, null);
         } catch (AppFactoryException e) {
             String errorMsg = String.format("Unable to load the application deploy information " +
-                                            "for application id : %s", applicationId);
+                    "for application id : %s", applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryEventException(errorMsg, e);
         }
@@ -569,8 +592,8 @@ public class ApplicationManagementService extends AbstractAdmin {
                 String correlationKey = org.wso2.carbon.appfactory.eventing.utils.Util.deploymentCorrelationKey
                         (applicationId, stage, version, tenantDomain);
                 EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.
-                        buildObtainWarDeploymentStatusEvent(applicationId,tenantDomain, msg, "",Event.Category.INFO,
-                                                                                                 correlationKey));
+                        buildObtainWarDeploymentStatusEvent(applicationId, tenantDomain, msg, "", Event.Category.INFO,
+                                correlationKey));
             } catch (AppFactoryEventException e) {
                 log.error("Failed to notify the Application deployment success event ", e);
             }
@@ -584,7 +607,7 @@ public class ApplicationManagementService extends AbstractAdmin {
                 try {
                     application = CommonUtil.getApplicationArtifact(applicationId, tenantDomain);
                 } catch (AppFactoryException ex) {
-                    String message = "Error while validating application id :  " + applicationId + " version: "+ version;
+                    String message = "Error while validating application id :  " + applicationId + " version: " + version;
                     log.error(message);
                 }
                 if (application == null) {

@@ -97,9 +97,9 @@ public class ApplicationUserManagementService {
         String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
         String separator = ", ";
         String userNameStr = concatUserNames(userNames, separator);
+        CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
+        String tenantDomain=threadLocalCarbonContext.getTenantDomain();
         try {
-            CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-            String tenantDomain=threadLocalCarbonContext.getTenantDomain();
             //passing new String[]{} since null is not handled in doupdateUserListOfRole() method in ReadWriteLDAPUserStoreManager
             threadLocalCarbonContext.getUserRealm().getUserStoreManager()
                          .updateUserListOfRole(applicationRole, new String[]{}, userNames);
@@ -137,8 +137,10 @@ public class ApplicationUserManagementService {
 
             try {
                 String error = "Error in adding " + userNameStr + " to the application";
+                String errorDescription = e.getMessage();
+                errorDescription.concat("\n Tenant domain: " + tenantDomain);
                 EventNotifier.getInstance().notify(UserManagementEventBuilderUtil.buildUserAdditionToAppEvent(applicationKey, error,
-                        e.getMessage(), Event.Category.ERROR));
+                        errorDescription, Event.Category.ERROR));
             } catch (AppFactoryEventException exception) {
                 log.error("Failed to notify the failure of user addition to app event ", exception);
                 // do not throw again.
@@ -215,12 +217,12 @@ public class ApplicationUserManagementService {
                                                                                        throws ApplicationManagementException {
         String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
         String userNameStr = concatUserNames(userNames, ",");
+        CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
+        String tenantDomain=threadLocalCarbonContext.getTenantDomain();
         try {
            // CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
            // int tenantId = threadLocalCarbonContext.getTenantId();
            // UserRealm userRealm = Util.getRealmService().getTenantUserRealm(tenantId);
-            CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-            String tenantDomain=threadLocalCarbonContext.getTenantDomain();
             UserRealm userRealm = threadLocalCarbonContext.getUserRealm();
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();
             userStoreManager.updateUserListOfRole(applicationRole, userNames, null);
