@@ -2,21 +2,21 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.wso2.appfactory</groupId>
+  <groupId>${groupId}</groupId>
   <artifactId>${rootArtifactId}CAR</artifactId>
-  <version>2.2.0-SNAPSHOT</version>
+  <version>${version}</version>
   <packaging>carbon/application</packaging>
   <name>${rootArtifactId}CAR</name>
   <description>Main CAR project for ${rootArtifactId}</description>
   <properties>
-    <com.example.SimpleProxy.proxy-service_._HelloWorldProxyService>capp/EnterpriseServiceBus</com.example.SimpleProxy.proxy-service_._HelloWorldProxyService>
+    <${groupId}.proxy-service_._${rootArtifactId}SimpleProxyService>capp/EnterpriseServiceBus</${groupId}.proxy-service_._${rootArtifactId}SimpleProxyService>
     <artifact.types>jaggery/app=zip,service/rule=aar,lib/library/bundle=jar,synapse/message-processors=xml,synapse/endpointTemplate=xml,synapse/proxy-service=xml,synapse/message-store=xml,carbon/application=car,registry/resource=zip,lib/dataservice/validator=jar,synapse/endpoint=xml,web/application=war,synapse/sequence=xml,synapse/configuration=xml,lib/registry/handlers=jar,synapse/task=xml,service/meta=xml,webapp/jaxws=war,synapse/api=xml,cep/bucket=xml,bpel/workflow=zip,lib/registry/filter=jar,service/dataservice=dbs,synapse/local-entry=xml,synapse/priority-executor=xml,synapse/event-source=xml,synapse/template=xml,lib/carbon/ui=jar,service/axis2=aar,synapse/sequenceTemplate=xml,wso2/gadget=dar,lib/synapse/mediator=jar</artifact.types>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>com.example.SimpleProxy.proxy-service</groupId>
-      <artifactId>HelloWorldProxyService</artifactId>
-      <version>1.0.0</version>
+      <groupId>${groupId}.proxy-service</groupId>
+      <artifactId>${rootArtifactId}SimpleProxyService</artifactId>
+      <version>${version}</version>
       <type>xml</type>
     </dependency>
   </dependencies>
