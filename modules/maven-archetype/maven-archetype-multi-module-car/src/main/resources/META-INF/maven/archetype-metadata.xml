@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd" name="SampleCARMavenProject"
+    xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modules>
+    <module id="ApplicationResources" dir="ApplicationResources" name="ApplicationResources">
+      <fileSets>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory>Production</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory>Testing</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory>Development</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory></directory>
+          <includes>
+            <include>artifact.xml</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="SimpleProxy" dir="SimpleProxy" name="SimpleProxy">
+      <fileSets>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory>src/main/synapse-config</directory>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory></directory>
+          <includes>
+            <include>artifact.xml</include>
+          </includes>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="DevelopmentResourcesCAR" dir="DevelopmentResourcesCAR" name="DevelopmentResourcesCAR" />
+    <module id="TestingResourcesCAR" dir="TestingResourcesCAR" name="TestingResourcesCAR" />
+    <module id="__rootArtifactId__CAR" dir="__rootArtifactId__CAR" name="__rootArtifactId__CAR" />
+    <module id="ProductionResourcesCAR" dir="ProductionResourcesCAR" name="ProductionResourcesCAR" />
+  </modules>
+</archetype-descriptor>

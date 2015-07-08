@@ -1,0 +1,8 @@
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="${rootArtifactId}SimpleProxyService" groupId="${package}.proxy-service" version="1.0.0" type="synapse/proxy-service" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/proxy-services/${rootArtifactId}SimpleProxyService.xml</file>
+    </artifact>
+</artifacts>
