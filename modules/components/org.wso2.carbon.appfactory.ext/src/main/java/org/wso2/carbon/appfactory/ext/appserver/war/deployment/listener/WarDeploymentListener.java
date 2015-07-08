@@ -177,6 +177,7 @@ public class WarDeploymentListener implements LifecycleListener {
 
     private void onApplicationFailed(String tenantDomain, String appId, String appVersion, String stage) {
         String msg = appVersion + " deployment failed in " + stage + " stage";
+        String errorMessageDesc = msg.concat("\n Tenant domain: " + tenantDomain);
         sendNotification(tenantDomain, appId, appVersion, stage, msg, "", Event.Category.ERROR);
     }
 

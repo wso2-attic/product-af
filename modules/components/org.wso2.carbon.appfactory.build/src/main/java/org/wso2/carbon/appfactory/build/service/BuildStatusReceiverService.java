@@ -132,7 +132,8 @@ public class BuildStatusReceiverService {
                               buildStatusBean.getTriggeredUser().split("@")[0];
                 eventCategory = Event.Category.INFO;
             } else {
-                infoMessage = buildStatusBean.getVersion() + " of " + repoType + " repository build failed.";
+                infoMessage = buildStatusBean.getVersion() + " of " + repoType + " repository build failed";
+                infoMessage.concat("\n Tenant domain: " + tenantDomain + "\n Application: " + buildStatusBean.getApplicationId());
                 eventCategory = Event.Category.ERROR;
             }
             String description = "Build ID : " + buildStatusBean.getBuildId();
