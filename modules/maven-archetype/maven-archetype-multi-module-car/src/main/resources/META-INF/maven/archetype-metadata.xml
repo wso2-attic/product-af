@@ -55,7 +55,7 @@
     </module>
     <module id="DevelopmentResourcesCAR" dir="DevelopmentResourcesCAR" name="DevelopmentResourcesCAR" />
     <module id="TestingResourcesCAR" dir="TestingResourcesCAR" name="TestingResourcesCAR" />
-    <module id="__rootArtifactId__CAR" dir="__rootArtifactId__CAR" name="__rootArtifactId__CAR" />
+    <module id="__rootArtifactId__" dir="__rootArtifactId__" name="__rootArtifactId__" />
     <module id="ProductionResourcesCAR" dir="ProductionResourcesCAR" name="ProductionResourcesCAR" />
   </modules>
 </archetype-descriptor>
