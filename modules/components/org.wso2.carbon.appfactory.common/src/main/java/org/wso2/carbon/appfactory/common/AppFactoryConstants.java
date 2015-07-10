@@ -120,6 +120,7 @@ public class AppFactoryConstants {
     public static final String ARTIFACT_NAME = "${artifactId}-${version}";
 	public static final String MAVEN_ARTIFACT_ID_REPLACEMENT = " -DartifactId=";
 	public static final String MAVEN_ARTIFACT_ID = "-DartifactId=";
+	public static final String XML_EXTENSION = "xml";
 
 	/**
 	 * Defining repository related constants
@@ -430,6 +431,9 @@ public class AppFactoryConstants {
     public static final String UNDER_SCORE = "_";
     public static final String DOT = ".";
     public static final String HYPHEN = "-";
+
+
+	public static final String ARTIFACT_NAME_VERSION_SEPERATOR = "_";
 
 
     public static final String TENANT_MGT_URL = "TenantMgtUrl";

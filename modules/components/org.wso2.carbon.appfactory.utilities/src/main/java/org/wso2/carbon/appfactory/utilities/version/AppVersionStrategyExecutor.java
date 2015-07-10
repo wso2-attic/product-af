@@ -22,14 +22,19 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.utilities.file.FileUtilities;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -165,6 +170,58 @@ public class AppVersionStrategyExecutor {
         }
         return false;
     }
+
+	/**
+	 * Version of generic multi module mvn mvn type project
+	 *
+	 * @param targetVersion value of the version we are going to create
+	 * @param workDir current working directory
+	 */
+	public static void doVersionForMultiModuleMVN(String targetVersion, File workDir) {
+		MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+		ArrayList<String> artifactIds = new ArrayList<String>();
+		try {
+
+			List<File> pomFileList = new ArrayList<File>();
+			FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_POM_FILE, pomFileList);
+
+			//First time iterate and list down artifactids in the project
+			for (File file : pomFileList) {
+				FileInputStream stream = new FileInputStream(file);
+				Model model = mavenXpp3Reader.read(stream);
+				artifactIds.add(model.getArtifactId());
+				if (stream != null) {
+					stream.close();
+				}
+			}
+
+			for (File file : pomFileList) {
+				FileInputStream stream = new FileInputStream(file);
+				Model model = mavenXpp3Reader.read(stream);
+				model.setVersion(targetVersion);
+				Parent parentPom = model.getParent();
+				if(parentPom != null && artifactIds.contains(parentPom.getArtifactId())) {
+					parentPom.setVersion(targetVersion);
+				}
+				List<Dependency> dependencies = model.getDependencies();
+				for (Dependency dependency : dependencies) {
+					if(artifactIds.contains(dependency.getArtifactId())){
+						dependency.setVersion(targetVersion);
+					}
+				}
+				if (stream != null) {
+					stream.close();
+				}
+				MavenXpp3Writer writer = new MavenXpp3Writer();
+				writer.write(new FileWriter(file), model);
+			}
+		} catch (Exception e) {
+			String errorMsg = "Error in process of version in common Mvn project : " + e.getMessage();
+			log.error(errorMsg, e);
+		}
+	}
+
+
 
     public static void doVersionOnBPEL(String applicationId, String targetVersion, File workDir) {
         //change in pom.xml file
