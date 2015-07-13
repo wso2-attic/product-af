@@ -443,8 +443,8 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
  }());
  $(document).ready(function($) {
 
-     $("#icon").change(function() {
-         $("#icon").val($("#icon").val());
+     $("#appIcon").change(function() {
+         $("#icon").val($("#appIcon").val());
      });
      $("#appUpload").change(function() {
          $("#upload").val($("#appUpload").val());
@@ -512,8 +512,8 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                  return false;
              }
 
-             var file = $('#icon');
-             if (file.val() != "") {
+             var file2 = $('#appIcon');
+             if (file2.val() != "") {
                  if (ie == undefined || ie > 9) {
                      validateIconImage(file.val(), file[0].files[0].size);
                  }
@@ -817,10 +817,10 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                             <input type="text" id="icon" class="form-control" readonly>
                             <span class="input-group-btn">
                                 <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input type="file" id="icon"/>
+                                    Upload&hellip; <input type="file" id="appIcon"/>
                                 </span>
-                                <span class="btn btn-primary btn-file">
-                                    Clear <input onclick="clearUploadIconField()" id="clear"/>
+                                <span class="btn btn-primary btn-file" onclick="clearUploadIconField()" id="clear">
+                                    Clear
                                 </span>
                            <!--     <span class="btn btn-primary btn-file">
                                     Clear&hellip;

@@ -67,8 +67,6 @@ function createTable() {
 function addTableColumnHeaders() {
     $("#item_list").html("");
 	var columnHeaderLi = '<li class="item item_header">' +
-    '<div class="th_name col">Application</div>' +
-    '<div class="th_type col">Type</div>' +
     '</li>';
 	$("#item_list").append(columnHeaderLi);
 }
@@ -100,6 +98,7 @@ function addTableRow(application) {
     // This logic is specific to filter
     var displayName = "";
     var defaultBranchCount = 1;
+
     if (application.highlightedName === undefined || application.highlightedName === "") {
         displayName = application.name;
     } else {        // if this application is in search results
@@ -355,24 +354,22 @@ $(document).ready(function () {
                 init();
             } else {
                 var finder = $(this).val();
-               // alert("finder:" + finder)
+
                 var typingPattern = new RegExp($(this).val().replace(/^\s+|\s+$/g, ''), "gi");
-                //alert("typing pattern: " + typingPattern)
+                addTableColumnHeaders();
                 jQuery.grep(parsedAppArray, function (element, index) {
-                  //  alert("element.name: " +element.name)
+
 
                     if (element.name.match(typingPattern) != null) {
                         var matcher = element.name.match(typingPattern);
-                        alert("matcher: " + matcher)
-                        alert("finder.length: " + finder.length)
                         if (finder.length > 2) {
-                            alert("aaaaa")
+
                             var pre = element.name.substr(0, element.name.indexOf(matcher));
                             var highlight = element.name.substr(element.name.indexOf(matcher), (finder.length));
                             var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
 
                             element.highlightedName = pre + "^" + highlight + "~" + rest;
-                            alert(element.highlightedName)
+
 
                         }
                         addTableRow(element);
