@@ -50,7 +50,7 @@ public class CARApplicationTypeProcessor extends MavenMultiModuleApplicationType
 		ProjectUtils.runMavenCommand(newGoals, invocationOutputHandler, projectDir, null);
 		super.doVersion(applicationId, targetVersion, currentVersion, workingDirectory);
 		FileUtilities.deleteTargetFolders(new File(workingDirectory));
-		AppVersionStrategyExecutor.doVersionCarArtifacts(currentVersion, targetVersion, new File(workingDirectory));
+		AppVersionStrategyExecutor.doVersionCarArtifacts(targetVersion, new File(workingDirectory));
 	}
 
 }

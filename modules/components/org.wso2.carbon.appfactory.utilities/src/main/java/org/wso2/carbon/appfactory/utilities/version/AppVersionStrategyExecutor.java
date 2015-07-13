@@ -224,8 +224,7 @@ public class AppVersionStrategyExecutor {
 
 
 
-	public static void doVersionCarArtifacts(String applicationID, String currentVersion, String targetVersion,
-	                                         File workDir) throws AppFactoryException{
+	public static void doVersionCarArtifacts(String targetVersion, File workDir) throws AppFactoryException{
 		List<File> artifactList = new ArrayList<File>();
 		List<String> synapseArtifacts = new ArrayList<String>();
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION, artifactList);
