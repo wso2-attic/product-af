@@ -55,8 +55,8 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 //		}
 //	}
 
-	protected File[] getLastBuildArtifact(String path, String extension) throws AppFactoryException {
-		return getArtifact(path, extension);
+	protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId) throws AppFactoryException {
+		return getArtifact(path, extension, stage, applicationId);
 	}
 
 	protected String getBaseRepoUrl() throws AppFactoryException {
