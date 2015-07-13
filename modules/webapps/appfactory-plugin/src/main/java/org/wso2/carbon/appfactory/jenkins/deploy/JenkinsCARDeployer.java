@@ -60,7 +60,7 @@ public class JenkinsCARDeployer extends JenkinsArtifactDeployer{
 				throw new AppFactoryException(errMsg);
 			}
 			for (File file : allFiles) {
-				String artifactID = file.getName().split(AppFactoryConstants.ARTIFACT_NAME_VERSION_SEPERATOR)[0];
+				String artifactID = file.getName().split(AppFactoryConstants.CAR_FILE_ARTIFACT_NAME_VERSION_SEPERATOR)[0];
 				if((file.getName().startsWith(stage)) || (applicationId.equals(artifactID))){
 					fileList.add(file);
 				}

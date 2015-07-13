@@ -117,10 +117,22 @@ public class AppFactoryConstants {
     public static final String GOAL_MAVEN_ARCHETYPE_GENERATE = "archetype:generate";
     public static final String MAVEN_ARCHETYPE_DIR = "archetypeDir";
     public static final String DEFAULT_POM_FILE = "pom.xml";
+    public static final String DEFAULT_TARGET_FOLDER = "target";
+    public static final String DEFAULT_SYNAPSE_NAMESPACE = "http://ws.apache.org/ns/synapse";
+    public static final String DEFAULT_SYNAPSE_NAMESPACE_PREFIX = "xmlns";
     public static final String ARTIFACT_NAME = "${artifactId}-${version}";
 	public static final String MAVEN_ARTIFACT_ID_REPLACEMENT = " -DartifactId=";
 	public static final String MAVEN_ARTIFACT_ID = "-DartifactId=";
 	public static final String XML_EXTENSION = "xml";
+	public static final String CAR_ARTIFACT_CONFIGURATION = "artifact.xml";
+	public static final String CAR_ARTIFACT_CONFIGURATION_ARTIFACT = "artifact";
+	public static final String CAR_ARTIFACT_CONFIGURATION_QNAME_VERSION = "version";
+	public static final String CAR_ARTIFACT_CONFIGURATION_TYPE_SYNAPSE = "synapse/";
+	public static final String CAR_ARTIFACT_CONFIGURATION_QNAME_TYPE = "type";
+	public static final String CAR_ARTIFACT_CONFIGURATION_QNAME_NAME = "name";
+	public static final String CAR_ARTIFACT_SYNAPSE_CONFIG_STORE_LOCATION = "synapse-config";
+	public static final String FILENAME_EXTENSION_SEPERATOR = ".";
+
 
 	/**
 	 * Defining repository related constants
@@ -333,7 +345,7 @@ public class AppFactoryConstants {
 	public static final String CLASS_NAME="ClassName";
 	public static final String URL_PATTERN = "URLPattern";
 	public static final String BASE_URL = "BaseURL";
-	public static final String ESB_ARTIFACT_PREFIX = "synapse-config";
+
 	public static final String ESB_ARTIFACT_DEPLOYMENT_PATH = "synapse-configs"
 			+ File.separator + "default";
 
@@ -433,7 +445,8 @@ public class AppFactoryConstants {
     public static final String HYPHEN = "-";
 
 
-	public static final String ARTIFACT_NAME_VERSION_SEPERATOR = "_";
+	public static final String CAR_FILE_ARTIFACT_NAME_VERSION_SEPERATOR = "_";
+	public static final String APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR = "-";
 
 
     public static final String TENANT_MGT_URL = "TenantMgtUrl";

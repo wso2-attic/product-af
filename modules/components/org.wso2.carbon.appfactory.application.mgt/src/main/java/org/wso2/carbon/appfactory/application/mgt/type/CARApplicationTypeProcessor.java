@@ -19,7 +19,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.maven.shared.invoker.InvocationOutputHandler;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.utilities.file.FileUtilities;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
+import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +49,8 @@ public class CARApplicationTypeProcessor extends MavenMultiModuleApplicationType
 		};
 		ProjectUtils.runMavenCommand(newGoals, invocationOutputHandler, projectDir, null);
 		super.doVersion(applicationId, targetVersion, currentVersion, workingDirectory);
+		FileUtilities.deleteTargetFolders(new File(workingDirectory));
+		AppVersionStrategyExecutor.doVersionCarArtifacts(currentVersion, targetVersion, new File(workingDirectory));
 	}
 
 }
