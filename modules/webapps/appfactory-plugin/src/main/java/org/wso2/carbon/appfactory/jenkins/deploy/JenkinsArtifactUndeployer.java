@@ -32,8 +32,8 @@ public class JenkinsArtifactUndeployer extends AbstractStratosUndeployer {
     public JenkinsArtifactUndeployer() {
         AppfactoryPluginManager.DescriptorImpl descriptor = new AppfactoryPluginManager.DescriptorImpl();
         setBaseDeployUrl(descriptor.getBaseDeployUrl());
-        setS2AdminPassword(descriptor.getStratosAdminUsername());
-        setS2AdminUsername(descriptor.getStratosAdminPassword());
+        setS2AdminPassword(descriptor.getStratosAdminPassword());
+        setS2AdminUsername(descriptor.getStratosAdminUsername());
     }
 
     @Override
