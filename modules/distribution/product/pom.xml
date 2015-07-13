@@ -105,9 +105,14 @@
             <artifactId>php-archetype</artifactId>
             <type>jar</type>
         </dependency>
-	 <dependency>
+	<dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>dotnet-archetype</artifactId>
+            <type>jar</type>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.appfactory</groupId>
+            <artifactId>maven-archetype-multi-module-car</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>

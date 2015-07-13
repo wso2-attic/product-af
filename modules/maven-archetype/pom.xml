@@ -41,5 +41,6 @@
         <module>maven-archetype-nodejs</module>
         <module>maven-archetype-webapp</module>
         <module>maven-archetype-dotnet</module>
+        <module>maven-archetype-multi-module-car</module>
     </modules>
 </project>
