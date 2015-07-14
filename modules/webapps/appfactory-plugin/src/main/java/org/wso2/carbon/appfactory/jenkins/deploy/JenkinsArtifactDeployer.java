@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.deployers.AbstractStratosDeployer;
 import org.wso2.carbon.appfactory.deployers.notify.DeployNotifier;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
@@ -285,12 +284,12 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 	@Override
 	protected String getAdminPassword() throws AppFactoryException {
-		return this.s2AdminUsername;
+		return this.s2AdminPassword;
 	}
 
 	@Override
 	protected String getAdminUserName() throws AppFactoryException {
-		return this.s2AdminPassword;
+		return this.s2AdminUsername;
 	}
 
 	@Override
