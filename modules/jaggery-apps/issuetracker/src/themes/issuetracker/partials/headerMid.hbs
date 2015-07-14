@@ -6,30 +6,6 @@
         <div class="left">
             <h1 class="inline_box">Issues</h1><a href="/issuetracker/issue/add?appkey={{appkey}}" class="btn main head push_left_40">New Issue</a>
         </div>
-        <!--ul class="screen_option right search_form_cont">
-            <form class="right form-container search_form" action="/issuetracker/issue/search" method="post">
-                <li class="screen_option_item">
-                    <span>Search</span>
-                    <select id="select_search" class="select_list_custom half big" name="searchType">
-                        <option value="1">&nbsp;By Application Name</option>
-                        <option value="2">&nbsp;By Reporter</option>
-                        <option value="3">&nbsp;By Assignee</option>
-                        <option value="4" selected="selected">&nbsp;All issues</option>
-                    </select>
-
-                </li>
-
-                <li class="screen_option_item">
-                    <div class="input_row">
-                        <span>for </span>
-                        <label for="search_members" class="hide" >Search</label>
-                        <input id="search_members" type="text" class="fw_250" name="searchValue" value="{{value}}"  />
-                        <input class="btn main"  type="submit" id="searchId" value="Search" />
-                    </div>
-
-                </li>
-            </form>
-        </ul-->
         {{else}}
         <div class="left">
             <h1 class="inline_box"><a href="/issuetracker?appkey={{appkey}}">Issues</a> > {{title}}</h1>

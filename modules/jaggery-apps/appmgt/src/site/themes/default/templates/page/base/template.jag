@@ -106,8 +106,8 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
-
-        <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<!-- BOF cloud menu -->
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -120,42 +120,71 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
                class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
                 <i class="fw fw-tiles"></i>
             </a>
-            <a class="navbar-brand" href="#"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/logo.png'))%>" alt="wso2-logo" >&nbsp;&nbsp;App Factory</a>
+            <a class="navbar-brand" href="#"><img src="images/logo.png" alt="wso2-logo" > Cloud</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav menu-right">
-
+                <li><a href="#"><i class="fa fa-book"></i> Documentation</a></li>
+                <li><a href="#about"><i class="fa fa-envelope"></i> Support</a></li>
                 <li class="dropdown user-name">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=userName%>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">jack sparrowx
                         <i class="fa fa-chevron-circle-down"></i>
-                        <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/user.png'))%>" alt="user" class="user-image"></a>
+                        <img src="images/user.png" alt="user" class="user-image"></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="#">Profile</a></li>
-                        <li><a href="#" onclick="window.location.href='logout.jag'">Logout</a></li>
+                        <li><a href="#">Logout</a></li>
                     </ul>
                 </li>
-
+                <li class="cloud-menu hidden-xs">
+                    <a href="#" id="cloud-menu-popover" data-toggle="popover" data-placement="bottom"
+                            class="cloud-menu-popover">
+                        <i class="fw fw-tiles"></i>
+                    </a>
+                </li>
             </ul>
+            <!-- BOF cloud menu content -->
+            <div class="cloud-menu-content hide">
+                <div id="popover-head" class="hide">
+                    Navigate to Cloud
+                </div>
+                <div id="popover-content" class="hide">
+                   <div class="cloud-apps">
+                       <a class="cloud-block">
+                           <i class="fa fa-3x fa-cubes"></i>
+                           <div class="cloud-name">Application Cloud</div>
+                       </a>
+                       <a class="cloud-block">
+                           <i class="fw fw-api fa-3x"></i>
+                           <div class="cloud-name">API Cloud</div>
+                       </a>
+                       <div class="clearfix"></div> <!-- to make seperate -->
+                   </div>
+                   <div class="cloud-actions">
+                       <h3>Manage your cloud</h3>
+                       <a class="cloud-block-invert">
+                           <i class="fa fa-3x  fa-institution"></i>
+                           <div class="cloud-name">Organizations</div>
+                       </a>
+                       <a class="cloud-block-invert">
+                           <i class="fa fa-3x  fa-users"></i>
+                           <div class="cloud-name">Members</div>
+                       </a>
+                       <a class="cloud-block-invert">
+                           <i class="fa fa-3x  fa-envelope"></i>
+                           <div class="cloud-name">Support</div>
+                       </a>
+                   </div>
+                </div>
+            </div>
+            <!-- EOF cloud menu content -->
         </div><!--/.nav-collapse -->
     </div>
 </div>
+<!-- EOF cloud menu -->
 
-    <div class="wrapper">
+    <div id="inner-wrapper"  class="inner-wrapper">
+        <% jagg.includeBlocks(outputs.tablinks); %>
         <% jagg.includeBlocks(outputs.body); %>
-
-
-            <!--<nav class="main_menu">
-                <ul class="main_list">
-                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-desktop"></span> Overview</a></li>
-                    <li class="main_list_item"><a href="#" class="main_list_link"><span class=" icon-cogs"></span> Repos & Builds</a></li>
-                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-legal"></span> Governance</a></li>
-                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-tags"></span> Issues</a></li>
-                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-group"></span> Users</a></li>
-                    <li class="main_list_item"><a href="#" class="main_list_link active"><span class="icon-wrench"></span> Resources</a></li>
-                    <li class="main_list_item"><a href="#" class="main_list_link"><span class="icon-hdd"></span> Server</a></li>
-                </ul>
-            </nav>-->
-
      </div>
      <%
      jagg.includeBlock("footer", {});
