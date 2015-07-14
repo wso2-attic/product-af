@@ -30,7 +30,7 @@ jagg.block("application/add", {
 		var mainHTML = "";
 		var supportiveHTML = "";
 		var uploadableAppTypesHTML = "";
-		var uploadableAppExts = [];
+		var uploadableAppExts = {};
 		var uploadableApplicationMaxSize;
 		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
 		var webContext = getProperty(WEB_CONTEXT_ROOT);
@@ -42,8 +42,9 @@ jagg.block("application/add", {
             //supportiveHTML='<span style="color:#ff0000">"Application Types" are not defined!</span>';
 
         } else {
-
-            uploadableApplicationMaxSize = modManager.getUploadableApplicationMaxSize()
+            var log = new Log();
+            //convert to bytes
+            uploadableApplicationMaxSize = Math.round(modManager.getUploadableApplicationMaxSize()/8)+"";
             mainHTML = '<select id="applicationType" name="applicationType" onChange="selectAppCreationType(this)">';
             uploadableAppTypesHTML = '<select id="uploadableAppType" name="uploadableAppType">';
 
@@ -90,7 +91,7 @@ jagg.block("application/add", {
                 if (isUploadableAppType != null && isUploadableAppType != undefined && isUploadableAppType == true) {
                     isUploadableAppTypeAvailable = true;
                     uploadableAppTypesHTML += displayVal;
-                    uploadableAppExts.push(applicationTypeBean.getExtension());
+                    uploadableAppExts[applicationType] = applicationTypeBean.getExtension();
                 } else {
                     mainHTML += displayVal;
                 }

@@ -193,6 +193,9 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.sticky.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload-process.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload-validate.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/main.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.qtip.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>

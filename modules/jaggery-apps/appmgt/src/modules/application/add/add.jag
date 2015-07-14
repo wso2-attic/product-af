@@ -253,13 +253,46 @@ var isAppNameAlreadyAvailable = function (applicationName) {
 
 }
 
-var stroreUploadedApplication = function (uploadedApplicationName, file, type) {
+/**
+ * Store uploaded application archive in a temporary location
+ */
+var stroreUploadedApplication = function (applicationKey, version, file, type) {
+    validateUploadedExtention(file, type);
+    createDestinationDirsForUploadedApps();
+    var tmpFilePath = getUploadedApplicationTmpPath(applicationKey, version, type)
+    file.move(tmpFilePath);
+};
 
-    validateUploadedApplication(file, type);
-    if (log.isDebugEnabled) {
-        log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
+var validateUploadedArchive = function(applicationKey, version, appType){
+    var applicationTypeProcessor = modManager.getApplicationTypeBean(appType).getProcessor();
+    var status = {};
+    var tmpName = getUploadedApplicationTmpName(applicationKey, version, appType);
+    try {
+        var applicationTypeValidationStatus = applicationTypeProcessor.validate(tmpName);
+        status.status = applicationTypeValidationStatus.isSuccess();
+        status.message = applicationTypeValidationStatus.getMessage();
+    } catch(e) {
+        log.warn("App type validator is not defined for app type: "+appType+
+                 ". Therefore return app type validation as successful for application:"+applicationKey);
+        log.warn(e);
+        status.status = true;
+        status.message = "Successfully Validated!";
     }
+    return status;
+};
 
+
+var getUploadedApplicationTmpPath  = function (applicationKey, version, type) {
+    var destination = "/" + TMP_UPLOADED_APPLICATIONS_PATH + "/" + modManager.getTenantDomain();
+    var tmpFileName = destination + "/" + getUploadedApplicationTmpName(applicationKey, version, type);
+    return tmpFileName;
+}
+
+var getUploadedApplicationTmpName  = function (applicationKey, version, type) {
+    return getInitialVersionedAppKey(applicationKey, version) + "." + getExtenstionByAppType(type) + UPPLOADABLE_SUFFIX;;
+}
+
+var createDestinationDirsForUploadedApps = function () {
     var destination = "/" + TMP_UPLOADED_APPLICATIONS_PATH + "/" + modManager.getTenantDomain();
     var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
     if (!destinationDir.isExists()) {
@@ -269,28 +302,24 @@ var stroreUploadedApplication = function (uploadedApplicationName, file, type) {
     if (!destinationDir.isExists()) {
         destinationDir.mkdir();
     }
-    var tmpFileName = destination + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) +
-                      UPPLOADABLE_SUFFIX;
-    file.move(tmpFileName);
+}
 
-    if (log.isDebugEnabled()) {
-        log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH);
-    }
+function getInitialVersionedAppKey(applicationKey, version){
+    return applicationKey + "-"+version;
+}
 
-};
-
-function validateUploadedApplication(file, applicationType) {
-
+function validateUploadedExtention(file, applicationType) {
 	var fileRealExtension = getExtenstionByAppType(applicationType);
 	var uploadedFileExtention = file.getName().split('.').pop();
 	if(fileRealExtension != uploadedFileExtention){
-        var message = "Incompatible file type found for the file : " + file + " with extension : " + fileRealExtension
-                      + " while validating uploaded application.";
-        log.error(message);
-        throw new Exception(message);
+        // Here we log this as a warn since this is a user error
+        var message = "Incompatible file type found for the file : " + file.getName()
+                + ". expected extension : " + fileRealExtension
+                + ". uploaded extension : " + uploadedFileExtention
+                + " while validating uploaded application.";
+        log.warn(message);
+        throw message;
 	}
-	log.info("Application extention valided sucessfully");
-
 };
 
 function getExtenstionByAppType(applicationType){
