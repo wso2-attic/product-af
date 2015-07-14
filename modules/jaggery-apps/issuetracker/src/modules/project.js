@@ -22,6 +22,16 @@ var getAllVersionOfProject = function ( projectKey){
     return project.data.version;
 }
 
+var getAllVersionOfProjectForDataTable = function ( projectKey){
+    var url  = url_prefix+projectKey+"/version";
+    var project = get(url,{},"json");
+    var dataarray = [];
+    for(var i=0; i<project.data.version.length; i++){
+        dataarray.push(project.data.version[i]['version']);
+     }
+    return stringify(dataarray);
+}
+
 var getProjectByKey = function (projectKey) {
     var url  = url_prefix+projectKey;
     var project = get(url, {} ,"json");

@@ -1,33 +1,16 @@
-
-
-
-<section class="content push_top_40">
-    <div class="form-container">
-        <fieldset>
-            <div class="input_row">
-                <label for="projectKey" ><strong>Application</strong> <em>*</em></label>
-                <select id="projectKey" {{isEnabled}} class="select_list half big">
-                {{#each project}}
-                  <option value="{{key}}">{{name}}</option>
-                {{/each}}
-                </select>
-
-            </div>
-            <div class="input_row">
-                <label for="summary" ><strong>Summary</strong> <em>*</em></label>
-                <input type='text' id='summary' name="summary" placeholder="Issue Summary" maxlength="255" class="half required"/>
-            </div>
-
-
-            <div class="input_row">
-                <label for="description" >Description</label>
-                <textarea name='description' id='description' rows="5" cols="10" class="half" maxlength="250"></textarea>
-            </div>
-
-
-            <div class="input_row">
-                <label for="type" ><strong>Type</strong> <em>*</em></label>
-                <select id='type' class="select_list half big">
+<div class="container-fluid cloud-container">
+        <div class="row">
+            <div class="col-md-5 forms">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="summary">Summary: </label>
+                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                    <label for="type">Type: </label>
+                    <select id="type" class="form-control select2">
                     <option value="NEW_FEATURE">New Feature</option>
                     <option value="BUG">Bug</option>
                     <option value="TASK">Task</option>
@@ -38,72 +21,87 @@
                     <option value="EPIC">Epic</option>
                     <option value="STORY">Story</option>
                     <option value="PATCH">Patch</option>
-                </select>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority: </label>
+                    <select id="priority" class="form-control select2">
+                    <option value="HIGHEST">Highest</option>
+                    <option value="HIGH">High</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="LOW">Low</option>
+                    <option value="LOWEST">Lowest</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reporter">Reporter: </label>
+                    <select id="reporter" class="form-control select2">
+                        <option value="1">{{loggedInUser}}</option>
+                    </select>
+                </div>
             </div>
-
-            <div class="input_row">
-                <label for="priority" ><strong>Priority</strong> <em>*</em></label>
-                <select id="priority" class="select_list half big">
-                 <option value="HIGHEST">Highest</option>
-                 <option value="HIGH">High</option>
-                 <option value="NORMAL">Normal</option>
-                 <option value="LOW">Low</option>
-                 <option value="LOWEST">Lowest</option>
-               </select>
-            </div>
-
-            <div class="input_row">
-                <label for="issue_status" ><strong>Status</strong> <em>*</em></label>
-                <select id="issue_status" class="select_list half big">
-                   <option value="OPEN">Open</option>
-                   <option value="RESOLVED">Resolved</option>
-                   <option value="INPROGRESS">In Progress</option>
-                   <option value="CLOSED"">Closed</option>
-                 </select>
-            </div>
-
-            <div class="input_row">
-                <label for="assignee" ><strong>Assignee</strong> <em>*</em></label>
-                <select id="assignee" name="assignee" class="select_list half big">
-                {{#each users}}
-                    <option value="{{name}}">{{name}}</option>
-                {{/each}}
-                </select>
-               <!--<input type='text' id='assignee' name="assignee" placeholder="Assignee" maxlength="40" class="half required"/>-->
-            </div>
-
-
-            <div class="input_row">
-                <label for="version" ><strong>Version</strong> <em>*</em></label>
-               <select id='version' class="select_list half big"></select>
-
-            </div>
-
-
-
-            <div class="input_row">
-                <label for="severity" ><strong>Severity</strong> <em>*</em></label>
-                <select id="severity" class="select_list half big">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="version">Version: </label>
+                    <select id="version" class="form-control select2">
+                    {{#each versions}}
+                    <option value="{{id}}">{{version}}</option>
+                    {{/each}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="severity">Severity: </label>
+                    <select id="severity" class="form-control select2">
                     <option value="NONE">None</option>
                     <option value="BLOCKER">Blocker</option>
                     <option value="CRITICAL">Critical</option>
                     <option value="TRIVIAL">Trivial</option>
                     <option value="MAJOR">Major</option>
                     <option value="MINOR">Minor</option>
-                 </select>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignee">Assignee: </label>
+                    <select id="assignee" class="form-control select2">
+                    {{#each users}}
+                    <option value="{{name}}">{{name}}</option>
+                    {{/each}}
+                    </select>
+                </div>
             </div>
-
-        </fieldset>
-
-        <div class="buttonrow">
-            <input type="button" value="Add Issue" class="btn main" id='saveIssue' />
-
-            <a href="/issuetracker/index.jag?appkey={{appkey}}">Cancel</a>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="description">Description: </label>
+                    <textarea class="form-control" rows="3" id="description" placeholder="Write a small description a"></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="saveIssue">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                        </span>
+                        Save Issue
+                    </button>
+                </div>
+                <input type="hidden" name="projectKey"  id="projectKey" value='{{project.name}}'/>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
+            </div>
         </div>
-    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+    </div><!-- /.container -->
 
-</div><!-- /form-container -->
 
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{url "/themes/issuetracker/js/jquery-1.11.1/jquery.min.js"}}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url "/themes/issuetracker/js/bootstrap-3.2.0/bootstrap.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.columnFilter.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
+<!-- include custom js functions -->
+<script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 
 
 
