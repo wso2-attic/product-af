@@ -44,8 +44,9 @@ public class ApplicationTypeBean {
 	private String[] runtimes;
     private String executionType;
     private boolean isCodeEditorSupported;
-    private  String IconColorClass;
-    private  String IconImageClass;
+    private String IconColorClass;
+    private String IconImageClass;
+	private String initialDeployerClassName;
 	public ApplicationTypeBean(){
 	}
 
@@ -223,4 +224,12 @@ public class ApplicationTypeBean {
     public String getIconImageClass() {
         return IconImageClass;
     }
+
+	public String getInitialDeployerClassName() {
+		return initialDeployerClassName;
+	}
+
+	public void setInitialDeployerClassName(String initialDeployerClassName) {
+		this.initialDeployerClassName = initialDeployerClassName;
+	}
 }

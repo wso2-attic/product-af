@@ -23,6 +23,7 @@ import org.wso2.carbon.appfactory.application.mgt.util.Util;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
@@ -72,15 +73,41 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 		}
 
 		int tenantId = -1;
+		String initialDeployerClassName = null;
 		try {
 			tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
 			deployInfoMap.put(AppFactoryConstants.TENANT_DOMAIN, new String[] { tenantDomain });
             deployInfoMap.put(AppFactoryConstants.APPLICATION_VERSION, new String[] { version });
 			deployInfoMap.put("tenantId", new String[] { Integer.toString(tenantId) });
-		    InitialArtifactDeployer deployer = new InitialArtifactDeployer(deployInfoMap, tenantId, tenantDomain);
+			initialDeployerClassName = ApplicationTypeManager.getInstance()
+			                                                        .getApplicationTypeBean(application.getType())
+			                                                        .getInitialDeployerClassName();
+			InitialArtifactDeployer deployer;
+			if(initialDeployerClassName != null){
+				ClassLoader loader = getClass().getClassLoader();
+				Class<?> initialDeployerClass = Class.forName(initialDeployerClassName, true, loader);
+				Object instance = initialDeployerClass.newInstance();
+				if(instance instanceof InitialArtifactDeployer){
+					deployer = (InitialArtifactDeployer) instance;
+				} else {
+					throw new AppFactoryException(initialDeployerClassName + "is not a implementation of "
+					                              + InitialArtifactDeployer.class);
+				}
+			} else {
+				deployer = new InitialArtifactDeployer(deployInfoMap, tenantId, tenantDomain);
+			}
 		    deployer.deployLatestSuccessArtifact(deployInfoMap);
 		} catch (UserStoreException e) {
 			throw new AppFactoryException("Initial code committing error " + application.getName() , e);
+		} catch (ClassNotFoundException e) {
+			throw new AppFactoryException("Initial deployer class : " + initialDeployerClassName
+			                              + " not found " + application.getName() , e);
+		} catch (InstantiationException e) {
+			throw new AppFactoryException("Cannot create instance of initial deployer class : "
+			                              + initialDeployerClassName + " not found " + application.getName() , e);
+		} catch (IllegalAccessException e) {
+			throw new AppFactoryException("Cannot access initial deployer class : " + initialDeployerClassName
+			                              + " not found " + application.getName() , e);
 		}
 	}
 
