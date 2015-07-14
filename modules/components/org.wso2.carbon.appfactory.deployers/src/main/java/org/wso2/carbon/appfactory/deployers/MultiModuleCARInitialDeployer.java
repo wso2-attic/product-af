@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,11 +33,11 @@ import java.util.Map;
 /**
  * Created for initial deployment of car apptype.
  */
-public class JenkinsInitialCARDeployer extends InitialArtifactDeployer {
+public class MultiModuleCARInitialDeployer extends InitialArtifactDeployer {
 
-	private static final Log log = LogFactory.getLog(JenkinsInitialCARDeployer.class);
+	private static final Log log = LogFactory.getLog(MultiModuleCARInitialDeployer.class);
 
-	public JenkinsInitialCARDeployer(Map<String, String[]> parameters, int tenantId, String tenantDomain) {
+	public MultiModuleCARInitialDeployer(Map<String, String[]> parameters, int tenantId, String tenantDomain) {
 		super(parameters, tenantId, tenantDomain);
 	}
 
