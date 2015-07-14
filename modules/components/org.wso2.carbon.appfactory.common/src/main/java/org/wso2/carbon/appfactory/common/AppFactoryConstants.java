@@ -498,6 +498,8 @@ public class AppFactoryConstants {
      */
 
 
+	public static final String AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME = "StartStage";
+
 	/**
 	 * Enum to represent of different application stages.
 	 */

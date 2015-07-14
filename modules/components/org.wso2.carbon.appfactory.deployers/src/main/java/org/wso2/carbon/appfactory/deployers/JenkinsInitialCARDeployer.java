@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,6 +51,8 @@ public class JenkinsInitialCARDeployer extends InitialArtifactDeployer {
 	 * @throws org.wso2.carbon.appfactory.common.AppFactoryException If there is an issue in filtering artifacts
 	 */
 	protected File[] getArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
+		stage = AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME);
 		List<File> fileList = new ArrayList<File>();
 		if (StringUtils.isNotBlank(path)) {
 			if (StringUtils.isBlank(extension)) {
