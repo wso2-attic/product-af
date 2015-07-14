@@ -43,6 +43,7 @@ var deployTaggedArtifact = function (applicationId, stage, version, tagName) {
 	log.debug("[Test log] paylod deployTaggedArtifact:" + payload);
 	
 	var result;
+    var tenantDomain = modManager.getTenantDomain();
 	try {
 		var endPoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationDeployer";
 		deployArtifact.open(options,endPoint, false);
@@ -52,8 +53,10 @@ var deployTaggedArtifact = function (applicationId, stage, version, tagName) {
 		result = result.ns::["return"].text();
 		return result;
 	} catch (e) {
-		log.error("Error while deploying the artifact with tag " + tagName + " : " + e.message);
-		throw "Error while deploying the artifact with tag " + tagName;
+        log.error("Error while deploying the artifact with tag : " + tagName + " of application id : " + applicationId
+                  + " with version : " + version + " in stage : " + stage + " of tenant domain : " + tenantDomain);
+        log.error(e);
+        throw e;
 	}
 };
 
@@ -140,7 +143,7 @@ var deployArtifact = function(applicationId, stage, version, tagName, deployActi
           '<p:userName>' + jagg.getUser() + '</p:userName>';
         payload += '</p:DeployArtifactRequest>';
     }
-
+    var tenantDomain = modManager.getTenantDomain();
     try {
     	
     	log.debug("[Test log] paylod deployArtifact:" + payload);
@@ -155,10 +158,10 @@ var deployArtifact = function(applicationId, stage, version, tagName, deployActi
         }
 
     } catch (e) {
-        log.error("Error while creating artifact for application key :"+ applicationId +
-        		  "version : " + version + "\n"+ e.message);
-
-        throw "Error while deploying to " + stage;
+        log.error("Error while creating artifact for application key : " + applicationId + " with version : " + version
+                  + " in stage : " + stage + " of tenant domain " + tenantDomain);
+        log.error(e);
+        throw e;
     }
 
     var tenantDomain = modManager.getTenantDomain();
@@ -175,22 +178,13 @@ var deployArtifact = function(applicationId, stage, version, tagName, deployActi
         setTimeout(function(){
             var status;
             var url;
-
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                context.getThreadLocalCarbonContext().setUsername(userName);
-                status = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationStatus(applicationId, version, stage, tenantDomain);
-
-                if(!status){
-                    url = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService').getApplicationUrl(applicationId, version, stage, tenantDomain);
-                } else {
-                    return;
-                }
-
-            } finally {
-                context.endTenantFlow();
+            status = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                        .getApplicationStatus(applicationId, version, stage);
+            if(!status){
+                url = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                            .getApplicationUrl(applicationId, version, stage, tenantDomain);
+            } else {
+                return;
             }
 
             if(url){

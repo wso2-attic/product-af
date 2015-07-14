@@ -25,6 +25,7 @@ var lifeCycleModule = jagg.module("lifecycle");
 var log=new Log();
 var mod = jagg.module("urlmapper");
 var permission = jagg.module("permission");
+var manager = jagg.module("manager");
 
 (function () {
 	action = request.getParameter("action"),
@@ -42,10 +43,13 @@ var permission = jagg.module("permission");
             try {
                 mod.addNewCustomUrl(stage, newCustomUrl, applicationKey, null, true);
             } catch (e) {
+                // we are logging this as warn messages since this is caused, due a to user error. For example if the
+                // user entered a rubbish custom url(Or a url which CNAME record is not propagated at the time of
+                // adding the url), then url validation will fail but it is not an system error
                 var msg = "Error while adding new customer url: "+ newCustomUrl +" for application: "+applicationKey
-                        +" in stage: " + stage;
-                log.error(msg);
-                log.error(e);
+                        +" in stage: " + stage+". New custom url: "+newCustomUrl+" might not a valid url(or non existing)";
+                log.warn(msg);
+                log.warn(e);
                 response.status = 400;
                 response.content = e;
             }
@@ -54,7 +58,29 @@ var permission = jagg.module("permission");
             response.status = 401;
             response.content = "Unauthorized!!! Only Application Owner has permission to complete this action";
         }
-    }else {
+    } else if (action == "addDefaultProdUrl") {
+        var appKey = request.getParameter("applicationKey");
+        var version = null;
+        var applicationType = manager.getApplicationType(appKey);
+        var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+        if (isUploadableAppType) {
+            version = UPLOADABLE_APPLICATION_INITIAL_VERSION;
+        }
+        try {
+            if(manager.getApplicationTypeBean(applicationType).isAllowDomainMapping()) {
+                mod.addDefaultProdUrl(appKey, version);
+                print(true);
+            }
+            print(false);
+        } catch (e) {
+            var msg = "Error while adding default production url";
+            log.error(msg);
+            log.error(e);
+            response.status = 400;
+            response.content = e;
+        }
+    }
+    else {
 		throw new Error("No action specified");
 	}
 }());

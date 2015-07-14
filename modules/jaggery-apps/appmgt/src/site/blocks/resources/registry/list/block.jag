@@ -26,11 +26,16 @@ jagg.block("resources/registry/list", {
 
 	getOutputs:function (inputs) {
 		var log = new Log();
+		var mod = jagg.module("manager");
+		var tenantDomain = mod.getTenantDomain();
+        var tenantId = mod.getTenantId();
 		var applicationKey = request.getParameter("applicationKey");
 		var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
 		return {
 			"hasCreateResourcePermissions": hasCreateResourcePermissions,
-			"isNamesOnly":inputs.isNamesOnly
+			"isNamesOnly":inputs.isNamesOnly,
+			"tenantDomain":tenantDomain,
+			"tenantId":tenantId
 		};
 	}
 

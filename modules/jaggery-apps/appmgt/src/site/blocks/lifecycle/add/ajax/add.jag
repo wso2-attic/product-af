@@ -41,46 +41,7 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         //We do nothing here. But when we send the stage as a parameter for this, the above if condition will get hit
         //And it will update the session with the correct info.
         //Therefore don't remove this method
-    }else if (action == "deployToStage") {
-    	mod = jagg.module("lifecycle");
-    	
-    	var applicationKey = request.getParameter("applicationKey");
-    	var revision = request.getParameter("revision");
-    	var version = request.getParameter("version");
-    	var stageName = request.getParameter("stageName");
-    	var build = request.getParameter("build");
-    	
-        return mod.invokeDeployToStage(applicationKey,revision,version,stageName,build);
-    } else if(action == "directdeploy") {
-    	mod = jagg.module("lifecycle");
-    	
-    	var applicationKey = request.getParameter("applicationKey");
-        var stageName = request.getParameter("stageName");
-        var version = request.getParameter("version");
-        var build = request.getParameter("build");
-
-        var revision = "HEAD";
-        var isDirectlyDeploy = getProperty('ApplicationDeployment.DeploymentStage.' + stageName + '.AllowDirectDeploy');
-        var permissionStageToDeploy = PERMISSION_DEPLOY_TO + stageName;
-
-        var response = {};
-        if (modPermission.isUserAccessGranted(applicationKey, permissionStageToDeploy)){
-            if (isDirectlyDeploy == "true"){
-                try{
-                    mod.invokeDeployToStage(applicationKey,revision,version,stageName,build);
-                } catch(e) {
-                    throw new Error(e.message);
-                }
-            } else {
-                log.debug("Artifact is not configured for direct deploy");
-            }
-        } else{
-            response.result = 0;
-            response.message = "You don't have permission to deploy";
-            print(response);
-        }
-	    
-    } else if(action == "Promote" || action == "Demote" || action == "Retire") {
+    }  else if(action == "Promote" || action == "Demote" || action == "Retire") {
 		mod = jagg.module("lifecycle");
 		var manager = jagg.module("manager");
 		var applicationKey = request.getParameter("applicationKey");
@@ -194,51 +155,40 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         }
 	    
 
-	} else if(action == "invokeDoVersion") {
-    	mod = jagg.module("lifecycle");
+	} else if ( action == "copyNewDependenciesAndDeployArtifact"){
 
-    	var applicationKey = request.getParameter("applicationKey");
-        var srcVersion = request.getParameter("srcVersion");
-        var targetVersion = request.getParameter("targetVersion");
-        var lifecycleName = request.getParameter("lifecycleName");
+        ////COPY THE NEW RESOURCES.
 
-        var response = {};
-        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_REPOSITORY_BRANCH)){
-            try {
-                return mod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
-            } catch (e) {
-                log.error(e.message);
-                throw e.message;
-            }
-        } else{
+        buildModule = jagg.module("build");
+        resourcesModule = jagg.module("resources");
+        lifeCycleModule = jagg.module("lifecycle");
+
+      	var applicationId = request.getParameter("applicationKey");
+      	var stage = request.getParameter("stage");
+      	var version = request.getParameter("version");
+      	var tagName = request.getParameter("tagName");
+      	var deployAction = request.getParameter("deployAction");
+        var deployToStagePermission = PERMISSION_DEPLOY_TO + stage;
+      	if (jagg.module("permission").isUserAccessGrantedForPlatform(deployToStagePermission)){
+      		try{
+      			if (! lifeCycleModule.isInitialLifeCycleStage(stage)){
+      				var sourceStage = lifeCycleModule.getPreviousLifeCycleStage(stage);
+      				resourcesModule.copyNewProperties(applicationId, sourceStage, stage);
+      				resourcesModule.copyNewDataSources(applicationId, sourceStage, stage);
+      			}
+      		}catch(exx){
+      			throw new Error("Error , Resource creation fail, " + exx);
+      		}
+      	    var result =  buildModule.deployArtifact(applicationId, stage, version, tagName, deployAction);
+      		print(result);
+      	}else {
+            var response={};
             response.result = 0;
-            response.message = "You don't have permission to create a version";
+            response.message = "You don't have permission to deploy an artifact";
             print(response);
         }
 
-    } else if (action == "createArtifact") {
-        mod = jagg.module("lifecycle");
-        var applicationKey = request.getParameter("applicationKey");
-        var version = request.getParameter("version");
-        var revision = request.getParameter("revision");
-        var stage = request.getParameter("stage");
-        var doDeploy = request.getParameter("doDeploy");
-        var tagName = request.getParameter("tagName");
-        var repoFrom = request.getParameter("repoFrom");
-        var response = {};
-        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURE_GOVERNANCE)){
-            try {
-                return mod.invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName,repoFrom);
-            } catch (e) {
-                log.error(e.message);
-            }
-        } else{
-            response.result = 0;
-            response.message = "You don't have permission to create  artifacts";
-            print(response);
-        }
-
-    } else if ( action == "invokeUpdateLifeCycleCheckList"){
+    }  else if ( action == "invokeUpdateLifeCycleCheckList"){
         mod = jagg.module("lifecycle");
         var applicationKey = request.getParameter("applicationKey");
         var stageName = request.getParameter("stageName");
@@ -274,6 +224,7 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         }
 
     }else if ( action == "itemChecked"){
+        print("true");
         var appKey = request.getParameter("applicationKey");
         var stageName = request.getParameter("stageName");
         var version = request.getParameter("version");
@@ -307,31 +258,17 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
         }
 
 
-    }else if ( action == "getLifecycleAction"){
-        mod = jagg.module("lifecycle");
-        var applicationKey = request.getParameter("applicationKey");
-        var stageName = request.getParameter("stageName");
-        var version = request.getParameter("version");
-        var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/'  + version;
-
-        try {
-            var deployedArtifact = mod.getLifecycleAction(path);
-            print(deployedArtifact);
-        } catch (e) {
-            throw new Error(e.message);
-        }
-
-    }else if(action == "uploadNewVersionOfExistingApp"){
+    } else if(action == "uploadNewVersionOfExistingApp"){
     	var applicationMod = jagg.module("application");
     	var lifecycleMod = jagg.module("lifecycle");
     	
     	var existingVersion = request.getParameter("latestVersion");//existing latest version
     	var major=Number(existingVersion.split(".")[0]);
     	var newMajor=++major;
-	var newVersion=newMajor+".0.0";
+	    var newVersion=newMajor+".0.0";
         var lifecycleName = request.getParameter("lifecycleName");
 
-	applicationKey = request.getParameter("applicationKey");
+	    applicationKey = request.getParameter("applicationKey");
     	var userName = request.getParameter("userName");
     	var srcVersion = "trunk";
         var targetVersion = newVersion;

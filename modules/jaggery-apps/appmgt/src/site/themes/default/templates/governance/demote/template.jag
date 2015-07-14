@@ -22,7 +22,6 @@ jagg.template("governance/demote", function(inputs, outputs, jagg) { %>
 <%
 	var applicationName = request.getParameter("applicationName");
 	var applicationKey = request.getParameter("applicationKey");
-	var modApplication = jagg.module("application");
 	var actionName = request.getParameter("actionName");
 	var stage = request.getParameter("stage");
 	var version = request.getParameter("version");

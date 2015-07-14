@@ -66,24 +66,29 @@ var dropTemplate = function (applicationKey,databaseServerInstanceName,name){
         applicationKey, stage);
         var correlationKey = applicationKey + "-" + stage + "-template-" + name;
         try{
-            var notificationTitle  = "Database template " + name + " deleted ";
-            var notificationMessage = "In environment: " + stage;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+            var notificationTitle  = "Database template " + name + " deleted from " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO");
         } catch (e) {
-            log.error("Error while sending delete db template success notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending delete database template success notification for template : " + name
+					  + " in stage : " + stage + " of application : " + applicationKey);
+			log.error(e);
         }
 
 	} catch (e) {
         try{
-            var notificationTitle  = "Database template " + name + " delete failed ";
-            var notificationMessage = "In environment: " + databaseServerInstanceName;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var notificationTitle  = "Database template " + name + " deletion failed in " + stage;
+            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
         } catch (e) {
-            log.error("Error while sending delete database success notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending delete database template failure notification for template : " + name
+					  + " in stage : " + stage + " of application " + applicationKey);
+			log.error(e);
         }
-
-		log.error("Error while dropping a template \n" + e.message);
-		throw "Error while dropping a template";
+		log.error("Error while dropping database template : " + name + " in stage : " + stage + " of application : "
+				  + applicationKey);
+		log.error(e);
+		throw e;
 	}
 
 };
@@ -97,7 +102,7 @@ var editTemplate = function (applicationKey, name,databaseServerInstanceName){
 	var options = new Array();
 	options.useSOAP = 1.2;
 	options.action = "urn:getDatabasePrivilegeTemplate";
-	
+
 	var payload ='<ser:getDatabasePrivilegeTemplate xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 	'<ser:environmentName>' + databaseServerInstanceName + '</ser:environmentName>' +
 	'<ser:templateName>'+name+'</ser:templateName></ser:getDatabasePrivilegeTemplate>';
@@ -112,8 +117,10 @@ var editTemplate = function (applicationKey, name,databaseServerInstanceName){
 		result = editDatabaseTemplate.responseE4X;
 
 	} catch (e) {
-		log.error("Error while editing a template \n" + e.message);
-		throw "Error while editing a template";
+		log.error("Error while editing template : " + name + " of application : " + applicationKey + " in stage : "
+				  + stage);
+		log.error(e);
+		throw e;
 	}
 	return buildTemplate(result);
 
@@ -132,7 +139,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 	options.robust = true;
 	var result={};
 	var allStages=getProperties(DEPLOYMENT_STAGES);
-	
+
 	var paylod_permissions= '<xsd:privileges xsi:type="xsd:MySQLPrivilegeSetInfo">'+
 							'<xsd:alterPriv>'+alterPriv+'</xsd:alterPriv>'+
 							'<xsd:createPriv>'+createPriv+'</xsd:createPriv>'+
@@ -155,7 +162,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 							'<xsd:triggerPriv>'+triggerPriv+'</xsd:triggerPriv>'+
 							'</xsd:privileges>'+
 							'</ser:template></ser:addDatabasePrivilegeTemplate>';
-	if(autoCreation || copyToAll == "false"){
+	if(autoCreation || !copyToAll ){
 				allStages=[];
 				allStages.push(getStageFromRssInstanceName(databaseServerInstanceName));
 			}
@@ -172,33 +179,38 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
 		modManager.setAuthHeaders(options);
 		try {
-			
+
 			createTemplateService.open(options, storageServerURL+'RSSAdmin', false);
 			createTemplateService.send(payload);
 			rssFilter.addDatabaseTemplate(EnvUnawareName,applicationKey,stage);
 			result[stage] = "success";
             var correlationKey = applicationKey + "-" + stage + "-template-" + EnvUnawareName;
             try{
-                var notificationTitle  = "Database template " + EnvUnawareName + " created ";
+                var notificationTitle  = "Database template " + EnvUnawareName + " created in " + stage;
                 var notificationMessage = "In environment: " + stage;
                 var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending create db template success notification \n" + e.message);
+				//we don't throw here since this is message sending to wall.
+				log.error("Error while sending create database template success notification of database template : "
+						  + name + " in stage : " + stage + " of application : " + applicationKey);
+				log.error(e);
             }
 		} catch (e) {
             try{
-                var notificationTitle  = "Database template " + EnvUnawareName + " creation failed ";
-                var notificationMessage = "In environment: " + stage;
-                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+                var notificationTitle  = "Database template " + EnvUnawareName + " creation failed in " + stage;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending create db template failure notification \n" + e.message);
+				//we don't throw here since this is message sending to wall.
+				log.error("Error while sending create database template failure notification of database template : "
+						  + name + " in stage : " + stage + " of application : " + applicationKey);
+				log.error(e);
             }
-			log.error("Error while creating a template \n" + e.message);
-			//throw "Error while creating a template";
-			//result = ""+e.javaException.cause;
-			result[stage]="failed";
+			log.error("Error while creating database template : " + name + " in stage : " + stage + " of application : "
+					  + applicationKey);
+			log.error(e);
+			throw e;
 		}
 	}
 	return result;
@@ -215,8 +227,8 @@ var editDbTemplate = function (applicationKey,databaseServerInstanceName,name,al
 	options.action = "urn:editDatabasePrivilegesTemplate";
 
 
-	var payload ='<ser:updateDatabasePrivilegeTemplate xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" ' + 
-	             'xmlns:xsd="http://dto.core.rssmanager.carbon.wso2.org/xsd" ' + 
+	var payload ='<ser:updateDatabasePrivilegeTemplate xmlns:ser="http://service.core.rssmanager.carbon.wso2.org" ' +
+	             'xmlns:xsd="http://dto.core.rssmanager.carbon.wso2.org/xsd" ' +
 	             'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'+
 	'<ser:environmentName>' + databaseServerInstanceName + '</ser:environmentName>' +
 	'<ser:template>'+
@@ -251,32 +263,38 @@ var editDbTemplate = function (applicationKey,databaseServerInstanceName,name,al
 		editTemplateService.send(payload);
         var correlationKey = applicationKey + "-" + stage + "-template-" + name;
         try{
-            var notificationTitle  = "Database template " + name + " modified ";
+            var notificationTitle  = "Database template " + name + " modified in " + stage;
             var notificationMessage = "In environment: " + stage;
             var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending edit db template success notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending edit database template success notification of database template : " + name
+					  + " in stage : " + stage + " of application : " + applicationKey);
+			log.error(e);
         }
 	} catch (e) {
         try{
-            var notificationTitle  = "Database template " + name + " modification failed ";
-            var notificationMessage = "In environment: " + stage;
-            var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+            var notificationTitle  = "Database template " + name + " modification failed in " + stage;
+            var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending edit db template failure notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending edit database template failure notification of database template : " + name
+                      + " in stage : " + stage + " of application : " + applicationKey);
+            log.error(e);
         }
-
-		log.error("Error while editing Db template \n" + e.message);
-		throw "Error while editing Db template";
+        log.error("Error while editing database template : " + name + " in stage : " + stage + " of application : "
+                  + applicationKey);
+        log.error(e);
+        throw e;
 	}
 };
 
 
 var getTemplates = function (applicationKey){
 	var ws = require('ws');
-	var getDatabaseTemplate = new ws.WSRequest();	
+	var getDatabaseTemplate = new ws.WSRequest();
 	var result;
 	var permissionModule = jagg.module("permission");
 	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
@@ -290,11 +308,11 @@ var getTemplates = function (applicationKey){
 			options.useSOAP = 1.2;
 			options.action = "urn:getDatabasePrivilegeTemplates";
 			modManager.setAuthHeaders(options);
-			
+
 			var payload ='<ser:getDatabasePrivilegeTemplates  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 			'<ser:environmentName>' + deploymentStages[i] + '</ser:environmentName>' +
 			'</ser:getDatabasePrivilegeTemplates>';
-			
+
 			getDatabaseTemplate.open(options, storageServerURL+'RSSAdmin', false);
 			getDatabaseTemplate.send(payload);
 			result = getDatabaseTemplate.responseE4X;
@@ -318,11 +336,11 @@ var getAvailableTemplatesToAttachToDatabase = function (applicationKey, rssInsta
 	options.useSOAP = 1.2;
 	options.action = "urn:getDatabasePrivilegeTemplates";
 	modManager.setAuthHeaders(options);
-	
+
 	var payload ='<ser:getDatabasePrivilegeTemplates  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 	'<ser:environmentName>' + rssInstance + '</ser:environmentName>' +
 	'</ser:getDatabasePrivilegeTemplates>';
-	
+
 	var result;
 	var permissionModule = jagg.module("permission");
 	var templatesArray=[];

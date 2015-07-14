@@ -16,14 +16,18 @@
 
 package org.wso2.carbon.appfactory.core.util;
 
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
@@ -35,6 +39,9 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.api.UserStoreException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AppFactoryCoreUtil {
 
@@ -85,9 +92,9 @@ public class AppFactoryCoreUtil {
 	        }
 	        return stage;
 	    }
-    
+
 	/**
-	 * 
+	 *
 	 * @param applicationId
 	 * @param tenantDomain
 	 * @return
@@ -187,7 +194,7 @@ public class AppFactoryCoreUtil {
      */
     public static String getApplicationUrl(String applicationId, String version, String stage,
                                            String tenantDomain) throws AppFactoryException {
-	    String type = ApplicationManager.getInstance().getApplicationType(applicationId);
+	    String type = ApplicationDAO.getInstance().getApplicationType(applicationId);
 	    try {
 	        if(type != null) {
 		        return ApplicationTypeManager.getInstance().getApplicationTypeBean(type)
@@ -216,5 +223,73 @@ public class AppFactoryCoreUtil {
         tenantDomain = tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT);
         return applicationId + tenantDomain;
     }
+
+
+	public static List<NameValuePair> getDeployParameterMap(String appId, String artifactType, String stage, String repoFrom) throws AppFactoryException{
+
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
+		ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
+		                                                                .getApplicationTypeBean(artifactType);
+		if (applicationTypeBean == null) {
+			throw new AppFactoryException(
+					"Application Type details cannot be found for Artifact Type : " +
+					artifactType + " stage : " + stage);
+		}
+
+		String runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
+		RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtimeNameForAppType);
+
+		if (runtimeBean == null) {
+			throw new AppFactoryException(
+					"Runtime details cannot be found for Artifact Type : " + artifactType +
+					", stage : " + stage);
+		}
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,runtimeNameForAppType));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
+		                                 Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
+		parameters.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
+		                                 applicationTypeBean.getServerDeploymentPath()));
+		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
+			parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
+		                                 applicationTypeBean.getExtension()));
+		parameters.add(new NameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
+
+		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
+		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_ID, appId));
+
+
+		addRunTimeParameters(stage, parameters, runtimeBean);
+
+		return parameters;
+
+	}
+
+
+	/**
+	 * Add runtime specific parameters to the parameter map
+	 * @param stage current stage of the application version
+	 * @param parameters list of name value pair to sent to jenkins
+	 * @param runtimeBean runtime bean that we need to add parameters from
+	 */
+	private static void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME,
+		                                 runtimeBean.getDeployerClassName()));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
+		                                 runtimeBean.getAliasPrefix() + stage));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
+		                                 runtimeBean.getCartridgeTypePrefix() + stage));
+		parameters.add(new NameValuePair(AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN,
+		                                 runtimeBean.getPaasRepositoryURLPattern()));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY,
+		                                 runtimeBean.getDeploymentPolicy()));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY,
+		                                 runtimeBean.getAutoscalePolicy()));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE,
+		                                 runtimeBean.getDataCartridgeType()));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS,
+		                                 runtimeBean.getDataCartridgeAlias()));
+	}
+
 
 }

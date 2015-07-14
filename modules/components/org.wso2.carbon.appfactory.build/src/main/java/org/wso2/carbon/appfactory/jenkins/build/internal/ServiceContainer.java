@@ -18,6 +18,8 @@ package org.wso2.carbon.appfactory.jenkins.build.internal;
 
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsCISystemDriver;
+import org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategy;
+import org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategy;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryManager;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -31,6 +33,26 @@ public class ServiceContainer {
 
     private static RealmService realmService;
     private static TenantRegistryLoader tenantRegistryLoader;
+
+    private static ClusterSelectingStrategy clusterSelectingStrategy;
+    private static BucketSelectingStrategy bucketSelectingStrategy;
+
+    public static ClusterSelectingStrategy getClusterSelectingStrategy() {
+        return clusterSelectingStrategy;
+    }
+
+    public static void setClusterSelectingStrategy(ClusterSelectingStrategy clusterSelectingStrategy) {
+        ServiceContainer.clusterSelectingStrategy = clusterSelectingStrategy;
+    }
+
+    public static BucketSelectingStrategy getBucketSelectingStrategy() {
+        return bucketSelectingStrategy;
+    }
+
+    public static void setBucketSelectingStrategy(BucketSelectingStrategy bucketSelectingStrategy) {
+        ServiceContainer.bucketSelectingStrategy = bucketSelectingStrategy;
+    }
+
 
     public static AppFactoryConfiguration getAppFactoryConfiguration() {
         return appFactoryConfiguration;

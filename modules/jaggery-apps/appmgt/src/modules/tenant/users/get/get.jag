@@ -28,70 +28,6 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
-var getUsersofTenant = function getUsersofTenant() {
-//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
-    var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getUsersofTenant";
-    modManager.setAuthHeaders(options);
-
-    var payload = '<p:getUsersofTenant xmlns:p="http://service.mgt.tenant.appfactory.carbon.wso2.org" />';
-
-    try {
-    	var endPoint = getProperty(APPFACTORY_SERVER_URL) + "TenantManagementService/getUsersofTenant";
-    	request.open(options,endPoint, false);
-    	request.send(payload);
-    	result = request.responseE4X;
-    	var ns=new Namespace("http://service.mgt.tenant.appfactory.carbon.wso2.org");
-    	var Users = result.ns::["return"];
-    	var resultUsers=[];
-        for(var i=0;i<Users.length();i++){
-        	var user=Users[i];
-        	var tmpUser={};
-        	var tmpuserName=user.*::["userName"];
-            var tmpemail=user.*::["email"];
-            var tmpdisplayName=user.*::["displayName"];
-            var tmpfirstName=user.*::["firstName"];
-            var tmplastName=user.*::["lastName"];
-            var tmproles=user.*::["roles"];
-            tmpUser.userName=tmpuserName.text();
-            var userName=tmpuserName.text();
-            tmpUser.email=tmpemail.text();
-            tmpUser.displayName=tmpdisplayName.text();
-            tmpUser.firstName=tmpfirstName.text();
-            tmpUser.lastName=tmplastName.text();
-            tmpUser.roles=tmproles.text();
-            var tempRoles=tmpUser.roles;
-            tmpUser.displayRoles=[];
-            for(var ttRole in tempRoles){
-                var tmpRole= tempRoles[ttRole];
-                var disName=getProperty("TenantRoles.Role." +tmpRole+ ".DisplayName");
-                if(tmpRole==ROLE_ADMIN){
-                    tmpUser.displayRoles=[];
-                    tmpUser.displayRoles.push('Admin');
-                    break;
-                }
-                if(disName!=null){
-                    tmpUser.displayRoles.push(disName);
-                }
-            }
-
-
-            resultUsers.push(tmpUser);
-         }
-         session.put('tenantUsers',resultUsers);
-       	if(log.isDebugEnabled()){
-    		log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
-    	}
-    } catch (e) {
-    	log.error("Error while adding user to tenant \n"+e.message);
-    	throw "Error while adding user to application";
-    }
-    return resultUsers ;
-};
 var getUserInfo = function getUserInfo(userName) {
 //    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
     var ws = require('ws');
@@ -140,18 +76,31 @@ var getUserInfo = function getUserInfo(userName) {
     	}
     	 }
     catch (e) {
-    	log.error("Error while retrieving user info for"+userName);
-		throw e;
+        log.error("Error while retrieving info of user : " + userName);
+        log.error(e);
+        throw e;
     }
     return tmpUser;
 };
+
+var getUserRoles = function(userName){
+    try {
+        var tenantManagementService = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService');
+        var roles = tenantManagementService.getFilteredUserRoles(userName);
+        return roles;
+    }catch (e){
+        log.error("Error occurred while checking first login status of user : " + user + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
+    }
+}
 
 var isFirstLogin=function(){
     var user=jagg.getUser().split('@')[0];
     var tenantDomain=modManager.getTenantDomain();
     var tenantManager = multitenancy.getTenantManager();
     try {
-        //context.startTenantFlow();
         var tenantId = tenantManager.getTenantId(tenantDomain);
         var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
         var realm = realmService.getTenantUserRealm(tenantId);
@@ -159,24 +108,17 @@ var isFirstLogin=function(){
         var claimValue=userStoreManager.getUserClaimValue(user,FIRST_LOGIN_CLAIM,null);
         return claimValue;
     }catch (e){
-        log.error("Error occured while checking first login status");
-        throw "Error occured while checking first login status"
+        log.error("Error occurred while checking first login status of user : " + user + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
     }
 }
 
 var getApplicatioinKeysOfUser=function(userName){
        var appsOfUser;
-       var tenantDomain=modManager.getTenantDomain() ;
-       var context=multitenancy.getPrivilegedCarbonContext();
-       var tenantManager= multitenancy.getTenantManager();
-       try{
-          context.startTenantFlow();
-          context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-          context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-          appsOfUser = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').getApplicationKeysOfUser(userName);
-       }finally{
-          context.endTenantFlow();
-       }
+       appsOfUser = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').
+                                                getApplicationKeysOfUser(userName);
        return appsOfUser;
 };
 

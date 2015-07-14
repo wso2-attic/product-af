@@ -48,8 +48,9 @@ var getTaskId = function getTaskId(simpleQueryCategory){
     	}
     	return parseResponse(result);
     } catch (e) {
-    	log.error("Error while getting assigned task IDs " + "\n"+e.message);
-    	throw "Error while getting assigned task IDs " + "\n"+e.message;
+    	log.error("Error while getting assigned task IDs by simpleQueryCategoty : " + simpleQueryCategory);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -104,8 +105,9 @@ var loadTask = function loadTask(taskId){
     	}
     	return parseResponse(result);
     } catch (e) {
-    	log.error("Error while loading task information " + "\n"+e.message);
-    	throw "Error while loading task information " + "\n"+e.message;
+        log.error("Error while loading task information for the task id : " + taskId);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -133,8 +135,9 @@ var startTask = function startTask(taskId){
     	}
     	return parseResponse(result);
     } catch (e) {
-    	log.error("Error while starting task approval " + "\n"+e.message);
-    	throw "Error while starting task approval " + "\n"+e.message;
+        log.error("Error while starting task approval for task id : " + taskId);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -162,8 +165,10 @@ var completeTask = function completeTask(taskId, approvalStatus){
         }
  return parseResponse(result);
     } catch (e) {
-        log.error("Error while completing task approval process " + "\n"+e.message);
-        throw "Error while completing task approval process " + "\n"+e.message;
+        log.error("Error while completing task approval process for task id : " + taskId + " with approval status : "
+                  + approvalStatus);
+        log.error(e);
+        throw e;
     }
 };
 %>

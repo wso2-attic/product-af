@@ -35,21 +35,16 @@ var multitenancy = carbon.multitenancy;
  */
 var deleteApplicationFromApiM = function(appKey){
     var tenantDomain = modManager.getTenantDomain();
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
-
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
         service.removeApplication(appKey, session.get("SAML_TOKEN"));
         log.info("Successfully deleted API Manager application: "+appKey+
                   " tenant: "+tenantDomain);
     } catch (e) {
-        log.error("Error while deleting application from api manager. the list of APIs of appKey "+ appKey +
-                  " tenant: "+tenantDomain+"\n"+ e.message);
-        throw "Error while getting the list of APIs of appKey "+ appKey+" tenant: "+tenantDomain;
+        log.error("Error while deleting application : " + appKey + " of tenant domain : " + tenantDomain
+                  + " from api manager.");
+        log.error(e);
+        throw e;
     }
 };
 

@@ -122,7 +122,45 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 		return isDeleted;
 	}
 
-	@Override
+	/**
+	 *
+	 * @param applicationKey for the deleting app
+	 * @param userName of the forked repo owner
+	 * @param tenantDomain of the forked repo owner
+	 * @return
+	 * @throws RepositoryMgtException
+	 */
+    @Override
+    public boolean deleteForkedRepository(String applicationKey, String userName, String tenantDomain)
+		    throws RepositoryMgtException {
+
+	    String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(userName);
+	    String repoName =
+			    "~" + tenantDomain + File.separator + tenantAwareUserName + File.separator + applicationKey + ".git";
+	    String repoUrl = config.getFirstProperty(BASE_URL);
+	    String adminUsername = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_USERNAME);
+	    String adminPassword = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_PASSWORD);
+	    // Create the gftblit repository model
+	    RepositoryModel model = new RepositoryModel();
+	    model.name = repoName;
+	    // authenticated users can clone, push and view the repository
+	    model.accessRestriction = Constants.AccessRestrictionType.VIEW;
+	    model.isBare = true; // TODO: temporaryly added for demo purpose, need
+	    // to fixed with new gitblit
+	    boolean isDeleted;
+	    try {
+		    RepositoryModel retrievedRepo = findRepository(model.name, repoUrl, adminUsername, adminPassword);
+		    isDeleted = RpcUtils.deleteRepository(retrievedRepo, repoUrl, adminUsername, adminPassword.toCharArray());
+	    } catch (IOException e) {
+		    throw new RepositoryMgtException(
+				    "Forked Repository is not deleted for applicartion : " + applicationKey + " and user :  " +
+				    userName, e);
+	    }
+	    return isDeleted;
+    }
+
+
+    @Override
 	public boolean repoExists(String applicationKey, String tenantDomain)
 	                                                                     throws RepositoryMgtException {
 		// TODO implement method

@@ -106,8 +106,10 @@ var getOpenIssues = function(applicationKey, applicationVersion){
 
             }
         } catch (e) {
-            log.error("Error while getting issues of " + applicationKey + "\n" + e.message);
-            throw "Error while getting issues of " + applicationKey + "\n";
+            log.error("Error while getting open issues of application : " + applicationKey + " version : "
+                      + applicationVersion);
+            log.error(e);
+            throw e;
         }
         return issues;
 

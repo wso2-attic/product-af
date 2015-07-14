@@ -26,9 +26,10 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
@@ -96,9 +97,9 @@ public class ApplicationUserManagementService {
         String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
         String separator = ", ";
         String userNameStr = concatUserNames(userNames, separator);
+        CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
+        String tenantDomain=threadLocalCarbonContext.getTenantDomain();
         try {
-            CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-            String tenantDomain=threadLocalCarbonContext.getTenantDomain();
             //passing new String[]{} since null is not handled in doupdateUserListOfRole() method in ReadWriteLDAPUserStoreManager
             threadLocalCarbonContext.getUserRealm().getUserStoreManager()
                          .updateUserListOfRole(applicationRole, new String[]{}, userNames);
@@ -108,9 +109,12 @@ public class ApplicationUserManagementService {
                 ApplicationEventsHandler applicationEventsListener =
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
-                    applicationEventsListener.onUserAddition(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
-
+                    applicationEventsListener.onUserAddition(ApplicationDAO.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
                 }
+            }
+            ApplicationsOfUserCache applicationsOfUserCache = new ApplicationsOfUserCache();
+            for (String userName:userNames){
+                applicationsOfUserCache.addToCache(userName, true);
             }
 
             //Notify to App wall
@@ -133,8 +137,10 @@ public class ApplicationUserManagementService {
 
             try {
                 String error = "Error in adding " + userNameStr + " to the application";
+                String errorDescription = e.getMessage();
+                errorDescription.concat("\n Tenant domain: " + tenantDomain);
                 EventNotifier.getInstance().notify(UserManagementEventBuilderUtil.buildUserAdditionToAppEvent(applicationKey, error,
-                        e.getMessage(), Event.Category.ERROR));
+                        errorDescription, Event.Category.ERROR));
             } catch (AppFactoryEventException exception) {
                 log.error("Failed to notify the failure of user addition to app event ", exception);
                 // do not throw again.
@@ -187,7 +193,7 @@ public class ApplicationUserManagementService {
             throw new AppFactoryException(errorMsg, e);
         }
 
-        Application app = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
+        Application app = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
         String applicationName = app.getName();
 
         for (String userName : userNames) {
@@ -211,12 +217,12 @@ public class ApplicationUserManagementService {
                                                                                        throws ApplicationManagementException {
         String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
         String userNameStr = concatUserNames(userNames, ",");
+        CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
+        String tenantDomain=threadLocalCarbonContext.getTenantDomain();
         try {
            // CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
            // int tenantId = threadLocalCarbonContext.getTenantId();
            // UserRealm userRealm = Util.getRealmService().getTenantUserRealm(tenantId);
-            CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-            String tenantDomain=threadLocalCarbonContext.getTenantDomain();
             UserRealm userRealm = threadLocalCarbonContext.getUserRealm();
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();
             userStoreManager.updateUserListOfRole(applicationRole, userNames, null);
@@ -226,7 +232,7 @@ public class ApplicationUserManagementService {
                 ApplicationEventsHandler applicationEventsListener =
                                                                       (ApplicationEventsHandler) applicationEventsListeners.next();
                 for(String userName: userNames){
-                    applicationEventsListener.onUserDeletion(ApplicationManager.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
+                    applicationEventsListener.onUserDeletion(ApplicationDAO.getInstance().getApplicationInfo(applicationKey), new UserInfo(userName), tenantDomain);
                 }
             }
 
@@ -269,71 +275,4 @@ public class ApplicationUserManagementService {
             throw new ApplicationManagementException(message, e);
         }
     }
-
-	/**
-	 * Returns the list of applications that user belongs to
-	 * 
-	 * @param userName
-	 * @return <b>Application</b> Array
-	 * @throws ApplicationManagementException
-	 */
-   public Application[] getApplicaitonsOfTheUser(String userName)
-                                                                  throws ApplicationManagementException {
-		try {
-			return ApplicationManager.getInstance().getAllApplicaitonsOfUser(userName);
-		} catch (AppFactoryException e) {
-			String message = "Failed to retrieve applications of the user" + userName;
-			log.error(message, e);
-			throw new ApplicationManagementException(message, e);
-		}
-    }
-   
-   /**
-    * Lightweight method to get application keys of the applications of user 
-    * @param userName 
-    * @return String array of applicaiton keys 
-    * @throws ApplicationManagementException
-    */
-    public String[] getApplicationKeysOfUser(String userName) throws ApplicationManagementException {
-        CarbonContext context = CarbonContext.getThreadLocalCarbonContext();
-        ArrayList<String> applications = new ArrayList<String>();
-        try {
-            String[] roles =
-                             context.getUserRealm().getUserStoreManager()
-                                    .getRoleListOfUser(userName);
-            for (String role : roles) {
-                if (AppFactoryUtil.isAppRole(role)) {
-                    try {
-                        String appkeyFromPerAppRoleName = AppFactoryUtil.getAppkeyFromPerAppRoleName(role);
-                        applications.add(appkeyFromPerAppRoleName);
-                    } catch (AppFactoryException e) {
-                        // ignore exception here because isAppRole check avoids this exception being thrown..
-                    }
-                }
-            }
-            return applications.toArray(new String[applications.size()]);
-        } catch (UserStoreException e) {
-            String message = "Failed to retrieve applications of the user" + userName;
-            log.error(message,e);
-            throw new ApplicationManagementException(message, e);
-        }
-
-    }
-
-    /**
-     * Returns all the applications created by a particular user.
-     *
-     * @param userName user name of the user with domain eg: user@tenant.com
-     * @return <Application> array
-     * @throws ApplicationManagementException
-     */
-    public Application[] getApplicationsCreatedByUser(String userName) throws ApplicationManagementException {
-        try {
-            return ApplicationManager.getInstance().getAllApplicationsCreatedByUser(userName);
-        } catch (AppFactoryException e) {
-            throw new ApplicationManagementException("Failed to retrieve applications created by the user" +
-                                                     userName, e);
-        }
-    }
-
 }

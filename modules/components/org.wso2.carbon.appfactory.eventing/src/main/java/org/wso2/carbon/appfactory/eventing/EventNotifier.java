@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.eventing.email.NotificationEmailSender;
 import org.wso2.carbon.appfactory.eventing.jms.TopicPublisher;
 import org.wso2.carbon.appfactory.eventing.social.SocialActivityEventDispatcher;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
@@ -65,14 +66,6 @@ public class EventNotifier {
                     return;
                 }
 
-                try {
-                    PrivilegedCarbonContext.startTenantFlow();
-                    PrivilegedCarbonContext privilegedCarbonContext =
-                            PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                    privilegedCarbonContext.setTenantId(tenantId);
-                    privilegedCarbonContext.getTenantDomain(true);
-                    privilegedCarbonContext.setUsername(userName);
-
                     for (Event.EventDispatchType eventDispatchType : eventDispatchTypes) {
                         if (eventDispatchType != Event.EventDispatchType.SOCIAL_ACTIVITY) {
                             EventDispatcher eventDispatcher = dispatcherMap.get(eventDispatchType);
@@ -88,21 +81,24 @@ public class EventNotifier {
                             }
                         }
                     }
+                try {
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext privilegedCarbonContext =
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                    privilegedCarbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, true);
+                    for (Event.EventDispatchType eventDispatchType : eventDispatchTypes) {
+                        if (eventDispatchType == Event.EventDispatchType.SOCIAL_ACTIVITY) {
+                            EventDispatcher eventDispatcher = dispatcherMap.get(eventDispatchType);
+                            try {
+                                eventDispatcher.dispatchEvent(event);
+                            } catch (AppFactoryEventException e) {
+                                log.error("Failed to dispatch event with error:" + e.getMessage(), e);
+                            }
+                        }
+                    }
                 } finally {
                     PrivilegedCarbonContext.endTenantFlow();
                 }
-
-                for (Event.EventDispatchType eventDispatchType : eventDispatchTypes) {
-                    if (eventDispatchType == Event.EventDispatchType.SOCIAL_ACTIVITY) {
-                        EventDispatcher eventDispatcher = dispatcherMap.get(eventDispatchType);
-                        try {
-                            eventDispatcher.dispatchEvent(event);
-                        } catch (AppFactoryEventException e) {
-                            log.error("Failed to dispatch event with error:" + e.getMessage(), e);
-                        }
-                    }
-                }
-
             }
         });
         thread.setName(APPFACTORY_EVENT_NOTIFIER_THREAD);

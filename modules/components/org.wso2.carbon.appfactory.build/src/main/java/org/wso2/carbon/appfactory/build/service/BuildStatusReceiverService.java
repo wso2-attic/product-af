@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
@@ -29,7 +29,6 @@ import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
 import org.wso2.carbon.appfactory.eventing.utils.EventingConstants;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -82,7 +81,7 @@ public class BuildStatusReceiverService {
             boolean isFreestyle;
             try {
 				isFreestyle =
-				              AppFactoryCoreUtil.isFreestyleNonBuilableProject(ApplicationManager.getInstance()
+				              AppFactoryCoreUtil.isFreestyleNonBuilableProject(ApplicationDAO.getInstance()
 				                                                                                 .getApplicationInfo(buildStatus.getApplicationId())
 				                                                                                 .getType());
             } catch (AppFactoryException e) {
@@ -133,7 +132,8 @@ public class BuildStatusReceiverService {
                               buildStatusBean.getTriggeredUser().split("@")[0];
                 eventCategory = Event.Category.INFO;
             } else {
-                infoMessage = buildStatusBean.getVersion() + " of " + repoType + " repository build failed.";
+                infoMessage = buildStatusBean.getVersion() + " of " + repoType + " repository build failed";
+                infoMessage.concat("\n Tenant domain: " + tenantDomain + "\n Application: " + buildStatusBean.getApplicationId());
                 eventCategory = Event.Category.ERROR;
             }
             String description = "Build ID : " + buildStatusBean.getBuildId();

@@ -1191,3 +1191,23 @@ div.af_container  .data-table tr.colored td{
     text-overflow: ellipsis;
     text-align: center;
 }
+
+.progress-bar-container{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 215px;
+}
+
+
+.progress-bar-style{
+    width:270px;
+    height: 10px;
+}
+
+.progressbar-status-message{
+    font-family: "Times New Roman", Times, serif;
+    font-size:15px;
+    font-style: italic;
+    color: #00bb00;
+}
+

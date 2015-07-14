@@ -5,7 +5,7 @@
       "host": "gateway.am.wso2.com",
       "displayName": "API Manager - Gateway Worker",
       "description": "API Manager - Gateway Worker Cartridge",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "multiTenant": "true",
       "portMapping": [
          {

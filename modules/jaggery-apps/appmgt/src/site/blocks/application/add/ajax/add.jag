@@ -41,11 +41,14 @@ var log=new Log();
 		var applicationName = request.getParameter("applicationName");
 		var applicationKey = request.getParameter("applicationKey");
 		var applicationDescription = request.getParameter("applicationDescription");
-		var applicationType = request.getParameter("applicationType");
+		var applicationType = request.getParameter("appType");
 		var repositoryType = request.getParameter("repositoryType");
+        log.info(repositoryType)
                 var repoAccessibility = request.getParameter("repoAccessibility");
 		var userName = request.getParameter("userName");
 		var applicationURL = request.getParameter("applicationURL");
+        var appTypeDisplayName1 = request.getParameter("appTypeDisplayName");
+        log.info("applicationType + " + applicationType);
 		var response = {};
 		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 			try {
@@ -55,19 +58,21 @@ var log=new Log();
 				response.message = message;
 				response.result = 0;
                 var appTypeDisplayName = modManager.getApplicationTypeBean(applicationType).getDisplayName();
+
 				if (appTypeDisplayName) {
 					// adds to session in 'Pending state', until the application
 					// is created.
                     if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType,
                                                           applicationDescription, applicationType, userName,appTypeDisplayName)){
+                        log.info("inside if 1")
 						for (var provider in repositoryProviders) {
 							if (repositoryType == repositoryProviders[provider]) {
-
+                                log.info("repositoryType if 2")
 								result = mod.createApplicationBPEL(applicationName, applicationKey,
 											           applicationDescription, applicationType,
 											           repoAccessibility, repositoryType, userName,
 											           applicationURL, 'trunk', LIFE_CYCLE_NAME);
-
+                                log.info(result)
 								message = "Application was created under Repository type ".concat(repositoryType);
 								response.message = message;
 								response.result = 1;
@@ -211,6 +216,7 @@ function isApplicationDuplicateWithSession(applicationKey, applicationName, repo
 		thisApplication.isPending = true;
         thisApplication.applicationCreationStatus = APPLICATION_CREATION_STATUS.PENDING;
         thisApplication.typeDisplayName = appTypeDisplayName;
+        thisApplication.appTypeIcon = modManager.getApplicationTypeBean(applicationType).getIconImageClass();
 
 		appContainer.app = thisApplication;
 

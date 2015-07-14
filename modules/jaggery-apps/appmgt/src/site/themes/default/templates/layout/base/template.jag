@@ -20,7 +20,6 @@
 jagg.template("layout/base", function(inputs, outputs, jagg) { %>
 
     <% //jagg.includeBlocks(outputs.breadcrumb); %>
-    <% jagg.includeBlocks(outputs.tablinks); %>
     <% jagg.includeBlocks(outputs.middle); %>
 
 <% }); %>

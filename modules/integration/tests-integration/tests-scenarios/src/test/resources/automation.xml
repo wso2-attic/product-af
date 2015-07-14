@@ -291,6 +291,7 @@
             <bps>https://process.appfactory.private.wso2.com:9543/</bps>
             <git>https://git.appfactory.private.wso2.com:8443/</git>
             <bam>https://bam.appfactory.private.wso2.com:9446/</bam>
+            <api>http://apimanager.appfactory.private.wso2.com:9769/</api>
         </urls>
 
         <defaultTenant>
@@ -299,16 +300,51 @@
             <email>firstName@example.com</email>
             <admin>admin</admin>
             <adminPassword>admin123</adminPassword>
-            <tenantDomain>rama15.com</tenantDomain>
+            <tenantDomain>rama.com</tenantDomain>
             <usagePlan>Demo</usagePlan>
         </defaultTenant>
 
         <defaultApplication>
-            <applicationName>appla</applicationName>
-            <applicationKey>appla</applicationKey>
+            <applicationName>apptest</applicationName>
+            <applicationKey>apptest</applicationKey>
             <applicationType>war</applicationType>
             <applicationDescription>applicationDescription</applicationDescription>
+            <versions>
+                <version key="v1">
+                    <sourceVersion>trunk</sourceVersion>
+                    <targetVersion>1.0.0</targetVersion>
+                </version>
+                <version key="v2">
+                    <sourceVersion>trunk</sourceVersion>
+                    <targetVersion>2.0.0</targetVersion>
+                </version>
+                <version key="v3">
+                    <sourceVersion>trunk</sourceVersion>
+                    <targetVersion>3.0.0</targetVersion>
+                </version>
+            </versions>
         </defaultApplication>
+        <defaultAPI>
+            <useNAme>admin</useNAme>
+            <password>admin</password>
+            <addPayload>
+                action=addAPI&amp;name=PhoneVerification&amp;context=/phoneverify&amp;version=1.0.0&amp;visibility=public&amp;
+                thumbUrl=&amp;description=Verify a phone number&amp;tags=phone,mobile,multimedia&amp;endpointType=nonsecured&amp;
+                wsdl=&amp;wadl=&amp;tiersCollection=Gold,Bronze&amp;http_checked=http&amp;https_checked=https&amp;resourceCount=0&amp;
+                resourceMethod-0=GET&amp;resourceMethodAuthType-0=Application&amp;resourceMethodThrottlingTier-0=Unlimited&amp;
+                uriTemplate-0=/*&amp;default_version_checked=default_version&amp;bizOwner=xx&amp;bizOwnerMail=xx@ee.com&amp;
+                techOwner=xx&amp;techOwnerMail=ggg@ww.com"
+            </addPayload>
+            <publishPayload>
+                name=PhoneVerification&amp;version=1.0.0&amp;provider=admin&amp;status=PUBLISHED&amp;publishToGateway=true&amp;
+                action=updateStatus
+            </publishPayload>
+            <subscribePayload>
+                action=addAPISubscription&amp;name=PhoneVerification&amp;version=1.0.0&amp;provider=admin&amp;tier=Gold&amp;
+                applicationName=DefaultApplication
+            </subscribePayload>
+
+        </defaultAPI>
 
         <domainMapping>
             <domainName>example.com</domainName>
@@ -316,3 +352,6 @@
 
     </appFactoryProperties>
 </automation>
+
+
+

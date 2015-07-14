@@ -48,14 +48,17 @@ jagg.module("manager", {
     getApplicationType:function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getApplicationType.apply(this, arguments);
     },
-    cacheTenantInfo:function () {
-        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").cacheTenantInfo.apply(this, arguments);
+    cacheApplicationInfo:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").cacheApplicationInfo.apply(this, arguments);
     },
     getApplicationTypeManager:function () {
         	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getApplicationTypeManager.apply(this, arguments);
     },
     getApplicationTypeBean:function () {
         	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getApplicationTypeBean.apply(this, arguments);
+    },
+    getUploadableApplicationMaxSize:function () {
+        return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getUploadableApplicationMaxSize.apply(this, arguments);
     }
 });
 %>

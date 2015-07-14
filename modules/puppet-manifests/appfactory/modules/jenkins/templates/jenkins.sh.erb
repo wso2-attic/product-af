@@ -1,0 +1,95 @@
+# !/bin/bash
+#
+#   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+#   WSO2 Inc. licenses this file to you under the Apache License,
+#   Version 2.0 (the "License"); you may not use this file except
+#   in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
+
+set -e
+MY_PATH="`dirname \"$0\"`"
+MY_PATH="`( cd \"$MY_PATH\" && pwd )`"
+NAME=jenkins
+cd ${MY_PATH}
+mkdir -p <%= @jenkins_home %>
+export JENKINS_HOME=<%= @jenkins_home %>
+mkdir -p <%= @jenkins_log_file_location %>
+PIDFILE=<%= @jenkins_home %>/${NAME}.pid
+
+JAVA_CMD="java -jar "
+OPTIONAL_JAVA_OPTS=""
+DEFAULT_JAVA_OPTS=" -Djavax.net.ssl.trustStore=<%= @clientTrustStore_location %>
+                    -Djavax.net.ssl.trustStorePassword=<%= @clientrustStore_password %> "
+DEFAULT_JENKINS_OPTS=" --httpPort=-1 --httpsPort=<%= @jenkins_port %>
+                    --httpsKeyStore=<%= @jenkins_keystore_name %>
+                    --httpsKeyStorePassword=<%= @jenkins_keystore_password %> "
+LOGS_OPTS=" > <%= @jenkins_log_file_location %>/${NAME}.log 2>&1 & echo \$! > ${PIDFILE}"
+
+if [ -e "${PIDFILE}" ]; then
+  PID=`cat ${PIDFILE}`
+fi
+
+for c in $*
+do
+    if [ "$c" = "--debug" ] || [ "$c" = "-debug" ] || [ "$c" = "debug" ]; then
+          CMD="--debug"
+          continue
+    elif [ "$CMD" = "--debug" ]; then
+          if [ -z "$PORT" ]; then
+                PORT=${c}
+          fi
+    elif [ "$c" = "--stop" ] || [ "$c" = "-stop" ] || [ "$c" = "stop" ]; then
+          CMD="stop"
+    elif [ "$c" = "--start" ] || [ "$c" = "-start" ] || [ "$c" = "start" ]; then
+          CMD="start"
+    fi
+done
+
+
+if [ "$CMD" = "--debug" ]; then
+  if [ "$PORT" = "" ]; then
+    echo " Please specify the debug port after the --debug option"
+    exit 1
+  fi
+  JAVA_CMD="java -jar "
+  OPTIONAL_JAVA_OPTS=" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT "
+  LOGS_OPTS=""
+  echo "Please start the remote debugging client to continue..."
+elif [ "$CMD" = "start" ]; then
+  if [ -e "${PIDFILE}" ] && [ ! -z "$PID" ]; then
+    if  ps -p ${PID}  > /dev/null ; then
+      echo "Process is already running"
+      exit 0
+    fi
+  fi
+  JAVA_CMD="nohup java -jar "
+elif [ "$CMD" = "stop" ]; then
+  if [ ! -z "$PID" ]; then
+    if  ps -p ${PID}  > /dev/null ; then
+      kill -term ${PID}
+      exit 0
+    fi
+  fi
+  echo "No process found"
+  exit 0
+else
+  JAVA_CMD="java -jar "
+  LOGS_OPTS=""
+fi
+
+echo "JENKINS_HOME "${JENKINS_HOME}
+echo "Running jenkins.war..."
+RUN_JENKINS_CMD=${JAVA_CMD}" "${DEFAULT_JAVA_OPTS}" "${OPTIONAL_JAVA_OPTS}" ${NAME}.war  "${DEFAULT_JENKINS_OPTS}" "${LOGS_OPTS}
+eval ${RUN_JENKINS_CMD}
+

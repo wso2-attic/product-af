@@ -32,7 +32,7 @@ include("/jagg/constants.jag"); %>
     var hasCXOPermissionOnApps = permissionMod.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
     var isTenantAdmin = permissionMod.hasTenantLevelUserMgtPermission();
     var appDomain = getProperty(DOMAIN_NAME);
-    var isUploadableApp = request.getParameter("isUploadableApp");
+    var isUploadableApp = outputs.isUploadableAppType;
     var helpTips = outputs.helpTips;
     var executionType = outputs.executionType;
     var isAllowDomainMapping = outputs.isAllowDomainMapping;
@@ -95,6 +95,7 @@ include("/jagg/constants.jag"); %>
         loadAppIcon('<%=applicationKey%>');
         loadApplicationInfo();
 
+        createVersionStatus();        
 
         $('#deleteButton').click(function(){
             var status =$('#deleteButton').attr('disabled');
@@ -241,7 +242,7 @@ include("/jagg/constants.jag"); %>
    });
 
 function validateInputForAlphanumericAndSpaces(inputValue){
-	return !/[^a-zA-Z0-9\-\ /]/.test(inputValue);
+	return !/[^a-zA-Z0-9\-\.,'"":;_+=(){}\[\] /]/.test(inputValue);
 }
 /**
  * Set customer url as a spin icon
@@ -283,19 +284,22 @@ function loadAppIcon(appKey) {
     },
 
     function (result) {
-        if(result == 101){
-            $(".appHomeIcon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
-        }else{
-            <%
-    var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
-    var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey="+applicationKey;
-    %>
-    $(".appHomeIcon").attr('src','<%=iconUrl%>');
-        }
+      if(result == 101){
+          // Application icon is not available, set the default
+          $(".app-icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+          console.info("101");
+      }
+      else
+      {
+        <%
+          var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+          var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey="+applicationKey;
+        %>
+        $(".app-icon").attr('src','<%=iconUrl%>');
+      }},
 
-    },
-    function (jqXHR, textStatus, errorThrown) {
-    });
+      function (jqXHR, textStatus, errorThrown) {
+      });
 
 }
 
@@ -336,7 +340,7 @@ function validateIconImage(filename,fileSize) {
          break;
         }
 
-        if(fileSize > 5242880 && extStatus == true){
+        if(fileSize > <%=APP_ICON_MAX_SIZE%> && extStatus == true){
             fileSizeStatus = false;
             jagg.message({
                    content: "Image file should be less than 5MB",
@@ -365,7 +369,7 @@ function validateIconImage(filename,fileSize) {
 
    function copyNewDependenciesDeployAndLaunchArtifact(applicationKey, version, stage, deployAction, state, type){
        launchApp(applicationKey, version,stage,state,type);
-       jagg.post("../blocks/build/add/ajax/add.jag", {
+       jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
                action: "copyNewDependenciesAndDeployArtifact",
                applicationKey: applicationKey,
                deployAction:deployAction,
@@ -492,7 +496,7 @@ function setClipBoard(version){
 
 
    function deployApp(applicationKey, version, stage, deployAction, state, type){
-       jagg.post("../blocks/build/add/ajax/add.jag", {
+       jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
                action: "copyNewDependenciesAndDeployArtifact",
                applicationKey: applicationKey,
                deployAction:deployAction,
@@ -501,7 +505,7 @@ function setClipBoard(version){
                version:version
            }, function (result) {
                jagg.message({
-                   content: "The Deployment is underway. Please wait, this might take few minutes.",
+                   content: "The Deployment is underway. Please wait and refresh page after few minutes.",
                    type: 'success',
                    id:'notification'
                });
@@ -688,7 +692,8 @@ function setClipBoard(version){
             if(parsedArray.description!="null"){
                 $('#description_edit').val(parsedArray.description);
             }
-
+            
+            console.info(appInfo.type);
             var type = "<%= jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/apptype/" + appInfo.type + ".png'))%>";
 	    $('#type').attr("src", type);
        },function (jqXHR, textStatus, errorThrown) {
@@ -705,8 +710,9 @@ function setClipBoard(version){
 
    var repoCloneURL = "" ;
    var repoBrowseURL = "" ;
+   var noOfTry = 0;
 
-
+/*
    function createCurrentStatus(isLoad) {
         $("#repositories_and_builds_list_content_new tbody").show();
         $("#repositories_and_builds_list_content_new tbody").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
@@ -848,6 +854,7 @@ function setClipBoard(version){
 	            }
 
 	        }
+
 	        var clip = new ZeroClipboard($('#copymain'));
 
 	        clip.on('load', function (client) {
@@ -878,8 +885,12 @@ function setClipBoard(version){
 	        });
 
             // TODO: support for other app types
-            if(defaultSubDomain && ('<%=isAllowDomainMapping%>' === 'true')) {
-                $('#urlMapper').show();
+            if ('<%=isAllowDomainMapping%>' === 'true' && defaultSubDomain) {
+                    $('#urlMapper').show();
+            } else if(!defaultSubDomain && noOfTry < '<%=MAX_NO_OF_TRY_FOR_ADD_DEFAULT_DOMAIN%>'){
+                    $('#urlMapper').hide();
+                    noOfTry++;
+                    addDefaultProdUrlIfNotExist();
             } else {
                  // hide domain mapping div, if production url is not defined
                 $('#urlMapper').hide();
@@ -893,13 +904,58 @@ function setClipBoard(version){
 	    });
 	}
 
+*/
+
+
+  /**
+
+  This function is use to load the version details of the new UI  
+
+
+  */
+  function createVersionStatus(){
+
+
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+          action: "getAppVersionsInStages",
+          userName: $("#userName").attr('value'),
+          applicationKey: '<%=applicationKey%>'
+      }, function (result) {
+
+        console.info(result);
+
+        var parsedArray = jQuery.parseJSON(result);
+        
+        var versions = Array();
+
+        for (var i = 0; i < parsedArray.length; i++) {
+          
+          var application = parsedArray[i];
+          versions = versions.concat(application.versions);
+          applicationType = application.type;
+          defaultSubDomain = application.mappedSubDomain;
+          currentCustomUrl = application.customUrl;
+          customUrlVerificationCode = application.customUrlVerificationCode;
+
+        }
+
+      });
+
+  }
+
+
+
+
+
+
 	/**
 	*  Set url mapping UI elements based on the current status
 	*/
 	function setUrlMappingElements(){
 	    // Set default prod url
 	    if(defaultSubDomain && defaultSubDomain != "null" && defaultSubDomain != ""){
-	        $('#default-sub-domain-span').html(defaultSubDomain);
+          //$('#default-sub-domain-span').html(defaultSubDomain);
+	        $('#prod-url').html(defaultSubDomain);
 	    }
 
 	    // set custom url html elements
@@ -917,6 +973,7 @@ function setClipBoard(version){
                 $("remove-custom-url-btn").hide();
             }
         }else{
+
             $("#btn-validate-domain").hide();               // if custom url is not verified, hide validate btn
              $("#div-custom-url-details").hide();
             if(hasDomainMappingPermission ==='true') {
@@ -926,8 +983,6 @@ function setClipBoard(version){
             }
             $('.custom-url').html("<span class='sub_domain_no_txt'>&lt;sub_domain&gt;</span>");
         }
-
-
     }
 
    /**
@@ -985,6 +1040,27 @@ function setClipBoard(version){
             }
 	    }
    }
+
+   function addDefaultProdUrlIfNotExist(){
+         jagg.post("../blocks/urlmapper/add/ajax/add.jag", {
+	           action:"addDefaultProdUrl",
+	           applicationKey:applicationKey
+	       },function (result) {
+	    	   hideNotification();
+	    	   if(jQuery.parseJSON(result) == true){
+                  jagg.message({
+                  content: "Default production url added successfully",
+                  type: 'success',
+                  id:'notification'
+                });
+	    	   createCurrentStatus(false);
+	    	   }
+	       },function (jqXHR, textStatus, errorThrown) {
+	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
+	           createCurrentStatus(false);
+	       });
+   }
+
 
     /**
      * Remove previous domain and remap new domain to the given version
@@ -1140,6 +1216,11 @@ function setClipBoard(version){
    }
    //]]
 </script>
+<!-- ############################################################################################# -->
+<!-- ############################################################################################# -->
+<!-- ############################################################################################# -->
+<!-- OLD UI -->
+
 <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
@@ -1158,23 +1239,24 @@ function setClipBoard(version){
                         <div class="af_row">
                             <div class="col-2">
                                 <h2 class="push_top_10">Name</h2>
-                                <span id="appName" style="word-wrap:break-word;"></span>
+                                <span id="appName_bk" style="word-wrap:break-word;"></span>
                                 <div class="element-editor-wrapper icon-wrapper">
                                     <div class="element-editor-default">
                                         <% if(applicationKey != null && applicationName != null){ %>
-                                        <img class="appHomeIcon" src="<%=iconUrl%>" alt=""  width="100px"/>
+                                        <img class="appHomeIcon_bk" src="<%=iconUrl%>" alt=""  width="100px"/>
 
                                         <% } %>
                                     </div>
                                     <div class="element-editor-hover">
                                          <% if(applicationKey != null && applicationName != null){ %>
-                                        <img class="appHomeIcon" src="<%=iconUrl%>" alt=""  width="100px"/>
+                                        <img class="appHomeIcon_bk" src="<%=iconUrl%>" alt=""  width="100px"/>
 
                                         <% } %>
                                         <span class="icon-pencil"></span>
                                     </div>
 
                                 </div>
+
                                 <div class="element-editor-edit" style="display:none">
                                     <% if(applicationKey != null && applicationName != null){ %>
                                     <div id="changeAppHomeIcon" >
@@ -1242,8 +1324,8 @@ function setClipBoard(version){
                             </div>
                             <div class="col-10" id="urlMapper" style="display:none">
                                 <h2>Production URL</h2>
-				                <div class="help-block"><span class="help-icon">?</span> <span id="productionUrlHelpText"></span></div>
-				                <div id="default-sub-domain-div">
+                                <div class="help-block"><span class="help-icon">?</span> <span id="productionUrlHelpText"></span></div>
+                                <div id="default-sub-domain-div">
                                         http://<span id="default-sub-domain-span" class="default-sub-domain"></span>.<%=appDomain%>
                                         <% if(hasDomainMappingPermission){ %> <a href="#" onclick="addNewUrlClick()" id="add-new-custom-url-btn" style="text-decoration:none;"><span class="icon-plus-sign"></span></a> <%}%>
                                 </div>
@@ -1279,9 +1361,9 @@ function setClipBoard(version){
                         <div class="af_row">
                             <div class="col-12">
                                 <h2>Description</h2>
-     				            <div class="help-block"><span class="help-icon">?</span> <span id="appDescription"></span></div>
+                                <div class="help-block"><span class="help-icon">?</span> <span id="appDescription"></span></div>
                                 <div class="element-editor-wrapper">
-                                    <div class="element-editor-default description" name="description_view" id="description_view">Click here to add description</div>
+                                    <div class="element-editor-default description" name="description_view_bk" id="description_view_bk">Click here to add description</div>
                                     <div class="element-editor-hover">
                                         <span class="description" id="description_hover"></span>
                                         <span class="icon-pencil"></span>
@@ -1309,11 +1391,12 @@ function setClipBoard(version){
                         <div class="af_row">
                             <div class="col-12">
 
-		                        <div style="clear:both"></div>
+                                <div style="clear:both"></div>
                                 <h2>Current Status</h2>
                                 <div class="help-block">
-                                	<span class="help-icon">?</span><span id="launch" style="padding-left: 3px"></span>
+                                    <span class="help-icon">?</span><span id="launch" style="padding-left: 3px"></span>
                                 </div>
+                                <h2>Repository and builds</h2>
                                 <table class="data-table" id="repositories_and_builds_list_content_new">
                                     <thead>
                                         <tr>
@@ -1324,7 +1407,7 @@ function setClipBoard(version){
 
                                     </tbody>
                                 </table>
-	                         </div>
+                             </div>
                         </div>
                     </div>
                </div>
@@ -1359,10 +1442,18 @@ function setClipBoard(version){
 <% //jagg.includeBlock("comment/comment-add", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
 <% //jagg.includeBlock("comment/comment-list", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
 </div><!-- /container -->
+
+<!-- ############################################################################################# -->
+<!-- ############################################################################################# -->
+<!-- end of OLD UI -->
+
 <script type="text/javascript">
 $(document).ready(function () {
-
-    loadApplicationInfo();
+    
+    console.info("Documet Ready");
+    //createVersionStatus();
+    //loadApplicationInfo();
+    console.info("End of load");
     loggedinUser = $('#userName').val();
     if (loggedinUser == appownerName) {
         $('#description').qtip({
@@ -1397,7 +1488,358 @@ $(document).ready(function () {
         });
 
     }
+
+
 });
 </script>
+
+
+
+
+
+
+<h1>New UI</h1>
+
+
+<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
+<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
+<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
+<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
+<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
+<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
+
+
+
+
+<!-- BOF cloud menu -->
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" id="cloud-menu-popover-xs" data-toggle="popover" data-placement="bottom"
+               class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
+                <i class="fw fw-tiles"></i>
+            </a>
+            <a class="navbar-brand" href="#"><img src="images/logo.png" alt="wso2-logo" > Cloud</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav menu-right">
+                <li><a href="#"><i class="fa fa-book"></i> Documentation</a></li>
+                <li><a href="#about"><i class="fa fa-envelope"></i> Support</a></li>
+                <li class="dropdown user-name">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">jack sparrow
+                        <i class="fa fa-chevron-circle-down"></i>
+                        <img src="images/user.png" alt="user" class="user-image"></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Logout</a></li>
+                    </ul>
+                </li>
+                <li class="cloud-menu hidden-xs">
+                    <a href="#" id="cloud-menu-popover" data-toggle="popover" data-placement="bottom"
+                            class="cloud-menu-popover">
+                        <i class="fw fw-tiles"></i>
+                    </a>
+                </li>
+            </ul>
+            <!-- BOF cloud menu content -->
+            <div class="cloud-menu-content hide">
+                <div id="popover-head" class="hide">
+                    Navigate to Cloud
+                </div>
+                <div id="popover-content" class="hide">
+                   <div class="cloud-apps">
+                       <a class="cloud-block">
+                           <i class="fa fa-3x fa-cubes"></i>
+                           <div class="cloud-name">Application Cloud</div>
+                       </a>
+                       <a class="cloud-block">
+                           <i class="fw fw-api fa-3x"></i>
+                           <div class="cloud-name">API Cloud</div>
+                       </a>
+                       <div class="clearfix"></div> <!-- to make seperate -->
+                   </div>
+                   <div class="cloud-actions">
+                       <h3>Manage your cloud</h3>
+                       <a class="cloud-block-invert">
+                           <i class="fa fa-3x  fa-institution"></i>
+                           <div class="cloud-name">Organizations</div>
+                       </a>
+                       <a class="cloud-block-invert">
+                           <i class="fa fa-3x  fa-users"></i>
+                           <div class="cloud-name">Members</div>
+                       </a>
+                       <a class="cloud-block-invert">
+                           <i class="fa fa-3x  fa-envelope"></i>
+                           <div class="cloud-name">Support</div>
+                       </a>
+                   </div>
+                </div>
+            </div>
+            <!-- EOF cloud menu content -->
+        </div><!--/.nav-collapse -->
+    </div>
+</div>
+<!-- EOF cloud menu -->
+<!-- BOF App factory menu -->
+<div class="navbar navbar-secondary">
+    <div class="container-fliud">
+        <div class="row">
+            <div class="side-pane-trigger">
+                <i class="fa fa-reorder"></i>
+            </div>
+            <div class="breadcrumb-secondary">
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
+            </div>
+        </div>
+    </div>
+</div><!-- EOF App factory menu -->
+<div class="inner-wrapper">
+    <!-- left pane wrapper -->
+    <div class="left-pane">
+
+        <ul>
+            <li class="selected">
+                <i class="fa fa-laptop"></i> Overview
+            </li>
+            <li>
+                <i class="fa fa-users"></i> Team
+            </li>
+            <li>
+                <i class="fa fa-cogs"></i> Repos & Builds
+            </li>
+            <li>
+                <i class="fa fa-database"></i> Databases
+            </li>
+            <li>
+                <i class="fa fa-wrench"></i> Runtime Configs
+            </li>
+            <li>
+                <i class="fa fa-tags"></i> Issues
+            </li>
+            <li>
+                <i class="fw fw-lifecycle"></i> Lifecycle Management
+            </li>
+            <li>
+                <i class="fa fa-hdd-o"></i> Logs
+            </li>
+        </ul>
+    </div>
+
+    <!-- left pane wrapper -->
+    <div class="right-pane">
+
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Go Back
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+
+    <div class="container-fluid app-content-section">
+        <div class="row">
+
+
+          <div class="col-md-12 app-preview">
+              <div class="app-thumb">
+                <img class="app-icon" src="" /> 
+                <span><i class="fa fa-pencil" onclick="document.getElementById('aaaaa').click();"></i></span>
+                <input id="aaaaa" type="file" style="display:none" onchange="alert('HIIIII');"/> 
+              </div>
+
+              <div class="app-desc">
+                <h2 id="appName" name="appName">My Java App</h2>
+                <p class="description">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                <div class="app-preview-action-bar">
+                    <div class="sec prod-url">
+                      <a id="prod-url" href="#">http://testapp.wso2app.com</a>
+                      <a href="#"><i class="fw fw-settings"></i></a>
+                    </div>
+                    <div class="sec"><button class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button></div>
+                    <div class="sec">
+                       
+                        <!-- edit code button -->
+                        <div class="btn-group ctrl-edit-button">
+                          <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue">Edit Code</button>
+                          <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue cu-dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                          </button>
+                          <ul class="dropdown-menu cu-btn-blue btn-edit" role="menu">
+                            <li><a href="#">Use Cloud Editor</a></li>
+                            <li><a href="#">Use Local IDE</a></li>
+                          </ul>
+                        </div>
+
+                    </div>
+                </div>
+              </div>
+          </div>
+          <div class="col-md-9">
+              <div class="block-general">
+                  <div class="row">
+                      <div class="col-md-9">
+
+                          <select class="version-number">
+                              <option>trunk</option>
+                              <option>1.0.0</option>
+                          </select>
+                          <div class="version-url"><span>URL: http://javatest.djcompany.wso2app.com</span> </div>
+
+                      </div>
+                      <div class="col-md-3">
+                          <div class="btn-create-version">
+                              <span class="fw-stack fw-lg btn-action-ico">
+                                <i class="fw fw-ring fw-stack-2x"></i>
+                                <i class="fw fw-add fw-stack-1x"></i>
+                              </span> Create Version
+                          </div>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-4" >
+                          <div class="block-life-cycle">
+                              <h3>Lifecycle Mgt</h3>
+                              <div class="block-icon pull-left">
+                                  <i class="fw fw-lifecycle fw-5x"></i>
+                              </div>
+                              <div class="block-description pull-right">
+                                  Application <strong>My Java App</strong> is in
+                                  <br>
+                                  <strong>Development</strong> Stage
+                              </div>
+                              <div class="clearfix"></div>
+                              <div class="block-action-button">
+                                <span class="fw-stack fw-lg btn-action-ico">
+                                    <i class="fw fw-ring fw-stack-2x"></i>
+                                    <i class="fw fw-lifecycle fw-stack-1x"></i>
+                                  </span> Manage Lifecycle
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-md-4">
+                          <div class="block-repos">
+                              <h3>Repos and Builds</h3>
+                              <div class="block-icon pull-left">
+                                  <i class="fw fw-clock fw-5x"></i>
+                              </div>
+                              <div class="block-description-multiline pull-left">
+                                  3 Successfull<br>
+                                  1 Failed
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-md-4">
+                          <div class="block-issues">
+                              <h3>Open Issues</h3>
+                              <div class="block-icon pull-left">
+                                  <span class="fa-stack fa-lg fa-3x">
+                                      <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                      <i class="fa fa-exclamation fa-stack-1x fa-inverse"></i>
+                                  </span>
+                              </div>
+                              <div class="block-description-multiline pull-left">
+                                  <i class="fa  fa-bug"></i> 3 Bugs<br>
+                                  2 Features<br>
+                                  1 Vulnerability
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="col-md-3">
+              <div class="block-team pull-left">
+                  <h3>Team</h3>
+                  <div class="block-icon pull-left">
+                    <i class="fa fa-users fa-5x"></i>
+                  </div>
+                  <div class="block-number pull-right">
+                    12
+                  </div>
+                  <div class="clearfix"></div>
+                  <div class="block-action-button">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                          </span> Invite Member
+                  </div>
+              </div>
+              <div class="block-database pull-left">
+                  <h3>Databases</h3>
+                  <div class="block-icon pull-left">
+                    <i class="fa fa-database fa-5x"></i>
+                  </div>
+                  <div class="block-number pull-right">
+                    04
+                  </div>
+                  <div class="clearfix"></div>
+                  <div class="block-action-button">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                          </span> Add Database
+                  </div>
+              </div>
+          </div>
+
+
+        </div>
+    </div><!-- /.container -->
+
+
+    </div>
+    <div class="clearfix"></div>
+    <div id="push"></div>
+</div>
+<div id="footer">
+    <div class="container-fluid">
+        <div class="footer-text">WSO2 Cloud V: 1.2 . &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
+    </div>
+</div>
+
+<!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
+<script src="js/jquery-1.11.1/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap-3.2.0/bootstrap.min.js"></script>
+<!-- include custom js functions -->
+<script src="js/custom/custom.js"></script>
+
+<script>
+    $('.side-pane-trigger').click(function(){
+        var rightPane = $('.right-pane');
+        var leftPane = $('.left-pane');
+        if (rightPane.hasClass('visible')){
+            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+            leftPane.animate({"left":"-18em"}, "slow");
+            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        } else {
+            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+            leftPane.animate({"left":"0em"}, "slow");
+            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        }
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+<!--###################################################################################################-->
 <% }); %>
 

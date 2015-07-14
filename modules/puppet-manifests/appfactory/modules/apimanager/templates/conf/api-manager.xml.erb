@@ -69,12 +69,13 @@
         -->
         <SecurityContextHeader>X-JWT-Assertion</SecurityContextHeader>
 
-        <!-- 
-    Fully qualified name of the class that will retrieve additional user claims
-    to be appended to the JWT. If not specified no claims will be appended.
-    The DefaultClaimsRetriever class adds user claims from the default carbon user store.
-  -->
-  <!--ClaimsRetrieverImplClass>org.wso2.carbon.apimgt.impl.token.DefaultClaimsRetriever</ClaimsRetrieverImplClass-->
+	<!--
+		Fully qualified name of the class that will retrieve additional user claims
+		to be appended to the JWT. If not specified no claims will be appended.If user wants to add all user claims in the
+		jwt token, he needs to enable this parameter.
+		The DefaultClaimsRetriever class adds user claims from the default carbon user store.
+	-->
+	<!--ClaimsRetrieverImplClass>org.wso2.carbon.apimgt.impl.token.DefaultClaimsRetriever</ClaimsRetrieverImplClass-->
 
 <!--
     The dialectURI under which the claimURIs that need to be appended to the
@@ -89,15 +90,21 @@
   -->
   <!--SignatureAlgorithm>SHA256withRSA</SignatureAlgorithm-->
 
-<!--
-    Enable/Disable JWT generation. Default is false.
-  -->
-  <!--EnableTokenGeneration>false</EnableTokenGeneration-->
+    <!--
+		Enable/Disable JWT generation. Default is false.
+	-->
+	<!--EnableTokenGeneration>false</EnableTokenGeneration-->
 
-<!-- 
-    Remove OAuth headers from outgoing message or keep with it.
-  -->
-  <!--RemoveOAuthHeadersFromOutMessage>true</RemoveOAuthHeadersFromOutMessage-->
+        <!--
+            This parameter specifies which implementation should be used for generating the Token. JWTGenerator is the
+	    default implementation provided.
+	 -->
+	<TokenGeneratorImpl>org.wso2.carbon.apimgt.impl.token.JWTGenerator</TokenGeneratorImpl>
+
+	<!--
+		Remove OAuth headers from outgoing message or keep with it.
+	-->
+	<!--RemoveOAuthHeadersFromOutMessage>true</RemoveOAuthHeadersFromOutMessage-->
     </APIConsumerAuthentication>
 
     <!-- Primary/secondary login configuration for APIstore. If user likes to keep two login attributes in a distributed setup, to login the APIstore,
@@ -317,7 +324,7 @@
         <EnableUnlimitedTier>true</EnableUnlimitedTier>
       </TierManagement>
 
-      <!--
+    <!--
         Use this configuration to control the self-sign-up capability in API store.
     -->
     <SelfSignUp>
@@ -345,6 +352,7 @@
         -->
         <CreateSubscriberRole>true</CreateSubscriberRole>
       </SelfSignUp>
+
 
       <!--
         Use this configuration to control the number of APIs shown in API store.
@@ -388,6 +396,11 @@
                -->
          <!--TagCacheDuration>120000</TagCacheDuration-->
 
+    <!--
+    This parameter specifies whether Recently Added APIs will be loaded from the cache or not.
+    If there are multiple API modification during a short time period, better to disable cache.
+    -->
+        <EnableRecentlyAddedAPICache>false</EnableRecentlyAddedAPICache>
 
      </APIStore>
 

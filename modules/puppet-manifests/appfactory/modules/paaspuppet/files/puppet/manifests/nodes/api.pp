@@ -17,12 +17,12 @@
 
 # API Manager - gateway (worker) cartridge node
 node /[0-9]{1,12}.(default|manager|worker).gateway/ inherits base {
-  $docroot = "/mnt/${server_ip}/wso2am-1.7.0"
+  $docroot = "/mnt/${server_ip}/wso2am-1.8.0"
   require java
   class {'agent':}
   class {'apimanager':
 
-        version            => "1.7.0",
+        version            => "1.8.0",
         env                => undef,
         #sub_cluster_domain => 'mgt',
         sub_cluster_domain => undef,
@@ -47,12 +47,12 @@ node /[0-9]{1,12}.(default|manager|worker).gateway/ inherits base {
 
 # API Manager - gateway (manager) cartridge node
 node /[0-9]{1,12}.(default|manager|worker).gatewaymgt/ inherits base {
-  $docroot = "/mnt/${server_ip}/wso2am-1.7.0"
+  $docroot = "/mnt/${server_ip}/wso2am-1.8.0"
   require java
   class {'agent':}
   class {'apimanager':
 
-        version            => "1.7.0",
+        version            => "1.8.0",
         env                => undef,
         #sub_cluster_domain => 'mgt',
         sub_cluster_domain => undef,
@@ -78,12 +78,12 @@ node /[0-9]{1,12}.(default|manager|worker).gatewaymgt/ inherits base {
 
 # API Manager - keymanager cartridge node
 node /[0-9]{1,12}.(default|manager|worker).keymanager/ inherits base {
-  $docroot = "/mnt/${server_ip}/wso2am-1.7.0"
+  $docroot = "/mnt/${server_ip}/wso2am-1.8.0"
   require java
   class {'agent':}
   class {'apimanager':
 
-        version            => "1.7.0",
+        version            => "1.8.0",
         env                => undef,
         sub_cluster_domain => undef,
         hazelcast_port     => 4000,
@@ -108,12 +108,12 @@ node /[0-9]{1,12}.(default|manager|worker).keymanager/ inherits base {
 
 # API Manager - apistore cartridge node
 node /[0-9]{1,12}.(default|manager|worker).apistore/ inherits base {
-  $docroot = "/mnt/${server_ip}/wso2am-1.7.0"
+  $docroot = "/mnt/${server_ip}/wso2am-1.8.0"
   require java
   class {'agent':}
   class {'apimanager':
 
-        version            => "1.7.0",
+        version            => "1.8.0",
         env                => undef,
         sub_cluster_domain => undef,
         hazelcast_port     => 4000,
@@ -138,12 +138,12 @@ node /[0-9]{1,12}.(default|manager|worker).apistore/ inherits base {
 
 # API Manager - publisher cartridge node
 node /[0-9]{1,12}.(default|manager|worker).publisher/ inherits base {
-  $docroot = "/mnt/${server_ip}/wso2am-1.7.0"
+  $docroot = "/mnt/${server_ip}/wso2am-1.8.0"
   require java
   class {'agent':}
   class {'apimanager':
 
-        version            => "1.7.0",
+        version            => "1.8.0",
         env                => undef,
         sub_cluster_domain => undef,
         hazelcast_port     => 4000,

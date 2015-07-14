@@ -31,6 +31,10 @@ jagg.block("application/add", {
 		var supportiveHTML = "";
 		var uploadableAppTypesHTML = "";
 		var uploadableAppExts = [];
+		var uploadableApplicationMaxSize;
+		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+		var webContext = getProperty(WEB_CONTEXT_ROOT);
+        var tempAppTypeArray = [];
 
         if (!applicationTypes || applicationTypes.length === 0) {
 
@@ -39,6 +43,7 @@ jagg.block("application/add", {
 
         } else {
 
+            uploadableApplicationMaxSize = modManager.getUploadableApplicationMaxSize()
             mainHTML = '<select id="applicationType" name="applicationType" onChange="selectAppCreationType(this)">';
             uploadableAppTypesHTML = '<select id="uploadableAppType" name="uploadableAppType">';
 
@@ -46,7 +51,7 @@ jagg.block("application/add", {
             var isUploadableAppTypeAvailable = false;
 
             //We need to sort the applications types first. There is no easy way to sort after adding the elements.
-            var tempAppTypeArray = [];
+
             for (var i = 0; i < applicationTypesCount; i++) {
                 var applicationTypeBean = modManager.getApplicationTypeBean(applicationTypes[i]);
                 var displayOrder = applicationTypeBean.getDisplayOrder();
@@ -98,12 +103,16 @@ jagg.block("application/add", {
         }
 
 		return {
+            "tempAppTypeArray":tempAppTypeArray,
 			"mainHTML":mainHTML,
 			"uploadableAppTypesHTML": uploadableAppTypesHTML,
 			"isUploadableAppTypeAvailable":isUploadableAppTypeAvailable,
 			"helpTips":helpTips,
             "hasApplicationAccessPermission":hasApplicationAccessPermission,
-		    "uploadableAppExts":uploadableAppExts
+		    "uploadableAppExts":uploadableAppExts,
+		    "uploadableApplicationMaxSize":uploadableApplicationMaxSize,
+		    "appFacURL":appFacURL,
+		    "webContext":webContext
 		};
     }
 });

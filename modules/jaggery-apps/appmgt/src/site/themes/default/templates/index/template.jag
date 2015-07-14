@@ -39,6 +39,7 @@ var isAllAppCreated = true;
 var count = 0;
 var newApp = '<%=newApp%>';
 var APPLICATION_CREATION_STATUS = <%=APPLICATION_CREATION_STATUS%>;
+var appCount = 0;
 //var hasTriedOnce = false;
 
 /**
@@ -46,7 +47,6 @@ var APPLICATION_CREATION_STATUS = <%=APPLICATION_CREATION_STATUS%>;
 *  NOTE: we are actually not using table element here. We populate each app as a element in the grid
 */
 function createTable() {
-    addTableColumnHeaders();
     isAllAppCreated = true;
     for (var index = 0; index < parsedAppArray.length; index++) {
         var application = parsedAppArray[index];
@@ -67,8 +67,6 @@ function createTable() {
 function addTableColumnHeaders() {
     $("#item_list").html("");
 	var columnHeaderLi = '<li class="item item_header">' +
-    '<div class="th_name col">Application</div>' +
-    '<div class="th_type col">Type</div>' +
     '</li>';
 	$("#item_list").append(columnHeaderLi);
 }
@@ -100,6 +98,7 @@ function addTableRow(application) {
     // This logic is specific to filter
     var displayName = "";
     var defaultBranchCount = 1;
+
     if (application.highlightedName === undefined || application.highlightedName === "") {
         displayName = application.name;
     } else {        // if this application is in search results
@@ -109,29 +108,31 @@ function addTableRow(application) {
         application.highlightedName = "";
     }
     var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key + "&isUploadableAppType=" + application.isUploadable;
-if(application.isUploadable == true || application.isUploadable == "true"){
+    if(application.isUploadable == true || application.isUploadable == "true"){
         url += "&isUploadableAppType=" + application.isUploadable;
     }
-    var theLi = '<li id="'+application.key+'"class="item">' + '<div class="app_name col truncate">';
+    var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
+    var iconClass = " <i class="+ icon + "><\/i>"
+
+
+    var theLi = '<div class="col-md-3 col-lg-2 col-sm-6"><div class="cloud-app-listing app-color-one">' +
+                        iconClass+
+                        '<div class="app-icon"><a href="' + url +  '">' +
+                         '<img src="/appmgt/site/themes/default/assets/img/appico.png"></div></a>' +
+                         '<div class="app-name" >' + application.name+ '</div>';
+
     // If any of the branches are in production add the green icon
     if (application.inProduction == true) {
         theLi += '<img alt="Green tag" class="green_tag" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("assets/img/green_tag.png"))%>">';
     }
     if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.COMPLETED){
-        theLi += '<a href="' + url + '" title="' + application.name + '"><img id="' + application.key + '_icon" height="50px" width="40px" alt="icon" src="#"></a>';
-        theLi += '<h2><a href="' + url + '" title="' + application.name + '">' + displayName + '</a></h2></div>';
-        theLi += '<div class="app_type col">' + application.typeDisplayName+ '</div>';
-        //if (application.branchCount > 1) {
-         //   theLi += '<div class="app_branches col"><h3>' + application.branchCount + ' Branches</h3></div>';
-       // } else {
-        //    theLi += '<div class="app_branches col"><h3>' + defaultBranchCount + ' Branch</h3></div>';
-        //}
+        theLi += '</div></div>';
     } else if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING){
-        theLi = '<li id="'+application.key+'"class="item_disabled">' +
+        theLi = '<li id="'+application.name+'"class="item_disabled">' +
             '<div style="width: 100%;z-index:20;background: transparent;position:absolute;margin: -10px;height: 100%;opacity: 0.1;"> ' +
                 '<span class="icon-spinner icon-spin" style="font-size: 60px; margin-top: 20px; margin-left:73px"></span>' +
             '</div>' + '<div class="app_name col truncate">';
-        theLi += '<img id="' + application.key + '_icon" height="50px" width="40px" alt="icon" src="#" title="Application creation is in progress..."></a>';
+        theLi += '<img id="' + application.name + '_icon" height="50px" width="40px" alt="icon" src="#" title="Application creation is in progress..."></a>';
         theLi += '<h2>'+application.name+'</h2></div>';
         theLi += '<div class="app_type col">' + 'Application creation is in progress...'+ '</div>';
         isAllAppCreated = false;
@@ -289,6 +290,13 @@ function populateAppOverview() {
         function (result) {
             parsedAppArray = jQuery.parseJSON(result);
             parsedAppArray.sort(NameComparator);
+            appCount = parsedAppArray.length;
+            if(appCount > 0) {
+                document.getElementById("userHomeWithApps").style.display = 'block';
+            } else {
+                 document.getElementById("userHomeEmpty").style.display = 'block';
+            }
+
             init();
             $('#main-spinner').remove();
         },
@@ -308,6 +316,7 @@ function populateAppOverview() {
         });
 }
 
+
 /**
 * Check for first login. If the user is logged in for the first time,
 * redirect to change default password page
@@ -316,7 +325,6 @@ function checkFirstLogin() {
     jagg.post("../blocks/tenant/users/get/ajax/get.jag", {
                 action: "isFirstLogin"
             },
-
             function (result) {
                 var isFirstLogin = jQuery.parseJSON(result);
                 if(isFirstLogin==true){
@@ -329,53 +337,59 @@ function checkFirstLogin() {
             });
 }
 
+
+
 $(document).ready(function () {
 
-    //init user activity monitor
-	initializeUserActivity("userHome", null, null);
+         //init user activity monitor
+        initializeUserActivity("userHome", null, null);
+        // check whether user is loggin in for first time, if it is redirect to change default password page
+        checkFirstLogin();
 
-	// check whether user is loggin in for first time, if it is redirect to change default password page
-    checkFirstLogin();
+        // populate the user home page
+        populateAppOverview();
+        /* filtering the application array */
+        $("#search-apps").bind("keyup", function () {
+            if ($(this).val() === null || $(this).val() === undefined || $(this).val().length === 0) {
+                init();
+            } else {
+                var finder = $(this).val();
 
-    // populate the user home page
-    populateAppOverview();
-    /* filtering the application array */
-    $("#search").bind("keyup", function () {
-        if ($(this).val() === null || $(this).val() === undefined || $(this).val().length === 0) {
-        	init();
-        } else {
-            var finder = $(this).val();
-            var typingPattern = new RegExp($(this).val().replace(/^\s+|\s+$/g, ''), "gi");
-            addTableColumnHeaders();
-            jQuery.grep(parsedAppArray, function (element, index) {
-                if (element.name.match(typingPattern) != null) {
-                    var matcher = element.name.match(typingPattern);
+                var typingPattern = new RegExp($(this).val().replace(/^\s+|\s+$/g, ''), "gi");
+                addTableColumnHeaders();
+                jQuery.grep(parsedAppArray, function (element, index) {
 
-                    if (finder.length > 2) {
-                        var pre = element.name.substr(0, element.name.indexOf(matcher));
-                        var highlight = element.name.substr(element.name.indexOf(matcher), (finder.length));
-                        var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
 
-                        element.highlightedName = pre + "^" + highlight + "~" + rest;
+                    if (element.name.match(typingPattern) != null) {
+                        var matcher = element.name.match(typingPattern);
+                        if (finder.length > 2) {
 
+                            var pre = element.name.substr(0, element.name.indexOf(matcher));
+                            var highlight = element.name.substr(element.name.indexOf(matcher), (finder.length));
+                            var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
+
+                            element.highlightedName = pre + "^" + highlight + "~" + rest;
+
+
+                        }
+                        addTableRow(element);
+                        loadAppIcon(element.key);
                     }
+                });
+                // enf of "jQuery.grep.."
 
-                    addTableRow(element);
-                    loadAppIcon(element.key);
+                if ($("#item_list").children().length == 0) {
+                    $("#item_list").append($('<div>"No matches found!"</div>'));
                 }
-            });
-            // enf of "jQuery.grep.."
-
-            if ($("#item_list").children().length == 0) {
-                $("#item_list").append($('<div>"No matches found!"</div>'));
-            }
 
 
         }
-    });
-    setApplicationListView('box_items');
-    $.cookie('selectedStage', null);
-    $.cookie('selectedVersion', null);
+     });
+        setApplicationListView('box_items');
+        $.cookie('selectedStage', null);
+        $.cookie('selectedVersion', null);
+
+
 });
 
 /** ***********************Utility Methods********************************** */
@@ -418,60 +432,144 @@ function hideNotification() {
 
 </script>
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
- <div class="container">
-                	<article class="main">
-                	    <% jagg.includeBlock("page/messages", null); %>
-                	    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.USER_HOME}); %>
-                	    <% jagg.includeBlock("page/notification-wall", {"wall_name":"My Wall","applicationKey":null,"pageName":PAGES.USER_HOME}); %>
-                        <header class="separator">
-                        	<div class="content">
-                                <% if (outputs.hasAppCreationPermission) { %>
-                                <a class="btn main left margin_15" href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>'">Add New Application</a>
-                                <% } %>
-								<ul class="screen_option right">
-                                    <li class="screen_option_item">
-                                        <ul class="viewswitcher">
-                                            <li><a class="icon-th block_view active" href="#"></a></li>
-                                            <li><a class="icon-th-list table_view" href="#"></a></li>
-                                        </ul>
-                                    </li>
-									<li class="screen_option_item">
 
-									<!--// TODO: post 1.0-->
-									<!--form class=" left fw_250 form-container filter_form">
-											<div class="input_row">
-												 <div class="select2-container select_list error" id="s2id_application_type" style="width: 248px;"><a tabindex="-1" class="select2-choice" onclick="return false;" href="javascript:void(0)">   <span>Show last accessed first</span><abbr class="select2-search-choice-close"></abbr>   <div><b></b></div></a><input type="text" class="select2-focusser select2-offscreen" id="s2id_autogen1" tabindex="0"><div class="select2-drop select2-display-none">   <div class="select2-search select2-search-hidden select2-offscreen">       <input type="text" class="select2-input" spellcheck="false" autocapitilize="off" autocorrect="off" autocomplete="off">   </div>   <ul class="select2-results">   </ul></div></div><select class="select_list select2-offscreen" id="application_type" tabindex="-1">
-													<option>Show last accessed first</option>
-													<option>Show last accessed first</option>
-													<option>Show last accessed first</option>
-												</select>
-											</div>
-									</form-->
-									</li>
-                                    <li class="screen_option_item">
-                                    <form class="left fw_250 form-container search_form">
-                                            <div class="input_row">
-                                                <label class="hide" for="filter_apps">Filter Apps</label>
-                                                <input type="text" value="" name="Filter Apps" placeholder="Filter Apps" class="fw_250" id="search"><span class="icon-search"></span>
-                                            </div>
-                                    </form>
-                                    </li>
-								</ul>
-                            </div>
-                        </header>
-		        <% jagg.includeBlock("page/help", {"section": "userhome"}); %>
-			    <section class="content push_top_40">
-                            <ul class="" id="item_list"></ul>
-                            <div class="pagination" id="app-list-footer">
-                                <ul></ul>
-                            </div>
-                                <span id="eventbody"></span>
-                        <div class="clearfix"></div>
-                        </section>
-                        <div class="clearfix"></div>
-                      </article>
+<!--##################################################-->
+ <div class="inner-wrapper" id="userHomeEmpty" style="display:none">
+    <!-- BOF App factory menu -->
+    <div class="navbar navbar-secondary">
+        <div class="container-fliud">
+            <div class="row">
+                <div class="col-md-3 breadcrumb-secondary">
+                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                </div>
+            </div>
+        </div>
+    </div><!-- EOF App factory menu -->
+
+%>
+<!-- BOF App factory menu actionbar -->
+<div class="action-bar">
+   <% if (outputs.hasAppCreationPermission) { %>
+
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Add New Application</span>
+        </a>
+       <% } %>
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-up-arrow fw-stack-1x"></i>
+                </span> <span class="hidden-xs">upload exsisting</span>
+        </a>
+        <a href="#" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw  fw-deploy fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Deploy Sample Application</span>
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+
+    <div class="container-fluid">
+        <div class="row row-centered">
+            <div class="col-centered col-md-4 ">
+                <div class="cloud-new-content">
+                    <h1>New to our Application Cloud ?</h1>
+
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new"
+                     class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
+                    <div class="help">
+                        <i class="fa fa-2x fa-book"></i> Need help ? Read App creation guide first..
+                    </div>
+                </div>index.jag
 
             </div>
+
+        </div>
+    </div><!-- /.container -->
+    <div id="push"></div>
+</div>
+
+<div class="inner-wrapper" id="userHomeWithApps" style="display:none">
+    <!-- BOF App factory menu -->
+    <div class="navbar navbar-secondary">
+        <div class="container-fliud">
+            <div class="row">
+                <div class="col-md-3 breadcrumb-secondary">
+                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                </div>
+            </div>
+        </div>
+    </div><!-- EOF App factory menu -->
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Add New Application</span>
+        </a>
+         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-up-arrow fw-stack-1x"></i>
+                </span> <span class="hidden-xs">upload exsisting</span>
+        </a>
+        <a href="#" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw  fw-deploy fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Deploy Sample Application</span>
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+
+    <div class="container-fluid">
+        <div class="row row-centered app-sort-bar">
+            <div class="col-centered col-md-5 search">
+                <input type="text" class="form-control" id="search-apps" placeholder="Search applications">
+                <i class="fa fa-2x fa-search" ></i>
+            </div>
+            <!--<div class="col-centered col-md-1 sort">
+
+                <i class="fa fa-2x fa-list"></i>
+                <i class="fa fa-2x fa-th"></i>
+            </div>-->
+        </div>
+
+<div class="row row-centered app-listing">
+            <!-- BOF listing block -->
+                <ul class="" id="item_list"></ul>
+        </div>
+    </div><!-- /.container -->
+</div>
+
+
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<!--#################################################-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	<style>
 

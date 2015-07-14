@@ -31,6 +31,11 @@ public class AFConstants {
 	public static final String URLS_BPS = "//appFactoryProperties/urls/bps";
 	public static final String URLS_GIT = "//appFactoryProperties/urls/git";
 	public static final String URLS_BAM = "//appFactoryProperties/urls/bam";
+    public static final String URLS_API = "//appFactoryProperties/urls/api";
+
+	public static final String ENV_CREATE_RANDOM_TENANT = "af.test.createRandomTenant";
+	public static final String ENV_CREATED_RANDOM_TENANT_DOMAIN = "af.test.tenant.domain";
+
 
 	public static final String DEFAULT_TENANT_FIRST_NAME =
 	                                                       "//appFactoryProperties/defaultTenant/firstName";
@@ -40,10 +45,11 @@ public class AFConstants {
 	public static final String DEFAULT_TENANT_ADMIIN = "//appFactoryProperties/defaultTenant/admin";
 	public static final String DEFAULT_TENANT_ADMIN_PASSWORD =
 	                                                           "//appFactoryProperties/defaultTenant/adminPassword";
-	public static final String DEFAULT_TENANT_TENANT_DOMAIN =
-	                                                          "//appFactoryProperties/defaultTenant/tenantDomain";
 	public static final String DEFAULT_TENANT_USAGE_PLAN =
 	                                                       "//appFactoryProperties/defaultTenant/usagePlan";
+
+    //this is package private by design. do not change without design review
+	static final String DEFAULT_TENANT_TENANT_DOMAIN = "//appFactoryProperties/defaultTenant/tenantDomain";
 
 	public static final String DEFAULT_APP_APP_NAME =
 	                                                  "//appFactoryProperties/defaultApplication/applicationName";
@@ -56,12 +62,23 @@ public class AFConstants {
 	public static final String DEFAULT_APP_REPO_TYPE =
 	                                                   "//appFactoryProperties/defaultApplication/repositoryType";
 
-	// Appmgt jag file paths
-	public static final String APPMGT_URL_SURFIX = "appmgt/site/blocks/";
-	public static final String APPMGT_USER_LOGIN = "user/login/ajax/login.jag";
-	public static final String APPMGT_APPLICATION_GET = "application/get/ajax/list.jag";
-	public static final String APPMGT_APPLICATION_ADD = "application/add/ajax/add.jag";
-	public static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
+    public static final String DEFAULT_APP_VERSION_ONE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
+                                                             "version[@key='v1']/sourceVersion";
+
+    public static final String DEFAULT_APP_VERSION_ONE_TARGET = "//appFactoryProperties/defaultApplication/versions/" +
+                                                                "version[@key='v1']/targetVersion";
+
+    public static final String DEFAULT_APP_VERSION_TWO_SRC = "//appFactoryProperties/defaultApplication/versions/" +
+                                                                "version[@key='v2']/sourceVersion";
+
+    public static final String DEFAULT_APP_VERSION_TWO_TARGET = "appFactoryProperties/defaultApplication/versions/" +
+                                                                "version[@key='v2']/targetVersion";
+
+    public static final String DEFAULT_APP_VERSION_THREE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
+                                                               "version[@key='v3']/sourceVersion";
+
+    public static final String DEFAULT_APP_VERSION_THREE_TARGET = "appFactoryProperties/defaultApplication/versions/" +
+                                                                  "version[@key='v3']/targetVersion";
 
 	// Security policy files in resources/security folder
 	public static final String SECURITY_POLICIES_SCENARIO1_POLICY_XML =
@@ -76,4 +93,16 @@ public class AFConstants {
 	// Domain mapping
 	public static final String DOMAIN_MAPPING_DEFAULT_HOST =  "//appFactoryProperties/domainMapping/domainName";
 
+    public static final String DEFAULT_API_ADD_API_PAYLOAD="//appFactoryProperties/defaultAPI/addPayload";
+
+    public static final String DEFAULT_API_PUBLISH_API_PAYLOAD="//appFactoryProperties/defaultAPI/publishPayload";
+
+    public static final String DEFAULT_API_SUBSCRIBE_API_PAYLOAD="//appFactoryProperties/defaultAPI/subscribePayload";
+
+    public static final String DEFAULT_API_USER_NAME="//appFactoryProperties/defaultAPI/useNAme";
+
+    public static final String DEFAULT_API_PASSWORD="//appFactoryProperties/defaultAPI/password";
+
+    public static final String TRUE = "true";
+    public static final String FALSE= "false";
 }

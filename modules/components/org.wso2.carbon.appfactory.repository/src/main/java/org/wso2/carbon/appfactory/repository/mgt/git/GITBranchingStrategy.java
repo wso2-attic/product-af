@@ -21,10 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
-import org.wso2.carbon.appfactory.core.util.CommonUtil;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.repository.mgt.BranchingStrategy;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
@@ -49,7 +47,7 @@ public class GITBranchingStrategy implements BranchingStrategy {
      */
     @Override
     public void prepareRepository(String applicationKey, String url, String tenantDomain) throws RepositoryMgtException {
-        String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" +
+        String dirpath = CarbonUtils.getTmpDir() + File.separator + "create" + File.separator + tenantDomain +
                 File.separator + applicationKey + File.separator;
 
         File workDir = new File(dirpath);
@@ -59,7 +57,7 @@ public class GITBranchingStrategy implements BranchingStrategy {
             client.retireveMetadata(url, false, workDir);               // checkout master after git initialization
 
             try {
-                String applicationType = ApplicationManager.getInstance().getApplicationType(applicationKey);
+                String applicationType = ApplicationDAO.getInstance().getApplicationType(applicationKey);
                 ApplicationTypeManager.getInstance().getApplicationTypeBean(applicationType).getProcessor().generateApplicationSkeleton(applicationKey, workDir.getAbsolutePath());
             } catch (AppFactoryException e) {
                 //There is an exception when generating the maven archetype.
@@ -100,7 +98,7 @@ public class GITBranchingStrategy implements BranchingStrategy {
         String sourceURL = provider.getAppRepositoryURL(appId, tenantDomain);
         String applicationType;
         try {
-            applicationType = ApplicationManager.getInstance().getApplicationType(appId);
+            applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
         } catch (AppFactoryException e1) {
             String msg = "Error while getting application type for " + appId;
             log.error(msg, e1);

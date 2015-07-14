@@ -23,8 +23,8 @@ function dbCorrelationKey (appKey, dbName, stageName){
     return correlationKey;
 }
 
-function dbPrivilegeCorrelationKey (appKey, dbname, stage, username){
-    var correlationKey = appKey + "-" + stage + "-dbPrivilege-" + dbname + "-" + username
+function dbPrivilegeCorrelationKey (appKey, stage, dbname, username){
+    var correlationKey = appKey + "-" + stage + "-dbPrivilege-" + dbname + "-" + username;
     return correlationKey;
 }
 

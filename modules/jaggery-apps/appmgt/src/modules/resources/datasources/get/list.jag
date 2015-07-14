@@ -26,6 +26,8 @@ var log = new Log('modules/resources/datasources/get/list.jag');
 var modManager = jagg.module("manager");
 var permissionModule = jagg.module("permission");
 var rssFilter = jagg.module("rss-filter");
+var carbon = require('carbon');
+var server = carbon.server;
 
 var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
     var ws = require('ws');
@@ -212,6 +214,23 @@ var getDataSourceInfoUrl=function (stage){
  */
 var getAllDatasourcesInfo = function (applicationKey, stage) {
     return rssFilter.getAllDatasourcesInfo(applicationKey, stage);
+};
+
+/**
+ * This is for checking datasource support
+ */
+var checkDataSourceSupport = function (applicationKey) {
+    var modManager = jagg.module("manager");
+    var tenantDomain=modManager.getTenantDomain();
+    try{
+        var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
+        return regService.checkDataSourceSupport(applicationKey);
+    }catch(e){
+        log.error("Error checking datasource availability for application : " + applicationKey + " from tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
+    }
 }
 
 %>

@@ -43,10 +43,13 @@ var permission = jagg.module("permission");
             try {
                 mod.mapNewCustomUrlToVersion(stage,newCustomUrl,applicationKey,version,true);
             } catch (e) {
+                // we are logging this as warn messages since this is caused, due to an user error. For example if the
+                // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+                // time of adding the url), then url validation will fail but it is not an system error
                 var msg = "Error while updating domain mapping(custom url) to "+newCustomUrl+ " for application: "+ applicationKey +
                         " version: "+version+" in stage: "+ stage;
-                log.error(msg);
-                log.error(e);
+                log.warn(msg);
+                log.warn(e);
                 response.status = 400;
                 response.content = e;
             }
@@ -64,10 +67,13 @@ var permission = jagg.module("permission");
             try {
                 mod.updateExistingUnmappedCustomUrl(stage,newCustomUrl,applicationKey);
             } catch (e) {
+                // we are logging this as warn messages since this is caused, due to an user error. For example if the
+                // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
+                // time of adding the url), then url validation will fail but it is not an system error
                 var msg = "Error while updating unmapped custom url to: "+newCustomUrl+ " for application: "
                         +applicationKey +" in stage: "+ stage;
-                log.error(msg);
-                log.error(e);
+                log.warn(msg);
+                log.warn(e);
                 response.status = 400;
                 response.content = e;
             }

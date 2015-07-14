@@ -11,6 +11,7 @@
 	<description>Appfactory External API Invoker Sample</description>
 	<properties>
 		<CApp.type>web/application</CApp.type>
+		<carbon.platform.version>4.2.0</carbon.platform.version>
 		<cxf.version>2.6.1</cxf.version>
 	</properties>
 	 <dependencies>

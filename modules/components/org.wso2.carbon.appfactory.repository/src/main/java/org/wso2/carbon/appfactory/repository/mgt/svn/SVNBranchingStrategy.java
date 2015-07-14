@@ -22,14 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
-import org.wso2.carbon.appfactory.core.util.CommonUtil;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.repository.mgt.BranchingStrategy;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
-import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
@@ -60,7 +57,7 @@ public class SVNBranchingStrategy implements BranchingStrategy {
                 log.error("Error creating work directory at location" + trunk.getAbsolutePath());
             }
             try {
-                String applicationType = ApplicationManager.getInstance().getApplicationType(applicationKey);
+                String applicationType = ApplicationDAO.getInstance().getApplicationType(applicationKey);
 
                 ApplicationTypeManager.getInstance().getApplicationTypeBean(applicationType).getProcessor().generateApplicationSkeleton(applicationKey, trunk.getAbsolutePath());
             } catch (AppFactoryException e) {
@@ -107,7 +104,7 @@ public class SVNBranchingStrategy implements BranchingStrategy {
 
         String applicationType;
         try {
-            applicationType = ApplicationManager.getInstance().getApplicationType(appId);
+            applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
         } catch (AppFactoryException e1) {
             String msg = "Error while getting application type for " + appId;
             log.error(msg, e1);
@@ -182,7 +179,7 @@ public class SVNBranchingStrategy implements BranchingStrategy {
 
         String applicationType;
         try {
-            applicationType = ApplicationManager.getInstance().getApplicationType(appId);
+            applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
         } catch (AppFactoryException e1) {
             throw new RepositoryMgtException(e1);
         }

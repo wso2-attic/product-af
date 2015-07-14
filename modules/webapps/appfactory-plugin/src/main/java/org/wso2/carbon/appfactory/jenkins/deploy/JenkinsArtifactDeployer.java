@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.appfactory.jenkins.deploy;
 
+import hudson.EnvVars;
 import hudson.FilePath;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -34,38 +35,31 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.deployers.AbstractStratosDeployer;
 import org.wso2.carbon.appfactory.deployers.notify.DeployNotifier;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
-import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
-import org.wso2.carbon.appfactory.eventing.EventNotifier;
-import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
 import org.wso2.carbon.appfactory.jenkins.AppfactoryPluginManager;
+import org.wso2.carbon.appfactory.jenkins.Constants;
 import org.wso2.carbon.appfactory.jenkins.api.JenkinsBuildStatusProvider;
-import org.wso2.carbon.appfactory.jenkins.artifact.storage.Utils;
 import org.wso2.carbon.appfactory.jenkins.util.JenkinsUtility;
 
-import javax.naming.NamingException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	private static final Log log = LogFactory.getLog(JenkinsArtifactDeployer.class);
 
-	protected AppfactoryPluginManager.DescriptorImpl descriptor;
+	private AppfactoryPluginManager.DescriptorImpl descriptor = new AppfactoryPluginManager.DescriptorImpl();
+	private String baseDeployUrl;
+	private String s2AdminUsername;
+	private String s2AdminPassword;
 
 	public JenkinsArtifactDeployer() {
-		descriptor = new AppfactoryPluginManager.DescriptorImpl();
 		super.setAdminUserName(descriptor.getAdminUserName());
 		super.setAdminPassword(descriptor.getAdminPassword());
 		super.setAppfactoryServerURL(descriptor.getAppfactoryServerURL());
-		super.setStoragePath(descriptor.getStoragePath());
-		super.setTempPath(descriptor.getTempPath());
+		setBaseDeployUrl(descriptor.getBaseDeployUrl());
+		setS2AdminPassword(descriptor.getStratosAdminPassword());
+		setS2AdminUsername(descriptor.getStratosAdminUsername());
 		super.buildStatusProvider = new JenkinsBuildStatusProvider();
-		String tenantDomain = Utils.getEnvironmentVariable("TENANT_DOMAIN");
-		String tenantID = Utils.getEnvironmentVariable("TENANT_ID");
-		super.setTenantDomain(tenantDomain);
-		super.setTenantID(Integer.parseInt(tenantID));
 	}
 
 	public void deployLatestSuccessArtifact(Map<String, String[]> parameters) throws AppFactoryException {
@@ -78,73 +72,24 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		String serverDeploymentPath = DeployerUtil.getParameter(parameters, AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
 		log.info("Server deployment path is : " + serverDeploymentPath);
 		String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
-		String repositoryFrom = DeployerUtil.getParameter(parameters, AppFactoryConstants.REPOSITORY_FROM);
+		String tenantDomain = DeployerUtil.getParameter(parameters,AppFactoryConstants.TENANT_DOMAIN);
 		String path = getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
-		                                                   getTenantDomain(),jobName);
+		                                                   tenantDomain,jobName);
 
 		File lastSuccess = new File(path);
 		if (!lastSuccess.exists()) {
-            try {
-                //used for eventing
-                String tenantDomain = getTenantDomain();
-                String correlationKey = applicationId + stageName + version + tenantDomain;
-
-                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.autoDeployStatusChangeEvent(applicationId, tenantDomain, "Application deployment couldn't be done, please try again.", "", correlationKey));
-
-            }catch (AppFactoryEventException e) {
-                log.error("Failed to notify deployment of latest successful artifact " + e.getMessage(), e);
-            }
-
-            //We decided to commit because if the this symlink not generated doesn't means there is no build always. There may be build but not create symlink yet.
-            //So user must know that and redeploy it.
-
-            /*
-            if(log.isDebugEnabled()) {
-				log.debug("No builds have been triggered for " + jobName + ". Building " + jobName +
-				         " first to deploy the latest built artifact");
-			}
-
-			String jenkinsUrl = parameters.get("rootPath")[0];
-			String tenantUserName = DeployerUtil.getParameter(parameters, "tenantUserName");
-			String tenantDomain = getTenantDomain();
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-			nameValuePairs.add(new NameValuePair("isAutomatic", "false"));
-			nameValuePairs.add(new NameValuePair("doDeploy", Boolean.toString(true)));
-			nameValuePairs.add(new NameValuePair("deployAction", deployAction));
-			nameValuePairs.add(new NameValuePair("deployStage", stageName));
-			nameValuePairs.add(new NameValuePair("persistArtifact", String.valueOf(false)));
-			nameValuePairs.add(new NameValuePair("tenantUserName", tenantUserName));
-			nameValuePairs.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS, serverDeploymentPath));
-
-			String buildUrl = DeployerUtil.generateTenantJenkinsUrl(jobName, tenantDomain, jenkinsUrl);
-			triggerBuild(jobName, buildUrl, nameValuePairs.toArray(new NameValuePair[nameValuePairs.size()]));
-			*/
-			// since automatic build deploy the latest artifact of successful builds to the
-			// server, return after triggering the build
+			//TODO Notify to the AF side
+			log.error("Failed to notify deployment of latest successful artifact since there is no latest successful artifact");
 
 		} else {
 			log.info("Deploying Last Successful Artifact with job name - " + jobName + " stageName -" + stageName +
 			         " deployAction -" + deployAction);
-
             try {
-                //used for eventing
-	            if (!AppFactoryConstants.FORK_REPOSITORY.equals(repositoryFrom)) {
-		            String tenantDomain = getTenantDomain();
-		            String correlationKey = applicationId + stageName + version + tenantDomain;
-		            EventNotifier.getInstance().notify(
-				            ContinousIntegrationEventBuilderUtil
-						            .buildApplicationDeployementStartedEvent(applicationId, tenantDomain,
-						                                                     "Application deployment started", null,
-						                                                     correlationKey));
-		            super.deployLatestSuccessArtifact(parameters);
-	            }
+                 super.deployLatestSuccessArtifact(parameters);
             } catch (AppFactoryException e) {
                 String msg = "deployment of latest success artifact failed for applicaion " + jobName;
                 handleException(msg, e);
-            } catch (AppFactoryEventException e) {
-                log.error("Failed to notify deployment of latest successful artifact " + e.getMessage(), e);
             }
-
         }
 
 	}
@@ -152,7 +97,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	/**
 	 * This method is used to build the specified job
 	 * build parameters are set in such a way that it does not execute any post build actions
-	 * 
+	 *
 	 * @param jobName
 	 *            job that we need to build
 	 * @param buildUrl
@@ -288,16 +233,9 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	public String getSuccessfulArtifactTempStoragePath(String applicationId, String applicationVersion,
 	                                                   String artifactType, String stage, String tenantDomain,
 	                                                   String jobName) throws AppFactoryException {
-		String jenkinsHome = null;
-		try {
-			jenkinsHome = DeployerUtil.getJenkinsHome();
-		} catch (NamingException e) {
-			String msg = "Error while reading jenkins home from context";
-			log.error(msg, e);
-			throw new AppFactoryException(msg, e);
-		}
-		String path = jenkinsHome + File.separator + "jobs" + File.separator + jobName +
-		              File.separator + "lastSuccessful";
+		String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
+		String path = jenkinsHome + File.separator + "jobs"+ File.separator +tenantDomain+ File.separator + "jobs" +
+		              File.separator + jobName + File.separator + "lastSuccessful";
 		return path;
 	}
 
@@ -306,7 +244,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	                                     String stage, String tenantDomain) throws AppFactoryException {
 		String jobName = JenkinsUtility.getJobName(applicationId, applicationVersion);
 		String path =
-		              getStoragePath() + File.separator + "PROMOTED" + File.separator + jobName + File.separator +
+		              getStoragePath(tenantDomain) + File.separator + "PROMOTED" + File.separator + jobName + File.separator +
 		                      "lastSuccessful";
 		return path;
 	}
@@ -328,26 +266,45 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 
 	}
 
+	public void setS2AdminUsername(String s2AdminUsername) {
+		this.s2AdminUsername = s2AdminUsername;
+	}
+
+	public void setBaseDeployUrl(String baseDeployUrl) {
+		this.baseDeployUrl = baseDeployUrl;
+	}
+
+	public void setS2AdminPassword(String s2AdminPassword) {
+		this.s2AdminPassword = s2AdminPassword;
+	}
+
 	@Override
 	protected String getBaseRepoUrl() throws AppFactoryException {
-		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
+		return this.baseDeployUrl;
 	}
 
 	@Override
 	protected String getAdminPassword() throws AppFactoryException {
-		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
+		return this.s2AdminUsername;
 	}
 
 	@Override
 	protected String getAdminUserName() throws AppFactoryException {
-		return AppFactoryUtil.getAppfactoryConfiguration().
-				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
+		return this.s2AdminPassword;
+	}
+
+	@Override
+	public String getStoragePath(String tenantDomain) {
+		return descriptor.getStoragePath(tenantDomain);
+	}
+
+	@Override
+	public String getTempPath(String tenantDomain) {
+		return descriptor.getTempPath(tenantDomain);
 	}
 
 	public void deployTaggedArtifact(Map<String, String[]> requestParameters) throws Exception {
-		
+
 
 	}
 

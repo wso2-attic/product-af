@@ -16,6 +16,7 @@ class wso2base::maven {
       cwd     => "/opt/",
       command => "tar xvfz ${maven_package}",
       require => Exec["${name}_download_mvn"];
+
   }
 
   file { '/opt/mvn':
@@ -23,4 +24,5 @@ class wso2base::maven {
     target  => "/opt/${maven_dir}",
     require => Exec["${name}_extract_mvn"];
   }
+
 }

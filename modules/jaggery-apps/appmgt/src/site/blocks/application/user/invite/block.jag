@@ -29,8 +29,9 @@ jagg.block("application/user/invite", {
     },
 
     getOutputs:function (inputs) {
+       jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
        var hasInviteUserPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_USER_INVITE);
-       var isOTTenant= session.get("TENANT_INFO").isOTTenant;
+       var isOTTenant= session.get(TENANT_INFO).isOTTenant;
        var helpTips = jagg.module("help").getHelpTips("memberAddition");
               return {
             "hasInviteUserPermission":hasInviteUserPermission,

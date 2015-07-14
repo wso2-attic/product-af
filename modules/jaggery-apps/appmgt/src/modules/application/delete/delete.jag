@@ -29,25 +29,23 @@ var server = carbon.server;
 
 var deleteApplication = function (appKey,userName){
 	var tenantDomain=modManager.getTenantDomain() ;
-	var applicationManagementService;
+	var applicationInfoService;
 	var context=multitenancy.getPrivilegedCarbonContext();
         var tenantManager= multitenancy.getTenantManager();
 	try{
-	    context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
-        applicationManagementService = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
-        var application = applicationManagementService.getApplication(appKey);
+        applicationInfoService = server
+                .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
+        var application = applicationInfoService.getApplication(appKey);
 	    if(application!=null){
-	    	applicationManagementService.deleteApplication(application,userName,tenantDomain);
+	    	applicationInfoService.deleteApplication(application,userName,tenantDomain);
             addDeletedAppKeyToApplicationContext(appKey);
 	    }
         log.info("Successfully deleted application:" + appKey +" from tenant: " + tenantDomain);
-	}catch(e){
-	    log.error(e);
-	    throw new Error("Error at deleting application : " + appKey + " from tenant domain : " + tenantDomain);
-	}finally{
-	   context.endTenantFlow();
+	} catch (e) {
+        log.error("Error while deleting application : " + appKey + " from tenant domain : " + tenantDomain
+                  + " at the deletion request came from user : " + userName);
+        log.error(e);
+        throw e;
     }
 }
 

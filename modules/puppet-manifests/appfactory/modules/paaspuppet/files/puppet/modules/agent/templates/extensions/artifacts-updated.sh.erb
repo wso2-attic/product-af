@@ -30,4 +30,6 @@ echo `date`": Artifacts Updated Event" | tee -a $log
 
 <%- if @type == 'php' -%>
 <%= scope.function_template(['agent/extensions/addons/_php.erb']) -%>
+<%- elsif @type == 'nodejs' -%>
+<%= scope.function_template(['agent/extensions/addons/_nodejs.erb']) -%>
 <%- end -%>

@@ -21,7 +21,6 @@ var caramel;
 
 	userName = context.get(LOGGED_IN_USER);
 	domain = context.get(DOMAIN);
-
     caramel.render({
             title  : { text : 'Issue Tracker | Edit Issue'},
             header : { domain : domain, userName : userName},

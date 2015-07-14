@@ -24,59 +24,63 @@ var site = require("/site/conf/site.json");
 
 	mod = jagg.module("application");
 	var log = new Log();
-	if(session.get("last_backend_access_time_for_getting_appList") == null) {
-		session.put("last_backend_access_time_for_getting_appList",((new Date().getTime())/1000)/60);
+	if(session.get(LAST_BACKEND_ACCESS_TIME_FOR_GETTING_APPLIST) == null) {
+		session.put(LAST_BACKEND_ACCESS_TIME_FOR_GETTING_APPLIST,((new Date().getTime())/1000)/60);
 	}
     var userName = jagg.getUser();
 	if(userName == null | userName == 'anonymous user') {
 		//do nothing
 	} else {
-	var permissionModule = jagg.module("permission");
-        var authUser = userName.split('@')[0];
+	    if(!(session.get(APPLICATION_LIST_CACHE)) || !(session.get(PERMISSION_CACHE)) || !(session.get(APPLICATION_CACHE))) {
+            setTimeout(function(){
+                var permissionModule = jagg.module("permission");
+                var authUser = userName.split('@')[0];
 
-        if(session.get('application_list') == null) {
-            var apps = mod.getAllAppsOfUser(userName);
-            session.put('application_list',apps);
+                if(session.get(APPLICATION_LIST_CACHE) == null) {
+                    var apps = mod.getAllAppsOfUser(userName);
+                    session.put(APPLICATION_LIST_CACHE,apps);
+                }
+
+                if(session.get(PERMISSION_CACHE) == null){
+                    var optimizedPermissions = permissionModule.getOptimizedPermissions("/");
+                    var userCache={};
+                    var permissionCache={};
+                    var tenantPermissionCache={};
+
+                    for(var i=0; i< optimizedPermissions.length ; i++){
+                        tenantPermissionCache[optimizedPermissions[i]] = true;
+                    }
+
+                    userCache[TENANT_PERM_CACHE] = tenantPermissionCache;
+                    permissionCache[authUser] = userCache;
+
+                    session.put(PERMISSION_CACHE,permissionCache);
+                }
+
+                if(session.get(APPLICATION_CACHE) == null){
+                    var userApplicationsList =  jagg.module('tenant').getApplicatioinKeysOfUser(authUser);
+
+                    var applicationsCache = {};
+                    var applications = {};
+
+                    for(var i=0; i < userApplicationsList.length ; i++){
+                        applications[userApplicationsList[i]] = true;
+                    }
+
+                    applicationsCache[authUser] = applications;
+                    session.put(APPLICATION_CACHE,applicationsCache);
+                }
+
+                var lastAccess = session.get(LAST_BACKEND_ACCESS_TIME_FOR_GETTING_APPLIST);
+                var currentTime = ((new Date().getTime())/1000)/60;
+                if(Math.floor(Math.abs(currentTime-lastAccess)) > 0 ) {
+                    // reload application list to session taking from back end
+                    var apps = mod.getAllAppsOfUser(userName);
+                    session.put(APPLICATION_LIST_CACHE,apps);
+                    session.put(LAST_BACKEND_ACCESS_TIME_FOR_GETTING_APPLIST,currentTime);
+                }
+            }, 2000);
         }
-
-        if(session.get("PERMISSION_CACHE") == null){
-            var optimizedPermissions = permissionModule.getOptimizedPermissions(null);
-            var userCache={};
-            var permissionCache={};
-            var tenantPermissionCache={};
-
-            for(var i=0; i< optimizedPermissions.length ; i++){
-                tenantPermissionCache[optimizedPermissions[i]] = true;
-            }
-
-            userCache["tenantPermCache"] = tenantPermissionCache;
-            permissionCache[authUser] = userCache;
-
-            session.put("PERMISSION_CACHE",permissionCache);
-        }
-
-        if(session.get("APPLICATION_CACHE") == null){
-            var userApplicationsList =  jagg.module('tenant').getApplicatioinKeysOfUser(authUser);
-
-            var applicationsCache = {};
-            var applications = {};
-
-            for(var i=0; i < userApplicationsList.length ; i++){
-                applications[userApplicationsList[i]] = true;
-            }
-
-            applicationsCache[authUser] = applications;
-            session.put("APPLICATION_CACHE",applicationsCache);
-        }
-
-	var lastAccess = session.get("last_backend_access_time_for_getting_appList");
-	var currentTime = ((new Date().getTime())/1000)/60;
-	if(Math.floor(Math.abs(currentTime-lastAccess)) > 0 ) {
-		// reload application list to session taking from back end
-		var apps = mod.getAllAppsOfUser(userName);
-		session.put('application_list',apps);
-		session.put("last_backend_access_time_for_getting_appList",currentTime);
-	}
 	}
 
     jagg.render({

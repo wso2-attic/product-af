@@ -18,42 +18,59 @@
 
 package org.wso2.carbon.appfactory.deployers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.Undeployer;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * This class is used to undeploy artifacts in Git repository.
  */
 public abstract class AbstractStratosUndeployer implements Undeployer {
-
-    protected static final String DEFAULT_SNAPSHOT = "-default-SNAPSHOT";
     private int tenantId;
     private String tenantDomain;
 
     /**
      * Undeploy the artifacts from stratos storage repository provider
      *
-     * @param parameters this map contains values related to artifact which is going to be undeployed. eg :
-     *                   application type, deployer type, stage, version, application id etc.
+     * @param deployerType
+     * @param applicationId
+     * @param applicationType
+     * @param version
+     * @param lifecycleStage
+     * @param applicationTypeBean
+     * @param runtimeBean
      * @throws AppFactoryException
      */
-    public abstract void undeployArtifact(Map<String, String[]> parameters) throws AppFactoryException;
+    public abstract void undeployArtifact(String deployerType, String applicationId,
+                                          String applicationType, String version, String lifecycleStage,
+                                          ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
+                                          throws AppFactoryException;
 
-    public Collection getFilesToDelete(String applicationId, String version, String fileExtension,
-                                       File applicationRootLocation) {
-        return FileUtils.listFiles(applicationRootLocation,
-                                   new ArtifactFileFilter(applicationId, version, fileExtension),
-                                   null);
+    /**
+     * Returns file/folder to delete from depsync repository based on the passed parameters
+     *
+     * @param applicationId           application Id
+     * @param version                 version
+     * @param fileExtension           file extension of the application type
+     * @param applicationRootLocation checked out directory
+     * @return
+     */
+    public File getFileToDelete(String applicationId, String version, String fileExtension,
+                                File applicationRootLocation) {
+        String fileName = applicationId + AppFactoryConstants.MINUS + version;
+        if (AppFactoryConstants.TRUNK.equals(version)) {
+            fileName = applicationId + AppFactoryConstants.SNAPSHOT;
+        }
+        if (StringUtils.isNotBlank(fileExtension)) {
+            fileName = fileName + AppFactoryConstants.DOT_SEPERATOR + fileExtension;
+        }
+        return new File(applicationRootLocation, fileName);
     }
 
     /**
@@ -67,15 +84,16 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
                 getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
     }
 
-    /**
-     * Generates the repository url of the stratos storage repository provider based on the passed parameters.
+     /**
+     *Generates the repository url of the stratos storage repository provider based on the passed parameters.
      *
-     * @param parameters this map contains values related to artifact which is going to be undeployed. eg :
-     *                   application type, deployer type, stage, version, application id etc.
+     * @param runtimeBean
+     * @param applicationId
+     * @param stage
      * @return
      * @throws AppFactoryException
      */
-    public abstract String generateRepoUrl(Map parameters)
+    public abstract String generateRepoUrl(RuntimeBean runtimeBean, String applicationId, String stage)
             throws AppFactoryException;
 
     /**
@@ -98,51 +116,5 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
     public String getAdminUserName() throws AppFactoryException {
         return AppFactoryUtil.getAppfactoryConfiguration().
                 getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
-    }
-
-    /**
-     * Used to filter artifact(s)/ corresponding to specified application id, version and file extension
-     */
-    private static class ArtifactFileFilter implements IOFileFilter {
-
-        private String fileName;
-
-        /**
-         * Constructor of the class.
-         *
-         * @param applicationId application Id
-         * @param version       version
-         * @param extension     file extension
-         */
-
-        public ArtifactFileFilter(String applicationId, String version, String extension) {
-            if (AppFactoryConstants.TRUNK.equals(version)) {
-                fileName = applicationId + DEFAULT_SNAPSHOT;
-            } else {
-                fileName = applicationId + AppFactoryConstants.MINUS + version;
-            }
-            fileName = fileName + AppFactoryConstants.DOT_SEPERATOR + extension;
-        }
-
-        /**
-         * Only files are accepted (not directories). they should match the expected file name.
-         *
-         * @param file file to be checked
-         */
-        @Override
-        public boolean accept(File file) {
-            return file.isFile() && file.getName().equals(fileName);
-        }
-
-        /**
-         * No directories are accepted.
-         *
-         * @param dir  the directory File to check
-         * @param name the filename within the directory to check
-         */
-        @Override
-        public boolean accept(File dir, String name) {
-            return false;
-        }
     }
 }

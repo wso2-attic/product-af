@@ -41,7 +41,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
 
         try {
                var key = 'application';
-               var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+               var content = '<metadata xmlns="http://www.wso2.org/governance/metadata">'+
                '<application>'+
                '<description>'+applicationDescription+'</description>'+
                '<name>'+applicationName+'</name>'+
@@ -52,7 +52,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
                '<repositorytype>'+repositoryType+'</repositorytype>'+
  	           '<applicationCreationStatus>PENDING</applicationCreationStatus>'+
                '</application>'+
-               '</metadata>]]>';
+               '</metadata>';
 
                var lifecycleAttribute = null;
             //Publishing app creation started message to wall
@@ -61,14 +61,20 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
             try{
                 var eventBuilderInstance = EventBuilder.invokeAppCreationStartedEvent(applicationKey, userName, notificationTitle, notificationDescription, "INFO");
             } catch (e) {
-                log.error("Error while sending notification for application creation \n" + e.message);
+                // we don't throw exception because this is notification sending, its' failure should not break the flow
+                var msg = "Error while sending notification for the creation of application with application key : "
+                          + applicationKey + "of application type : " + applicationType + "with version : " + version
+                          + " and with repository type : " + repositoryType + " for the user : " + userName
+                          + ". Notification title : " + notificationTitle;
+                log.error(msg);
+                log.error(e);
             }
 
 
                modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
 
                key = 'appversion';
-               content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">'+
+               content = '<metadata xmlns="http://www.wso2.org/governance/metadata">'+
                             '<appversion>'+
                                 '<key>'+applicationKey+'</key>'+
                                 '<version>'+version+'</version>'+
@@ -77,14 +83,19 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
 	                            '<isAutoDeploy>true</isAutoDeploy>'+
                             '</appversion>'+
                             '<serviceLifecycle><lifecycleName>'+lifecycleName+'</lifecycleName></serviceLifecycle>'+
-                      '</metadata>]]>';
+                      '</metadata>';
 
                lifecycleAttribute = 'serviceLifecycle_lifecycleName';
 
                modLifecycle.addGenericArtifact(key,content,lifecycleAttribute);
         } catch (e) {
-            log.error("Error while storing resource \n"+e.message);
-            throw new Error("Error while storing registry resource");
+            var msg = "Error while storing registry resource for the application with application key : "
+                      + applicationKey + "of application type : " + applicationType + " with version : " + version
+                      + " for the user : " + userName + " and for lifecycle name : " + lifecycleName;
+            log.error(msg);
+            log.error(e);
+            throw e;
+
         }
 
 
@@ -145,7 +156,7 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
 
         var tenantDomain=modManager.getTenantDomain();
 
-	
+
         var payload = '<p:CreateApplicationRequest xmlns:p="http://wso2.org"><applicationId xmlns="http://wso2.org">' + applicationKey + '</applicationId>';
         payload += '<applicationType xmlns="http://wso2.org">' + applicationType + '</applicationType><userName xmlns="http://wso2.org">' + userName + '</userName><repositoryType xmlns="http://wso2.org">' + repositoryType + '</repositoryType><adminUserName xmlns="http://wso2.org">' + adminUserName + '</adminUserName><domainName xmlns="http://wso2.org">'+ tenantDomain +'</domainName></p:CreateApplicationRequest>';
         var result;
@@ -163,8 +174,13 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
             log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
         }
     } catch (e) {
-        log.error("Error while creating application \n" + e.message);
-        throw "Error while creating application";
+        var msg = "Error while creating application : " + applicationName + " with application key : " + applicationKey
+                  + " of application type : " + applicationType + " and version : " + version + " for the user : "
+                  + userName + " of tenant domain : " + tenantDomain + ". Repository type is " + repositoryType
+                  + " and Application URL is " + applicationURL;
+        log.error(msg);
+        log.error(e);
+        throw e;
     }
     //return repositoryPath;
 };
@@ -175,7 +191,7 @@ var isApplicationKeyAvailable = function (applicationKey, auth) {
 	if(auth){
 		jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE);
 	}
-
+    var tenantDomain = modManager.getTenantDomain();
 	var ws = require('ws');
 	var request = new ws.WSRequest();
 	var options = new Array();
@@ -195,8 +211,9 @@ var isApplicationKeyAvailable = function (applicationKey, auth) {
 			log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
 		}
 	} catch (e) {
-		log.error("Error while checking for application key \n" + e.message);
-		throw "Error while checking for application key";
+        log.error("Error while checking for the application key : " + applicationKey + " of tenant : " + tenantDomain);
+        log.error(e);
+        throw e;
 	}
 	status.isAvailable=result.*::["return"].text();
 	return status;
@@ -206,6 +223,7 @@ var isApplicationKeyAvailable = function (applicationKey, auth) {
 
 var isAppNameAlreadyAvailable = function (applicationName) {
 
+    var tenantDomain = modManager.getTenantDomain();
     var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
@@ -225,31 +243,39 @@ var isAppNameAlreadyAvailable = function (applicationName) {
             log.debug("Invoking service endpoint:" + endPoint + " returned result:" + result);
         }
     } catch (e) {
-        log.error("Error while checking for application name \n" + e.message);
-        throw "Error while checking for application name";
+        log.error("Error while checking for application name : " + applicationName + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
     }
     status.isAvailable=result.*::["return"].text();
     return status;
 
 }
 
-var stroreUploadedApplication = function(uploadedApplicationName , file, type){
+var stroreUploadedApplication = function (uploadedApplicationName, file, type) {
 
-	   validateUploadedApplication(file, type);
-        if (log.isDebugEnabled){
-            log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
-        }
+    validateUploadedApplication(file, type);
+    if (log.isDebugEnabled) {
+        log.debug("Uploaded application path:" + TMP_UPLOADED_APPLICATIONS_PATH);
+    }
 
-	   var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
-           if(!destinationDir.isExists()){
-                destinationDir.mkdir();
-           }
-	   var tmpFileName = TMP_UPLOADED_APPLICATIONS_PATH + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) + UPPLOADABLE_SUFFIX;
-	   file.move(tmpFileName);
+    var destination = "/" + TMP_UPLOADED_APPLICATIONS_PATH + "/" + modManager.getTenantDomain();
+    var destinationDir = new File("/" + TMP_UPLOADED_APPLICATIONS_PATH);
+    if (!destinationDir.isExists()) {
+        destinationDir.mkdir();
+    }
+    destinationDir = new File(destination);
+    if (!destinationDir.isExists()) {
+        destinationDir.mkdir();
+    }
+    var tmpFileName = destination + "/" + uploadedApplicationName + "." + getExtenstionByAppType(type) +
+                      UPPLOADABLE_SUFFIX;
+    file.move(tmpFileName);
 
-	   if(log.isDebugEnabled()){
-	   	log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH);
-	   }
+    if (log.isDebugEnabled()) {
+        log.debug("Successfuly stored the uploaded file to tmp location " + TMP_UPLOADED_APPLICATIONS_PATH);
+    }
 
 };
 
@@ -258,8 +284,10 @@ function validateUploadedApplication(file, applicationType) {
 	var fileRealExtension = getExtenstionByAppType(applicationType);
 	var uploadedFileExtention = file.getName().split('.').pop();
 	if(fileRealExtension != uploadedFileExtention){
-		log.error("Incompatible File Type.");
-		throw new Exception("Incompatible File Type.");
+        var message = "Incompatible file type found for the file : " + file + " with extension : " + fileRealExtension
+                      + " while validating uploaded application.";
+        log.error(message);
+        throw new Exception(message);
 	}
 	log.info("Application extention valided sucessfully");
 

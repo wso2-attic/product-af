@@ -35,6 +35,7 @@ var set = function (applicationId, stage, version, user, etaFrom, etaTo) {
     var options = new Array();
   	options.useSOAP = 1.1;
   	options.action = "urn:publishSetETA";
+	options.mep = "in-only";
   	modManager.setAuthHeaders(options);
   	
   	try{			
@@ -56,11 +57,12 @@ var set = function (applicationId, stage, version, user, etaFrom, etaTo) {
   		};
 
   	} catch (e) {
-  		log.error(e.message);
-  		return {
-  			error:e
-  		};
-  	}
+		log.error("Error at invoking ETAManagementService while trying to set ETA values : " + etaFrom + " - " + etaTo
+				  + " for the application id : " + applicationId + " with version : " + version + " in the stage : "
+				  + stage + " for the user : " + user);
+		log.error(e);
+		throw e;
+	}
 }
 
 var get = function (applicationId, stage, version, user){
@@ -85,9 +87,11 @@ var get = function (applicationId, stage, version, user){
   		ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
   		ax213 = new Namespace("http://eta.mgt.application.appfactory.carbon.wso2.org/xsd");
   	} catch (e) {
-  		log.error("Error occured while fetching ETA information \n" + e.message);
-  		throw "Error while getting ETA information";
-  	}	
+		log.error("Error occurred at ETAManagementService while fetching ETA information for the application id : "
+				  + applicationId + " with version : " + version + " in the stage : " + stage + " for the user : " + user);
+		log.error(e);
+		throw e;
+  	}
 
 	try{
 		
@@ -113,8 +117,11 @@ var get = function (applicationId, stage, version, user){
 	     };
      
 	} catch (e) {
-		log.error("Error occured while processing information returned from urn:publishGetETAValuePerUser ");
-        throw "Error occured while processing information returned from urn:publishGetETAValuePerUser ";
+		log.error("Error occurred while processing information returned from publishGetETAValuePerUser of  " +
+				  "ETAManagementService for application id : " + applicationId + " with version : " + version
+				  + " in the stage : " + stage + " for the user : " + user);
+		log.error(e);
+		throw e;
 	}
 	
 }
@@ -141,8 +148,10 @@ var calculate = function (applicationId, stage, version){
   		ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
   		ax217 = new Namespace("http://eta.mgt.application.appfactory.carbon.wso2.org/xsd");
   	} catch (e) {
-  		log.error("Error occured while fetching Calculated ETA information \n" + e.message);
-  		throw "Error while getting ETA information";
+		log.error("Error occured while fetching Calculated ETA information for the application : " + applicationId
+				  + " with version : " + version + " in the stage : " + stage);
+		log.error(e);
+		throw e;
   	}
 	
 	try{
@@ -168,8 +177,11 @@ var calculate = function (applicationId, stage, version){
 	     };
      
 	} catch (e) {
-		log.error("Error occured while processing information returned from urn:publishGetETAValuePerUser ");
-        throw "Error occured while processing information returned from urn:publishGetETAValuePerUser ";
+		log.error("Error occurred while processing information returned from getCalculatedETA of  " +
+				  "ETAManagementService for application id : " + applicationId + " with version : " + version
+				  + " in the stage : " + stage);
+		log.error(e);
+		throw e;
 	}
 	
 }

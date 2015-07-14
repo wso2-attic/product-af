@@ -24,6 +24,14 @@
                       description="Enter the Client Trust Store Password to connect appfactory securely">
         <f:textbox />
     </f:entry>
+    <f:entry title="CKey Store" field="keyStore"
+                      description="Enter the Key Store to connect deployment server">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="Admin Password" field="keyStorePassword"
+                          description="Enter the Key Store Password to connect deployment server">
+            <f:textbox />
+    </f:entry>
 <f:entry title="Storage Path" field="storagePath"
       description="Root directory where appfactory artifacts will be stored">
     <f:textbox />
@@ -31,6 +39,18 @@
     <f:entry title="Temporary Path" field="tempPath"
       description="Root directory where all of the temp files will be stored">
     <f:textbox />
+    </f:entry>
+    <f:entry title="Deploy server url" field="baseDeployUrl"
+          description="Server url to deploy the successful build">
+        <f:textbox />
+        </f:entry>
+    <f:entry title="Deploy server admin username" field="stratosAdminUsername"
+              description="Deploy server admin username">
+            <f:textbox />
+    </f:entry>
+    <f:entry title="Deploy server admin password" field="stratosAdminPassword"
+              description="Deploy server admin password">
+            <f:textbox />
     </f:entry>
   </f:section>
 </j:jelly>

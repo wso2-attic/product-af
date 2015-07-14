@@ -59,9 +59,10 @@ var authorizeRole = function (stage, role, permission, action) {
         result.error = 'false';
         result.message = 'Role successfully authorized';
     } catch (e) {
-        log.error(e.toString());
-        result.error = 'true';
-        result.message = e.toString();
+        log.error("Error while authorizing the role : " + role + " with permission : " + permission + " and action : "
+                  + action + " in stage : " + stage);
+        log.error(e);
+        throw e;
     }
 
     return result;
@@ -102,11 +103,10 @@ var isRoleAuthorized = function (stage, role, permission, action) {
         result.error = 'false';
         result.message = remoteAuthorizationMgtRequest.responseE4X.resultNS::["return"].text();
     } catch (e) {
-        if(log.isDebugEnabled()){
-            log.debug(e.toString());
-        }
-        result.error = 'true';
-        result.message = 'false';
+        log.error("Error while checking authorization of the role : " + role + " with permission : " + permission
+                  + " and action : " + action + " in stage : " + stage);
+        log.error(e);
+        throw e;
     }
     return result;
 };
@@ -145,9 +145,10 @@ var denyRole = function (stage, role, permission, action) {
         result.error = 'false';
         result.message = 'Role successfully denied.';
     } catch (e) {
-        log.error(e.toString());
-        result.error = 'true';
-        result.message = e.toString();
+        log.error("Error while denying the role : " + role + " with permission : " + permission + " and action : "
+                  + action + " in stage : " + stage);
+        log.error(e);
+        throw e;
     }
 
     return result;
@@ -208,9 +209,9 @@ var invalidateAuthorizationCache = function(stage) {
         result.error = 'false';
         result.message = 'authorization cache successfully invalidated.';
     } catch (e) {
-        log.error(e.toString());
-        result.error = 'true';
-        result.message = e.toString();
+        log.error("Error while invalidating the authorization cache in stage : " + stage);
+        log.error(e);
+        throw e;
     }
 
     return result;

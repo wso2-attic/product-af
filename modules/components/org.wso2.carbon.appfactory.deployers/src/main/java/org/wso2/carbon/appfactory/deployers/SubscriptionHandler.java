@@ -71,7 +71,7 @@ public class SubscriptionHandler {
      */
     public String createSubscription(Map<String,String> deployerInfo, String stage, String username, int tenantID,
                                      String applicationID, String tenantDomain) throws AppFactoryException {
-
+        System.out.println("createSubscription >>>>>>>>>>>>>>>>>>>>>>>>>>");
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
         AppFactoryConfiguration configuration = appfactoryConfiguration;
         //get the stratos server url for each stage
@@ -104,7 +104,7 @@ public class SubscriptionHandler {
                 repoProvider.setAdminPassword(adminPassword);
 
                 String repoURLforDeployer = DeployerUtil.getParameterValue(
-                        deployerInfo, AppFactoryConstants.RUNTIME_REPO_URL);
+                        deployerInfo, AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN);
                 String aliasPrefix = DeployerUtil.getParameterValue(
                         deployerInfo, AppFactoryConstants.RUNTIME_ALIAS_PREFIX);
                 repoProvider.setRepoName(generateRepoUrlFromTemplate(repoURLforDeployer,aliasPrefix,
@@ -160,10 +160,10 @@ public class SubscriptionHandler {
      *            application ID
      * @return generated repository URL e.g. Development/12/myApplication
      */
-    public String generateRepoUrlFromTemplate(String patternStage,
-                                                     String patternAlias, int tenantId, String stage, String appName) {
-        String repoUrl = patternStage.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage) + File.separator +
-                   Integer.toString(tenantId) + File.separator +
+    public String generateRepoUrlFromTemplate(String patternStage,String patternAlias,
+                                              int tenantId, String stage, String appName) {
+        String repoUrl = patternStage.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage) +
+                         File.separator + Integer.toString(tenantId) + File.separator +
                    patternAlias.replace(AppFactoryConstants.APP_NAME_PLACE_HOLDER, appName);
         if(log.isDebugEnabled()) {
             log.debug("generated repo URL: " + repoUrl);

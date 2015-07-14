@@ -11,7 +11,9 @@
     <AdminUserName><%= @adminuser_name %></AdminUserName>
     <AdminPassword><%= @adminuser_passwd %></AdminPassword>
     <AdminEmail></AdminEmail>
-    <AppfactoryVersion>2.1.0 RC1</AppfactoryVersion>
+    <AppfactoryVersion>2.2.0 M1</AppfactoryVersion>
+    <!--Configure the maximum size of the uploadable artifact in Bits, 1k=1024, default size is 200MB-->
+    <UploadableArtifactMaxSize>1677721600</UploadableArtifactMaxSize>
     <JenkinsServerAdminUsername><%= @jenkins_admin_user %></JenkinsServerAdminUsername>
     <JenkinsServerAdminPassword><%= @jenkins_admin_password %></JenkinsServerAdminPassword>
     <!-- Application creation delay in queue   -->
@@ -25,7 +27,7 @@
     <SignUpText>Sign up and start developing</SignUpText>
     <SignInText>Already a Member? Sign In.</SignInText>
 
-    
+   
     <NotificationConfig>
         <Social>
             <!--in milliseconds-->
@@ -69,6 +71,9 @@
         <DomainMappingListener>
          <priority>10</priority>
         </DomainMappingListener>
+        <InitialArtifactDeployerHandler>
+            <priority>45</priority>
+        </InitialArtifactDeployerHandler>
     </EventHandlers>
 
     <!--
@@ -705,7 +710,6 @@
 
     <!-- API-Token should be set according to the running instance of Jenkins-->
     <ContinuousIntegrationProvider name="jenkins" enabled="true">
-        <Property name="BaseURL">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
         <Property name="Authenticate">true</Property>
         <Property name="Maven3ConfigName">m3</Property>
         <Property name="DefaultGlobalRoles">readonly</Property>
@@ -719,7 +723,21 @@
         <Property name="RetryCount">4</Property>
         <!--Retry delay is configured in seconds.-->
         <Property name="RetryDelay">20</Property>
+	<HttpClient>
+        	<allowAllHostNameVerifier>true</allowAllHostNameVerifier>
+        	<defaultMaxConnectionsPerRoute>1000</defaultMaxConnectionsPerRoute>
+        	<maxTotalConnections>1000</maxTotalConnections>
+    	</HttpClient>
     </ContinuousIntegrationProvider>
+        <JenkinsLBConfig>
+        <BucketCount>2</BucketCount>
+        <BucketList>
+            <Property name="0">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
+            <Property name="1">https://<%= @jenkins_subdomain %>.<%= @wso2_env_domain %>:<%= @jenkins_port %></Property>
+        </BucketList>
+        <BucketSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategyImpl</BucketSelectingStrategy>
+        <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>
+    </JenkinsLBConfig>
     <OtherServices>
         <Service name="ViewVC">
             <Link>http://www.viewvc.org/</Link>
@@ -790,5 +808,9 @@
         <AdminPassword><%= @s2git_adminpassword %></AdminPassword>
     </PAASArtifactStorageRepositoryProvider>
     <AppendStageToCartridgeInfo>true</AppendStageToCartridgeInfo>
+    <AbstractSingleTenantApplicationTypeProcessor>
+    	<RetryCount>7</RetryCount>
+    	<RetryDelay>5</RetryDelay>
+    </AbstractSingleTenantApplicationTypeProcessor>
 </AppFactory>
 

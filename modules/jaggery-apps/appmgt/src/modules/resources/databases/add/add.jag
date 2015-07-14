@@ -78,25 +78,32 @@ var createDatabase = function (applicationKey, databaseName, databaseServerInsta
         //result is database name
         rssFilter.addDatabase(result, applicationKey, stage, databaseDescription);
         try{
-            var notificationTitle  = "Database " + databaseName + " added";
+            var notificationTitle  = "Database " + databaseName + " added to " + stage;
             var correlationKey = dbCorrelationKey(applicationKey, databaseName, stage);
             var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "" ,correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending create database success notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending create database success notification for database : " + databaseName
+					  + " of application : " + applicationKey + " in stage : " + stage);
+			log.error(e);
         }
 	} catch (e) {
         try{
-            var notificationTitle  = "Failed to add database " + databaseName;
+            var notificationTitle  = "Failed to add database " + databaseName + " to " + stage;
             var correlationKey = dbCorrelationKey(applicationKey, stage, databaseName);
             var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey , "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending create database failure notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending create database failure notification for database : " + databaseName
+					  + " of application : " + applicationKey + " in stage : " + stage);
+			log.error(e);
         }
-		log.error("Error while creating database "+ "\n" + e.message);
-		//throw "Error while creating database  ";
-		result = "" + e.javaException.cause;
+		log.error("Error while creating database : " + databaseName + " for the application : " + applicationKey
+				  + " in stage : " + stage);
+		log.error(e);
+		throw e;
 	}
 
 	return result;
@@ -293,8 +300,10 @@ var getAttachedUsers = function (applicationKey, dbname, rssInstance){
 		getAttachedUsersService.send(payload);
 		result = getAttachedUsersService.responseE4X;
 	} catch (e) {
-		log.error("Error while getting the attached users \n" + e.message);
-		throw "Error while getting the attached users.";
+		log.error("Error while getting attached users for database : " + dbname + " of application : "
+				  + applicationKey + " in stage : " + stage);
+		log.error(e);
+		throw e;
 	}
 	return getUserList(result);
 };
@@ -329,10 +338,37 @@ var attachNewUser = function (applicationKey,rssInstance, dbname, users, templat
 		attachUserService.open(options, storageServerURL+'RSSAdmin', false);
 		attachUserService.send(payload);
 		result = "success";
+
+
+        try {
+            var notificationTitle = "New user attached to the database " + dbname + " in " + stage;
+            var notificationMessageDescription = "For user: " + users + " in environment: " + stage;
+            var eventBuilderInstance = EventBuilder.attachNewUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending notification : \'New user attached to the database : " + dbname
+					  + " in stage : " + stage + "\' for the application : " + applicationKey);
+			log.error(e);
+        }
+
 	} catch (e) {
-		//log.error("Error while attaching a new user \n" + e.message);
-		// throw "Error while attaching a new user";
-		//result = ""+e.javaException.cause;
+        try {
+            var notificationTitle = "New user attach failed to the database " + dbname + " in " + stage;
+            var notificationMessageDescription = "For user: " + users + " in environment: " + stage;
+            var eventBuilderInstance = EventBuilder.attachNewUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending notification : \'New user attach failed to the database : " + dbname
+					  + " in stage : " + stage + "\' for the application : " + applicationKey);
+			log.error(e);
+
+        }
+		log.error("Error while attaching new user : " + users + " with template : " + templates + " to database : "
+				  + dbname + " of application : " + applicationKey);
+		log.error(e);
+		throw e;
 	}
 
 	return result;
@@ -367,9 +403,36 @@ var detachUser = function (applicationKey,rssInstance, dbname, username){
 		detachUserService.open(options, storageServerURL+'RSSAdmin', false);
 		detachUserService.send(payload);
 		result = true;//since detachUserService.responseE4X is null;
+
+        try {
+            var notificationTitle = "User detached successfully from database " + dbname + " in " + stage;
+            var notificationMessageDescription = "Detached user: " + username + " in environment: " + stage;
+            var eventBuilderInstance = EventBuilder.detachUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending notification : \'User detached successfully from database : " + dbname
+					  + " in stage : " + stage + "\' for application : " + applicationKey);
+			log.error(e);
+        }
+
 	} catch (e) {
-		log.error("Error while detaching a user \n" + e.message);
-		throw "Error while detaching a user";
+
+        try {
+            var notificationTitle = "Error while detaching the user from database " + dbname + " in " + stage;
+            var notificationMessageDescription = "Detached user: " + username + " in environment: " + stage;
+            var eventBuilderInstance = EventBuilder.detachUserEvent(applicationKey, jagg.getUser(), notificationTitle, notificationMessageDescription, "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending notification : \'User detaching failed from database : " + dbname
+					  + " in stage : " + stage + "\' for application : " + applicationKey);
+			log.error(e);
+        }
+		log.error("Error while detaching user : " + username + " from database : " + dbname + " of application : "
+				  + applicationKey + " in stage : " + stage);
+		log.error(e);
+		throw e;
 	}
 	return result;
 };
@@ -399,8 +462,10 @@ var getUserPrivileges = function (applicationKey,rssInstance, dbname, username){
 		getUserPrivilegesService.send(payload);
 		result = getUserPrivilegesService.responseE4X;
 	} catch (e) {
-		log.error("Error while getting user privileges \n" + e.message);
-		throw "Error while getting user privileges";
+		log.error("Error while getting user privileges of user : " + username + " for database : " + dbname
+				  + " in application : " + applicationKey);
+		log.error(e);
+		throw e;
 	}
 
 	return buildUserPrivilege(result);
@@ -458,27 +523,34 @@ var editUserPermissions = function (applicationKey,dbname,rssInstance,username,a
 		editTemplateService.send(payload);
         var correlationKey = dbPrivilegeCorrelationKey(applicationKey, stage, dbname, username);
         try{
-            var notificationTitle  = "Privileges updated for database " + dbname ;
+            var notificationTitle  = "Privileges updated for database " + dbname + " in " + stage;
             var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
             var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessageDescription, correlationKey, "INFO");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending database user privilege update success notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending database user privilege update success notification for user : " + username
+					  + " for database : " + dbname + " in stage : " + stage + " of application : " + applicationKey);
+			log.error(e);
         }
 
 
 	} catch (e) {
         try{
-            var notificationTitle  = "Privileges update failed for " + dbname ;
+            var notificationTitle  = "Privileges update failed for " + dbname  + " in " + stage;
             var notificationMessageDescription = "For user: " + username + " in " + stage + " environment";
             var eventBuilderInstance = EventBuilder.resourceUpdateCompletionEvent(applicationKey, loggedInUser, notificationTitle, notificationMessageDescription, correlationKey, "ERROR");
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            log.error("Error while sending database user privilege update failure notification \n" + e.message);
+			//we don't throw here since this is message sending to wall.
+			log.error("Error while sending database user privilege update failure notification for user : " + username
+					  + " for database : " + dbname + " in stage : " + stage + " of application : " + applicationKey);
+			log.error(e);
         }
-
-		log.error("Error while editing user permissions \n" + e.message);
-		throw "Error while editing user permissions.";
+		log.error("Error while editing user permissions for user : " + username + " for database : " + dbname
+				  + " in stage : " + stage + " of application : " + applicationKey);
+		log.error(e);
+		throw e;
 	}
 
 };

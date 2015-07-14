@@ -27,10 +27,10 @@ import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
 import org.apache.rampart.RampartMessageData;
 import org.wso2.carbon.appfactory.application.mgt.internal.ServiceReferenceHolder;
-import org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoBean;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
+import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.queue.Executor;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -42,7 +42,7 @@ import java.io.ByteArrayInputStream;
  * Executor implements to the ApplicationCreation in AppFactory
  *
  */
-public class ApplicationExecutor implements Executor<ApplicationInfoBean> {
+public class ApplicationExecutor implements Executor<Application> {
 
     private final Log log = LogFactory.getLog(ApplicationExecutor.class);
 
@@ -50,8 +50,8 @@ public class ApplicationExecutor implements Executor<ApplicationInfoBean> {
     private static final String BPEL_POLICY = "/appfactory/bpel-policy.xml";
 
     @Override
-    public void execute(ApplicationInfoBean applicationInfoBean) throws Exception {
-        callApplicationCreateBPEL(applicationInfoBean);
+    public void execute(Application application) throws Exception {
+        callApplicationCreateBPEL(application);
     }
 
     public String getProperty(String propertyName) {
@@ -64,9 +64,9 @@ public class ApplicationExecutor implements Executor<ApplicationInfoBean> {
      * To Create the application in appfactory, need to call the
      * CreateApplication BPEL.
      *
-     * @param applicationInfoBean is application detail object to create an application.
+     * @param application is application detail object to create an application.
      */
-    private void callApplicationCreateBPEL(ApplicationInfoBean applicationInfoBean)
+    private void callApplicationCreateBPEL(Application application)
             throws Exception {
 
         final String EPR =
@@ -99,10 +99,10 @@ public class ApplicationExecutor implements Executor<ApplicationInfoBean> {
             client.getOptions().setProperty(RampartMessageData.KEY_RAMPART_POLICY, policy);
 
             // call bpel ApplicationCreation using applicationInfoBean
-            client.fireAndForget(getPayload(applicationInfoBean));
+            client.fireAndForget(getPayload(application));
             client.cleanup();
             log.info("Application creation is initiated for application : " +
-                     applicationInfoBean.getApplicationKey());
+                     application.getId());
 
         } catch (Exception e) {
             String errorMsg = "Error in BPEL calling," + e.getMessage();
@@ -134,26 +134,26 @@ public class ApplicationExecutor implements Executor<ApplicationInfoBean> {
     /**
      * Generate Payload for the CreateApplicationRequest service operation
      *
-     * @param applicationInfoBean
+     * @param application
      * @return
      * @throws XMLStreamException
      * @throws javax.xml.stream.XMLStreamException
      *
      */
-    private static OMElement getPayload(ApplicationInfoBean applicationInfoBean)
+    private static OMElement getPayload(Application application)
             throws XMLStreamException,
                    javax.xml.stream.XMLStreamException {
 
         String payload =
                 "<p:CreateApplicationRequest xmlns:p=\"http://wso2.org\">\n" +
                 "      <applicationId xmlns=\"http://wso2.org\">" +
-                applicationInfoBean.getApplicationKey() +
+                application.getId() +
                 "</applicationId>\n" +
                 "      <userName xmlns=\"http://wso2.org\">" +
-                applicationInfoBean.getOwnerUserName() +
+                application.getOwner() +
                 "</userName>\n" +
                 "      <repositoryType xmlns=\"http://wso2.org\">" +
-                applicationInfoBean.getRepositoryType() +
+                application.getRepositoryType() +
                 "</repositoryType>\n" +
                 "<domainName xmlns=\"http://wso2.org\">" +
                         CarbonContext.getThreadLocalCarbonContext().getTenantDomain() +

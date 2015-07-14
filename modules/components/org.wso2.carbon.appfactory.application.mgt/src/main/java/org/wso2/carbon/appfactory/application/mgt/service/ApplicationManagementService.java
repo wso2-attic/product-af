@@ -27,12 +27,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
+import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.deploy.Artifact;
-import org.wso2.carbon.appfactory.core.dto.*;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
-import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.dto.Application;
+import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.queue.AppFactoryQueueException;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.CommonUtil;
@@ -42,7 +41,6 @@ import org.wso2.carbon.appfactory.eventing.Event;
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
 import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
-import org.wso2.carbon.appfactory.jenkins.build.JenkinsCISystemDriver;
 import org.wso2.carbon.appfactory.tenant.mgt.beans.UserInfoBean;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.appfactory.utilities.services.EmailSenderService;
@@ -53,8 +51,6 @@ import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import org.wso2.carbon.registry.core.ActionConstants;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.api.*;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -64,57 +60,49 @@ import java.util.List;
 
 public class ApplicationManagementService extends AbstractAdmin {
 
-    private static Log log = LogFactory.getLog(ApplicationManagementService.class);
-
+    private static final Log perfLog = LogFactory.getLog("org.wso2.carbon.appfactory.perf.appversion.load");
     public static String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
     public static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
     public static String LAST_NAME_CLAIM_URI = "http://wso2.org/claims/lastname";
-
     public static UserApplicationCache userApplicationCache = UserApplicationCache.getUserApplicationCache();
-    public static JDBCApplicationDAO applicationDAO=JDBCApplicationDAO.getInstance();
+    private static Log log = LogFactory.getLog(ApplicationManagementService.class);
 
     /**
      * This createApplication method is used for the create an application. When
      * call this method, it put to the queue. TODO:Make it work in cluster and
      * MT environment
      *
-     * @param applicationName
-     *            Application name.
-     * @param applicationKey
-     *            Key for the Application. This should be unique.
-     * @param applicationDescription
-     *            Description of the application.
-     * @param applicationType
-     *            Type of the application. ex: war, jaxrs, jaxws ...
-     * @param repositoryType
-     *            Type of the repository that should use. ex: svn, git
-     * @param userName
-     *            Logged-in user name.
+     * @param applicationName        Application name.
+     * @param applicationKey         Key for the Application. This should be unique.
+     * @param applicationDescription Description of the application.
+     * @param applicationType        Type of the application. ex: war, jaxrs, jaxws ...
+     * @param repositoryType         Type of the repository that should use. ex: svn, git
+     * @param userName               Logged-in user name.
      */
     public void createApplication(String applicationName, String applicationKey, String applicationDescription,
                                   String applicationType, String repositoryType,
                                   String userName) throws ApplicationManagementException {
 
-        ApplicationInfoBean applicationInfoBean = new ApplicationInfoBean();
-        applicationInfoBean.setName(applicationName);
-        applicationInfoBean.setApplicationKey(applicationKey);
-        applicationInfoBean.setDescription(applicationDescription);
-        applicationInfoBean.setApplicationType(applicationType);
-        applicationInfoBean.setRepositoryType(repositoryType);
-        applicationInfoBean.setOwnerUserName(userName);
+        Application application = new Application();
+        application.setName(applicationName);
+        application.setId(applicationKey);
+        application.setDescription(applicationDescription);
+        application.setType(applicationType);
+        application.setRepositoryType(repositoryType);
+        application.setOwner(userName);
 
         try {
             ApplicationCreator applicationCreator = ApplicationCreator.getInstance();
-            applicationCreator.getExecutionEngine().getSynchQueue().put(applicationInfoBean);
+            applicationCreator.getExecutionEngine().getSynchQueue().put(application);
 
             BamDataPublisher publisher = BamDataPublisher.getInstance();
             String tenantId = "" + Util.getRealmService().getBootstrapRealmConfiguration().getTenantId();
-            //TODO: Check if we need to put the repo accessability into this also
+            //TODO: Check if we need to put the repo accessibility into this also
             publisher.PublishAppCreationEvent(applicationName, applicationKey, applicationDescription, applicationType,
-                                              repositoryType, System.currentTimeMillis(), tenantId, userName);
+                    repositoryType, System.currentTimeMillis(), tenantId, userName);
 
         } catch (AppFactoryQueueException e) {
-            String errorMsg = "Error occured when adding an application in to queue, " + e.getMessage();
+            String errorMsg = "Error occurred when adding an application in to queue";
             log.error(errorMsg, e);
             throw new ApplicationManagementException(errorMsg, e);
         } catch (AppFactoryException e) {
@@ -137,7 +125,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             // We need to return the opposite of what the DAO returns.
             // The DAO will return true if the given application key exists
             // Therefore we need to return false since the application id is not available
-            return !applicationDAO.isApplicationKeyExists(applicationKey);
+            return !JDBCApplicationDAO.getInstance().isApplicationKeyExists(applicationKey);
         } catch (AppFactoryException e) {
             String msg = "Error while validating application key :  " + applicationKey;
             log.error(msg);
@@ -157,7 +145,7 @@ public class ApplicationManagementService extends AbstractAdmin {
             // We need to return the opposite of what the DAO returns.
             // The DAO will return true if the given application name exists
             // Therefore we need to return false since the application name is not available
-            return !applicationDAO.isApplicationNameExists(applicationName);
+            return !JDBCApplicationDAO.getInstance().isApplicationNameExists(applicationName);
         } catch (AppFactoryException e) {
             String msg = "Error while validating application name :  " + applicationName;
             log.error(msg);
@@ -165,68 +153,44 @@ public class ApplicationManagementService extends AbstractAdmin {
         }
     }
 
-	/**
-	 * @deprecated
-     * Gets all the applications for tenant
-	 * @return Application array
-	 * @throws AppFactoryException
-	 */
+    /**
+     * @return Application array
+     * @throws AppFactoryException
+     * @deprecated Gets all the applications for tenant
+     */
     public Application[] getAllApplications() throws AppFactoryException {
-    	return null;
-//        String tenantDomain = getTenantDomain();
-//	    List<Application> applications;
-//	    try {
-//		 //   applications = ProjectUtils.getAllApplicationInfo(tenantDomain);
-//	    } catch (AppFactoryException e) {
-//		    String msg = "Error while getting applications";
-//		    log.info(msg, e);
-//		    throw new AppFactoryException(msg, e);
-//	    }
-//	    return applications.toArray(new Application[applications.size()]);
-    }
-
-
-    public String getStage(String applicationId, String version) throws ApplicationManagementException {
-        try {
-            // Getting the tenant domain
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-            return RxtManager.getInstance().getStage(applicationId, version, tenantDomain);
-        } catch (AppFactoryException e) {
-            String msg = "Unable to get stage for " + applicationId + "and version : " + version;
-            log.error(msg, e);
-            throw new ApplicationManagementException(msg, e);
-        }
+        return null;
     }
 
     //Todo:remove domainName and userName after updating bpel
-    public void publishApplicationCreation(String domainName, String userName, String applicationId, String applicationType)
-            throws ApplicationManagementException {
-        // New application is created successfully so now time to clear realm in
-        // cache to reload
+    public void publishApplicationCreation(String domainName, String userName, String applicationId,
+                                           String applicationType) throws ApplicationManagementException {
+        // New application is created successfully so now time to clear realm in cache to reload
         // the new realm with updated permissions
 
+        boolean isListnersCompletedSuccessfully = true;
         clearRealmCache(applicationId);
         domainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String tenantAwareUserName = loggedInUser +"@"+domainName;
+        String tenantAwareUserName = loggedInUser + "@" + domainName;
         if (log.isDebugEnabled()) {
-            log.debug("Application creation is started by user:" + tenantAwareUserName + " in tenant domain:" + domainName);
+            log.debug("Application creation is started by user:" + tenantAwareUserName + " in tenant domain:" +
+                    domainName);
         }
         Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
         ApplicationEventsHandler listener = null;
         Application application = null;
         PrivilegedCarbonContext threadLocalCarbonContext = null;
         try {
-        	PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.startTenantFlow();
             threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             threadLocalCarbonContext.setTenantDomain(domainName, true);
             threadLocalCarbonContext.setUsername(loggedInUser);
-            
+
             // creates role for application in the ldap to add users of the
             createApplicationRole(applicationId, tenantAwareUserName, domainName);
             addRegistryWritePermissionToApp(applicationId, domainName);
-            application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
+            application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
             if (application == null) {
                 String errorMsg = String.format("Unable to load application information for id %s", applicationId);
                 throw new ApplicationManagementException(errorMsg);
@@ -234,7 +198,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
             // IMO, we should only add application information to AppFactory DB only if the above condition fails.
             // If there are information in the registry, then only we should add them to DB
-            applicationDAO.addApplication(application);
+            JDBCApplicationDAO.getInstance().addApplication(application);
 
             boolean isUploadableAppType = AppFactoryCoreUtil.isUplodableAppType(application.getType());
 
@@ -243,18 +207,49 @@ public class ApplicationManagementService extends AbstractAdmin {
                     listener = appEventListeners.next();
                     listener.onCreation(application, tenantAwareUserName, domainName, isUploadableAppType);
                 } catch (Throwable e) {
-                    String error = "Error while executing onCreation method of ApplicationEventsListener : " + listener + " due to " + e.getMessage();
+                    isListnersCompletedSuccessfully = false;
+                    String error = "Error while executing onCreation method of ApplicationEventsListener : " + listener;
                     log.error(error, e);
                     this.deleteApplication(application, tenantAwareUserName, domainName);
                     try {
+
                         String errorMessage = "Error while creating the app " + applicationId;
-                        if(error.contains("JenkinsApplicationEventsListener")){
-                            errorMessage =  "Error occurred while creating the Jenkins space for the app " + applicationId;
+                        if (error.contains("JenkinsApplicationEventsListener")) {
+                            errorMessage = "Error occurred while creating the Jenkins space for the app " +
+                                    applicationId;
+                        } else if (error.contains("AppFactoryApplicationEventListener")) {
+                            errorMessage = "Error occurred while creating the Issue tracker provisioning for the app "
+                                    + applicationId;
+                        } else if (error.contains("ApplicationInfomationChangeListner")) {
+                            errorMessage = "Error occurred while invoking the ApplicationInfomationChangeListner " +
+                                    "for the app " + applicationId;
+                        } else if (error.contains("DSApplicationListener")) {
+                            errorMessage = "Error occurred while creating the data source for the app " + applicationId;
+                        } else if (error.contains("DomainMappingListener")) {
+                            errorMessage = "Error occurred while adding the domain mapping for the app " + applicationId;
+                        } else if (error.contains("EnvironmentAuthorizationListener")) {
+                            errorMessage = "Error occurred while creating environments for the app  " + applicationId;
+                        } else if (error.contains("InitialArtifactDeployerHandler")) {
+                            errorMessage = "Error occurred while initial code committing for the app " + applicationId;
+                        } else if (error.contains("IssueTrackerListener")) {
+                            errorMessage = "Error occurred while creating the issue tracker space for the app " +
+                                    applicationId;
+                        } else if (error.contains("NonBuildableApplicationEventListner")) {
+                            errorMessage = "Error occurred while invoking the NonBuildableApplicationEventListner " +
+                                    "for the app " + applicationId;
+                        } else if (error.contains("RepositoryHandler")) {
+                            errorMessage = "Error occurred while creating the source code repository for the " +
+                                    "app " + applicationId;
+                        } else if (error.contains("StatPublishEventsListener")) {
+                            errorMessage = "Error occurred while publishing stats related to the app " + applicationId;
+                        } else if (error.contains("UserProvisioningListener")) {
+                            errorMessage = "Error occurred while user provisioning for the app " + applicationId;
                         }
 
                         EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(
-                                                                                                          "Application creation failed for " + application.getName(),
-                                                                                                          errorMessage.concat(". Therefore application will be rollbacked."), Event.Category.ERROR));
+                                "Application creation failed for " + application.getName(),
+                                errorMessage.concat(". Therefore application will rollback."),
+                                Event.Category.ERROR));
 
                     } catch (AppFactoryEventException e1) {
                         log.error("Failed to notify application creation failed events", e1);
@@ -263,9 +258,12 @@ public class ApplicationManagementService extends AbstractAdmin {
                     break;
                 }
             }
-            ProjectUtils.updateApplicationCreationStatus(applicationId, Constants.ApplicationCreationStatus.COMPLETED);
+            if (isListnersCompletedSuccessfully) {
+                ProjectUtils
+                        .updateApplicationCreationStatus(applicationId, Constants.ApplicationCreationStatus.COMPLETED);
+            }
         } catch (AppFactoryException ex) {
-            String errorMsg = "Unable to load registry rxt for application " + applicationId + " due to : " + ex.getMessage();
+            String errorMsg = "Unable to load registry rxt for application " + applicationId;
             log.error(errorMsg, ex);
             if (application != null) {
                 try {
@@ -277,15 +275,15 @@ public class ApplicationManagementService extends AbstractAdmin {
             }
             throw new ApplicationManagementException(errorMsg, ex);
         } catch (UserStoreException e) {
-            String errorMsg = "Unable to add application role to the userstore: " + e.getMessage();
+            String errorMsg = "Unable to add application role to the userstore";
             log.error(errorMsg, e);
             try {
                 //   if (errorMsg.con)
                 EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(
-                                                                                                  "Application creation failed for " + application.getName(),
-                                                                                                  errorMsg.concat("Therefore application will be rollback."), Event.Category.ERROR));
+                        "Application creation failed for " + application.getName(),
+                        errorMsg.concat("Therefore application will be rollback."), Event.Category.ERROR));
             } catch (AppFactoryEventException e1) {
-                log.error("Failed to notify application creation failed events",e1);
+                log.error("Failed to notify application creation failed events", e1);
                 // do not throw again.
             }
             throw new ApplicationManagementException(errorMsg, e);
@@ -294,69 +292,9 @@ public class ApplicationManagementService extends AbstractAdmin {
         }
     }
 
-    public void publishApplicationVersionCreation(String domainName, String applicationId, String sourceVersion,
-                                                  String targetVersion) throws ApplicationManagementException {
-        try {
 
-            // Getting the tenant ID from the CarbonContext since this is called
-            // as a SOAP service.
-            CarbonContext threadLocalCarbonContext = CarbonContext.getThreadLocalCarbonContext();
-            domainName = threadLocalCarbonContext.getTenantDomain();
-            String userName = threadLocalCarbonContext.getUsername();
-
-            Version version=new Version(targetVersion);
-            applicationDAO.addVersion(applicationId,version);
-            Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
-
-            Application application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
-            String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
-
-            Version[] versions = ProjectUtils.getVersions(applicationId, domainName);
-
-            // find the versions.
-            Version source = null;
-            Version target = null;
-            for (Version v : versions) {
-                if (v.getId().equals(sourceVersion)) {
-                    source = v;
-                }
-
-                if (v.getId().equals(targetVersion)) {
-                    target = v;
-                }
-
-                if (source != null && target != null) {
-                    // both version are found. no need to traverse more
-                    break;
-                }
-            }
-
-            ApplicationEventsHandler listener = null ;
-            while (appEventListeners.hasNext()) {
-                try {
-                    listener = appEventListeners.next();
-                    listener.onVersionCreation(application, source, target, domainName, userName);
-                } catch (Throwable e) {
-                    log.error("Error while executing onVersionCreation method of ApplicationEventsListener : " + listener, e);
-                }
-            }
-
-        } catch (AppFactoryException ex) {
-            String errorMsg = "Unable to publish version creation due to " + ex.getMessage();
-            log.error(errorMsg, ex);
-            throw new ApplicationManagementException(errorMsg, ex);
-        } catch (RegistryException e) {
-            log.error(e);
-            throw new ApplicationManagementException(e);
-        }
-    }
-
-
-
-
-
-
-    public void publishForkRepository(String applicationId, String type, String version, String userName, String[] forkedUser) throws ApplicationManagementException {
+    public void publishForkRepository(String applicationId, String type, String version, String userName,
+                                      String[] forkedUser) throws ApplicationManagementException {
         try {
 
             // Getting the tenant ID from the CarbonContext since this is called
@@ -367,14 +305,14 @@ public class ApplicationManagementService extends AbstractAdmin {
 
             Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
 
-            Application application = ApplicationManager.getInstance().getApplicationInfo(applicationId);
+            Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
 
-            ApplicationEventsHandler listener = null ;
+            ApplicationEventsHandler listener = null;
             while (appEventListeners.hasNext()) {
                 try {
                     listener = appEventListeners.next();
-                    listener.onFork(application, userName, domainName, version,forkedUser);
+                    listener.onFork(application, userName, domainName, version, forkedUser);
                 } catch (Throwable e) {
                     log.error("Error while executing onFork method of ApplicationEventsHandler : " + listener, e);
                 }
@@ -382,7 +320,7 @@ public class ApplicationManagementService extends AbstractAdmin {
 
 
         } catch (AppFactoryException ex) {
-            String errorMsg = "Unable to publish onForking due to " + ex.getMessage();
+            String errorMsg = "Unable to publish onForking";
             log.error(errorMsg, ex);
             throw new ApplicationManagementException(errorMsg, ex);
         } catch (RegistryException e) {
@@ -391,173 +329,34 @@ public class ApplicationManagementService extends AbstractAdmin {
         }
     }
 
-
-
-
-
     /**
-     * Service method to make the application related to given {@code applicationId} auto build.
+     * Updating DB value when do the  promote action
      *
-     * @param applicationId
-     * @param stage
-     * @param version
-     * @param isAutoBuildable
+     * @param applicationId id of the application
+     * @param stage         current stage of the application
+     * @param version       version of the application
+     * @param action        promote action
      * @throws ApplicationManagementException
      */
-    public void publishSetApplicationAutoBuild(String applicationId, String stage, String version,
-                                               boolean isAutoBuildable) throws ApplicationManagementException {
-        log.info("Auto build change event recieved for : " + applicationId + " " + " Version : " + version +
-                 " stage :" + stage + " isAutoBuildable :" + isAutoBuildable);
 
-        // Getting the tenant domain
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-        updateRxtWithBuildStatus(applicationId, stage, version, isAutoBuildable, tenantDomain);
-
-        try {
-            JenkinsCISystemDriver jenkinsCISystemDriver =
-                    (JenkinsCISystemDriver) Util.getContinuousIntegrationSystemDriver();
-            // TODO this from configuration
-            int pollingPeriod = 6;
-
-            jenkinsCISystemDriver.setJobAutoBuildable(applicationId, version, isAutoBuildable, pollingPeriod,
-                                                      tenantDomain);
-
-            // Removing App version cache related code
-            // Clear the cache
-            // AppVersionCache.getAppVersionCache().clearCacheForAppId(applicationId);
-
-            log.info("Application : " + applicationId + " successfully configured for auto building " + isAutoBuildable);
-        } catch (AppFactoryException e) {
-            String msg = "Error occured while updating jenkins configuration";
-            log.error(msg, e);
-            throw new ApplicationManagementException(msg);
+    //ToDo renamed
+    public void updateRxtWithPromoteState(String applicationId, String stage, String version, String action,
+                                          String state) throws ApplicationManagementException {
+        if (action == null || !action.equals(AppFactoryConstants.RXT_KEY_APPVERSION_PROMOTE)) {
+            return;
         }
-
-    }
-
-    /**
-     * Service method to make the application related to given {@code applicationId} auto deploy.
-     *
-     * @param applicationId
-     * @param stage
-     * @param version
-     * @param isAutoDeployable
-     * @throws ApplicationManagementException
-     */
-    public void publishSetApplicationAutoDeploy(String applicationId, String stage, String version,
-                                                boolean isAutoDeployable) throws ApplicationManagementException {
-        log.info("Auto deploy change event recieved for : " + applicationId + " " + " Version : " + version +
-                 " stage :" + stage + " isAutoBuildable :" + isAutoDeployable);
-
-        // Getting the tenant domain
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-        updateRxtWithDeplymentStatus(applicationId, stage, version, isAutoDeployable, tenantDomain);
         try {
-            String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, tenantDomain);
-            boolean appIsBuildable = AppFactoryCoreUtil.isBuildable(applicationType);
-
-            if (appIsBuildable) {
-                JenkinsCISystemDriver jenkinsCISystemDriver =
-                        (JenkinsCISystemDriver) Util.getContinuousIntegrationSystemDriver();
-
-                jenkinsCISystemDriver.setJobAutoDeployable(applicationId, version, isAutoDeployable, tenantDomain);
+            JDBCAppVersionDAO.getInstance().updatePromoteStatusOfVersion(applicationId, version, state);
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully updated Promote status as Pending for application id : " + applicationId +
+                        " version : " + version + " stage :" + stage);
             }
-            // Removing app version cache related code
-            // Clear the cache
-            // AppVersionCache.getAppVersionCache().clearCacheForAppId(applicationId);
-
-            log.info("Application : " + applicationId + " sccessfully configured for auto deploy " + isAutoDeployable);
         } catch (AppFactoryException e) {
-            String msg = "Error occured while updating jenkins configuration";
+            String msg = "Error occurred while updating with promote status for application id : " + applicationId +
+                    " version : " + version + " stage :" + stage;
             log.error(msg, e);
-            throw new ApplicationManagementException(msg);
-        } catch (RegistryException e) {
-            String msg = "Error occured while reading regstry";
-            log.error(msg, e);
-            throw new ApplicationManagementException(msg);
+            throw new ApplicationManagementException(msg, e);
         }
-    }
-
-    /**
-     * Updates the rxt registry with given auto build information.
-     *
-     * @param applicationId
-     * @param stage
-     * @param version
-     * @param isAutoBuildable
-     * @throws ApplicationManagementException
-     */
-    private void updateRxtWithBuildStatus(String applicationId, String stage, String version, boolean isAutoBuildable,
-                                          String tenantDomain) throws ApplicationManagementException {
-        try {
-            RxtManager.getInstance().updateAppVersionRxt(applicationId, version, "appversion_isAutoBuild",
-                                                         String.valueOf(isAutoBuildable), tenantDomain);
-            log.debug(" Rtx updated successfully for : " + applicationId + " " + " Version : " + version + " stage :" +
-                    stage + " isAutoBuildable :" + isAutoBuildable);
-
-        } catch (AppFactoryException e) {
-            String msg = "Error occured while updating the rxt with auto-build status";
-            log.error(msg, e);
-            throw new ApplicationManagementException(msg);
-        }
-    }
-
-    /**
-     * Updating Rxt value when do the  promote action
-     *
-     * @param applicationId
-     * @param stage
-     * @param version
-     * @param action
-     * @throws ApplicationManagementException
-     */
-    public void updateRxtWithPromoteState(String applicationId, String stage, String version, String action, String state) throws ApplicationManagementException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        if(action==null || !action.equals("Promote")){
-            return ;
-        }
-        try {
-            applicationDAO.updatePromoteStatusOfVersion(applicationId,version,state);
-            log.debug(" Updated successfully for : " + applicationId + " " + " Version : " +
-                    version + " stage :" +
-                    stage + " Promote is Pending state");
-
-        } catch (AppFactoryException e) {
-            String msg = "Error occurred while updating with promote status";
-            log.error(msg, e);
-            throw new ApplicationManagementException(msg);
-        }
-    }
-
-    /**
-     * Updates the rxt registry with given auto deploy information.
-     *
-     * @param applicationId
-     * @param stage
-     * @param version
-     * @param isAutoDeployable
-     * @throws ApplicationManagementException
-     */
-    private void updateRxtWithDeplymentStatus(String applicationId, String stage, String version,
-                                              boolean isAutoDeployable, String tenantDomain)
-                                                      throws ApplicationManagementException {
-        try {
-            RxtManager.getInstance().updateAppVersionRxt(applicationId, version, "appversion_isAutoDeploy",
-                                                         String.valueOf(isAutoDeployable), tenantDomain);
-            log.debug(" Rtx updated successfully for : " + applicationId + " " + " Version : " + version + " stage :" +
-                    stage + " isAutoDeployable :" + isAutoDeployable);
-
-        } catch (AppFactoryException e) {
-            String msg = "Error occured while updating the rxt with auto-build status";
-            log.error(msg, e);
-            throw new ApplicationManagementException(msg);
-        }
-    }
-
-    public String addArtifact(String key, String info, String lifecycleAttribute) throws AppFactoryException {
-        return RxtManager.getInstance().addArtifact(key, info, lifecycleAttribute);
     }
 
     private void clearRealmCache(String applicationKey) throws ApplicationManagementException {
@@ -568,32 +367,26 @@ public class ApplicationManagementService extends AbstractAdmin {
             realmService.clearCachedUserRealm(tenantID);
         } catch (UserStoreException e) {
             String errorMsg =
-                    "Unable to clear user realm cache for tenant id  " + applicationKey + " due to : " +
-                            e.getMessage();
+                    "Unable to clear user realm cache for tenant id  " + applicationKey;
             log.error(errorMsg, e);
             throw new ApplicationManagementException(errorMsg, e);
         }
     }
 
 
-    public Application getApplication(String applicationId) throws ApplicationManagementException {
-        String domainName = getTenantDomain();
-        try {
-            return ApplicationManager.getInstance().getApplicationInfo(applicationId);
-        } catch (AppFactoryException e) {
-            String message = "Failed to read application info for " + applicationId + " in tenant " + domainName;
-            log.error(message);
-            throw new ApplicationManagementException(message, e);
-        }
-    }
-
-    public boolean deleteApplication(Application application, String userName, String domainName) throws AppFactoryException, ApplicationManagementException {
+    public boolean deleteApplication(Application application, String userName, String domainName) throws
+            AppFactoryException, ApplicationManagementException {
         boolean completedSuccessfully = true;
 
         String applicationId = application.getId();
 
         Iterator<ApplicationEventsHandler> appEventListeners = Util.getApplicationEventsListeners().iterator();
         UserInfoBean[] userList = new ApplicationUserManagementService().getUsersOftheApplication(applicationId);
+
+//        for (UserInfoBean anUserList : userList) {
+//            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForUser(anUserList.getUserName().concat("@").concat(domainName));
+//        }
+
         ApplicationEventsHandler listener;
         while (appEventListeners.hasNext()) {
             listener = appEventListeners.next();
@@ -607,34 +400,40 @@ public class ApplicationManagementService extends AbstractAdmin {
 
         }
 
-        try{
+        try {
             removeApplicationRoles(applicationId, userName, domainName);
         } catch (UserStoreException e) {
             log.error("Error while removing the application roles from LDAP for application " + applicationId, e);
         }
 
         try {
-            removeAppFromRegistry(applicationId, domainName);
+            ApplicationDAO.getInstance().deleteApplicationArtifact(applicationId, domainName);
         } catch (UserStoreException e) {
-            log.error("Error while deleting the application resource from registry for application " + applicationId, e);
+            log.error("Error while deleting the application resource from registry for application " + applicationId,
+                    e);
         } catch (RegistryException e) {
-            log.error("Error while deleting the application resource from registry for application " + applicationId, e);
+            log.error("Error while deleting the application resource from registry for application " + applicationId,
+                    e);
         }
-        applicationDAO.deleteApplication(applicationId);
+        JDBCApplicationDAO.getInstance().deleteApplication(applicationId);
 
         String adminEmail = AppFactoryUtil.getAdminEmail();
-        new EmailSenderService().sendMail(adminEmail, "application-rollback-notice-email.xml", createUserParams(application));
+        new EmailSenderService().sendMail(adminEmail, "application-rollback-notice-email.xml",
+                createUserParams(application));
 
         String title = "Application " + applicationId + " is deleted successfully";
         String messageDescription = "Deleted by: " + userName;
         try {
 
             for (UserInfoBean anUserList : userList) {
-                EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForUser(anUserList.getUserName().concat("@").concat(domainName), title, messageDescription, userName, Event.Category.INFO));
+                EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForUser(
+                        anUserList.getUserName().concat("@").concat(domainName), title, messageDescription, userName,
+                        Event.Category.INFO));
             }
-            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForApplication(applicationId, title, messageDescription, userName, Event.Category.INFO));
+            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationDeletionEventForApplication(
+                    applicationId, title, messageDescription, userName, Event.Category.INFO));
         } catch (AppFactoryEventException e) {
-            log.error("Failed to notify application deletion event " + e.getMessage(), e);
+            log.error("Failed to notify application deletion event", e);
         }
 
         return completedSuccessfully;
@@ -671,22 +470,20 @@ public class ApplicationManagementService extends AbstractAdmin {
         int tenantId = tenantManager.getTenantId(tenantDomain);
         String applicationName = null;
         UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
-        userStoreManager.addRole(AppFactoryUtil.getRoleNameForApplication(applicationKey),
-                                 new String[] { appOwner.split("@")[0] },
-                                 new org.wso2.carbon.user.core.Permission[] { new org.wso2.carbon.user.core.Permission(
-                                                                                                                       AppFactoryConstants.PER_APP_ROLE_PERMISSION,
-                                                                                                                       CarbonConstants.UI_PERMISSION_ACTION) },
-                                                                                                                       false);
+        userStoreManager.addRole(AppFactoryUtil.getRoleNameForApplication(applicationKey), new String[]
+                {appOwner.split("@")[0]}, new org.wso2.carbon.user.core.Permission[]
+                {new org.wso2.carbon.user.core.Permission(AppFactoryConstants.PER_APP_ROLE_PERMISSION,
+                        CarbonConstants.UI_PERMISSION_ACTION)}, false);
 
         // Publish user add event to BAM
-        Application app = ApplicationManager.getInstance().getApplicationInfo(applicationKey);
+        Application app = ApplicationDAO.getInstance().getApplicationInfo(applicationKey);
         applicationName = app.getName();
-            
+
 
         try {
             BamDataPublisher publisher = BamDataPublisher.getInstance();
             publisher.PublishUserUpdateEvent(applicationName, applicationKey, System.currentTimeMillis(),
-                                             "" + tenantId, appOwner.split("@")[0], AppFactoryConstants.BAM_ADD_DATA);
+                    "" + tenantId, appOwner.split("@")[0], AppFactoryConstants.BAM_ADD_DATA);
         } catch (AppFactoryException e) {
             String message = "Failed to publish user add event to bam on application " + applicationKey;
             log.error(message);
@@ -698,13 +495,15 @@ public class ApplicationManagementService extends AbstractAdmin {
 
     /**
      * This method can be used to remove the application related roles added to LDAP
+     *
      * @param applicationKey
      * @param appOwner
      * @param tenantDomain
      * @return
      * @throws UserStoreException
      */
-    private boolean removeApplicationRoles(String applicationKey, String appOwner, String tenantDomain) throws UserStoreException {
+    private boolean removeApplicationRoles(String applicationKey, String appOwner, String tenantDomain)
+            throws UserStoreException {
         RealmService realmService = Util.getRealmService();
         TenantManager tenantManager = realmService.getTenantManager();
         PrivilegedCarbonContext threadLocalCarbonContext = null;
@@ -714,10 +513,10 @@ public class ApplicationManagementService extends AbstractAdmin {
             threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             threadLocalCarbonContext.setTenantId(tenantId, true);
             UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
-            if(userStoreManager.isExistingRole(AppFactoryUtil.getRoleNameForApplication(applicationKey))) {
+            if (userStoreManager.isExistingRole(AppFactoryUtil.getRoleNameForApplication(applicationKey))) {
                 userStoreManager.deleteRole(AppFactoryUtil.getRoleNameForApplication(applicationKey));
             }
-        }  finally {
+        } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
 
@@ -726,49 +525,15 @@ public class ApplicationManagementService extends AbstractAdmin {
         return true;
     }
 
-	private void addRegistryWritePermissionToApp(String applicationKey, String tenantDomain)
-	                                                                                        throws UserStoreException {
-		String roleName = AppFactoryUtil.getRoleNameForApplication(applicationKey);
-		AuthorizationManager authMan =
-		                               Util.getRealmService()
-		                                   .getTenantUserRealm(Util.getRealmService()
-		                                                           .getTenantManager()
-		                                                           .getTenantId(tenantDomain))
-		                                   .getAuthorizationManager();
-		authMan.authorizeRole(roleName, RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-		                                AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" +
-		                                applicationKey, ActionConstants.PUT);
-	}
-
-    private void removeAppFromRegistry(String applicationId, String tenantDomain) throws AppFactoryException, UserStoreException, RegistryException {
-        TenantManager tenantManager = Util.getRealmService().getTenantManager();
-
-        PrivilegedCarbonContext threadLocalCarbonContext = null;
-        try {
-            int tenantId = tenantManager.getTenantId(tenantDomain);
-            PrivilegedCarbonContext.startTenantFlow();
-            threadLocalCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            threadLocalCarbonContext.setTenantId(tenantId, true);
-
-            String resourcePath = AppFactoryConstants.REGISTRY_APPLICATION_PATH + "/" + applicationId;
-            // removing all the permissions given to the resource
-            AuthorizationManager authMan =
-                    Util.getRealmService().getTenantUserRealm(tenantId)
-                    .getAuthorizationManager();
-            authMan.clearResourceAuthorizations(resourcePath);
-
-            // deleting the resource for the applicaiton
-            RegistryService registryService = ServiceHolder.getRegistryService();
-            UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(tenantId);
-
-            if (userRegistry.resourceExists(resourcePath)) {
-                userRegistry.delete(resourcePath);
-            }
-
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
+    private void addRegistryWritePermissionToApp(String applicationKey, String tenantDomain) throws UserStoreException {
+        String roleName = AppFactoryUtil.getRoleNameForApplication(applicationKey);
+        AuthorizationManager authMan = Util.getRealmService().getTenantUserRealm(Util.getRealmService()
+                .getTenantManager().getTenantId(tenantDomain)).getAuthorizationManager();
+        authMan.authorizeRole(roleName, RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
+                AppFactoryConstants.REGISTRY_APPLICATION_PATH + AppFactoryConstants.URL_SEPERATOR +
+                applicationKey, ActionConstants.PUT);
     }
+
 
     public String[] getAllCreatedApplications() throws ApplicationManagementException {
         String apps[] = new String[0];
@@ -792,101 +557,6 @@ public class ApplicationManagementService extends AbstractAdmin {
         return apps;
     }
 
-    public Artifact[] getAllVersionsOfApplication(String domainName, String applicationId) throws AppFactoryException {
-
-        // Commenting out all App version cache related code
-
-        // AppVersionCache cache = AppVersionCache.getAppVersionCache();
-        // Artifact[] artifacts = cache.getAppVersions(applicationId);
-        Artifact[] artifacts;
-        // if (artifacts != null) {
-        // if (log.isDebugEnabled()) {
-        // log.debug("*** Retrieved all versions from cache " + applicationId);
-        // }
-        // return artifacts;
-        // }
-        try {
-            List<Artifact> artifactsList = RxtManager.getInstance().getAppVersionRxtForApplication(domainName,
-                                                                                                   applicationId);
-            artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
-            // cache.addToCache(applicationId, artifacts);
-            if (log.isDebugEnabled()) {
-                log.debug("*** Added all versions to cache " + applicationId);
-            }
-            return artifacts;
-        } catch (AppFactoryException e) {
-            log.error("Error while retrieving artifat information from rxt");
-            throw new AppFactoryException(e.getMessage());
-        } catch (RegistryException e) {
-            log.error("Error while retrieving artifat information from rxt");
-            throw new AppFactoryException(e.getMessage());
-        }
-    }
-
-    /***
-     * This method returns the build and deploy status
-     *
-     * @param applicationId
-     *            application to check the build and deploy status
-     * @param tenantDomain
-     *            tenant domain that application belongs to
-     * @param version
-     *            version of the application to check
-     * @return return last build id, build status [successful/unsuccessful] and
-     *         last deployed build id
-     */
-    public BuildandDeployStatus getBuildandDelpoyedStatus(String applicationId,
-                                                          String tenantDomain, String version) {
-
-        try {
-
-            BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, version, false, null);
-            DeployStatus deployStatus;
-
-            deployStatus = applicationDAO.getDeployStatus(applicationId, version,
-                    getStage(applicationId, version),
-                    false,
-                    null);
-
-            BuildandDeployStatus buildandDeployStatus = new BuildandDeployStatus(buildStatus
-                    .getLastBuildId(), buildStatus.getLastBuildStatus(),
-                    deployStatus.getLastDeployedId());
-            return buildandDeployStatus;
-
-        } catch (AppFactoryException e) {
-            log.error("Error while retrieving Build and Deploy status");
-        } catch (ApplicationManagementException e) {
-            log.error("Error while retrieving stage from rxt");
-        }
-        return null;
-    }
-
-    /**
-     * Retrieve an array of repouser artifacts from the registry
-     * @param domainName
-     * @param applicationId
-     * @param userName
-     * @return array of repouser rxt artifacts
-     * @throws AppFactoryException
-     */
-    public Artifact[] getAllVersionsOfApplicationPerUser(String domainName, String applicationId, String userName) throws  AppFactoryException{
-        Artifact[] artifacts;
-        try {
-            List<Artifact> artifactsList = RxtManager.getInstance().getRepoUserRxtForApplicationOfUser(domainName,
-                                                                                                       applicationId,
-                                                                                                       userName);
-            artifacts = artifactsList.toArray(new Artifact[artifactsList.size()]);
-            return artifacts;
-        } catch (AppFactoryException e) {
-            log.error("Error while retrieving artifact information from rxt");
-            throw new AppFactoryException(e.getMessage());
-        } catch (RegistryException e) {
-            log.error("Error while retrieving artifact information from rxt");
-            throw new AppFactoryException(e.getMessage());
-        }
-
-    }
-
     /**
      * update rxt on application deployment success/failure
      *
@@ -895,21 +565,19 @@ public class ApplicationManagementService extends AbstractAdmin {
      * @param tenantDomain
      * @param artifactLastModifiedTime
      */
-    public void updateApplicationDeploymentSuccessStatus(String applicationId, String version,
-                                                         String stage, String tenantDomain,
-                                                         long artifactLastModifiedTime) throws AppFactoryException, AppFactoryEventException {
+    public void updateApplicationDeploymentSuccessStatus(String applicationId, String version, String stage,
+                                                         String tenantDomain, long artifactLastModifiedTime)
+            throws AppFactoryException, AppFactoryEventException {
         long artifactLastModifiedTimeFromDB;
-
         DeployStatus deployStatus;
         try {
-            deployStatus = applicationDAO.getDeployStatus(applicationId, version, stage,
+            deployStatus = JDBCApplicationDAO.getInstance().getDeployStatus(applicationId, version, stage,
                     false, null);
         } catch (AppFactoryException e) {
             String errorMsg = String.format("Unable to load the application deploy information " +
-                    "for application id: %s",
-                    applicationId);
+                    "for application id : %s", applicationId);
             log.error(errorMsg, e);
-            throw new AppFactoryEventException(e.getMessage());
+            throw new AppFactoryEventException(errorMsg, e);
         }
         artifactLastModifiedTimeFromDB = deployStatus.getLastDeployedTime();
 
@@ -923,52 +591,33 @@ public class ApplicationManagementService extends AbstractAdmin {
             try {
                 String correlationKey = org.wso2.carbon.appfactory.eventing.utils.Util.deploymentCorrelationKey
                         (applicationId, stage, version, tenantDomain);
-                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.buildObtainWarDeploymentStatusEvent(applicationId,
-                        tenantDomain, msg, "", Event.Category.INFO, correlationKey));
+                EventNotifier.getInstance().notify(ContinousIntegrationEventBuilderUtil.
+                        buildObtainWarDeploymentStatusEvent(applicationId, tenantDomain, msg, "", Event.Category.INFO,
+                                correlationKey));
             } catch (AppFactoryEventException e) {
                 log.error("Failed to notify the Application deployment success event ", e);
             }
 
             try {
-                deployStatus.setLastDeployedStatus("Success");
+                deployStatus.setLastDeployedStatus(AppFactoryConstants.APP_LAST_DEPLOY_STATUS);
                 deployStatus.setLastDeployedTime(artifactLastModifiedTime);
-
-                applicationDAO.updateLastDeployStatus(applicationId, version, stage, false, null,
-                        deployStatus);
+                JDBCApplicationDAO.getInstance().updateLastDeployStatus(applicationId, version, stage, false, null, deployStatus);
             } catch (AppFactoryException e) {
                 GenericArtifact application = null;
                 try {
                     application = CommonUtil.getApplicationArtifact(applicationId, tenantDomain);
                 } catch (AppFactoryException ex) {
-                    String message = "Error while validating application key :  " + applicationId;
+                    String message = "Error while validating application id :  " + applicationId + " version: " + version;
                     log.error(message);
                 }
-                if(application == null){
-                    log.warn("Application is not available for application key " + applicationId);
-                }else{
-                    log.error("Error while updating db");
-                    throw new AppFactoryException(e.getMessage());
+                if (application == null) {
+                    log.warn("Application is not available for application id :" + applicationId);
+                } else {
+                    msg = "Error while updating db";
+                    log.error(msg);
+                    throw new AppFactoryException(msg, e);
                 }
             }
         }
-
-
     }
-
-    public String getApplicationStatus(String applicationId, String version, String stage,
-                                       String tenantDomain) throws AppFactoryException {
-        try {
-            return applicationDAO.getDeployStatus(applicationId, version, stage, false, null).getLastDeployedStatus();
-        } catch (AppFactoryException e) {
-            log.error("Error while retrieving application state");
-            throw new AppFactoryException(e.getMessage());
-        }
-    }
-
-    public String getApplicationUrl(String applicationId, String version, String stage,
-                                    String tenantDomain) throws AppFactoryException {
-        return AppFactoryCoreUtil.getApplicationUrl(applicationId, version, stage, tenantDomain);
-
-    }
-
 }

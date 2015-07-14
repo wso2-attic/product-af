@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<artifacts>
+    <artifact name="EchoServiceEP-Testing" groupId="${groupId}.resource" version="${version}" type="registry/resource" serverRole="EnterpriseServiceBus">
+        <item>
+            <file>Testing/EchoServiceEP.xml</file>
+            <path>/_system/config/${rootArtifactId}/endpoints/</path>
+            <mediaType>application/vnd.wso2.esb.endpoint</mediaType>
+        </item>
+        <item>
+            <file>echo.wsdl</file>
+            <path>/_system/config/${rootArtifactId}/wsdls/</path>
+            <mediaType>WSDL</mediaType>
+        </item>
+    </artifact>
+    <artifact name="EchoServiceEP-Development" groupId="${groupId}.resource" version="${version}" type="registry/resource" serverRole="EnterpriseServiceBus">
+        <item>
+            <file>Development/EchoServiceEP.xml</file>
+            <path>/_system/config/${rootArtifactId}/endpoints/</path>
+            <mediaType>application/vnd.wso2.esb.endpoint</mediaType>
+        </item>
+        <item>
+            <file>echo.wsdl</file>
+            <path>/_system/config/${rootArtifactId}/wsdls/</path>
+            <mediaType>WSDL</mediaType>
+        </item>
+    </artifact>
+    <artifact name="EchoServiceEP-Production" groupId="${groupId}.resource" version="${version}" type="registry/resource" serverRole="EnterpriseServiceBus">
+        <item>
+            <file>Production/EchoServiceEP.xml</file>
+            <path>/_system/config/${rootArtifactId}/endpoints/</path>
+            <mediaType>application/vnd.wso2.esb.endpoint</mediaType>
+        </item>
+        <item>
+            <file>echo.wsdl</file>
+            <path>/_system/config/${rootArtifactId}/wsdls/</path>
+            <mediaType>WSDL</mediaType>
+        </item>
+    </artifact>
+</artifacts>

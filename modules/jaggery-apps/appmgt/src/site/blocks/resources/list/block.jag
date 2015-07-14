@@ -40,6 +40,7 @@ jagg.block("resources/list", {
     	var datasources = {};
     	var hasDataSourceModifyPermission =  false;
     	var isDataSourceRetrieveSucceeded = false;
+    	var hasCreatePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_DATASOURCE_CREATE);
     	for (var i = 0; i < deploymentStages.length; i++) {
     		// TODO - remove these
     		var hasConfigureDbAdministrationPermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + deploymentStages[i]);
@@ -60,6 +61,9 @@ jagg.block("resources/list", {
     	var hasConfigureAPIManagerPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
         var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(inputs.applicationKey);
 	    var helpTips = jagg.module("help").getHelpTips("resourcesOverview");
+	    
+	 var dataSourceSupport = true; 
+ // datasourceModule.checkDataSourceSupport(inputs.applicationKey);
     	return {
     	    "hasCreateResourcePermissions": hasCreateResourcePermissions,
     		"hasConfigureDbAdministrationPermission": hasConfigureDbAdministrationPermissions,
@@ -68,7 +72,9 @@ jagg.block("resources/list", {
     		"hasDataSourceCreatePermission":hasDataSourceCreatePermission,
     		"hasDataSourceModifyPermission":hasDataSourceModifyPermission,
             "hasTenantAdminPermission":hasTenantAdminPermission,
-	        "helpTips":helpTips
+    		"dataSourceSupport":dataSourceSupport,
+	        "helpTips":helpTips,
+	        "hasCreatePermission":hasCreatePermission
     	};
     }
 

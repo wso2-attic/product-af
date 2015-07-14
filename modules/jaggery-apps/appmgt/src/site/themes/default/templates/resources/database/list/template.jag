@@ -67,7 +67,7 @@ var applicationKey = request.getParameter("applicationKey");
                                         '<th>Name</th>' +
                                         '<th>Description</th>' +
                                         '<th>Database Type</th>' +
-                                        '<th>Values</th>' +
+                                        '<th>Environment</th>' +
                                         '</tr>');
                     $("#dbSection").html($("#dbSection").html() + tableDataRow);
                 } else {

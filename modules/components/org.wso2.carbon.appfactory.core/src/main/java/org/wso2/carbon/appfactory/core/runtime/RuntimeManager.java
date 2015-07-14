@@ -28,7 +28,6 @@ import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Manage Application type information
@@ -91,6 +90,7 @@ public class RuntimeManager {
 
 		String runtimeName = config.get(AppFactoryConstants.RUNTIME);
 		RuntimeBean applicationRuntimeBean;
+
 		try {
 
 			applicationRuntimeBean = new RuntimeBean();
@@ -114,7 +114,7 @@ public class RuntimeManager {
 					config.remove(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_TYPE));
 			applicationRuntimeBean.setDataCartridgeAlias(
 					config.remove(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS));
-			if (config.remove(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT) != null) {
+			if (config.get(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT) != null) {
 				applicationRuntimeBean.setSubscribeOnDeployment(
 						Boolean.parseBoolean(config.remove(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT)));
 			} else {

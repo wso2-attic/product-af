@@ -26,7 +26,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AppFactoryIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
+import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitAgent;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
@@ -49,20 +50,19 @@ import java.util.UUID;
  * 3. replace root pom.xml
  * 4. delete root pom.xml
  */
-public class GitOperationsTestCase extends AppFactoryIntegrationTest {
+public class GitOperationsTestCase extends AFIntegrationTest {
 	private static final Log log = LogFactory.getLog(GitOperationsTestCase.class);
 
 	private static AppfactoryRepositoryClient client;
 
 	@BeforeClass(alwaysRun = true)
 	public void setEnvironment() throws Exception {
-		initWithTenantAndApplicationCreation();
 		// initiate repository client
 		GitAgent gitAgent = new JGitAgent();
 		client = new GitRepositoryClient(gitAgent);
-		client.init(getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" +
-		            getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
-		            getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
+		client.init(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIIN) + "@" +
+                    AFIntegrationTestUtils.getDefaultTenantDomain(),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
 
 	}
 
@@ -72,8 +72,8 @@ public class GitOperationsTestCase extends AppFactoryIntegrationTest {
 		// working directory
 		File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
 		// construct repo url for default application
-		String repoURL = getRepoUrl(getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
-		                            getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+		String repoURL = getRepoUrl(AFIntegrationTestUtils.getDefaultTenantDomain(),
+                                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
 		boolean result = client.retireveMetadata(repoURL, false, workDir);
 		Assert.assertEquals(result, true, "Failed to clone.");
 
@@ -87,7 +87,7 @@ public class GitOperationsTestCase extends AppFactoryIntegrationTest {
 	}
 
 	public String getRepoUrl(String tenantDomain, String appKey) throws XPathExpressionException {
-		return getPropertyValue(AFConstants.URLS_GIT) + "git" + "/" + tenantDomain + "/" + appKey +
+		return AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT) + "git" + "/" + tenantDomain + "/" + appKey +
 		       ".git";
 	}
 

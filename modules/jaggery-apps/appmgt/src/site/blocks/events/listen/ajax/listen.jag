@@ -40,20 +40,8 @@ var log = new Log();
 
         // for user home
         if (pageName == PAGES.USER_HOME) {
-            var application_list = session.get("application_list");
-            if(application_list == null) {
-                application_list = mod.getAllAppsOfUser(userName);
-                session.put('application_list', application_list);
-            }
-            var userApps = parse(application_list);
-            for (var i = 0; i < userApps.length; i++) {
-                var appKey = userApps[i].key;
-                // user home
-                var list = mod.listen(userName);
-                //var list = mod.listen(userName).concat(mod.listen(appKey + ".fork.users." + userName));
-		        response.retrievedTime = new Date().getTime();
-		        response.list = list; 
-            }
+            response.retrievedTime = new Date().getTime();
+            response.list = mod.listen(userName).sort();
             print(response);
         } else {
             // app home

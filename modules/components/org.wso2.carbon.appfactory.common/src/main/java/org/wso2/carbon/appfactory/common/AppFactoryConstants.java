@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.appfactory.common;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import java.io.File;
 
 /**
@@ -24,6 +26,7 @@ import java.io.File;
 public class AppFactoryConstants {
 	public static final String CONFIG_FOLDER = "appfactory";
 	public static final String CONFIG_FILE_NAME = "appfactory.xml";
+	public static final String CONFIG_APPLICATION_ROLLBACK_NOTICE_EMAIL = "application-rollback-notice-email.xml";
 	public static final String CONFIG_NAMESPACE = "http://www.wso2.org/appfactory/";
 
 	public static final String SERVER_ADMIN_NAME = "AdminUserName";
@@ -32,6 +35,9 @@ public class AppFactoryConstants {
 	public static final String DEPLOYMENT_STAGES = "ApplicationDeployment.DeploymentStage";
 	public static final String DEPLOYMENT_URL = "DeploymentServerURL";
 	public static final String APPFACTORY_WEB_CONTEXT_ROOT = "WebContextRoot";
+	public static final String DOMAIN_NAME = "DomainName";
+	public static final String FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE = "FineGrainedDomainMappingAllowedStage";
+	public static final String AUTOMATIC_DEPLOYMENT_POLLING_PERIOD = "AutomaticDeployment.PollingPeriod";
 
 	public static final String APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 	public static final String BPS_SERVER_URL = "ServerUrls.BPS";
@@ -42,6 +48,7 @@ public class AppFactoryConstants {
 	public static final String UPPLOADABLE_SUFFIX = ".uploaded";
 
 	public static final String MESSAGE_BROKER_CONNECTION_URL = "MessageBrokerConnectionURL";
+    public static final String UPLOADABLE_ARTIFACT_MAX_SIZE="UploadableArtifactMaxSize";
 
 	public static final String REGISTRY_GET = "REGISTRY_GET";
 	public static final String REGISTRY_PUT = "REGISTRY_PUT";
@@ -274,8 +281,12 @@ public class AppFactoryConstants {
 	public static final String RXT_KEY_APPINFO_PROD_VERSION = "application_prodVersions";
 	public static final String RXT_KEY_APPINFO_PRODUCTION_VERSION = "application_productionVersions";
 	public static final String RXT_KEY_APPINFO_BRANCHCOUNT = "application_branchcount";
+	public static final String RXT_KEY_APPVERSION = "appversion";
+	public static final String RXT_KEY_APPVERSION_ISAUTOBUILD = "appversion_isAutoBuild";
+	public static final String RXT_KEY_APPVERSION_ISAUTODEPLOY = "appversion_isAutoDeploy";
+	public static final String RXT_KEY_APPVERSION_PROMOTE = "Promote";
 
-	public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
+    public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
 			FILE_TYPE_CAR, FILE_TYPE_JAXRS, FILE_TYPE_JAXWS, FILE_TYPE_JAGGERY,
 			FILE_TYPE_BPEL };
 	public static final String CONSUME = "consume";
@@ -299,6 +310,7 @@ public class AppFactoryConstants {
 	public static final String APPLICATION_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
 	public static final String APPLICATION_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
 	public static final String IS_UPLOADABLE_APP_TYPE="IsUploadableAppType";
+	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";
 	public static final String USER_NAME = "username";
@@ -328,6 +340,8 @@ public class AppFactoryConstants {
 	public static final String APP_VERSION_CACHE_MANAGER = "af.appversion.cache.manager";
 	public static final String APP_VERSION_STAGE_CACHE = "af.appversion.stage.cache";
 	public static final String APP_VERSION_STAGE_CACHE_MANAGER = "af.appversion.stage.cache.manager";
+    public static final String APPS_OF_USER_CACHE_MANAGER =  "af.user.application.cache.manager";
+    public static final String APPS_OF_USER_CACHE = "af.user.application.cache";
 
 	// constants added for BAM Stats
 	public static final String BAM_ADD_DATA = "ADD";
@@ -369,8 +383,10 @@ public class AppFactoryConstants {
 	public static final String APP_VERSION_DEPLOYMENT_STATUS = "DeploymentStatus";
 	public static final String APP_VERSION_DEPLOYMENT_URL = "DeploymentURL";
 	public static final String APP_LAST_SUCCESS_DEPLOY_TIME = "LastSuccessDeployedTime";
+    public static final String APP_LAST_DEPLOY_STATUS = "Success";
 
 	public static final String INITIAL_UPLOADED_APP_VERSION = "1.0.0";
+    public static final String SNAPSHOT = "-default-SNAPSHOT";
 
 	public static final String APPLICATION_LIFECYCLE_STATE_KEY = "registry.lifecycle.ApplicationLifecycle.state";
 
@@ -411,8 +427,12 @@ public class AppFactoryConstants {
 	public static final String MINUS = "-";
 	public static final String PAAS_REPOSITORY_URL_PATTERN = "paasRepositoryURLPattern";
 	public static final String PROPERTY_VALUE_SEPERATOR =",";
+    public static final String UNDER_SCORE = "_";
+    public static final String DOT = ".";
+    public static final String HYPHEN = "-";
 
-	public static final String TENANT_MGT_URL = "TenantMgtUrl";
+
+    public static final String TENANT_MGT_URL = "TenantMgtUrl";
 	public static final String STAGE_PLACE_HOLDER = "{@stage}";
 	public static final String APP_NAME_PLACE_HOLDER = "{@appName}";
 
@@ -451,6 +471,16 @@ public class AppFactoryConstants {
 	public static final String TOPIC = "topic";
 	public static final String SUPPORT_DATASOURCE = "SupportDataSource";
 
+    /**
+     * AF DEPLOY Status
+     */
+    public static final String DEPLOY_SUCCESS = "Success";
+
+    /**
+     * Symbols
+     */
+
+
 	/**
 	 * Enum to represent of different application stages.
 	 */
@@ -463,6 +493,10 @@ public class AppFactoryConstants {
 		ApplicationStage(String strValue) {
 			stage = strValue;
 		}
+
+        public String getCapitalizedString(){
+           return WordUtils.capitalizeFully(stage);
+        }
 
 		public String getStageStrValue() {
 			return stage;

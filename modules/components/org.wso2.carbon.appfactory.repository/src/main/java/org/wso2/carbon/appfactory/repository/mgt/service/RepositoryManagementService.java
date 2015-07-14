@@ -22,17 +22,16 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
-import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.governance.ApplicationManager;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
-
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.ContinousIntegrationEventBuilderUtil;
 import org.wso2.carbon.appfactory.eventing.builder.utils.RepoCreationEventBuilderUtil;
@@ -93,21 +92,22 @@ public class RepositoryManagementService extends AbstractAdmin {
      *
      * @param applicationKey
      * @param version
-     * @param tenantDomain   Tenant Domain of application
+     * @param userName
+     * @param isForked
      * @return
      * @throws RepositoryMgtException
      */
-    public String getURLForAppVersion(String applicationKey, String version, String tenantDomain)
+    public String getURLForAppVersion(String applicationKey, String version, String userName, boolean isForked)
             throws RepositoryMgtException {
 
         // Getting the tenant ID from the CarbonContext since this is called as
         // a SOAP service.
-        tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
         return repositoryManager.getURLForAppversion(applicationKey,
                 version,
                 getRepositoryType(applicationKey, tenantDomain),
-                tenantDomain);
+                tenantDomain, isForked, userName);
     }
 
     /**
@@ -146,7 +146,7 @@ public class RepositoryManagementService extends AbstractAdmin {
             }
         } catch (RepositoryMgtException e) {
             String error = "Error while creating branch " + targetVersion;
-            String errorMsg = e.getMessage();
+            String errorMsg = e.getMessage().concat("\n Tenant domain: " + tenantDomain);
             try {
                 EventNotifier.getInstance().notify(RepoCreationEventBuilderUtil.buildBranchCreationCompleteEvent(appId,
                         error, errorMsg, Event.Category.ERROR, correlationKey));
@@ -288,7 +288,7 @@ public class RepositoryManagementService extends AbstractAdmin {
 
     private String createDeploymentFork(String applicationKey, Integer tenantId, String userName)
                    throws AppFactoryException {
-        String applicationType = ApplicationManager.getInstance().getApplicationType(applicationKey);
+        String applicationType = ApplicationDAO.getInstance().getApplicationType(applicationKey);
         ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
                                                                         .getApplicationTypeBean(applicationType);
 

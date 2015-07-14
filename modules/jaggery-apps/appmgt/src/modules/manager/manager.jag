@@ -67,8 +67,9 @@ var getBackendCookie = function (serverUrl) {
         }
         return session.get(APPFAC_BACKEND_COOKIE + serverUrl);
     } catch (e) {
-        log.error("Failed to get backend cookie for serverUrl: " + serverUrl + " \n" + e.message);
-        throw "Failed to get backend cookie for serverUrl:"+serverUrl;
+        log.error("Failed to get backend cookie for serverUrl : " + serverUrl );
+        log.error(e);
+        throw e;
     }
 };
 /**
@@ -174,6 +175,7 @@ var getDomainlessUserName = function () {
 };
 
 var getTenantId = function () {
+    var tenantInfo = session.get(TENANT_INFO);
     var carbon = require('carbon');
     var server = carbon.server;
     var tenantDomain = getTenantDomain();
@@ -187,21 +189,12 @@ var getOTtenantProperty=function(){
     var tenantManager= multitenancy.getTenantManager();
     var tenantId=tenantManager.getTenantId(tenantDomain);
     var index=-1;
-    try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantId);
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        var tenant=tenantManager.getTenant(tenantId);
-        var realm = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
-        var properties=realm.getRealmConfiguration().getUserStoreProperties();
-        var sProp=properties.toString();
-        var propString ="OTTenant=true";
-        index=sProp.indexOf(propString);
-
-    }finally{
-        context.endTenantFlow();
-    }
-     return index>0;
+    var realm = server.osgiService('org.wso2.carbon.user.core.service.RealmService').getTenantUserRealm(tenantId);
+    var properties=realm.getRealmConfiguration().getUserStoreProperties();
+    var sProp=properties.toString();
+    var propString ="OTTenant=true";
+    index=sProp.indexOf(propString);
+    return index>0;
 };
 
 var checkPermissionforStages=function(applicationKey,stages){
@@ -224,14 +217,14 @@ var checkPermissionforStages=function(applicationKey,stages){
  */
 var getApplicationType = function(applicationKey) {
     var tenantDomain= getTenantDomain();
-    var infoType = TENANT_INFO_APP_TYPE;
+    var infoType = APPLICATION_INFO_APP_TYPE;
     var applicationType = null;
-    var cachedResult= checkTenantInfoFromCache(tenantDomain , applicationKey , infoType);
+    var cachedResult= checkApplicationInfoFromCache(tenantDomain , applicationKey , infoType);
     if(cachedResult){  // cache hit
         applicationType =  cachedResult;
     } else {
         applicationType = getApplicationTypeFromService(applicationKey); //call osgi service
-        cacheTenantInfo(tenantDomain , applicationKey , infoType , applicationType);
+        cacheApplicationInfo(tenantDomain , applicationKey , infoType , applicationType);
     }
     return applicationType;
 }
@@ -247,31 +240,33 @@ var getApplicationTypeBean=function(applicationType){
     return applicationTypeManager.getApplicationTypeBean(applicationType);
 }
 
+var getUploadableApplicationMaxSize = function(){
+    var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+    return AppFactoryUtil.getUploadableArtifactMaxSize();
+}
+
 /**
- * Cache tenant related info
+ * Cache application related info
  *
  * @param tenantDomain {String} - tenant domain
  * @param applicationKey {String} - application key
  * @param infoType {String} - Information name/type to cache
  * @param info {*} - Information to be cached
  */
-var cacheTenantInfo = function (tenantDomain , applicationKey , infoType , info) {
-    var tenantInfoCache=session.get(TENANT_INFO_CACHE);
-    var tenantCache = {};
+var cacheApplicationInfo = function (tenantDomain , applicationKey , infoType , info) {
+    var appInfoCache=session.get(APPLICATION_INFO_CACHE);
     var appCache = {};
-    if(tenantInfoCache != null || tenantInfoCache != undefined){
-        tenantCache=tenantInfoCache[tenantDomain];
-        appCache=tenantCache[applicationKey];
+    if(appInfoCache != null || appInfoCache != undefined){
+        appCache=appInfoCache[applicationKey];
         if(appCache ==null || appCache == undefined){
             appCache={};
         }
     }else{
-        tenantInfoCache={};
+        appInfoCache={};
     }
     appCache[infoType]=info;
-    tenantCache[applicationKey]=appCache;
-    tenantInfoCache[tenantDomain]=tenantCache;
-    session.put(TENANT_INFO_CACHE,tenantInfoCache);
+    appInfoCache[applicationKey]=appCache;
+    session.put(APPLICATION_INFO_CACHE,appInfoCache);
 }
 
 /**
@@ -282,15 +277,12 @@ var cacheTenantInfo = function (tenantDomain , applicationKey , infoType , info)
  * @param infoType {String} - Information name/type to cache
  * @returns {*} - cached object. null if cache miss
  */
-var checkTenantInfoFromCache=function(tenantDomain , applicationKey , infoType){
-    var tenantInfoCache=session.get(TENANT_INFO_CACHE);
-    if(tenantInfoCache){
-        var tenantCache=tenantInfoCache[tenantDomain];
-        if(tenantCache){
-            var appCache=tenantCache[applicationKey];
-            if(appCache){
-                return appCache[infoType];
-            }
+var checkApplicationInfoFromCache=function(tenantDomain , applicationKey , infoType){
+    var appInfoCache=session.get(APPLICATION_INFO_CACHE);
+    if(appInfoCache){
+        var appCache=appInfoCache[applicationKey];
+        if(appCache){
+            return appCache[infoType];
         }
     }
     return null;
@@ -308,15 +300,8 @@ var getApplicationTypeFromService  =function (applicationKey) {
     var context=multitenancy.getPrivilegedCarbonContext();
     var tenantDomain = getTenantDomain();
     var tenantId=getTenantId();
-    try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantId);
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        applicationType = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getApplicationType(applicationKey ,tenantDomain);
-
-    }finally{
-        context.endTenantFlow();
-    }
+    applicationType = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                                                .getApplicationType(applicationKey ,tenantDomain);
     return applicationType;
 };
 

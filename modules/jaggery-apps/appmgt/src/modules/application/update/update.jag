@@ -76,8 +76,10 @@ var editAppInfo = function (applicationName, applicationKey, applicationDescript
 		}
 		return result;
 	} catch (e) {
-		log.error("Error in calling manage generic artifact service "+e.toString());
-		throw "Error in calling manage generic artifact service "+e.toString();
+		log.error("Error in calling ManageGenericArtifactService while editing app info for the application : "
+				  + applicationName + " of app owner : " + owner);
+		log.error(e);
+		throw e;
 	}
 };
 
@@ -117,7 +119,7 @@ var editAppVersionInfo = function (applicationKey, version, subdomain, currentSt
 	'</ser:editArtifact>';
 	
 	var result;
-	
+	var tenantDomain = modManager.getTenantDomain();
 	try {
 		var endPoint =getProperty(GREG_SERVER_URL) + "ManageGenericArtifactService";
 		editAppInfoReq.open(options,endPoint, false);
@@ -129,8 +131,10 @@ var editAppVersionInfo = function (applicationKey, version, subdomain, currentSt
 		}
 		return result;
 	} catch (e) {
-		log.error("Error in calling manage generic artifact service "+e.toString());
-		throw "Error in calling manage generic artifact service "+e.toString();
+		log.error("Error in calling ManageGenericArtifactService while editing app version info of the application : "
+				  + applicationKey + " of tenant domain : " + tenantDomain + " with new version : " + version);
+		log.error(e);
+		throw e;
 	}
 };
 
@@ -138,21 +142,18 @@ var editAppVersionInfo = function (applicationKey, version, subdomain, currentSt
 var updatePromoteStatus = function (appKey, nextStage, version, state){
     jagg.module("permission").checkUserActionPermission(appKey,PERMISSION_APPLICATION_MEMBER);
 	var tenantDomain=modManager.getTenantDomain() ;
-	var applicationManagementService;
+	var applicationInfoService;
 	var context=multitenancy.getPrivilegedCarbonContext();
     var tenantManager= multitenancy.getTenantManager();
 	try{
-	        context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            applicationManagementService =server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationManagementService');
-       	    applicationManagementService.updateRxtWithPromoteState(appKey,nextStage,version,"Promote",state);
+		applicationInfoService = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
+       	applicationInfoService.updateRxtWithPromoteState(appKey,nextStage,version,"Promote",state);
 	}catch(e){
-	    log.error(e);
-	    throw new Error("Error while updating promote status for : "+ appKey + " in stage: " + nextStage);
-	}finally{
-	   context.endTenantFlow();
-    }
+		log.error("Error while updating promote status for application : " + appKey + " with version : " + version
+				  + " and state : " + state + " in stage : " + nextStage + " of tenant domain : " + tenantDomain);
+		log.error(e);
+		throw new e;
+	}
 }
 
 %>

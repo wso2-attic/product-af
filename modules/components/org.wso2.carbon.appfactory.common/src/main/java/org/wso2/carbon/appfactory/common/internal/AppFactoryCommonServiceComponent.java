@@ -31,6 +31,7 @@ import org.wso2.carbon.securevault.SecretCallbackHandlerService;
  * interface="org.wso2.carbon.securevault.SecretCallbackHandlerService"
  * cardinality="1..1" policy="dynamic"
  * bind="setSecretCallbackHandlerService" unbind="unsetSecretCallbackHandlerService"
+ *
  */
 public class AppFactoryCommonServiceComponent {
 
@@ -44,6 +45,11 @@ public class AppFactoryCommonServiceComponent {
             configuration = AppFactoryUtil.getAppfactoryConfiguration();
             bundleContext.registerService(AppFactoryConfiguration.class.getName(), configuration, null);
             bundleContext.registerService(BamDataPublisher.class.getName(), BamDataPublisher.getInstance(), null);
+
+            //read appfactory.xml
+            //create either AMQ broker or WSO2MB
+            //bundleContext.registerService()
+
             if (log.isDebugEnabled()) {
                 log.debug("Appfactory common bundle is activated");
             }

@@ -56,62 +56,31 @@ var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
         paraRemoveRoles=null;
     }
     var result;
-        var tenantDomain=modManager.getTenantDomain();
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
-        try {
-            context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-            result = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService').updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
-        } finally {
-            context.endTenantFlow();
-        }
-        return result;
+    result = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
+                                    .updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
+    return result;
 };
 var deleteUserFromTenant = function deleteUserFromTenant(userName){
     var isSuccess = "false";
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        isSuccess = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService').removeUserFromTenant(userName);
-    }finally{
-        context.endTenantFlow();
-    }
+    isSuccess = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
+                                    .removeUserFromTenant(userName);
     return isSuccess;
 
 }
 
 var bulkUserImport = function bulkUserImport(users,defaultPassword){
     var isSuccess = "false";
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        isSuccess = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService').importUsersTotheTenant(users,defaultPassword);
-    }finally{
-        context.endTenantFlow();
-    }
+    isSuccess = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
+                                    .importUsersTotheTenant(users,defaultPassword);
     return isSuccess;
 }
 
 var changePassword=function(oldPassword,newPassword){
     var user=jagg.getUser().split('@')[0];
     var tenantDomain=modManager.getTenantDomain();
-    var context=multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
     try {
         var tenantId = tenantManager.getTenantId(tenantDomain);
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
         var realm = realmService.getTenantUserRealm(tenantId);
         var userStoreManager=realm.getUserStoreManager();
@@ -119,10 +88,10 @@ var changePassword=function(oldPassword,newPassword){
         var claimValue=userStoreManager.setUserClaimValue(user,"http://wso2.org/claims/firstlogin","false",null);
 
     }catch (e){
-         log.error("Error occured while changing password");
-         throw "Error occured while changing password";
-    }finally{
-        context.endTenantFlow();
+        log.error("Error occurred while changing password for the user : " + user + " of tenant domain : "
+                  + tenantDomain);
+        log.error(e);
+        throw e;
     }
 }
 

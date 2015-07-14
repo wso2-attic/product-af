@@ -1,0 +1,50 @@
+<%
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include('/jagg/config_reader.jag');
+var log = new Log();
+var carbon = require('carbon');
+var server = carbon.server;
+var multitenancy = carbon.multitenancy;
+
+function login(userName, password){
+    var tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+    if (userName.indexOf("@") != -1) {
+        tenantDomain = userName.substring(userName.lastIndexOf('@') + 1);
+    } else {    // else assume super tenant
+        tenantDomain = SUPER_TENANT_DOMAIN_NAME;
+    }
+    log.debug("user logs in module called for user " + userName);
+    var ws = require('ws');
+    var finalResult={
+    };
+    var tenantManager= multitenancy.getTenantManager();
+    var finalResult={};
+    try{
+        var result = server.Server.prototype.authenticate(userName,password);
+        if(result === true){
+            jagg.setUser(userName);
+            var user = userName.split("@");
+            var domain = user[1];
+
+            context.put(LOGGED_IN_USER, userName);
+            context.put(DOMAIN, domain);
+            context.put(ISSUE_TRACKER_URL, getProperty(ISSUE_TRACKER_URL));
+
+            context.put(IS_LOGGED,true);
+            finalResult.error="false";
+            finalResult.message="User successfully logged in";
+            finalResult.username=userName;
+        }else{
+            finalResult.error="true";
+            finalResult.message="Authenitcation Failed.";
+        }
+        return finalResult;
+    } catch(e){
+        log.error("Error while authenticating user : " + userName);
+        log.error(e);
+        throw e;
+    }
+}
+
+%>

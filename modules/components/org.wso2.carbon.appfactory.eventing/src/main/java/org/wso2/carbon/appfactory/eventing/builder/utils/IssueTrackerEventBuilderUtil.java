@@ -61,4 +61,36 @@ public class IssueTrackerEventBuilderUtil {
         return event;
     }
 
+    /**
+     *
+     * @param appKey application key
+     * @param userName user who triggered the process
+     * @param title notification title
+     * @param description notification description
+     * @param category notification category whether it is SUCCESS or ERROR
+     * @return event that will be triggered when an issue is created
+     */
+    public static Event buildIssueTrackerConnectorCreationEvent(String appKey, String userName, String title, Category status) {
+
+        Event event = new Event();
+        Event.EventDispatchType[] eventDispatchTypes;
+
+        if (status == Category.INFO) {
+            eventDispatchTypes =
+                    new Event.EventDispatchType[]{Event.EventDispatchType.SOCIAL_ACTIVITY};
+        } else {
+
+            eventDispatchTypes =
+                    new Event.EventDispatchType[]{
+                            Event.EventDispatchType.SOCIAL_ACTIVITY,
+                            Event.EventDispatchType.GUARANTEED_DELIVERY};
+        }
+        event.setEventDispatchTypes(eventDispatchTypes);
+        event.setSender(userName);
+        event.setCategory(status);
+        event.setTarget(userName);
+        event.setMessageTitle(title);
+        return event;
+    }
+
 }

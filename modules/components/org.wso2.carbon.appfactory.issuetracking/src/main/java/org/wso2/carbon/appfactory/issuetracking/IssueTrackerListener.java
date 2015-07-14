@@ -25,9 +25,8 @@ import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
-
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
-import org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
+import org.wso2.carbon.appfactory.eventing.builder.utils.IssueTrackerEventBuilderUtil;
 
 public class IssueTrackerListener extends ApplicationEventsHandler {
 
@@ -43,17 +42,34 @@ public class IssueTrackerListener extends ApplicationEventsHandler {
         }
     }
 
-    @Override
-    public void onCreation(Application application, String userName, String tenantDomain, boolean isUploadableAppType) throws AppFactoryException {
-        connector.createProject(application, userName, tenantDomain, isUploadableAppType);
-        try {
-            String infoMessage = "Issue tracker space created for " + application.getName() + ".";
-            EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(infoMessage, "", Event.Category.INFO));
-            //EventNotifier.getInstance().notify(EventBuilderUtil.buildApplicationCreationEvent(application.getId(), infoMessage, infoMessage, Event.Category.INFO));
-        } catch (AppFactoryEventException e) {
-            log.error("Failed to notify issue tracker provisioning events",e);
-            // do not throw again.
-        }
+
+    public void onCreation(final Application application, final String userName,
+                           final String tenantDomain, final boolean isUploadableAppType)
+            throws AppFactoryException {
+
+        Runnable runner = new Runnable() {
+            @Override public void run() {
+                try {
+                   connector.createProject(application, userName, tenantDomain, isUploadableAppType);
+                } catch (AppFactoryException e) {
+                    log.error("Failed to create project for " + application.getName() +
+                            ". Tenant domain " + tenantDomain);
+                }
+                try {
+                    String infoMessage =
+                            "Issue tracker space created for " + application.getName() + ".";
+                    EventNotifier.getInstance().notify(IssueTrackerEventBuilderUtil
+                            .buildIssueTrackerConnectorCreationEvent(application.getId(), userName, infoMessage, Event.Category.INFO));
+                } catch (AppFactoryEventException e) {
+                    log.error("Failed to notify issue tracker provisioning events", e);
+                    // do not throw
+                }
+            }
+        };
+
+        Thread thread = new Thread(runner);
+        thread.start();
+
     }
 
     @Override
@@ -85,7 +101,7 @@ public class IssueTrackerListener extends ApplicationEventsHandler {
     @Override
     public void onVersionCreation(Application application, Version source, Version target, String tenantDomain,String userName)
             throws AppFactoryException {
-        connector.onVersionCreation(application, target.getId(), tenantDomain);
+        connector.onVersionCreation(application, target.getVersion(), tenantDomain);
     }
 
     @Override

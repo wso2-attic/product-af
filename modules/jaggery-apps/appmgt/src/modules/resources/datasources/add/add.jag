@@ -33,7 +33,7 @@ var permissionModule = jagg.module("permission");
 var lifeCycleModule =  jagg.module("lifecycle");
 var rssFilter = jagg.module("rss-filter");
 
-var deleteDatasource = function (applicationId, stageName, name) {
+var deleteDatasource = function (applicationId, stageName, name, isEdit) {
     var ws = require('ws');
     var deleteDataSourceService = new ws.WSRequest();
     var options = [];
@@ -55,34 +55,46 @@ var deleteDatasource = function (applicationId, stageName, name) {
         // delete datasource  from app factory db
         rssFilter.deleteDatasource(name, applicationId, stageName);
 
-        try {
-            var notificationTitle = "Datasource " + name + " deleted. ";
-            var notificationMessage = "In environment: " + stageName;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error("Error while sending delete datasource success notification \n" + e.message);
-        }
+	if(!isEdit){
+            try {
+                var notificationTitle = "Datasource " + name + " deleted from " + stageName;
+                var notificationMessage = "In environment: " + stageName;
+                var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending delete datasource success notification for database : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
+            }
+	}
         return {
         	error:false
         };
 
     } catch (e) {
-        try {
-            var notificationTitle = "Datasource " + name + " delete failed ";
-            var notificationMessage = "In environment: " + stageName;
-            var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error("Error while sending delete datasource failure notification \n" + e.message);
-        }
-        log.error("Error while deleting datasource " + stageName + "\n" + e.message);
-        throw "Error while deleting datasource  " + stageName;
+	if(!isEdit){
+            try {
+                var notificationTitle = "Datasource " + name + " deletion failed in " + stageName;
+                var notificationMessage = "In environment: " + stageName;
+                var eventBuilderInstance = EventBuilder.resourceDeletionCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending delete datasource failed notification for database : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
+            }
+	}
+        log.error("Error while deleting datasource : " + name + " in stage : " + stageName + " of application id : "
+                  + applicationId);
+        log.error(e);
+        throw e;
     }
 };
 
 var addDataSource = function (applicationId, stageName, name, url, driverClass, username,
-        password, description) {
+        password, description, isEdit) {
     var ws = require('ws');
     var createDataSourcesService = new ws.WSRequest();
     var options = [];
@@ -131,34 +143,67 @@ var addDataSource = function (applicationId, stageName, name, url, driverClass, 
 
         // adding datasource info to app-factory db
         rssFilter.addDatasource(name, applicationId, stageName, description);
-
-        try {
-            var notificationTitle = "Datasource " + name + " created.";
-            var notificationMessage = "In environment: " + stageName;
-            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error(e);
-            log.error("Error while sending create datasource success notification!");
+	if(!isEdit){
+            try {
+                var notificationTitle = "Datasource " + name + " created in " + stageName;
+                var notificationMessage = "In environment: " + stageName;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource success notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
+            }
+	}else{
+            try {
+                var notificationTitle = "Datasource " + name + " edited in " + stageName;
+                var notificationMessage = "In environment: " + stageName;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending edit datasource success notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
+            }
         }
+
 
         return datasources;
 
 
     } catch (e) {
-        try {
-            var notificationTitle = "Datasource " + name + " creation failed.";
-            var notificationMessage = "In environment: " + stageName;
-            var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
-            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-        } catch (e) {
-            log.error(e);
-            log.error("Error while sending create datasource failure notification!");
+	if(!isEdit){
+            try {
+                var notificationTitle = "Datasource " + name + " creation failed in " + stageName;
+                var notificationMessage = "In environment: " + stageName;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource failed notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
+            }
+	}else{
+            try {
+                var notificationTitle = "Datasource " + name + " edit failed in " + stageName;
+                var notificationMessage = "In environment: " + stageName;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+            } catch (e) {
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending edit datasource failed notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
+            }
         }
-
+        log.error("Error while creating datasource : " + name + " with url : " + url + " and driver class name : "
+                  + driverClass + " for user : " + username + " in stage : " + stageName + " for application id : "
+                  + applicationId);
         log.error(e);
-        log.error("Error while creating datasource in stage : " + stageName);
-        throw "Error while creating datasource  " + stageName;
+        throw e;
     }
 	
 };
@@ -225,24 +270,32 @@ var createDataSource = function (stage,applicationId, name, url, driverClass, us
             rssFilter.addDatasource(name, applicationId, stage, description);
 
             try {
-                var notificationTitle = "Datasource " + name + " created.";
-                var notificationMessage = "In environment: " + stage;
-                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "INFO");
+                var notificationTitle = "Datasource " + name + " created in " + stage;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending create datasource success notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource success notification for datasource : " + name
+                          + " in stage : " + stage + " of application id : " + applicationId);
+                log.error(e);
             }
 
     	} catch (e) {
             try {
-                var notificationTitle = "Datasource " + name + " creation failed.";
-                var notificationMessage = "In environment: " + stage;
-                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, notificationMessage, correlationKey, "ERROR");
+		        var notificationTitle = "Datasource " + name + " creation failed in " + stage;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(applicationId, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             } catch (e) {
-                log.error("Error while sending create datasource failure notification \n" + e.message);
+                //we don't throw here since this is message sending to wall.
+                log.error("Error while sending create datasource failed notification for datasource : " + name
+                          + " in stage : " + stageName + " of application id : " + applicationId);
+                log.error(e);
             }
-            log.error("Error while creating datasource in stage " + stage + "\n" + e.message);
+            log.error("Error while creating datasource : " + name + " with url : " + url + " and driver class name : "
+                      + driverClass + " for user : " + username + " in stage : " + stage
+                      + " stage for application id : " + applicationId);
+            log.error(e);
+            throw e;
     	}
 
     return datasources;
@@ -268,11 +321,12 @@ var copyNewDataSources = function(applicationId, sourceStage, targetStage) {
 				log.info("copying datasource: " + dsToCreate.name + "to: " + targetStage);
 				
 				resourcesModule.addDataSource(applicationId, targetStage, dsToCreate.name, dsToCreate.url, dsToCreate.driverClassName, 
-						                      dsToCreate.username, dsToCreate.password, dsToCreate.description);
-				
+						                      dsToCreate.username, dsToCreate.password, dsToCreate.description, false);
 			} catch(e){
-				log.error("Error while copying datasource: " + ds.name + "from :" 
-								+ sourceStage + "to: " + targetStage + "\n" + e.message);
+                //we don't throw here since we should not break the for loop
+                log.error("Error while copying datasource : " + dsName.name + " from stage : " + sourceStage
+                          + " to stage : " + targetStage + " of application id : " + applicationId);
+                log.error(e);
 			}
 		}
 	}
