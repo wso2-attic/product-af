@@ -3,26 +3,22 @@ $().ready(function() {
     // **checked**
     $('#saveIssue').click(function() {
         var projectKey = $("#projectKey").attr('value');
-
         var issue = new Object();
-        issue.summary       = $("#summary").attr('value');
-        issue.description   = $("#description").attr('value');
-        issue.type          = $("#type").attr('value');
-        issue.priority      = $("#priority").attr('value');
-        issue.status        = $("#issue_status").attr('value');
-        issue.assignee      = $("#assignee").attr('value');
-        issue.versionId     = $('#version').val();
-        issue.severity      = $("#severity").attr('value');
-        issue.version       = $( "#version option:selected" ).text();
-
+        issue.summary       = $("#summary").val();
+        issue.description   = $("#description").val();
+        issue.type          = $("#type option:selected").text();
+        issue.priority      = $("#priority option:selected").text()
+        issue.status        = "Open";
+        issue.assignee      = $("#assignee option:selected").text();
+        issue.versionId     = $("#version").val();
+        issue.severity      = $("#severity option:selected").text();
+        issue.version       = $("#version option:selected" ).text();
+        
         var jsonString = JSON.stringify(issue);
-
         if(issue.summary == null || issue.summary == "" || issue.summary==undefined){
             jagg.message({content:'Issue summary can not be empty',type:'error' });
             return;
         }
-
-
         var response = "";
         $.ajax({
             type: 'POST',

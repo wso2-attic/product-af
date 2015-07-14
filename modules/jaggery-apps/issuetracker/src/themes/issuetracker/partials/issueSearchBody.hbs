@@ -1,58 +1,107 @@
-<section class="separator">
-    <div class="content well">
- <p></p>
-        <table class="data-table">
-            {{#if data}}
-            <thead>
-                <tr>
-                    <th>Issue ID</th>
-                    <th>Application</th>
-                    <th>Summary</th>
-                    <th>Type</th>
-                    <th>Priority</th>
-                    <th>Reporter</th>
-                    <th>Status</th>
-                    <th>Assignee</th>
-                    <th>Version</th>
-                    <th>Severity</th>
-                    <th>Edit</th>
-                    <th>Comment</th>
-                </tr>
-            </thead>
-            {{else}}
-                <div class="noData-message">No issues are created yet.</div>
-            {{/if}}
-            <tbody>
-                {{#each data}}
-                <tr>
-                    <td><a href="{{url "/issue/get"}}?issuePkey={{issuePkey}}&appkey={{../appkey}}" >{{issuePkey}}</a></td>
-                    <td>{{projectName}}</td>
-                    <td>
-                        <div class="list_col_content truncate issue_summary">
-                            {{summary}}
-                        </div>
-                    </td>
-                    <td>{{issueType}}</td>
-                    <td>{{priority}}</td>
-                    <td>{{owner}}</td>
-                    <td>{{status}}</td>
-                    <td>{{assignee}}</td>
-                    <td>{{version}}</td>
-                    <td>{{severity}}</td>
-                    <td>
-                        <a style="margin:0 5px" class="icon-pencil" href="{{url "/issue/edit"}}?issuePkey={{issuePkey}}&projectKey={{projectKey}}&appkey={{../appkey}}" ></a>
-                    </td>
-                    <td>
-                            <a class="icon-comment" href="{{url "/issue/get"}}?issuePkey={{issuePkey}}&appkey={{../appkey}}" ></a>
-                    </td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-    </div>
-</section>
-
-
-
+<div class="container-fluid app-content-section">
+        <div class="row">
+          <div class="col-md-12 msg-issues">
+                  You get a birds eye view of all the issues that have been created in applications where you are a member.
+              Issue tracking for a application version provides you the ability to create new issues per application
+              version, edit existing issues and search for issues based on a search criteria.
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="push"></div>
+                {{#if data}}
+                <div class="datatable">
+                    <table id="issuelist" class="display" cellspacing="0" width="100%">         
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Summary</th>
+                            <th>Version</th>
+                            <th>Type</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Reporter</th>
+                            <th>Assignee</th>
+                            <th>Edit</th>
+                            <th>Comment</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>Version</td>
+                            <td>Type</td>
+                            <td>Priority</td>
+                            <td>Status</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </thead>
+                     </table>
+                </div>
+                {{else}}
+                      <div class="row row-centered">
+                          <div class="col-centered col-xs-10 col-sm-7  col-md-7 col-lg-6">
+                              <div class="add-issue-content">
+                                  <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue" href="/issuetracker/issue/add?appkey={{appkey}}">
+                                  <span class="fw-stack fw-lg btn-action-ico">
+                                      <i class="fw fw-ring fw-stack-2x"></i>
+                                      <i class="fw fw-add fw-stack-1x"></i>
+                                  </span>
+                                  <span class="hidden-xs">Report an Issue</span>
+                                  </a>
+                              </div>
+                          </div>
+                      </div> 
+                {{/if}}
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
+            </div>
+        </div>
+    </div><!-- /.container -->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{url "/themes/issuetracker/js/jquery-1.11.1/jquery.min.js"}}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url "/themes/issuetracker/js/bootstrap-3.2.0/bootstrap.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.columnFilter.js"}}"></script>
+<!-- include custom js functions -->
+<script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
+<script>
+$('.datatable table').dataTable({
+            responsive: true,
+            "orderCellsTop": true,
+            data: {{{data}}},
+            columns: [
+                { "data": "issuePkey" },
+                { "data": "summary" },
+                { "data": "version" },
+                { "data": "issueType" },
+                { "data": "priority" },
+                { "data": "status" },
+                { "data": "owner" },
+                { "data": "assignee" },
+                { "data": "edit" },
+                { "data": "comment" }
+            ]
+        }).columnFilter({
+            sPlaceHolder: "head:after",
+            aoColumns: [
+                null,
+                null,
+                { type: "select", values: {{{versions}}} },
+                { type: "select", values: [ 'Bug', 'Feature', 'Improvement', 'defect'] },
+                { type: "select", values: [ 'Highest', 'High', 'Low', 'Lowest'] },
+                { type: "select", values: [ 'Open', 'Resolved'] },
+                null,
+                null,
+                null,
+                null
+            ]
+        });
+</script>
+<!--EOF NEW UI -->
 
 
