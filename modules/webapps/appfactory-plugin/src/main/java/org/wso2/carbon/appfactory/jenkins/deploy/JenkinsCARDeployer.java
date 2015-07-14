@@ -44,7 +44,7 @@ public class JenkinsCARDeployer extends JenkinsArtifactDeployer{
 	 * @return Array of artifacts as Files
 	 * @throws org.wso2.carbon.appfactory.common.AppFactoryException If there is an issue in filtering artifacts
 	 */
-	protected File[] getArtifact(String path, String extension, String stage, String applicationId) throws AppFactoryException {
+	protected File[] getArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
 		List<File> fileList = new ArrayList<File>();
 		if (StringUtils.isNotBlank(path)) {
 			if (StringUtils.isBlank(extension)) {
@@ -54,6 +54,9 @@ public class JenkinsCARDeployer extends JenkinsArtifactDeployer{
 			}
 			String[] fileExtensions = new String[]{extension};
 			List<File> allFiles = (List<File>)(FileUtils.listFiles(new File(path), fileExtensions, true));
+			if(isForLabel){
+				return allFiles.toArray(new File[allFiles.size()]);
+			}
 			if (allFiles.isEmpty()) {
 				String errMsg = "No built artifact found in the path : " + path;
 				log.error(errMsg);
