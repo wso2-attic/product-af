@@ -30,6 +30,7 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
     var stateCompletionTimeoutDuration = 1800;
 
     %>
+<!--BOF notification wall -->
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
     <script type="text/javascript">
 
@@ -236,21 +237,146 @@ $(document).ready(function () {
 
 </script>
 <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
+<!--
 <div class="notification-section" id="notificationWrapper">
     <div id="notificationBar" class="notification-container">
-<!--<img src="../../../img-dev/loading-small.gif"/>-->
         <h2 class="notification-header"><%=wallName%></h2>
         <div id="notificationDataDiv"></div>
     </div>
-
 </div>
+
 <div id="notification-slider-container" class="notification-slider-container">
     <div id="notification-slider-btn" class="notification-slider-btn">
         <i class="icon-envelope bigger-150"></i>
     </div>
-    <!-- /.ace-settings-box -->
 </div>
+-->
 
+
+<div class="notification-pane nano">
+    <div class="notification-pane-trigger">
+        <i class="fw fw-bell fw-1-5x"></i>
+    </div>
+    <div class="notifications nano-content">
+
+        <div class="notification-msg noti-success">
+            <div class="msg ">
+                <i class="fw fw-ok "></i><span> 0.1.0 promoting from Testing to Production.</span>
+            </div>
+            <div class="notification-time"> 1 day 5 hours ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg">
+                <i class="fw fw-ok"></i> <span>Smoke Tests Passed by dakshika.wso2.com for Testing stage in version 0.1.0</span>
+            </div>
+            <div class="notification-time"> 1 hour ago</div>
+        </div>
+
+        <div class="notification-msg  noti-error">
+            <div class="msg">
+                <i class="fw fw-error"></i>
+                <span>Fail to verify custom URL.</span>
+            </div>
+            <div class="notification-time"> 23 minutes ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg ">
+                <i class="fw fw-ok"></i>
+                <span>New custom URL added.</span>
+            </div>
+            <div class="notification-time"> 22 minutes ago</div>
+        </div>
+
+        <div class="notification-msg noti-warning">
+            <div class="msg ">
+                <i class="fw fw-warning"></i>
+                    <span>Warning notification sample. This is another sample that
+                    we can show long msg.</span>
+            </div>
+            <div class="notification-time"> 22 minutes ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg ">
+                <i class="fw fw-ok "></i> <span>0.1.0 promoting from Testing to Production.</span>
+            </div>
+            <div class="notification-time"> 1 day 5 hours ago</div>
+        </div>
+
+        <div class="notification-msg  noti-success">
+            <div class="msg">
+                <i class="fw fw-ok"></i> <span>Smoke Tests Passed by dakshika.wso2.com for Testing stage in
+                    version 0.1.0</span>
+            </div>
+            <div class="notification-time"> 1 hour ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg ">
+                <i class="fw fw-ok "></i><span> 0.1.0 promoting from Testing to Production.</span>
+            </div>
+            <div class="notification-time"> 1 day 5 hours ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg ">
+                <i class="fw fw-ok"></i> <span>Smoke Tests Passed by dakshika.wso2.com for Testing stage in
+                    version 0.1.0</span>
+            </div>
+            <div class="notification-time"> 1 hour ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg">
+                <i class="fw fw-ok "></i> <span>0.1.0 promoting from Testing to Production.</span>
+            </div>
+            <div class="notification-time"> 1 day 5 hours ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg">
+                <i class="fw fw-ok"></i> <span>Smoke Tests Passed by dakshika.wso2.com for Testing stage in version 0.1.0</span>
+            </div>
+            <div class="notification-time"> 1 hour ago</div>
+        </div>
+
+        <div class="notification-msg noti-warning">
+            <div class="msg ">
+                <i class="fw fw-warning"></i>
+                    <span>Warning notification sample. This is another sample that
+                    we can show long msg.</span>
+            </div>
+            <div class="notification-time"> 22 minutes ago</div>
+        </div>
+
+        <div class="notification-msg noti-warning">
+            <div class="msg ">
+                <i class="fw fw-warning"></i>
+                    <span>Warning notification sample. This is another sample that
+                    we can show long msg.</span>
+            </div>
+            <div class="notification-time"> 22 minutes ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg">
+                <i class="fw fw-ok "></i> <span>0.1.0 promoting from Testing to Production.</span>
+            </div>
+            <div class="notification-time"> 1 day 5 hours ago</div>
+        </div>
+
+        <div class="notification-msg noti-success">
+            <div class="msg">
+                <i class="fw fw-ok"></i><span> Smoke Tests Passed by dakshika.wso2.com for Testing stage in version 0.1.0</span>
+            </div>
+            <div class="notification-time"> 1 hour ago</div>
+        </div>
+
+    </div>
+</div>
+<!--EOF notification-wall -->
     <%
 });
 %>

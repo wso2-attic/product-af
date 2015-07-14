@@ -37,6 +37,7 @@ include("/jagg/constants.jag"); %>
     var executionType = outputs.executionType;
     var isAllowDomainMapping = outputs.isAllowDomainMapping;
     var hasAppCreationPermission = outputs.hasAppCreationPermission;
+    var appTrunkStage = "Development";
     %>
     
  <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
@@ -88,7 +89,7 @@ include("/jagg/constants.jag"); %>
     $(document).ready(function(){
 
     	initializeUserActivity("appHome", '<%=applicationKey%>', '<%=applicationName%>');
-        
+        setCurrentStatusOfTrunk();
         loggedinUser='<%=userName%>';
 
         setHelpTips(<%= helpTips %>);
@@ -1216,236 +1217,6 @@ function setClipBoard(version){
    }
    //]]
 </script>
-<!-- ############################################################################################# -->
-<!-- ############################################################################################# -->
-<!-- ############################################################################################# -->
-<!-- OLD UI -->
-
-<input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
-<input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
-<div class="container overview-page">
-<article class="main">
- <% jagg.includeBlock("page/messages", null);
- jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.APP_HOME});
-  jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-
-
-<!--New  Theme -->
-
-            <section class="separator">
-                 <div class="page-content-area-top">
-                    <div class="af_container">
-                        <div class="af_row">
-                            <div class="col-2">
-                                <h2 class="push_top_10">Name</h2>
-                                <span id="appName_bk" style="word-wrap:break-word;"></span>
-                                <div class="element-editor-wrapper icon-wrapper">
-                                    <div class="element-editor-default">
-                                        <% if(applicationKey != null && applicationName != null){ %>
-                                        <img class="appHomeIcon_bk" src="<%=iconUrl%>" alt=""  width="100px"/>
-
-                                        <% } %>
-                                    </div>
-                                    <div class="element-editor-hover">
-                                         <% if(applicationKey != null && applicationName != null){ %>
-                                        <img class="appHomeIcon_bk" src="<%=iconUrl%>" alt=""  width="100px"/>
-
-                                        <% } %>
-                                        <span class="icon-pencil"></span>
-                                    </div>
-
-                                </div>
-
-                                <div class="element-editor-edit" style="display:none">
-                                    <% if(applicationKey != null && applicationName != null){ %>
-                                    <div id="changeAppHomeIcon" >
-                                        <img class="appHomeIcon" src="<%=iconUrl%>" alt=""  width="100px"/>
-                                       <form id="changeAppIcon" class="changeAppIcon"  name="changeAppIcon" action="/appmgt/site/blocks/application/update/ajax/update.jag" method="post" enctype="multipart/form-data">
-                                          <label for="icon" class="icon-label">Select file</label>
-                                          <input id="icon" style="position:absolute;z-index:2;opacity:0" type="file" name="changeIcon" value="Browse..."  onchange="submitChangeAppIcon(this)" />
-                                          <div style="clear:both"></div>
-                                          <input id="action" type="hidden" value="changeAppIcon" name="action"/>
-                                          <input id="applicationKey" type="hidden" name="applicationKey" value="<%=applicationKey%>"/>
-                                          <input id="applicationName" type="hidden" name="applicationName" value="<%=applicationName%>"/>
-                                       </form>
-                                    </div>
-                                    <% } %>
-                                    <div class="element-editor-btn-panel">
-                                        <a class="element-editor-cancel">Cancel</a>
-                                    </div>
-                                </div>
-
-                            </div>
-                        <div class="col-10">
-                           <div class="af_row">
-                            <div class="col-1">
-                            <h2>&nbsp;</h2>
-                            <!--span id="appName" ></span-->
-                            </div>
-                            <div class="col-5">
-
-                                <h2 class="push_top_10">Application Type</h2>
-                                <img src='' id='type'/>
-                                <span id='apptype'></span>
-                            </div>
-                            <div class="col-5">
-                                <h2 class="push_top_10">Owner</h2>
-                                <span id="appowner"></span>
-                            </div>
-
-                            </div>
-                            <div class="af_row push_top_10">
-                             <div class="col-1">
-                            <h2>&nbsp;</h2>
-                            <!--span id="appName" ></span-->
-                            </div>
-                            <%if(isUploadableApp == "false" || isUploadableApp == false){%>
-                                <div class="col-10">
-                                    <h2 style='margin-top:15px'>Repository URL</h2>
-                                    <div>
-                                        <form class="inline-form form-container">
-                                            <input type="text" class="medium-large-text-box" id="repocloneurl" disabled value="" />
-                                            <a class="copy-link" name ="copymain" id ="copymain" title="Copy URL" data-clipboard-text="" data-tooltip="Copied!">
-                                             <span class="icon-copy"></span>
-                                            </a>
-                                            <a class="goto-git-link" name="repobrowseurl" id="repobrowseurl" href="" target="_blank" title="Browse Git URL">
-                                             <span class="icon-globe"></span>
-                                            </a>
-                                         </form>
-                                    </div>
-                                </div>
-                            <%}%>
-                            </div>
-                            <div class="af_row push_top_10">
-                             <div class="col-1">
-                            <h2>&nbsp;</h2>
-                            <!--span id="appName" ></span-->
-                            </div>
-                            <div class="col-10" id="urlMapper" style="display:none">
-                                <h2>Production URL</h2>
-                                <div class="help-block"><span class="help-icon">?</span> <span id="productionUrlHelpText"></span></div>
-                                <div id="default-sub-domain-div">
-                                        http://<span id="default-sub-domain-span" class="default-sub-domain"></span>.<%=appDomain%>
-                                        <% if(hasDomainMappingPermission){ %> <a href="#" onclick="addNewUrlClick()" id="add-new-custom-url-btn" style="text-decoration:none;"><span class="icon-plus-sign"></span></a> <%}%>
-                                </div>
-                                <div id="div-custom-url-details">
-                                    <div <% if(hasDomainMappingPermission){ %>class="element-editor-wrapper"<%}%> id="div-custom-url-wrapper">
-                                        <div class="element-editor-default col-7">
-                                            <span class='icon-spinner icon-spin custom-url-spin' style='display: none'></span>
-                                            <span id="custom-url-view">http://<span class="custom-url"></span></span>
-                                        </div>
-
-                                        <div class="element-editor-hover col-7" id="div-custom-url-hover">
-                                            <span class='icon-spinner icon-spin custom-url-spin' style='display: none'></span>
-                                            <span id="custom-url-hover">http://<span class="custom-url"></span></span>
-                                            <span class="icon-pencil" style="position: absolute;margin-right: -20px;margin-top: -8px"></span>
-                                        </div>
-
-                                    </div>
-                                    <% if(hasDomainMappingPermission){ %>
-                                        <div class="element-editor-edit col-7" style="display:none">
-                                            http://<input type="text" value="" id="custom-url-edit" class="medium-large-text-box" />
-                                            <div class="element-editor-btn-panel">
-                                                <button class="btn main small" id="custom-url-save-btn" disabled="disabled">Save</button>  <a class="element-editor-cancel" id="sub_domain_cancel_btn">Cancel</a>
-                                            </div>
-                                        </div>
-                                        <a href="#" class="btn small sub_action" id="btn-validate-domain" onclick="validateCustomUrl()" style="margin-top: 10px; margin-bottom: 10px">Validate</a>
-                                    <%}%>
-
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        </div>
-                        <div class="af_row">
-                            <div class="col-12">
-                                <h2>Description</h2>
-                                <div class="help-block"><span class="help-icon">?</span> <span id="appDescription"></span></div>
-                                <div class="element-editor-wrapper">
-                                    <div class="element-editor-default description" name="description_view_bk" id="description_view_bk">Click here to add description</div>
-                                    <div class="element-editor-hover">
-                                        <span class="description" id="description_hover"></span>
-                                        <span class="icon-pencil"></span>
-                                    </div>
-
-                                </div>
-                                <div class="element-editor-edit" style="display:none">
-                                    <textarea class="description" id="description_edit"></textarea>
-                                    <div class="element-editor-btn-panel">
-                                        <button class="btn main small"  name="description_save_btn" id="description_save_btn">Save</button>  <a class="element-editor-cancel">Cancel</a>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-
-
-                        </div>
-                    </div>
-               </div>
-               <hr />
-               <div class="page-content-area">
-                    <div class="af_container">
-                        <div class="af_row">
-                            <div class="col-12">
-
-                                <div style="clear:both"></div>
-                                <h2>Current Status</h2>
-                                <div class="help-block">
-                                    <span class="help-icon">?</span><span id="launch" style="padding-left: 3px"></span>
-                                </div>
-                                <h2>Repository and builds</h2>
-                                <table class="data-table" id="repositories_and_builds_list_content_new">
-                                    <thead>
-                                        <tr>
-                                            <th colspan="6"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
-                             </div>
-                        </div>
-                    </div>
-               </div>
-               <hr />
-                <div class="page-content-area">
-                    <div class="af_container">
-                        <div class="af_row">
-                            <div class="col-4">
-                                <div id='deleteDiv'>
-                                    <% if(hasAppCreationPermission) { %>
-                                     <form id='deleteForm' action='/appmgt/site/blocks/application/delete/ajax/delete.jag'>
-                                         <input type='hidden' name='userName' value='<%=userName %>'/>
-                                         <input type='hidden' name='appKey' value='<%=applicationKey %>'/>
-                                         <a href='#' id='deleteButton' class='btn sub_action'>Delete Application</a>
-                                     </form>
-                                     <% } %>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-         </section>
-
-
-
-            <!--New Theme End-->
-
-</article>
-<input type="hidden" name="userName"  id="userName" value='<%=userName%>'/>
-<!-- Todo - post 1.0 -->
-<% //jagg.includeBlock("comment/comment-add", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
-<% //jagg.includeBlock("comment/comment-list", {"reference":"/repository/applications/"+ applicationKey +"/appinfo"}); %>
-</div><!-- /container -->
-
-<!-- ############################################################################################# -->
-<!-- ############################################################################################# -->
-<!-- end of OLD UI -->
 
 <script type="text/javascript">
 $(document).ready(function () {
@@ -1492,149 +1263,17 @@ $(document).ready(function () {
 
 });
 </script>
+<!-- #########################NEWUI################################ -->
+<% 
+//jagg.includeBlock("page/messages", null);
+//jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.APP_HOME});
+jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); 
+%>
 
 
-
-
-
-
-<h1>New UI</h1>
-
-
-<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
-<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
-<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
-<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
-<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
-<!--###########     ###########     ###########     ###########     ###########     ###########     #####-->
-
-
-
-
-<!-- BOF cloud menu -->
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a href="#" id="cloud-menu-popover-xs" data-toggle="popover" data-placement="bottom"
-               class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
-                <i class="fw fw-tiles"></i>
-            </a>
-            <a class="navbar-brand" href="#"><img src="images/logo.png" alt="wso2-logo" > Cloud</a>
-        </div>
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav menu-right">
-                <li><a href="#"><i class="fa fa-book"></i> Documentation</a></li>
-                <li><a href="#about"><i class="fa fa-envelope"></i> Support</a></li>
-                <li class="dropdown user-name">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">jack sparrow
-                        <i class="fa fa-chevron-circle-down"></i>
-                        <img src="images/user.png" alt="user" class="user-image"></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Logout</a></li>
-                    </ul>
-                </li>
-                <li class="cloud-menu hidden-xs">
-                    <a href="#" id="cloud-menu-popover" data-toggle="popover" data-placement="bottom"
-                            class="cloud-menu-popover">
-                        <i class="fw fw-tiles"></i>
-                    </a>
-                </li>
-            </ul>
-            <!-- BOF cloud menu content -->
-            <div class="cloud-menu-content hide">
-                <div id="popover-head" class="hide">
-                    Navigate to Cloud
-                </div>
-                <div id="popover-content" class="hide">
-                   <div class="cloud-apps">
-                       <a class="cloud-block">
-                           <i class="fa fa-3x fa-cubes"></i>
-                           <div class="cloud-name">Application Cloud</div>
-                       </a>
-                       <a class="cloud-block">
-                           <i class="fw fw-api fa-3x"></i>
-                           <div class="cloud-name">API Cloud</div>
-                       </a>
-                       <div class="clearfix"></div> <!-- to make seperate -->
-                   </div>
-                   <div class="cloud-actions">
-                       <h3>Manage your cloud</h3>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-institution"></i>
-                           <div class="cloud-name">Organizations</div>
-                       </a>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-users"></i>
-                           <div class="cloud-name">Members</div>
-                       </a>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-envelope"></i>
-                           <div class="cloud-name">Support</div>
-                       </a>
-                   </div>
-                </div>
-            </div>
-            <!-- EOF cloud menu content -->
-        </div><!--/.nav-collapse -->
-    </div>
-</div>
-<!-- EOF cloud menu -->
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
-            </div>
-        </div>
-    </div>
-</div><!-- EOF App factory menu -->
-<div class="inner-wrapper">
-    <!-- left pane wrapper -->
-    <div class="left-pane">
-
-        <ul>
-            <li class="selected">
-                <i class="fa fa-laptop"></i> Overview
-            </li>
-            <li>
-                <i class="fa fa-users"></i> Team
-            </li>
-            <li>
-                <i class="fa fa-cogs"></i> Repos & Builds
-            </li>
-            <li>
-                <i class="fa fa-database"></i> Databases
-            </li>
-            <li>
-                <i class="fa fa-wrench"></i> Runtime Configs
-            </li>
-            <li>
-                <i class="fa fa-tags"></i> Issues
-            </li>
-            <li>
-                <i class="fw fw-lifecycle"></i> Lifecycle Management
-            </li>
-            <li>
-                <i class="fa fa-hdd-o"></i> Logs
-            </li>
-        </ul>
-    </div>
-
-    <!-- left pane wrapper -->
+    <!-- right pane wrapper -->
     <div class="right-pane">
-
-
+    
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>" class="btn-action">
@@ -1713,18 +1352,20 @@ $(document).ready(function () {
                               <div class="block-icon pull-left">
                                   <i class="fw fw-lifecycle fw-5x"></i>
                               </div>
-                              <div class="block-description pull-right">
-                                  Application <strong>My Java App</strong> is in
+                              <div class="block-description pull-right" id="lifecycle-mgt-main">
+                                  Application <strong><%=applicationName%></strong> is in
                                   <br>
-                                  <strong>Development</strong> Stage
+                                  <strong><%=appTrunkStage%></strong> Stage
                               </div>
                               <div class="clearfix"></div>
-                              <div class="block-action-button">
-                                <span class="fw-stack fw-lg btn-action-ico">
+                                 <div class="block-action-button">
+                                  <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                                    <span class="fw-stack fw-lg btn-action-ico">
                                     <i class="fw fw-ring fw-stack-2x"></i>
                                     <i class="fw fw-lifecycle fw-stack-1x"></i>
-                                  </span> Manage Lifecycle
-                              </div>
+                                    </span> Manage Lifecycle
+                                </a>
+                                </div>  
                           </div>
                       </div>
                       <div class="col-md-4">
@@ -1733,7 +1374,7 @@ $(document).ready(function () {
                               <div class="block-icon pull-left">
                                   <i class="fw fw-clock fw-5x"></i>
                               </div>
-                              <div class="block-description-multiline pull-left">
+                              <div class="block-description-multiline pull-left" id="success-and-fail-ids">
                                   3 Successfull<br>
                                   1 Failed
                               </div>
@@ -1802,11 +1443,6 @@ $(document).ready(function () {
     <div class="clearfix"></div>
     <div id="push"></div>
 </div>
-<div id="footer">
-    <div class="container-fluid">
-        <div class="footer-text">WSO2 Cloud V: 1.2 . &copy; 2015 <i class="fw fw-wso2 fw-2x"></i> All Rights Reserved.</div>
-    </div>
-</div>
 
 <!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
 <script src="js/jquery-1.11.1/jquery.min.js"></script>
@@ -1832,7 +1468,35 @@ $(document).ready(function () {
 </script>
 
 
+<script>
+function setCurrentStatusOfTrunk(){
+   jagg.post("../blocks/application/get/ajax/list.jag", {
+              action:"getAppVersionsInStages",
+              applicationKey: '<%=applicationKey%>',
+              userName: $("#userName").attr('value')
+          },function (result) {
+             var parsedArray = jQuery.parseJSON(result);
+             var versions = Array();
+             for (var i = 0; i < parsedArray.length; i++) {
+                var application = parsedArray[i];
+                versions = versions.concat(application.versions);
+            }console.log("versions : " + JSON.stringify(versions));
+            var versionInfo = versions[0];
+            var versionStage = versionInfo.stage;
+            var lasbuildinfo = versionInfo.lastBuildResult;
+            var buildSplitted = lasbuildinfo.split(' ');
+            $("#lifecycle-mgt-main").html("Application <strong><%=applicationName%></strong> is in <br> <strong>"+versionStage+"</strong> Stage");
+            $("#success-and-fail-ids").html(buildSplitted[1] +" " + buildSplitted[2]);
 
+
+        },function (jqXHR, textStatus, errorThrown) {
+              if ( jqXHR.status != 0){
+                jagg.message({content:'Could not load Application information',type:'error',id:'notification' });
+              }
+         });
+  
+  }
+</script>
 
 
 
