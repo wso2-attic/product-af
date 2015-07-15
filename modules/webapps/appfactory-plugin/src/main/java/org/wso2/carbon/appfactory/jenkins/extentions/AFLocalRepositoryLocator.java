@@ -47,14 +47,15 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
 
     @Override
     public FilePath locate(AbstractMavenBuild build) {
-        //TODO add validation
         String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
+        // First we are setting repo path a default repo path
+        String repoPath = jenkinsHome + File.separator + DEFAULT_REPO_PATH_SUFFIX;
         String tenantGroup = build.getParent().getParent().getFullName();
         String tenantRepositoryDirPattern = getDescriptor().getTenantRepositoryDirPattern(tenantGroup);
-        String repoPath = jenkinsHome + File.separator + DEFAULT_REPO_PATH_SUFFIX;
         if (StringUtils.isNotEmpty(tenantRepositoryDirPattern)) {
             repoPath = tenantRepositoryDirPattern;
         }
+        // No need to create or check the existence of the directory. Jenkins will create the directory
         return new FilePath(new File(repoPath));
     }
 
@@ -63,8 +64,16 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
         return (DescriptorImpl) super.getDescriptor();
     }
 
+    /**
+     * Descriptor implementation related to Repository locator. The descriptor's configuration file can be found at
+     * $JENKINS_HOME/org.wso2.carbon.appfactory.jenkins.extentions.AFLocalRepositoryLocator.xml
+     */
     @Extension
     public static class DescriptorImpl extends LocalRepositoryLocatorDescriptor {
+
+        public static final String FIELD_TENANT_REPOSITORY_DIR_PATTERN = "tenantRepositoryDirPattern";
+        public static final String FIELD_PRE_CONFIGURED_MVN_REPO_ARCHIVE = "preConfiguredMvnRepoArchive";
+
         public DescriptorImpl() {
             super();
             load();
@@ -89,6 +98,22 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
             return tenantRepositoryDirPattern;
         }
 
+        /**
+         * Returns the directory to use as the maven repository for particular {@code tenantDomain}.
+         * If directory pattern contains {@value org.wso2.carbon.appfactory.jenkins.Constants#PLACEHOLDER_JEN_HOME}
+         * or {@value org.wso2.carbon.appfactory.jenkins.Constants#PLACEHOLDER_TENANT_IDENTIFIER} it will replace
+         * them with JENKINS_HOME and tenant domain respectively.
+         *
+         * ex: if $JENKINS_HOME is /mnt/Jenkins_Home and "tenantRepositoryDirPattern" is set as below in the descriptor
+         * (this descriptor file can found at
+         * $JENKINS_HOME/org.wso2.carbon.appfactory.jenkins.extentions.AFLocalRepositoryLocator.xml).
+         *
+         * <tenantRepositoryDirPattern>$JENKINS_HOME/jobs/$TENANT_IDENTIFIER/repository</tenantRepositoryDirPattern>
+         * Maven repository for tenant domain foo.com will be configured at /mnt/Jenkins_Home/foo.com/repository
+         *
+         * @param tenantDomain tenant Domain
+         * @return directory to use as the maven repository for particular {@code tenantDomain}
+         */
         public String getTenantRepositoryDirPattern(String tenantDomain) {
             String jenkinsHome = EnvVars.masterEnvVars.get(Constants.JENKINS_HOME);
             return this.tenantRepositoryDirPattern.replace(Constants.PLACEHOLDER_JEN_HOME, jenkinsHome).replace
@@ -97,12 +122,13 @@ public class AFLocalRepositoryLocator extends LocalRepositoryLocator {
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            setTenantRepositoryDirPattern(formData.getString("tenantRepositoryDirPattern"));
-            setPreConfiguredMvnRepoArchive(formData.getString("preConfiguredMvnRepoArchive"));
+            setTenantRepositoryDirPattern(formData.getString(FIELD_TENANT_REPOSITORY_DIR_PATTERN));
+            setPreConfiguredMvnRepoArchive(formData.getString(FIELD_PRE_CONFIGURED_MVN_REPO_ARCHIVE));
             save();
             return super.configure(req, formData);
         }
 
+        @Override
         public String getDisplayName() {
             return "Local to the tenant workspace";
         }

@@ -96,9 +96,8 @@ public class TenantBuildManagerInitializerImpl implements
 	 */
 	protected void createTenantFolder(String tenantDomain) throws AppFactoryException, XMLStreamException {
 		String fileLocation =
-				new StringBuilder().append(CarbonUtils.getCarbonConfigDirPath()).append(File.separator)
-						.append(JenkinsCIConstants.CONFIG_FOLDER).append(File.separator)
-						.append(JenkinsCIConstants.TENANT_FOLDER_CONFIG_FILE).toString();
+				CarbonUtils.getCarbonConfigDirPath() + File.separator + JenkinsCIConstants.CONFIG_FOLDER +
+				File.separator + JenkinsCIConstants.TENANT_FOLDER_CONFIG_FILE;
 		InputStream inputStream;
 		try {
 			inputStream = new FileInputStream(fileLocation);
@@ -115,6 +114,8 @@ public class TenantBuildManagerInitializerImpl implements
 		setValueUsingXpath(buildTemplate,
 		                   JenkinsCIConstants.TENANT_FOLDER_CONFIG_DESCRIPTION,
 		                   tenantDomain);
+
+		// Here we are sending tenant domain as the job name for tenant job
 		RestBasedJenkinsCIConnector.getInstance().createTenantJob(tenantDomain, buildTemplate, tenantDomain);
 	}
 }
