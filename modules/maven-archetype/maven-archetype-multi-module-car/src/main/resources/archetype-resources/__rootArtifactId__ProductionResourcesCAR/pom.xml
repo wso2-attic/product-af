@@ -2,19 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
+  <artifactId>${rootArtifactId}ProductionResourcesCAR</artifactId>
   <version>${version}</version>
   <packaging>carbon/application</packaging>
-  <name>TestingResourcesCAR</name>
-  <description>TestingResourcesCAR</description>
+  <name>${rootArtifactId}ProductionResourcesCAR</name>
+  <description>${rootArtifactId}ProductionResourcesCAR</description>
   <properties>
-    <${groupId}.resource_._EchoServiceEP-Testing>capp/EnterpriseServiceBus</${groupId}.resource_._EchoServiceEP-Testing>
+    <${groupId}.resource_._EchoServiceEP-Production>capp/EnterpriseServiceBus</${groupId}.resource_._EchoServiceEP-Production>
     <artifact.types>jaggery/app=zip,service/rule=aar,lib/library/bundle=jar,synapse/message-processors=xml,synapse/endpointTemplate=xml,synapse/proxy-service=xml,synapse/message-store=xml,carbon/application=car,registry/resource=zip,lib/dataservice/validator=jar,synapse/endpoint=xml,web/application=war,synapse/sequence=xml,synapse/configuration=xml,lib/registry/handlers=jar,synapse/task=xml,service/meta=xml,webapp/jaxws=war,synapse/api=xml,cep/bucket=xml,bpel/workflow=zip,lib/registry/filter=jar,service/dataservice=dbs,synapse/local-entry=xml,synapse/priority-executor=xml,synapse/event-source=xml,synapse/template=xml,lib/carbon/ui=jar,service/axis2=aar,synapse/sequenceTemplate=xml,wso2/gadget=dar,lib/synapse/mediator=jar</artifact.types>
   </properties>
   <dependencies>
     <dependency>
       <groupId>${groupId}.resource</groupId>
-      <artifactId>EchoServiceEP-Testing</artifactId>
+      <artifactId>EchoServiceEP-Production</artifactId>
       <version>${version}</version>
       <type>zip</type>
     </dependency>
@@ -70,7 +70,7 @@
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>maven-car-plugin</artifactId>
-        <version>2.0.6</version>
+        <version>2.0.9</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -85,7 +85,7 @@
       <plugin>
         <groupId>org.wso2.maven</groupId>
         <artifactId>maven-car-deploy-plugin</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.9</version>
         <extensions>true</extensions>
         <configuration>
           <carbonServers>

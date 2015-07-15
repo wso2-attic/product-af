@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}-main</artifactId>
+  <artifactId>${rootArtifactId}-main</artifactId>
   <version>${version}</version>
   <packaging>pom</packaging>
-  <name>${artifactId}-main</name>
+  <name>${rootArtifactId}-main</name>
   <description>Sample CAR Maven Project</description>
 
   <build>
@@ -25,9 +25,9 @@
   <modules>
     <module>ApplicationResources</module>
     <module>SimpleProxy</module>
-    <module>${artifactId}DevelopmentResourcesCAR</module>
-    <module>${artifactId}TestingResourcesCAR</module>
-    <module>${artifactId}</module>
-    <module>${artifactId}ProductionResourcesCAR</module>
+    <module>${rootArtifactId}DevelopmentResourcesCAR</module>
+    <module>${rootArtifactId}TestingResourcesCAR</module>
+    <module>${rootArtifactId}</module>
+    <module>${rootArtifactId}ProductionResourcesCAR</module>
   </modules>
 </project>
