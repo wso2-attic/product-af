@@ -202,17 +202,18 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
 
     /**
      * Extract the zip file which contains a pre-configured maven repository
+     *
      * @param tenantDomain tenantDomain
      * @throws IOException an error
      */
     private void extractPreConfiguredMavenRepo(String tenantDomain) throws IOException {
-        File repoArchieve =
+        File repoArchive =
                 new File(descriptor.getPreConfiguredMvnRepoArchive());
-        if (repoArchieve.canRead()) {
-            Utils.unzip(repoArchieve.getAbsolutePath(), descriptor.getTenantRepositoryDirPattern(tenantDomain));
+        if (repoArchive.canRead()) {
+            Utils.unzip(repoArchive.getAbsolutePath(), descriptor.getTenantRepositoryDirPattern(tenantDomain));
         } else {
             log.warn("unable to find pre-configured maven repository achieve at : " +
-                     repoArchieve.getAbsolutePath());
+                     repoArchive.getAbsolutePath());
         }
 
     }

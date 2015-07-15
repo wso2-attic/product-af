@@ -1,0 +1,22 @@
+body,textarea,pre,.navbar-search .search-query{
+    font-family: Trebuchet MS;
+    font-size:.9em;
+}
+.menu-back{
+    margin-top:-20px !important;
+    background-color:transparent;
+}
+.menu-content .navbar-inner {
+    filter: none;
+}
+.brand{
+    margin-top:0;
+	position:absolute;
+}
+.left-menu a{
+    font-size:11px;
+}
+.title-section{
+	filter: none;
+	background:#ddd;
+}
