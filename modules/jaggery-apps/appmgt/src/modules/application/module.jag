@@ -134,6 +134,14 @@ jagg.module("application", {
         return jagg.require(jagg.getModulesDir() + "application/add/add.jag").isAppNameAlreadyAvailable.apply(this, arguments);
     },
 
+    getUploadedApplicationTmpPath:function () {
+        return jagg.require(jagg.getModulesDir() + "application/add/add.jag").getUploadedApplicationTmpPath.apply(this, arguments);
+    },
+
+    validateUploadedArchive:function () {
+        return jagg.require(jagg.getModulesDir() + "application/add/add.jag").validateUploadedArchive.apply(this, arguments);
+    },
+
 	editAppInfo:function () {
             return jagg.require(jagg.getModulesDir() + "application/update/update.jag").editAppInfo.apply(this, arguments);
     },

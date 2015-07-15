@@ -133,7 +133,7 @@ include("/jagg/constants.jag"); %>
         });
 
 
-        createCurrentStatus(true);
+        //createCurrentStatus(true);
 
         if(loggedinUser!=appownerName){
             $('.element-editor-hover').click(function(){
@@ -916,15 +916,11 @@ function setClipBoard(version){
   */
   function createVersionStatus(){
 
-
     jagg.post("../blocks/application/get/ajax/list.jag", {
           action: "getAppVersionsInStages",
           userName: $("#userName").attr('value'),
           applicationKey: '<%=applicationKey%>'
       }, function (result) {
-
-        console.info(result);
-
         var parsedArray = jQuery.parseJSON(result);
         
         var versions = Array();
@@ -943,12 +939,6 @@ function setClipBoard(version){
       });
 
   }
-
-
-
-
-
-
 	/**
 	*  Set url mapping UI elements based on the current status
 	*/
@@ -1054,11 +1044,11 @@ function setClipBoard(version){
                   type: 'success',
                   id:'notification'
                 });
-	    	   createCurrentStatus(false);
+	    	   //createCurrentStatus(false);
 	    	   }
 	       },function (jqXHR, textStatus, errorThrown) {
 	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
-	           createCurrentStatus(false);
+	           //createCurrentStatus(false);
 	       });
    }
 
@@ -1079,10 +1069,10 @@ function setClipBoard(version){
                     type: 'success',
                     id:'notification'
                 });
-	    	   createCurrentStatus(false);
+	    	   //createCurrentStatus(false);
 	       },function (jqXHR, textStatus, errorThrown) {
 	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
-	           createCurrentStatus(false);
+	          // createCurrentStatus(false);
 	       });
    }
 
@@ -1096,11 +1086,11 @@ function setClipBoard(version){
 	           applicationKey:applicationKey
 	       },function (result) {
 	           hideNotification();
-	           createCurrentStatus(false);
+	           //createCurrentStatus(false);
 	       },function (jqXHR, textStatus, errorThrown) {
                //TODO: If error occurred update domain mapping to defaultSubDomain
                jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
-               createCurrentStatus(false);
+              // createCurrentStatus(false);
 	       });
    }
 
@@ -1114,10 +1104,10 @@ function setClipBoard(version){
 	           applicationKey:applicationKey
 	       },function (result) {
 	    	   hideNotification();
-	    	   createCurrentStatus(false);
+	    	   //createCurrentStatus(false);
 	       },function (jqXHR, textStatus, errorThrown) {
 	           jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
-	           createCurrentStatus(false);
+	           //createCurrentStatus(false);
 	       });
    }
 
@@ -1142,9 +1132,9 @@ function setClipBoard(version){
                         type: 'success',
                         id:'notification'
                     });
-                    createCurrentStatus(false);
+                 //   createCurrentStatus(false);
                },function (jqXHR, textStatus, errorThrown) {
-                   createCurrentStatus(false);
+                   //createCurrentStatus(false);
                    jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
                });
     }
@@ -1159,10 +1149,10 @@ function setClipBoard(version){
                    applicationKey:applicationKey
                },function (result) {
                    hideNotification();
-                   createCurrentStatus(false);
+                   //createCurrentStatus(false);
                },function (jqXHR, textStatus, errorThrown) {
                    jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
-                   createCurrentStatus(false);
+                   //createCurrentStatus(false);
                });
         }
     }
@@ -1220,7 +1210,13 @@ function setClipBoard(version){
 
 <script type="text/javascript">
 $(document).ready(function () {
-    
+
+//for notification
+ var scrollHeight = $('.notification-pane').height() - 150;
+        $('.notifications').css('height', scrollHeight)
+        $(".nano").nanoScroller();
+
+
     console.info("Documet Ready");
     //createVersionStatus();
     //loadApplicationInfo();
@@ -1264,11 +1260,6 @@ $(document).ready(function () {
 });
 </script>
 <!-- #########################NEWUI################################ -->
-<% 
-//jagg.includeBlock("page/messages", null);
-//jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.APP_HOME});
-jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); 
-%>
 
 
     <!-- right pane wrapper -->
@@ -1439,10 +1430,19 @@ jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App 
     </div><!-- /.container -->
 
 
-    </div>
+    </div> <!-- /.right pane -->
+<!-- notification wall-->
+<% 
+//jagg.includeBlock("page/messages", null);
+//jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.APP_HOME});
+jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); 
+%>
+
+<!-- /.notification wall -->
+
     <div class="clearfix"></div>
     <div id="push"></div>
-</div>
+</div> <!-- /.inner wrapper -->
 
 <!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
 <script src="js/jquery-1.11.1/jquery.min.js"></script>
@@ -1465,6 +1465,15 @@ jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App 
             $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
         }
     });
+    $('.notification-pane-trigger').click(function(){
+        var notificationPane = $('.notification-pane');
+        if(notificationPane.hasClass('visible')){
+            notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+        }else{
+            notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+        }
+    });
+
 </script>
 
 
@@ -1506,4 +1515,3 @@ function setCurrentStatusOfTrunk(){
 
 <!--###################################################################################################-->
 <% }); %>
-

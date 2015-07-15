@@ -279,7 +279,7 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 			var mod = jagg.module("manager");
             var applicationType = mod.getApplicationType(applicationKey);
 
-    		applicationMod.stroreUploadedApplication(applicationKey + "-" + targetVersion , file, applicationType);
+    		applicationMod.stroreUploadedApplication(applicationKey , targetVersion , file, applicationType);
 			lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
 
 	    } catch (e) {
