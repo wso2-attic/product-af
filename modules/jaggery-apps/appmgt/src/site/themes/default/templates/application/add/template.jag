@@ -366,16 +366,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
  }
 
  function validateUploadableArtifactSize(fileSize) {
-     if (fileSize > uploadableApplicationMaxSize) {
-         jagg.message({
-             content: "Uploaded file size is bigger than the allowed maximum size.",
-             type: 'error',
-             id: 'appcreationerrormsg'
-         });
-         return false;
-     }
-
-     return true;
+      return (fileSize < uploadableApplicationMaxSize);
  }
 
  function uploadProgressBar(completedPercentage) {
@@ -430,6 +421,88 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
      }
  }
 
+ /**
+ * **************************************************************************
+ * Start of JQuery file upload callback functions
+ * https://github.com/blueimp/jQuery-File-Upload/wiki/Options#callback-options
+ * *************************************************************************
+*/
+
+function fileuploadsubmit(e, data){
+    var appType = $('#appType').val();
+    var allowedAppTypeExtention = uploadableAppExts[appType];
+    data.url = "../blocks/application/add/ajax/add.jag",
+    data.dataType = 'json',
+    data.acceptFileTypes =new RegExp("(\\.|\/)("+allowedAppTypeExtention+")$"),
+    data.formData = {action:'uploadExistingArchive',
+            appType:appType,
+            applicationKey:$("#applicationKey").val()}
+}
+
+function fileuploadsend(e, data) {
+    var appKey = $('#applicationKey').val().trim();
+    if (data.files.length < 1 || !appKey.length || appKey == "null" ) {
+        $('#progress').hide();
+        $("#upload-message").text("Invalid app key").show();
+        return false;
+    }
+}
+
+function fileuploadchange(e, data){
+    $('#progress').show();
+    $.each(data.files, function (index, file) {
+        $('#progress').removeClass('progress');
+        $('#progressDiv').removeClass('progress-bar').removeClass("progress-bar-success").removeAttr("style");
+        $('#progressDiv').addClass('progress-bar').addClass("progress-bar-success");
+        $('#progress').addClass("progress");
+        $("#testupload").val(file.name);
+    })
+}
+
+function fileuploadprogressall(e, data){
+    var progress = parseInt(data.loaded / data.total * 100, 10);
+    $('#progress .progress-bar').css(
+        'width',
+        progress + '%'
+    );
+}
+
+function fileuploadprocessalways(e, data){
+    var index = data.index,
+        file = data.files[index],
+        displayMsg="";
+    if (file.error) {
+        $('#progress').hide();
+        displayMsg = "Invalid file type. Expected file type is ."+ uploadableAppExts[$('#appType').val()];
+        $("#upload-message").text(displayMsg).show();
+    } else if(!validateUploadableArtifactSize(file.size)){
+        $('#progress').hide();
+        displayMsg = "Uploaded file size is bigger than the allowed maximum size.";
+        $("#upload-message").text(displayMsg).show();
+    } else {
+        $('#progress').show();
+        $("#upload-message").text(displayMsg).hide();
+    }
+}
+
+function fileuploaddone(e, data){
+    if(data.result.isSuccessful){
+        $("#upload-message").text("").hide();
+        // Here we set uploadedApplicationKey value to current applicationKey value to identify whether the app key
+        // has changed, when user clicks the create application button
+        $("#uploadedApplicationKey").val($("#applicationKey").val());
+    } else {
+        $('#progress').hide();
+        $("#upload-message").text(data.result.message).show();
+    }
+}
+
+function fileuploadfail(e, data){
+    $('#progress').hide();
+    $("#upload-message").text("Error occurred while validating the application").show();
+}
+//End of JQuery file upload callback functions
+
  var ie = (function() {
      var undef, v = 3,
          div = document.createElement('div');
@@ -443,11 +516,10 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
  }());
  $(document).ready(function($) {
 
+    $("#upload-message").hide();
+    $('#progress').hide();
      $("#appIcon").change(function() {
          $("#icon").val($("#appIcon").val());
-     });
-     $("#appUpload").change(function() {
-         $("#upload").val($("#appUpload").val());
      });
 
      initializeUserActivity("appCreation", null, null);
@@ -505,7 +577,6 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                  return false;
              }
 
-             validated = validateUploadedFile();
              if (!validated) {
                  $("#appcreation").removeAttr('disabled');
                  $("#appupload").removeAttr('disabled');
@@ -524,22 +595,6 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                  return false;
              }
 
-             if ($("#action").val() == "uploadExistingApplication") {
-                 var uploadArtifactFile = $('#uploaded_application');
-                 validated = validateUploadableArtifactSize(uploadArtifactFile[0].files[0].size);
-                 uploadStartTime = new Date();
-                 if (!validated) {
-                     $("#appcreation").removeAttr('disabled');
-                     $("#appupload").removeAttr('disabled');
-                     return false;
-                 }
-                 $("#appupload").attr('disabled', 'disabled');
-                 jagg.message({
-                     content: "Please wait. Application upload in Progress...",
-                     type: 'success',
-                     id: 'inProgress'
-                 });
-             }
          },
          uploadProgress: function(event, position, total, percentComplete) { //on progress
 
@@ -588,6 +643,23 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
 
          }
      });
+
+    // Registering callback functions for file upload
+    // more info: https://github.com/blueimp/jQuery-File-Upload/wiki/Options#callback-options
+    $('#fileupload')
+        .bind('fileuploadsubmit', fileuploadsubmit)
+        .bind('fileuploadsend', fileuploadsend)
+        .bind('fileuploadchange', fileuploadchange)
+        .bind('fileuploadprogressall', fileuploadprogressall)
+        .bind('fileuploadprocessalways', fileuploadprocessalways)
+        .bind('fileuploaddone', fileuploaddone)
+        .bind('fileuploadfail', fileuploadfail);
+
+     $('#fileupload').fileupload({
+        maxFileSize:uploadableApplicationMaxSize, //file size in bytes.
+        acceptFileTypes:new RegExp("(\\.|\/)("+uploadableAppExts[$('#appType').val()]+")$")
+    });
+
 
      $('#applicationName').keyup(function(event) {
          var msg = $(this).val();
@@ -638,12 +710,6 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
      $("#icon").change(function() {
          var file = $('#icon');
          validateIconImage(file.val(), this.files[0].size);
-     });
-
-     //Validate uploadableArtifact size
-     $("#uploaded_application").change(function() {
-         var uploadFile = $('#uploaded_application');
-         validateUploadableArtifactSize(this.files[0].size);
      });
 
  });
@@ -798,17 +864,25 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
 
                     <!-- If uploadable application -->
                     <% if(type == "existing"){%>
-                        <div class="form-group">
-                        <label for="application-icon">Upload Application: </label>
+                    <input  type='hidden' maxlength="19" id='uploadedApplicationKey' name="uploadedApplicationKey"/>
+                    <div class="form-group">
+                        <label for="application-icon">TEST Application: </label>
                         <div class="input-group">
-                            <input type="text" id="upload" class="form-control" readonly>
+                            <input type="text" id="testupload" class="form-control" readonly>
                         <span class="input-group-btn">
+                            <!-- The file input field used as target for the file upload widget -->
                             <span class="btn btn-primary btn-file">
-                                Upload&hellip; <input type="file" id="appUpload"/>
+                                    Upload&hellip; <input id="fileupload" type="file" name="fileupload" multiple>
                             </span>
                         </span>
+                        <!-- Progress bar-->
+                        </div>
+                            <div id="progress" class="progress">
+                                <div id="progressDiv" class="progress-bar progress-bar-success"></div>
                         </div>
                     </div>
+                    <!-- Upload archive error msg div-->
+                    <div id="upload-message" name="upload-message" class="alert alert-danger" role="alert"></div>
                     <% } %>
 
                     <div class="form-group">
@@ -830,7 +904,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="cu-btn cu-btn-sm cu-btn-blue" id="add-application">
+                        <button class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="submitAppForm('<%=type%>')">
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-add fw-stack-1x"></i>

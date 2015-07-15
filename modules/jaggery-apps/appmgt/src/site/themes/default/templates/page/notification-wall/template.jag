@@ -44,7 +44,7 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
         userName: userName
     },
     function (result) {
-        $("#notificationDataDiv").empty();
+        $("#notificationBar").empty();
         var obj = jQuery.parseJSON(result);
         var retrievedTime = obj.retrievedTime;
 	    obj = obj.list;
@@ -55,48 +55,37 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
                 var event = jQuery.parseJSON(obj[i]);
                 var category = event.object.category;
 
-                var notificationIconDiv = "notification-info-icon";
-                var notificationIcon = "icon-ok-circle";
-                var notificationTitleDiv = "notification-info-title";
+                var notificationMsgClass = "notification-msg noti-success";
+                var iClass = "fw fw-ok ";
 
                 if(category==undefined || category=="ERROR" ){
-                    notificationIconDiv = "notification-error-icon";
-                    notificationIcon = "icon-remove-circle";
-                    notificationTitleDiv = "notification-error-title";
+                    notificationMsgClass = "notification-msg  noti-error";
+                    iClass = "fw fw-error ";
                 }
 
 		if(event.properties.state == "COMPLETE"){
                     correlationKeyArray.push(event.properties.correlationKey);
                 }
-
+                
+                /*
                 if(event.properties.state == "START" && correlationKeyArray.indexOf(event.properties.correlationKey) == -1){
                     notificationIcon = "icon-spinner icon-spin";
                     if(eventStateCompletionTimeout(retrievedTime, event.published)){
                         notificationIcon = "icon-remove-circle";
                     }
                 }
+                */
 
 		if(event.properties.state == "DELETE"){
                         break;
-                } 	
+                } 
 
-                   $("#notificationDataDiv").append(
-                    $('<div class="notification-subsection">' +
-                        '<div class="'+notificationIconDiv+'">' +
-                            '<span class="'+notificationIcon+'"'+'></span>' +
-                        '</div>' +
-                        '<div class="notification-div">' +
-                            '<div class="'+notificationTitleDiv+'">'+
-                                event.object.title + getNotificationDetails(event.object.content)+'<br>' +
-                                '<span class="icon-time" style="color:#666;"> </span>' +
-                                '<span class="notification-time">'+
-                                    getTimeDetails(retrievedTime, event.published)+
-                                '</span>' +
-                            '</div>'+
-                        '</div>' +
-                        '<div style="clear:both"></div>' +
-                    '</div>'    //subsection
-                ));
+                    $("#notificationBar").append(
+                        $('<div class="' + notificationMsgClass + '">'+'<div class="msg "><i class="' + 
+                            iClass + '"></i><span>' +  event.object.title + getNotificationDetails(event.object.content) + 
+                            '</span></div>' + '<div class="notification-time">' + getTimeDetails(retrievedTime, event.published) + 
+                            '</div></div>'
+                        ));
 
                 $('.info-left').qtip({
                     content: {
@@ -233,24 +222,17 @@ $(document).ready(function () {
             return html;
         }
 
-
 </script>
 <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
-<div class="notification-section" id="notificationWrapper">
-    <div id="notificationBar" class="notification-container">
-<!--<img src="../../../img-dev/loading-small.gif"/>-->
-        <h2 class="notification-header"><%=wallName%></h2>
-        <div id="notificationDataDiv"></div>
+<div class="notification-pane nano" id="notificationWrapper">
+    <div class="notification-pane-trigger">
+            <i class="fw fw-bell fw-1-5x"></i>
+    </div>
+    
+    <div id="notificationBar" class="notifications nano-content">
     </div>
 
 </div>
-<div id="notification-slider-container" class="notification-slider-container">
-    <div id="notification-slider-btn" class="notification-slider-btn">
-        <i class="icon-envelope bigger-150"></i>
-    </div>
-    <!-- /.ace-settings-box -->
-</div>
-
     <%
 });
 %>

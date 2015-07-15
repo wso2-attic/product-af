@@ -23,9 +23,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.application.mgt.type.validator.war.WarValidationException;
+import org.wso2.carbon.appfactory.application.mgt.type.validator.war.WarValidator;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeValidationStatus;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -194,9 +197,26 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
         }
     }
 
-    private String getUploadedApplicationTmpPath() {
+    public String getUploadedApplicationTmpPath() {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         return CarbonUtils.getCarbonRepository() + File.separator + "jaggeryapps/appmgt/" +
                AppFactoryConstants.UPLOADED_APPLICATION_TMP_FOLDER_NAME + File.separator + tenantDomain;
     }
+
+	@Override
+	public ApplicationTypeValidationStatus validate(String uploadedFileName) {
+		WarValidator warValidator = new WarValidator(getUploadedApplicationTmpPath() + File.separator +
+		                                             uploadedFileName);
+		// Disabling servlet class validation since there is a issue with class loading.
+		// Check WarValidator.validateClassUsingClassLoader() method
+		warValidator.validateServletClasses(false);
+		try {
+			warValidator.execute();
+			return new ApplicationTypeValidationStatus(true, "Successfully Validated!");
+		} catch (WarValidationException e) {
+			// Here we log as a warn since this is a user error
+			log.warn("Apptype validation is failed for :"+uploadedFileName,e);
+			return new ApplicationTypeValidationStatus(false, e.getMessage());
+		}
+	}
 }

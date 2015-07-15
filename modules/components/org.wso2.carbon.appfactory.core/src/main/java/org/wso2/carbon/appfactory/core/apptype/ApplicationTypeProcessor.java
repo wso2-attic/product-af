@@ -102,4 +102,12 @@ public interface ApplicationTypeProcessor {
     public OMElement configureBuildJob(OMElement jobConfigTemplate, Map<String, String> parameters,
                                        String projectType)
             throws AppFactoryException;
+
+    /**
+     * Validates the application type.
+     * @param uploadedFileName uploaded file name
+     * @return ApplicationTypeValidationStatus with validation status
+     * @throws UnsupportedOperationException if validation is not required for the app type
+     */
+    public ApplicationTypeValidationStatus validate(String uploadedFileName) throws UnsupportedOperationException;
 }

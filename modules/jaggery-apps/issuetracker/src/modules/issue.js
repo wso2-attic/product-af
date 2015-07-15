@@ -70,7 +70,7 @@ var editIssue = function (issueKey, jsonString){
         }, 'json');
     return result;
 }
-
+/*8
 var searchIssue = function (searchType, searchValue) {
     var jsonObj = new Object();
     jsonObj.searchType = searchType;
@@ -79,11 +79,33 @@ var searchIssue = function (searchType, searchValue) {
     json.searchBean = jsonObj;
     var url  = url_prefix+"/issue/search";
     
-    
-    
     var jsonString = stringify(json);
     result = post(url, jsonString, {
         "Content-Type": "application/json"
     }, 'json');
-    return result.data.searchResponse;
+     return stringify(result.data.searchResponse);
+};
+*/
+var getIssusesForDataTable = function (searchType, searchValue) {
+    var jsonObj = {};
+    jsonObj.searchType = searchType;
+    jsonObj.searchValue = searchValue;
+    var json = {};
+    json.searchBean = jsonObj;
+    var url  = url_prefix+"/issue/search";
+    var jsonString = stringify(json);
+    result = post(url, jsonString, {"Content-Type": "application/json"}, 'json');
+    var dataarray = [];
+    dataarray = result.data.searchResponse;
+    if(dataarray.length==0){
+    return null;
+    }
+    for(i=0;i<dataarray.length;i++){
+    var issueObj = {};
+    var issueNewVal = "<a href=\"\/issuetracker\/issue\/get?issuePkey=" + dataarray[i]['issuePkey'] + "&appkey=" + dataarray[i]['projectKey'] + "\">" + dataarray[i]['issuePkey'] + "<\/a>";
+    dataarray[i]['edit'] = "<a href=\"\/issuetracker\/issue\/edit?issuePkey=" + dataarray[i]['issuePkey'] + "&projectKey=" + dataarray[i]['projectKey'] + "&appkey=" + dataarray[i]['projectKey'] + "\"><i class=\'fa fa-edit\'><\/i><\/a>";
+    dataarray[i]['comment'] = "<a href=\"\/issuetracker\/issue\/get?issuePkey=" + dataarray[i]['issuePkey'] + "&appkey=" + dataarray[i]['projectKey'] + "\"><i class=\'fa fa-comment\'><\/i><\/a>";
+    dataarray[i]['issuePkey'] = issueNewVal;
+    }
+    return stringify(dataarray);
 };

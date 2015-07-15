@@ -25,7 +25,8 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeProcessor;
-import org.wso2.carbon.appfactory.jenkins.build.JenkinsCIConstants;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeValidationStatus;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,11 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
 		url = url.replace(PARAM_TENANT_DOMAIN, tenantDomain).replace(PARAM_APP_ID, applicationID)
 		         .replace(PARAM_APP_VERSION, applicationVersion).replace(PARAM_APP_STAGE, urlStageValue);
 		return url;
+	}
+
+	@Override
+	public ApplicationTypeValidationStatus validate(String uploadedFileName) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Method not supported");
 	}
 
 	/**
