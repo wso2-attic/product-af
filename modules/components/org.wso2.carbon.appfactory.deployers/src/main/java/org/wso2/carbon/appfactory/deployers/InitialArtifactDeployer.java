@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -57,8 +56,6 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 //	}
 
 	protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
-		String deployerClassName = ApplicationTypeManager.getInstance().getApplicationTypeBean(applicationId)
-		                                                 .getDeployerClassName();
 		return getArtifact(path, extension, stage, applicationId, isForLabel);
 	}
 
