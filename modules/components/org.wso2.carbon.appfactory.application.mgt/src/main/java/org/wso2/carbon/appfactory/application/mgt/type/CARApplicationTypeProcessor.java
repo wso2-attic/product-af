@@ -70,9 +70,7 @@ public class CARApplicationTypeProcessor extends MavenMultiModuleApplicationType
 				(applicationId, projectDir, initialArtifact, new File(workingDirectory), goals);
 		if(isInitialArtifactGenerationSuccess){
 			try {
-				File initialArtifactSource = new File(projectDir + File.separator
-				                                 + AppFactoryConstants.AF_ARCHETYPE_INITIAL_ARTIFACT_SOURCE_LOCATION);
-				FileUtils.deleteDirectory(initialArtifactSource);
+				FileUtils.deleteDirectory(projectDir);
 			} catch (IOException e) {
 				String msg = "Error occurred while deleting files used in deploy artifact generation";
 				log.error(msg, e);
