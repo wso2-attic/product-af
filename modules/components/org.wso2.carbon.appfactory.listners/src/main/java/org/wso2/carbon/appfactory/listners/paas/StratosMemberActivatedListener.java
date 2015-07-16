@@ -46,14 +46,22 @@ public class StratosMemberActivatedListener {
     private static StratosMemberActivatedListener stratosMemberActivatedListener = new StratosMemberActivatedListener();
 
     private JDBCApplicationDAO applicationDao;
-    private TopologyEventReceiver topologyEventReceiver;
+    private CustomTopologyEventReceiver topologyEventReceiver;
+
+    private class CustomTopologyEventReceiver extends TopologyEventReceiver implements Runnable{
+
+        @Override
+        public void run() {
+            execute();
+        }
+    }
 
     /**
      * Constructor
      */
     private StratosMemberActivatedListener() {
         applicationDao = JDBCApplicationDAO.getInstance();
-        topologyEventReceiver = new TopologyEventReceiver();
+        topologyEventReceiver = new CustomTopologyEventReceiver();
         addEventListener();
     }
 
@@ -152,12 +160,13 @@ public class StratosMemberActivatedListener {
             // when only one cartridge is present, get member's publicIP
             String lbClusterId = member.getLbClusterId();
             if (lbClusterId == null) {
-                publicIp = member.getMemberPublicIp();
+                //TODO punnadi
+                publicIp = member.getMemberPublicIPs().get(0);
             } else {
                 // when cluster of cartridges is present, get publicIP of one lbmember of lbcluster
                 List<Member> members = getLbClusterMembers(lbClusterId);
                 if (members.size() > 0) {
-                    publicIp = members.get(0).getMemberPublicIp();
+                    publicIp = members.get(0).getMemberPublicIPs().get(0);
                 }
             }
         }

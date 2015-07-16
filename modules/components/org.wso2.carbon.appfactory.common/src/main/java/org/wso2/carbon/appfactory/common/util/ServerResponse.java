@@ -14,16 +14,16 @@
  *      limitations under the License.
  */
 
-package org.wso2.carbon.appfactory.s4.integration.utils;
+package org.wso2.carbon.appfactory.common.util;
 
 /**
- * Simple wrapper class to wrap domain mapping response from Stratos
+ * Simple wrapper class to wrap server response
  */
-public class DomainMappingResponse {
+public class ServerResponse {
 	public String response;
 	public int statusCode;
 
-	public DomainMappingResponse(String response, int statusCode) {
+	public ServerResponse(String response, int statusCode) {
 		this.response = response;
 		this.statusCode = statusCode;
 	}

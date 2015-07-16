@@ -36,11 +36,12 @@ else
 fi
 
 SLEEP=60
-export LOG=$log_path/stratos-vcloud.log
+export LOG=$log_path/stratos-openstack.log
 
 source "./conf/setup.conf"
 
 stratos_extract_path=$1
+mock_iaas_enabled=$2
 
 if [[ ! -d $log_path ]]; then
     mkdir -p $log_path
@@ -48,20 +49,14 @@ fi
 
 pushd $stratos_extract_path
 
-echo "Set vCloud provider specific info in repository/conf/cloud-controller.xml" >> $LOG
+echo "Set Mock IaaS provider specific info in repository/conf/cloud-controller.xml" >> $LOG
 
-${SED} -i "s@VCLOUD_PROVIDER_START@@g" repository/conf/cloud-controller.xml
-${SED} -i "s/VCLOUD_IDENTITY/$vcloud_identity/g" repository/conf/cloud-controller.xml
-${SED} -i "s/VCLOUD_CREDENTIAL/$vcloud_credential/g" repository/conf/cloud-controller.xml
-${SED} -i "s@VCLOUD_ENDPOINT@$vcloud_jclouds_endpoint@g" repository/conf/cloud-controller.xml
-${SED} -i "s@VCLOUD_PROVIDER_END@@g" repository/conf/cloud-controller.xml
-${SED} -i "s@EC2_PROVIDER_START@!--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@EC2_PROVIDER_END@--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@OPENSTACK_PROVIDER_START@!--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@OPENSTACK_PROVIDER_END@--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@GCE_PROVIDER_START@!--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@GCE_PROVIDER_END@--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@KUBERNETES_PROVIDER_START@!--@g" repository/conf/cloud-controller.xml
-${SED} -i "s@KUBERNETES_PROVIDER_END@--@g" repository/conf/cloud-controller.xml
+if [[ $mock_iaas_enabled = true ]]; then
+	${SED} -i "s@MOCK_IAAS_PROVIDER_START@@g" repository/conf/cloud-controller.xml
+	${SED} -i "s@MOCK_IAAS_PROVIDER_END@@g"  repository/conf/cloud-controller.xml
+else
+	${SED} -i "s@MOCK_IAAS_PROVIDER_START@!--@g" repository/conf/cloud-controller.xml
+	${SED} -i "s@MOCK_IAAS_PROVIDER_END@--@g"  repository/conf/cloud-controller.xml
+fi
 
 popd

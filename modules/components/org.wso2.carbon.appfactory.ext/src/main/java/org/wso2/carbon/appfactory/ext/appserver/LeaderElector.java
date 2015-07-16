@@ -48,12 +48,19 @@ public class LeaderElector {
     private static LeaderElector leaderElector = new LeaderElector();
     private static boolean isNotifyEligible;
     private boolean terminated;
-    private TopologyEventReceiver topologyEventReceiver;
+    private CustomTopologyEventReceiver topologyEventReceiver;
 
+    private class CustomTopologyEventReceiver extends TopologyEventReceiver implements Runnable{
+
+        @Override
+        public void run() {
+            execute();
+        }
+    }
     private LeaderElector() {
         isNotifyEligible = false;
         this.terminated = false;
-        this.topologyEventReceiver = new TopologyEventReceiver();
+        this.topologyEventReceiver = new CustomTopologyEventReceiver();
         addEvenListener();
 
         Thread thread = new Thread(topologyEventReceiver);
@@ -89,9 +96,10 @@ public class LeaderElector {
                         for (Cluster cluster : service.getClusters()) {
                             for (Member member : cluster.getMembers()) {
                                 MemberStatus memStatus = member.getStatus();
-                                if (MemberStatus.Activated.equals(memStatus)) {
-                                    memberIpMap.put(member.getMemberIp(),
-                                                    InetAddress.getByName(member.getMemberIp()));
+                                if (MemberStatus.Active.equals(memStatus)) {
+                                    //TODO punnadi
+                                    memberIpMap.put(member.getMemberPublicIPs().get(0),
+                                                    InetAddress.getByName(member.getMemberPublicIPs().get(0)));
                                 }
                             }
                         }

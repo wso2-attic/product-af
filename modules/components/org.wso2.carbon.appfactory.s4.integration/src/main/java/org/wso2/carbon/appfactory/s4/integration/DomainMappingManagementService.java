@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.MutualAuthHttpClient;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -31,10 +32,9 @@ import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppInfoUpdateEventBuilderUtil;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingAction;
-import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingResponse;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
 import org.wso2.carbon.context.CarbonContext;
-
+import org.wso2.carbon.appfactory.common.util.ServerResponse;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -107,7 +107,7 @@ public class DomainMappingManagementService {
                 throw new DomainMappingVerificationException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
             }
 
-            DomainMappingResponse response;
+            ServerResponse response;
             try {
                 String body;
                 if (StringUtils.isNotBlank(version)) {      // if the domain is to be mapped to a version
@@ -115,7 +115,8 @@ public class DomainMappingManagementService {
                 } else {                                    // map the domain to initial url
                     body = DomainMappingUtils.generateInitialSubscriptionDomainJSON(domain);
                 }
-                response = DomainMappingUtils.sendPostRequest(stage, body, addSubscriptionDomainEndPoint);
+                response = MutualAuthHttpClient.sendPostRequest(body, DomainMappingUtils.getSMUrl(stage) +
+                                                                      addSubscriptionDomainEndPoint);
             } catch (AppFactoryException e) {
                 log.error("Error occurred adding domain mappings to appkey " + appKey + " version " + version + " domain " + domain, e);
                 //Notifying the domain mapping failure to app wall
@@ -404,9 +405,10 @@ public class DomainMappingManagementService {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String appType = ApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(stage, domain, appType);
-        DomainMappingResponse deleteResponse;
+        ServerResponse deleteResponse;
         try {
-            deleteResponse = DomainMappingUtils.sendDeleteRequest(stage,removeSubscriptionDomainEndPoint);
+            deleteResponse = MutualAuthHttpClient.sendDeleteRequest(
+                    DomainMappingUtils.getSMUrl(stage) + removeSubscriptionDomainEndPoint);
         } catch (AppFactoryException e) {
             log.error("Error occurred removing domain mapping : " + domain + " from tenant domain : " + tenantDomain +
                     " in stage :" + stage, e);
@@ -606,11 +608,12 @@ public class DomainMappingManagementService {
         String validateSubscriptionDomainEndPoint =
                 DomainMappingUtils.getDomainAvailableEndPoint(stage, domain, appType);
 
-        DomainMappingResponse response;
+        ServerResponse response;
         try {
             // sending GET request for with domain.
             // if the requested domain is mapped it will send a response with 200 OK , else 404 Not found
-            response = DomainMappingUtils.sendGetRequest(stage, validateSubscriptionDomainEndPoint);
+            response = MutualAuthHttpClient.sendGetRequest(
+                    DomainMappingUtils.getSMUrl(stage) + validateSubscriptionDomainEndPoint);
         } catch (AppFactoryException e) {
             log.error("Error occurred while checking domain availability from Stratos side for domain:" + domain, e);
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_DOMAIN_AVAILABILITY_ERROR_MSG, domain));

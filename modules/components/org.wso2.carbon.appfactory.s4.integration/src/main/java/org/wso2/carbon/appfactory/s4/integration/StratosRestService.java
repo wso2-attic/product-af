@@ -30,13 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
-import org.apache.stratos.cli.beans.SubscriptionInfo;
-import org.apache.stratos.cli.beans.TenantInfoBean;
-import org.apache.stratos.cli.beans.cartridge.CartridgeInfoBean;
 import org.apache.stratos.cli.exception.CommandException;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingResponse;
-
+import org.wso2.carbon.appfactory.common.util.ServerResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -89,7 +85,7 @@ public class StratosRestService {
 
 		try {
 			// get the details of the subscription for an app
-			DomainMappingResponse response = doGet(httpClient, this.stratosManagerURL
+			ServerResponse response = doGet(httpClient, this.stratosManagerURL
 					+ this.LIST_DETAILS_OF_SUBSCRIBED_CARTRIDGE + appName);
 			System.out.println("response.getStatusCode() = "
 					+ response.getResponse());
@@ -126,8 +122,8 @@ public class StratosRestService {
 			String password, String dataCartridgeType,
 			String dataCartridgeAlias, String asPolicy, String depPolicy)
 			throws AppFactoryException {
-
-		CartridgeInfoBean cartridgeInfoBean = new CartridgeInfoBean();
+//TODO Punnadi
+	/*	CartridgeInfoBean cartridgeInfoBean = new CartridgeInfoBean();
 
 		try {
 
@@ -161,29 +157,10 @@ public class StratosRestService {
 
 		} catch (CommandException e) {
 			handleException("Exception in subscribing to cartridge", e);
-		}
+		}*/
 	}
 
-	// unsubscribe a cartridge
-	public void unsubscribeCartridge(String alias) throws CommandException,
-			AppFactoryException {
-		HttpClient httpClient = getNewHttpClient();
-
-		DomainMappingResponse response = doPost(httpClient, this.stratosManagerURL
-				+ this.UNSUBSCRIBE_CARTRIDGE_END_POINT, alias);
-		if (response.getStatusCode() == HttpStatus.SC_OK) {
-			log.info(String.format(
-					"Successfully subscribed to the cartridge with alias %s",
-					alias));
-
-		} else {
-			log.error("Error while unsubscribing the cartridge for the application "
-					+ alias);
-		}
-
-	}
-
-	private void subscribeCartridge(CartridgeInfoBean cartridgeInfoBean)
+	/*private void subscribeCartridge(CartridgeInfoBean cartridgeInfoBean)
 			throws CommandException, AppFactoryException {
 		String completeJsonSubscribeString;
 
@@ -194,7 +171,7 @@ public class StratosRestService {
 
 		HttpClient httpClient = getNewHttpClient();
 
-		DomainMappingResponse response = doPost(httpClient, this.stratosManagerURL
+		ServerResponse response = doPost(httpClient, this.stratosManagerURL
 				+ this.SUBSCRIBE_CARTRIDGE_REST_END_POINT,
 				completeJsonSubscribeString);
 
@@ -232,53 +209,7 @@ public class StratosRestService {
 					+ response.getResponse());
 			return;
 		}
-	}
-
-	// This method helps to create the new tenant
-	public void addTenant(String admin, String firstName, String lastName,
-			String password, String domain, String email)
-			throws AppFactoryException {
-		HttpClient httpClient = getNewHttpClient();
-		try {
-			TenantInfoBean tenantInfo = new TenantInfoBean();
-			tenantInfo.setAdmin(admin);
-			tenantInfo.setFirstname(firstName);
-			tenantInfo.setLastname(lastName);
-			tenantInfo.setAdminPassword(password);
-			tenantInfo.setTenantDomain(domain);
-			tenantInfo.setEmail(email);
-
-			GsonBuilder gsonBuilder = new GsonBuilder();
-			Gson gson = gsonBuilder.create();
-
-			String jsonString = gson.toJson(tenantInfo, TenantInfoBean.class);
-			String completeJsonString = "{\"tenantInfoBean\":" + jsonString
-					+ "}";
-
-			DomainMappingResponse response = doPost(httpClient,
-					this.stratosManagerURL + ADD_TENANT_END_POINT,
-					completeJsonString);
-
-			if (response.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
-				log.error("Authorization failed for the operation");
-				return;
-			} else if (response.getStatusCode() == HttpStatus.SC_NO_CONTENT) {
-				log.debug("Tenant added successfully");
-				return;
-			} else if (response.getStatusCode() != HttpStatus.SC_NO_CONTENT) {
-				log.error("Error occurred while adding tenant,"
-						+ "server returned  " + response.getStatusCode());
-				return;
-			} else {
-				System.out.println("Unhandle error");
-				return;
-			}
-
-		} catch (Exception e) {
-			log.error(e);
-			handleException("Exception in creating tenant", e);
-		}
-	}
+	}*/
 
 	// This method helps to unsubscribe cartridges
 	public void unsubscribe(String alias) throws AppFactoryException {
@@ -313,7 +244,7 @@ public class StratosRestService {
         JsonObject catridgeJson = null;
         try {
             String serviceEndPoint = stratosManagerURL + LIST_DETAILS_OF_SUBSCRIBED_CARTRIDGE + cartridgeAlias;
-            DomainMappingResponse response = doGet(httpClient, serviceEndPoint);
+            ServerResponse response = doGet(httpClient, serviceEndPoint);
 
             if (HttpStatus.SC_OK == response.getStatusCode()) {
                 if (log.isDebugEnabled()) {
@@ -381,7 +312,7 @@ public class StratosRestService {
 		return "Basic " + encodedValue;
 	}
 
-	public DomainMappingResponse doPost(HttpClient httpClient, String resourcePath,
+	public ServerResponse doPost(HttpClient httpClient, String resourcePath,
 			String jsonParamString) throws CommandException,
 			AppFactoryException {
 
@@ -419,7 +350,7 @@ public class StratosRestService {
 			handleException("error while getting response as String", e);
 		}
 
-		return new DomainMappingResponse(responseString, response);
+		return new ServerResponse(responseString, response);
 
 	}
 
@@ -434,7 +365,7 @@ public class StratosRestService {
 	 * @throws CommandException
 	 * @throws Exception
 	 */
-	public DomainMappingResponse doGet(HttpClient httpClient, String resourcePath)
+	public ServerResponse doGet(HttpClient httpClient, String resourcePath)
 			throws CommandException, Exception {
 		GetMethod getRequest = new GetMethod(resourcePath);
 		String userPass = this.username + ":" + this.password;
@@ -459,7 +390,7 @@ public class StratosRestService {
 			handleException("error while getting response as String", e);
 		}
 
-		return new DomainMappingResponse(responseString, response);
+		return new ServerResponse(responseString, response);
 
 	}
 
