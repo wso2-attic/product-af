@@ -6,7 +6,7 @@
   <artifactId>${rootArtifactId}</artifactId>
   <version>${version}</version>
   <packaging>carbon/application</packaging>
-  <name>${rootArtifactId}CAR</name>
+  <name>${rootArtifactId}</name>
   <description>Main CAR project for ${rootArtifactId}</description>
   <properties>
     <${groupId}.proxy-service_._${rootArtifactId}SimpleProxyService-${version}>capp/EnterpriseServiceBus</${groupId}.proxy-service_._${rootArtifactId}SimpleProxyService-${version}>

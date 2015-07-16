@@ -31,6 +31,7 @@ import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.deployers.InitialArtifactDeployer;
 import org.wso2.carbon.user.api.UserStoreException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -86,7 +87,8 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 			if(initialDeployerClassName != null){
 				ClassLoader loader = getClass().getClassLoader();
 				Class<?> initialDeployerClass = Class.forName(initialDeployerClassName, true, loader);
-				Object instance = initialDeployerClass.newInstance();
+				Object instance = initialDeployerClass.getDeclaredConstructor(Map.class, int.class, String.class)
+				                                      .newInstance(deployInfoMap, tenantId, tenantDomain);
 				if(instance instanceof InitialArtifactDeployer){
 					deployer = (InitialArtifactDeployer) instance;
 				} else {
@@ -108,6 +110,12 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 		} catch (IllegalAccessException e) {
 			throw new AppFactoryException("Cannot access initial deployer class : " + initialDeployerClassName
 			                              + " not found " + application.getName() , e);
+		} catch (NoSuchMethodException e) {
+			throw new AppFactoryException("Cannot create instance of initial deployer class : "
+			                              + initialDeployerClassName + " not found " + application.getName() , e);
+		} catch (InvocationTargetException e) {
+			throw new AppFactoryException("Cannot create instance of initial deployer class : "
+			                              + initialDeployerClassName + " not found " + application.getName() , e);
 		}
 	}
 
