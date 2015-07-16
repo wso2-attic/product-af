@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.appfactory.deployers;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
@@ -26,8 +24,6 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,31 +48,6 @@ public class MultiModuleCARInitialDeployer extends InitialArtifactDeployer {
 	protected File[] getArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
 		stage = AppFactoryUtil.getAppfactoryConfiguration().
 				getFirstProperty(AppFactoryConstants.AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME);
-		List<File> fileList = new ArrayList<File>();
-		if (StringUtils.isNotBlank(path)) {
-			if (StringUtils.isBlank(extension)) {
-				String errMsg = "Extension cannot be empty";
-				log.error(errMsg);
-				throw new AppFactoryException(errMsg);
-			}
-			String[] fileExtensions = new String[]{extension};
-			List<File> allFiles = (List<File>)(FileUtils.listFiles(new File(path), fileExtensions, true));
-			if(isForLabel){
-				return allFiles.toArray(new File[allFiles.size()]);
-			}
-			if (allFiles.isEmpty()) {
-				String errMsg = "No built artifact found in the path : " + path;
-				log.error(errMsg);
-				throw new AppFactoryException(errMsg);
-			}
-			String resource_car_naming_pattern = applicationId + stage;
-			for (File file : allFiles) {
-				String artifactID = file.getName().split(AppFactoryConstants.CAR_FILE_ARTIFACT_NAME_VERSION_SEPERATOR)[0];
-				if((file.getName().startsWith(resource_car_naming_pattern)) || (applicationId.equals(artifactID))){
-					fileList.add(file);
-				}
-			}
-		}
-		return fileList.toArray(new File[fileList.size()]);
+		return  AppFactoryUtil.getArtifact(path, extension, stage, applicationId, isForLabel);
 	}
 }
