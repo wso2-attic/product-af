@@ -72,7 +72,6 @@ import java.security.PrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * The plugin for storing build artifact permanently, deploy artifacts and
@@ -81,9 +80,6 @@ import java.util.logging.Logger;
 public class AppfactoryPluginManager extends Notifier implements Serializable {
 
     private static final Log log = LogFactory.getLog(AppfactoryPluginManager.class);
-    private static final Logger LOGGER = Logger.getLogger(AppfactoryPluginManager.class.getName());
-    public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
-    public static final String JAVAX_NET_SSL_CLIENT_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
     public static final String JKS = "jks";
 
     // these are the parameters that we defined in config.jelly

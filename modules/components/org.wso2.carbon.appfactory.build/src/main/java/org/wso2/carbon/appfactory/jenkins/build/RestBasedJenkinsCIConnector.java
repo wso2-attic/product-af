@@ -92,9 +92,8 @@ public class RestBasedJenkinsCIConnector {
 
     private static final Log log = LogFactory.getLog(RestBasedJenkinsCIConnector.class);
     public static final String URL_SUFFIX_FORMAT_CREATE_JOB = "/job/%s/createItem";
+    public static final long MILLISECONDS_PER_SECOND = 1000L;
     private static RestBasedJenkinsCIConnector restBasedJenkinsCIConnector;
-    private static final String CREATE_ROLE_URL = "/descriptorByName/com.michelin.cio.hudson.plugins.rolestrategy"
-                                                  + ".RoleBasedAuthorizationStrategy/createProjectRoleSubmit";
     private static final int MAX_SUCCESS_HTTP_STATUS_CODE = 299;
 
     static {
@@ -317,10 +316,9 @@ public class RestBasedJenkinsCIConnector {
      * Create tenant job. This will create "Folder Job"(folder with the name of {@code jobName} in
      * $JENKINS_HOME/jobs directory) to represent the tenant in the jenkins
      *
-     * TODO Refactor this method
-     * @param jobName
-     * @param jobConfiguration
-     * @param tenantDomain
+     * @param jobName           job name.
+     * @param jobConfiguration  job configuration
+     * @param tenantDomain      tenant domain
      * @throws AppFactoryException
      */
     public void createTenantJob(String jobName, OMElement jobConfiguration,
@@ -1463,12 +1461,19 @@ public class RestBasedJenkinsCIConnector {
                 parameterDefsNode.addChild(triggerParam);
             }
 
-        } catch (Exception ex) {
-            String errorMsg = String.format(
-                    "Unable to retrieve available jobs from jenkins : %s",
-                    ex.getMessage());
-            log.error(errorMsg, ex);
-            throw new AppFactoryException(errorMsg, ex);
+        } catch (XMLStreamException e) {
+            String errorMsg =  "Unable to retrieve available jobs from jenkins";
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg, e);
+        } catch (JaxenException e) {
+            String errorMsg =  "Error occurred while updating the job configuration for parameter \"isAutomatic\" for" +
+                               " tenant: "+tenantDomain;
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg, e);
+        } catch (IOException e) {
+            String errorMsg =  "Unable to retrieve available jobs from jenkins for tenant: "+tenantDomain;
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg, e);
         } finally {
             if (autoDeployUpdateResponse != null) {
                 try {
@@ -1489,42 +1494,35 @@ public class RestBasedJenkinsCIConnector {
     private HttpGet createGetByBaseUrl(String baseUrl, String relativePath,
                                        List<NameValuePair> queryParameters) throws AppFactoryException {
         String query = null;
-        URL url = null;
-        URI uri = null;
         HttpGet get;
 
         if (queryParameters != null) {
             query = URLEncodedUtils.format(queryParameters, HTTP.UTF_8);
         }
         try {
-            url = new URL(baseUrl+relativePath);
-            if (url != null) {
-                uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), url.getPath(), query, null);
-            }
-            if (uri == null) {
-                throw new AppFactoryException(
-                        "Unable to generate URI for path : " + relativePath );
+            URL url = new URL(baseUrl);
+            URI uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), relativePath, query, null);
+
+            get = new HttpGet(uri);
+            if (authenticate) {
+                get.addHeader(
+                        BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
+                                                 HTTP.UTF_8, false));
             }
 
         } catch (MalformedURLException e) {
-            String msg = "Error while generating URL for the path : " + baseUrl + " in tenant : "  +
+            String msg = "Error while generating URL for the path : " + baseUrl +
                          " during the creation of HttpGet method";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         } catch (URISyntaxException e) {
             String msg =
-                    "Error while constructing the URI for url : " + url.toString() + " in tenant : " + 
+                    "Error while constructing the URI for url : " + baseUrl +
                     " during the creation of HttpGet method";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
 
-        get = new HttpGet(uri);
-        if (authenticate) {
-            get.addHeader(
-                    BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
-                                             HTTP.UTF_8, false));
-        }
         return get;
     }
 
@@ -1540,21 +1538,19 @@ public class RestBasedJenkinsCIConnector {
             throws AppFactoryException {
 
         String query = null;
-        URL url = null;
-        URI uri = null;
         HttpGet get;
 
         if (queryParameters != null) {
             query = URLEncodedUtils.format(queryParameters, HTTP.UTF_8);
         }
         try {
-            url = new URL(getJenkinsUrlByTenantDomain(urlFragment, tenantDomain));
-            if (url != null) {
-                uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), url.getPath(), query, null);
-            }
-            if (uri == null) {
-                throw new AppFactoryException(
-                        "Unable to generate URI for path : " + urlFragment + " in tenant : " + tenantDomain);
+            URL url = new URL(getJenkinsUrl(tenantDomain));
+            URI uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), urlFragment, query, null);
+            get = new HttpGet(uri);
+            if (authenticate) {
+                get.addHeader(
+                        BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
+                                                 HTTP.UTF_8, false));
             }
 
         } catch (MalformedURLException e) {
@@ -1564,17 +1560,10 @@ public class RestBasedJenkinsCIConnector {
             throw new AppFactoryException(msg, e);
         } catch (URISyntaxException e) {
             String msg =
-                    "Error while constructing the URI for url : " + url.toString() + " in tenant : " + tenantDomain +
+                    "Error while constructing the URI for url fragment "+urlFragment +" in tenant : " + tenantDomain +
                     " during the creation of HttpGet method";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
-        }
-
-        get = new HttpGet(uri);
-        if (authenticate) {
-            get.addHeader(
-                    BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
-                                             HTTP.UTF_8, false));
         }
         return get;
     }
@@ -1592,22 +1581,24 @@ public class RestBasedJenkinsCIConnector {
                                 String tenantDomain) throws AppFactoryException {
 
         String query = "";
-        URL url = null;
-        URI uri = null;
         HttpPost post;
 
         if (queryParameters != null) {
             query = URLEncodedUtils.format(queryParameters, HTTP.UTF_8);
         }
         try {
-            url = new URL(getJenkinsUrlByTenantDomain(urlFragment, tenantDomain));
-            if (url != null) {
-                uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), url.getPath(), query, null);
+            URL url = new URL(getJenkinsUrl(tenantDomain));
+            URI uri = URIUtils.createURI(url.getProtocol(), url.getHost(), url.getPort(), urlFragment, query, null);
+            post = new HttpPost(uri);
+
+            if (httpEntity != null) {
+                post.setEntity(httpEntity);
             }
-            if (uri == null) {
-                String errorMsg = "Unable to generate URI for path : " + urlFragment + " in tenant : " + tenantDomain;
-                log.error(errorMsg);
-                throw new AppFactoryException(errorMsg);
+
+            if (authenticate) {
+                post.addHeader(
+                        BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
+                                                 HTTP.UTF_8, false));
             }
         } catch (MalformedURLException e) {
             String msg = "Error while generating URL for the path : " + urlFragment + " in tenant : " + tenantDomain +
@@ -1621,36 +1612,7 @@ public class RestBasedJenkinsCIConnector {
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
-
-        post = new HttpPost(uri);
-
-        if (httpEntity != null) {
-            post.setEntity(httpEntity);
-        }
-
-        if (authenticate) {
-            post.addHeader(
-                    BasicScheme.authenticate(new UsernamePasswordCredentials(this.username, this.apiKeyOrPassword),
-                                             HTTP.UTF_8, false));
-        }
         return post;
-    }
-
-    /**
-     * TODO: Refactor this method and remove depreciated methods
-     * Get Jenkins URL for a given Tenant Domain
-     *
-     * @param relativePath relative path from base url ex: /job/sam.com/api/xml
-     * @param tenantDomain tenant Domain
-     * @param query
-     * @return
-     * @throws AppFactoryException
-     * @throws URISyntaxException
-     */
-    private String getJenkinsUrlByTenantDomain(String relativePath,
-                                            String tenantDomain)
-            throws AppFactoryException {
-        return getJenkinsUrl(tenantDomain) +relativePath;
     }
 
     /**
@@ -1701,7 +1663,7 @@ public class RestBasedJenkinsCIConnector {
         try {
             // retry retryCount times to process the request
             for (int i = 0; i < retryCount; i++) {
-                Thread.sleep(1000 * retryDelay); // sleep retryDelay seconds, giving jenkins
+                Thread.sleep(MILLISECONDS_PER_SECOND * retryDelay); // sleep retryDelay seconds, giving jenkins
                 // time to load the tenant
                 if (log.isDebugEnabled()) {
                     log.debug("Resending request(" + i + ") started for GET");
@@ -1759,7 +1721,7 @@ public class RestBasedJenkinsCIConnector {
         try {
             // retry retryCount times to process the request
             for (int i = 0; i < retryCount; i++) {
-                Thread.sleep(1000 * retryDelay); // sleep retryDelay seconds, giving jenkins
+                Thread.sleep(MILLISECONDS_PER_SECOND * retryDelay); // sleep retryDelay seconds, giving jenkins
                 // time to load the tenant
                 if (log.isDebugEnabled()) {
                     log.debug("Resending request(" + i + ") started for POST");
