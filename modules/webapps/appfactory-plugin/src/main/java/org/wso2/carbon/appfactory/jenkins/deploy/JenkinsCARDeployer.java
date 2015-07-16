@@ -43,7 +43,6 @@ public class JenkinsCARDeployer extends JenkinsArtifactDeployer{
 	 * @throws org.wso2.carbon.appfactory.common.AppFactoryException If there is an issue in filtering artifacts
 	 */
 	protected File[] getArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
-		List<File> fileList = new ArrayList<File>();
 		return  AppFactoryUtil.getArtifact(path, extension, stage, applicationId, isForLabel);
 	}
 }
