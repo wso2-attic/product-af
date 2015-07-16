@@ -69,9 +69,10 @@ public class MultiModuleCARInitialDeployer extends InitialArtifactDeployer {
 				log.error(errMsg);
 				throw new AppFactoryException(errMsg);
 			}
+			String resource_car_naming_pattern = applicationId + stage;
 			for (File file : allFiles) {
 				String artifactID = file.getName().split(AppFactoryConstants.CAR_FILE_ARTIFACT_NAME_VERSION_SEPERATOR)[0];
-				if((file.getName().startsWith(stage)) || (applicationId.equals(artifactID))){
+				if((file.getName().startsWith(resource_car_naming_pattern)) || (applicationId.equals(artifactID))){
 					fileList.add(file);
 				}
 			}
