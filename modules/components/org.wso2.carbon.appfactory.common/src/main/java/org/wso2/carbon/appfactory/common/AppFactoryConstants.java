@@ -296,24 +296,13 @@ public class AppFactoryConstants {
 			FILE_TYPE_PHP, FILE_TYPE_ESB };
 
 	// constants added for Deployers
-	public static final String APPLICATION_TYPE_WAR = "war";
-	public static final String APPLICATION_TYPE_CAR = "car";
-	public static final String APPLICATION_TYPE_ZIP = "zip";
-	public static final String APPLICATION_TYPE_JAXWS = "jaxws";
+
 	public static final String APPLICATION_TYPE_JAXRS = "jaxrs";
-	public static final String APPLICATION_TYPE_JAGGERY = "jaggery";
 	public static final String APPLICATION_TYPE_DBS = "dbs";
-	public static final String APPLICATION_TYPE_PHP = "php";
 	public static final String APPLICATION_TYPE_ESB = "esb";
 	public static final String APPLICATION_TYPE_XML = "xml";
-	public static final String APPLICATION_TYPE_BPEL = "bpel";
-	public static final String APPLICATION_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
-	public static final String APPLICATION_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
-	public static final String IS_UPLOADABLE_APP_TYPE="IsUploadableAppType";
 	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
-	public static final String APP_ID = "applicationId";
-	public static final String USER_NAME = "username";
 
 	public static final String APP_VERSION = "applicationVersion";
 	public static final String JOB_NAME = "jobName";
@@ -352,8 +341,8 @@ public class AppFactoryConstants {
 	public static final String BAM_BUILD_START = "START";
 
 	// User mgt related
-	public static final String FIRST_LOGGIN_MAPPED_TO = "Initials";
-	public static final String CLAIMS_FIRSTLOGIN = "http://wso2.org/claims/firstlogin";
+	//public static final String FIRST_LOGGIN_MAPPED_TO = "Initials";
+	//public static final String CLAIMS_FIRSTLOGIN = "http://wso2.org/claims/firstlogin";
 
 	// Registry permission in clouds
 	public static final String CLOUD_RESOURCE_PERMISSION = "CloudResourcePermissions.Resources.Resource";
