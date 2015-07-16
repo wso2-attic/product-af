@@ -63,8 +63,6 @@ public class AppFactoryConstants {
 
 	public static final String RUNTIMES="Runtimes";
 	public static final String RUNTIME="Runtime";
-	public static final String RUNTIME_DEPLOYER_CLASSNAME="DeployerClassName";
-	public static final String RUNTIME_UNDEPLOYER_CLASSNAME="UndeployerClassName";
 	public static final String RUNTIME_REPOSITORY_URL_PATTERN="PAASArtifactStorageURLPattern";
 	public static final String RUNTIME_ALIAS_PREFIX="AliasPrefix";
 	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX="CartridgeTypePrefix";
@@ -217,7 +215,6 @@ public class AppFactoryConstants {
 	public static final String APPLICATION_VERSION = "version";
 	public static final String APPLICATION_EXTENSION = "extension";
 	public static final String APPLICATION_USER = "user";
-	public static final String DEPLOYER_TYPE = "DeployerType";
 	public static final String APPLICATION_BUILD = "build";
 
 	public static final String TRUNK = "trunk";
@@ -327,6 +324,8 @@ public class AppFactoryConstants {
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";
 	public static final String USER_NAME = "username";
+	public static final String DEPLOYER_CLASSNAME ="DeployerClassName";
+	public static final String UNDEPLOYER_CLASSNAME ="UndeployerClassName";
 
 	public static final String APP_VERSION = "applicationVersion";
 	public static final String JOB_NAME = "jobName";
@@ -496,6 +495,17 @@ public class AppFactoryConstants {
     /**
      * Symbols
      */
+
+	/**
+	 * mvn goals
+	 */
+	public static final String MVN_GOAL_CLEAN = "clean";
+	public static final String MVN_GOAL_INSTALL = "install";
+	public static final String MVN_GOAL_ASSEMBLY = "-f assembly.xml";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_LOCATION = "_deploy_artifact";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_SOURCE_LOCATION = "built_artifact";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_ASSEMBLY_XML_LOCATION = "assembly.xml";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_BIN_XML_LOCATION = "bin.xml";
 
 
 	public static final String AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME = "StartStage";

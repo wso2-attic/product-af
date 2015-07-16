@@ -150,6 +150,8 @@ public class ApplicationTypeManager {
 			}
 			applicationTypeBean.setRuntimes(properties.getProperty(AppFactoryConstants.RUNTIMES).
 							split(AppFactoryConstants.PROPERTY_VALUE_SEPERATOR));
+			applicationTypeBean.setDeployerClassName(properties.getProperty(AppFactoryConstants.DEPLOYER_CLASSNAME));
+			applicationTypeBean.setUndeployerClassName(properties.getProperty(AppFactoryConstants.UNDEPLOYER_CLASSNAME));
 			applicationTypeBean.setBuildJobTemplate(properties.getProperty(ApplicationTypeConstants.BUILD_JOB_TEMPLATE));
 			applicationTypeBean.setComment(properties.getProperty(ApplicationTypeConstants.COMMENT));
             applicationTypeBean.setDescription(properties.getProperty(ApplicationTypeConstants.DESCRIPTION));

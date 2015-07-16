@@ -47,6 +47,10 @@ public class ApplicationTypeBean {
     private String IconColorClass;
     private String IconImageClass;
 	private String initialDeployerClassName;
+	//Fully qualified class name of application deployer.
+	private String deployerClassName;
+	//Fully qualified class name of application undeployer
+	private String undeployerClassName;
 	public ApplicationTypeBean(){
 	}
 
@@ -232,4 +236,21 @@ public class ApplicationTypeBean {
 	public void setInitialDeployerClassName(String initialDeployerClassName) {
 		this.initialDeployerClassName = initialDeployerClassName;
 	}
+
+	public String getDeployerClassName() {
+		return deployerClassName;
+	}
+
+	public void setDeployerClassName(String deployerClassName) {
+		this.deployerClassName = deployerClassName;
+	}
+
+	public String getUndeployerClassName() {
+		return undeployerClassName;
+	}
+
+	public void setUndeployerClassName(String undeployerClassName) {
+		this.undeployerClassName = undeployerClassName;
+	}
+
 }

@@ -27,8 +27,7 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
     }
 
     @Override
-    public void undeployArtifact(String deployerType, String applicationId,
-                                 String applicationType, String version, String lifecycleStage,
+    public void undeployArtifact(String applicationId, String applicationType, String version, String lifecycleStage,
                                  ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
                                  throws AppFactoryException {
 
@@ -38,8 +37,8 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
         File applicationTempLocation = Files.createTempDir();
         if (log.isDebugEnabled()) {
             log.debug("Deleting application of application id : " + applicationId + " version : " + version +
-                    " stage :  " + lifecycleStage + " application type : " + applicationType + " deployer type : " +
-                    deployerType + " server deployment path : " + serverDeploymentPath);
+                    " stage :  " + lifecycleStage + " application type : " + applicationType +
+                    " server deployment path : " + serverDeploymentPath);
         }
         try {
             undeployArtifactFromDepSyncGitRepo(

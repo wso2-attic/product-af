@@ -963,19 +963,14 @@ public class RestBasedJenkinsCIConnector {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE, runtimeNameForAppType));
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
-                                                  Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
-                                                  applicationTypeBean.getServerDeploymentPath()));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME, jobName));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_ACTION, deployAction));
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
-                                                  applicationTypeBean.getExtension()));
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
-            String tenantUserName = userName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
-            parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_USER_NAME, tenantUserName));
+	        addAppTypeParameters(parameters, applicationTypeBean);
             addRunTimeParameters(stage, parameters, runtimeBean);
+	        parameters.add(new BasicNameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
+	        String tenantUserName = userName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+	        parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_USER_NAME, tenantUserName));
 
             deployLatestSuccessArtifactMethod = createPost(deployLatestSuccessArtifactUrl, parameters, null,
                                                            tenantDomain);
@@ -1025,7 +1020,22 @@ public class RestBasedJenkinsCIConnector {
 
     }
 
-    /**
+	/**
+	 * Add application type parameters to the map
+	 *
+	 * @param parameters parameter map to send to the jenkins
+	 * @param applicationTypeBean application type bean object
+	 */
+	private void addAppTypeParameters(List<NameValuePair> parameters, ApplicationTypeBean applicationTypeBean) {
+		parameters.add(new BasicNameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
+		                                      applicationTypeBean.getExtension()));
+		parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOYER_CLASSNAME,
+		                                      applicationTypeBean.getDeployerClassName()));
+		parameters.add(new BasicNameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
+		                                      applicationTypeBean.getServerDeploymentPath()));
+	}
+
+	/**
      * deploy the promoted artifact
      *
      * @param jobName      name of the job
@@ -1062,19 +1072,13 @@ public class RestBasedJenkinsCIConnector {
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME, jobName));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
-
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,
                                               runtimeNameForAppType));
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
-                                              Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
-                                              applicationTypeBean.getServerDeploymentPath()));
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
-                                              applicationTypeBean.getExtension()));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
         String tenantUserName = userName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_USER_NAME, tenantUserName));
 
+	    addAppTypeParameters(parameters, applicationTypeBean);
         addRunTimeParameters(stage, parameters, runtimeBean);
 
         HttpPost deployPromotedArtifactMethod;
@@ -1765,8 +1769,6 @@ public class RestBasedJenkinsCIConnector {
      * @param runtimeBean runtime bean that we need to add parameters from
      */
     private void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME,
-                                              runtimeBean.getDeployerClassName()));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
                                               runtimeBean.getAliasPrefix() + stage));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
@@ -1781,6 +1783,8 @@ public class RestBasedJenkinsCIConnector {
                                               runtimeBean.getDataCartridgeType()));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS,
                                               runtimeBean.getDataCartridgeAlias()));
+	    parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
+	                                          Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
     }
 
     /**

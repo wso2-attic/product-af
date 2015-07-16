@@ -1,11 +1,9 @@
 <Runtime>
-    <Runtime>car</Runtime>
-    <DeployerClassName>org.wso2.carbon.appfactory.jenkins.deploy.JenkinsCARDeployer</DeployerClassName>
+    <Runtime>esb</Runtime>
     <PAASArtifactStorageURLPattern>{@stage}/esb</PAASArtifactStorageURLPattern>
     <AliasPrefix><%= @appserver_cartridge_alias_prefix %></AliasPrefix>
     <CartridgeTypePrefix><%= @appserver_cartridge_type_prefix %></CartridgeTypePrefix>
     <DeploymentPolicy>af-deployment</DeploymentPolicy>
     <AutoscalePolicy>economy</AutoscalePolicy>
     <SubscribeOnDeployment>false</SubscribeOnDeployment>
-    <UndeployerClassName>org.wso2.carbon.appfactory.jenkins.deploy.JenkinsArtifactUndeployer</UndeployerClassName>
 </Runtime>

@@ -24,10 +24,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
-import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
@@ -60,10 +57,8 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 //	}
 
 	protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
-		String deployerClassName = RuntimeManager.getInstance().getRuntimeBean(
-				ApplicationTypeManager.getInstance().getApplicationTypeBean(
-						ApplicationDAO.getInstance().getApplicationType(applicationId))
-				                      .getRuntimes()[0]).getDeployerClassName();
+		String deployerClassName = ApplicationTypeManager.getInstance().getApplicationTypeBean(applicationId)
+		                                                 .getDeployerClassName();
 		return getArtifact(path, extension, stage, applicationId, isForLabel);
 	}
 

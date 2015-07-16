@@ -38,7 +38,6 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
     /**
      * Undeploy the artifacts from stratos storage repository provider
      *
-     * @param deployerType
      * @param applicationId
      * @param applicationType
      * @param version
@@ -47,10 +46,9 @@ public abstract class AbstractStratosUndeployer implements Undeployer {
      * @param runtimeBean
      * @throws AppFactoryException
      */
-    public abstract void undeployArtifact(String deployerType, String applicationId,
-                                          String applicationType, String version, String lifecycleStage,
-                                          ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
-                                          throws AppFactoryException;
+    public abstract void undeployArtifact(String applicationId, String applicationType, String version,
+                                          String lifecycleStage, ApplicationTypeBean applicationTypeBean,
+                                          RuntimeBean runtimeBean)throws AppFactoryException;
 
     /**
      * Returns file/folder to delete from depsync repository based on the passed parameters
