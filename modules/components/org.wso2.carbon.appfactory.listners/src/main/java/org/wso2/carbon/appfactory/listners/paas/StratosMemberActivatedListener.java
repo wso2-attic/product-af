@@ -48,20 +48,12 @@ public class StratosMemberActivatedListener {
     private JDBCApplicationDAO applicationDao;
     private TopologyEventReceiver topologyEventReceiver;
 
-    private class CustomTopologyEventReceiver extends TopologyEventReceiver implements Runnable{
-
-        @Override
-        public void run() {
-            execute();
-        }
-    }
-
     /**
      * Constructor
      */
     private StratosMemberActivatedListener() {
         applicationDao = JDBCApplicationDAO.getInstance();
-        topologyEventReceiver = new CustomTopologyEventReceiver();
+        topologyEventReceiver = new TopologyEventReceiver();
         addEventListener();
     }
 
