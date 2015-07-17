@@ -14,7 +14,7 @@ CURRENT_DIR=/mnt/$MACHINE_IP
 afpath=appfactory/wso2appfactory-$APPFACTORY_VERSION
 bampath=bam/wso2bam-$BAM_VERSION
 mbpath=mb/wso2mb-$MB_VERSION
-jenkinsPath=jenkins
+jenkinspath=jenkins
 bpspath=bps/wso2bps-$BPS_VERSION
 uespath=ues/wso2ues-$UES_VERSION
 apimpath=api-manager/wso2am-$APIM_VERSION
@@ -39,7 +39,7 @@ echo "starting MB"
 ./$mbpath/bin/wso2server.sh start
 
 echo "starting jenkins"
-./$jenkinsPath/jenkins.sh start
+./$jenkinspath/jenkins.sh start
 
 echo "starting BPS"
 ./$bpspath/bin/wso2server.sh start
