@@ -32,39 +32,21 @@
     </dbConfig>
 
     <dbConfig name="governance">
-        <dataSource>jdbc/<%=@registry_db_schema%></dataSource>
+        <dataSource>jdbc/governance</dataSource>
     </dbConfig>
-
-    <dbConfig name="config">
-        <dataSource>jdbc/<%=@config_db_schema%></dataSource>
-    </dbConfig>
-
+    <%- database = @registry_database -%>
     <remoteInstance url="https://HOSTNAME">
         <id>governance</id>
         <dbConfig>governance</dbConfig>
         <readOnly>false</readOnly>
         <registryRoot>/</registryRoot>
         <enableCache>true</enableCache>
-        <cacheId>root@jdbc:mysql://<%=@ppaas_mysql_host%>:3306/<%=@registry_db_schema%></cacheId>
+        <cacheId>root@jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %></cacheId>
     </remoteInstance>
 
     <mount path="/_system/governance" overwrite="virtual">
         <instanceId>governance</instanceId>
-        <targetPath>/_system/<%=@paas_stage%>/governance</targetPath>
-    </mount>
-
-    <remoteInstance url="https://HOSTNAME">
-        <id>config</id>
-        <dbConfig>config</dbConfig>
-        <readOnly>false</readOnly>
-        <registryRoot>/</registryRoot>
-        <enableCache>true</enableCache>
-        <cacheId>root@jdbc:mysql://<%=@ppaas_mysql_host%>:3306/<%=@config_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/config" overwrite="virtual">
-        <instanceId>config</instanceId>
-        <targetPath>/_system/config</targetPath>
+        <targetPath>/_system/governance</targetPath>
     </mount>
 
    <!--<handler class="org.wso2.carbon.registry.extensions.handlers.SynapseRepositoryHandler">

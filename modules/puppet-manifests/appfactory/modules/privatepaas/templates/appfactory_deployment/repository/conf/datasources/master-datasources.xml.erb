@@ -27,7 +27,6 @@
     </providers>
   
     <datasources>
-      
 	<datasource>
             <name>WSO2_CARBON_DB</name>
             <description>The datasource used for registry and user manager</description>
@@ -48,70 +47,53 @@
                 </configuration>
             </definition>
         </datasource>
-
         <datasource>
             <name>WSO2_USERSTORE_DB</name>
-            <description>The datasource used for registry and user manager</description>
+            <description>The datasource used for user manager</description>
             <jndiConfig>
-                <name>jdbc/<%=@user_store%></name>
+                <name>jdbc/userstore</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:mysql://<%=@ppaas_mysql_host%>:3306/<%=@user_store%>?autoReconnect=true</url>
-                    <username>root</username>
-                    <password>root</password>
+                    <%- database = @userstore_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
+                    <username><%= database[2] %></username>
+                    <password><%= database[3] %></password>
                     <driverClassName>com.mysql.jdbc.Driver</driverClassName>
                     <maxActive>50</maxActive>
                     <maxWait>60000</maxWait>
                     <testOnBorrow>true</testOnBorrow>
                     <validationQuery>SELECT 1</validationQuery>
                     <validationInterval>30000</validationInterval>
+                    <minIdle>5</minIdle>
                 </configuration>
             </definition>
         </datasource>
-
-	 <datasource>
+	    <datasource>
             <name>WSO2_REGISTRY_DB</name>
-            <description>The datasource used for registry and user manager</description>
+            <description>The datasource used for registry</description>
             <jndiConfig>
-                <name>jdbc/<%=@registry_db_schema%></name>
+                <name>jdbc/governance</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:mysql://<%=@ppaas_mysql_host%>:3306/<%=@registry_db_schema%>?autoReconnect=true</url>
-                    <username>root</username>
-                    <password>root</password>
+                    <%- database = @registry_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
+                    <username><%= database[2] %></username>
+                    <password><%= database[3] %></password>
                     <driverClassName>com.mysql.jdbc.Driver</driverClassName>
                     <maxActive>50</maxActive>
                     <maxWait>60000</maxWait>
                     <testOnBorrow>true</testOnBorrow>
                     <validationQuery>SELECT 1</validationQuery>
                     <validationInterval>30000</validationInterval>
+                    <minIdle>5</minIdle>
+                    <removeAbandoned>true</removeAbandoned>
+                    <logAbandoned>true</logAbandoned>
+                    <removeAbandonedTimeout>180</removeAbandonedTimeout>
+                    <jdbcInterceptors>ResetAbandonedTimer</jdbcInterceptors>
                 </configuration>
             </definition>
         </datasource>
-
-	 <datasource>
-            <name>WSO2_CONFIG_DB</name>
-            <description>The datasource used for config</description>
-            <jndiConfig>
-                <name>jdbc/<%=@config_db_schema%></name>
-            </jndiConfig>
-            <definition type="RDBMS">
-                <configuration>
-                    <url>jdbc:mysql://<%=@ppaas_mysql_host%>:3306/<%=@config_db_schema%>?autoReconnect=true</url>
-                    <username>root</username>
-                    <password>root</password>
-                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
-                    <maxActive>50</maxActive>
-                    <maxWait>60000</maxWait>
-                    <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
-                </configuration>
-            </definition>
-        </datasource>
-
     </datasources>
-
 </datasources-configuration>
