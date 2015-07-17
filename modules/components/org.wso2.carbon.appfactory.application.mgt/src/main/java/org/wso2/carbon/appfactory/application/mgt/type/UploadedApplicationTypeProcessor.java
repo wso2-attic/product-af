@@ -215,7 +215,8 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 			return new ApplicationTypeValidationStatus(true, "Successfully Validated!");
 		} catch (WarValidationException e) {
 			// Here we log as a warn since this is a user error
-			log.warn("Apptype validation is failed for :"+uploadedFileName,e);
+			String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+			log.warn("Apptype validation is failed for : " + uploadedFileName+", tenant domain : "+tenantDomain, e);
 			return new ApplicationTypeValidationStatus(false, e.getMessage());
 		}
 	}

@@ -45,23 +45,23 @@ public class WarClassLoader extends URLClassLoader {
     /**
      * Add WEB-INF/classes and WEB-INF/lib/*.jar as extra classpath URLs
      *
-     * @throws java.io.IOException           when an I/O error occurs extracting the jars from
-     *                               the war
+     * @throws java.io.IOException            when an I/O error occurs extracting the jars from
+     *                                        the war
      * @throws java.net.MalformedURLException if the jar: URL is not supported on the
-     *                               underlying platform
+     *                                        underlying platform
      */
     private void addURLs() throws IOException {
         File warFile = new File(war.getName());
         String CLASSES_DIR = "WEB-INF/classes/";
         String JAR_PREFIX = "jar:";
         String SEPARATOR = "!/";
-        URL webInfClasses = new URL(JAR_PREFIX + warFile.toURL() + SEPARATOR
+        URL webInfClasses = new URL(JAR_PREFIX + warFile.toURI().toURL() + SEPARATOR
                                     + CLASSES_DIR);
         addURL(webInfClasses);
         Set<JarEntry> jars = war.getLibEntries();
         for (JarEntry entry : jars) {
             File jar = war.extract(entry);
-            addURL(new URL(JAR_PREFIX + jar.toURL() + SEPARATOR));
+            addURL(new URL(JAR_PREFIX + jar.toURI().toURL() + SEPARATOR));
             jar.deleteOnExit();
         }
     }
