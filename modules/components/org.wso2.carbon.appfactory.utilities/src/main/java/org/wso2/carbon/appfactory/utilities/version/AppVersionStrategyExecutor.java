@@ -29,6 +29,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.utilities.file.FileUtilities;
@@ -179,14 +180,95 @@ public class AppVersionStrategyExecutor {
 	 * @param workDir current working directory
 	 */
 	public static void doVersionForMultiModuleMVN(String targetVersion, File workDir) {
-		MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
 		ArrayList<String> artifactIds = new ArrayList<String>();
 		try {
-
 			List<File> pomFileList = new ArrayList<File>();
 			FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_POM_FILE, pomFileList);
+			getArtifactIdsFromPOMFiles(pomFileList, artifactIds);
+			changeVersionsInPomFiles(targetVersion, artifactIds, pomFileList);
+		} catch (Exception e) {
+			String errorMsg = "Error in process of version in multi module Mvn project : " + e.getMessage();
+			log.error(errorMsg, e);
+		}
+	}
 
-			//First time iterate and list down artifact IDs in the project
+	/**
+	 * Change versions in pom files
+	 *
+	 * @param targetVersion name of the version we are going to create
+	 * @param artifactIds list of artifact ids
+	 * @param pomFileList list of pom files
+	 * @throws AppFactoryException
+	 */
+	private static void changeVersionsInPomFiles(String targetVersion, List<String> artifactIds, List<File> pomFileList)
+			throws AppFactoryException {
+		try {
+			MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+			for (File file : pomFileList) {
+				FileInputStream stream = new FileInputStream(file);
+				Model model = mavenXpp3Reader.read(stream);
+				model.setVersion(targetVersion);
+				validatingParentArtifactVersion(targetVersion, model, artifactIds);
+				validateDependentArtifactVersions(targetVersion, model, artifactIds);
+				if (stream != null) {
+					stream.close();
+				}
+				MavenXpp3Writer writer = new MavenXpp3Writer();
+				writer.write(new FileWriter(file), model);
+			}
+		} catch (FileNotFoundException e) {
+			String msg = "Error while reading / writing pom files : " + e.getMessage();
+			throw new AppFactoryException(msg, e);
+		} catch (XmlPullParserException e) {
+			String msg = "Error while parsing pom files : " + e.getMessage();
+			throw new AppFactoryException(msg, e);
+		} catch (IOException e) {
+			String msg = "Error while reading / writing pom files : " + e.getMessage();
+			throw new AppFactoryException(msg, e);
+		}
+	}
+
+	/**
+	 * validate the versions of dependents in a maven model and correct them
+	 *
+	 * @param targetVersion name of the version we are creating
+	 * @param model maven model
+	 * @param artifactIds list of artifact ids in the project
+	 */
+	private static void validateDependentArtifactVersions(String targetVersion, Model model, List<String> artifactIds) {
+		List<Dependency> dependencies = model.getDependencies();
+		for (Dependency dependency : dependencies) {
+			if(artifactIds.contains(dependency.getArtifactId())){
+				dependency.setVersion(targetVersion);
+			}
+		}
+	}
+
+	/**
+	 * validate the versions of parent in a maven model and correct them
+	 *
+	 * @param targetVersion name of the version we are creating
+	 * @param model maven model
+	 * @param artifactIds list of artifact ids in the project
+	 */
+	private static void validatingParentArtifactVersion(String targetVersion, Model model, List<String> artifactIds) {
+		Parent parentPom = model.getParent();
+		if(parentPom != null && artifactIds.contains(parentPom.getArtifactId())) {
+			parentPom.setVersion(targetVersion);
+		}
+	}
+
+	/**
+	 * Get artifact ids from list of pom files
+	 *
+	 * @param pomFileList list of pom files
+	 * @param artifactIds list of artifact ids
+	 * @throws AppFactoryException
+	 */
+	private static void getArtifactIdsFromPOMFiles(List<File> pomFileList, List<String> artifactIds)
+			throws AppFactoryException {
+		MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+		try {
 			for (File file : pomFileList) {
 				FileInputStream stream = new FileInputStream(file);
 				Model model = mavenXpp3Reader.read(stream);
@@ -195,39 +277,59 @@ public class AppVersionStrategyExecutor {
 					stream.close();
 				}
 			}
-
-			for (File file : pomFileList) {
-				FileInputStream stream = new FileInputStream(file);
-				Model model = mavenXpp3Reader.read(stream);
-				model.setVersion(targetVersion);
-				Parent parentPom = model.getParent();
-				if(parentPom != null && artifactIds.contains(parentPom.getArtifactId())) {
-					parentPom.setVersion(targetVersion);
-				}
-				List<Dependency> dependencies = model.getDependencies();
-				for (Dependency dependency : dependencies) {
-					if(artifactIds.contains(dependency.getArtifactId())){
-						dependency.setVersion(targetVersion);
-					}
-				}
-				if (stream != null) {
-					stream.close();
-				}
-				MavenXpp3Writer writer = new MavenXpp3Writer();
-				writer.write(new FileWriter(file), model);
-			}
-		} catch (Exception e) {
-			String errorMsg = "Error in process of version in common Mvn project : " + e.getMessage();
-			log.error(errorMsg, e);
+		} catch (FileNotFoundException e) {
+			String msg = "Error while reading pom files : " + e.getMessage();
+			throw new AppFactoryException(msg, e);
+		} catch (XmlPullParserException e) {
+			String msg = "Error while parsing pom files : " + e.getMessage();
+			throw new AppFactoryException(msg, e);
+		} catch (IOException e) {
+			String msg = "Error while reading pom files : " + e.getMessage();
+			throw new AppFactoryException(msg, e);
 		}
 	}
 
-
-
+	/**
+	 * Do versioning for the car artifacts (artifact.xmls and synapse.xmls)
+	 *
+	 * @param targetVersion name of the version we are going to create
+	 * @param workDir current working directory
+	 * @throws AppFactoryException
+	 */
 	public static void doVersionCarArtifacts(String targetVersion, File workDir) throws AppFactoryException{
 		List<File> artifactList = new ArrayList<File>();
 		List<String> synapseArtifacts = new ArrayList<String>();
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION, artifactList);
+		List<File> pomFileList = new ArrayList<File>();
+		FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_POM_FILE, pomFileList);
+
+		getAllSynapseArtifactsAndVersionAllArtifacts(targetVersion, synapseArtifacts, artifactList);
+
+		List<File> synapseConfigs = new ArrayList<File>();
+		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_SYNAPSE_CONFIG_STORE_LOCATION,
+		                          new OMNamespaceImpl(AppFactoryConstants.DEFAULT_SYNAPSE_NAMESPACE,
+		                                              AppFactoryConstants.DEFAULT_SYNAPSE_NAMESPACE_PREFIX),
+		                          synapseConfigs);
+
+		//version all synapse configs in the project
+		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, synapseConfigs, true);
+		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, pomFileList, false);
+		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, pomFileList, false);
+	}
+
+	/**
+	 * Changes the versions in all artifact definition files and will add synapse artifact names to the  input param
+	 * synapseArtifacts
+	 *
+	 * @param targetVersion name of the version we are going to create
+	 * @param synapseArtifacts List of names of synapse artifacts
+	 * @param artifactList CAR artifact definition file list
+	 * @throws AppFactoryException
+	 */
+	private static void getAllSynapseArtifactsAndVersionAllArtifacts(String targetVersion,
+	                                                                 List<String> synapseArtifacts,
+	                                                                 List<File> artifactList)
+			throws AppFactoryException {
 		for (File artifactConfiguration : artifactList) {
 			OMElement artifacts = FileUtilities.loadXML(artifactConfiguration);
 			Iterator artifactIterator =
@@ -248,45 +350,42 @@ public class AppVersionStrategyExecutor {
 			}
 			FileUtilities.writeXMLToFile(artifacts, artifactConfiguration.getAbsolutePath());
 		}
+	}
 
-		List<File> synapseConfigs = new ArrayList<File>();
-		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_SYNAPSE_CONFIG_STORE_LOCATION,
-		                          new OMNamespaceImpl(AppFactoryConstants.DEFAULT_SYNAPSE_NAMESPACE,
-		                                              AppFactoryConstants.DEFAULT_SYNAPSE_NAMESPACE_PREFIX),
-		                          synapseConfigs);
-
+	/**
+	 * Rename all synapse artifact names in the project while versioning since they include the version in their name
+	 *
+	 * @param targetVersion name of the version we are going to create
+	 * @param synapseArtifacts List of names of synapse artifacts
+	 * @param Files List of files to change content
+	 * @param renameFiles is rename the file name is required (This will be true only for the synapse config files)
+	 * @throws AppFactoryException
+	 */
+	private static void renameSynapseArtifactsInFiles(String targetVersion, List<String> synapseArtifacts,
+	                                                  List<File> Files, boolean renameFiles) throws AppFactoryException {
 		try {
-			//version all synapse configs in the project
-			for (File synapseConfig : synapseConfigs) {
-				String content = FileUtils.readFileToString(synapseConfig);
+			for (File file : Files) {
+				String content = FileUtils.readFileToString(file);
 				for (String synapseArtifact : synapseArtifacts) {
 					content = content.replaceAll(synapseArtifact, changeArtifactName(synapseArtifact, targetVersion));
 				}
-				FileUtils.writeStringToFile(synapseConfig, content);
-				String newArtifactFileName = synapseConfig.getParentFile().getAbsolutePath() + File.separator +
-				                             changeArtifactName(synapseConfig.getName(), targetVersion) +
-				                             AppFactoryConstants.FILENAME_EXTENSION_SEPERATOR +
-				                             AppFactoryConstants.XML_EXTENSION;
-				FileUtils.moveFile(synapseConfig, new File(newArtifactFileName));
-			}
-
-			//change all artifact.xml contents
-			for (File artifactConfiguration : artifactList) {
-				String content = FileUtils.readFileToString(artifactConfiguration);
-				for (String synapseArtifact : synapseArtifacts) {
-					content = content.replaceAll(synapseArtifact, changeArtifactName(synapseArtifact, targetVersion));
+				FileUtils.writeStringToFile(file, content);
+				if(renameFiles) {
+					String newArtifactFileName = file.getParentFile().getAbsolutePath() + File.separator +
+					                             changeArtifactName(file.getName(), targetVersion) +
+					                             AppFactoryConstants.FILENAME_EXTENSION_SEPERATOR +
+					                             AppFactoryConstants.XML_EXTENSION;
+					FileUtils.moveFile(file, new File(newArtifactFileName));
 				}
-				FileUtils.writeStringToFile(artifactConfiguration, content);
 			}
 		} catch (IOException e) {
 			String errorMsg = "Error in versioning synapse configs : " + e.getMessage();
 			log.error(errorMsg, e);
 			throw new AppFactoryException(errorMsg, e);
 		}
-
 	}
 
-    public static void doVersionOnBPEL(String applicationId, String targetVersion, File workDir) {
+	public static void doVersionOnBPEL(String applicationId, String targetVersion, File workDir) {
         //change in pom.xml file
         doVersionOnPOM(targetVersion, workDir);
         //change in .bpel file
