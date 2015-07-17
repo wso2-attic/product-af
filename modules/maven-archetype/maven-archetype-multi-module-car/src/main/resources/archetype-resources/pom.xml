@@ -23,8 +23,8 @@
     </plugins>
   </build>
   <modules>
-    <module>ApplicationResources</module>
-    <module>SimpleProxy</module>
+    <module>${artifactId}ApplicationResources</module>
+    <module>${artifactId}SimpleProxy</module>
     <module>${artifactId}DevelopmentResourcesCAR</module>
     <module>${artifactId}TestingResourcesCAR</module>
     <module>${artifactId}</module>

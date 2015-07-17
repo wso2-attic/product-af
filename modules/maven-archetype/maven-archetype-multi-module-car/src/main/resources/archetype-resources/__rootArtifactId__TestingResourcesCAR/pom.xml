@@ -14,7 +14,7 @@
   <dependencies>
     <dependency>
       <groupId>${groupId}.resource</groupId>
-      <artifactId>EchoServiceEP-Testing</artifactId>
+      <artifactId>${rootArtifactId}EchoServiceEP-Testing</artifactId>
       <version>${version}</version>
       <type>zip</type>
     </dependency>

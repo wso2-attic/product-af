@@ -44,11 +44,9 @@ public class FileUtilities {
 		for (File file : workdir.listFiles()) {
 			if (file.isDirectory()) {
 				searchFiles(file, fileName, resultFileList);
-			} else {
-				if (fileName.equals(file.getName())) {
-					resultFileList.add(file);
-				}
-
+			}
+			if (fileName.equals(file.getName())) {
+				resultFileList.add(file);
 			}
 		}
 	}
@@ -77,7 +75,7 @@ public class FileUtilities {
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_TARGET_FOLDER, targetFileList);
 		for (File file : targetFileList) {
 			try {
-				FileUtils.deleteDirectory(file);
+				FileUtils.forceDelete(file);
 			} catch (IOException e) {
 				String errorMsg = "Error while deleting target folders : " + e.getMessage();
 				log.error(errorMsg, e);
