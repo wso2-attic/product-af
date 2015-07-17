@@ -1,4 +1,5 @@
 class privatepaas (
+  $iaas_provider = undef,
   $maintenance_mode=true,
   $owner=root,
   $group=root,
@@ -21,29 +22,22 @@ class privatepaas (
 
   $deployment_code	= "privatepaas"
 
-  $deployment_files =["apache-activemq-5.9.1-bin.tar.gz",
-                      "apache-stratos-4.0.0-wso2v1.zip",
-                      "apache-stratos-cartridge-agent-4.0.0-wso2v1-bin.zip",
-                      "apache-stratos-load-balancer-4.0.0-wso2v1.zip",
-                      "jdk-7u51-linux-x64.tar.gz",
-                      "mysql-connector-java-5.1.29-bin.jar",
-                      "wso2as-5.2.1.zip",
-                      "wso2-private-paas-4.0.0-installer.zip"
+  $deployment_files =[ "apache-activemq-5.9.1-bin.tar.gz",
+                       "apache-stratos-4.1.0-SNAPSHOT.zip"
+#                      "apache-stratos-cartridge-agent-4.0.0-wso2v1-bin.zip",
+#                      "apache-stratos-load-balancer-4.0.0-wso2v1.zip",
+#                      "jdk-7u51-linux-x64.tar.gz",
+#                      "mysql-connector-java-5.1.29-bin.jar",
+#                      "wso2as-5.2.1.zip",
+#                      "wso2-private-paas-4.0.0-installer.zip"
                       ]
   $service_templates 	= [
                   "conf.sh",
- 	                "boot.sh",
+ 	              "boot.sh",
                   "clean.sh"
       ]
 
   $stratos_manager_templates = [
-                  "repository/conf/json/partition.json",
-                  "repository/conf/json/autoscale-policy.json",
-                  "repository/conf/json/cartridge-definition.json",
-                  "repository/conf/json/nodejs-cart.json",
-                  "repository/conf/json/deployment-policy.json",
-                  "repository/conf/json/service-deployment.json",
-                  "repository/conf/json/executor.sh",
                   "repository/conf/carbon.xml",
                   "repository/conf/cartridge-config.properties",
                   "repository/conf/security/authenticators.xml",
@@ -53,6 +47,37 @@ class privatepaas (
                   "repository/conf/registry.xml",
                   "bin/stratos.sh"
   ]
+
+
+  $openstack_templates = [
+                  "repository/conf/json/partition.json",
+                  "repository/conf/json/autoscale-policy.json",
+                  "repository/conf/json/cartridge-definition.json",
+                  "repository/conf/json/nodejs-cart.json",
+                  "repository/conf/json/deployment-policy.json",
+                  "repository/conf/json/service-deployment.json",
+                  "repository/conf/json/executor.sh"
+  ]
+
+
+  $docker_templates = [
+                  "repository/conf/kubernetes/kubernetes-cluster.json",
+                  "repository/conf/kubernetes/autoscaling-policy.json",
+                  "repository/conf/kubernetes/network-partition.json",
+                  "repository/conf/kubernetes/deployment-policy.json",
+                  "repository/conf/kubernetes/wso2as_dev.json",
+                  "repository/conf/kubernetes/wso2as_test.json",
+                  "repository/conf/kubernetes/wso2as_prod.json",
+                  "repository/conf/kubernetes/application-policy_dev.json",
+                  "repository/conf/kubernetes/application-policy_test.json",
+                  "repository/conf/kubernetes/application-policy_prod.json",
+                  "repository/conf/kubernetes/application_dev.json",
+                  "repository/conf/kubernetes/application_test.json",
+                  "repository/conf/kubernetes/application_prod.json",
+                  "repository/conf/kubernetes/executor.sh",
+                  "repository/conf/kubernetes/deployment.log"
+  ]
+
 
   $common_templates = [
                         "conf/appfactory/appfactory.xml"
@@ -126,12 +151,39 @@ class privatepaas (
       require     => Deploy[$deployment_code]
   }
 
-  push_templates {
-    $stratos_manager_templates:
-    target      => "${private_paas_home}/install/apache-stratos-default",
-    directory   => "${deployment_code}/appfactory_deployment",
-    require     => [Deploy-sm [$deployment_code], Push_templates[$common_templates],Push_templates[$service_templates] ],
-    notify      => Exec["start_stratos_servers"]
+  if $iaas_provider == "os" {
+
+	  push_templates { $openstack_templates:
+		  target      => "${private_paas_home}/install/apache-stratos-default",
+			      directory   => "${deployment_code}/appfactory_deployment",
+			      require     => Deploy[$deployment_code]
+	  }
+
+	  push_templates { $stratos_manager_templates:
+		  target      => "${private_paas_home}/install/apache-stratos-default",
+			      directory   => "${deployment_code}/appfactory_deployment",
+			      require     => [Deploy-sm [$deployment_code], Push_templates[$common_templates],
+			      Push_templates[$service_templates], Push_templates[$openstack_templates] ],
+			      notify      => Exec["start_stratos_servers"]
+	  }
+
+  }else{
+
+	  push_templates { $docker_templates:
+		  target      => "${private_paas_home}/install/apache-stratos-default",
+			      directory   => "${deployment_code}/appfactory_deployment",
+			      require     => Deploy[$deployment_code]
+	  }
+
+
+	  push_templates { $stratos_manager_templates:
+		  target      => "${private_paas_home}/install/apache-stratos-default",
+			      directory   => "${deployment_code}/appfactory_deployment",
+			      require     => [Deploy-sm [$deployment_code], Push_templates[$common_templates],
+			      Push_templates[$service_templates], Push_templates[$docker_templates] ],
+			      notify      => Exec["start_stratos_servers"]
+	  }
+
   }
 
   exec{
@@ -157,9 +209,11 @@ class privatepaas (
     require   => Exec["start_stratos_servers"],
   }
 
-  #Run the curl command to deploy the cartridges
+  
+  if $iaas_provider == "os" {
+ #Run the curl command to deploy the cartridges
   exec {
-   "deploy_stratos_cartridges" :
+   "deploy_os_stratos_cartridges" :
     user    => $owner,
     path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin/',
     cwd     => "${private_paas_home}/install/apache-stratos-default/repository/conf/json",
@@ -167,4 +221,17 @@ class privatepaas (
     refresh => "echo deploying cartridges",
     require => Exec["check_server_startup_status"]
   }
+
+}else{
+  #Run the curl command to deploy the cartridges
+  exec {
+   "deploy_dokcer_stratos_cartridges" :
+    user    => $owner,
+    path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin/',
+    cwd     => "${private_paas_home}/install/apache-stratos-default/repository/conf/kubernetes",
+    command => "/bin/bash executor.sh >> deployment.log",
+    refresh => "echo deploying docker containers",
+    require => Exec["check_server_startup_status"]
+  }
+}
 }

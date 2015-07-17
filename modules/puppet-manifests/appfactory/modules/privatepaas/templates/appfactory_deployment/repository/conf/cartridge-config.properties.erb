@@ -21,7 +21,8 @@
 
 # Configuration properties
 
-autoscaler.service.url=https://localhost:<%= 9443 + Integer(@offset) %>/services/AutoScalerService/
+autoscaler.service.url=https://localhost:<%= 9443 + Integer(@offset) %>/services/AutoscalerService/
+stratos.manager.service.url=https://localhost:<%= 9443 + Integer(@offset) %>/services/StratosManagerService/
 cloud.controller.service.url=https://localhost:<%= 9443 + Integer(@offset) %>/services/CloudControllerService/
 puppet.ip=<%= @server_ip %>
 puppet.hostname=puppet
