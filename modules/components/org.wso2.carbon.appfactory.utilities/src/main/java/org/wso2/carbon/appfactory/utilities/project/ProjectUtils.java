@@ -57,51 +57,51 @@ public class ProjectUtils {
     private static final Log log = LogFactory.getLog(ProjectUtils.class);
     public static JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
 
-	/**
-	 * Run a maven command
-	 * @param goals goals of the maven command
-	 * @param invokerOutputHandler output handler for the maven command
-	 * @param baseDir base directory to run maven command
-	 * @param mavenOPTs maven opts for the command
-	 * @param properties properties for the command
-	 * @return result of the invocation
-	 * @throws AppFactoryException Either when maven home is not set or invocation of the command fails
-	 */
-	public static InvocationResult runMavenCommand(List<String> goals, InvocationOutputHandler invokerOutputHandler, File baseDir,
-	                                   String mavenOPTs, Properties properties) throws AppFactoryException {
-		//Check whether the maven home is set. If not, can not proceed further.
-		String mavenHome = System.getenv(AppFactoryConstants.SYSTEM_VARIABLE_M2_HOME);
-		if (StringUtils.isBlank(mavenHome)) {
-			mavenHome = System.getenv(AppFactoryConstants.SYSTEM_VARIABLE_M3_HOME);
-			if (StringUtils.isBlank(mavenHome)) {
-				String msg = "valid maven installation is not found with M2_HOME or M3_HOME environment variable";
-				log.error(msg);
-				throw new AppFactoryException(msg);
-			}
-		}
-		InvocationRequest request = new DefaultInvocationRequest();
-		request.setBaseDirectory(baseDir);
-		request.setShowErrors(true);
-		request.setGoals(goals);
-		if(mavenOPTs != null) {
-			request.setMavenOpts(mavenOPTs);
-		}
-		if(properties != null) {
-			request.setProperties(properties);
-		}
-		try{
-			Invoker invoker = new DefaultInvoker();
-			InvocationOutputHandler outputHandler = new SystemOutHandler();
-			invoker.setErrorHandler(outputHandler);
-			invoker.setMavenHome(new File(mavenHome));
-			invoker.setOutputHandler(invokerOutputHandler);
-			return invoker.execute(request);
-		} catch (MavenInvocationException e) {
-			String msg = "Failed to invoke maven command inside " + baseDir.getAbsolutePath();
-			log.error(msg, e);
-			throw new AppFactoryException(msg, e);
-		}
-}
+    /**
+     * Run a maven command
+     * @param goals goals of the maven command
+     * @param invokerOutputHandler output handler for the maven command
+     * @param baseDir base directory to run maven command
+     * @param mavenOPTs maven opts for the command
+     * @param properties properties for the command
+     * @return result of the invocation
+     * @throws AppFactoryException Either when maven home is not set or invocation of the command fails
+     */
+    public static InvocationResult runMavenCommand(List<String> goals, InvocationOutputHandler invokerOutputHandler, File baseDir,
+                                                   String mavenOPTs, Properties properties) throws AppFactoryException {
+        //Check whether the maven home is set. If not, can not proceed further.
+        String mavenHome = System.getenv(AppFactoryConstants.SYSTEM_VARIABLE_M2_HOME);
+        if (StringUtils.isBlank(mavenHome)) {
+            mavenHome = System.getenv(AppFactoryConstants.SYSTEM_VARIABLE_M3_HOME);
+            if (StringUtils.isBlank(mavenHome)) {
+                String msg = "valid maven installation is not found with M2_HOME or M3_HOME environment variable";
+                log.error(msg);
+                throw new AppFactoryException(msg);
+            }
+        }
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setBaseDirectory(baseDir);
+        request.setShowErrors(true);
+        request.setGoals(goals);
+        if(mavenOPTs != null) {
+            request.setMavenOpts(mavenOPTs);
+        }
+        if(properties != null) {
+            request.setProperties(properties);
+        }
+        try{
+            Invoker invoker = new DefaultInvoker();
+            InvocationOutputHandler outputHandler = new SystemOutHandler();
+            invoker.setErrorHandler(outputHandler);
+            invoker.setMavenHome(new File(mavenHome));
+            invoker.setOutputHandler(invokerOutputHandler);
+            return invoker.execute(request);
+        } catch (MavenInvocationException e) {
+            String msg = "Failed to invoke maven command inside " + baseDir.getAbsolutePath();
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+    }
 
     /**
      * This method generates the archetype for the projects
@@ -130,39 +130,39 @@ public class ProjectUtils {
         List<String> goals = new ArrayList<String>();
         goals.add(AppFactoryConstants.GOAL_MAVEN_ARCHETYPE_GENERATE);
 
-	    InvocationResult result = null;
-	    try {
+        InvocationResult result = null;
+        try {
 
             InvocationOutputHandler invokerOutputHandler = new InvocationOutputHandler() {
-	            @Override
-	            public void consumeLine(String s) {
-		            log.info(appId + ":" + s);
-	            }
+                @Override
+                public void consumeLine(String s) {
+                    log.info(appId + ":" + s);
+                }
             };
-		    result = runMavenCommand(goals, invokerOutputHandler, archetypeDir, archetypeRequest, null);
+            result = runMavenCommand(goals, invokerOutputHandler, archetypeDir, archetypeRequest, null);
 
         } finally {
             if (result != null && result.getExitCode() == 0) {
                 log.info("Maven archetype generation completed successfully");
-	            return true;
+                return true;
             }
         }
-	    return false;
+        return false;
     }
 
-	public static boolean initialDeployArtifactGeneration(String appId, File projectDir, File initialArtifact,
-	                                                      File workDir, List<String> goals)
-			throws AppFactoryException {
-		boolean isSuccess = false;
-				String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
-		if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
-			isSuccess = generateDeployArtifact(appId, projectDir, initialArtifact, goals);
-			if(isSuccess) {
-				moveDepolyArtifact(initialArtifact, workDir.getParentFile(), appId);
-			}
-		}
-		return isSuccess;
-	}
+    public static boolean initialDeployArtifactGeneration(String appId, File projectDir, File initialArtifact,
+                                                          File workDir, List<String> goals)
+            throws AppFactoryException {
+        boolean isSuccess = false;
+        String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
+        if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
+            isSuccess = generateDeployArtifact(appId, projectDir, initialArtifact, goals);
+            if(isSuccess) {
+                moveDepolyArtifact(initialArtifact, workDir.getParentFile(), appId);
+            }
+        }
+        return isSuccess;
+    }
 
     /**
      * Move deploy artifact to a new path
@@ -190,19 +190,19 @@ public class ProjectUtils {
         }
     }
 
-	/**
-	 * Generate the initial artifact
-	 * @param appId application key
-	 * @param projectDir base directory to run assembly plugin
-	 * @param initialArtifact Folder contains initial artifact
-	 * @param goals Goals to execute to generate initial artifact
-	 * @return Root directory in which deploy artifact is available
-	 * @throws AppFactoryException
-	 */
+    /**
+     * Generate the initial artifact
+     * @param appId application key
+     * @param projectDir base directory to run assembly plugin
+     * @param initialArtifact Folder contains initial artifact
+     * @param goals Goals to execute to generate initial artifact
+     * @return Root directory in which deploy artifact is available
+     * @throws AppFactoryException
+     */
     private static boolean generateDeployArtifact(final String appId, final File projectDir, final File initialArtifact, List<String> goals)
             throws AppFactoryException {
 
-	    boolean isSuccess = false;
+        boolean isSuccess = false;
         InvocationResult result = null;
         InvocationOutputHandler invocationOutputHandler = new InvocationOutputHandler() {
             @Override
@@ -219,11 +219,11 @@ public class ProjectUtils {
             }
         } finally {
             if (result == null || result.getExitCode() != 0) {
-	            isSuccess = false;
+                isSuccess = false;
                 log.info("Deployable artifact generation completed successfully");
             }
         }
-	    return isSuccess;
+        return isSuccess;
     }
 
     /**
