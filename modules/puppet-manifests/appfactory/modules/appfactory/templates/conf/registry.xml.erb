@@ -53,24 +53,6 @@
         <targetPath>/_system/governance/dependencies/${stage}</targetPath>
     </mount>
     -->
-
-    <%- database = @config_database -%>
-    <dbConfig name="config">
-    	<dataSource>jdbc/<%= @config_db %></dataSource>
-    </dbConfig>
-    <remoteInstance url="https://registryernance.cloud-test.wso2.com">
-        <id>config</id>
-        <dbConfig>config</dbConfig>
-        <readOnly>false</readOnly>
-        <registryRoot>/</registryRoot>
-        <enableCache>true</enableCache>
-        <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @config_db %></cacheId>
-    </remoteInstance>
-    <mount path="/_system/config" overwrite="virtual">
-        <instanceId>config</instanceId>
-        <targetPath>/_system/config</targetPath>
-    </mount>
-
    <!--<handler class="org.wso2.carbon.registry.extensions.handlers.SynapseRepositoryHandler">
         <filter class="org.wso2.carbon.registry.core.jdbc.handlers.filters.MediaTypeMatcher">
             <property name="mediaType">application/vnd.apache.synapse</property>
@@ -125,64 +107,7 @@
         <instanceId>instanceid</instanceId>
         <targetPath>/_system/nodes</targetPath>
     </mount-->
-    <dbConfig name="devsm">
-    	<dataSource>jdbc/<%= @dev_registry_db_schema%></dataSource>
-    </dbConfig>
-
-    <remoteInstance url="https://governance.cloud-test.wso2.com">
-            <id>devremoteid</id>
-            <dbConfig>devsm</dbConfig>
-            <readOnly>false</readOnly>
-            <registryRoot>/</registryRoot>
-            <enableCache>true</enableCache>
-            <%- database = @registry_database -%>
-            <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @dev_registry_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/Development/governance" overwrite="true">
-            <instanceId>devremoteid</instanceId>
-            <targetPath>/_system/Development/governance</targetPath>
-    </mount>
-
-    <dbConfig name="testsm">
-            <dataSource>jdbc/<%= @test_registry_db_schema%></dataSource>
-    </dbConfig>
-
-    <remoteInstance url="https://governance.cloud-test.wso2.com">
-            <id>testsm</id>
-            <dbConfig>testsm</dbConfig>
-            <readOnly>false</readOnly>
-            <registryRoot>/</registryRoot>
-            <enableCache>true</enableCache>
-             <%- database = @registry_database -%>
-            <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @test_registry_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/Testing/governance" overwrite="true">
-            <instanceId>testsm</instanceId>
-            <targetPath>/_system/Testing/governance</targetPath>
-    </mount>
-
-    <dbConfig name="prodsm">
-            <dataSource>jdbc/<%= @prod_registry_db_schema%></dataSource>
-    </dbConfig>
-
-    <remoteInstance url="https://governance.cloud-test.wso2.com">
-            <id>prodsm</id>
-            <dbConfig>prodsm</dbConfig>
-            <readOnly>false</readOnly>
-            <registryRoot>/</registryRoot>
-            <enableCache>true</enableCache>
-             <%- database = @registry_database -%>
-            <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @prod_registry_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/Production/governance" overwrite="true">
-            <instanceId>prodsm</instanceId>
-            <targetPath>/_system/Production/governance</targetPath>
-    </mount>
-
-    <metadataProviders>
+    <!--metadataProviders>
         <baseProviders>
             <provider mediaType="vnd.wso2.service/http+xml;version=1"
                       versionMediaType="vnd.wso2.version/service+xml;version=1"
@@ -203,7 +128,7 @@
             <provider mediaType="vnd.wso2.version/endpoint+xml;version=1"
                       class="org.wso2.carbon.registry.metadata.provider.version.GenericVersionProviderV1"/>
         </versionBaseProviders>
-    </metadataProviders>
+    </metadataProviders-->
     <!-- This defines index configuration which is used in meta data search feature of the registry -->
     <indexingConfiguration>
         <startingDelayInSeconds>60</startingDelayInSeconds>
@@ -220,7 +145,6 @@
                      mediaTypeRegEx="vnd.wso2.(.)+/(.)+"/>
             <indexer class="org.wso2.carbon.governance.registry.extensions.indexers.RXTIndexer" 
 		     mediaTypeRegEx="application/vnd.(.)+\+xml"/>
-
         </indexers>
         <exclusions>
             <exclusion pathRegEx="/_system/config/repository/dashboards/gadgets/swfobject1-5/.*[.]html"/>
