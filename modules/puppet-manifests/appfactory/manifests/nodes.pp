@@ -58,8 +58,6 @@ node basenode {
   $prod_paas_port   = 9443 + $prod_paas_offset
   $prod_paas_mb_port = 61616 + $prod_paas_offset
 
-  $ipaddress = $appfac_ip
-
 # Jenkins Configs
   $jenkins_keystore_name = "/mnt/${ipaddress}/jenkins/security/wso2carbon.jks"
   $jenkins_keystore_password = 'wso2carbon'
@@ -81,7 +79,20 @@ node basenode {
   $jenkins_admin_api_token = 'm440RGgFw5VpPUCFZ6L1yICUCv2IhwAqTfY27R1GCsdXIvN5A2bfHn0tpSbbcrDi'
   $jenkins_admin_password_hash = '#jbcrypt:$2a$10$WuhaeQqp36TXkTbUWZLxiOUkfJabKS1Ex4tFNqoRlzpeXhK7hY3am'
   $jenkins_admin_email = 'jenkinsadmin@cloud.com'
+
+  $ipaddress = $appfac_ip
+  $mysql_server_1 = $ipaddress
+
+
 ############## Stratos DBS for Dev Setup #########################
+
+##PPAAS - Docker
+  $ppaas_registry_db_schema  = "ppaasregistry"
+  $ppaas_userstore           = "ppaasuserstore"
+  $ppaas_config_db_schema    = "PPAAS_CONFIG_DB"
+  $ppaas_registry_db         = [$mysql_server_1,$ppaas_registry_db_schema,'root','root']
+  $ppaas_userstore_db        = [$mysql_server_1, $ppaas_userstore,'root','root']
+  $ppaas_config_db           = [$mysql_server_1, $ppaas_config_db_schema,'root','root']
 
 ## Dev ##
   $dev_registry_db_schema  = "devregistry"
@@ -270,7 +281,7 @@ node confignode inherits basenode  {
 
 # User MGT
   $usrmgt_username        = 'admin'
-  $usrmgt_password        = 'password'
+  $usrmgt_password        = 'admin'
   $bps_user               = 'bps'
   $bps_password           = 'root'
   $cloud_mgt_user         = 'cloud'
@@ -541,7 +552,7 @@ $apimgt_http_port     = "9769" # we put this because for minimal deployment we u
   $stratos_domain     = "paas.${wso2_env_domain}"
 
 #Private paas IAAS configuration
-$iaas                 = "os"
+$iaas                 = "kubernetes"
 $iaas_region          = "RegionOne"
 $iaas_cartridge_image = "34dd924f-ef3d-49ae-884a-4784f0330f1b"
 $iaas_instance_flavour= "7"
@@ -608,7 +619,8 @@ node /clean.devsetup/ inherits confignode {
     $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
     $dev_registry_db_schema, $dev_userstore,$dev_config_db_schema,
     $test_registry_db_schema,$test_userstore,$test_config_db_schema,
-    $prod_registry_db_schema,$prod_userstore, $prod_config_db_schema
+    $prod_registry_db_schema,$prod_userstore, $prod_config_db_schema,
+    $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
   ]
 
   class {"mysql::clean":
@@ -616,6 +628,34 @@ node /clean.devsetup/ inherits confignode {
   }
 
 }
+
+################################
+###Backing up Dev Setup node ###
+################################
+node /backup.devsetup/ inherits confignode {
+
+  $databases = [ 'afdb', $af_config_database_name, 'dbUserstore', 'dbGovernanceCloud', 'userstore', 'registry',
+    'bps_jpa_db', 'rss_mgt', 'af_config', 'identity_config', 'cloud_mgt_config','dbBps','dbRssMgt',
+    'dbApiMgt','dbApiStats', 'identity', 'cloud_mgt', 'issuetracker', 'appfactory',
+    'bam_config', 'bps_config', 'rss_mgt_config', 'ts_config', 'ues_config', 'apim_config','dbIssueTracker',
+    'apimdb', 'StratosStats', 'config', 'sm_config', 'as_config','dbIdentity','dbCloudMgt',
+    $bps_config_database_name,$identity_config_database_name,$cloud_mgt_config_database_name,
+    $bam_config_database_name,$rss_mgt_config_database_name,
+    $ts_config_database_name,$ues_config_database_name,$apim_config_database_name,
+    $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
+    $dev_registry_db_schema, $dev_userstore,$dev_config_db_schema,
+    $test_registry_db_schema,$test_userstore,$test_config_db_schema,
+    $prod_registry_db_schema,$prod_userstore, $prod_config_db_schema,
+    $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
+  ]
+
+  class {"mysql::backup":
+    databases => $databases,
+    dump_dir => '/mnt/backups/mysqldump'
+  }
+
+}
+
 
 ##############################
 ####### Database Setup #######
@@ -651,6 +691,9 @@ node /mysql/ inherits confignode{
     prodregistry =>  {config => $prodpaas_database, script_name => "mysql"},
     produser_store =>  {config => $prod_userstore_db, script_name => "mysql"},
     prodconfigdb =>  {config => $prod_config_db, script_name => "mysql"},
+    ppaasregistry =>  {config => $ppaas_registry_db, script_name => "mysql"},
+    ppaasuser_store =>  {config => $ppaas_userstore_db, script_name => "mysql"},
+    ppaasconfigdb =>  {config => $ppaas_config_db, script_name => "mysql"},
     dbApimStats =>  {config => $bam_apim_stat_db, script_name => undef},
     dbAfStats =>  {config => $bam_af_stat_db, script_name => undef},
     dbLoginAnalytics =>  {config => $login_analytics_db, script_name => undef},
@@ -910,7 +953,7 @@ class {"apimanager":
   target             => "/mnt/${server_ip}/api-manager",
   stage              => "deploy",
   amtype             => "apimanager"
-}
+ }
 }
 
 
@@ -950,10 +993,30 @@ node /paaspuppet/ inherits confignode {
   }
 }
 
+
+node /ppaas/ inherits confignode {
+  $server_ip = $ipaddress
+
+  class { "privatepaas":
+    iaas_provider      => $iaas,
+    maintenance_mode   => 'refresh',
+    owner              => $owner,
+    group              => $group,
+    target             => "/mnt/${server_ip}/ppaas",
+    ppaas_mysql_host   => $ppaas_mysql_host,
+    offset             => $dev_paas_offset,
+    registry_db_schema => $ppaas_registry_db_schema,
+    user_store         => $ppaas_userstore,
+    config_db_schema   => $ppaas_config_db_schema
+  }
+}
+
+
 node /dev.paas/ inherits confignode {
   $server_ip = $ipaddress
 
   class { "privatepaas":
+    iaas_provider      => "os",
     maintenance_mode   => 'refresh',
     owner              => $owner,
     group              => $group,
@@ -977,6 +1040,7 @@ node /test.paas/ inherits confignode {
   $server_ip = $ipaddress
 
   class { "privatepaas":
+    iaas_provider      => "os",
     maintenance_mode   => 'refresh',
     owner              => $owner,
     group              => $group,
@@ -1001,6 +1065,7 @@ node /prod.paas/ inherits confignode {
   $server_ip = $ipaddress
 
   class { "privatepaas":
+    iaas_provider      => "os",
     maintenance_mode   => 'refresh',
     owner              => $owner,
     group              => $group,
