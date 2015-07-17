@@ -866,7 +866,7 @@ function fileuploadfail(e, data){
                     <% if(type == "existing"){%>
                     <input  type='hidden' maxlength="19" id='uploadedApplicationKey' name="uploadedApplicationKey"/>
                     <div class="form-group">
-                        <label for="application-icon">TEST Application: </label>
+                        <label for="application-icon">Upload Application: </label>
                         <div class="input-group">
                             <input type="text" id="testupload" class="form-control" readonly>
                         <span class="input-group-btn">

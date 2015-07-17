@@ -61,7 +61,7 @@ public class WarFile extends JarFile {
     public List<String> getServlets() throws IOException {
         String SERVLET_CLASS = "servlet-class";
         List<String> servletList = new ArrayList<String>();
-        if(this.getWebXmlEntry() != null) {
+        if (this.getWebXmlEntry() != null) {
             Document webXml = getWebXml();
             NodeList servletClassNodes = webXml.getElementsByTagName(SERVLET_CLASS);
             int length = servletClassNodes.getLength();
@@ -74,7 +74,7 @@ public class WarFile extends JarFile {
 
     public List<String> getJSPs() throws IOException {
         List<String> jspList = new ArrayList<String>();
-        if(this.getWebXmlEntry() != null) {
+        if (this.getWebXmlEntry() != null) {
             Document webXml = getWebXml();
             NodeList jspFileNodes = webXml.getElementsByTagName(JSP_FILE);
             int length = jspFileNodes.getLength();
@@ -90,9 +90,9 @@ public class WarFile extends JarFile {
         String LIB = "WEB-INF/lib/";
         HashSet<JarEntry> libs = new HashSet<JarEntry>();
         Enumeration entries = entries();
-        while(entries.hasMoreElements()) {
-            JarEntry entry = (JarEntry)entries.nextElement();
-            if(entry.getName().startsWith(LIB) && entry.getName().toLowerCase().endsWith(JAR)) {
+        while (entries.hasMoreElements()) {
+            JarEntry entry = (JarEntry) entries.nextElement();
+            if (entry.getName().startsWith(LIB) && entry.getName().toLowerCase().endsWith(JAR)) {
                 libs.add(entry);
             }
         }
@@ -114,11 +114,11 @@ public class WarFile extends JarFile {
     }
 
     public boolean hasFile(String fileName) {
-        if(fileName == null) {
+        if (fileName == null) {
             throw new NullPointerException("fileName parameter can\'t be null");
         } else {
             String entryName = fileName;
-            if(fileName.startsWith("/")) {
+            if (fileName.startsWith("/")) {
                 entryName = fileName.substring(1);
             }
             return getJarEntry(entryName) != null;
@@ -126,14 +126,14 @@ public class WarFile extends JarFile {
     }
 
     protected Document getWebXml() throws IOException {
-        if(parsedWebXml == null) {
+        if (parsedWebXml == null) {
             parsedWebXml = loadWebXml();
         }
         return parsedWebXml;
     }
 
     private Document loadWebXml() throws IOException {
-        if(this.getWebXmlEntry() == null) {
+        if (this.getWebXmlEntry() == null) {
             throw new IOException("Attempted to get non-existent web.xml");
         } else {
             try {

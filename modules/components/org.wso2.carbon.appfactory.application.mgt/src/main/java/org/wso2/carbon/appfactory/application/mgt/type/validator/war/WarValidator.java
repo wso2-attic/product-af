@@ -82,7 +82,7 @@ public class WarValidator {
         if (!warFile.exists()) {
             throw new WarValidationException("File does not exist");
         } else if (!warFile.canRead()) {
-            throw new WarValidationException("File can\'t be read");
+            throw new WarValidationException("File is corrupted");
         }
     }
 
