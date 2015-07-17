@@ -66,6 +66,7 @@ node basenode {
   $prod_greg_port    = 9443 + $prod_greg_offset
 
   $ipaddress = $appfac_ip
+  $mysql_server_1 = $ipaddress
 
 # Jenkins Configs
   $jenkins_keystore_name = "/mnt/${ipaddress}/jenkins/security/wso2carbon.jks"
@@ -88,30 +89,41 @@ node basenode {
   $jenkins_admin_api_token = 'm440RGgFw5VpPUCFZ6L1yICUCv2IhwAqTfY27R1GCsdXIvN5A2bfHn0tpSbbcrDi'
   $jenkins_admin_password_hash = '#jbcrypt:$2a$10$WuhaeQqp36TXkTbUWZLxiOUkfJabKS1Ex4tFNqoRlzpeXhK7hY3am'
   $jenkins_admin_email = 'jenkinsadmin@cloud.com'
+
+
+
 ############## Stratos DBS for Dev Setup #########################
 
+##PPAAS - Docker
+  $ppaas_registry_db_schema  = "ppaasregistry"
+  $ppaas_userstore           = "ppaasuserstore"
+  $ppaas_config_db_schema    = "PPAAS_CONFIG_DB"
+  $ppaas_registry_db         = [$mysql_server_1,$ppaas_registry_db_schema,'root','root']
+  $ppaas_userstore_db        = [$mysql_server_1, $ppaas_userstore,'root','root']
+  $ppaas_config_db           = [$mysql_server_1, $ppaas_config_db_schema,'root','root']
+
 ## Dev ##
-  $dev_registry_db_schema  = "devregistry"
-  $dev_userstore           = "devuserstore"
+ # $dev_registry_db_schema  = "devregistry"
+ # $dev_userstore           = "devuserstore"
   $dev_config_db_schema    = "DEV_CONFIG_DB"
-  $devpaas_database       = [$mysql_server_1,$dev_registry_db_schema,'root','root']
-  $dev_userstore_db         = [$mysql_server_1, $dev_userstore,'root','root']
+ # $devpaas_database       = [$mysql_server_1,$dev_registry_db_schema,'root','root']
+ # $dev_userstore_db         = [$mysql_server_1, $dev_userstore,'root','root']
   $dev_config_db         = [$mysql_server_1, $dev_config_db_schema,'root','root']
 
 ## Test ##
-  $test_registry_db_schema  = "testregistry"
-  $test_userstore           = "testuserstore"
+ # $test_registry_db_schema  = "testregistry"
+ # $test_userstore           = "testuserstore"
   $test_config_db_schema    = "TEST_CONFIG_DB"
-  $testpaas_database       = [$mysql_server_1,'testregistry','root','root']
-  $test_userstore_db         = [$mysql_server_1, $test_userstore,'root','root']
+ # $testpaas_database       = [$mysql_server_1,$test_registry_db_schema,'root','root']
+ #$test_userstore_db         = [$mysql_server_1, $test_userstore,'root','root']
   $test_config_db         = [$mysql_server_1, $test_config_db_schema,'root','root']
 
 ## Prod ##
-  $prod_registry_db_schema  = "prodregistry"
-  $prod_userstore           = "produserstore"
+  #$prod_registry_db_schema  = "prodregistry"
+  #$prod_userstore           = "produserstore"
   $prod_config_db_schema    = "PROD_CONFIG_DB"
-  $prodpaas_database       = [$mysql_server_1,'prodregistry','root','root']
-  $prod_userstore_db         = [$mysql_server_1, $prod_userstore,'root','root']
+  #$prodpaas_database       = [$mysql_server_1,$prod_registry_db_schema,'root','root']
+  #$prod_userstore_db         = [$mysql_server_1, $prod_userstore,'root','root']
   $prod_config_db         = [$mysql_server_1, $prod_config_db_schema,'root','root']
 
   $domain         = 'appfactory.private.wso2.com'
@@ -204,7 +216,7 @@ node confignode inherits basenode  {
   $max_connections      = '100000'
   $max_active           = '200'
   $max_wait             = '360000'
-  $mysql_driver_file    = 'mysql-connector-java-5.1.27-bin.jar'
+  $mysql_driver_file    = 'mysql-connector-java-5.1.29-bin.jar'
 
   $mysql_server_1       = "mysql1.${domain}"
   $mysql_server_2       = "mysql2.${domain}"
@@ -281,7 +293,7 @@ node confignode inherits basenode  {
 
 # User MGT
   $usrmgt_username        = 'admin'
-  $usrmgt_password        = 'password'
+  $usrmgt_password        = 'admin'
   $bps_user               = 'bps'
   $bps_password           = 'root'
   $cloud_mgt_user         = 'cloud'
@@ -553,10 +565,11 @@ $apimgt_http_port     = "9769" # we put this because for minimal deployment we u
   $mailto_smtp_auth   = 'true'
 
 ## Private paas configurations
+  $stratos_version    = "4.1.1"
   $stratos_domain     = "paas.${wso2_env_domain}"
 
 #Private paas IAAS configuration
-$iaas                 = "os"
+$iaas                 = "kubernetes"
 $iaas_region          = "RegionOne"
 $iaas_cartridge_image = "34dd924f-ef3d-49ae-884a-4784f0330f1b"
 $iaas_instance_flavour= "7"
@@ -576,11 +589,11 @@ $iaas_instance_flavour= "7"
 
 #### private paas application server node configs ##########
 #### [<as_stage> , <server_key>, <as_stage_prefix>, <mysql_server> <mb_ip> <mb_port> <userstore> <registry>]
-  $ppaas_as_nodes = {
-    "$dev_cartridge_type"  => ['Development','DEV_AS','dev', $ipaddress, $ipaddress,$dev_paas_mb_port, $dev_userstore, $dev_registry_db_schema],
-    "$test_cartridge_type" => ['Testing','TEST_AS','test', $ipaddress, $ipaddress, $test_paas_mb_port, $test_userstore, $test_registry_db_schema],
-    "$prod_cartridge_type" => ['Production','PROD_AS','prod', $ipaddress, $ipaddress, $prod_paas_mb_port, $prod_userstore, $prod_registry_db_schema]
-  }
+  #$ppaas_as_nodes = {
+  #  "$dev_cartridge_type"  => ['Development','DEV_AS','dev', $ipaddress, $ipaddress,$dev_paas_mb_port, $dev_userstore, $dev_registry_db_schema],
+  #  "$test_cartridge_type" => ['Testing','TEST_AS','test', $ipaddress, $ipaddress, $test_paas_mb_port, $test_userstore, $test_registry_db_schema],
+  #  "$prod_cartridge_type" => ['Production','PROD_AS','prod', $ipaddress, $ipaddress, $prod_paas_mb_port, $prod_userstore, $prod_registry_db_schema]
+  #}
 
 
 #Private paas basenode configs
@@ -621,9 +634,13 @@ node /clean.devsetup/ inherits confignode {
     $bam_config_database_name,$rss_mgt_config_database_name,
     $ts_config_database_name,$ues_config_database_name,$apim_config_database_name,
     $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
-    $dev_registry_db_schema, $dev_userstore,$dev_config_db_schema,
-    $test_registry_db_schema,$test_userstore,$test_config_db_schema,
-    $prod_registry_db_schema,$prod_userstore, $prod_config_db_schema
+    #$dev_registry_db_schema, $dev_userstore,
+    $dev_config_db_schema,
+    #$test_registry_db_schema,$test_userstore,
+    $test_config_db_schema,
+    #$prod_registry_db_schema,$prod_userstore,
+    $prod_config_db_schema,
+    $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
   ]
 
   class {"mysql::clean":
@@ -631,6 +648,37 @@ node /clean.devsetup/ inherits confignode {
   }
 
 }
+
+################################
+###Backing up Dev Setup node ###
+################################
+node /backup.devsetup/ inherits confignode {
+
+  $databases = [ 'afdb', $af_config_database_name, 'dbUserstore', 'dbGovernanceCloud', 'userstore', 'registry',
+    'bps_jpa_db', 'rss_mgt', 'af_config', 'identity_config', 'cloud_mgt_config','dbBps','dbRssMgt',
+    'dbApiMgt','dbApiStats', 'identity', 'cloud_mgt', 'issuetracker', 'appfactory',
+    'bam_config', 'bps_config', 'rss_mgt_config', 'ts_config', 'ues_config', 'apim_config','dbIssueTracker',
+    'apimdb', 'StratosStats', 'config', 'sm_config', 'as_config','dbIdentity','dbCloudMgt',
+    $bps_config_database_name,$identity_config_database_name,$cloud_mgt_config_database_name,
+    $bam_config_database_name,$rss_mgt_config_database_name,
+    $ts_config_database_name,$ues_config_database_name,$apim_config_database_name,
+    $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
+    #$dev_registry_db_schema, $dev_userstore,
+    $dev_config_db_schema,
+    #$test_registry_db_schema,$test_userstore,
+    $test_config_db_schema,
+    #$prod_registry_db_schema,$prod_userstore,
+    $prod_config_db_schema,
+    $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
+  ]
+
+  class {"mysql::backup":
+    databases => $databases,
+    dump_dir => '/mnt/backups/mysqldump'
+  }
+
+}
+
 
 ##############################
 ####### Database Setup #######
@@ -657,15 +705,18 @@ node /mysql/ inherits confignode{
     ues_config =>  {config => $ues_config_database, script_name => "mysql"},
     apim_config =>  {config => $apimgt_config_database, script_name => "mysql"},
     apimdb =>  {config => $apimgt_database, script_name => "apim-mysql"},
-    devregistry =>  {config => $devpaas_database, script_name => "mysql"},
-    devuser_store =>  {config => $dev_userstore_db, script_name =>"mysql" },
+    #devregistry =>  {config => $devpaas_database, script_name => "mysql"},
+    #devuser_store =>  {config => $dev_userstore_db, script_name =>"mysql" },
     devconfigdb =>  {config => $dev_config_db, script_name => "mysql"},
-    testregistry =>  {config => $testpaas_database, script_name => "mysql"},
-    testuser_store =>  {config => $test_userstore_db, script_name => "mysql"},
+    #testregistry =>  {config => $testpaas_database, script_name => "mysql"},
+    #testuser_store =>  {config => $test_userstore_db, script_name => "mysql"},
     testconfigdb =>  {config => $test_config_db, script_name => "mysql"},
-    prodregistry =>  {config => $prodpaas_database, script_name => "mysql"},
-    produser_store =>  {config => $prod_userstore_db, script_name => "mysql"},
+    #prodregistry =>  {config => $prodpaas_database, script_name => "mysql"},
+    #produser_store =>  {config => $prod_userstore_db, script_name => "mysql"},
     prodconfigdb =>  {config => $prod_config_db, script_name => "mysql"},
+    ppaasregistry =>  {config => $ppaas_registry_db, script_name => "mysql"},
+    ppaasuser_store =>  {config => $ppaas_userstore_db, script_name => "mysql"},
+    ppaasconfigdb =>  {config => $ppaas_config_db, script_name => "mysql"},
     dbApimStats =>  {config => $bam_apim_stat_db, script_name => undef},
     dbAfStats =>  {config => $bam_af_stat_db, script_name => undef},
     dbLoginAnalytics =>  {config => $login_analytics_db, script_name => undef},
@@ -925,7 +976,7 @@ class {"apimanager":
   target             => "/mnt/${server_ip}/api-manager",
   stage              => "deploy",
   amtype             => "apimanager"
-}
+ }
 }
 
 node /dev_greg/ inherits confignode {
@@ -1034,75 +1085,24 @@ node /paaspuppet/ inherits confignode {
   }
 }
 
-node /dev.paas/ inherits confignode {
+
+node /ppaas/ inherits confignode {
   $server_ip = $ipaddress
 
   class { "privatepaas":
+    iaas_provider      => $iaas,
     maintenance_mode   => 'refresh',
     owner              => $owner,
     group              => $group,
-    target             => "/mnt/${server_ip}/dev_pass",
-    ppaas_mb_ip        => $ppaas_mb_ip,
-    ppaas_cep_ip       => $ppaas_cep_ip,
+    target             => "/mnt/${server_ip}/ppaas",
     ppaas_mysql_host   => $ppaas_mysql_host,
-    server_ip          => $server_ip,
-    appserver_subdomain=> "dev",
-    paas_stage              => "Development",
     offset             => $dev_paas_offset,
-    cartridge_alias    => $dev_cartridge_alias,
-    cartridge_type     => $dev_cartridge_type,
-    registry_db_schema => $dev_registry_db_schema,
-    user_store         => $dev_userstore,
-    config_db_schema   => $dev_config_db_schema
+    registry_db_schema => $ppaas_registry_db_schema,
+    user_store         => $ppaas_userstore,
+    config_db_schema   => $ppaas_config_db_schema
   }
 }
 
-node /test.paas/ inherits confignode {
-  $server_ip = $ipaddress
-
-  class { "privatepaas":
-    maintenance_mode   => 'refresh',
-    owner              => $owner,
-    group              => $group,
-    target             => "/mnt/${server_ip}/test_pass",
-    ppaas_mb_ip        => $ppaas_mb_ip,
-    ppaas_cep_ip       => $ppaas_cep_ip,
-    ppaas_mysql_host   => $ppaas_mysql_host,
-    server_ip          => $server_ip,
-    appserver_subdomain=> "test",
-    paas_stage              => "Testing",
-    offset             => $test_paas_offset,
-    cartridge_alias    => $test_cartridge_alias,
-    cartridge_type     => $test_cartridge_type,
-    registry_db_schema => $test_registry_db_schema,
-    user_store         => $test_userstore,
-    config_db_schema   => $test_config_db_schema
-
-  }
-}
-
-node /prod.paas/ inherits confignode {
-  $server_ip = $ipaddress
-
-  class { "privatepaas":
-    maintenance_mode   => 'refresh',
-    owner              => $owner,
-    group              => $group,
-    target             => "/mnt/${server_ip}/prod_pass",
-    ppaas_mb_ip        => $ppaas_mb_ip,
-    ppaas_cep_ip       => $ppaas_cep_ip,
-    ppaas_mysql_host   => $ppaas_mysql_host,
-    server_ip          => $server_ip,
-    appserver_subdomain=> "prod",
-    paas_stage              => "Production",
-    offset             => $prod_paas_offset,
-    cartridge_alias    => $prod_cartridge_alias,
-    cartridge_type     => $prod_cartridge_type,
-    registry_db_schema => $prod_registry_db_schema,
-    user_store         => $prod_userstore,
-    config_db_schema   => $prod_config_db_schema
-  }
-}
 
 #########################################
 ###### END of the production setup ######
