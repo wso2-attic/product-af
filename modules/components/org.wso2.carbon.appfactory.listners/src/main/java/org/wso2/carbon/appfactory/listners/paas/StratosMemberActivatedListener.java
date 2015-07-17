@@ -19,6 +19,7 @@ package org.wso2.carbon.appfactory.listners.paas;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.common.threading.StratosThreadPool;
 import org.apache.stratos.messaging.domain.topology.Cluster;
 import org.apache.stratos.messaging.domain.topology.Member;
 import org.apache.stratos.messaging.domain.topology.Service;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Listener register for stratos member activated event
@@ -54,6 +56,9 @@ public class StratosMemberActivatedListener {
     private StratosMemberActivatedListener() {
         applicationDao = JDBCApplicationDAO.getInstance();
         topologyEventReceiver = new TopologyEventReceiver();
+        ExecutorService executorService = StratosThreadPool.getExecutorService(
+                "appfactory.stratos.thread.executor.service1", 1);
+        topologyEventReceiver.setExecutorService(executorService);
         addEventListener();
     }
 
@@ -61,8 +66,7 @@ public class StratosMemberActivatedListener {
      * activate the listener
      */
     public void activate() {
-        Thread thread = new Thread(topologyEventReceiver, "Topology Event Receiver Thread");
-        thread.start();
+        topologyEventReceiver.execute();
         log.info("Stratos member activated receiver thread activated!");
     }
 
@@ -121,7 +125,7 @@ public class StratosMemberActivatedListener {
                                     if (StringUtils.isNotBlank(cartridgeActiveIp)) {
                                         // persist data to runtime db
                                         persistCartridgeCluster(clusterId, activeMember.getLbClusterId(),
-                                                cartridgeActiveIp);
+                                                                cartridgeActiveIp);
                                     } else {
                                         log.warn("There is no active IP address for give cartridge!");
                                     }
@@ -152,12 +156,12 @@ public class StratosMemberActivatedListener {
             // when only one cartridge is present, get member's publicIP
             String lbClusterId = member.getLbClusterId();
             if (lbClusterId == null) {
-                publicIp = member.getMemberPublicIp();
+                publicIp = member.getDefaultPublicIP();
             } else {
                 // when cluster of cartridges is present, get publicIP of one lbmember of lbcluster
                 List<Member> members = getLbClusterMembers(lbClusterId);
                 if (members.size() > 0) {
-                    publicIp = members.get(0).getMemberPublicIp();
+                    publicIp = members.get(0).getDefaultPublicIP();
                 }
             }
         }
