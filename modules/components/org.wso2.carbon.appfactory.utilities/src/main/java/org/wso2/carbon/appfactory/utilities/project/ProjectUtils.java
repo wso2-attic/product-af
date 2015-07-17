@@ -132,23 +132,10 @@ public class ProjectUtils {
         } finally {
             if (result != null && result.getExitCode() == 0) {
                 log.info("Maven archetype generation completed successfully");
-<<<<<<< HEAD
-<<<<<<< HEAD
                 String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
                 if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
                     File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
                     moveDepolyArtifact(deployArtifact, workDir.getParentFile(), appId);
-=======
-
-             //TODO: use AppFactoryCoreUtil.isBuildServerRequiredProject check when uploadable archetypes are also done
-                if (AppFactoryCoreUtil.isBuildable(ApplicationDAO.getInstance().getApplicationType(appId))) {
-=======
-                String applicationType = ApplicationDAO.getInstance().getApplicationType(appId);
-                if (AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType)) {
->>>>>>> conflict resolving
-                    File deployArtifact = generateDeployArtifact(appId, archetypeDir.getAbsolutePath(), mavenHome);
-                    moveDepolyArtifact(deployArtifact, workDir.getParentFile());
->>>>>>> added deployable artifact generation
                 }
                 configureFinalName(archetypeDir.getAbsolutePath());
                 copyArchetypeToTrunk(archetypeDir.getAbsolutePath(), workDir.getAbsolutePath());
@@ -165,7 +152,6 @@ public class ProjectUtils {
      *
      * @param deployAtrifact
      * @param parentFile
-<<<<<<< HEAD
      * @param appId id of the application
      * @throws AppFactoryException
      */
@@ -180,21 +166,6 @@ public class ProjectUtils {
             FileUtils.moveDirectoryToDirectory(deployAtrifact, parentFile, false);
         } catch (IOException e) {
             String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
-=======
-     * @throws AppFactoryException
-     */
-    private static void moveDepolyArtifact(File deployAtrifact, File parentFile) throws AppFactoryException{
-        try {
-<<<<<<< HEAD
-            FileUtils.copyDirectoryToDirectory(deployAtrifact, parentFile);
-        } catch (IOException e) {
-            String msg = "Error while copying deploy artifact from "+ deployAtrifact.getAbsolutePath()
->>>>>>> added deployable artifact generation
-=======
-            FileUtils.moveDirectoryToDirectory(deployAtrifact, parentFile, false);
-        } catch (IOException e) {
-            String msg = "Error while moving deploy artifact from "+ deployAtrifact.getAbsolutePath()
->>>>>>> conflict resolving
                          + " to " + parentFile.getAbsolutePath();
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
@@ -234,16 +205,7 @@ public class ProjectUtils {
         });
         try {
             result = invoker.execute(deployArtifactCreateReq);
-<<<<<<< HEAD
-<<<<<<< HEAD
             File deployArtifact = new File(archetypeDir + File.separator + appId + "_deploy_artifact");
-=======
-            File deployArtifact = new File(archetypeDir + File.separator + appId +
-                                           AppFactoryConstants.DEPLOY_ARTIFACT_SUFFIX);
->>>>>>> added deployable artifact generation
-=======
-            File deployArtifact = new File(archetypeDir + File.separator + appId + "_deploy_artifact");
->>>>>>> conflict resolving
             if(deployArtifact.exists()){
                 return deployArtifact;
             }else{

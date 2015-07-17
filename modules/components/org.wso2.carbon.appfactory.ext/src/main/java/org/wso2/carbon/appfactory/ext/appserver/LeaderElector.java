@@ -48,23 +48,14 @@ public class LeaderElector {
     private static LeaderElector leaderElector = new LeaderElector();
     private static boolean isNotifyEligible;
     private boolean terminated;
-    private CustomTopologyEventReceiver topologyEventReceiver;
+    private TopologyEventReceiver topologyEventReceiver;
 
-    private class CustomTopologyEventReceiver extends TopologyEventReceiver implements Runnable{
-
-        @Override
-        public void run() {
-            execute();
-        }
-    }
     private LeaderElector() {
         isNotifyEligible = false;
         this.terminated = false;
-        this.topologyEventReceiver = new CustomTopologyEventReceiver();
+        this.topologyEventReceiver = new TopologyEventReceiver();
         addEvenListener();
-
-        Thread thread = new Thread(topologyEventReceiver);
-        thread.start();
+        topologyEventReceiver.execute();
         log.info("Stratos Manager topology receiver thread started");
     }
 
@@ -97,9 +88,8 @@ public class LeaderElector {
                             for (Member member : cluster.getMembers()) {
                                 MemberStatus memStatus = member.getStatus();
                                 if (MemberStatus.Active.equals(memStatus)) {
-                                    //TODO punnadi
-                                    memberIpMap.put(member.getMemberPublicIPs().get(0),
-                                                    InetAddress.getByName(member.getMemberPublicIPs().get(0)));
+                                    memberIpMap.put(member.getDefaultPublicIP(),
+                                                    InetAddress.getByName(member.getDefaultPublicIP()));
                                 }
                             }
                         }

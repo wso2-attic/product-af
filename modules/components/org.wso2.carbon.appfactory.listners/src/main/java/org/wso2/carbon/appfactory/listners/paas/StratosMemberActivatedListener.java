@@ -46,7 +46,7 @@ public class StratosMemberActivatedListener {
     private static StratosMemberActivatedListener stratosMemberActivatedListener = new StratosMemberActivatedListener();
 
     private JDBCApplicationDAO applicationDao;
-    private CustomTopologyEventReceiver topologyEventReceiver;
+    private TopologyEventReceiver topologyEventReceiver;
 
     private class CustomTopologyEventReceiver extends TopologyEventReceiver implements Runnable{
 
@@ -69,8 +69,7 @@ public class StratosMemberActivatedListener {
      * activate the listener
      */
     public void activate() {
-        Thread thread = new Thread(topologyEventReceiver, "Topology Event Receiver Thread");
-        thread.start();
+        topologyEventReceiver.execute();
         log.info("Stratos member activated receiver thread activated!");
     }
 
@@ -160,13 +159,12 @@ public class StratosMemberActivatedListener {
             // when only one cartridge is present, get member's publicIP
             String lbClusterId = member.getLbClusterId();
             if (lbClusterId == null) {
-                //TODO punnadi
-                publicIp = member.getMemberPublicIPs().get(0);
+                publicIp = member.getDefaultPublicIP();
             } else {
                 // when cluster of cartridges is present, get publicIP of one lbmember of lbcluster
                 List<Member> members = getLbClusterMembers(lbClusterId);
                 if (members.size() > 0) {
-                    publicIp = members.get(0).getMemberPublicIPs().get(0);
+                    publicIp = members.get(0).getDefaultPublicIP();
                 }
             }
         }
