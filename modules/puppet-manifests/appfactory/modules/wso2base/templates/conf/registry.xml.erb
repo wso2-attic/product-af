@@ -54,23 +54,6 @@
     </mount>
     -->
 
-    <%- database = @config_database -%>
-    <dbConfig name="config">
-    	<dataSource>jdbc/<%= @config_db %></dataSource>
-    </dbConfig>
-    <remoteInstance url="https://registryernance.cloud-test.wso2.com">
-        <id>config</id>
-        <dbConfig>config</dbConfig>
-        <readOnly>false</readOnly>
-        <registryRoot>/</registryRoot>
-        <enableCache>true</enableCache>
-        <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @config_db %></cacheId>
-    </remoteInstance>
-    <mount path="/_system/config" overwrite="virtual">
-        <instanceId>config</instanceId>
-        <targetPath>/_system/config</targetPath>
-    </mount>
-
    <!--<handler class="org.wso2.carbon.registry.extensions.handlers.SynapseRepositoryHandler">
         <filter class="org.wso2.carbon.registry.core.jdbc.handlers.filters.MediaTypeMatcher">
             <property name="mediaType">application/vnd.apache.synapse</property>
@@ -125,7 +108,6 @@
         <instanceId>instanceid</instanceId>
         <targetPath>/_system/nodes</targetPath>
     </mount-->
-    
     <versionResourcesOnChange>false</versionResourcesOnChange>
 
     <!-- NOTE: You can edit the options under "StaticConfiguration" only before the
