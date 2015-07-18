@@ -1,0 +1,114 @@
+{
+    "type": "<%=@dev_cartridge_type %>",
+    "provider": "wso2",
+    "category": "framework",
+    "host": "as.stratos.org",
+    "displayName": "WSO2AS",
+    "description": "WSO2 App Server",
+    "version": "5.2.1",
+    "multiTenant": "true",
+    "loadBalancingIPType": "public",
+    "portMapping": [
+        {
+            "name": "http-9763",
+            "protocol": "http",
+            "port": "9763",
+            "proxyPort": "0",
+            "kubernetesPortType": "NodePort"
+        },
+        {
+            "name": "http-9443",
+            "protocol": "https",
+            "port": "9443",
+            "proxyPort": "0",
+            "kubernetesPortType": "NodePort"
+        }
+
+    ],
+    "deployment": {
+        "baseDir": "/opt/wso2as-5.2.1"
+    },
+    "iaasProvider": [
+        {
+            "type": "kubernetes",
+            "imageId": "wso2/as:5.2.1",
+            "networkInterfaces": [
+            ],
+            "property": [
+            ]
+        }
+    ],
+    "property": [
+        {
+            "name": "KUBERNETES_CONTAINER_CPU",
+            "value": "0"
+        },
+        {
+            "name": "KUBERNETES_CONTAINER_MEMORY",
+            "value": "0"
+        },
+        {
+            "name": "KUBERNETES_SERVICE_SESSION_AFFINITY",
+            "value": "ClientIP"
+        },
+        {
+            "name": "payload_parameter.START_CMD",
+            "value": "PCA"
+        },
+        <%- database = @ppaas_registry_db -%>
+        {
+            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_URL",
+            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
+        },
+        {
+            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_USER_NAME",
+            "value": "<%= database[2] %>"
+        },
+        {
+            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_PASSWORD",
+            "value": "<%= database[3] %>"
+        },
+        <%- database = @ppaas_userstore_db -%>
+        {
+            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_URL",
+            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
+	    },
+        {
+            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_USER_NAME",
+            "value": "<%= database[2] %>"
+        },
+        {
+            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_PASSWORD",
+            "value": "<%= database[2] %>"
+        },
+        <%- database = @dev_config_db -%>
+        {
+            "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_URL",
+            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
+         },
+         {
+            "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_USER_NAME",
+            "value": "<%= database[2] %>"
+         },
+         {
+            "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_PASSWORD",
+            "value": "<%= database[2] %>"
+         },
+         {
+            "name": "payload_parameter.CONFIG_PARAM_LDAP_HOST",
+            "value": "<%= @ipaddress %>"
+         },
+         {
+           "name": "payload_parameter.CONFIG_PARAM_WORKER_HOST_NAME",
+           "value": "appserver.dev.<%= @domain %>"
+         },
+         {
+            "name": "payload_parameter.S2GIT_IP",
+            "value": "<%= @ipaddress %>"
+         },
+         {
+           "name": "payload_parameter.S2GIT_DOMAIN",
+           "value": "s2git.<%= @domain %>"
+         }
+    ]
+}
