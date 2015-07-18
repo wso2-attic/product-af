@@ -32,6 +32,7 @@ apimpath=api-manager/wso2am-$APIM_VERSION
 
 ps -ef | grep /mnt/$MACHINE_IP | mawk '{print($2)}' | xargs kill -9
 ps -ef | grep 'gitblit' | mawk '{print($2)}' | xargs kill -9
+ps -ef | grep 'jenkins' | mawk '{print($2)}' | xargs kill -9
 
 echo -ne "                           [OK]\n"
 #EOF
