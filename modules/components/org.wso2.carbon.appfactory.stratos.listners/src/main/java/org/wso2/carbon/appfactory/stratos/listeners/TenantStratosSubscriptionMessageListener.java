@@ -28,7 +28,7 @@ import org.apache.stratos.manager.service.stub.domain.application.signup.Applica
 import org.apache.stratos.manager.user.management.TenantUserRoleManager;
 import org.apache.stratos.messaging.domain.application.Application;
 import org.apache.stratos.messaging.message.receiver.application.ApplicationManager;
-import org.apache.stratos.tenant.mgt.core.TenantPersistor;
+import org.wso2.carbon.tenant.mgt.core.TenantPersistor;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -134,8 +134,8 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
                                 tenantInfoBean.getTenantDomain(), true);
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
-                        //TODO
-                        signUp(repositoryBean, "TODO");
+                        //TODO punnadi
+                        signUp(repositoryBean, "asdevelopment");
                         // subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();

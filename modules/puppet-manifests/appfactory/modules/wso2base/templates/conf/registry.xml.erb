@@ -31,10 +31,11 @@
 	<dataSource>jdbc/WSO2CarbonDB</dataSource>	
     </dbConfig>
 
-    <%- database = @registry_database -%>
     <dbConfig name="governance">
-	<dataSource>jdbc/governance</dataSource>
+	    <dataSource>jdbc/governance</dataSource>
     </dbConfig>
+
+    <%- database = @registry_database -%>
     <remoteInstance url="https://registryernance.cloud-test.wso2.com">
         <id>governance</id>
         <dbConfig>governance</dbConfig>
@@ -47,12 +48,11 @@
         <instanceId>governance</instanceId>
         <targetPath>/_system/governance</targetPath>
     </mount>
-    <!-- 
-    <mount path="/_system/governance/dependencies" overwrite="true">
+
+    <!--mount path="/_system/governance/dependencies" overwrite="true">
         <instanceId>governance</instanceId>
         <targetPath>/_system/governance/dependencies/${stage}</targetPath>
-    </mount>
-    -->
+    </mount-->
 
    <!--<handler class="org.wso2.carbon.registry.extensions.handlers.SynapseRepositoryHandler">
         <filter class="org.wso2.carbon.registry.core.jdbc.handlers.filters.MediaTypeMatcher">

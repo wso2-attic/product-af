@@ -19,6 +19,7 @@ package org.wso2.carbon.appfactory.listners.paas;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.common.threading.StratosThreadPool;
 import org.apache.stratos.messaging.domain.topology.Cluster;
 import org.apache.stratos.messaging.domain.topology.Member;
 import org.apache.stratos.messaging.domain.topology.Service;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Listener register for stratos member activated event
@@ -54,6 +56,9 @@ public class StratosMemberActivatedListener {
     private StratosMemberActivatedListener() {
         applicationDao = JDBCApplicationDAO.getInstance();
         topologyEventReceiver = new TopologyEventReceiver();
+        ExecutorService executorService = StratosThreadPool.getExecutorService(
+                "appfactory.stratos.thread.executor.service1", 1);
+        topologyEventReceiver.setExecutorService(executorService);
         addEventListener();
     }
 

@@ -53,35 +53,48 @@
             "name": "payload_parameter.START_CMD",
             "value": "PCA"
         },
-        <%- database = @testpaas_database -%>
+        <%- database = @ppaas_registry_db -%>
         {
-            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_URL",
-            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
+           "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_URL",
+           "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
         },
         {
-            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_USER_NAME",
-            "value": "<%= database[2] %>"
+           "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_USER_NAME",
+           "value": "<%= database[2] %>"
         },
         {
-            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_PASSWORD",
-            "value": "<%= database[3] %>"
+           "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_PASSWORD",
+           "value": "<%= database[3] %>"
         },
-        <%- database = @test_userstore_db -%>
+        <%- database = @ppaas_userstore_db -%>
         {
-            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_URL",
-            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
-        },
-        {
-            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_USER_NAME",
-            "value": "<%= database[2] %>"
+           "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_URL",
+           "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
         },
         {
-            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_PASSWORD",
-            "value": "<%= database[2] %>"
+           "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_USER_NAME",
+           "value": "<%= database[2] %>"
         },
         {
-            "name": "payload_parameter.CONFIG_PARAM_LDAP_HOST",
-            "value": "<%= @ipaddress %>"
-        }  
+           "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_PASSWORD",
+           "value": "<%= database[2] %>"
+        },
+        <%- database = @test_config_db -%>
+        {
+         "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_URL",
+         "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
+        },
+        {
+         "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_USER_NAME",
+         "value": "<%= database[2] %>"
+        },
+        {
+         "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_PASSWORD",
+         "value": "<%= database[2] %>"
+        },
+        {
+         "name": "payload_parameter.CONFIG_PARAM_LDAP_HOST",
+         "value": "<%= @ipaddress %>"
+        }
     ]
 }
