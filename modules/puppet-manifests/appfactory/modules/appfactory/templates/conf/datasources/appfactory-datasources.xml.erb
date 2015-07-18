@@ -7,12 +7,12 @@
             <name>WSO2_APPFAC_CONFIG_DB</name>
             <description>The datasource used for appfactory config registry</description>
             <jndiConfig>
-                <name>jdbc/<%= @config_db %></name>
+                <name>jdbc/config</name>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <%- database = @config_database -%>
-                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= @config_db %>?autoReconnect=true</url>
+                    <%- database = @af_config_database -%>
+                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
                     <username><%= database[2] %></username>
                     <password><%= database[3] %></password>
                     <driverClassName>com.mysql.jdbc.Driver</driverClassName>
