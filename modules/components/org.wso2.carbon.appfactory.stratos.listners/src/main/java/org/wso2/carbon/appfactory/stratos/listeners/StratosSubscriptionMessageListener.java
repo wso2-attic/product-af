@@ -48,7 +48,13 @@ import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TopicConnection;
+import javax.jms.TopicSession;
+import javax.jms.TopicSubscriber;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,16 +63,20 @@ import java.util.List;
 /**
  * Listens to topic "subscribe_tenant_in_stratos" in the Message Broker and when a new message arrived, executes the
  * onMessage method. AUTO_ACKNOWLEDGE is used.
- * This class is set as the Message Listener in TenantStratosSubscriptionDurableSubscriber class.
+ * This class is set as the Message Listener in StratosSubscriptionDurableSubscriber class.
  */
 public class StratosSubscriptionMessageListener implements MessageListener {
     private static Log log = LogFactory.getLog(StratosSubscriptionMessageListener.class);
-    protected TopicConnection topicConnection;
-    protected TopicSession topicSession;
-    protected TopicSubscriber topicSubscriber;
+
+    private TopicConnection topicConnection;
+    private TopicSession topicSession;
+    private TopicSubscriber topicSubscriber;
+    private int currentMsgCount = 0;
+    private String REPOSITORY_TYPE = "git";
+
 
     public StratosSubscriptionMessageListener(TopicConnection topicConnection, TopicSession topicSession,
-                                              TopicSubscriber topicSubscriber) {
+                                                    TopicSubscriber topicSubscriber) {
         this.topicConnection = topicConnection;
         this.topicSession = topicSession;
         this.topicSubscriber = topicSubscriber;
@@ -77,67 +87,76 @@ public class StratosSubscriptionMessageListener implements MessageListener {
      */
     @Override
     public void onMessage(Message message) {
-        RuntimeBean[] runtimeBeans;
-        TenantInfoBean tenantInfoBean;
-        MapMessage mapMessage;
+        //TODO remove this log
+        log.info("message received to topic name : " + topicSubscriber.toString() + ">>>>>>>>>>>>");
+
+        RuntimeBean[] runtimeBeans = null;
+        TenantInfoBean tenantInfoBean = null;
+
         if (message instanceof MapMessage) {
-            mapMessage = (MapMessage) message;
-            String tenantInfoJson = null;
             try {
-                String runtimesJson = mapMessage.getString(AppFactoryConstants.RUNTIMES_INFO);
-                tenantInfoJson = mapMessage.getString(AppFactoryConstants.TENANT_INFO);
+                String runtimesJson = ((MapMessage) message).getString(AppFactoryConstants.RUNTIMES_INFO);
+                String tenantInfoJson = ((MapMessage) message).getString(AppFactoryConstants.TENANT_INFO);
+
+
                 ObjectMapper mapper = new ObjectMapper();
                 runtimeBeans = mapper.readValue(runtimesJson, RuntimeBean[].class);
                 tenantInfoBean = mapper.readValue(tenantInfoJson, TenantInfoBean.class);
                 if (log.isDebugEnabled()) {
                     log.debug("Received a message for tenant domain " + tenantInfoBean.getTenantDomain());
                 }
-                String stage = mapMessage.getString(AppFactoryConstants.STAGE);
-                if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
-                    addTenant(tenantInfoBean);
-                } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
-                                  "with subscription to cartridges. Tenant domain : " +
-                                  tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
-                    }
-                }
-                try {
-                    PrivilegedCarbonContext.startTenantFlow();
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                            .setTenantDomain(tenantInfoBean.getTenantDomain(), true);
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
-                    for (RuntimeBean runtimeBean : runtimeBeans) {
-                        RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
-                        subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Tenant added and subscribed to cartridges successfully for tenant : " +
-                                  tenantInfoBean.getTenantDomain());
-                    }
-                } finally {
-                    PrivilegedCarbonContext.endTenantFlow();
-                }
-                mapMessage.acknowledge();
-                if (log.isDebugEnabled()) {
-                    log.debug("Message processed successfully. Acknowledged to MB for tenant : " +
-                              tenantInfoBean.getTenantDomain());
-                }
-            } catch (AppFactoryException e) {
-                log.error("Error while subscribing tenant to stratos cartridge. tenantInfoJason : " + tenantInfoJson);
-            } catch (JsonMappingException e) {
-                log.error("Error while subscribing tenant to stratos cartridge. tenantInfoJason : " + tenantInfoJson);
-            } catch (JsonParseException e) {
-                log.error("Error while subscribing tenant to stratos cartridge. tenantInfoJason : " + tenantInfoJson);
-            } catch (IOException e) {
-                log.error("Error while subscribing tenant to stratos cartridge. tenantInfoJason : " + tenantInfoJson);
             } catch (JMSException e) {
-                log.error("Error while subscribing tenant to stratos cartridge. tenantInfoJason : " + tenantInfoJson);
-            } catch (Exception e) {
-                log.error("Error while subscribing tenant to stratos cartridge. tenantInfoJason : " + tenantInfoJson);
+                log.error("Error while getting message content.", e);
+                throw new RuntimeException(e);
+            } catch (JsonParseException e) {
+                log.error("Error while converting the json to object.", e);
+                throw new RuntimeException(e);
+            } catch (JsonMappingException e) {
+                log.error("Error while converting the json to object.", e);
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                log.error("Error while converting the json to object.", e);
+                throw new RuntimeException(e);
             }
-        } else {
-            log.error("Message received is not a Map Message");
+        }
+        MapMessage mapMessage;
+        if (message instanceof MapMessage) {
+            mapMessage = (MapMessage) message;
+            try {
+                currentMsgCount++;
+                String stage = mapMessage.getString(AppFactoryConstants.STAGE);
+                addTenant(tenantInfoBean);
+
+                for (RuntimeBean runtimeBean : runtimeBeans) {
+                    RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
+                    try {
+                        PrivilegedCarbonContext.startTenantFlow();
+                        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
+                                tenantInfoBean.getTenantDomain(), true);
+                        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
+                        signUp(repositoryBean, runtimeBean, stage);
+                    } finally {
+                        PrivilegedCarbonContext.endTenantFlow();
+                    }
+                }
+
+                //TODO remove this logsendPostRequest
+                log.info("subscription done in environment : " + mapMessage.getString(AppFactoryConstants.STAGE)
+                         + "of tenant :" + tenantInfoBean.getTenantDomain());
+                mapMessage.acknowledge();
+            } catch (JMSException e) {
+                String msg = "Can not read received map massage at count " + currentMsgCount;
+                log.error(msg, e);
+                throw new RuntimeException(e);
+            } catch (AppFactoryException e) {
+                String msg = "Can not subscribe to stratos cartridge";
+                log.error(msg, e);
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                String msg = "Can not subscribe to stratos cartridge";
+                log.error(msg, e);
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -145,7 +164,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             throws AppFactoryException {
         RepositoryBean repositoryBean = new RepositoryBean();
         repositoryBean.setCommitEnabled(true);
-        repositoryBean.setRepositoryType(AppFactoryConstants.REPOSITORY_TYPE_GIT);
+        repositoryBean.setRepositoryType(REPOSITORY_TYPE);
         repositoryBean.setRepositoryAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
                 (AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
         repositoryBean.setRepositoryAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
@@ -163,6 +182,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             repoProvider.setAdminPassword(repositoryBean.getRepositoryAdminPassword());
             repoProvider.setRepoName(generateRepoUrlFromTemplate(
                     runtimeBean.getPaasRepositoryURLPattern(), tenantInfoBean.getTenantId(), stage));
+
             repoUrl = repoProvider.createRepository();
             repositoryBean.setRepositoryURL(repoUrl);
             log.info("Repo Url : " + repoUrl);
@@ -188,6 +208,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
                    + Integer.toString(tenantId);
         log.info("Generated repo URL for stage " + stage + " : " + s);
         return s;
+
     }
 
     private static boolean signUp(RepositoryBean repositoryBean, RuntimeBean runtimeBean, String stage)
@@ -255,8 +276,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             return mainConfigContext;
         } else {
             throw new UnsupportedOperationException("Tenant domain unidentified. " +
-                                                    "Upstream code needs to identify & set the tenant domain & tenant" +
-                                                    " ID. " +
+                                                    "Upstream code needs to identify & set the tenant domain & tenant ID. " +
                                                     " The TenantDomain SOAP header could be set by the clients or " +
                                                     "tenant authentication should be carried out.");
         }
@@ -303,4 +323,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
+
+
+
 }
