@@ -5,7 +5,7 @@
   <artifactId>${rootArtifactId}ApplicationResources</artifactId>
   <version>${version}</version>
   <packaging>pom</packaging>
-  <name>ApplicationResources</name>
+  <name>${rootArtifactId}ApplicationResources</name>
   <description>ApplicationResources</description>
   <properties>
     <CApp.type>bpel/workflow=zip,lib/registry/filter=jar,webapp/jaxws=war,lib/library/bundle=jar,service/dataservice=dbs,synapse/local-entry=xml,synapse/proxy-service=xml,carbon/application=car,registry/resource=zip,lib/dataservice/validator=jar,synapse/endpoint=xml,web/application=war,lib/carbon/ui=jar,service/axis2=aar,synapse/sequence=xml,synapse/configuration=xml,wso2/gadget=dar,lib/registry/handlers=jar,lib/synapse/mediator=jar</CApp.type>

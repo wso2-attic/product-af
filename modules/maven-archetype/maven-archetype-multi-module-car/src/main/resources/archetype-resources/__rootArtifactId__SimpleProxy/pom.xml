@@ -5,7 +5,7 @@
   <artifactId>${rootArtifactId}SimpleProxy</artifactId>
   <version>${version}</version>
   <packaging>pom</packaging>
-  <name>SimpleProxy</name>
+  <name>${rootArtifactId}SimpleProxy</name>
   <description>SimpleProxy</description>
   <build>
     <directory>target/capp</directory>
