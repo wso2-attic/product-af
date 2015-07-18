@@ -313,7 +313,7 @@ public class AppVersionStrategyExecutor {
 
 		//version all synapse configs in the project
 		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, synapseConfigs, true);
-		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, pomFileList, false);
+		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, artifactList, false);
 		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, pomFileList, false);
 	}
 
