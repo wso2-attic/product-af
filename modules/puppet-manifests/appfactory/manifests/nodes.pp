@@ -204,7 +204,7 @@ node confignode inherits basenode  {
   $max_connections      = '100000'
   $max_active           = '200'
   $max_wait             = '360000'
-  $mysql_driver_file    = 'mysql-connector-java-5.1.27-bin.jar'
+  $mysql_driver_file    = 'mysql-connector-java-5.1.29-bin.jar'
 
   $mysql_server_1       = "mysql1.${domain}"
   $mysql_server_2       = "mysql2.${domain}"
