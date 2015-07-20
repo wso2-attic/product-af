@@ -106,6 +106,7 @@ public class ArtifactGeneratorFactory {
 			                                                               version, stage);
 
 		} else {
+			/*
 			if (AppFactoryConstants.APPLICATION_TYPE_JAGGERY.equals(artifactType)) {
 				deployableArtifact =
 						new JaggeryDeployableArtifact(rootPath, applicationId, version, stage);
@@ -115,8 +116,7 @@ public class ArtifactGeneratorFactory {
 			} else if (AppFactoryConstants.APPLICATION_TYPE_PHP.equals(artifactType)) {
 				deployableArtifact =
 						new PHPDeployableArtifact(rootPath, applicationId, version, stage);
-			}
-
+			}*/
 		}
 		if (deployableArtifact == null) {
 			String error = "Deployable artifact could not be generated for artifact type:" + artifactType +

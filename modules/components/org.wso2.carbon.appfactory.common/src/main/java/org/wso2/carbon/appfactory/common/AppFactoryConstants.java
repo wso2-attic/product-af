@@ -47,6 +47,9 @@ public class AppFactoryConstants {
 	public static final String APP_FACTORY_USERS_ROLE = "appfactoryusers";
 	public static final String UPPLOADABLE_SUFFIX = ".uploaded";
 
+	public static final String APP_ID = "applicationId";
+	public static final String USER_NAME = "username";
+
 	public static final String MESSAGE_BROKER_CONNECTION_URL = "MessageBrokerConnectionURL";
     public static final String UPLOADABLE_ARTIFACT_MAX_SIZE="UploadableArtifactMaxSize";
 
