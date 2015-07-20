@@ -99,7 +99,9 @@ function hideSpin() {
 	value='<%=request.getParameter("applicationKey")%>' />
 <div class="container">
 	<article class="main database-page">
-
+        <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
+        <!-- -->
 		<header class="separator">
 			<div>
 				<% jagg.includeBlock("page/messages", null); %>

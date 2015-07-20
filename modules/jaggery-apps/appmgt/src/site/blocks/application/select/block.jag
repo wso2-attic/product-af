@@ -29,7 +29,6 @@ jagg.block("application/select", {
         var applicationTypeBeanMap = modManager.getApplicationTypeManager().getApplicationTypeBeanMap();
         var applicationTypes = applicationTypeBeanMap.keySet().toArray();
         var applicationTypesHolder = [];
-
         if (applicationTypes) {
 
             for (var i = 0; i < applicationTypes.length; i++) {
@@ -51,7 +50,6 @@ jagg.block("application/select", {
                 }
                 return (a.displayOrder > b.displayOrder) ? 1 : -1;
             });
-
         }
         return {
             "applicationTypesHolder": applicationTypesHolder,

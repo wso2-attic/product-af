@@ -23,47 +23,7 @@ include("/jagg/constants.jag");
     var applicationKey = inputs.applicationKey;
     var applicationName = inputs.applicationName;
     var pageName = inputs.pageName;
-    if(jagg.getUser()){
-        if(!applicationKey){
     %>
-
-        <nav class="main_menu">
-            <% if((outputs.hasCXOPermission)&&(!outputs.isOTtenant)) { %>
-            <ul class="main_list">
-                <li class="main_list_item"><a href="<%=outputs.dashboardUrl%>" class="main_list_link" target="_blank"><span
-                        class="icon-dashboard" title="Dashboards"></span> </a></li>
-            </ul>
-            <% } %>
-            <% if (outputs.hasTenantLevelUserMgtPermission||(!outputs.isOTtenant)) { %>
-            <ul class="main_list">
-                <li class="main_list_item"><a href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>" class="main_list_link"><span
-                        class="icon-group"></span> </a></li>
-            </ul>
-
-            <% } %>
-
-        </nav>
-    <%
-    } else {
-
-        %>
-
-
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
-            </div>
-        </div>
-    </div>
-</div><!-- EOF App factory menu -->
-
-
 
 <div class="inner-wrapper">
     <!-- left pane wrapper -->
@@ -145,6 +105,4 @@ include("/jagg/constants.jag");
 
 
    <%
-   }
-   }
 }); %>

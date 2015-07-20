@@ -10,7 +10,9 @@ $('.cloud-menu-popover').popover({
 
     /**
      * this function use to append description block on app type selection
+     * THIS SHOULD BE REMOVED FROM CUSTOM.JS .THIS IS INCLUDED IN APPLICATION/SELECT/TEMPLATE.JAG 
      * */
+/*
     $(document).on('click', '.cloud-app-type', function(){
 
         $('.listing').find('.longme').detach();
@@ -25,11 +27,10 @@ $('.cloud-menu-popover').popover({
         var width = $( window ).width(),
             currentcount = parseInt($(this).attr('id')),
             appDescription = $(this).attr('data-description'),
-            appName = $(this).attr('data-appname'),
+            appName = $(this).attr('data-appTypeDisplayName'),
             dataCount = parseInt($('.listing').attr('data-count'));
-
         //content replace with data attributes
-        $('.app-type-info-template').find('.app-name').html(appName);
+        $('.app-type-info-template').find('.app-appTypeDisplayName').html(appName);
         $('.app-type-info-template').find('.app-description').html(appDescription);
         var appendHtml =$('.app-type-info-template').html();
 
@@ -40,7 +41,6 @@ $('.cloud-menu-popover').popover({
                 $('.longme').fadeIn('slow')
             }else{
                 var ctest = currentcount+(7- currentcount%7);
-                console.log(ctest)
                 if(ctest > dataCount){
                     $('#'+ dataCount+'\\.0').parent().after(appendHtml);
                     $('.longme').fadeIn('slow')
@@ -91,7 +91,7 @@ $('.cloud-menu-popover').popover({
 
 
     })
-
+*/
 
 /**
  * Use to handle file upload
