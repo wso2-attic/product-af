@@ -246,19 +246,12 @@ public class AppFactoryCoreUtil {
 					", stage : " + stage);
 		}
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_NAME_FOR_APPTYPE,runtimeNameForAppType));
-		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
-		                                 Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
-		parameters.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
-		                                 applicationTypeBean.getServerDeploymentPath()));
 		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
-			parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
-		                                 applicationTypeBean.getExtension()));
 		parameters.add(new NameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
-
 		parameters.add(new NameValuePair(AppFactoryConstants.ARTIFACT_TYPE, artifactType));
 		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_ID, appId));
 
-
+		addAppTypeParameters(parameters, applicationTypeBean);
 		addRunTimeParameters(stage, parameters, runtimeBean);
 
 		return parameters;
@@ -273,8 +266,6 @@ public class AppFactoryCoreUtil {
 	 * @param runtimeBean runtime bean that we need to add parameters from
 	 */
 	private static void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
-		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME,
-		                                 runtimeBean.getDeployerClassName()));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
 		                                 runtimeBean.getAliasPrefix() + stage));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
@@ -289,6 +280,23 @@ public class AppFactoryCoreUtil {
 		                                 runtimeBean.getDataCartridgeType()));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_DATA_CARTRIDGE_ALIAS,
 		                                 runtimeBean.getDataCartridgeAlias()));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT,
+		                                 Boolean.toString(runtimeBean.getSubscribeOnDeployment())));
+	}
+
+	/**
+	 * Add application type parameters to the map
+	 *
+	 * @param parameters parameter map to send to the jenkins
+	 * @param applicationTypeBean application type bean object
+	 */
+	private static void addAppTypeParameters(List<NameValuePair> parameters, ApplicationTypeBean applicationTypeBean) {
+		parameters.add(new NameValuePair(AppFactoryConstants.APPLICATION_EXTENSION,
+		                                      applicationTypeBean.getExtension()));
+		parameters.add(new NameValuePair(AppFactoryConstants.DEPLOYER_CLASSNAME,
+		                                      applicationTypeBean.getDeployerClassName()));
+		parameters.add(new NameValuePair(AppFactoryConstants.SERVER_DEPLOYMENT_PATHS,
+		                                      applicationTypeBean.getServerDeploymentPath()));
 	}
 
 

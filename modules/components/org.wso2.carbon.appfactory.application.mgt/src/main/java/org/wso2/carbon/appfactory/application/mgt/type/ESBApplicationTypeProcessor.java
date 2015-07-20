@@ -18,7 +18,6 @@ package org.wso2.carbon.appfactory.application.mgt.type;
 
 import org.apache.axiom.om.OMElement;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 
 import java.io.File;
@@ -33,12 +32,6 @@ public class ESBApplicationTypeProcessor extends AbstractApplicationTypeProcesso
     public void doVersion(String applicationId, String targetVersion, String currentVersion, String workingDirectory)
             throws AppFactoryException {
         AppVersionStrategyExecutor.doVersionForESB(currentVersion, targetVersion, new File(workingDirectory));
-    }
-
-    @Override
-    public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
-        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
-                ProjectUtils.getArchetypeRequest(applicationId, getProperty(MAVEN_ARCHETYPE_REQUEST)));
     }
 
     @Override public OMElement configureBuildJob(OMElement jobConfigTemplate, Map<String, String> parameters,

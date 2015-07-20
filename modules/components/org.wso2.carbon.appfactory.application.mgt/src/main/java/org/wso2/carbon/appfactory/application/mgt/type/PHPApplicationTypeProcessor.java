@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.appfactory.application.mgt.type;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,17 +24,13 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
-import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.context.CarbonContext;
 
 import java.io.File;
-import java.util.Map;
 
 /**
  * PHP application type processor
@@ -51,9 +46,7 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
 
     @Override
     public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
-        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
-                ProjectUtils.getArchetypeRequest(applicationId,
-                        getProperty(MAVEN_ARCHETYPE_REQUEST)));
+        super.generateApplicationSkeleton(applicationId, workingDirectory);
         File pomFile = new File(workingDirectory + File.separator + AppFactoryConstants.DEFAULT_POM_FILE);
         boolean result = FileUtils.deleteQuietly(pomFile);
         if (!result){

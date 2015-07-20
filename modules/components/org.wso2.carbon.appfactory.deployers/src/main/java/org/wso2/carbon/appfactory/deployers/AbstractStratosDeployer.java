@@ -65,10 +65,11 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
                            deployStage + AppFactoryConstants.MINUS + tenantDomain;
         synchronized (condition.intern()) {
 
-            File artifactToDeploy = artifactsToDeploy[0];
-            String fileName = artifactToDeploy.getName();
-            addToGitRepo(fileName, artifactToDeploy, parameters, artifactType, serverDeploymentPath, null,
-                         tenantDomain,tenantId);
+	        for (File artifactToDeploy : artifactsToDeploy) {
+		        String fileName = artifactToDeploy.getName();
+		        addToGitRepo(fileName, artifactToDeploy, parameters, artifactType, serverDeploymentPath, null,
+		                     tenantDomain,tenantId);
+	        }
 
             if (notify) {
                 // git uses "master" for the main branch while , we need to parse "trunk" here for the main branch

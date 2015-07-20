@@ -18,6 +18,7 @@ package org.wso2.carbon.appfactory.application.mgt.type;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,8 +27,12 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeProcessor;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeValidationStatus;
+import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +55,63 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
     public static final String XPATH_SEPERATOR = ".";
 
 	protected Properties properties;
+
+	@Override
+	public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
+		boolean isSuccess = ProjectUtils.generateProjectArchetype(applicationId, workingDirectory
+				, ProjectUtils.getArchetypeRequest(applicationId, getProperty(MAVEN_ARCHETYPE_REQUEST)));
+		if(isSuccess) {
+			String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+			File archetypeDir = new File(
+					CarbonUtils.getTmpDir() + File.separator + tenantDomain + File.separator + applicationId +
+					File.separator +
+					AppFactoryConstants.MAVEN_ARCHETYPE_DIR);
+			initialDeployArtifactGeneration(applicationId, workingDirectory, archetypeDir);
+			ProjectUtils.configureFinalName(archetypeDir.getAbsolutePath());
+			ProjectUtils.copyArchetypeToTrunk(archetypeDir.getAbsolutePath(), workingDirectory);
+			boolean deleteResult = FileUtils.deleteQuietly(archetypeDir);
+			if (!deleteResult) {
+				log.warn("Error while deleting the archetype directory");
+			}
+		}
+	}
+
+	/**
+	 * Generate the initial artifact by running maven assembly plugin on pre installed artifacts in archetype
+	 * @param applicationId application id
+	 * @param workingDirectory current working directory. this is where we do all application related file operations
+	 * @param archetypeDir location of the archetypes generated
+	 * @throws AppFactoryException
+	 */
+	protected void initialDeployArtifactGeneration(String applicationId, String workingDirectory, File archetypeDir)
+			throws AppFactoryException {
+		List<String> goals = new ArrayList<String>();
+		goals.add(AppFactoryConstants.MVN_GOAL_CLEAN);
+		goals.add(AppFactoryConstants.MVN_GOAL_INSTALL);
+		goals.add(AppFactoryConstants.MVN_GOAL_ASSEMBLY);
+		File projectDir = new File(archetypeDir.getAbsolutePath() + File.separator + applicationId);
+		File initialArtifact = new File(archetypeDir.getAbsolutePath() + File.separator + applicationId
+		                                + AppFactoryConstants.AF_ARCHETYPE_INITIAL_ARTIFACT_LOCATION);
+		boolean isInitialArtifactGenerationSuccess = ProjectUtils.initialDeployArtifactGeneration
+				(applicationId, projectDir, initialArtifact, new File(workingDirectory), goals);
+		if(isInitialArtifactGenerationSuccess){
+			try {
+				File initialArtifactSource = new File(projectDir + File.separator
+				                                 + AppFactoryConstants.AF_ARCHETYPE_INITIAL_ARTIFACT_SOURCE_LOCATION);
+				FileUtils.deleteDirectory(initialArtifactSource);
+				File assemblyFile = new File(projectDir + File.separator
+				                             + AppFactoryConstants.AF_ARCHETYPE_INITIAL_ARTIFACT_ASSEMBLY_XML_LOCATION);
+				FileUtils.forceDelete(assemblyFile);
+				File assemblyDescriptorFile = new File(projectDir + File.separator
+				                                       + AppFactoryConstants.AF_ARCHETYPE_INITIAL_ARTIFACT_BIN_XML_LOCATION);
+				FileUtils.forceDelete(assemblyDescriptorFile);
+			} catch (IOException e) {
+				String msg = "Error occurred while deleting files used in deploy artifact generation";
+				log.error(msg, e);
+				throw new AppFactoryException(msg, e);
+			}
+		}
+	}
 
 	@Override
 	public void setProperties(Properties properties) {

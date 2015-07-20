@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${groupId}</groupId>
+  <artifactId>${rootArtifactId}-main</artifactId>
+  <version>${version}</version>
+  <packaging>pom</packaging>
+  <name>${rootArtifactId}-main</name>
+  <description>Sample CAR Maven Project</description>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <buildcommands />
+          <projectnatures>
+            <projectnature>org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature</projectnature>
+          </projectnatures>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <modules>
+    <module>${rootArtifactId}ApplicationResources</module>
+    <module>${rootArtifactId}SimpleProxy</module>
+    <module>${rootArtifactId}DevelopmentResourcesCAR</module>
+    <module>${rootArtifactId}TestingResourcesCAR</module>
+    <module>${rootArtifactId}</module>
+    <module>${rootArtifactId}ProductionResourcesCAR</module>
+  </modules>
+</project>
