@@ -483,19 +483,6 @@ function setClipBoard(version){
 
        });
 }
-
-   function updateAppVersionPromoteStatus(promoteStatus, version, nextStage){
-       jagg.post("../blocks/application/update/ajax/update.jag", {
-               action: "updatePromoteStatus",
-               applicationKey: '<%=applicationKey%>',
-               nextStage:nextStage,
-               version:version,
-               state:promoteStatus
-           }, function (result) {},
-           function (jqXHR, textStatus, errorThrown) {});
-   };
-
-
    function deployApp(applicationKey, version, stage, deployAction, state, type){
        jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
                action: "copyNewDependenciesAndDeployArtifact",
@@ -528,9 +515,40 @@ function setClipBoard(version){
            });
    };
 
+   function deployAndUpdatePromoteStatus(applicationKey, version, stage, deployAction){
+       jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+               action: "deployAndUpdatePromoteStatus",
+               applicationKey: applicationKey,
+               deployAction:deployAction,
+               stage:stage,
+               tagName:"",
+               version:version
+           }, function (result) {
+               jagg.message({
+                   content: "The Deployment is underway. Please wait and refresh page after few minutes.",
+                   type: 'success',
+                   id:'notification'
+               });
+               if((stage == fgdmAllowedStage) && hasDomainMappingPermission === 'true' &&   //has permissions
+                            defaultSubDomain && !domainMappedVersion &&                     //production url exists
+                            domainMappedVersion == null && deployedPodVersionCount == 0 ){  // there is no version in production which is deployed and mapped
+                    remapDomainToVersion(version);
+               }
+               setTimeout("window.location.reload()",240000);
+           },
+
+           function (jqXHR, textStatus, errorThrown) {
+               jagg.message({
+                   content: "Error occurred while deploying the artifact.",
+                   type: 'error',
+                   id:'notification'
+               });
+
+           });
+   };
+
    function acceptAndDeploy(applicationKey, version, stage, deployAction, state, type){
-	   deployApp(applicationKey, version, stage, deployAction, state, type);
-	   updateAppVersionPromoteStatus("",version, stage);
+	   deployAndUpdatePromoteStatus(applicationKey, version, stage, deployAction);
    };
 
 

@@ -455,7 +455,7 @@ function fileuploadchange(e, data){
         $('#progressDiv').removeClass('progress-bar').removeClass("progress-bar-success").removeAttr("style");
         $('#progressDiv').addClass('progress-bar').addClass("progress-bar-success");
         $('#progress').addClass("progress");
-        $("#testupload").val(file.name);
+        $("#fileUploadDisplay").val(file.name);
     })
 }
 
@@ -499,7 +499,13 @@ function fileuploaddone(e, data){
 
 function fileuploadfail(e, data){
     $('#progress').hide();
-    $("#upload-message").text("Error occurred while validating the application").show();
+    var appKey = $('#applicationKey').val().trim();
+    if (data.files.length < 1 || !appKey.length || appKey == "null" ) {
+        $("#upload-message").addClass("invalidKey").text("Invalid application name").show();
+    } else {
+        $("#upload-message").text("Error occurred while validating the application").show();
+    }
+
 }
 //End of JQuery file upload callback functions
 
@@ -864,7 +870,7 @@ function fileuploadfail(e, data){
                     <div class="form-group">
                         <label for="application-icon">Upload Application: </label>
                         <div class="input-group">
-                            <input type="text" id="testupload" class="form-control" readonly>
+                            <input type="text" id="fileUploadDisplay" class="form-control" readonly>
                         <span class="input-group-btn">
                             <!-- The file input field used as target for the file upload widget -->
                             <span class="btn btn-primary btn-file">
