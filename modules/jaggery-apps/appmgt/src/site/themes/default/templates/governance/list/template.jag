@@ -178,20 +178,19 @@ function doGovernanceActionAjax(actionName, stage, version, tagName, checkItems,
 function deployPromotedAppToNextStage(actionName, stage, version){
     var nextStageName = nextStage[stage];
 	if(actionName == 'Promote' && hasPromotePermissions[nextStageName]){
-		deployApp(version,nextStageName);
+		deployAndUpdatePromoteStatus(version,nextStageName);
 	}
 }
 
-function deployApp(version, nextStage){
+function deployAndUpdatePromoteStatus(version, nextStage){
     jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-            action: "copyNewDependenciesAndDeployArtifact",
+            action: "deployAndUpdatePromoteStatus",
             applicationKey: $("#applicationKey").attr('value'),
             deployAction:"",
             stage:nextStage,
             tagName:"",
             version:version
         }, function (result) {
-        	updateAppVersionPromoteStatus("",version, nextStage);
             jagg.message({
                 content: "Deployment has been submitted successfully for the next stage "+ nextStage,
                 type: 'success',

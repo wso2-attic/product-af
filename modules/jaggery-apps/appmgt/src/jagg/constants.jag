@@ -45,6 +45,7 @@ var TAGGED = "Tagged";
 var LATEST = "Latest";
 var PROMOTE = "promote";
 var PROMOTED = "Promoted";
+var PROMOTED_STATUS_SUCCESS = "";
 
 
 //appfactory.xml keys
