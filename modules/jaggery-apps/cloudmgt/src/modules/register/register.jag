@@ -165,7 +165,7 @@ var registerOrg = function (organizationDomain,adminUsername,adminPassword, firs
         creatTenant.open(options,endPoint, false);
         creatTenant.send(payload);
         result = creatTenant.responseE4X;
-        registerOrganization(organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan);
+        //registerOrganization(organizationDomain,adminUsername,adminPassword, firstName,lastName,email,usagePlan);
 
         return result;
     } catch (e) {
