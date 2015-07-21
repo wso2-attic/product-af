@@ -295,8 +295,11 @@ public class AppFactoryConstants {
 	public static final String RXT_KEY_APPVERSION_ISAUTOBUILD = "appversion_isAutoBuild";
 	public static final String RXT_KEY_APPVERSION_ISAUTODEPLOY = "appversion_isAutoDeploy";
 	public static final String RXT_KEY_APPVERSION_PROMOTE = "Promote";
+	public static final String MAVEN_REPO_LOCAL = "maven.repo.local";
+	public static final String RESOURCES_FILE_LOCATION = "resources";
+	public static final String ESB_CAPPS_LOCAL_REPO = "esbcappslocalrepo";
 
-    public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
+	public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
 			FILE_TYPE_CAR, FILE_TYPE_JAXRS, FILE_TYPE_JAXWS, FILE_TYPE_JAGGERY,
 			FILE_TYPE_BPEL };
 	public static final String CONSUME = "consume";
