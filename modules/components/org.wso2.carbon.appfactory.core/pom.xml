@@ -200,7 +200,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.stratos</groupId>
-      <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
+      <artifactId>org.apache.stratos.common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
