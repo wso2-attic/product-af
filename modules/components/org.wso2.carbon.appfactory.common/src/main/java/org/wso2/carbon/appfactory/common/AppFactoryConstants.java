@@ -434,7 +434,6 @@ public class AppFactoryConstants {
     public static final String HYPHEN = "-";
 
 
-	public static final String CAR_FILE_ARTIFACT_NAME_VERSION_SEPERATOR = "_";
 	public static final String APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR = "-";
 
 
