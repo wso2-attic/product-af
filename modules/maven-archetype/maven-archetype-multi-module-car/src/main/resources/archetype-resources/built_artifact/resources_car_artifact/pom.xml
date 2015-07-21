@@ -43,7 +43,7 @@
                   </descriptors>
                   <appendAssemblyId>false</appendAssemblyId>
                   <outputDirectory>../../../${rootArtifactId}_deploy_artifact</outputDirectory>
-                  <finalName>${rootArtifactId}DevelopmentResourcesCAR-${version}</finalName>
+                  <finalName>${rootArtifactId}ResourcesCAR-${version}</finalName>
                 </configuration>
               </execution>
             </executions>
@@ -57,8 +57,8 @@
                <phase>install</phase>
                  <configuration>
                    <target>
-                     <move file="../../../${rootArtifactId}_deploy_artifact/${rootArtifactId}DevelopmentResourcesCAR-${version}.zip"
-                       tofile="../../../${rootArtifactId}_deploy_artifact/${rootArtifactId}DevelopmentResourcesCAR-${version}.car" />
+                     <move file="../../../${rootArtifactId}_deploy_artifact/${rootArtifactId}ResourcesCAR-${version}.zip"
+                       tofile="../../../${rootArtifactId}_deploy_artifact/${rootArtifactId}ResourcesCAR-${version}.car" />
                    </target>
                  </configuration>
                  <goals>

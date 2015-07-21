@@ -25,9 +25,7 @@
   <modules>
     <module>${rootArtifactId}ApplicationResources</module>
     <module>${rootArtifactId}SimpleProxy</module>
-    <module>${rootArtifactId}DevelopmentResourcesCAR</module>
-    <module>${rootArtifactId}TestingResourcesCAR</module>
+    <module>${rootArtifactId}ResourcesCAR</module>
     <module>${rootArtifactId}</module>
-    <module>${rootArtifactId}ProductionResourcesCAR</module>
   </modules>
 </project>

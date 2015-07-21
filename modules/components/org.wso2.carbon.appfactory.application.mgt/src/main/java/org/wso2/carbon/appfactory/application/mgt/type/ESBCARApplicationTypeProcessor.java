@@ -24,18 +24,20 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.utilities.file.FileUtilities;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Application type processor to process car application requests in App factory
  */
-public class CARApplicationTypeProcessor extends MavenMultiModuleApplicationTypeProcessor {
+public class ESBCARApplicationTypeProcessor extends MavenMultiModuleApplicationTypeProcessor {
 
-	private static final Log log = LogFactory.getLog(CARApplicationTypeProcessor.class);
+	private static final Log log = LogFactory.getLog(ESBCARApplicationTypeProcessor.class);
 
 	@Override
 	public void doVersion(final String applicationId, String targetVersion, String currentVersion,
@@ -50,10 +52,22 @@ public class CARApplicationTypeProcessor extends MavenMultiModuleApplicationType
 				log.info(applicationId + ":" + s);
 			}
 		};
-		ProjectUtils.runMavenCommand(goals, invocationOutputHandler, projectDir, null);
+		Properties properties=new Properties();
+		String repositoryPath = CarbonUtils.getCarbonRepository() + File.separator +
+		                        AppFactoryConstants.RESOURCES_FILE_LOCATION + File.separator +
+		                        AppFactoryConstants.ESB_CAPPS_LOCAL_REPO;
+		try {
+			FileUtils.forceMkdir(new File(repositoryPath));
+		} catch (IOException e) {
+			String msg = "Error occurred while creating local repo";
+			log.error(msg, e);
+			throw new AppFactoryException(msg, e);
+		}
+		properties.put(AppFactoryConstants.MAVEN_REPO_LOCAL, repositoryPath);
+		ProjectUtils.runMavenCommand(goals, invocationOutputHandler, projectDir, null, properties);
 		super.doVersion(applicationId, targetVersion, currentVersion, workingDirectory);
-		FileUtilities.deleteTargetFolders(new File(workingDirectory));
-		AppVersionStrategyExecutor.doVersionCarArtifacts(targetVersion, new File(workingDirectory));
+		FileUtilities.deleteTargetFolders(projectDir);
+		AppVersionStrategyExecutor.doVersionCarArtifacts(targetVersion, projectDir);
 	}
 
 	@Override

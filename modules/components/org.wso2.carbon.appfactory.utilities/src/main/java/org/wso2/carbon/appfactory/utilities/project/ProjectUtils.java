@@ -48,10 +48,7 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * ProjectUtil class holds the utility methods to generate projects
@@ -62,7 +59,7 @@ public class ProjectUtils {
 
 
 	public static InvocationResult runMavenCommand(List<String> goals, InvocationOutputHandler invokerOutputHandler, File baseDir,
-	                                   String mavenOPTs) throws AppFactoryException {
+	                                   String mavenOPTs, Properties properties) throws AppFactoryException {
 		//Check whether the maven home is set. If not, can not proceed further.
 		String mavenHome = System.getenv(AppFactoryConstants.SYSTEM_VARIABLE_M2_HOME);
 		if (StringUtils.isBlank(mavenHome)) {
@@ -79,6 +76,9 @@ public class ProjectUtils {
 		request.setGoals(goals);
 		if(mavenOPTs != null) {
 			request.setMavenOpts(mavenOPTs);
+		}
+		if(properties != null) {
+			request.setProperties(properties);
 		}
 		try{
 			Invoker invoker = new DefaultInvoker();
@@ -130,7 +130,7 @@ public class ProjectUtils {
 		            log.info(appId + ":" + s);
 	            }
             };
-		    result = runMavenCommand(goals, invokerOutputHandler, archetypeDir, archetypeRequest);
+		    result = runMavenCommand(goals, invokerOutputHandler, archetypeDir, archetypeRequest, null);
 
         } finally {
             if (result != null && result.getExitCode() == 0) {
@@ -202,7 +202,7 @@ public class ProjectUtils {
             }
         };
         try {
-            result = runMavenCommand(goals, invocationOutputHandler, projectDir, null);
+            result = runMavenCommand(goals, invocationOutputHandler, projectDir, null, null);
             if(initialArtifact.exists()){
                 isSuccess = true;
             }else{
