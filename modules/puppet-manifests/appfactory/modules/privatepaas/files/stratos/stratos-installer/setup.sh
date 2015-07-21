@@ -162,7 +162,7 @@ function general_setup() {
     sed -i "s@<Offset>0</Offset>@<Offset>${offset}</Offset>@g" repository/conf/carbon.xml
 
     echo "In repository/conf/jndi.properties"
-    sed -i "s@MB_HOSTNAME:MB_LISTEN_PORT@$mb_ip:$mb_port@g" repository/conf/jndi.properties
+    sed -i "s@MB_HOSTNAME:MB_LISTEN_PORT@$mb_ip:61616@g" repository/conf/jndi.properties
     popd
 
 }
@@ -232,7 +232,7 @@ function cc_setup() {
     echo "Setup CC" >> $LOG
     echo "Configuring the Cloud Controller"
 
-    cp -f $current_dir/config/all/repository/conf/cloud-controller.xml $stratos_extract_path/repository/conf/ 
+    cp -f $current_dir/templates/cloud-controller.xml $stratos_extract_path/repository/conf/
 
     export cc_path=$stratos_extract_path
     echo "In repository/conf/cloud-controller.xml"
@@ -245,6 +245,14 @@ function cc_setup() {
     if [[ $vcloud_provider_enabled = true ]]; then
         $current_dir/vcloud.sh $stratos_extract_path
     fi
+    if [[ $gce_provider_enabled = true ]]; then
+        $current_dir/gce.sh $stratos_extract_path
+    fi
+    if [[ $kubernetes_provider_enabled = true ]]; then
+        $current_dir/kubernetes.sh $stratos_extract_path
+    fi
+
+    $current_dir/mock_iaas.sh $stratos_extract_path $mock_iaas_enabled
 
     pushd $stratos_extract_path
     
@@ -306,16 +314,14 @@ function as_setup() {
     echo "Setup AS" >> $LOG
     echo "Configuring the Autoscaler"
 
-    cp -f $current_dir/config/all/repository/conf/autoscaler.xml $stratos_extract_path/repository/conf/
+    cp -f $current_dir/templates/autoscaler.xml $stratos_extract_path/repository/conf/
 
     pushd $stratos_extract_path
-
     echo "In repository/conf/autoscaler.xml"
     sed -i "s@CC_HOSTNAME@$cc_hostname@g" repository/conf/autoscaler.xml
     sed -i "s@CC_LISTEN_PORT@$as_cc_https_port@g" repository/conf/autoscaler.xml
     sed -i "s@SM_HOSTNAME@$sm_hostname@g" repository/conf/autoscaler.xml
     sed -i "s@SM_LISTEN_PORT@$as_sm_https_port@g" repository/conf/autoscaler.xml
-
     popd
     echo "End configuring the Autoscaler"
 }
@@ -395,10 +401,10 @@ function sm_setup() {
     echo "Setup SM" >> $LOG
     echo "Configuring Stratos Manager"
 
-    cp -f $current_dir/config/all/repository/conf/cartridge-config.properties $stratos_extract_path/repository/conf/
-    cp -f $current_dir/config/all/repository/conf/user-mgt.xml $stratos_extract_path/repository/conf/
-    cp -f $current_dir/config/all/repository/conf/registry.xml $stratos_extract_path/repository/conf/
-    cp -f $current_dir/config/all/repository/conf/datasources/master-datasources.xml $stratos_extract_path/repository/conf/datasources/
+    cp -f $current_dir/templates/cartridge-config.properties $stratos_extract_path/repository/conf/
+    cp -f $current_dir/templates/user-mgt.xml $stratos_extract_path/repository/conf/
+    cp -f $current_dir/templates/registry.xml $stratos_extract_path/repository/conf/
+    cp -f $current_dir/templates/datasources/master-datasources.xml $stratos_extract_path/repository/conf/datasources/
     cp -f $mysql_connector_jar $stratos_extract_path/repository/components/lib/
 
     pushd $stratos_extract_path
@@ -577,33 +583,52 @@ if [[ ! -d $log_path ]]; then
     mkdir -p $log_path
 fi
 
-# Extract stratos zip file
-if [[ !(-d $stratos_extract_path) ]]; then
-    echo "Extracting Apache Stratos"
-    unzip -q $stratos_pack_zip -d $stratos_path
-    cp -rf $current_dir/../patches/patch0008/ $stratos_path/apache-stratos-4.0.0-wso2v1/repository/components/patches/
-    cp -rf $current_dir/../themes/theme1/* $stratos_path/apache-stratos-4.0.0-wso2v1/repository/deployment/server/jaggeryapps/console/themes/theme1/
-    mv -f $stratos_path/apache-stratos-4.0.0-wso2v1 $stratos_extract_path
-fi
-
 if [[ ( ($profile = "default" || $profile = "stratos") && $config_mb = "true") ]]; then
     echo "Extracting ActiveMQ"
     tar -xzf $activemq_pack -C $stratos_path
     # disable amqp connector to prevent conflicts with openstack
     sed -r -i -e 's@^(\s*)(<transportConnector name="amqp".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
     # propagating offset to activemq
-    if [[ ($offset > 0) ]]; then
-     sed -r -i -e "s@tcp://0.0.0.0:61616@tcp://0.0.0.0:$mb_port@g" $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+    #if [[ ($offset > 0) ]]; then
+     #sed -r -i -e "s@tcp://0.0.0.0:61616@tcp://0.0.0.0:$mb_port@g" $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
      # disabling all other transports except openwire
-     sed -r -i -e 's@^(\s*)(<transportConnector name="stomp".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
-     sed -r -i -e 's@^(\s*)(<transportConnector name="mqtt".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
-     sed -r -i -e 's@^(\s*)(<transportConnector name="ws".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+     #sed -r -i -e 's@^(\s*)(<transportConnector name="stomp".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+     #sed -r -i -e 's@^(\s*)(<transportConnector name="mqtt".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+     #sed -r -i -e 's@^(\s*)(<transportConnector name="ws".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
 
      # changing activemq console url port
-     sed -i "s@8161@$(( 8161+$offset ))@g" $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/jetty.xml
+     #sed -i "s@8161@$(( 8161+$offset ))@g" $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/jetty.xml
 
-    fi
+    #fi
 fi
+
+# Extract stratos zip file
+if [[ !(-d $stratos_extract_path) ]]; then
+    echo "Extracting Apache Stratos"
+    unzip -q $stratos_pack_zip -d $stratos_path
+    cp -rf $current_dir/../patches/patch0008/ $stratos_path/apache-stratos-4.1.1/repository/components/patches/
+    cp -rf $current_dir/../themes/theme1/* $stratos_path/apache-stratos-4.1.1/repository/deployment/server/jaggeryapps/console/themes/theme1/
+    mv -f $stratos_path/apache-stratos-4.1.1 $stratos_extract_path
+fi
+
+#if [[ ( ($profile = "default" || $profile = "stratos") && $config_mb = "true") ]]; then
+#    echo "Extracting ActiveMQ"
+#    tar -xzf $activemq_pack -C $stratos_path
+    # disable amqp connector to prevent conflicts with openstack
+#    sed -r -i -e 's@^(\s*)(<transportConnector name="amqp".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+    # propagating offset to activemq
+#    if [[ ($offset > 0) ]]; then
+#     sed -r -i -e "s@tcp://0.0.0.0:61616@tcp://0.0.0.0:$mb_port@g" $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+     # disabling all other transports except openwire
+#     sed -r -i -e 's@^(\s*)(<transportConnector name="stomp".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+#     sed -r -i -e 's@^(\s*)(<transportConnector name="mqtt".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+#     sed -r -i -e 's@^(\s*)(<transportConnector name="ws".*\s*)$@\1<!--\2-->@g' $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/activemq.xml
+
+     # changing activemq console url port
+#     sed -i "s@8161@$(( 8161+$offset ))@g" $stratos_path/$ACTIVE_MQ_EXTRACTED/conf/jetty.xml
+
+#    fi
+#fi
 
 general_setup
 if [[ $profile = "cc" ]]; then
