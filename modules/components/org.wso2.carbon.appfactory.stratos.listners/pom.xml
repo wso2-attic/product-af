@@ -68,13 +68,10 @@
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.manager</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.core</artifactId>
+            <artifactId>org.apache.stratos.common</artifactId>
         </dependency>
     </dependencies>
 
