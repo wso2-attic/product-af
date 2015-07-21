@@ -54,10 +54,7 @@
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.cli</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
             <artifactId>httpclient</artifactId>
