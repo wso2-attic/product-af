@@ -444,10 +444,8 @@ public class AppFactoryUtil {
 			}
 			String resource_car_naming_pattern = applicationId + stage;
 			for (File file : allFiles) {
-				String artifactID = file.getName().split(AppFactoryConstants.CAR_FILE_ARTIFACT_NAME_VERSION_SEPERATOR)[0];
-				if((file.getName().startsWith(resource_car_naming_pattern))
-				   || (applicationId.split(AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR)[0].equals
-						(artifactID.split(AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR)[0]))){
+				String artifactID = file.getName().split(AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR)[0];
+				if((file.getName().startsWith(resource_car_naming_pattern)) || (applicationId.equals(artifactID))) {
 					fileList.add(file);
 				}
 			}
