@@ -68,6 +68,7 @@
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.manager</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.common</artifactId>
