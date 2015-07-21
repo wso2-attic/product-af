@@ -9,7 +9,7 @@ define privatepaas::clean ( $mode, $target ) {
   elsif $mode == 'new' {
     exec { "Stop_process_and_remove_CARBON_HOME_${name}":
       path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin/',
-      command => "kill -9 `cat ${target}/install/apache-stratos-4.1.0-SNAPSHOT/wso2carbon.pid` ; rm -rf ${target}";
+      command => "kill -9 `cat ${target}/install/apache-stratos-4.1.0/wso2carbon.pid` ; rm -rf ${target}";
     }
   }
 }
