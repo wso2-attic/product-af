@@ -28,27 +28,9 @@
     <module id="__rootArtifactId__ApplicationResources" dir="__rootArtifactId__ApplicationResources" name="__rootArtifactId__ApplicationResources">
       <fileSets>
         <fileSet filtered="true" encoding="UTF-8">
-          <directory>Production</directory>
-          <includes>
-            <include>**/*.xml</include>
-          </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
-          <directory>Testing</directory>
-          <includes>
-            <include>**/*.xml</include>
-          </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
-          <directory>Development</directory>
-          <includes>
-            <include>**/*.xml</include>
-          </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
           <directory></directory>
           <includes>
-            <include>artifact.xml</include>
+            <include>**/*.xml</include>
           </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
@@ -75,9 +57,7 @@
         </fileSet>
       </fileSets>
     </module>
-    <module id="__rootArtifactId__DevelopmentResourcesCAR" dir="__rootArtifactId__DevelopmentResourcesCAR" name="__rootArtifactId__DevelopmentResourcesCAR" />
-    <module id="__rootArtifactId__TestingResourcesCAR" dir="__rootArtifactId__TestingResourcesCAR" name="__rootArtifactId__TestingResourcesCAR" />
+    <module id="__rootArtifactId__ResourcesCAR" dir="__rootArtifactId__ResourcesCAR" name="__rootArtifactId__ResourcesCAR" />
     <module id="__rootArtifactId__" dir="__rootArtifactId__" name="__rootArtifactId__" />
-    <module id="__rootArtifactId__ProductionResourcesCAR" dir="__rootArtifactId__ProductionResourcesCAR" name="__rootArtifactId__ProductionResourcesCAR" />
   </modules>
 </archetype-descriptor>

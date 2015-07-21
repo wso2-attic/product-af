@@ -33,9 +33,9 @@ import java.util.List;
 /**
  * Application type processor to process car application requests in App factory
  */
-public class CARApplicationTypeProcessor extends MavenMultiModuleApplicationTypeProcessor {
+public class ESBCARApplicationTypeProcessor extends MavenMultiModuleApplicationTypeProcessor {
 
-	private static final Log log = LogFactory.getLog(CARApplicationTypeProcessor.class);
+	private static final Log log = LogFactory.getLog(ESBCARApplicationTypeProcessor.class);
 
 	@Override
 	public void doVersion(final String applicationId, String targetVersion, String currentVersion,
