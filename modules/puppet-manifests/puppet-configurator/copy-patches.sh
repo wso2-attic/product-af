@@ -71,8 +71,6 @@ _update_patches AM_PATCHES[@] apimanager apimanager/files/patches/repository/com
 _update_patches AS_PATCHES[@] as as/files/patches/repository/components/patches
 _update_patches ELB_PATCHES[@] elb elb/files/patches/repository/components/patches
 _update_patches IS_PATCHES[@] identity identity/files/patches/repository/components/patches
-_update_patches JPP_PATCHES[@] jppserver jppserver/files/patches/repository/components/patches
-_update_patches PAAS_AS_PATCHES[@] paas_as paaspuppet/files/puppet/modules/appserver/files/patches/repository/components/patches
 _update_patches SS_PATCHES[@] storage storage/files/patches/repository/components/patches
 _update_patches STRATOS_INSTALLER_PATCHES[@] stratos-installer privatepaas/files/appfactory_deployment/repository/components/patches
 _update_patches STRATOS_INSTALLER_CONFIG_PATCHES[@] stratos-installer-config privatepaas/files/stratos/stratos-installer/config/all/repository/components/patches
