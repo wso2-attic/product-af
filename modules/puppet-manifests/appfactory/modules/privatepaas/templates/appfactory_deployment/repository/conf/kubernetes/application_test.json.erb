@@ -1,15 +1,15 @@
 {
-    "applicationId": "astesting",
-    "alias": "astesting",
+    "applicationId": "<%=@test_cartridge_alias %>",
+    "alias": "<%=@test_cartridge_alias %>",
     "multiTenant": true,
     "components": {
         "cartridges": [
             {
-            "type": "testas",
+            "type": "<%=@test_cartridge_type %>",
             "cartridgeMin": 1,
             "cartridgeMax": 1,
                 "subscribableInfo": {
-                "alias": "testas",
+                "alias": "<%=@test_cartridge_type %>",
                 "autoscalingPolicy": "autoscaling-policy",
                 "deploymentPolicy": "deployment-policy"
                 }

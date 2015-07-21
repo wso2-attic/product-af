@@ -19,7 +19,8 @@
 
 jagg.template("application/select", function (inputs, outputs, jagg) { %>
 
-<%  
+<% 
+    var log = new Log();
     var type = request.getParameter("type");
     var buttonCreateUpload;
     if( type == "new"){
@@ -32,8 +33,6 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
     var type = '<%=type%>';
 </script>
 <!--#############################################################-->
-<div class="inner-wrapper">
-
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
@@ -63,7 +62,8 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
         <div class="row listing " data-count="<%=outputs.applicationTypesHolder.length%>">
             <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
                 <% var appTypeBean = outputs.applicationTypesHolder[i].applicationTypeBean; %>
-                <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 ">
+                <% log.info("+++++++++++++++++++ : " + appTypeBean.displayName);%>
+                    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 ">
                     <div class="cloud-app-type <%=appTypeBean.getIconColorClass()%>" id="<%=i+1%>"
                      data-description="<%=appTypeBean.getDescription()%> "
                      data-appTypeDisplayName="<%=appTypeBean.getDisplayName()%>"
@@ -118,14 +118,112 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
     <%}%>
     <!-- EOF template block appear on each click -->
     <div id="push"></div>
-</div>
-
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <!-- include custom js functions -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<script>
+/**
+ * this function use to append description block on app type selection
+ * */
+$(document).on('click', '.cloud-app-type', function(){
 
+    $('.listing').find('.longme').detach();
+    if($('.cloud-app-type').hasClass('cloud-app-selected')){
+        $('.cloud-app-type').removeClass('cloud-app-selected');
+        $(this).addClass('cloud-app-selected');
+    }else{
+        $(this).addClass('cloud-app-selected');
+
+    }
+
+    var width = $( window ).width(),
+        currentcount = parseInt($(this).attr('id')),
+        appDescription = $(this).attr('data-description'),
+        appName = $(this).attr('data-appname'),
+        appTypeDisplayName = $(this).attr('data-appTypeDisplayName'),
+        apptype = $(this).attr('data-apptype'),
+        extension = $(this).attr('data-apptypeExtention'),
+        apptypeIconColor= $(this).attr('data-apptypeIconColor'),
+        apptypeIconImageClass= $(this).attr('data-apptypeIconImageClass'),
+        dataCount = parseInt($('.listing').attr('data-count'));
+    //content replace with data attributes
+    $('.app-type-info-template').find('.app-name').html(appName);
+    $('.app-type-info-template').find('.app-description').html(appDescription);
+
+    $('.app-type-info-template').find('.app-appTypeDisplayName').html(appTypeDisplayName);
+    $('.app-type-info-template').find('.app-apptype').html(apptype);
+
+    // replace the form hidden input fields values
+    $('#appTypeDisplayName').val(appTypeDisplayName);
+    $('#apptype').val(apptype);
+    $('#apptypeExtension').val(extension);
+    $('#apptypeIconColor').val(apptypeIconColor);
+    $('#apptypeIconImageClass').val(apptypeIconImageClass);
+    var appendHtml =$('.app-type-info-template').html();
+
+
+    if(width >=1170){
+        if(currentcount%7 == 0){
+            $('#'+currentcount+'\\.0').parent().after(appendHtml);
+            $('.longme').fadeIn('slow')
+        }else{
+            var ctest = currentcount+(7- currentcount%7);
+            console.log(ctest)
+            if(ctest > dataCount){
+                $('#'+ dataCount+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }else{
+                $('#'+ctest+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }
+
+        }
+    }else if(width >=970){
+        if(currentcount%4 == 0){
+            $('#'+currentcount+'\\.0').parent().after(appendHtml);
+            $('.longme').fadeIn('slow')
+        }else{
+            var ctest = parseInt(currentcount)+(4- currentcount%4);
+            if(ctest > dataCount){
+                $('#'+ dataCount+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }else{
+                $('#'+ctest+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+
+            }
+
+        }
+    }else if(width >=750 ){
+        if(currentcount%2 == 0){
+            $('#'+currentcount+'\\.0').parent().after(appendHtml);
+            $('.longme').fadeIn('slow')
+        }else{
+            var ctest = parseInt(currentcount)+1;
+            if(ctest > dataCount){
+                $('#'+ dataCount+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }else{
+                $('#'+ctest+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+
+            }
+
+        }
+
+    }else if(width <750 ){
+        $('#'+currentcount+'\\.0').parent().after(appendHtml);
+        $('.longme').fadeIn('slow')
+
+    }
+
+
+})
+
+
+</script>
 <!--#############################################################-->
 
 <% }); %>

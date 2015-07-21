@@ -150,6 +150,8 @@ public class ApplicationTypeManager {
 			}
 			applicationTypeBean.setRuntimes(properties.getProperty(AppFactoryConstants.RUNTIMES).
 							split(AppFactoryConstants.PROPERTY_VALUE_SEPERATOR));
+			applicationTypeBean.setDeployerClassName(properties.getProperty(AppFactoryConstants.DEPLOYER_CLASSNAME));
+			applicationTypeBean.setUndeployerClassName(properties.getProperty(AppFactoryConstants.UNDEPLOYER_CLASSNAME));
 			applicationTypeBean.setBuildJobTemplate(properties.getProperty(ApplicationTypeConstants.BUILD_JOB_TEMPLATE));
 			applicationTypeBean.setComment(properties.getProperty(ApplicationTypeConstants.COMMENT));
             applicationTypeBean.setDescription(properties.getProperty(ApplicationTypeConstants.DESCRIPTION));
@@ -177,6 +179,7 @@ public class ApplicationTypeManager {
             applicationTypeBean.setExecutionType(properties.getProperty(ApplicationTypeConstants.EXECUTION_TYPE));
             applicationTypeBean.setIconColorClass(properties.getProperty(ApplicationTypeConstants.ICON_COLOR_CLASS));
             applicationTypeBean.setIconImageClass(properties.getProperty(ApplicationTypeConstants.ICON_IMAGE_CLASS));
+			applicationTypeBean.setInitialDeployerClassName(properties.getProperty(ApplicationTypeConstants.INITIAL_DEPLOYER_CLASS_NAME));
             // We set the order here. This is used when displaying the apps in the UI
             // If there are no values for this, we give Integer.MAX_VALUE as the display order.
             // If there is an error in parsing the integer value, we should not stop the deployment.

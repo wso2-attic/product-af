@@ -1,15 +1,12 @@
 package org.wso2.carbon.appfactory.application.mgt.type;
 
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 
 import java.io.File;
@@ -27,17 +24,6 @@ public abstract class AbstractFreeStyleApplicationTypeProcessor extends Abstract
             throws AppFactoryException {
         AppVersionStrategyExecutor.doVersionForGenericApplicationType(targetVersion, new File(workingDirectory));
     }
-
-
-    @Override
-    public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
-        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
-                ProjectUtils.getArchetypeRequest(applicationId,
-                        getProperty(MAVEN_ARCHETYPE_REQUEST)));
-        log.warn("Default implementation , nothing to be done with generateApplicationSkeleton");
-    }
-
-
 
     @Override
     public OMElement configureBuildJob(OMElement jobConfigTemplate, Map<String, String> parameters,

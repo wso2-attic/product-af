@@ -28,7 +28,6 @@ import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -52,14 +51,6 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
                           String currentVersion, String workingDirectory)
             throws AppFactoryException {
         AppVersionStrategyExecutor.doVersionForMVN(targetVersion, new File(workingDirectory));
-    }
-
-    @Override
-    public void generateApplicationSkeleton(String applicationId, String workingDirectory)
-            throws AppFactoryException {
-        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory, ProjectUtils
-                .getArchetypeRequest(applicationId, getProperty(MAVEN_ARCHETYPE_REQUEST)));
-
     }
 
     @Override

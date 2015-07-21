@@ -1,15 +1,15 @@
 {
-    "applicationId": "asdevelopment",
-    "alias": "asdevelopment",
+    "applicationId": "<%=@dev_cartridge_alias %>",
+    "alias": "<%=@dev_cartridge_alias %>",
     "multiTenant": true,
     "components": {
         "cartridges": [
             {
-            "type": "devas",
+            "type": "<%=@dev_cartridge_type %>",
             "cartridgeMin": 1,
             "cartridgeMax": 1,
                 "subscribableInfo": {
-                "alias": "devas",
+                "alias": "<%=@dev_cartridge_type %>",
                 "autoscalingPolicy": "autoscaling-policy",
                 "deploymentPolicy": "deployment-policy"
                 }

@@ -3,7 +3,29 @@
     xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modules>
-    <module id="ApplicationResources" dir="ApplicationResources" name="ApplicationResources">
+    <module id="built_artifact" dir="built_artifact" name="built_artifact">
+      <fileSets>
+    	<fileSet filtered="true" encoding="UTF-8">
+          <directory/>
+          <includes>
+            <include>*.xml</include>
+          </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory/>
+          <includes>
+            <include>**/*.xml</include>
+          </includes>
+        </fileSet>    
+        <fileSet filtered="true" encoding="UTF-8">
+          <directory/>
+          <includes>
+            <include>**/*.wsdl</include>
+          </includes>
+        </fileSet>    
+      </fileSets>
+    </module>
+    <module id="__rootArtifactId__ApplicationResources" dir="__rootArtifactId__ApplicationResources" name="__rootArtifactId__ApplicationResources">
       <fileSets>
         <fileSet filtered="true" encoding="UTF-8">
           <directory>Production</directory>
@@ -37,7 +59,7 @@
         </fileSet>
       </fileSets>
     </module>
-    <module id="SimpleProxy" dir="SimpleProxy" name="SimpleProxy">
+    <module id="__rootArtifactId__SimpleProxy" dir="__rootArtifactId__SimpleProxy" name="__rootArtifactId__SimpleProxy">
       <fileSets>
         <fileSet filtered="true" encoding="UTF-8">
           <directory>src/main/synapse-config</directory>
@@ -53,9 +75,9 @@
         </fileSet>
       </fileSets>
     </module>
-    <module id="DevelopmentResourcesCAR" dir="DevelopmentResourcesCAR" name="DevelopmentResourcesCAR" />
-    <module id="TestingResourcesCAR" dir="TestingResourcesCAR" name="TestingResourcesCAR" />
+    <module id="__rootArtifactId__DevelopmentResourcesCAR" dir="__rootArtifactId__DevelopmentResourcesCAR" name="__rootArtifactId__DevelopmentResourcesCAR" />
+    <module id="__rootArtifactId__TestingResourcesCAR" dir="__rootArtifactId__TestingResourcesCAR" name="__rootArtifactId__TestingResourcesCAR" />
     <module id="__rootArtifactId__" dir="__rootArtifactId__" name="__rootArtifactId__" />
-    <module id="ProductionResourcesCAR" dir="ProductionResourcesCAR" name="ProductionResourcesCAR" />
+    <module id="__rootArtifactId__ProductionResourcesCAR" dir="__rootArtifactId__ProductionResourcesCAR" name="__rootArtifactId__ProductionResourcesCAR" />
   </modules>
 </archetype-descriptor>

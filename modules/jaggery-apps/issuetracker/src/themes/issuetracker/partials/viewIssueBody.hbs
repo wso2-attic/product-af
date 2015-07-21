@@ -1,7 +1,7 @@
 
 <input type="hidden" name="ukey" id="ukey" value="{{data.issue.key}}"/>
 <input type="hidden" name="reporter" id="reporter" />
-
+<!--
 <section class="content push_top_40">
     <div class="form-container">
         <fieldset>
@@ -59,7 +59,7 @@
 
         <input type="button" value="Edit Issue" class="btn main edit-btn" onClick="window.location.href='{{url "/issue/edit"}}?issuePkey={{data.issue.key}}&projectKey={{data.projectKey}}&appkey={{appkey}}'" />
 
-</div><!-- /form-container -->
+</div>
 
 <hr>
 
@@ -124,9 +124,119 @@
     </div>
 </div>
 
+-->
+<!--BOF App factory menu actionbar -->
+<div class="action-bar">
+    <a href="/issuetracker/index.jag?appkey={{appkey}}" class="btn-action">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Issues
+    </a>
+</div><!-- EOF App factory menu actionbar-->
 
+<!-- BOF new UX -->
+<div class="container-fluid cloud-container">
+        <div class="row">
+            <div class="col-md-5 forms">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="summary">Summary: </label>
+                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{data.issue.summary}}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                    <label for="type">Type: </label>
+                    <select id="type" class="form-control select2" disabled>
+                        <option value="{{data.issue.type}}">{{data.issue.type}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority: </label>
+                    <select id="priority" class="form-control select2" disabled>
+                        <option value="{{data.issue.priority}}">{{data.issue.priority}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reporter">Reporter: </label>
+                    <select id="reporter" class="form-control select2" disabled>
+                        <option value="{{data.issue.reporter}}">{{data.issue.reporter}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="version">Version: </label>
+                    <select id="version" class="form-control select2" disabled>
+                        <option value="{{data.issue.version}}">{{data.issue.version}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="severity">Severity: </label>
+                    <select id="severity" class="form-control select2" disabled>
+                        <option value="{{data.issue.severity}}">{{data.issue.severity}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignee">Assignee: </label>
+                    <select id="assignee" class="form-control select2" disabled>
+                        <option value="1"> {{data.issue.assignee}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <hr class="gray-hr"/>
+                <div class="form-group">
+                    <label>Comments: </label>
+                    <textarea class="form-control" rows="3" id="commentVal" placeholder="Write your comment here" ></textarea>
+                    <div class="pull-right">
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="commentAdd">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fa fa-comment fa-stack-1x"></i>
+                        </span>
+                            Add comment
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div id="push"></div>
+                    {{#each data.comments}}
+                    {{#if id}}                    
+                    <div class="comment-line">
+                        <p id="desc_{{id}}">{{description}}</p>
+                        <span class="pull-right">{{#if updatedTime}} {{updatedTime}} {{else}} {{createdTime}} {{/if}}, By {{creator}}</span>
+                        <div class="triangle pull-right"></div>
+                        <div class="clearfix"></div>
+                    </div>
+                    {{/if}}
+                    {{/each}}
+                </div>
+                <div class="form-group">
+
+                </div>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
+            </div>
+        </div>
+    </div><!-- /.container -->
+<!-- EOF new UX-->
+
+<!-- old js files--><!--
 <script src="{{url "/themes/issuetracker/js/jquery-1.8.3.min.js"}}"></script>
 <script src="{{url "/themes/issuetracker/js/bootstrap-modal.js"}}"></script>
+--><!--old js files -->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{url "/themes/issuetracker/js/jquery-1.11.1/jquery.min.js"}}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url "/themes/issuetracker/js/bootstrap-3.2.0/bootstrap.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
+<!-- include custom js functions -->
+<script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
+
 
 <script type="text/javascript">
     function showCommentbox(id, creator){

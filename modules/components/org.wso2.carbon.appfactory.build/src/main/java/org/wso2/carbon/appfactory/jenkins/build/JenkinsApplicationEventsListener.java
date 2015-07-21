@@ -134,8 +134,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         }
         JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
         String[] versions = appVersionDAO.getAllVersionNamesOfApplication(application.getId());
-        String deployerType = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
-                                                    .getProperty(AppFactoryConstants.DEPLOYER_TYPE).toString();
         JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
         Undeployer undeployer = new StratosUndeployer();
 
@@ -152,7 +150,8 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             log.info("Successfully deleted the jenkins job : " + jobName +
                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                     " from tenant domain : " + tenantDomain + " in jenkins");
-            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version, lifecycleStage, applicationTypeBean, runtimeBean);
+            undeployer.undeployArtifact(application.getId(), application.getType(), version, lifecycleStage,
+                                        applicationTypeBean, runtimeBean);
             log.info("Successfully undeployed the artifact version : " + version +
                      " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                      " from tenant domain : " + tenantDomain + " from dep sync repo");

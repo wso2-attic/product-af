@@ -75,7 +75,7 @@ _update_patches JPP_PATCHES[@] jppserver jppserver/files/patches/repository/comp
 _update_patches PAAS_AS_PATCHES[@] paas_as paaspuppet/files/puppet/modules/appserver/files/patches/repository/components/patches
 _update_patches SS_PATCHES[@] storage storage/files/patches/repository/components/patches
 _update_patches STRATOS_INSTALLER_PATCHES[@] stratos-installer privatepaas/files/appfactory_deployment/repository/components/patches
-_update_patches STRATOS_INSTALLER_CONFIG_PATCHES[@] stratos-installer-config privatepaas/files/stratos/stratos-installer/config/all/repository/components/patches
+#_update_patches STRATOS_INSTALLER_CONFIG_PATCHES[@] stratos-installer-config privatepaas/files/stratos/stratos-installer/config/all/repository/components/patches
 _update_patches TASK_SERVER[@] taskserver taskserver/files/patches/repository/components/patches
 _update_patches BAM_PATCHES[@] bam bam/files/patches/repository/components/patches
 

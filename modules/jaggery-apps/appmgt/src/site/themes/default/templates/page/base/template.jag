@@ -81,7 +81,7 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
          <!-- OLD CSS can be removed after the new UI/UX--> 
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>">
+        <!-- link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>" -->
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/development.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/custom.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/grid.css'))%>">

@@ -30,6 +30,6 @@
 
     sleep 1
     echo "Deploying application..."
-    curl -X POST -H "Content-Type: application/json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications/asdevelopment/deploy/application-policy_dev
-    curl -X POST -H "Content-Type: application/json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications/astesting/deploy/application-policy_test
-    curl -X POST -H "Content-Type: application/json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications/asproduction/deploy/application-policy_prod
+    curl -X POST -H "Content-Type: application/json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications/<%=@dev_cartridge_alias %>/deploy/application-policy_dev
+    curl -X POST -H "Content-Type: application/json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications/<%=@test_cartridge_alias %>/deploy/application-policy_test
+    curl -X POST -H "Content-Type: application/json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications/<%=@prod_cartridge_alias %>/deploy/application-policy_prod

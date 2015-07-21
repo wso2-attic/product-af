@@ -135,7 +135,7 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
                                 tenantInfoBean.getTenantDomain(), true);
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
                         //TODO punnadi
-                        signUp(repositoryBean, "asdevelopment");
+                        signUp(repositoryBean, runtimeBean, stage);
                         // subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
@@ -213,8 +213,16 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
 
     }
 
-    private static boolean signUp(RepositoryBean repositoryBean, String stratosAppId)
+    private static boolean signUp(RepositoryBean repositoryBean, RuntimeBean runtimeBean, String stage)
             throws Exception {
+
+
+        String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+                getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+        //TODO
+        String stratosAppId = runtimeBean.getAliasPrefix() + stage.toLowerCase();
+
         ApplicationSignUpBean applicationSignUpBean = new ApplicationSignUpBean();
         List<ArtifactRepositoryBean> repo = new ArrayList<ArtifactRepositoryBean>();
         ArtifactRepositoryBean artifactRepositoryBean = new ArtifactRepositoryBean();
@@ -222,7 +230,7 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
         artifactRepositoryBean.setRepoUsername(repositoryBean.getRepositoryAdminUsername());
         artifactRepositoryBean.setRepoPassword(repositoryBean.getRepositoryAdminPassword());
         artifactRepositoryBean.setPrivateRepo(false);
-        artifactRepositoryBean.setAlias("TODO");
+        artifactRepositoryBean.setAlias("todo");
         repo.add(artifactRepositoryBean);
         applicationSignUpBean.setArtifactRepositories(repo);
 

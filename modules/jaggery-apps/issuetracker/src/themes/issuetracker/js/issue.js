@@ -50,7 +50,7 @@ $().ready(function() {
         issue.description= $("#description").attr('value');
         issue.type=$("#type").attr('value');
         issue.priority=$("#priority").attr('value');
-        issue.status=$("#issue_status").attr('value');
+//        issue.status=$("#issue_status").attr('value');
         issue.assignee=$("#assignee").attr('value');
         issue.versionId=$("#version").attr('value');
         issue.severity=$("#severity").attr('value');
