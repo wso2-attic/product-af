@@ -53,7 +53,7 @@ public class ESBCARApplicationTypeProcessor extends MavenMultiModuleApplicationT
 			}
 		};
 		Properties properties=new Properties();
-		String repositoryPath = CarbonUtils.getCarbonRepository() + File.separator +
+		String repositoryPath = CarbonUtils.getCarbonHome() + File.separator +
 		                        AppFactoryConstants.RESOURCES_FILE_LOCATION + File.separator +
 		                        AppFactoryConstants.ESB_CAPPS_LOCAL_REPO;
 		try {
