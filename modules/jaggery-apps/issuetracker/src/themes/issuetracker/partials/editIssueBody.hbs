@@ -114,6 +114,9 @@
         </a>
     </div><!-- EOF App factory menu actionbar-->
 
+<input type='hidden' id='key' name="key"  disabled maxlength="40" value="{{issue.key}}"/>
+<!-- until new UX has field for issue status this hidden field will be used-->
+<input type='hidden' id='status' name="status"  disabled maxlength="40" value="{{issue.status}}"/>
 
     <div class="container-fluid cloud-container">
         <div class="row">
@@ -121,7 +124,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="summary">Summary: </label>
-                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{issue.summary}}" disabled>{{issue.summary}}
+                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{issue.summary}}" disabled>
                     </div>
                 </div>
                 <div class="col-md-6">

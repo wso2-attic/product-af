@@ -40,7 +40,6 @@ $('.cloud-menu-popover').popover({
                 $('.longme').fadeIn('slow')
             }else{
                 var ctest = currentcount+(7- currentcount%7);
-                console.log(ctest)
                 if(ctest > dataCount){
                     $('#'+ dataCount+'\\.0').parent().after(appendHtml);
                     $('.longme').fadeIn('slow')

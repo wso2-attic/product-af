@@ -24,6 +24,9 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover{
 table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd{
     background-color: #696969;
 }
+table.dataTable.stripe tbody tr.odd:hover, table.dataTable.display tbody tr.odd:hover{
+    background-color: #888;
+}
 table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, table.dataTable.display tbody th, table.dataTable.display tbody td{
     border-top: 1px solid #595959;
 }
