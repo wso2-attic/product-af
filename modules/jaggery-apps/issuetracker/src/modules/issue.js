@@ -63,11 +63,12 @@ var editIssue = function (issueKey, jsonString){
     var proj = new Object();
     proj.issue=jsonObj;
     jsonString = stringify(proj);
+    log.info("Edit issue : " + jsonString);
     var result;
         var url = url_prefix+"/issue/"+issueKey;
         result = post(url, jsonString, {
             "Content-Type": "application/json"
-        }, 'json');
+        }, 'text');
     return result;
 }
 /*8
