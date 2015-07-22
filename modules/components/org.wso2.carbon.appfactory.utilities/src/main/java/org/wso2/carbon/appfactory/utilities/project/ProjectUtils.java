@@ -57,7 +57,16 @@ public class ProjectUtils {
     private static final Log log = LogFactory.getLog(ProjectUtils.class);
     public static JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
 
-
+	/**
+	 * Run a maven command
+	 * @param goals goals of the maven command
+	 * @param invokerOutputHandler output handler for the maven command
+	 * @param baseDir base directory to run maven command
+	 * @param mavenOPTs maven opts for the command
+	 * @param properties properties for the command
+	 * @return result of the invocation
+	 * @throws AppFactoryException Either when maven home is not set or invocation of the command fails
+	 */
 	public static InvocationResult runMavenCommand(List<String> goals, InvocationOutputHandler invokerOutputHandler, File baseDir,
 	                                   String mavenOPTs, Properties properties) throws AppFactoryException {
 		//Check whether the maven home is set. If not, can not proceed further.
@@ -88,7 +97,7 @@ public class ProjectUtils {
 			invoker.setOutputHandler(invokerOutputHandler);
 			return invoker.execute(request);
 		} catch (MavenInvocationException e) {
-			String msg = "Failed to invoke maven archetype generation";
+			String msg = "Failed to invoke maven command inside " + baseDir.getAbsolutePath();
 			log.error(msg, e);
 			throw new AppFactoryException(msg, e);
 		}
