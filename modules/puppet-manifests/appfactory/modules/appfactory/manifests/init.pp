@@ -196,7 +196,7 @@ class appfactory (
   exec { "copying_car_localrepo":
     user    => $owner,
     path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin/',
-    cwd     => "${carbon_home}/repository/resources",
+    cwd     => "${carbon_home}/resources",
     command => "unzip ${esb_local_repo_zip_file}",
     require => Deploy[$deployment_code];
   }
