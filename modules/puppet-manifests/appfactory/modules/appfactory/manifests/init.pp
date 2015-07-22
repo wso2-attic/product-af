@@ -23,6 +23,7 @@ class appfactory (
   $deployment_code  = 'appfactory'
   $service_code     = 'appfactory'
   $carbon_home      = "${target}/wso2${service_code}-${version}"
+  $esb_local_repo_zip_file = "esbcappslocalrepo.zip"
 
   $files_to_ignore  = $file_ignore_filter ? {
     "local" => ['*.jag','*.html','.svn'],
@@ -191,4 +192,13 @@ class appfactory (
     command => "${carbon_home}/maven.sh > /dev/null 2>&1 &",
     require => Exec["check_server_startup_status"]
   }
+
+  exec { "copying_car_localrepo":
+    user    => $owner,
+    path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin/',
+    cwd     => "${carbon_home}/repository/resources",
+    command => "unzip ${esb_local_repo_zip_file}",
+    require => Deploy[$deployment_code];
+  }
+
 }
