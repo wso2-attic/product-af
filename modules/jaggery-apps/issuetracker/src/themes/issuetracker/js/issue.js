@@ -45,16 +45,16 @@ $().ready(function() {
 
         var issue = new Object();
         //issue.projectId=$("#projectId").attr('value');
-        issue.key=key;
-        issue.summary=$("#summary").val();
-        issue.description= $("#description").val();
-        issue.type=$("#type").val();
-        issue.priority=$("#priority").val();
-        issue.status=$("#issue_status").val();
-        issue.assignee=$("#assignee").val();
-        issue.versionId=$("#version").val();
-        issue.severity=$("#severity").val();
-        issue.version       = $( "#version option:selected" ).text();
+        issue.key = key;
+        issue.summary = $("#summary").val();
+        issue.description = $("#description").val();
+        issue.type = $("#type option:selected").text();
+        issue.priority = $("#priority option:selected").text();
+        issue.status = $("#status").val();
+        issue.assignee = $("#assignee").val();
+        issue.versionId = $("#version").val();
+        issue.severity = $("#severity option:selected").text();
+        issue.version = $("#version option:selected").text();
 
         var jsonString = JSON.stringify(issue);
         var isSuccess = false;

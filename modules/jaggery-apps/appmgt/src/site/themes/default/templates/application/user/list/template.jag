@@ -565,7 +565,19 @@ $('#removeUsers').click(function(){
 </script>
 
 
-
+<!-- BOF App factory menu -->
+<div class="navbar navbar-secondary">
+    <div class="container-fliud">
+        <div class="row">
+            <div class="side-pane-trigger">
+                <i class="fa fa-reorder"></i>
+            </div>
+            <div class="breadcrumb-secondary">
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud </span> / Application Team
+            </div>
+        </div>
+    </div>
+</div><!-- EOF App factory menu -->
 
 <div class="container">
     <article class="main">
@@ -657,7 +669,7 @@ $('#removeUsers').click(function(){
 
 <!-- for left pane and notification wall in new UX-->
 <script>
-    $('.side-pane-trigger').click(function(){
+ $('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
         var leftPane = $('.left-pane');
         if (rightPane.hasClass('visible')){

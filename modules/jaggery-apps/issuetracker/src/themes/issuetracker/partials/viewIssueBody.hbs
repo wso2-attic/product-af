@@ -169,9 +169,11 @@
                 <div class="form-group">
                     <label for="version">Version: </label>
                     <select id="version" class="form-control select2" disabled>
-                        <option value="{{data.issue.version}}">{{data.issue.version}}</option>
+                    {{#each versions}}
+                    <option value="{{id}}">{{version}}</option>
+                    {{/each}}
                     </select>
-                </div>
+                    </div>
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2" disabled>
@@ -236,29 +238,32 @@
 <script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
-
+<script>
+  $("#version").val("{{data.issue.versionId}}");
+  //  $("#select").select2("val", "CA");
+</script>
 <script type="text/javascript">
-    function showCommentbox(id, creator){
-        document.getElementById ("commentpopup").value = $("#desc_"+id).text();
-        $("#comment_id").val(id);
-        $("#reporter").val(creator);
-        $("#windowTitleDialog").modal ("show");
-    }
+  //  function showCommentbox(id, creator){
+    //    document.getElementById ("commentpopup").value = $("#desc_"+id).text();
+      //  $("#comment_id").val(id);
+      //  $("#reporter").val(creator);
+      //  $("#windowTitleDialog").modal ("show");
+   // }
 
     $(document).ready(function() {
-        $("#windowTitleDialog").bind ('show', function () {});
+       // $("#windowTitleDialog").bind ('show', function () {});
     });
 
-    function closeDialog () {
-        $('#windowTitleDialog').modal('hide');
-    };
+    //function closeDialog () {
+     //   $('#windowTitleDialog').modal('hide');
+    //};
 
-    function okClicked () {
-        var commentId = $("#comment_id").val();
-        var popup  = $("#commentpopup").val();
-        $('#desc_'+commentId).text(popup);
-        closeDialog ();
-    };
+    //function okClicked () {
+     //   var commentId = $("#comment_id").val();
+     //   var popup  = $("#commentpopup").val();
+     //   $('#desc_'+commentId).text(popup);
+     //   closeDialog ();
+   // };
 
 
 </script>

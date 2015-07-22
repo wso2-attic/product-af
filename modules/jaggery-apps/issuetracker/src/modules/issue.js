@@ -68,7 +68,7 @@ var editIssue = function (issueKey, jsonString){
         var url = url_prefix+"/issue/"+issueKey;
         result = post(url, jsonString, {
             "Content-Type": "application/json"
-        }, 'text');
+        }, 'json');
     return result;
 }
 /*8

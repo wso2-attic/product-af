@@ -131,19 +131,19 @@
                 <div class="form-group">
                     <label for="type">Type: </label>
                     <select id="type" class="form-control select2">
-                        <option value="bug">Bug</option>
-                        <option value="tasks">Task</option>
-                        <option value="plus">New Feature</option>
-                        <option value="arrow-up">Improvement</option>
+                        <option value="Bug">Bug</option>
+                        <option value="Task">Task</option>
+                        <option value="New Feature">New Feature</option>
+                        <option value="Improvement">Improvement</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
-                        <option value="angle-double-up">Highest</option>
-                        <option value="angle-up">High</option>
-                        <option value="angle-down">Low</option>
-                        <option value="angle-double-down">Lowest</option>
+                        <option value="Highest">Highest</option>
+                        <option value="High">High</option>
+                        <option value="Low">Low</option>
+                        <option value="Lowest">Lowest</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -165,9 +165,9 @@
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2">
-                        <option value="ban">Blocker</option>
-                        <option value="exclamation">Critical</option>
-                        <option value="circle-o">Non Critical</option>
+                        <option value="Blocker">Blocker</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Non Critical">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -217,7 +217,7 @@
     var type = document.getElementById('type');
     var project = document.getElementById('projectKey');
     var priority = document.getElementById('priority');
-    var issue_status = document.getElementById('issue_status');
+    //var status = document.getElementById('status');
     var severity = document.getElementById('severity');
     var version= document.getElementById('version');
     var assignee= document.getElementById('assignee');
@@ -228,7 +228,7 @@
     type.value = "{{issue.type}}";
     project.value = "{{projectKey}}";
     priority.value = "{{issue.priority}}";
-    issue_status.value = "{{issue.status}}";
+    //status.value = "{{issue.status}}";
     severity.value = "{{issue.severity}}";
     version.value = "{{issue.versionId}}";
     assignee.value="{{issue.assignee}}";
@@ -237,8 +237,11 @@
 -->
 <script type="text/javascript">
  $(document).ready(function() {
-    
-    });
+     $("#type").val("{{issue.type}}"); 
+     $("#version").val("{{issue.versionId}}"); 
+     $("#severity").val("{{issue.severity}}");  
+     $("#priority").val("{{issue.priority}}");   
+ });
 </script>
 
 

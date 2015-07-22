@@ -85,6 +85,7 @@
 <script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.columnFilter.js"}}"></script>
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
+<!--
 <script>
 $('.datatable table').dataTable({
             responsive: true,
@@ -118,6 +119,54 @@ $('.datatable table').dataTable({
             ]
         });
 </script>
+-->
+<script>
+    $('.side-pane-trigger').click(function(){
+        var rightPane = $('.right-pane');
+        var leftPane = $('.left-pane');
+        if (rightPane.hasClass('visible')){
+            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+            leftPane.animate({"left":"-18em"}, "slow");
+            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        } else {
+            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+            leftPane.animate({"left":"0em"}, "slow");
+            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        }
+    });
+    $('.datatable table').dataTable({
+            responsive: true,
+            "orderCellsTop": true,
+            data: {{{data}}},
+            "columns": [
+                { "data": "issuePkey", "width": "5%"},
+                { "data": "summary" , "width": "30%"},
+                { "data": "version" , "width": "8%"},
+                { "data": "issueType", "width": "8%" },
+                { "data": "priority", "width": "8%" },
+                { "data": "status" , "width": "8%"},
+                { "data": "owner" , "width": "13%", "sClass" : "dt-body-right"},
+                { "data": "assignee" , "width": "13%", "sClass" : "dt-body-right"},
+                { "data": "edit", "orderable": false, "width": "4%", "sClass" : "dt-body-center" },
+                { "data": "comment", "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
+            ]
+        }).columnFilter({
+            sPlaceHolder: "head:after",
+            aoColumns: [
+                null,
+                null,
+                { type: "select", values: {{{versions}}} },
+                { type: "select", values: [ 'Bug', 'Feature', 'Improvement', 'defect'] },
+                { type: "select", values: [ 'Highest', 'High', 'Low', 'Lowest'] },
+                { type: "select", values: [ 'Open', 'Resolved'] },
+                { "bSortable": false },
+                { "bSortable": false },
+                null,
+                null
+            ]
+        });
+</script>
+
 <!--EOF NEW UI -->
 
 
