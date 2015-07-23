@@ -84,7 +84,7 @@ public abstract class AbstractDeployer implements Deployer {
 		String pathToPromotedArtifact = getArtifactStoragePath(applicationId,
 				version, artifactType, stageName, tenantDomain);
 
-		File[] fileToDeploy = getArtifact(pathToPromotedArtifact, extension);
+		File[] fileToDeploy = getArtifact(pathToPromotedArtifact, extension, stageName, applicationId, false);
 
 		deploy(artifactType, fileToDeploy, parameters, false);
 	}
@@ -117,7 +117,7 @@ public abstract class AbstractDeployer implements Deployer {
 			String path = this.getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
 			                                                        tenantDomain, jobName);
 
-			File[] artifactToDeploy = getLastBuildArtifact(path, extension);
+			File[] artifactToDeploy = getLastBuildArtifact(path, extension, stageName, applicationId, false);
 
 			if (AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT.equalsIgnoreCase(deployAction)) {
 				deploy(artifactType, artifactToDeploy, parameters, true);
@@ -166,7 +166,7 @@ public abstract class AbstractDeployer implements Deployer {
      * @return Array of artifacts as Files
      * @throws AppFactoryException If there is an issue in filtering artifacts
      */
-    protected File[] getArtifact(String path, String extension) throws AppFactoryException {
+    protected File[] getArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
         List<File> fileList = new ArrayList<File>();
         if (StringUtils.isNotBlank(path)) {
             if (StringUtils.isBlank(extension)) {
@@ -216,11 +216,11 @@ public abstract class AbstractDeployer implements Deployer {
      * @return Array of artifacts as Files
      * @throws AppFactoryException If there is an issue in filtering last build artifacts
      */
-    protected File[] getLastBuildArtifact(String path, String extension) throws AppFactoryException {
+    protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
 	    if (StringUtils.isBlank(extension)) {
 		    path = path + File.separator + FREE_STYLE_APP_TYPE_FILE_PATH;
 	    }
-	    return getArtifact(path, extension);
+	    return getArtifact(path, extension, stage, applicationId, isForLabel);
     }
 
 	/**
@@ -256,7 +256,7 @@ public abstract class AbstractDeployer implements Deployer {
 							+ applicationId + ", version :" + version);
 		}
 
-		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, extension);
+		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, extension, stage, applicationId, true);
 		for (File lastSucessFile : lastSucessFiles) {
 			File lastSuccessArtifactPath = lastSucessFile;
 			String promotedDestDirPath = destDir.getAbsolutePath();

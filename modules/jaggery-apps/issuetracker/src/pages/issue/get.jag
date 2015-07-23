@@ -6,7 +6,7 @@ var caramel = require('caramel');
         return;
     }
     issue = require('/modules/issue.js'),
-
+    project = require('/modules/project.js');
     pkey = request.getParameter('issuePkey');
     var isRedirection = request.getParameter('isRedirection');
     var appkey = request.getParameter('appkey');
@@ -20,7 +20,7 @@ var caramel = require('caramel');
         caramel.render({
             title  : { text : 'Issue Tracker | View Issue'},
             header : { domain : domain, userName : userName},
-            body   : { data : issue.getIssueByKey(pkey), appkey: appkey }
+            body   : { data : issue.getIssueByKey(pkey), appkey: appkey, versions: project.getAllVersionOfProject(appkey) }
         });
     }
 }());

@@ -554,6 +554,9 @@ function setOverviewHelpTips(helpTips){
             <% jagg.includeBlock("page/messages", null); %>
             <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 	        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+            <!-- following div can be removed after new ux-->
+            <div style="height: 80px; "></div>
+            <!-- -->
             <header>
                 <div class="content">
                     <h1>Runtime Configs</h1>

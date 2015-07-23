@@ -1,3 +1,4 @@
+<!--
 <section class="content push_top_40">
     <div class="form-container">
         <fieldset>
@@ -33,37 +34,29 @@
             <div class="input_row">
                 <label for="type" ><strong>Type</strong> <em>*</em></label>
                 <select id="type" class="select_list half big">
-                    <option value="NEW_FEATURE">New Feature</option>
-                    <option value="BUG">Bug</option>
-                    <option value="TASK">Task</option>
-                    <option value="IMPROVEMENT">Improvement</option>
-                    <option value="WISH">Wish</option>
-                    <option value="MODERATION">Moderation</option>
-                    <option value="VULNERABILITY">Security Vulnerability</option>
-                    <option value="EPIC">Epic</option>
-                    <option value="STORY">Story</option>
-                    <option value="PATCH">Patch</option>
+                    <option value="bug">Bug</option>
+                    <option value="tasks">Task</option>
+                    <option value="plus">New Feature</option>
+                    <option value="arrow-up">Improvement</option>
                 </select>
             </div>
 
             <div class="input_row">
                 <label for="priority" ><strong>Priority</strong> <em>*</em></label>
                 <select id="priority" class="select_list half big">
-                    <option value="HIGHEST">Highest</option>
-                    <option value="HIGH">High</option>
-                    <option value="NORMAL">Normal</option>
-                    <option value="LOW">Low</option>
-                    <option value="LOWEST">Lowest</option>
-               </select>
+                        <option value="angle-double-up">Highest</option>
+                        <option value="angle-up">High</option>
+                        <option value="angle-down">Low</option>
+                        <option value="angle-double-down">Lowest</option>
+                </select>
             </div>
 
             <div class="input_row">
                 <label for="issue_status" ><strong>Status</strong> <em>*</em></label>
                  <select id="issue_status" class="select_list half big">
-                        <option value="OPEN">Open</option>
-                        <option value="RESOLVED">Resolved</option>
-                        <option value="INPROGRESS">In Progress</option>
-                        <option value="CLOSED"">Closed</option>
+                        <option value="ban">Blocker</option>
+                        <option value="exclamation">Critical</option>
+                        <option value="circle-o">Non Critical</option>   
                  </select>
             </div>
 
@@ -74,8 +67,7 @@
                     <option value="{{name}}">{{name}}</option>
                 {{/each}}
                 </select>
-               <!--<input type='text' id='assignee' name="assignee" placeholder="Assignee" maxlength="40" value="{{issue.assignee}}" class="half required"/>-->
-            </div>
+                  </div>
 
             <div class="input_row">
                 <label for="version" ><strong>Version</strong> <em>*</em></label>
@@ -109,14 +101,123 @@
         </div>
     <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
 
-</div><!-- /form-container -->
+</div>
+-->
+
+  <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="/issuetracker/index.jag?appkey={{appkey}}" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Issues
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+<input type='hidden' id='key' name="key"  disabled maxlength="40" value="{{issue.key}}"/>
+<!-- until new UX has field for issue status this hidden field will be used-->
+<input type='hidden' id='status' name="status"  disabled maxlength="40" value="{{issue.status}}"/>
+
+    <div class="container-fluid cloud-container">
+        <div class="row">
+            <div class="col-md-5 forms">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="summary">Summary: </label>
+                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{issue.summary}}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                    <label for="type">Type: </label>
+                    <select id="type" class="form-control select2">
+                        <option value="Bug">Bug</option>
+                        <option value="Task">Task</option>
+                        <option value="New Feature">New Feature</option>
+                        <option value="Improvement">Improvement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority: </label>
+                    <select id="priority" class="form-control select2">
+                        <option value="Highest">Highest</option>
+                        <option value="High">High</option>
+                        <option value="Low">Low</option>
+                        <option value="Lowest">Lowest</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reporter">Reporter: </label>
+                    <select id="reporter" class="form-control select2">
+                        <option value="1">{{loggedInUser}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="version">Version: </label>
+                    <select id="version" class="form-control select2">    
+                    {{#each versions}}
+                    <option value="{{id}}">{{version}}</option>
+                    {{/each}}
+                    </select>
+                    </div>
+                <div class="form-group">
+                    <label for="severity">Severity: </label>
+                    <select id="severity" class="form-control select2">
+                        <option value="Blocker">Blocker</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Non Critical">Non Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignee">Assignee: </label>
+                      <select id="assignee" class="form-control select2">
+                      {{#each users}}
+                      <option value="{{name}}">{{name}}</option>
+                      {{/each}}
+                      </select>
+    
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="description">Description: </label>
+                    <textarea class="form-control" rows="3" id="description" placeholder="Write a small description a" value="{{issue.description}}">{{issue.description}}</textarea>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="editIssue">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                        </span>
+                        Update Issue
+                    </button>
+                    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+                </div>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
+            </div>
+        </div>
+    </div><!-- /.container -->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{url "/themes/issuetracker/js/jquery-1.11.1/jquery.min.js"}}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url "/themes/issuetracker/js/bootstrap-3.2.0/bootstrap.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.columnFilter.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
+<!-- include custom js functions -->
+<script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 
 
+<!--
 <script>
     var type = document.getElementById('type');
     var project = document.getElementById('projectKey');
     var priority = document.getElementById('priority');
-    var issue_status = document.getElementById('issue_status');
+    //var status = document.getElementById('status');
     var severity = document.getElementById('severity');
     var version= document.getElementById('version');
     var assignee= document.getElementById('assignee');
@@ -127,11 +228,20 @@
     type.value = "{{issue.type}}";
     project.value = "{{projectKey}}";
     priority.value = "{{issue.priority}}";
-    issue_status.value = "{{issue.status}}";
+    //status.value = "{{issue.status}}";
     severity.value = "{{issue.severity}}";
     version.value = "{{issue.versionId}}";
     assignee.value="{{issue.assignee}}";
 
+</script>
+-->
+<script type="text/javascript">
+ $(document).ready(function() {
+     $("#type").val("{{issue.type}}"); 
+     $("#version").val("{{issue.versionId}}"); 
+     $("#severity").val("{{issue.severity}}");  
+     $("#priority").val("{{issue.priority}}");   
+ });
 </script>
 
 

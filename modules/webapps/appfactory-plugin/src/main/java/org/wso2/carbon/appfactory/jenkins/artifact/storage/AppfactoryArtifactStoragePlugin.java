@@ -87,11 +87,11 @@ public class AppfactoryArtifactStoragePlugin extends Plugin {
                 ClassLoader loader = getClass().getClassLoader();
 
                 if (DEPLOY_LATEST_SUCCESS_ARTIFACT_ACTION.equals(action)) {
-                    className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME);
+                    className = DeployerUtil.getParameter(map, AppFactoryConstants.DEPLOYER_CLASSNAME);
                     Deployer deployer = getDeployer(className, loader);
                     deployer.deployLatestSuccessArtifact(map);
                 } else if(DEPLOY_PROMOTED_ARTIFACT_ACTION.equals(action)) {
-                    className = DeployerUtil.getParameter(map, AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME);
+                    className = DeployerUtil.getParameter(map, AppFactoryConstants.DEPLOYER_CLASSNAME);
                     Deployer deployer = getDeployer(className, loader);
                     deployer.deployPromotedArtifact(map);
                 } else {

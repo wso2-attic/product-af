@@ -61,6 +61,11 @@
             session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
             response.sendRedirect("/appmgt/site/pages/index.jag");
             createTenantInfoObject();
+            
+            var modManager = jagg.module("manager");
+            var tenantInitilizer = Packages.org.wso2.carbon.appfactory.core.AFTenantInitializer;
+            tenantInitilizer.initializeAFTenant(modManager.getTenantDomain());
+
             putUserRolesToSession();
             return;
         } else {

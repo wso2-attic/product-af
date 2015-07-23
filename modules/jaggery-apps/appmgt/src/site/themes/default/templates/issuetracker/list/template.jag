@@ -189,10 +189,64 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
     }
 
 </script>
-
     <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
     <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+<!-- BOF App factory menu -->
+<div class="navbar navbar-secondary">
+    <div class="container-fliud">
+        <div class="row">
+            <div class="side-pane-trigger">
+                <i class="fa fa-reorder"></i>
+            </div>
+            <div class="breadcrumb-secondary">
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud&nbsp; </span> /<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><%=applicationName%></a> / <a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Issues </a>
+            </div>
+        </div>
+    </div>
+</div><!-- EOF App factory menu -->
 
+<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>" id="iframeId"></iframe>
+
+<% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.ISSUES}); %>
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+<script>
+    $('.side-pane-trigger').click(function(){
+        var rightPane = $('.right-pane');
+        var leftPane = $('.left-pane');
+        if (rightPane.hasClass('visible')){
+            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+            leftPane.animate({"left":"-18em"}, "slow");
+            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        } else {
+            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+            leftPane.animate({"left":"0em"}, "slow");
+            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        }
+    });
+    $('.notification-pane-trigger').click(function(){
+        var notificationPane = $('.notification-pane');
+        if(notificationPane.hasClass('visible')){
+            notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+        }else{
+            notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+        }
+    });
+    $(document).ready(function(){
+        var scrollHeight = $('.notification-pane').height() - 150;
+        $('.notifications').css('height', scrollHeight)
+        $(".nano").nanoScroller();
+    });
+</script>
+
+<!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<!-- include custom js functions -->
+<script src="js/custom/custom.js"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<!--
             <div class="container">
                         <article class="main">
                         <% jagg.includeBlock("page/messages", null); %>
@@ -200,39 +254,17 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
                         <header class="separator">
                                 <div class="content">
-                                <!--h1 class="left" style="margin-right:20px;" >Issues</h1-->
                                      <div class="row-fluid">
 <div <%=hiddenSummary%> align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
-<!--a href="<%=outputs.newIssueUrl%>" style="text-decoration: none" target="_blank">Track Issues</a-->
-<!--a href="<%=outputs.newIssueUrl%>" class="icon_link" target="_blank"-->
-<!--span class="icon-globe "></span-->
 </a></div>
                                 </div>
                             </div>
                         </header>
-<!--<% jagg.includeBlock("page/help", {"section": "issues"}); %>-->
-<!--section class="separator">
-          <section <%=hiddenSummary%> id="item_list_container" class="hide">
-                                                <div class="content clear well" id="issueTrackerMainHeader">
-                                    <ul id="item_list" class="table_items">
-                                        <li class="item item_header">
-                                            <div class="list_col_heading col">Target Version</div>
-                                            <div class="list_col_heading col">Lifecycle State</div>
-                                            <div class="list_col_heading col">Bug</div>
-                                            <div class="list_col_heading col">Feature</div>
-                                            <div class="list_col_heading col">Vulnerability</div>
-                                        </li>
-                                    </ul>
-                                                </div>
-                        </section>
-                                                <div id="issues_spinner" class="content push_top_40 issueTracker-fix">
-                                                        <span class="icon-spinner icon-spin icon-large spin-large"></span>
-                                                </div>
-  </section-->
 <iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>" id="iframeId"></iframe>
                         <div class="clearfix"></div>
                       </article>
-            </div><!-- /container -->
+            </div>
+-->
 
 <% }); %>              
 

@@ -457,7 +457,8 @@
                 <include>org.wso2.appfactory:bpel-archetype:jar</include>
                 <include>org.wso2.appfactory:esb-archetype:jar</include>
                 <include>org.wso2.appfactory:php-archetype:jar</include>
-	            <include>org.wso2.appfactory:dotnet-archetype:jar</include>
+	        <include>org.wso2.appfactory:dotnet-archetype:jar</include>
+	        <include>org.wso2.appfactory:maven-archetype-multi-module-car:jar</include>
             </includes>
         </dependencySet>
         

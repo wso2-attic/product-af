@@ -21,8 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
+
 import java.io.File;
 import java.util.Map;
 
@@ -37,12 +37,6 @@ public class MavenBasedApplicationTypeProcessor extends AbstractApplicationTypeP
         AppVersionStrategyExecutor.doVersionForMVN(targetVersion, new File(workingDirectory));
     }
 
-    @Override
-    public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
-        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
-                ProjectUtils.getArchetypeRequest(applicationId, getProperty(MAVEN_ARCHETYPE_REQUEST)));
-
-    }
 
     @Override
     public OMElement configureBuildJob(OMElement jobConfigTemplate, Map<String, String> parameters, String projectType)

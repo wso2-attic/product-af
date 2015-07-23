@@ -966,7 +966,7 @@ a.btn-action {
 .add-issue-content #add-issue-button span.fw-stack {
     font-size: 20px;
 }
-.form-group .error {
+.form-group>label.error {
     line-height: 1.5em;
     color: rgb(255, 255, 255);
     background-color: #e74c3c;

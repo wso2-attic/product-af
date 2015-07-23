@@ -29,7 +29,6 @@ public interface Undeployer {
     /**
      * Undeploy artifacts for given parameters
      *
-     * @param deployerType
      * @param applicationId
      * @param applicationType
      * @param version
@@ -38,8 +37,7 @@ public interface Undeployer {
      * @param runtimeBean
      * @throws AppFactoryException
      */
-    void undeployArtifact(String deployerType, String applicationId,
-                          String applicationType, String version, String lifecycleStage,
+    void undeployArtifact(String applicationId, String applicationType, String version, String lifecycleStage,
                           ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean) throws AppFactoryException;
 
 }

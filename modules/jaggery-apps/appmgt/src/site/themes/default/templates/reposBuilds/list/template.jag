@@ -1545,7 +1545,9 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
     jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
     %>
 
-
+        <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
+        <!-- -->
         <header class="separator">
             <div class="content">
                 <h1 class="left" style="margin-right:20px;">Repositories & Builds</h1>

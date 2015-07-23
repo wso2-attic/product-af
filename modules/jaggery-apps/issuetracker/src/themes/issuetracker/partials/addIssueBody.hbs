@@ -1,3 +1,13 @@
+<!--BOF App factory menu actionbar -->
+<div class="action-bar">
+    <a href="/issuetracker/index.jag?appkey={{appkey}}" class="btn-action">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Issues
+    </a>
+</div><!-- EOF App factory menu actionbar-->
+
 <div class="container-fluid cloud-container">
         <div class="row">
             <div class="col-md-5 forms">
@@ -11,26 +21,19 @@
                 <div class="form-group">
                     <label for="type">Type: </label>
                     <select id="type" class="form-control select2">
-                    <option value="NEW_FEATURE">New Feature</option>
-                    <option value="BUG">Bug</option>
-                    <option value="TASK">Task</option>
-                    <option value="IMPROVEMENT">Improvement</option>
-                    <option value="WISH">Wish</option>
-                    <option value="MODERATION">Moderation</option>
-                    <option value="VULNERABILITY">Security Vulnerability</option>
-                    <option value="EPIC">Epic</option>
-                    <option value="STORY">Story</option>
-                    <option value="PATCH">Patch</option>
+                        <option value="bug">Bug</option>
+                        <option value="tasks">Task</option>
+                        <option value="plus">New Feature</option>
+                        <option value="arrow-up">Improvement</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
-                    <option value="HIGHEST">Highest</option>
-                    <option value="HIGH">High</option>
-                    <option value="NORMAL">Normal</option>
-                    <option value="LOW">Low</option>
-                    <option value="LOWEST">Lowest</option>
+                        <option value="angle-double-up">Highest</option>
+                        <option value="angle-up">High</option>
+                        <option value="angle-down">Low</option>
+                        <option value="angle-double-down">Lowest</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -52,12 +55,9 @@
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2">
-                    <option value="NONE">None</option>
-                    <option value="BLOCKER">Blocker</option>
-                    <option value="CRITICAL">Critical</option>
-                    <option value="TRIVIAL">Trivial</option>
-                    <option value="MAJOR">Major</option>
-                    <option value="MINOR">Minor</option>
+                        <option value="ban">Blocker</option>
+                        <option value="exclamation">Critical</option>
+                        <option value="circle-o">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
