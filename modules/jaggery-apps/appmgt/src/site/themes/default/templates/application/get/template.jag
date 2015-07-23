@@ -4,25 +4,20 @@
     var log = new Log();
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
-    var stagesMap = outputs.stagesMap;
-    var hasDomainMappingPermission = outputs.hasDomainMappingPermission;
-    var fineGrainedDomainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
-    var mod = jagg.module("manager");
-    var permissionMod = jagg.module("permission");
-    var tenantDomain = mod.getTenantDomain();
-    var hasCXOPermissionOnApps = permissionMod.isUserAccessGranted(applicationKey, PERMISSION_CXO_DASHBOARD);
-    var isTenantAdmin = permissionMod.hasTenantLevelUserMgtPermission();
-    var appDomain = getProperty(DOMAIN_NAME);
-    var isUploadableApp = outputs.isUploadableAppType;
-    var helpTips = outputs.helpTips;
-    var executionType = outputs.executionType;
-    var isAllowDomainMapping = outputs.isAllowDomainMapping;
-    var hasAppCreationPermission = outputs.hasAppCreationPermission;
-    var appTrunkStage = "Development";
-
     var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
+    var applicationMod = jagg.module("application");
+    var applicationInfo = applicationMod.getAppInfo(applicationKey);
+
+    var appName = "";
+    if (applicationInfo.name) {
+        appName = applicationInfo.name;
+    }
+    var appDescription = "";
+    if (applicationInfo.description) {
+        appDescription = applicationInfo.description;
+    }
 
 %>
 
@@ -30,11 +25,11 @@
 
 <script type="text/javascript" charset="utf-8">
     var servicePath = "<%=servicePath%>";
-    var applicationName = "<%=applicationName%>";
-    var applicationKey = "<%=request.getParameter("applicationKey")%>";
     var appFacURL = "<%=request.getParameter("appFacURL")%>";
     var iconUrl = "<%=request.getParameter("iconUrl")%>";
-
+    var appDomain = "<%= getProperty(DOMAIN_NAME) %>";
+    var applicationInfo = <%=applicationInfo%>;
+    var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
 </script>
 
 <!-- end of setting global javascript variable -->
@@ -77,52 +72,65 @@
           <div class="app-thumb">
             <img class="app-icon" src="" />
             <span><i class="fa fa-pencil" onclick="document.getElementById('aaaaa').click();"></i></span>
-            <input id="aaaaa" type="file" style="display:none" onchange="alert('HIIIII');"/>
+            <input id="aaaaa" type="file" style="display:none" onchange=""/>
           </div>
 
           <div class="app-desc">
-            <h2 id="appName" name="appName">My Java App</h2>
-            <p class="description">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+            <h2 id="appName" name="appName"><%=appName%></h2>
+            <p class="description"><%=appDescription%></p>
             <div class="app-preview-action-bar">
-                <div class="sec prod-url">
-                  <a id="prod-url" href="#">http://testapp.wso2app.com</a>
-                  <a href="#"><i class="fw fw-settings"></i></a>
-                </div>
+                <%
+                    var customUrl = applicationInfo.customUrl;
+                    if (customUrl) { %>
+                        <div class="sec prod-url">
+                          <a id="prod-url" href="#"><%=%></a>
+                          <a href="#"><i class="fw fw-settings"></i></a>
+                        </div>
+                    <%}%>
             </div>
           </div>
       </div>
 
       <div class="col-md-9">
           <div class="block-general">
-              <div class="row">
+                    <!-- BOF add loading overlay -->
+                    <div class="loading-overlay">
+                        <div class="loader"></div>
+                    </div>
+                    <!-- EOF add loading overlay -->
+
+                    <div class="row">
                     <div class="col-md-9">
-                        <select class="version-number">
-                            <option>trunk</option>
-                            <option>1.0.0</option>
-                        </select>
-                        <div class="version-url"><span>URL: http://javatest.djcompany.wso2app.com</span> </div>
-                        <div class="sec">
-                            <button class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button>
-                            <!-- edit code button -->
-                            <div class="btn-group ctrl-edit-button">
-                                <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue">Edit Code</button>
-                                <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue cu-dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu cu-btn-blue btn-edit" role="menu">
-                                    <li><a href="#">Use Cloud Editor</a></li>
-                                    <li><a href="#">Use Local IDE</a></li>
-                                </ul>
+                        <select id="appVersionList" class="version-number"></select>
+                        <div id="version-url-container">
+                            <div class="version-url"><span id="app-version-url"></span> </div>
+                            <div class="sec">
+                                <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button>
+
+                                <!-- edit code button -->
+                                <div class="btn-group ctrl-edit-button">
+                                  <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue">Edit Code</button>
+                                  <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue cu-dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                      <span class="caret"></span>
+                                      <span class="sr-only">Toggle Dropdown</span>
+                                  </button>
+                                  <ul class="dropdown-menu cu-btn-blue btn-edit" role="menu">
+                                      <li><a id="createCodeEnvyUrl" href="#">Use Cloud Editor</a></li>
+                                      <li><a id="localIde" href="#">Use Local IDE</a></li>
+                                  </ul>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                   <div class="col-md-3">
                       <div class="btn-create-version">
-                          <span class="fw-stack fw-lg btn-action-ico">
-                            <i class="fw fw-ring fw-stack-2x"></i>
-                            <i class="fw fw-add fw-stack-1x"></i>
-                          </span> Create Version
+                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                            <span class="fw-stack fw-lg btn-action-ico">
+                                <i class="fw fw-ring fw-stack-2x"></i>
+                                <i class="fw fw-add fw-stack-1x"></i>
+                            </span> Create Version
+                        </a>
                       </div>
                   </div>
               </div>
@@ -135,18 +143,18 @@
                               <i class="fw fw-lifecycle fw-5x"></i>
                           </div>
                           <div class="block-description pull-right" id="lifecycle-mgt-main">
-                              Application <strong><%=applicationName%></strong> is in
+                              Application <strong><%=appName%></strong> is in
                               <br>
                               <strong><span id="appStage"></span></strong> Stage
                           </div>
                           <div class="clearfix"></div>
                              <div class="block-action-button">
-                              <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                             <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                                 <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-lifecycle fw-stack-1x"></i>
                                 </span> Manage Lifecycle
-                            </a>
+                             </a>
                             </div>
                       </div>
                   </div>
@@ -169,33 +177,45 @@
                               </span>
                           </div>
                           <div class="block-description-multiline pull-left">
-                              <i class="fa  fa-bug"></i> 3 Bugs<br>
-                              2 Features<br>
-                              1 Vulnerability
+                              <i class="fa  fa-bug"></i>
+                              <span id="issueCount"></span>
+                          </div>
+                          <div class="clearfix"></div>
+                          <div class="block-action-button">
+                            <a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                                <span class="fw-stack fw-lg btn-action-ico">
+                                    <i class="fw fw-ring fw-stack-2x"></i>
+                                    <i class="fw fw-add fw-stack-1x"></i>
+                                </span> Create
+                            </a>
                           </div>
                       </div>
                   </div>
               </div>
-
           </div>
       </div>
 
       <div class="col-md-3">
+          <!-- BOF add loading overlay -->
+          <div class="loading-overlay">
+            <div class="loader"></div>
+          </div>
+          <!-- EOF add loading overlay -->
 
           <div class="block-team pull-left">
               <h3>Team</h3>
               <div class="block-icon pull-left">
                 <i class="fa fa-users fa-5x"></i>
               </div>
-              <div class="block-number pull-right">
-                12
-              </div>
+              <div id="teamCount" class="block-number pull-right"></div>
               <div class="clearfix"></div>
               <div class="block-action-button">
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-add fw-stack-1x"></i>
                     </span> Invite Member
+                </a>
               </div>
           </div>
 
@@ -204,18 +224,17 @@
               <div class="block-icon pull-left">
                 <i class="fa fa-database fa-5x"></i>
               </div>
-              <div class="block-number pull-right">
-                04
-              </div>
+              <div id="databaseCount" class="block-number pull-right"></div>
               <div class="clearfix"></div>
               <div class="block-action-button">
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-add fw-stack-1x"></i>
                     </span> Add Database
+                </a>
               </div>
           </div>
-
       </div>
     </div>
 </div>
@@ -226,6 +245,7 @@
 
 
 <!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
 <!-- end of loading javascript files -->

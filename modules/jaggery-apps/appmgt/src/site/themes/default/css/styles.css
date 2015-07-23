@@ -760,13 +760,18 @@ a.btn-action {
     display: block;
     float: left;
     width: 90%;
+    margin-left: 2%;
 }
 .notification-msg i {
     margin-right: 5px;
     float: left;
-    width: 7%;
     margin-top: 4px;
 }
+
+.spin-overide{
+    color: rgb(182, 182, 182) !important;
+}
+
 .app-content-section {
     margin-top: 7em;
 }
@@ -789,6 +794,16 @@ a.btn-action {
 .left-pane ul li:hover {
     background-color: #101010;
 }
+
+.left-pane a{
+    color: #fff;
+}
+
+.left-pane a:hover{
+    color: #fff;
+    text-decoration: none;
+}
+
 .block-general {
     margin-top: 1em;
     background-color: #34495e;
@@ -1019,22 +1034,22 @@ a.btn-action {
     -webkit-transform: translate(-50%, -50%);
 }
 
-.loading .loading-animation .logo {
+.loading .loading-animation .loading-logo {
     position: relative;
 }
 
-.loading .loading-animation .logo .pulse-line,
-.loading .loading-animation .logo .circle {
+.loading .loading-animation .loading-logo .pulse-line,
+.loading .loading-animation .loading-logo .circle {
     fill: none;
     stroke: #fff;
 }
 
-.loading .loading-animation .logo .circle {
+.loading .loading-animation .loading-logo .circle {
     stroke-dasharray: 100;
     opacity: 0.5;
 }
 
-.loading .loading-animation .logo .pulse-line {
+.loading .loading-animation .loading-logo .pulse-line {
     stroke-dasharray: 200;
     stroke-dashoffset: 200;
     animation: dash 4s linear  infinite;
@@ -1061,7 +1076,7 @@ a.btn-action {
     }
 }
 
-.loading .loading-animation .logo .signal {
+.loading .loading-animation .loading-logo .signal {
     border: 5px solid #fff;
     border-radius: 50px;
     height: 50px;
@@ -1098,4 +1113,143 @@ a.btn-action {
     text-align: center;
     font-size: 11px;
     margin-top: 4px;
+}
+
+
+.datatable td a{
+    color: #fff;
+    cursor: pointer;
+}
+.datatable td a:hover{
+    color: #fff;
+}
+
+.password-generator{
+    border-radius: 0px;
+    margin-top: 1.7em;
+}
+.hide-pass{
+    float: right;
+    margin-top: -27px;
+    margin-right: 7px;
+    cursor: pointer;
+    color: rgb(40, 40, 40);
+}
+
+.hide-pass>i{
+    font-size: 1.5em;
+}
+
+.modal-title{color: #000;}
+.modal-content, .btn{border-radius: 0px;}
+
+#password-modal{
+    margin-top: 4em;
+}
+.password-meter {
+    width: 214px;
+    color: #000;
+    border-radius: 0px;
+}
+
+.switch .toggle-button:before {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    display: block;
+    content: "";
+    width: 45px;
+    height: 16px;
+    cursor: pointer;
+    background: #a6a6a6;
+    margin-left: 2px;
+    z-index: 1;
+    border-radius: 8px;
+}
+
+.switch input[type=checkbox] {
+    position: absolute;
+    opacity: 0;
+}
+
+.switch input[type="checkbox"] + .toggle-button:after {
+    background: #444;
+}
+
+.switch input[type="checkbox"] + .toggle-button:after {
+    position: absolute;
+    left: 22px;
+    top: -2px;
+    display: block;
+    content: "";
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: #237bd5;
+    z-index: 2;
+    border-radius: 12px;
+    -webkit-transition: left 0.2s ease-in-out;
+    -moz-transition: left 0.2s ease-in-out;
+    -o-transition: left 0.2s ease-in-out;
+    transition: left 0.2s ease-in-out;
+}
+
+.switch input[type="checkbox"]:checked + .toggle-button + .text {
+    display: inline-block;
+}
+
+.switch .toggle-button:before {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    display: block;
+    content: "";
+    width: 45px;
+    height: 16px;
+    cursor: pointer;
+    background: #a6a6a6;
+    margin-left: 2px;
+    z-index: 1;
+    border-radius: 8px;
+}
+.switch input[type="checkbox"] + .toggle-button:after {
+    position: absolute;
+    left: 22px;
+    top: -2px;
+    display: block;
+    content: "";
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: #237bd5;
+    z-index: 2;
+    border-radius: 12px;
+
+    -webkit-transition: left 0.2s ease-in-out;
+    -moz-transition: left 0.2s ease-in-out;
+    -o-transition: left 0.2s ease-in-out;
+    transition: left 0.2s ease-in-out;
+}
+.switch input[type="checkbox"]:not(:checked) + .toggle-button:after {
+    left: 2px !important;
+    background: #eaeaea;
+    border: 1px #eaeaea solid;
+}
+
+.switch input[type="checkbox"]:not(:checked) + .toggle-button:before {
+    background: #a6a6a6 !important;
+}
+.switch input[type="checkbox"]:disabled + .toggle-button:after {
+    background: #a6a6a6 !important;
+    outline: 2px #a6a6a6 solid !important;
+}
+.switch input[type="checkbox"]:disabled + .toggle-button:before {
+    cursor: default !important;
+    background: #e0e0e0 !important;
+    outline: 2px #ccc solid !important;
+}
+
+.switch .toggle-button{
+    position: absolute;
+    margin-top: -8px;
 }
