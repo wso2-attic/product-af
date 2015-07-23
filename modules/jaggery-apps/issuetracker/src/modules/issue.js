@@ -23,6 +23,10 @@ var getIssueByKey = function (issueKey) {
         } else
             commentList[i].isOwner=false
     }
+    // sorting the comments array such that most recent comment comes to the top
+    var decendingCommentList = [];
+    decendingCommentList = commentList.reverse();
+    result.data.issueResponse.comments = decendingCommentList;
     return result.data.issueResponse;
 };
 
