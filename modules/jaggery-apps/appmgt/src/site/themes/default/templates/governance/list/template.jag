@@ -919,11 +919,11 @@ function addETA(uiElement, version, stage) {
     var modifiedVersion = version.replace(/\./g, "_");
     $('input[type="text"], input[type="hidden"]', $(uiElement).parent().parent()).each(function (index, element) {
         if ($(this).attr('id') == "etaFrom_" + modifiedVersion) {
-            etaFrom = $(this).attr('value');
+            etaFrom = $(this).val();
         }
         if ($(this).attr('id') == "etaTo_" + modifiedVersion) {
 
-            etaTo = $(this).attr('value');
+            etaTo = $(this).val();
 
             //Adding date validation
             var currentDate = new Date();
@@ -1097,7 +1097,7 @@ function initDatePicker() {
 
 function initPops() {
 
-    $('.hide_button').live('click', function () {
+    $('.hide_button').on('click', function () {
         $(this).parents('.qtip').qtip("hide");
     });
     $('.js_demote_popover').each(function () {
@@ -1577,6 +1577,21 @@ function hideNotification() {
         }
     }
     %>
+
+<!-- BOF App factory menu -->
+<div class="navbar navbar-secondary">
+    <div class="container-fliud">
+        <div class="row">
+            <div class="side-pane-trigger">
+                <i class="fa fa-reorder"></i>
+            </div>
+            <div class="breadcrumb-secondary">
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- EOF App factory menu -->
 
     <!--START content section-->
 
