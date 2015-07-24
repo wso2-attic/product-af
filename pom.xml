@@ -189,20 +189,15 @@
               <artifactId>org.apache.stratos.tenant.mgt.core</artifactId>
               <version>4.0.0-wso2v1</version>
           </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-            <version>4.0.0-wso2v1</version>
-        </dependency>
-	<dependency>
+          <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.andes.stub</artifactId>
             <version>4.2.1</version>
         </dependency>
-	<dependency>
-	   <groupId>org.wso2.carbon</groupId>
-	   <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>
-	   <version>4.2.0</version>
+	    <dependency>
+           <groupId>org.wso2.carbon</groupId>
+           <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>
+           <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
