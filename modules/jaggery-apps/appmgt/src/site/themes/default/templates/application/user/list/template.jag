@@ -579,7 +579,9 @@ $('#removeUsers').click(function(){
     </div>
 </div><!-- EOF App factory menu -->
 
-<div class="container">
+<!-- right pane wrapper -->
+<div class="right-pane">
+<div><!-- BOF middle containner -->
     <article class="main">
         <% jagg.includeBlock("page/messages", null); %>
         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.TEAM}); %>
@@ -661,7 +663,8 @@ $('#removeUsers').click(function(){
 
     <div class="clearfix"></div>
     </article>
-</div><!-- /container -->
+    </div><!-- /container -->
+</div><!-- End of right pane wrapper -->
 
 <input type="hidden" id="userName" value='<%= jagg.getUser() %>' />
 <input type="hidden" id="applicationKey" value='<%= applicationKey %>' />

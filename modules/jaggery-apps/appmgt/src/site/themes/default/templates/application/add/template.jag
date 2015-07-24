@@ -73,8 +73,7 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
 /**
 * **************************************************************************
 * Start of form validation methods
-*
-*
+* For more info refer to http://jqueryvalidation.org/documentation/
 **/
 
 // Return whether the uploaded archive is validated or not
@@ -275,7 +274,6 @@ function getAppKeyErrorMessage(){
  function validateUploadableArtifactSize(fileSize) {
       return (fileSize < uploadableApplicationMaxSize);
  }
-
  // End of form validation methods
 
 /**
@@ -455,7 +453,6 @@ function fileUploadFail(e, data){
          height: document.body.clientHeight,
          width: document.body.clientWidth
      });
-     setHelpTips( <%= helpTips %> );
 
 
 
@@ -678,16 +675,6 @@ function fileUploadFail(e, data){
 
      var unit = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
      return Math.round(bytes / Math.pow(1024, unit), 2) + ' ' + sizes[unit];
- }
-
- function setHelpTips(helpTips) {
-     $("#appKey").html(helpTips.appKey);
-     $("#appIcon").html(helpTips.appIcon);
-     $(".appType").html(helpTips.appType);
-     $("#repoType").html(helpTips.repoType);
-     $("#appURL").html(helpTips.appURL);
-     $("#appUpload").html(helpTips.appMaxSize + bitesToSize(uploadableApplicationMaxSize) + "<br>" + helpTips.appUpload);
-     $("#appCreateMethod").html(helpTips.appCreateMethod);
  }
 
  function clearUploadIconField() {
