@@ -15,7 +15,6 @@ $(document).ready(function() {
 // wrapping functions
 function initPageView() {
     loadAppIcon(applicationInfo.key);
-    addSidePaneClickHandlers();
 }
 
 // Icon initialization
@@ -35,32 +34,6 @@ function loadAppIcon(appKey) {
         }
     }, function (jqXHR, textStatus, errorThrown) {
         console.log("Could not load the application icon!");
-    });
-}
-
-// adding notification panel
-function addSidePaneClickHandlers() {
-    $('.side-pane-trigger').click(function() {
-        var rightPane = $('.right-pane');
-        var leftPane = $('.left-pane');
-        if (rightPane.hasClass('visible')) {
-            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-            leftPane.animate({"left":"-18em"}, "slow");
-            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-        } else {
-            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-            leftPane.animate({"left":"0em"}, "slow");
-            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-        }
-    });
-
-    $('.notification-pane-trigger').click(function() {
-        var notificationPane = $('.notification-pane');
-        if(notificationPane.hasClass('visible')) {
-            notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
-        } else {
-            notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
-        }
     });
 }
 
