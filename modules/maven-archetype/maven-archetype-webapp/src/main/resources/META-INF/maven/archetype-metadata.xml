@@ -9,15 +9,9 @@
             <includes>
                 <include>.classpath</include>
                 <include>.project</include>
-<<<<<<< HEAD
                 <include>pom.xml</include>
                 <include>bin.xml</include>
                 <include>assembly.xml</include>
-=======
-		<include>pom.xml</include>
-                <include>bin.xml</include>
-		<include>assembly.xml</include>
->>>>>>> modified war archetype by adding deployable artifact generation
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
@@ -46,19 +40,8 @@
                 <include>classes/</include>
             </includes>
         </fileSet>
-<<<<<<< HEAD
         <fileSet filtered="false" encoding="UTF-8">
             <directory>built_artifact</directory>
-=======
-  <fileSet filtered="false" encoding="UTF-8">
-            <directory>built_artifact</directory>
-            <includes>
-                  <include>**/*</include>
-            </includes>
-        </fileSet>
-<fileSet filtered="true" encoding="UTF-8">
-            <directory>WebContent</directory>
->>>>>>> modified war archetype by adding deployable artifact generation
             <includes>
                 <include>**/*.class</include>
             </includes>
@@ -73,3 +56,4 @@
         </fileSet>
     </fileSets>
 </archetype-descriptor>
+
