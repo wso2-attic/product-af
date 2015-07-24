@@ -136,20 +136,22 @@ public class IssueDAOImpl implements IssueDAO {
             st = (PreparedStatement) dbConnection
                     .prepareStatement(ISQLConstants.UPDATE_ISSUE);
 
-            st.setString(1, issue.getDescription());
-            st.setString(2, issue.getType());
-            st.setString(3, issue.getPriority());
-            st.setString(4, issue.getStatus());
-            st.setString(5, issue.getAssignee());
+            st.setString(1, issue.getSummary());
+            st.setString(2, issue.getDescription());
+            st.setString(3, issue.getType());
+            st.setString(4, issue.getPriority());
+            st.setString(5, issue.getStatus());
+            st.setString(6, issue.getAssignee());
             if (issue.getVersionId() > 0)
-                st.setInt(6, issue.getVersionId());
+                st.setInt(7, issue.getVersionId());
             else
-                st.setNull(6, Types.INTEGER);
+                st.setNull(7, Types.INTEGER);
 
-            st.setTimestamp(7, getCurrentTimeStamp());
-            st.setString(8, issue.getSeverity());
-            st.setString(9, issue.getKey());
-            st.setInt(10, tenantId);
+            st.setTimestamp(8, getCurrentTimeStamp());
+            st.setString(9, issue.getSeverity());
+            st.setString(10, issue.getKey());
+            st.setInt(11, tenantId);
+
 
             result = st.executeUpdate() == 1 ? true : false;
         } catch (SQLException e) {
