@@ -31,7 +31,6 @@
         <fileSet filtered="false" encoding="UTF-8">
             <directory>built_artifact</directory>
             <includes>
-<<<<<<< HEAD
                 <include>**/*.class</include>
             </includes>
         </fileSet>
@@ -39,11 +38,6 @@
             <directory>built_artifact</directory>
             <exclude name="**/*.class"/>
         </fileSet>
-=======
-                <include>**/*</include>
-            </includes>
-        </fileSet>
->>>>>>> modified jaxws archetype by adding deployable artifact generation
     </fileSets>
 </archetype-descriptor>
 
