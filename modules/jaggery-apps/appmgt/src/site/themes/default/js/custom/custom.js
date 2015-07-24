@@ -10,20 +10,17 @@ $('.cloud-menu-popover').popover({
 
     /**
      * this function use to append description block on app type selection
-     * THIS SHOULD BE REMOVED FROM CUSTOM.JS .THIS IS INCLUDED IN APPLICATION/SELECT/TEMPLATE.JAG 
+     * THIS SHOULD BE REMOVED FROM CUSTOM.JS .THIS IS INCLUDED IN APPLICATION/SELECT/TEMPLATE.JAG
      * */
 /*
     $(document).on('click', '.cloud-app-type', function(){
-
         $('.listing').find('.longme').detach();
         if($('.cloud-app-type').hasClass('cloud-app-selected')){
             $('.cloud-app-type').removeClass('cloud-app-selected');
             $(this).addClass('cloud-app-selected');
         }else{
             $(this).addClass('cloud-app-selected');
-
         }
-
         var width = $( window ).width(),
             currentcount = parseInt($(this).attr('id')),
             appDescription = $(this).attr('data-description'),
@@ -33,8 +30,6 @@ $('.cloud-menu-popover').popover({
         $('.app-type-info-template').find('.app-appTypeDisplayName').html(appName);
         $('.app-type-info-template').find('.app-description').html(appDescription);
         var appendHtml =$('.app-type-info-template').html();
-
-
         if(width >=1170){
             if(currentcount%7 == 0){
                 $('#'+currentcount+'\\.0').parent().after(appendHtml);
@@ -48,7 +43,6 @@ $('.cloud-menu-popover').popover({
                     $('#'+ctest+'\\.0').parent().after(appendHtml);
                     $('.longme').fadeIn('slow')
                 }
-
             }
         }else if(width >=970){
             if(currentcount%4 == 0){
@@ -62,9 +56,7 @@ $('.cloud-menu-popover').popover({
                 }else{
                     $('#'+ctest+'\\.0').parent().after(appendHtml);
                     $('.longme').fadeIn('slow')
-
                 }
-
             }
         }else if(width >=750 ){
             if(currentcount%2 == 0){
@@ -78,18 +70,12 @@ $('.cloud-menu-popover').popover({
                 }else{
                     $('#'+ctest+'\\.0').parent().after(appendHtml);
                     $('.longme').fadeIn('slow')
-
                 }
-
             }
-
         }else if(width <750 ){
             $('#'+currentcount+'\\.0').parent().after(appendHtml);
             $('.longme').fadeIn('slow')
-
         }
-
-
     })
 */
 
@@ -154,4 +140,16 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
         });
 
     };
+
+    $.fn.overlay = function(action) {
+        return $(this).each(function() {
+            if (action === 'show') {
+                $(this).addClass('loading-overlay');
+            }
+            if (action === 'hide') {
+                $(this).removeClass('loading-overlay');
+            }
+        });
+    };
+
 }(jQuery));

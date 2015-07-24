@@ -199,7 +199,7 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
                 <i class="fa fa-reorder"></i>
             </div>
             <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud </span> / <%=applicationName%> / Issues /
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud&nbsp; </span> /<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"><%=applicationName%></a> / <a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Issues </a>
             </div>
         </div>
     </div>

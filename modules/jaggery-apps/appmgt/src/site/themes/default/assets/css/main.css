@@ -550,7 +550,7 @@ table.basic a { text-decoration: none; }
    ============ */
 .progress {
   height: 10px;
-  width: 100px; 
+  width: 100%;
   overflow: hidden;
   background-color: #f7f7f7;
    -webkit-border-radius: 3px;

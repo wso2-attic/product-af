@@ -48,12 +48,6 @@ import java.util.List;
 public class AppVersionStrategyExecutor {
     public static final Log log = LogFactory.getLog(AppVersionStrategyExecutor.class);
 
-
-    public static boolean doVersionForESB(String currentVersion, String targetVersion, File workDir) {
-        doVersionOnSynapseXML(currentVersion,targetVersion, workDir);
-        return true;
-    }
-
     /**
      * Version of applications which do not use a pom file
      *
@@ -61,7 +55,6 @@ public class AppVersionStrategyExecutor {
      * @param workDir
      * @return
      */
-
     public static boolean doVersionForGenericApplicationType(String targetVersion, File workDir) {
         for (File file : workDir.listFiles()) {
             if (file.isDirectory() && file.getName().contains("-")) {
@@ -180,11 +173,11 @@ public class AppVersionStrategyExecutor {
 	 * @param workDir current working directory
 	 */
 	public static void doVersionForMultiModuleMVN(String targetVersion, File workDir) {
-		ArrayList<String> artifactIds = new ArrayList<String>();
+		List<String> artifactIds = new ArrayList<String>();
 		try {
 			List<File> pomFileList = new ArrayList<File>();
 			FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_POM_FILE, pomFileList);
-			getArtifactIdsFromPOMFiles(pomFileList, artifactIds);
+			artifactIds = getArtifactIdsFromPOMFiles(pomFileList);
 			changeVersionsInPomFiles(targetVersion, artifactIds, pomFileList);
 		} catch (Exception e) {
 			String errorMsg = "Error in process of version in multi module Mvn project : " + e.getMessage();
@@ -202,40 +195,49 @@ public class AppVersionStrategyExecutor {
 	 */
 	private static void changeVersionsInPomFiles(String targetVersion, List<String> artifactIds, List<File> pomFileList)
 			throws AppFactoryException {
-		try {
-			MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
-			for (File file : pomFileList) {
-				FileInputStream stream = new FileInputStream(file);
+		for (File file : pomFileList) {
+			if(log.isDebugEnabled()) {
+				log.debug("Changing the version in pom file : " + file.getAbsolutePath());
+			}
+			FileInputStream stream = null;
+			try {
+				MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+				stream = new FileInputStream(file);
 				Model model = mavenXpp3Reader.read(stream);
 				model.setVersion(targetVersion);
-				validatingParentArtifactVersion(targetVersion, model, artifactIds);
-				validateDependentArtifactVersions(targetVersion, model, artifactIds);
-				if (stream != null) {
-					stream.close();
-				}
+				updateParentArtifactVersion(targetVersion, model, artifactIds);
+				updateDependentArtifactVersions(targetVersion, model, artifactIds);
 				MavenXpp3Writer writer = new MavenXpp3Writer();
 				writer.write(new FileWriter(file), model);
+			} catch (FileNotFoundException e) {
+				String msg = "Error while reading / writing pom files : " + e.getMessage();
+				throw new AppFactoryException(msg, e);
+			} catch (XmlPullParserException e) {
+				String msg = "Error while parsing pom files : " + e.getMessage();
+				throw new AppFactoryException(msg, e);
+			} catch (IOException e) {
+				String msg = "Error while reading / writing pom files : " + e.getMessage();
+				throw new AppFactoryException(msg, e);
+			} finally {
+				if (stream != null) {
+					try {
+						stream.close();
+					} catch (IOException e) {
+						log.warn("Error while closing the stream");
+					}
+				}
 			}
-		} catch (FileNotFoundException e) {
-			String msg = "Error while reading / writing pom files : " + e.getMessage();
-			throw new AppFactoryException(msg, e);
-		} catch (XmlPullParserException e) {
-			String msg = "Error while parsing pom files : " + e.getMessage();
-			throw new AppFactoryException(msg, e);
-		} catch (IOException e) {
-			String msg = "Error while reading / writing pom files : " + e.getMessage();
-			throw new AppFactoryException(msg, e);
 		}
 	}
 
 	/**
-	 * validate the versions of dependents in a maven model and correct them
+	 * update the versions of dependents in a maven model
 	 *
 	 * @param targetVersion name of the version we are creating
 	 * @param model maven model
 	 * @param artifactIds list of artifact ids in the project
 	 */
-	private static void validateDependentArtifactVersions(String targetVersion, Model model, List<String> artifactIds) {
+	private static void updateDependentArtifactVersions(String targetVersion, Model model, List<String> artifactIds) {
 		List<Dependency> dependencies = model.getDependencies();
 		for (Dependency dependency : dependencies) {
 			if(artifactIds.contains(dependency.getArtifactId())){
@@ -245,13 +247,13 @@ public class AppVersionStrategyExecutor {
 	}
 
 	/**
-	 * validate the versions of parent in a maven model and correct them
+	 * validate the versions of parent in a maven model
 	 *
 	 * @param targetVersion name of the version we are creating
 	 * @param model maven model
 	 * @param artifactIds list of artifact ids in the project
 	 */
-	private static void validatingParentArtifactVersion(String targetVersion, Model model, List<String> artifactIds) {
+	private static void updateParentArtifactVersion(String targetVersion, Model model, List<String> artifactIds) {
 		Parent parentPom = model.getParent();
 		if(parentPom != null && artifactIds.contains(parentPom.getArtifactId())) {
 			parentPom.setVersion(targetVersion);
@@ -262,31 +264,42 @@ public class AppVersionStrategyExecutor {
 	 * Get artifact ids from list of pom files
 	 *
 	 * @param pomFileList list of pom files
-	 * @param artifactIds list of artifact ids
+	 * @return list of artifact ids
 	 * @throws AppFactoryException
 	 */
-	private static void getArtifactIdsFromPOMFiles(List<File> pomFileList, List<String> artifactIds)
+	private static List<String> getArtifactIdsFromPOMFiles(List<File> pomFileList)
 			throws AppFactoryException {
+		List<String> artifactIds = new ArrayList<String>();
 		MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
-		try {
-			for (File file : pomFileList) {
-				FileInputStream stream = new FileInputStream(file);
+		FileInputStream stream = null;
+		for (File file : pomFileList) {
+			if(log.isDebugEnabled()) {
+				log.debug("Reading pom file : " + file.getAbsolutePath());
+			}
+			try {
+				stream = new FileInputStream(file);
 				Model model = mavenXpp3Reader.read(stream);
 				artifactIds.add(model.getArtifactId());
+			} catch (FileNotFoundException e) {
+				String msg = "Error while reading pom files : " + e.getMessage();
+				throw new AppFactoryException(msg, e);
+			} catch (XmlPullParserException e) {
+				String msg = "Error while parsing pom files : " + e.getMessage();
+				throw new AppFactoryException(msg, e);
+			} catch (IOException e) {
+				String msg = "Error while reading pom files : " + e.getMessage();
+				throw new AppFactoryException(msg, e);
+			} finally {
 				if (stream != null) {
-					stream.close();
+					try {
+						stream.close();
+					} catch (IOException e) {
+						log.warn("Error while closing the stream");
+					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			String msg = "Error while reading pom files : " + e.getMessage();
-			throw new AppFactoryException(msg, e);
-		} catch (XmlPullParserException e) {
-			String msg = "Error while parsing pom files : " + e.getMessage();
-			throw new AppFactoryException(msg, e);
-		} catch (IOException e) {
-			String msg = "Error while reading pom files : " + e.getMessage();
-			throw new AppFactoryException(msg, e);
 		}
+		return artifactIds;
 	}
 
 	/**
@@ -303,7 +316,7 @@ public class AppVersionStrategyExecutor {
 		List<File> pomFileList = new ArrayList<File>();
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_POM_FILE, pomFileList);
 
-		getAllSynapseArtifactsAndVersionAllArtifacts(targetVersion, synapseArtifacts, artifactList);
+		artifactList = getAllSynapseArtifactsAndVersionAllArtifacts(targetVersion, synapseArtifacts);
 
 		List<File> synapseConfigs = new ArrayList<File>();
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_SYNAPSE_CONFIG_STORE_LOCATION,
@@ -311,10 +324,10 @@ public class AppVersionStrategyExecutor {
 		                                              AppFactoryConstants.DEFAULT_SYNAPSE_NAMESPACE_PREFIX),
 		                          synapseConfigs);
 
-		//version all synapse configs in the project
-		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, synapseConfigs, true);
-		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, artifactList, false);
-		renameSynapseArtifactsInFiles(targetVersion, synapseArtifacts, pomFileList, false);
+		//version all synapse configs in the project (synapse configs, artifact.xmls and pom files)
+		renameSynapseArtifactNamesInFiles(targetVersion, synapseArtifacts, synapseConfigs, true);
+		renameSynapseArtifactNamesInFiles(targetVersion, synapseArtifacts, artifactList, false);
+		renameSynapseArtifactNamesInFiles(targetVersion, synapseArtifacts, pomFileList, false);
 	}
 
 	/**
@@ -323,13 +336,13 @@ public class AppVersionStrategyExecutor {
 	 *
 	 * @param targetVersion name of the version we are going to create
 	 * @param synapseArtifacts List of names of synapse artifacts
-	 * @param artifactList CAR artifact definition file list
+	 * @return  CAR artifact definition file list
 	 * @throws AppFactoryException
 	 */
-	private static void getAllSynapseArtifactsAndVersionAllArtifacts(String targetVersion,
-	                                                                 List<String> synapseArtifacts,
-	                                                                 List<File> artifactList)
+	private static List<File> getAllSynapseArtifactsAndVersionAllArtifacts(String targetVersion,
+	                                                                 List<String> synapseArtifacts)
 			throws AppFactoryException {
+		List<File> artifactList = new ArrayList<File>();
 		for (File artifactConfiguration : artifactList) {
 			OMElement artifacts = FileUtilities.loadXML(artifactConfiguration);
 			Iterator artifactIterator =
@@ -338,18 +351,26 @@ public class AppVersionStrategyExecutor {
 				OMElement artifact = (OMElement) artifactIterator.next();
 				artifact.getAttribute(new QName(AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION_QNAME_VERSION))
 				        .setAttributeValue(targetVersion);
+				OMAttribute name = artifact.getAttribute(new QName(AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION_QNAME_NAME));
+				if(log.isDebugEnabled()) {
+					log.debug("Changed the version of artifact : " + name.getAttributeValue());
+				}
 				//If this is a synapse artifact
 				if (artifact.getAttribute(new QName(AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION_QNAME_TYPE))
 				            .getAttributeValue().startsWith(AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION_TYPE_SYNAPSE)){
-					OMAttribute name = artifact.getAttribute(new QName(AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION_QNAME_NAME));
+
 					if (!synapseArtifacts.contains(name.getAttributeValue())) {
 						// Add synapse artifact name to the list
 						synapseArtifacts.add(name.getAttributeValue());
+						if(log.isDebugEnabled()) {
+							log.debug("Artifact is a synapse artifact : " + name.getAttributeValue());
+						}
 					}
 				}
 			}
 			FileUtilities.writeXMLToFile(artifacts, artifactConfiguration.getAbsolutePath());
 		}
+		return artifactList;
 	}
 
 	/**
@@ -361,8 +382,8 @@ public class AppVersionStrategyExecutor {
 	 * @param renameFiles is rename the file name is required (This will be true only for the synapse config files)
 	 * @throws AppFactoryException
 	 */
-	private static void renameSynapseArtifactsInFiles(String targetVersion, List<String> synapseArtifacts,
-	                                                  List<File> Files, boolean renameFiles) throws AppFactoryException {
+	private static void renameSynapseArtifactNamesInFiles(String targetVersion, List<String> synapseArtifacts,
+	                                                      List<File> Files, boolean renameFiles) throws AppFactoryException {
 		try {
 			for (File file : Files) {
 				String content = FileUtils.readFileToString(file);
@@ -371,6 +392,9 @@ public class AppVersionStrategyExecutor {
 				}
 				FileUtils.writeStringToFile(file, content);
 				if(renameFiles) {
+					if(log.isDebugEnabled()) {
+						log.debug("Renaming file is enabled, Renaming file : " + file.getName());
+					}
 					String newArtifactFileName = file.getParentFile().getAbsolutePath() + File.separator +
 					                             changeArtifactName(file.getName(), targetVersion) +
 					                             AppFactoryConstants.FILENAME_EXTENSION_SEPERATOR +
@@ -519,53 +543,5 @@ public class AppVersionStrategyExecutor {
         return newArtifactName;
     }
 
-
-    private static void doVersionOnSynapseXML(String currentVersion, String targetVersion, File workDir) {
-
-        if (!(currentVersion.equals("trunk") && currentVersion.equals("1.0.0"))) {
-            currentVersion = "SNAPSHOT";
-        }
-
-        try {
-            String[] fileExtension = {"xml"};
-            List<File> fileList = (List<File>) FileUtils.listFiles(workDir,
-                    fileExtension, true);
-            for (File file : fileList) {
-                if (file.getName().equals("synapse.xml")) {
-                    OMElement deployXml = FileUtilities.loadXML(file);
-                    Iterator proxyItemIterator = deployXml.getChildrenWithName(new QName("proxy"));
-
-                    while (proxyItemIterator.hasNext()) {
-                        OMElement processElement = (OMElement) proxyItemIterator.next();
-                        if (processElement.getAttribute(new QName("name")) != null && processElement.getAttribute(new QName("name")).getAttributeValue().endsWith(currentVersion)) {
-                            //OMElement cloneElement = processElement.cloneOMElement();
-                            String name = processElement.getAttribute(new QName("name")).getAttributeValue();
-                            String newName = name.replace(currentVersion, targetVersion);
-                            processElement.getAttribute(new QName("name")).setAttributeValue(newName);
-                            //processElement.getParent().addChild(cloneElement);
-                            break;
-                        }
-                    }
-                    Iterator sequenceItemIterator = deployXml.getChildrenWithName(new QName("sequence"));
-                    while (sequenceItemIterator.hasNext()) {
-                        OMElement processElement = (OMElement) sequenceItemIterator.next();
-                        if (processElement.getAttribute(new QName("name")) != null && processElement.getAttribute(new QName("name")).getAttributeValue().endsWith(currentVersion)) {
-                            //OMElement cloneElement = processElement.cloneOMElement();
-                            String name = processElement.getAttribute(new QName("name")).getAttributeValue();
-                            String newName = name.replace(currentVersion, targetVersion);
-                            processElement.getAttribute(new QName("name")).setAttributeValue(newName);
-                            //processElement.getParent().addChild(cloneElement);
-                            break;
-                        }
-                    }
-                    FileUtilities.writeXMLToFile(deployXml, file.getAbsolutePath());
-                }
-
-            }
-        } catch (Exception e) {
-            //TODO
-            e.printStackTrace();
-        }
-    }
 
 }

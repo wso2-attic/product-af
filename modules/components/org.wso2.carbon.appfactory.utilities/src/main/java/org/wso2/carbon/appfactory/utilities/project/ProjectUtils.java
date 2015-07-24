@@ -48,10 +48,7 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * ProjectUtil class holds the utility methods to generate projects
@@ -60,9 +57,18 @@ public class ProjectUtils {
     private static final Log log = LogFactory.getLog(ProjectUtils.class);
     public static JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
 
-
+	/**
+	 * Run a maven command
+	 * @param goals goals of the maven command
+	 * @param invokerOutputHandler output handler for the maven command
+	 * @param baseDir base directory to run maven command
+	 * @param mavenOPTs maven opts for the command
+	 * @param properties properties for the command
+	 * @return result of the invocation
+	 * @throws AppFactoryException Either when maven home is not set or invocation of the command fails
+	 */
 	public static InvocationResult runMavenCommand(List<String> goals, InvocationOutputHandler invokerOutputHandler, File baseDir,
-	                                   String mavenOPTs) throws AppFactoryException {
+	                                   String mavenOPTs, Properties properties) throws AppFactoryException {
 		//Check whether the maven home is set. If not, can not proceed further.
 		String mavenHome = System.getenv(AppFactoryConstants.SYSTEM_VARIABLE_M2_HOME);
 		if (StringUtils.isBlank(mavenHome)) {
@@ -80,6 +86,9 @@ public class ProjectUtils {
 		if(mavenOPTs != null) {
 			request.setMavenOpts(mavenOPTs);
 		}
+		if(properties != null) {
+			request.setProperties(properties);
+		}
 		try{
 			Invoker invoker = new DefaultInvoker();
 			InvocationOutputHandler outputHandler = new SystemOutHandler();
@@ -88,7 +97,7 @@ public class ProjectUtils {
 			invoker.setOutputHandler(invokerOutputHandler);
 			return invoker.execute(request);
 		} catch (MavenInvocationException e) {
-			String msg = "Failed to invoke maven archetype generation";
+			String msg = "Failed to invoke maven command inside " + baseDir.getAbsolutePath();
 			log.error(msg, e);
 			throw new AppFactoryException(msg, e);
 		}
@@ -130,7 +139,7 @@ public class ProjectUtils {
 		            log.info(appId + ":" + s);
 	            }
             };
-		    result = runMavenCommand(goals, invokerOutputHandler, archetypeDir, archetypeRequest);
+		    result = runMavenCommand(goals, invokerOutputHandler, archetypeDir, archetypeRequest, null);
 
         } finally {
             if (result != null && result.getExitCode() == 0) {
@@ -202,7 +211,7 @@ public class ProjectUtils {
             }
         };
         try {
-            result = runMavenCommand(goals, invocationOutputHandler, projectDir, null);
+            result = runMavenCommand(goals, invocationOutputHandler, projectDir, null, null);
             if(initialArtifact.exists()){
                 isSuccess = true;
             }else{

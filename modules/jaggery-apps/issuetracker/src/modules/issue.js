@@ -23,6 +23,10 @@ var getIssueByKey = function (issueKey) {
         } else
             commentList[i].isOwner=false
     }
+    // sorting the comments array such that most recent comment comes to the top
+    var decendingCommentList = [];
+    decendingCommentList = commentList.reverse();
+    result.data.issueResponse.comments = decendingCommentList;
     return result.data.issueResponse;
 };
 
@@ -63,6 +67,7 @@ var editIssue = function (issueKey, jsonString){
     var proj = new Object();
     proj.issue=jsonObj;
     jsonString = stringify(proj);
+    log.info("Edit issue : " + jsonString);
     var result;
         var url = url_prefix+"/issue/"+issueKey;
         result = post(url, jsonString, {

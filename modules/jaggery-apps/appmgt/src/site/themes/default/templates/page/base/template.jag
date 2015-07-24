@@ -76,18 +76,15 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-
-
-         <!-- OLD CSS can be removed after the new UI/UX--> 
+         <!-- OLD CSS can be removed after the new UI/UX-->
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">
-        <!-- link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>" -->
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/development.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/custom.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/grid.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.snippet.css'))%>">
          <!-- EOF OLD CSS FILES-->
-
 
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2.css'))%>">
@@ -189,10 +186,12 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
      <%
      jagg.includeBlock("footer", {});
      %>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
+
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.sticky.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/vendor/jquery.ui.widget.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.min.js'))%>"></script>
+        		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/additional-methods.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload-process.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload-validate.js'))%>"></script>
