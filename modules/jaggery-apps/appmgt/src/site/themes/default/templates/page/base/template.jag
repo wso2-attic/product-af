@@ -76,27 +76,41 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-         <!-- OLD CSS can be removed after the new UI/UX-->
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/font-awesome.min.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/normalize.min.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/main.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/development.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/custom.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/grid.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.snippet.css'))%>">
-         <!-- EOF OLD CSS FILES-->
+    <!-- ################# OLD CSS can be removed after the new UI/UX #########################-->
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/font-awesome.min.css'))%>">
+        <!--[if IE 7]>
+          <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/font-awesome-ie7.min.css'))%>">
+        <![endif]-->
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/normalize.min.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/jquery.qtip.min.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/select2/select2.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/main.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/development.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/css/custom.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/css/grid.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/css/jquery.snippet.css'))%>">
 
+        <link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/img/favicon.png'))%>" type="image/x-icon"/>
+		<link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/img/favicon.png'))%>" type="image/x-icon"/>
+    <!-- EOF OLD CSS FILES-->
+
+    <!--***************************** NEW CSS N JS ************************************************ -->
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/nanoscroller-0.8.7/nanoscroller.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2-extend.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/font-awesome-4.2.0/font-awesome.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/web-fonts/Roboto.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/nanoscroller-0.8.7/nanoscroller.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/css/jquery.qtip.min.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>">
-		<link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
-        <link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    <!-- END OF NEW -->
         
     </head>
     <body <% if(applicationKey == null){ %>id="home"<% } %>>
@@ -187,23 +201,27 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
      jagg.includeBlock("footer", {});
      %>
 
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.min.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.sticky.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/vendor/jquery.ui.widget.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.validate.min.js'))%>"></script>
-        		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/additional-methods.min.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload-process.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.fileupload-validate.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/main.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.qtip.min.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/snippet/jquery.snippet.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <!-- ################ OLD ###################-->
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/jquery.validate.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/custom.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/snippet/jquery.snippet.js'))%>"></script>
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/codeSnippetGenerator.js'))%>"></script>
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/select2/select2.js'))%>"></script>
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.sticky.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/main.js'))%>"></script>
+    <!-- END OF OLD-->
+
+    <!-- ***************** NEW ************* -->
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/nanoscroller-0.8.7/jquery.nanoscroller.min.js'))%>"></script>
+        <!-- include new custom js functions -->
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
+    <!-- END OF NEW-->
+
     </body>
 </html>
 <% }); %>
