@@ -222,6 +222,7 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
 
         //TODO
         String stratosAppId = runtimeBean.getAliasPrefix() + stage.toLowerCase();
+        String alias = runtimeBean.getCartridgeTypePrefix() + stage.toLowerCase();
 
         ApplicationSignUpBean applicationSignUpBean = new ApplicationSignUpBean();
         List<ArtifactRepositoryBean> repo = new ArrayList<ArtifactRepositoryBean>();
@@ -230,7 +231,7 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
         artifactRepositoryBean.setRepoUsername(repositoryBean.getRepositoryAdminUsername());
         artifactRepositoryBean.setRepoPassword(repositoryBean.getRepositoryAdminPassword());
         artifactRepositoryBean.setPrivateRepo(false);
-        artifactRepositoryBean.setAlias("todo");
+        artifactRepositoryBean.setAlias(alias);
         repo.add(artifactRepositoryBean);
         applicationSignUpBean.setArtifactRepositories(repo);
 

@@ -189,11 +189,6 @@
               <artifactId>org.apache.stratos.tenant.mgt.core</artifactId>
               <version>${stratos.version}</version>
           </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-            <version>${stratos.version}</version>
-        </dependency>
 	<dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.andes.stub</artifactId>
