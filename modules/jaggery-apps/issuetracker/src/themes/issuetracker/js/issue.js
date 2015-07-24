@@ -6,13 +6,13 @@ $().ready(function() {
         var issue = new Object();
         issue.summary       = $("#summary").val();
         issue.description   = $("#description").val();
-        issue.type          = $("#type option:selected").text();
-        issue.priority      = $("#priority option:selected").text()
+        issue.type          = $("#type option:selected").val();
+        issue.priority      = $("#priority option:selected").val();
         issue.status        = "Open";
-        issue.assignee      = $("#assignee option:selected").text();
+        issue.assignee      = $("#assignee option:selected").val();
         issue.versionId     = $("#version").val();
-        issue.severity      = $("#severity option:selected").text();
-        issue.version       = $("#version option:selected" ).text();
+        issue.severity      = $("#severity option:selected").val();
+        issue.version       = $("#version option:selected" ).val();
         
         var jsonString = JSON.stringify(issue);
         if(issue.summary == null || issue.summary == "" || issue.summary==undefined){
@@ -40,7 +40,7 @@ $().ready(function() {
         });
     });
 
-    $('#editIssue').click(function() {
+    $('#updateIssue').click(function() {
         var key = $("#key").val();
 
         var issue = new Object();
@@ -48,12 +48,12 @@ $().ready(function() {
         issue.key = key;
         issue.summary = $("#summary").val();
         issue.description = $("#description").val();
-        issue.type = $("#type option:selected").text();
-        issue.priority = $("#priority option:selected").text();
+        issue.type = $("#type option:selected").val();
+        issue.priority = $("#priority option:selected").val();
         issue.status = $("#status").val();
         issue.assignee = $("#assignee").val();
         issue.versionId = $("#version").val();
-        issue.severity = $("#severity option:selected").text();
+        issue.severity = $("#severity option:selected").val();
         issue.version = $("#version option:selected").text();
 
         var jsonString = JSON.stringify(issue);
@@ -86,7 +86,6 @@ $().ready(function() {
     $('#commentAdd').click(function() {
         var issueUniqueKey = $("#ukey").attr('value');
         var description = $("#commentVal").val();
-console.log("comment add : "+issueUniqueKey + " : " + description);
         if(description){
 
             var comment = new Object();

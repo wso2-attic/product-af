@@ -60,6 +60,16 @@ body {
 .breadcrumb-secondary span {
     margin-left: 0.5em
 }
+
+.breadcrumb-secondary a, .version-url a{
+    cursor: pointer;
+    color:rgba(255,255,255,0.75);
+}
+.breadcrumb-secondary a:hover, .version-url a:hover{
+    color: #fff;
+    text-decoration: none;
+}
+
 .action-bar {
     background-color: #303030;
     min-height: 45px;
@@ -68,7 +78,7 @@ body {
     -moz-box-shadow: 0px 2px 6px -4px rgba(0, 0, 0, 0.75);
     box-shadow: 0px 2px 6px -4px rgba(0, 0, 0, 0.75);
     position: fixed;
-    top: 103px;
+    top: 55px;
     width: 100%;
     z-index: 100;
 }
@@ -810,6 +820,10 @@ a.btn-action {
     padding: 18px;
     min-height: 26em;
 }
+
+.block-general a, .block-team a, .block-database a{
+    color:#fff;
+}
 .block-general h3,
 .block-team h3,
 .block-database h3 {
@@ -898,7 +912,13 @@ a.btn-action {
 }
 .block-life-cycle .block-action-button:hover {
     background-color: rgb(0, 95, 143);
+    color: rgba(255,255,255,0.75);
 }
+
+.block-issues .block-action-button:hover {
+    background-color: rgb(4, 97, 89);
+}
+
 .block-description-multiline {
     margin-left: 4em;
     font-size: 1.3em;
@@ -1150,4 +1170,111 @@ a.btn-action {
     width: 214px;
     color: #000;
     border-radius: 0px;
+}
+
+.switch .toggle-button:before {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    display: block;
+    content: "";
+    width: 45px;
+    height: 16px;
+    cursor: pointer;
+    background: #a6a6a6;
+    margin-left: 2px;
+    z-index: 1;
+    border-radius: 8px;
+}
+
+.switch input[type=checkbox] {
+    position: absolute;
+    opacity: 0;
+}
+
+.switch input[type="checkbox"] + .toggle-button:after {
+    background: #444;
+}
+
+.switch input[type="checkbox"] + .toggle-button:after {
+    position: absolute;
+    left: 22px;
+    top: -2px;
+    display: block;
+    content: "";
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: #237bd5;
+    z-index: 2;
+    border-radius: 12px;
+    -webkit-transition: left 0.2s ease-in-out;
+    -moz-transition: left 0.2s ease-in-out;
+    -o-transition: left 0.2s ease-in-out;
+    transition: left 0.2s ease-in-out;
+}
+
+.switch input[type="checkbox"]:checked + .toggle-button + .text {
+    display: inline-block;
+}
+
+.switch .toggle-button:before {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    display: block;
+    content: "";
+    width: 45px;
+    height: 16px;
+    cursor: pointer;
+    background: #a6a6a6;
+    margin-left: 2px;
+    z-index: 1;
+    border-radius: 8px;
+}
+.switch input[type="checkbox"] + .toggle-button:after {
+    position: absolute;
+    left: 22px;
+    top: -2px;
+    display: block;
+    content: "";
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    background: #237bd5;
+    z-index: 2;
+    border-radius: 12px;
+
+    -webkit-transition: left 0.2s ease-in-out;
+    -moz-transition: left 0.2s ease-in-out;
+    -o-transition: left 0.2s ease-in-out;
+    transition: left 0.2s ease-in-out;
+}
+.switch input[type="checkbox"]:not(:checked) + .toggle-button:after {
+    left: 2px !important;
+    background: #eaeaea;
+    border: 1px #eaeaea solid;
+}
+
+.switch input[type="checkbox"]:not(:checked) + .toggle-button:before {
+    background: #a6a6a6 !important;
+}
+.switch input[type="checkbox"]:disabled + .toggle-button:after {
+    background: #a6a6a6 !important;
+    outline: 2px #a6a6a6 solid !important;
+}
+.switch input[type="checkbox"]:disabled + .toggle-button:before {
+    cursor: default !important;
+    background: #e0e0e0 !important;
+    outline: 2px #ccc solid !important;
+}
+
+.switch .toggle-button{
+    position: absolute;
+    margin-top: -8px;
+}
+
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: #CACACA ;
 }

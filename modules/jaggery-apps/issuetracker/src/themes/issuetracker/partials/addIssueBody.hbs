@@ -21,19 +21,19 @@
                 <div class="form-group">
                     <label for="type">Type: </label>
                     <select id="type" class="form-control select2">
-                        <option value="bug">Bug</option>
-                        <option value="tasks">Task</option>
-                        <option value="plus">New Feature</option>
-                        <option value="arrow-up">Improvement</option>
+                        <option value="Bug" data-icon="fa-bug">Bug</option>
+                        <option value="Task" data-icon="fa-tasks">Task</option>
+                        <option value="New Feature" data-icon="fa-plus">New Feature</option>
+                        <option value="Improvement" data-icon="fa-arrow-up">Improvement</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
-                        <option value="angle-double-up">Highest</option>
-                        <option value="angle-up">High</option>
-                        <option value="angle-down">Low</option>
-                        <option value="angle-double-down">Lowest</option>
+                        <option value="Highest" data-icon="fa-angle-double-up">Highest</option>
+                        <option value="High" data-icon="fa-angle-up">High</option>
+                        <option value="Low" data-icon="fa-angle-down">Low</option>
+                        <option value="Lowest" data-icon="fa-angle-double-down">Lowest</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -55,9 +55,9 @@
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2">
-                        <option value="ban">Blocker</option>
-                        <option value="exclamation">Critical</option>
-                        <option value="circle-o">Non Critical</option>
+                        <option value="Blocker" data-icon="fa-ban">Blocker</option>
+                        <option value="Critical" data-icon="fa-exclamation">Critical</option>
+                        <option value="Non Critical" data-icon="fa-circle-o">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -102,7 +102,28 @@
 <script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
-
+<script>
+function formatState (state) {
+        if (!state.id) { return state.text; }
+        var $state;
+        if(state.element.attributes['data-icon']){
+            var $state = $(
+                    '<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }else{
+            var $state = $(
+                    '<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }
+        return $state;
+    };
+    $('.select2').select2({
+        templateResult: formatState,
+        templateSelection :formatState
+    });
+</script>
 
 
 
