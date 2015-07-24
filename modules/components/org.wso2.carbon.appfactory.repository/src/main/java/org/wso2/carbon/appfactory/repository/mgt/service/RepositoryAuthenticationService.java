@@ -210,7 +210,7 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
             String[] usersOfApplication = realm.getUserStoreManager().getUserListOfRole(applicationRole);
             userName =  MultitenantUtils.getTenantAwareUsername(userName);
             for (String user : usersOfApplication) {
-                    if(user.equals(userName)){
+                    if(user.equalsIgnoreCase(userName)){
                         return true ;
                     }
             }
