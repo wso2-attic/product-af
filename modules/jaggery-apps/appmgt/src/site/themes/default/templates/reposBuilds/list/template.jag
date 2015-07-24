@@ -164,6 +164,30 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
     }
 
     $(document).ready(function(){
+
+        $('.side-pane-trigger').click(function(){
+            var rightPane = $('.right-pane');
+            var leftPane = $('.left-pane');
+            if (rightPane.hasClass('visible')){
+                rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+                leftPane.animate({"left":"-18em"}, "slow");
+                $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+            } else {
+                rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+                leftPane.animate({"left":"0em"}, "slow");
+                $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+            }
+        });
+
+        $('.notification-pane-trigger').click(function(){
+            var notificationPane = $('.notification-pane');
+            if(notificationPane.hasClass('visible')){
+                notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+            }else{
+                notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+            }
+        });
+
     	initializeUserActivity("reposBuild", '<%=applicationKey%>', null);
         $("#master_old_build_logs_dropdown").select2();   
  });
@@ -335,8 +359,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
             addToStageVersionMapping(element.version.stage,element.version.current);
 
         }
-
-        if($.cookie('selectedStage')!="null"){//cookie is set
+        if($.cookie('selectedStage') && $.cookie('selectedStage')!="null"){//cookie is set
                 selectedStage=$.cookie('selectedStage');
         }else{
                 selectedStage=versions[0].version.stage;
@@ -344,7 +367,8 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
 	    $.cookie('selectedStage',selectedStage);
 
-        if($.cookie('selectedVersion')!="null"){//cookie is set
+	    var selectedVersionCookie = $.cookie('selectedVersion');
+        if(selectedVersionCookie && selectedVersionCookie!="null" ){//cookie is set
                 selectedVersion = $.cookie('selectedVersion') ;
                 // After promoting the version and stage does not match
             for (var i = 0; i < count; i++) {
@@ -477,7 +501,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
             });
             $('.create_branch_button',parent).click(function(event){
                 var tmpSrcVersion=$(this).attr('data-version');
-                var tmpTargetVersion=$("#create_branch"+tmpSrcVersion.replace(/\./g,'_')).attr('value');
+                var tmpTargetVersion=$("#create_branch"+tmpSrcVersion.replace(/\./g,'_')).val();
                 doCreateBranch(applicationKey,tmpSrcVersion,tmpTargetVersion,this);
             });
 
@@ -1289,7 +1313,6 @@ $.cookie('selectedStage', selectedStage);
             version:version
         }, function (result) {
         	result = jQuery.parseJSON(result) ;
-        	console.log(result);
         	if(result!=null){
             	var buildHTML="";
 				$('#build_id_'+jagg.getConvertedVersion(version)).html(result.buildId);
@@ -1537,13 +1560,27 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
 
 
 </script>
-    <div class="container">
+
+<!-- BOF App factory menu -->
+<div class="navbar navbar-secondary">
+    <div class="container-fliud">
+        <div class="row">
+            <div class="side-pane-trigger">
+                <i class="fa fa-reorder"></i>
+            </div>
+            <div class="breadcrumb-secondary">
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
+            </div>
+        </div>
+    </div>
+</div><!-- EOF App factory menu -->
+
+<!-- right pane wrapper -->
+<div class="right-pane">
+
+    <!-- Start container -->
+    <div>
         <article class="main">
-        <%
-    jagg.includeBlock("page/messages", null);
-    jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.REPOS_AND_BUILDS});
-    jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
-    %>
 
         <!-- following div can be removed after new ux-->
         <div style="height: 80px; "></div>
@@ -1633,8 +1670,15 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
     </div>
   </div>
 </div>
-</div>
-<!-- /Modal -->
+</div><!-- End of right pane wrapper -->
+
+<!-- BOF Notification pane -->
+<%
+    jagg.includeBlock("page/messages", null);
+    jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.REPOS_AND_BUILDS});
+    jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
+%><!-- EOF Notification pane -->
+
     <%
 }); %>
 
