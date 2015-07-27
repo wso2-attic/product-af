@@ -51,15 +51,15 @@ var site = require("/site/conf/site.json");
                                     "linkParams": [
                                         {
                                             "basePath":"/site/pages/application.jag",
-                                            "displayName": applicationName,
+                                            "displayName": "Runtime Configs",
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName
                                             }
                                         },
                                         {
-                                            "basePath":"/site/pages/reposBuilds.jag",
-                                            "displayName": "Repos & Builds",
+                                            "basePath":"/site/pages/governance.jag",
+                                            "displayName": "Lifecycle Management",
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName

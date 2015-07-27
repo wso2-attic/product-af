@@ -356,15 +356,7 @@ isEdit = request.getParameter("isEdit");
          </div>
     </header>
     <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
-    <section class="separator">
-        <div class="page_nav">
-            <div class="content clear">
-                <ol class="breadcrumb">
-                        <li class="breadcrumb_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="breadcrumb_link">Datasources</a></li>
-                        <li class="breadcrumb_item"><h2>Create New Datasource</h2></li>
-                </ol>
-             </div>
-        </div>
+    <section class="separator">        
         <div class="content clear">
         	<div class="form-container">
 

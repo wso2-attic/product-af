@@ -336,30 +336,7 @@ function validatePropertyNameAndCreate() {
     </header>
     <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
 
-   <section class="separator">
-        <div class="page_nav">
-            <div class="content clear">
-                <ol class="breadcrumb left">
-                    <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">APIs</a></li>
-                   <% if(isEdit==="true" && hasDeleteResourcePermissions){	%>
-                    <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
-
-                      </ol>
-                <div class="right btn_group" id="delete_button_div">
-                    <ul class="inline_box inline_list btn_group_list">
-
-                        <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete External API</a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                </div>
-                    <%}else{%>
-                    <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
-                     </ol>
-                    <%}%>
-                      <!-- li class="breadcrumb_item"><h3><%=env%></h3></li> -->
-            </div>
-        </div>
+   <section class="separator">        
         <div class="content clear">
         	<div class="form-container">
 
