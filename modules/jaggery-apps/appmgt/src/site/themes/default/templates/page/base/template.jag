@@ -84,7 +84,6 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/normalize.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/jquery.qtip.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/select2/select2.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/main.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/development.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/css/custom.css'))%>">
@@ -205,7 +204,8 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/codeSnippetGenerator.js'))%>"></script>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/select2/select2.js'))%>"></script>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.sticky.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/main.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/main.js'))%>"></script>
     <!-- END OF OLD-->
 
     <!-- ***************** NEW ************* -->
