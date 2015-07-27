@@ -25,9 +25,9 @@
 
 <script type="text/javascript" charset="utf-8">
     var servicePath = "<%=servicePath%>";
-    var appFacURL = "<%=request.getParameter("appFacURL")%>";
-    var iconUrl = "<%=request.getParameter("iconUrl")%>";
-    var appDomain = "<%= getProperty(DOMAIN_NAME) %>";
+    var appFacURL = "<%=appFacURL%>";
+    var iconUrl = "<%=iconUrl%>";
+    var appDomain = "<%=getProperty(DOMAIN_NAME) %>";
     var applicationInfo = <%=applicationInfo%>;
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
 </script>
@@ -53,9 +53,16 @@
     <div class="row">
       <div class="col-md-12 app-preview">
           <div class="app-thumb">
-            <img class="app-icon" src="" />
-            <span><i class="fa fa-pencil" onclick="document.getElementById('aaaaa').click();"></i></span>
-            <input id="aaaaa" type="file" style="display:none" onchange=""/>
+            <img class="app-icon" src="" width="100px"/>
+            <span><i class="fa fa-pencil" onclick="document.getElementById('change_app_icon').click();"></i></span>
+
+            <form id="changeAppIcon" action="/appmgt/site/blocks/application/update/ajax/update.jag" method="post" enctype="multipart/form-data">
+                <input id="change_app_icon" type="file" style="display:none" name="changeIcon" />
+                <input id="action" type="hidden" name="action" value="changeAppIcon" />
+                <input id="applicationKey" type="hidden" name="applicationKey" value="<%=applicationKey%>"/>
+                <input id="applicationName" type="hidden" name="applicationName" value="<%=applicationName%>"/>
+            </form>
+
           </div>
 
           <div class="app-desc">

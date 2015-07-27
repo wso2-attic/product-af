@@ -2,6 +2,8 @@
 var currentVersion = "trunk";
 var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+var versionChangeEventAdded = false;
+
 
 // page initialization
 $(document).ready(function() {
@@ -35,6 +37,13 @@ function loadAppIcon(appKey) {
     }, function (jqXHR, textStatus, errorThrown) {
         console.log("Could not load the application icon!");
     });
+
+
+    // add upload app icon listener
+    $("#change_app_icon").change(function(event) {
+       submitChangeAppIcon(this);
+    });
+
 }
 
 // load team information
@@ -133,34 +142,37 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
     $('#appVersionList').val(currentAppInfo.version);
 
     // set launch app url
-    loadLaunchUrl(currentAppInfo.version, currentAppInfo.appStage);
+    loadLaunchUrl(currentAppInfo.version, currentAppInfo.stage);
 
-    $('#btn-launchApp').click(function() {
-        var appUrl = $('#btn-launchApp').attr("url");
-        var newWindow = window.open('','_blank');
-        newWindow.location = appUrl;
-    });
+    if (!versionChangeEventAdded) {
+        $('#btn-launchApp').click(function() {
+            var appUrl = $('#btn-launchApp').attr("url");
+            var newWindow = window.open('','_blank');
+            newWindow.location = appUrl;
+        });
 
-    // add listener for cloud envy
-    $('#createCodeEnvyUrl').click(function() {
-        if(!isCodeEditorSupported) {
-            jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
-        } else {
-            createCodeEnvyUrl(currentAppInfo.repoURL);
-        }
-    });
+        // add listener for cloud envy
+        $('#createCodeEnvyUrl').click(function() {
+            if(!isCodeEditorSupported) {
+                jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
+            } else {
+                createCodeEnvyUrl(currentAppInfo.repoURL);
+            }
+        });
 
-    // add listener for developer studio
-    $('#localIde').click(function() {
-        var newWindow = window.open('','_blank');
-        newWindow.location = devStudioLink;
-    });
+        // add listener for developer studio
+        $('#localIde').click(function() {
+            var newWindow = window.open('','_blank');
+            newWindow.location = devStudioLink;
+        });
 
-    $("#appVersionList").change(function() {
-        // reload page info for the selected version
-        currentVersion = this.value;
-        loadAppInfoFromServer(currentVersion);
-    });
+        $("#appVersionList").change(function() {
+            // reload page info for the selected version
+            currentVersion = this.value;
+            loadAppInfoFromServer(currentVersion);
+        });
+        versionChangeEventAdded = true;
+    }
 
 }
 
@@ -176,16 +188,18 @@ function loadLaunchUrl(version, stage) {
     }, function (result) {
         if(result) {
            var resJSON = jQuery.parseJSON(result);
-           var appURL = "http://appserver.dev.appfactory.private.wso2.com";
+           var appURL = "server-error";
            if(resJSON.url) {
                appURL = resJSON.url;
            }
 
            // display app url
-           var repoUrlHtml = "URL : " + appURL;
+           var repoUrlHtml = "<b>URL : </b>" + appURL;
            $("#app-version-url").html(repoUrlHtml);
-           // set url to launch button
-           $('#btn-launchApp').attr({url:appURL});
+
+
+            // set url to launch button
+            $('#btn-launchApp').attr({url:appURL});
         }
        }
     );
@@ -277,6 +291,46 @@ function loadIssuesInfo() {
     },function (jqXHR, textStatus, errorThrown) {
         jagg.message({content:'Could not load Application issue information!', type:'error', id:'notification' });
     });
+}
+
+// Uploading application icon
+function submitChangeAppIcon(newIconObj) {
+    var validated = validateIconImage(newIconObj.value, newIconObj.files[0].size);
+    if(validated) {
+        $('#changeAppIcon').submit();
+    }
+}
+
+function validateIconImage(filename, fileSize) {
+    var ext = getFileExtension(filename);
+    var extStatus = false;
+    var fileSizeStatus = true;
+    switch (ext.toLowerCase()) {
+        case 'jpg':
+        case 'jpeg':
+        case 'gif':
+        case 'bmp':
+        case 'png':
+            extStatus = true;
+            break;
+        default:
+            jagg.message({content: "Invalid image selected for Application Icon - Select a valid image", type: 'error', id:'notification'});
+            break;
+        }
+
+        if((fileSize/1024) > 51200 && extStatus == true) {
+            fileSizeStatus = false;
+            jagg.message({content: "Image file should be less than 5MB", type: 'error', id:'notification'});
+        }
+        if(extStatus == true && fileSizeStatus == true) {
+             return true;
+        }
+    return false;
+}
+
+function getFileExtension(filename) {
+    var parts = filename.split('.');
+    return parts[parts.length - 1];
 }
 
 // Utility Functions Goes Here
