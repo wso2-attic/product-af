@@ -49,7 +49,33 @@ var applicationName = request.getParameter('applicationName');
                                 "inputs":{
                                     "applicationKey":applicationKey,
                                     "applicationName":applicationName,
-                                    "pageName":"Configure Resources"
+                                    "pageName":"Configure Resources",
+                                     "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/configureenvironment.jag",
+                                            "displayName": "Runtime Configs",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/listDatasources.jag",
+                                            "displayName": "Datasources",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         ],

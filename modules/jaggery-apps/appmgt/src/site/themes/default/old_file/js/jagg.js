@@ -97,91 +97,25 @@ var messageTimer;
 
 
     jagg.message = function(params){
-
-        if(params.type == "custom"){
-            params.type = 'success';
-            jagg.add_message(params.type, params.content);
-            return;
-        }
-
-        var contentObj;
-        if(params.cbk && typeof params.cbk == "function"){
-            if(params.cbkBtnText == undefined){ params.cbkBtnText = "Ok";}
-            params.content = '<p>'+params.content+'</p><div><button class="btn main" type="button">'+params.cbkBtnText+'</button></div>';
-        }
-        contentObj = $('<p class="message-content-area">'+params.content+'</p>');
-        if(params.cbk && typeof params.cbk == "function"){
-            $('.btn',contentObj).click(params.cbk);
-        }
-
-        if(params.spinner=="true"){
-                jagg.add_warningmessage(params.type, contentObj, params.id);
-                }
-                else{
-                jagg.add_message(params.type, contentObj, params.id);
-                }
+        // Included noty plugin implementation
+        return noty({
+                 theme: 'wso2',
+                 layout: 'top',
+                 type: params.type,
+                 text: params.content,
+                 animation: {
+                     open: {height: 'toggle'}, // jQuery animate function property object
+                     close: {height: 'toggle'}, // jQuery animate function property object
+                     easing: 'swing', // easing
+                     speed: 500 // opening & closing animation speed
+                 }
+             });
     };
-    jagg.add_message = function(message_type, message_html,id) {
-        var $appendTo;
-        if(id != undefined){
-            if($('#'+id).length > 0 ){
-                $appendTo = $('.message-content-area','#'+id).parent();
-            }
-        }
-
-        if($appendTo == undefined){
-            if(typeof message_html == 'object'){
-                var $message = $('<div class="message '+message_type+'_message" style="display:none"><div class="content"><div class="left message-container"></div><a class="close_message right icon-remove-sign js_close_message"></a></div></div>');
-                $('.message-container',$message).append(message_html);
-                $(".message_box").append($message);
-            }else{
-                var $message = $('<div class="message '+message_type+'_message" style="display:none"><div class="content"><div class="left message-container">'+message_html+'</div><a class="close_message right icon-remove-sign js_close_message"></a></div></div>');
-                $(".message_box").append($message);
-            }
-            var $messageObj = $(".message_box .message:last-child");
-            $messageObj.attr('id',id);
-            $messageObj.slideDown(500);
-        } else{
-            if(typeof message_html == 'object'){
-                $appendTo.append(message_html);
-            }else{
-                $appendTo.append($(message_html));
-            }
-        }
-    };
-
-    jagg.add_warningmessage = function(message_type, message_html,id) {
-            var $appendTo;
-            if(id != undefined){
-                if($('#'+id).length > 0 ){
-                    $appendTo = $('.message-content-area','#'+id).parent();
-                }
-            }
-
-            if($appendTo == undefined){
-                if(typeof message_html == 'object'){
-                   var $message = $('<div class="message '+message_type+'_message" style="display:none"><div class="content"><a class="icon-spinner icon-spin" style="font-size: 30px;margin-left: 0px;margin-top: 5px;"></a></div><div class="content" style="font-size:15px;margin-top: -55px;margin-left:40px"><div class="message-container"></div></div><div class="content" style="font-size:15px;margin-top: -55px;margin-left:100px"><a class="close_message right icon-remove-sign js_close_message"></a></div></div>');
-                    $('.message-container',$message).append(message_html);
-                    $(".message_box").append($message);
-                }
-                var $messageObj = $(".message_box .message:last-child");
-                $messageObj.attr('id',id);
-                $messageObj.slideDown(500);
-            } else{
-                if(typeof message_html == 'object'){
-                    $appendTo.append(message_html);
-                }else{
-                    $appendTo.append($(message_html));
-                }
-            }
-        };
 
     jagg.removeMessage = function(id){
-        if(id!= undefined){
-			$(".message_box #"+id).remove();
-        }else{
-			$(".message_box .message").remove();
-        }
+        // TODO: close based on the id
+        // store the returned objects id from the jagg.message and passed it to this function
+        $.noty.closeAll();
     };
     //jagg.popMessage({type:'confirm',title:'Model Title',content:'Model Content',okCallback:function(){alert('do this when ok')},cancelCallback:function(){alert('do this when cancel')}});
 

@@ -58,7 +58,6 @@ $().ready(function() {
 
         var jsonString = JSON.stringify(issue);
         var isSuccess = false;
-        console.log("edit issue : "+jsonString);
         $.ajax({
             type: 'POST',
             url: "save",

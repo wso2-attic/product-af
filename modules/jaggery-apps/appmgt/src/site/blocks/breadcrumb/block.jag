@@ -16,9 +16,59 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
+var URL_SEPARATOR = "/";
+var KEY_VAL_SEPARATOR = "=";
+var PARAM_SEPARATOR = "&";
+var START_QUERY_COMPONENT = "?";
+
+var generateBreadcrumbHTML = function (basePath, params, displayName) {
+    var urlLink = "";
+    if (basePath) {
+        urlLink = generateHTMLForURL(basePath, params, displayName)
+    } else {
+        urlLink = displayName;
+    }
+    return urlLink;
+};
+
+var generateHTMLForURL = function (basePath, params, displayName) {
+    var absoluteUrl = jagg.getAbsoluteUrl(basePath);
+    var urlParams = getUrlParamsAsString(params);
+    var urlLink = '<a href="' + absoluteUrl;
+    if (urlParams) {
+        urlLink += START_QUERY_COMPONENT + urlParams;
+    }
+    return urlLink + '">' + displayName + '</a>';
+};
+
+var getUrlParamsAsString = function (params) {
+    var keyValArray = [];
+    for (var key in params) {
+        if (params.hasOwnProperty(key)) {
+            keyValArray.push(key + KEY_VAL_SEPARATOR + params[key]);
+        }
+    }
+    return keyValArray.join(PARAM_SEPARATOR);
+};
 
 jagg.block("breadcrumb", {
-    initialize:function (data) {
+    initialize: function (data) {
+
+    },
+    getOutputs: function (inputs) {
+        var breadcrumbHTML = "";
+        var linkParamsList = inputs.linkParams;
+        if (linkParamsList) {
+            for (var index in linkParamsList) {
+                var linkParams = linkParamsList[index];
+                breadcrumbHTML += URL_SEPARATOR + generateBreadcrumbHTML(linkParams.basePath, linkParams.params,
+                                                                         linkParams.displayName);
+            }
+        }
+        return {
+            "noSidePane": inputs.noSidePane,
+            "breadcrumbHTML": breadcrumbHTML
+        };
 
     }
 });

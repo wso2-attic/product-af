@@ -47,7 +47,8 @@ jagg.block("layout/base", {
             "right",
             "bottom",
             "footer",
-            "tablinks"
+            "tablinks",
+            "breadcrumb"
         ];
     }
 

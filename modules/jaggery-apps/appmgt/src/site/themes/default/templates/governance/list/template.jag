@@ -18,8 +18,8 @@
  */
 
 jagg.template("governance/list", function(inputs, outputs, jagg){%>
-<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
-<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
 <%
@@ -543,7 +543,7 @@ function drawVersionsList(newStage) {
             updateTabs();
         }
 
-        $("#governance_list_container").removeClass("hide").addClass("separator");
+        //$("#governance_list_container").removeClass("hide").addClass("separator");
     }, function (jqXHR, textStatus, errorThrown) {
         $("#loader").html("");
     });
@@ -1578,21 +1578,6 @@ function hideNotification() {
     }
     %>
 
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- EOF App factory menu -->
-
     <!--START content section-->
 
     <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
@@ -1619,8 +1604,6 @@ function hideNotification() {
     }
     %>
     <input type="hidden" name="hasRetirePermission" id="hasRetirePermission" value="<%=outputs.hasRetirePermission%>"/>
-
-<div class="container">
     <article class="main">
         <%
     jagg.includeBlock("page/messages", null);
@@ -1648,16 +1631,11 @@ function hideNotification() {
             <div class="loader" id="loader_id" style="padding-left:40px;padding-top:40px;">
                 <span class="icon-spinner icon-spin icon-large spin-large"></span>
             </div>
-            <div class="content clear well" id="whereItAllGoes">
-                <div class="clearfix"></div>
-            </div>
         </section>
 
         <div class="clearfix"></div>
     </article>
 
-</div>
-<!-- /container -->
 
 <style>
     li.governance_option {

@@ -564,23 +564,6 @@ $('#removeUsers').click(function(){
 
 </script>
 
-
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud </span> / Application Team
-            </div>
-        </div>
-    </div>
-</div><!-- EOF App factory menu -->
-
-<!-- right pane wrapper -->
-<div class="right-pane">
 <div><!-- BOF middle containner -->
     <article class="main">
         <% jagg.includeBlock("page/messages", null); %>
@@ -664,7 +647,6 @@ $('#removeUsers').click(function(){
     <div class="clearfix"></div>
     </article>
     </div><!-- /container -->
-</div><!-- End of right pane wrapper -->
 
 <input type="hidden" id="userName" value='<%= jagg.getUser() %>' />
 <input type="hidden" id="applicationKey" value='<%= applicationKey %>' />

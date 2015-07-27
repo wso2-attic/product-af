@@ -116,7 +116,6 @@
 
 <input type='hidden' id='key' name="key"  disabled maxlength="40" value="{{issue.key}}"/>
 <!-- until new UX has field for issue status this hidden field will be used-->
-<input type='hidden' id='status' name="status"  disabled maxlength="40" value="{{issue.status}}"/>
 
     <div class="container-fluid cloud-container">
         <div class="row">
@@ -131,19 +130,19 @@
                 <div class="form-group">
                     <label for="type">Type: </label>
                     <select id="type" class="form-control select2">
-                        <option value="Bug">Bug</option>
-                        <option value="Task">Task</option>
-                        <option value="New Feature">New Feature</option>
-                        <option value="Improvement">Improvement</option>
+                          <option value="Bug" data-icon="fa-bug">Bug</option>
+                          <option value="Task" data-icon="fa-tasks">Task</option>
+                          <option value="New Feature" data-icon="fa-plus">New Feature</option>
+                          <option value="Improvement" data-icon="fa-arrow-up">Improvement</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
-                        <option value="Highest">Highest</option>
-                        <option value="High">High</option>
-                        <option value="Low">Low</option>
-                        <option value="Lowest">Lowest</option>
+                        <option value="Highest" data-icon="fa-angle-double-up">Highest</option>
+                        <option value="High" data-icon="fa-angle-up">High</option>
+                        <option value="Low" data-icon="fa-angle-down">Low</option>
+                        <option value="Lowest" data-icon="fa-angle-double-down">Lowest</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -151,6 +150,15 @@
                     <select id="reporter" class="form-control select2">
                         <option value="1">{{loggedInUser}}</option>
                     </select>
+                </div>
+                <div class="form-group">
+                        <label for="status">Status: </label>
+                        <select id="status" class="form-control select2">
+                            <option value="Open">Open</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Closed">Closed</option>
+                        </select>
                 </div>
             </div>
             <div class="col-md-6">
@@ -165,9 +173,9 @@
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2">
-                        <option value="Blocker">Blocker</option>
-                        <option value="Critical">Critical</option>
-                        <option value="Non Critical">Non Critical</option>
+                        <option value="Blocker" data-icon="fa-ban">Blocker</option>
+                        <option value="Critical" data-icon="fa-exclamation">Critical</option>
+                        <option value="Non Critical" data-icon="fa-circle-o">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -240,8 +248,31 @@
      $("#type").val("{{issue.type}}"); 
      $("#version").val("{{issue.versionId}}"); 
      $("#severity").val("{{issue.severity}}");  
-     $("#priority").val("{{issue.priority}}");   
+     $("#priority").val("{{issue.priority}}");
+     $("#status").val("{{issue.status}}");
  });
+  function formatState (state) {
+        if (!state.id) { return state.text; }
+        var $state;
+        if(state.element.attributes['data-icon']){
+            var $state = $(
+                    '<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }else{
+            var $state = $(
+                    '<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }
+        return $state;
+    };
+    $('.select2').select2({
+        templateResult: formatState,
+        templateSelection :formatState
+    });
+
+
 </script>
 
 
