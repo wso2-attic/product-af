@@ -1054,188 +1054,184 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
     });
     </script>
+<article class="main">
+        <header class="separator">
+            <div>
+                <% jagg.includeBlock("page/messages", null); %>
+                <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+            </div>
+            <div class="content">
+                <h1>Databases</h1>
+             </div>
+        </header>
+        <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+        <section class="separator">
+            <div class="page_nav">
+                <div class="content clear">
+                    <ol class="breadcrumb">
+	<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
+                            <li class="breadcrumb_item"><h2>Create New Database</h2></li>
+                    </ol>
+                 </div>
+            </div>
+            <div class="content clear well">
+                <div class="form-container">
 
-        <div class="container">
-                    <article class="main">
-                            <header class="separator">
-                                <div>
-                                    <% jagg.includeBlock("page/messages", null); %>
-				                    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                                    <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-                                </div>
-                                <div class="content">
-                                    <h1>Databases</h1>
-                                 </div>
-                            </header>
-                            <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
-                            <section class="separator">
-                                <div class="page_nav">
-                                    <div class="content clear">
-                                        <ol class="breadcrumb">
-						<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
-                                                <li class="breadcrumb_item"><h2>Create New Database</h2></li>
-                                        </ol>
-                                     </div>
-                                </div>
-                                <div class="content clear well">
-                                    <div class="form-container">
+                    <form id='displayPage'  method='post'  class="hold right_label">
+                      <fieldset>
+                            <div class="input_row">
+                                <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
+                                <input type="text" id='databaseName' maxlength="5"/>
+                            </div>
+                            <div class="input_row" id="db_env_div">
+                                <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
+                                <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
+                            </div>
+                            <%if((isEdit=="false")&&(AllowedAllStages)){%>
+                            <div class="input_row">
+                                <legend id="copyall">
+	                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
+	                            </legend>
+	                        </div>
+    						<%}%>
+                            <div class="input_row">
+                                <label for="database_description"><strong>Description</strong></label>
+                                <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
+                            </div>
+                            <div id="password_section">
+                            <div class="input_row">
+                                <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
+                                <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
+                            </div>
 
-                                        <form id='displayPage'  method='post'  class="hold right_label">
-                                          <fieldset>
-                                                <div class="input_row">
-                                                    <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
-                                                    <input type="text" id='databaseName' maxlength="5"/>
+                            <div class="input_row">
+                                <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
+                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
+                            </div>
+                            </div>
+                       </fieldset>
+
+                   					    <fieldset class="push_top_10">
+
+	<legend id="js_extra_fieldset_on" data-down="hidden">
+
+		<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
+	 </legend>
+	<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
+
+                            <div class="extra_fieldset hide">
+                                <div class="input_row">
+                                    <label for="db_user" ><strong>User</strong> <em>*</em></label>
+                                    <select class="select_list half big" id="js_db_user" name="db_user"></select>
+
+                                    <div class="extra_fields_box hide" >
+                                        <div class="extra_fields">
+
+                                            <div class="extra_field_row">
+                                                <div class="pw_50">
+                                                <label for="db_username"><strong>Username:</strong></label>
+                                                <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
                                                 </div>
-                                                <div class="input_row" id="db_env_div">
-                                                    <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
-                                                    <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
-                                                </div>
-                                                <%if((isEdit=="false")&&(AllowedAllStages)){%>
-                                                <div class="input_row">
-					                                <legend id="copyall">
-						                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
-						                            </legend>
-						                        </div>
-                        						<%}%>
-                                                <div class="input_row">
-                                                    <label for="database_description"><strong>Description</strong></label>
-                                                    <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
-                                                </div>
-                                                <div id="password_section">
-                                                <div class="input_row">
-                                                    <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
-                                                    <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
-                                                </div>
-
-                                                <div class="input_row">
-	                                                <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
-	                                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
-                                                </div>
-                                                </div>
-                                           </fieldset>
-
-                                       					    <fieldset class="push_top_10">
-
-						<legend id="js_extra_fieldset_on" data-down="hidden">
-
- 						<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
- 					 </legend>
-						<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
-
-                                                <div class="extra_fieldset hide">
-                                                    <div class="input_row">
-                                                        <label for="db_user" ><strong>User</strong> <em>*</em></label>
-                                                        <select class="select_list half big" id="js_db_user" name="db_user"></select>
-
-                                                        <div class="extra_fields_box hide" >
-                                                            <div class="extra_fields">
-
-                                                                <div class="extra_field_row">
-                                                                    <div class="pw_50">
-                                                                    <label for="db_username"><strong>Username:</strong></label>
-                                                                    <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="extra_field_row">
-                                                                    <div class="left pw_50">
-                                                                        <label for="new_user_password"><strong>Password:</strong></label>
-                                                                        <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
-                                                                    </div>
-                                                                    <div class="right pw_50">
-                                                                        <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
-                                                                        <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
-                                                                    </div>
-                                                                    <div class="clearfix"></div>
-                                                                </div>
-                                                                <div class="extra_field_row last" style="padding-top:20px;">
-                                                                    <div class="pw_100">
-                                                                    <label for="permission_template"></label>
-                                                                    <!--button class="btn main" onclick="if(validateUser()){createDatabaseUser();}">Create DB User</button-->
-                                                                    <input type='button' name='Submit' value='Create DB User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
-                                                                    <a class="js_cancel_user">Cancel</a>
-                                                                    </div>
-
-                                                                </div>
-                                                                <div class="clearfix"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="input_row">
-                                                        <label for="db_template" ><strong>Permission Template</strong> <em>*</em></label>
-                                                        <select id='js_db_template' class="select_list half big" name="db_template">
-                                                        </select>
-                                                         <div class="extra_fields_box hide" >
-                                                            <div class="extra_fields">
-
-                                                                <div class="extra_field_row">
-                                                                    <div class="pw_50">
-                                                                    <label for="template_name"><strong>Template Name:</strong></label>
-                                                                    <input type="text" name="template_name" id="template_name" class="half" maxlength="10"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="extra_field_row">
-                                                                <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions </label></h2><br/><br/>
-
-                                                                <fieldset id="checkArray">
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='updatePriv' checked="checked" /> UPDATE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='deletePriv' checked="checked" /> DELETE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createPriv' checked="checked" /> CREATE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='dropPriv' checked="checked" /> DROP</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='grantPriv' checked="checked" /> GRANT</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='referencesPriv' checked="checked" /> REFERENCES</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='indexPriv' checked="checked" /> INDEX</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='alterPriv' checked="checked" /> ALTER</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createTmpTablePriv' checked="checked" /> CREATE_TEMP_TABLE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='lockTablesPriv' checked="checked" /> LOCK_TABLES</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createViewPriv' checked="checked" /> CREATE_VIEW</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='showViewPriv' checked="checked" /> SHOW_VIEW</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createRoutinePriv' checked="checked" /> CREATE_ROUTINE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='alterRoutinePriv' checked="checked" /> ALTER_ROUTINE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='executePriv' checked="checked" /> EXECUTE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='eventPriv' checked="checked" /> EVENT</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='triggerPriv' checked="checked" /> TRIGGER</label></br>
-                                                                </fieldset>
-                                                                </div>
-                                                                <div class="extra_field_row last" style="padding-top:20px;">
-                                                                    <div class="pw_100">
-                                                                    <label for="permission_template"></label>
-                                                                    <!--button class="btn main" onclick="if(validateTemplate()){createTemplate();}"  >Save</button-->
-                                                                      <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate();}" class='btn main'/>
-                                                                    <a class="js_cancel_template">Cancel</a>
-                                                                    </div>
-
-                                                                </div>
-                                                                <div class="clearfix"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!--<div class="input_row">
-                                                    <legend>
-                                                    <input type="checkbox" disabled align="left" id="addDatasourceCheckBox"> Add Datasource
-                                                    </legend>
-                                                    </div>-->
-                                                </div>
-                                           </fieldset>
-
-                                            <div class="buttonrow">
-
-
-
-						<input type='button' name='Submit' value="Create Database" class="btn main" onclick="if(validateForm()){createDatabase(this);}"
-                                                       class='btn btn-primary'/>
-                                               <a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
                                             </div>
+                                            <div class="extra_field_row">
+                                                <div class="left pw_50">
+                                                    <label for="new_user_password"><strong>Password:</strong></label>
+                                                    <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
+                                                </div>
+                                                <div class="right pw_50">
+                                                    <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
+                                                    <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="extra_field_row last" style="padding-top:20px;">
+                                                <div class="pw_100">
+                                                <label for="permission_template"></label>
+                                                <!--button class="btn main" onclick="if(validateUser()){createDatabaseUser();}">Create DB User</button-->
+                                                <input type='button' name='Submit' value='Create DB User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
+                                                <a class="js_cancel_user">Cancel</a>
+                                                </div>
 
-                                         </form>
-
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </section>
-                            <div class="clearfix"></div>
-                     </article>
-                </div><!-- /container -->
+                                <div class="input_row">
+                                    <label for="db_template" ><strong>Permission Template</strong> <em>*</em></label>
+                                    <select id='js_db_template' class="select_list half big" name="db_template">
+                                    </select>
+                                     <div class="extra_fields_box hide" >
+                                        <div class="extra_fields">
 
+                                            <div class="extra_field_row">
+                                                <div class="pw_50">
+                                                <label for="template_name"><strong>Template Name:</strong></label>
+                                                <input type="text" name="template_name" id="template_name" class="half" maxlength="10"/>
+                                                </div>
+                                            </div>
+                                            <div class="extra_field_row">
+                                            <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions </label></h2><br/><br/>
+
+                                            <fieldset id="checkArray">
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='updatePriv' checked="checked" /> UPDATE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='deletePriv' checked="checked" /> DELETE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createPriv' checked="checked" /> CREATE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='dropPriv' checked="checked" /> DROP</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='grantPriv' checked="checked" /> GRANT</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='referencesPriv' checked="checked" /> REFERENCES</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='indexPriv' checked="checked" /> INDEX</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='alterPriv' checked="checked" /> ALTER</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createTmpTablePriv' checked="checked" /> CREATE_TEMP_TABLE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='lockTablesPriv' checked="checked" /> LOCK_TABLES</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createViewPriv' checked="checked" /> CREATE_VIEW</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='showViewPriv' checked="checked" /> SHOW_VIEW</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createRoutinePriv' checked="checked" /> CREATE_ROUTINE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='alterRoutinePriv' checked="checked" /> ALTER_ROUTINE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='executePriv' checked="checked" /> EXECUTE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='eventPriv' checked="checked" /> EVENT</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='triggerPriv' checked="checked" /> TRIGGER</label></br>
+                                            </fieldset>
+                                            </div>
+                                            <div class="extra_field_row last" style="padding-top:20px;">
+                                                <div class="pw_100">
+                                                <label for="permission_template"></label>
+                                                <!--button class="btn main" onclick="if(validateTemplate()){createTemplate();}"  >Save</button-->
+                                                  <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate();}" class='btn main'/>
+                                                <a class="js_cancel_template">Cancel</a>
+                                                </div>
+
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--<div class="input_row">
+                                <legend>
+                                <input type="checkbox" disabled align="left" id="addDatasourceCheckBox"> Add Datasource
+                                </legend>
+                                </div>-->
+                            </div>
+                       </fieldset>
+
+                        <div class="buttonrow">
+
+
+
+	<input type='button' name='Submit' value="Create Database" class="btn main" onclick="if(validateForm()){createDatabase(this);}"
+                                   class='btn btn-primary'/>
+                           <a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
+                        </div>
+
+                     </form>
+
+                </div>
+            </div>
+        </section>
+        <div class="clearfix"></div>
+ </article>
         <%
 }); %>

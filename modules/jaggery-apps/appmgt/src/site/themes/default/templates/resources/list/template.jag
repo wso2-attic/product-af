@@ -549,7 +549,6 @@ function setOverviewHelpTips(helpTips){
 <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 <input type="hidden" name="hasTenantAdminPermission" id="hasTenantAdminPermission" value="<%=hasTenantAdminPermission%>"/>
 
-<div class="container">
     <article class="main">
             <% jagg.includeBlock("page/messages", null); %>
             <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
@@ -685,6 +684,4 @@ function setOverviewHelpTips(helpTips){
     %>
        </article>
        <input type="hidden" name="userName"  id="loggeduserName" value='<%= jagg.getUser() %>'/>
-</div><!-- /container -->
-
 <% }); %>
