@@ -116,7 +116,6 @@
 
 <input type='hidden' id='key' name="key"  disabled maxlength="40" value="{{issue.key}}"/>
 <!-- until new UX has field for issue status this hidden field will be used-->
-<input type='hidden' id='status' name="status"  disabled maxlength="40" value="{{issue.status}}"/>
 
     <div class="container-fluid cloud-container">
         <div class="row">
@@ -151,6 +150,15 @@
                     <select id="reporter" class="form-control select2">
                         <option value="1">{{loggedInUser}}</option>
                     </select>
+                </div>
+                <div class="form-group">
+                        <label for="status">Status: </label>
+                        <select id="status" class="form-control select2">
+                            <option value="Open">Open</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Closed">Closed</option>
+                        </select>
                 </div>
             </div>
             <div class="col-md-6">
@@ -241,6 +249,7 @@
      $("#version").val("{{issue.versionId}}"); 
      $("#severity").val("{{issue.severity}}");  
      $("#priority").val("{{issue.priority}}");
+     $("#status").val("{{issue.status}}");
  });
   function formatState (state) {
         if (!state.id) { return state.text; }
