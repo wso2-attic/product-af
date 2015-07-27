@@ -35,23 +35,6 @@
 <!-- end of setting global javascript variable -->
 
 <!-- start of HTML code >
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- EOF App factory menu -->
-
-<!-- right pane wrapper -->
-<div class="right-pane">
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
@@ -237,7 +220,6 @@
           </div>
       </div>
     </div>
-</div>
 </div>
 
 <% jagg.includeBlock("page/notification-wall", {"wall_name" : applicationKey + " - App Wall","applicationKey" : applicationKey, "pageName":"App Home"});%>

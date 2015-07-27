@@ -179,13 +179,8 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 </div>
 <!-- EOF cloud menu -->
 
-    <div id="inner-wrapper"  class="inner-wrapper">
-        <% jagg.includeBlocks(outputs.tablinks); %>
-        <% jagg.includeBlocks(outputs.body); %>
-     </div>
-     <%
-     jagg.includeBlock("footer", {});
-     %>
+    <% jagg.includeBlocks(outputs.body);%> <!-- including body -->
+    <%jagg.includeBlock("footer", {});%>    <!-- including footer -->
 
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/select2/select2.min.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/jquery.sticky.js'))%>"></script>

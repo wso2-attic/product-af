@@ -18,7 +18,12 @@
  */
 
 jagg.template("layout/base", function(inputs, outputs, jagg) { %>
-
-    <% jagg.includeBlocks(outputs.tablinks); %>
-    <% jagg.includeBlocks(outputs.middle); %>
+    <% jagg.includeBlocks(outputs.breadcrumb); %>
+    <div id="inner-wrapper"  class="inner-wrapper">
+        <% jagg.includeBlocks(outputs.tablinks); %>
+        <!-- right pane wrapper -->
+        <div class="right-pane">
+            <% jagg.includeBlocks(outputs.middle); %>
+        </div><!-- End of right pane wrapper -->
+    </div>
 <% }); %>

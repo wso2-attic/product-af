@@ -302,7 +302,7 @@ $(document).ready(function() {
 		return false;
 	});
 
-	$('body').on('click', '.popover_close', function() {
+	$('.popover_close').live('click', function() {
 		$(this).parents('.qtip').qtip("hide");
 	});
 
@@ -331,7 +331,8 @@ $(document).ready(function() {
 
 	 });
 	 */
-	$('body').on('click', '.in .collapse_indicator', function() {
+
+	$('.in .collapse_indicator').live("click", function(event) {
 		if ($(this).closest('.row').hasClass("in")) {
 			$(this).closest('.row').removeClass("in").addClass("js_accordion").on('click');
 			$(this).removeClass("icon-chevron-down").addClass("icon-chevron-right");
@@ -342,7 +343,7 @@ $(document).ready(function() {
 		event.preventDefault();
 	});
 
-	$('body').on('click', '.js_close_message', function() {
+	$('.js_close_message').live("click", function(event) {
 		$(this).closest('.message').slideUp(500, function() {
 			$(this).remove();
 		});
@@ -357,7 +358,8 @@ function add_message(message_type, message_html) {
 	$(".message_box .message:last-child").slideDown(500);
 }
 
-$('body').on('click', '.modal_next', function() {
+
+$('.modal_next').live('click', function(event) {
 	$(this).qtip({
 		content : {
 			text : function(api) {

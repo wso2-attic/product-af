@@ -17,8 +17,49 @@
  *   under the License.
  */
 
+include('/jagg/constants.jag');
+var URL_SEPARATOR = "/";
+
+var generateBreadcrumbHTML = function(applicationKey, applicationName, basePath, displayName){
+    var urlLink = '<a href="' + jagg.getAbsoluteUrl(basePath)
+        +'?applicationName=' +applicationName
+        + '&applicationKey=' + applicationKey + '">'
+        + getDisplayName(displayName, applicationName) + '</a>';
+    return urlLink;
+};
+
+/**
+ * Get name to display.
+ * @param displayName: if the argument is equal to PLACE_HOLDER_APPNAME, it will return the application name
+ * as the display name
+ * @param applicationName
+ * @returns {*}
+ */
+var getDisplayName = function(displayName, applicationName){
+    return (0 == PLACE_HOLDER_APPNAME.localeCompare(displayName)) ? applicationName : displayName;
+};
+
 jagg.block("breadcrumb", {
     initialize:function (data) {
+
+    },
+    getOutputs:function (inputs) {
+        var breadcrumbHTML = "";
+        var linkParamsList = inputs.linkParams;
+        if(linkParamsList){
+            for (var index in linkParamsList){
+                var linkParams = linkParamsList[index];
+                log.info(linkParams);
+                breadcrumbHTML += URL_SEPARATOR + generateBreadcrumbHTML(inputs.applicationKey, inputs.applicationName,
+                                                       linkParams.basePath , linkParams.displayName);
+            }
+        }
+
+        return {
+            "applicationKey":inputs.applicationKey,
+            "applicationName":inputs.applicationName,
+            "breadcrumbHTML": breadcrumbHTML
+        };
 
     }
 });

@@ -239,7 +239,9 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
             <input type="hidden" name="userName"  id="userName" value='<%=
     jagg.getUser()
     %>'/>
-   <div class="container">
+
+    <!-- Start container -->
+    <div>
        <article class="main" id="server_logs">
        <%
     jagg.includeBlock("page/messages", null);
@@ -359,5 +361,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
                 </form>
     <div class="clearfix"></div>
     </article>
-</div><!-- /container -->
+    </div><!-- End of container -->
+
+<!-- BOF Notification pane -->
 <% }); %>

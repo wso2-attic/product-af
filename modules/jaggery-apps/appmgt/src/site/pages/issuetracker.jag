@@ -18,6 +18,7 @@
  */
 
 include("/jagg/jagg.jag");
+include('/jagg/constants.jag');
 var site = require("/site/conf/site.json");
  var applicationKey=request.getParameter("applicationKey");
  var applicationName = request.getParameter('applicationName');
@@ -47,7 +48,16 @@ var site = require("/site/conf/site.json");
                                 "inputs":{
                                     "applicationKey":applicationKey,
                                     "applicationName":applicationName,
-                                    "pageName":"Track Issues"
+                                    "linkParams":[
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": PLACE_HOLDER_APPNAME
+                                        },
+                                        {
+                                            "basePath":"/site/pages/issuetracker.jag",
+                                            "displayName": "Issues"
+                                        }
+                                    ]
                                 }
                             }
                         ],
