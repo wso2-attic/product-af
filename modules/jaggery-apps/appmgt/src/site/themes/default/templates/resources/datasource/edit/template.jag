@@ -364,6 +364,7 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
         </div>
     </header>
     <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+    <% jagg.includeBlock("page/help", {"section": "resources-datasources"}); %>
     <section class="separator">
         <div class="page_nav">
             <div class="content clear">

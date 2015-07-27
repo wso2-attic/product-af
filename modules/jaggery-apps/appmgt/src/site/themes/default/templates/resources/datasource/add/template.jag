@@ -356,6 +356,7 @@ isEdit = request.getParameter("isEdit");
          </div>
     </header>
     <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+    <% jagg.includeBlock("page/help", {"section": "resources-datasources"}); %>
     <section class="separator">        
         <div class="content clear">
         	<div class="form-container">
