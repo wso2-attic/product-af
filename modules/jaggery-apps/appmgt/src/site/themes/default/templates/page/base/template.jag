@@ -193,13 +193,8 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
 </div>
 <!-- EOF cloud menu -->
 
-    <div id="inner-wrapper"  class="inner-wrapper">
-        <% jagg.includeBlocks(outputs.tablinks); %>
-        <% jagg.includeBlocks(outputs.body); %>
-     </div>
-     <%
-     jagg.includeBlock("footer", {});
-     %>
+    <% jagg.includeBlocks(outputs.body); %> <!-- including body -->
+    <%jagg.includeBlock("footer", {});%>    <!-- including footer -->
 
     <!-- ################ OLD ###################-->
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
