@@ -308,6 +308,7 @@ function validatePropertyNameAndCreate() {
          </div>
     </header>
     <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
+    <% jagg.includeBlock("page/help", {"section": "resources-properties"}); %>
     <section class="separator">        
         <div class="content clear">
         	<div class="form-container">

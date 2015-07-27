@@ -335,7 +335,7 @@ function validatePropertyNameAndCreate() {
      </div>
     </header>
     <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
-
+    <% jagg.includeBlock("page/help", {"section": "resources-apis"}); %>
    <section class="separator">        
         <div class="content clear">
         	<div class="form-container">
