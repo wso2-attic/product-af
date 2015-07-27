@@ -67,14 +67,14 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
                     correlationKeyArray.push(event.properties.correlationKey);
                 }
                 
-                /*
+                
                 if(event.properties.state == "START" && correlationKeyArray.indexOf(event.properties.correlationKey) == -1){
-                    notificationIcon = "icon-spinner icon-spin";
+                    iClass = "fa fa-spinner fa-pulse fa-spin spin-overide";
                     if(eventStateCompletionTimeout(retrievedTime, event.published)){
-                        notificationIcon = "icon-remove-circle";
+                        iClass = "icon-remove-circle";
                     }
                 }
-                */
+                
 
 		if(event.properties.state == "DELETE"){
                         break;
