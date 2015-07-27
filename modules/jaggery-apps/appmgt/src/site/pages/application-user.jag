@@ -45,9 +45,24 @@ var site = require("/site/conf/site.json");
                             {
                             	"name":"breadcrumb",
                                 "inputs":{
-                                    "applicationKey":applicationKey,
-                                    "applicationName":applicationName,
-                                    "pageName":"User Administration"
+                                    "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/application-user.jag",
+                                            "displayName": "Team",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         ],
