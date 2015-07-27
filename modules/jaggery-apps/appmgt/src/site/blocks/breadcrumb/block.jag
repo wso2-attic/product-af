@@ -16,48 +16,58 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
-include('/jagg/constants.jag');
 var URL_SEPARATOR = "/";
+var KEY_VAL_SEPARATOR = "=";
+var PARAM_SEPARATOR = "&";
+var START_QUERY_COMPONENT = "?";
 
-var generateBreadcrumbHTML = function(applicationKey, applicationName, basePath, displayName){
-    var urlLink = '<a href="' + jagg.getAbsoluteUrl(basePath)
-        +'?applicationName=' +applicationName
-        + '&applicationKey=' + applicationKey + '">'
-        + getDisplayName(displayName, applicationName) + '</a>';
+var generateBreadcrumbHTML = function (basePath, params, displayName) {
+    var urlLink = "";
+    if (basePath) {
+        urlLink = generateHTMLForURL(basePath, params, displayName)
+    } else {
+        urlLink = displayName;
+    }
     return urlLink;
 };
 
-/**
- * Get name to display.
- * @param displayName: if the argument is equal to PLACE_HOLDER_APPNAME, it will return the application name
- * as the display name
- * @param applicationName
- * @returns {*}
- */
-var getDisplayName = function(displayName, applicationName){
-    return (0 == PLACE_HOLDER_APPNAME.localeCompare(displayName)) ? applicationName : displayName;
+var generateHTMLForURL = function (basePath, params, displayName) {
+    var absoluteUrl = jagg.getAbsoluteUrl(basePath);
+    var urlParams = getUrlParamsAsString(params);
+    var urlLink = '<a href="' + absoluteUrl;
+    if (urlParams) {
+        urlLink += START_QUERY_COMPONENT + urlParams;
+    }
+    return urlLink + '">' + displayName + '</a>';
+};
+
+var getUrlParamsAsString = function (params) {
+    var keyValArray = [];
+    for (var key in params) {
+        if (params.hasOwnProperty(key)) {
+            keyValArray.push(key + KEY_VAL_SEPARATOR + params[key]);
+        }
+    }
+    return keyValArray.join(PARAM_SEPARATOR);
 };
 
 jagg.block("breadcrumb", {
-    initialize:function (data) {
+    initialize: function (data) {
 
     },
-    getOutputs:function (inputs) {
+    getOutputs: function (inputs) {
         var breadcrumbHTML = "";
         var linkParamsList = inputs.linkParams;
-        if(linkParamsList){
-            for (var index in linkParamsList){
+        if (linkParamsList) {
+            for (var index in linkParamsList) {
                 var linkParams = linkParamsList[index];
-                log.info(linkParams);
-                breadcrumbHTML += URL_SEPARATOR + generateBreadcrumbHTML(inputs.applicationKey, inputs.applicationName,
-                                                       linkParams.basePath , linkParams.displayName);
+                breadcrumbHTML += URL_SEPARATOR + generateBreadcrumbHTML(linkParams.basePath, linkParams.params,
+                                                                         linkParams.displayName);
             }
         }
-
         return {
-            "applicationKey":inputs.applicationKey,
-            "applicationName":inputs.applicationName,
+            "applicationKey": inputs.applicationKey,
+            "applicationName": inputs.applicationName,
             "breadcrumbHTML": breadcrumbHTML
         };
 

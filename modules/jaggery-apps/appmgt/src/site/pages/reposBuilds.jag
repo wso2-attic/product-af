@@ -48,17 +48,22 @@ var site = require("/site/conf/site.json");
                             {
                             	"name":"breadcrumb",
                                 "inputs":{
-                                    "applicationKey":applicationKey,
-                                    "applicationName":applicationName,
-                                    "pageName":"reposBuilds",
                                     "linkParams": [
                                         {
                                             "basePath":"/site/pages/application.jag",
-                                            "displayName": PLACE_HOLDER_APPNAME
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
                                         },
                                         {
                                             "basePath":"/site/pages/reposBuilds.jag",
-                                            "displayName": "Repos & Builds"
+                                            "displayName": "Repos & Builds",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
                                         }
                                     ]
                                 }

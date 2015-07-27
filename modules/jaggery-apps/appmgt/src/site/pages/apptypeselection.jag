@@ -18,10 +18,12 @@
  */
 
 include("/jagg/jagg.jag");
+include('/jagg/constants.jag');
+
 var site = require("/site/conf/site.json");
 
 (function () {
-
+    var type = request.getParameter('type');
     jagg.render({
         "name":"page/master",
         "inputs":{
@@ -35,6 +37,22 @@ var site = require("/site/conf/site.json");
                         "middle":[
                             {
                             	"name":"application/select"
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                                "name":"breadcrumb",
+                                "inputs":{
+                                    "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/apptypeselection.jag",
+                                            "displayName": "Project Type",
+                                            "params": {
+                                                "type":type
+                                            }
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }
