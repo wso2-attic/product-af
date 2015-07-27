@@ -308,32 +308,7 @@ function validatePropertyNameAndCreate() {
          </div>
     </header>
     <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
-    <section class="separator">
-        <div class="page_nav">
-            <div class="content clear">
-                <ol class="breadcrumb left">
-                    <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">Properties</a></li>
-                    <%if(isEdit!='true'){%>
-                    <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
-                    <%}else{%>
-                    <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
-                    <%}%>
-                </ol>
-                <%
-                  	if(isEdit == "true" && hasDeleteResourcePermissions){
-                  %>
-                <div class="right btn_group" id="delete_button_div">
-                    <ul class="inline_box inline_list btn_group_list">
-                        <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Property</a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                </div>
-                <%
-                }
-                %>
-            </div>
-        </div>
+    <section class="separator">        
         <div class="content clear">
         	<div class="form-container">
 
