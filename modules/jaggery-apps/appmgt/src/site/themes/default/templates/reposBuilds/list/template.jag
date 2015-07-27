@@ -1537,23 +1537,6 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
 
 </script>
 
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span>
-            </div>
-        </div>
-    </div>
-</div><!-- EOF App factory menu -->
-
-<!-- right pane wrapper -->
-<div class="right-pane">
-
     <!-- Start container -->
     <div>
         <article class="main">
@@ -1646,7 +1629,6 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
     </div>
   </div>
 </div>
-</div><!-- End of right pane wrapper -->
 
 <!-- BOF Notification pane -->
 <%
