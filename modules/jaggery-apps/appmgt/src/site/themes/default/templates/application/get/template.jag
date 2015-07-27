@@ -93,7 +93,7 @@
                     <div class="col-md-9">
                         <select id="appVersionList" class="version-number"></select>
                         <div id="version-url-container">
-                            <div class="version-url"><span id="app-version-url"></span> </div>
+                            <div class="version-url"><span id="app-version-url"><b>URL : </b>app-deployment-error</span> </div>
                             <div class="sec">
                                 <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button>
 

@@ -1,5 +1,5 @@
 // global data store
-var currentVersion = "trunk";
+var currentVersion = null;
 var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
@@ -7,12 +7,24 @@ var versionChangeEventAdded = false;
 
 // page initialization
 $(document).ready(function() {
+    // set current version
+    setCurrentVersion();
     // initialize page and handlers
     initPageView();
     // load initial data to the page
     loadTeamInfo();
     loadAppInfoFromServer(currentVersion);
 });
+
+// set default app version
+function setCurrentVersion() {
+    var appType = applicationInfo.type;
+    var version = "trunk";
+    if (appType && appType.indexOf("Uploaded") >= 0) {
+        version = "1.0.0";
+    }
+    currentVersion = version;
+}
 
 // wrapping functions
 function initPageView() {
@@ -83,11 +95,14 @@ function loadAppInfoFromServer(version) {
 
                 // load application version specific data
                 // note : need to hide overlay in the final ajax call's callback function
-                loadDatabaseInfo(currentAppInfo);
-                loadLaunchInfo(appInfo, currentAppInfo);
-                loadLifeCycleManagementInfo(currentAppInfo);
-                loadRepoAndBuildsInfo(currentAppInfo);
-                loadIssuesInfo(version);
+                if (currentAppInfo) {
+                    loadLifeCycleManagementInfo(currentAppInfo);
+                    loadRepoAndBuildsInfo(currentAppInfo);
+
+                    loadDatabaseInfo(currentAppInfo);
+                    loadLaunchInfo(appInfo, currentAppInfo);
+                    loadIssuesInfo(version);
+                }
             }
       },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
@@ -130,6 +145,7 @@ function loadDatabaseInfo(appVersionInfo) {
 
 // load launch url information
 function loadLaunchInfo(appInfo, currentAppInfo) {
+
     var versionOptionListHtml = "";
 
     for (var i in appInfo.versions) {
@@ -188,7 +204,7 @@ function loadLaunchUrl(version, stage) {
     }, function (result) {
         if(result) {
            var resJSON = jQuery.parseJSON(result);
-           var appURL = "server-error";
+           var appURL = "app-deployment-error";
            if(resJSON.url) {
                appURL = resJSON.url;
            }
