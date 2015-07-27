@@ -19,15 +19,23 @@
 include("/jagg/constants.jag");
  jagg.template("breadcrumb", function (inputs, outputs, jagg) { %>
 
-    <!-- BOF App factory menu -->
+<!-- BOF App factory menu -->
 <div class="navbar navbar-secondary">
     <div class="container-fliud">
         <div class="row">
+
+        <% if(inputs.noSidePane){%>
+            <div class="col-md-3 breadcrumb-secondary">
+                <i class="fa fa-cubes visible-xs"></i><span>
+        <% } else {%>
             <div class="side-pane-trigger">
                 <i class="fa fa-reorder"></i>
             </div>
             <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud</span><%=outputs.breadcrumbHTML%>
+                <i class="fa fa-cubes"></i><span>
+        <% }%>
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a><%=outputs.breadcrumbHTML%>
+                </span>
             </div>
         </div>
     </div>
