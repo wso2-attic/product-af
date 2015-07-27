@@ -66,8 +66,7 @@ jagg.block("breadcrumb", {
             }
         }
         return {
-            "applicationKey": inputs.applicationKey,
-            "applicationName": inputs.applicationName,
+            "noSidePane": inputs.noSidePane,
             "breadcrumbHTML": breadcrumbHTML
         };
 
