@@ -67,6 +67,15 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
             }
             $(document).ready(function () {
         	  loadBaseAppIcon('<%=applicationKey%>');
+        	    $('.cloud-menu-popover').popover({
+                    html : true,
+                    title: function() {
+                        return $("#popover-head").html();
+                    },
+                    content: function() {
+                        return $("#popover-content").html();
+                    }
+                });
         	});
 
         </script>
@@ -175,7 +184,7 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
                            <i class="fa fa-3x  fa-institution"></i>
                            <div class="cloud-name">Organizations</div>
                        </a>
-                       <a class="cloud-block-invert">
+                       <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
                            <i class="fa fa-3x  fa-users"></i>
                            <div class="cloud-name">Members</div>
                        </a>
