@@ -4,7 +4,6 @@ var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
 
-
 // page initialization
 $(document).ready(function() {
     // set current version
@@ -99,9 +98,10 @@ function loadAppInfoFromServer(version) {
                     loadLifeCycleManagementInfo(currentAppInfo);
                     loadRepoAndBuildsInfo(currentAppInfo);
 
-                    loadDatabaseInfo(currentAppInfo);
+                    // Asyn calls
                     loadLaunchInfo(appInfo, currentAppInfo);
                     loadIssuesInfo(version);
+                    loadDatabaseInfo(currentAppInfo);
                 }
             }
       },function (jqXHR, textStatus, errorThrown) {
@@ -194,6 +194,8 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
 
 //// load application launch url
 function loadLaunchUrl(version, stage) {
+    $('#btn-launchApp').attr('disabled','disabled');
+
     jagg.post("../blocks/application/get/ajax/list.jag", {
        action: "getMetaDataForAppVersion",
        applicationKey: applicationInfo.key,
@@ -204,7 +206,7 @@ function loadLaunchUrl(version, stage) {
     }, function (result) {
         if(result) {
            var resJSON = jQuery.parseJSON(result);
-           var appURL = "app-deployment-error";
+           var appURL = "deployment in progress...";
            if(resJSON.url) {
                appURL = resJSON.url;
            }
@@ -216,9 +218,18 @@ function loadLaunchUrl(version, stage) {
 
             // set url to launch button
             $('#btn-launchApp').attr({url:appURL});
+
+            $('#btn-launchApp').removeAttr('disabled');
         }
-       }
-    );
+    }, function (jqXHR, textStatus, errorThrown) {
+            // show error to the user
+            var appURL = "deployment error";
+            var repoUrlHtml = "<b>URL : </b>" + appURL;
+            $("#app-version-url").html(repoUrlHtml);
+
+            // log error
+            jagg.message({content:'Could not load Application deployment information!', type:'error', id:'notification' });
+    });
 }
 
 
@@ -303,7 +314,6 @@ function loadIssuesInfo() {
         // hide loading image after loading all the version specific data
         $('.loader').loading('hide');
         $('.loading-overlay').overlay('hide');
-
     },function (jqXHR, textStatus, errorThrown) {
         jagg.message({content:'Could not load Application issue information!', type:'error', id:'notification' });
     });
