@@ -78,7 +78,7 @@ function loadTeamInfo() {
 function loadAppInfoFromServer(version) {
     // show loading image
     $('.loader').loading('show');
-    $('.loading-overlay').overlay('show');
+    $('.loading-cover').overlay('show');
 
     jagg.post("../blocks/application/get/ajax/list.jag", {
           action:"getAppVersionsInStages",
@@ -291,7 +291,7 @@ function loadIssuesInfo() {
         applicationKey:applicationInfo.key
     },function (result) {
         var resultJson = JSON.parse(result);
-        var issueData = {'Improvement':'0','NEW_FEATURE':'0','BUG':'0', 'Task': '0'};
+        var issueData = {'IMPROVEMENT':'0','NEW_FEATURE':'0','BUG':'0', 'TASK': '0'};
         for(var key in resultJson) {
             if (resultJson.hasOwnProperty(key) && key === currentVersion) {
                 issueData = resultJson[currentVersion];
@@ -304,16 +304,15 @@ function loadIssuesInfo() {
         issueSegment += " Bugs<br>";
         issueSegment +=  formatCount(issueData.NEW_FEATURE);
         issueSegment += " Features<br>";
-        issueSegment += formatCount(issueData.Improvement);
+        issueSegment += formatCount(issueData.IMPROVEMENT);
         issueSegment += " Improvements<br>";
-        issueSegment += formatCount(issueData.Task);
+        issueSegment += formatCount(issueData.TASK);
         issueSegment += " Tasks";
         $("#issueCount").html(issueSegment);
 
-
         // hide loading image after loading all the version specific data
         $('.loader').loading('hide');
-        $('.loading-overlay').overlay('hide');
+        $('.loading-cover').overlay('hide');
     },function (jqXHR, textStatus, errorThrown) {
         jagg.message({content:'Could not load Application issue information!', type:'error', id:'notification' });
     });
