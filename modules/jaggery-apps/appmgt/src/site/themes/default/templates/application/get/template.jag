@@ -82,14 +82,14 @@
       </div>
 
       <div class="col-md-9">
-          <div class="block-general">
-                    <!-- BOF add loading overlay -->
-                    <div class="loading-overlay">
-                        <div class="loader"></div>
-                    </div>
-                    <!-- EOF add loading overlay -->
+          <!-- BOF add loading overlay -->
+          <div class="loading-cover loading-overlay">
+            <div class="loader"></div>
+          </div>
+          <!-- EOF add loading overlay -->
 
-                    <div class="row">
+          <div class="block-general">
+                <div class="row">
                     <div class="col-md-9">
                         <select id="appVersionList" class="version-number"></select>
                         <div id="version-url-container">
@@ -113,7 +113,7 @@
                             </div>
                         </div>
                     </div>
-                  <div class="col-md-3">
+                    <div class="col-md-3">
                       <div class="btn-create-version">
                         <a href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                             <span class="fw-stack fw-lg btn-action-ico">
@@ -121,112 +121,116 @@
                                 <i class="fw fw-add fw-stack-1x"></i>
                             </span> Create Version
                         </a>
-                      </div>
-                  </div>
-              </div>
+                    </div>
+                </div>
+          </div>
 
-              <div class="row">
-                  <div class="col-md-4" >
-                      <div class="block-life-cycle">
-                          <h3>Lifecycle Mgt</h3>
-                          <div class="block-icon pull-left">
-                              <i class="fw fw-lifecycle fw-5x"></i>
-                          </div>
-                          <div class="block-description pull-right" id="lifecycle-mgt-main">
-                              Application <strong><%=appName%></strong> is in
-                              <br>
-                              <strong><span id="appStage"></span></strong> Stage
-                          </div>
-                          <div class="clearfix"></div>
-                             <div class="block-action-button">
-                             <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                                <span class="fw-stack fw-lg btn-action-ico">
+          <div class="row">
+              <div class="col-md-4" >
+                  <div class="block-life-cycle">
+                      <h3>Lifecycle Mgt</h3>
+                      <div class="block-icon pull-left">
+                          <i class="fw fw-lifecycle fw-5x"></i>
+                      </div>
+                      <div class="block-description pull-right" id="lifecycle-mgt-main">
+                          Application <strong><%=appName%></strong> is in
+                          <br>
+                          <strong><span id="appStage"></span></strong> Stage
+                      </div>
+                      <div class="clearfix"></div>
+                         <div class="block-action-button">
+                         <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                            <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-lifecycle fw-stack-1x"></i>
+                            </span> Manage Lifecycle
+                         </a>
+                        </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="block-repos">
+                      <h3>Repos and Builds</h3>
+                      <div class="block-icon pull-left">
+                          <i class="fw fw-clock fw-5x"></i>
+                      </div>
+                      <div class="block-description-multiline pull-left" id="success-and-fail-ids"></div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="block-issues">
+                      <h3>Open Issues</h3>
+                      <div class="block-icon pull-left">
+                          <span class="fa-stack fa-lg fa-3x">
+                              <i class="fa fa-circle-thin fa-stack-2x"></i>
+                              <i class="fa fa-exclamation fa-stack-1x fa-inverse"></i>
+                          </span>
+                      </div>
+                      <div class="block-description-multiline pull-left">
+                          <i class="fa  fa-bug"></i>
+                          <span id="issueCount"></span>
+                      </div>
+                      <div class="clearfix"></div>
+                      <div class="block-action-button">
+                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                            <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
-                                <i class="fw fw-lifecycle fw-stack-1x"></i>
-                                </span> Manage Lifecycle
-                             </a>
-                            </div>
-                      </div>
-                  </div>
-                  <div class="col-md-4">
-                      <div class="block-repos">
-                          <h3>Repos and Builds</h3>
-                          <div class="block-icon pull-left">
-                              <i class="fw fw-clock fw-5x"></i>
-                          </div>
-                          <div class="block-description-multiline pull-left" id="success-and-fail-ids"></div>
-                      </div>
-                  </div>
-                  <div class="col-md-4">
-                      <div class="block-issues">
-                          <h3>Open Issues</h3>
-                          <div class="block-icon pull-left">
-                              <span class="fa-stack fa-lg fa-3x">
-                                  <i class="fa fa-circle-thin fa-stack-2x"></i>
-                                  <i class="fa fa-exclamation fa-stack-1x fa-inverse"></i>
-                              </span>
-                          </div>
-                          <div class="block-description-multiline pull-left">
-                              <i class="fa  fa-bug"></i>
-                              <span id="issueCount"></span>
-                          </div>
-                          <div class="clearfix"></div>
-                          <div class="block-action-button">
-                            <a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                                <span class="fw-stack fw-lg btn-action-ico">
-                                    <i class="fw fw-ring fw-stack-2x"></i>
-                                    <i class="fw fw-add fw-stack-1x"></i>
-                                </span> Create
-                            </a>
-                          </div>
+                                <i class="fw fw-add fw-stack-1x"></i>
+                            </span> Create
+                        </a>
                       </div>
                   </div>
               </div>
+          </div>
+
           </div>
       </div>
 
       <div class="col-md-3">
-          <!-- BOF add loading overlay -->
-          <div class="loading-overlay">
+        <!-- BOF add loading overlay -->
+        <div class="loading-cover loading-overlay">
             <div class="loader"></div>
-          </div>
-          <!-- EOF add loading overlay -->
+        </div>
+        <!-- EOF add loading overlay -->
 
-          <div class="block-team pull-left">
-              <h3>Team</h3>
-              <div class="block-icon pull-left">
-                <i class="fa fa-users fa-5x"></i>
-              </div>
-              <div id="teamCount" class="block-number pull-right"></div>
-              <div class="clearfix"></div>
-              <div class="block-action-button">
-                <a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                    <span class="fw-stack fw-lg btn-action-ico">
-                        <i class="fw fw-ring fw-stack-2x"></i>
-                        <i class="fw fw-add fw-stack-1x"></i>
-                    </span> Invite Member
-                </a>
-              </div>
+        <div class="block-team pull-left">
+          <h3>Team</h3>
+          <div class="block-icon pull-left">
+            <i class="fa fa-users fa-5x"></i>
           </div>
+          <div id="teamCount" class="block-number pull-right"></div>
+          <div class="clearfix"></div>
+          <div class="block-action-button">
+            <a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> Invite Member
+            </a>
+          </div>
+        </div>
 
-          <div class="block-database pull-left">
-              <h3>Databases</h3>
-              <div class="block-icon pull-left">
-                <i class="fa fa-database fa-5x"></i>
-              </div>
-              <div id="databaseCount" class="block-number pull-right"></div>
-              <div class="clearfix"></div>
-              <div class="block-action-button">
-                <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                    <span class="fw-stack fw-lg btn-action-ico">
-                        <i class="fw fw-ring fw-stack-2x"></i>
-                        <i class="fw fw-add fw-stack-1x"></i>
-                    </span> Add Database
-                </a>
-              </div>
+        <div class="block-database pull-left">
+          <h3>Databases</h3>
+          <div class="block-icon pull-left">
+            <i class="fa fa-database fa-5x"></i>
           </div>
+          <div id="databaseCount" class="block-number pull-right"></div>
+          <div class="clearfix"></div>
+          <div class="block-action-button">
+            <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> Add Database
+            </a>
+          </div>
+        </div>
+
       </div>
+
     </div>
+
 </div>
 
 <% jagg.includeBlock("page/notification-wall", {"wall_name" : applicationKey + " - App Wall","applicationKey" : applicationKey, "pageName":"App Home"});%>
