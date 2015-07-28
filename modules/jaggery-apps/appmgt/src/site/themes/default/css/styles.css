@@ -1278,3 +1278,7 @@ a.btn-action {
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #CACACA ;
 }
+
+#app-version-url {
+    white-space: nowrap;
+}
