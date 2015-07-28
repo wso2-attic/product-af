@@ -340,7 +340,12 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
           });
 
           $('#delete_button_div').click(function(event){
-            	jagg.popMessage({type:'confirm',title:'Delete Datasource',content:'Are you sure you want to delete datasource ' + dsName + '?', okCallback:function(){ deleteDataSource();}, cancelCallback:function(){}});
+            	jagg.popMessage({
+            	type:'confirm',
+            	title:'Delete Datasource',
+            	content:'Are you sure you want to delete datasource ' + dsName + '?',
+            	okCallback:function(){ deleteDataSource();},
+                cancelCallback:function(){}});
         	});
 
           $("#datasource_username_select").on('change', function(e) {
