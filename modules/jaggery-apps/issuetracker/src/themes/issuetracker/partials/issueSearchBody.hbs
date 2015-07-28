@@ -85,41 +85,6 @@
 <script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.columnFilter.js"}}"></script>
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
-<!--
-<script>
-$('.datatable table').dataTable({
-            responsive: true,
-            "orderCellsTop": true,
-            data: {{{data}}},
-            columns: [
-                { "data": "issuePkey" },
-                { "data": "summary" },
-                { "data": "version" },
-                { "data": "issueType" },
-                { "data": "priority" },
-                { "data": "status" },
-                { "data": "owner" },
-                { "data": "assignee" },
-                { "data": "edit" },
-                { "data": "comment" }
-            ]
-        }).columnFilter({
-            sPlaceHolder: "head:after",
-            aoColumns: [
-                null,
-                null,
-                { type: "select", values: {{{versions}}} },
-                { type: "select", values: [ 'Bug', 'Feature', 'Improvement', 'defect'] },
-                { type: "select", values: [ 'Highest', 'High', 'Low', 'Lowest'] },
-                { type: "select", values: [ 'Open', 'Resolved'] },
-                null,
-                null,
-                null,
-                null
-            ]
-        });
-</script>
--->
 <script>
     $('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
@@ -142,9 +107,9 @@ $('.datatable table').dataTable({
                 { "data": "issuePkey", "width": "5%"},
                 { "data": "summary" , "width": "30%"},
                 { "data": "version" , "width": "8%"},
-                { "data": "issueType", "width": "8%" },
-                { "data": "priority", "width": "8%" },
-                { "data": "status" , "width": "8%"},
+                { "data": "issueTypeText", "width": "8%" },
+                { "data": "issuePriorityText", "width": "8%" },
+                { "data": "issueStatusText" , "width": "8%"},
                 { "data": "owner" , "width": "13%", "sClass" : "dt-body-right"},
                 { "data": "assignee" , "width": "13%", "sClass" : "dt-body-right"},
                 { "data": "edit", "orderable": false, "width": "4%", "sClass" : "dt-body-center" },
@@ -156,9 +121,9 @@ $('.datatable table').dataTable({
                 null,
                 null,
                 { type: "select", values: {{{versions}}} },
-                { type: "select", values: [ 'Bug', 'Feature', 'Improvement', 'defect'] },
+                { type: "select", values: [ 'Bug', 'Task', 'New Feature', 'Improvement'] },
                 { type: "select", values: [ 'Highest', 'High', 'Low', 'Lowest'] },
-                { type: "select", values: [ 'Open', 'Resolved'] },
+                { type: "select", values: [ 'Open', 'Resolved', 'In Progress', 'Closed'] },
                 { "bSortable": false },
                 { "bSortable": false },
                 null,

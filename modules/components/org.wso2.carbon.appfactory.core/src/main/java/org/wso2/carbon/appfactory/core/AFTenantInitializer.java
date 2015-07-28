@@ -51,6 +51,8 @@ public class AFTenantInitializer {
     public static void initializeAFTenant(String tenantDomain) throws UserStoreException, AppFactoryException {
         int tenantId = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
         Tenant tenantInfoBean = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenant(tenantId);
+        //APPFAC-3211 fix
+        tenantInfoBean.setAdminPassword("");
         UserRealm userRealm = ServiceHolder.getInstance().getRealmService().getTenantUserRealm(tenantId);
         String defaultRole = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
                 AppFactoryConstants.TENANT_ROLES_DEFAULT_USER_ROLE);
