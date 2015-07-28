@@ -415,7 +415,7 @@ $apimgt_http_port     = "9769" # we put this because for minimal deployment we u
   $app_base               = 'dc=appfactory,dc=wso2,dc=com'
   $usrmgt_connectionname  = "uid=admin,ou=system"
   $usrmgt_connectionpasswd= "admin"
-  $usrmgt_class           = "org.wso2.carbon.appfactory.userstore.AppFactoryUserStore"
+  $usrmgt_class           = "org.wso2.carbon.appfactory.userstore.AppFactoryCustomUserStoreManager"
   $usrmgt_RO_class        = "org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager"
   $usrmgt_usb             = "ou=Users,${app_base}"
   $usrmgt_unsf            = "(&amp;(objectClass=person)(uid=?))"
