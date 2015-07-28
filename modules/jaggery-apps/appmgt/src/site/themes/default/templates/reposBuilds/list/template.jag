@@ -1547,12 +1547,8 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
         <header class="separator">
             <div class="content">
                 <h1 class="left" style="margin-right:20px;">Repositories & Builds</h1>
-
-               <!-- <form class="left fw_250 form-container search_form" onSubmit="return false;">
-                        <input id="filter_repos_or_stages" type="text" class="fw_250 margin_15" placeholder="Filter Repos or Stages" name="filter_repos_or_stages" value=""  /><span class="icon-search"></span>
-                </form>-->
-
-            </header>
+            </div>
+        </header>
             <% jagg.includeBlock("page/help", {"section": "repoAndBuild"}); %>
 
             <div class="section">

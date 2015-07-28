@@ -362,8 +362,11 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
         }
 
     </script>
-    <div class="container">
+
         <article class="main">
+
+        <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
         <%
     jagg.includeBlock("page/messages", null);
     jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
@@ -402,7 +405,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
                                     value="<%=request.getParameter('applicationKey')%>" />
 				 <div class="input_row">
                                     <label><strong>Upload New Version</strong></label>
-                                    <span id="iconContainer">
+                                    <span id="iconContainer" style="display: inline-block;">
                                         <input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." />
                                     </span>
                                         <input type="button" value="Upload" class="btn main" id='appcreation' onclick="uploadNewVersion()" />
@@ -427,7 +430,6 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
                     </div>
                </div>
         </article>
-    </div><!-- /container -->
     <%
 }); %>
 

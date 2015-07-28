@@ -98,6 +98,10 @@ var messageTimer;
 
     jagg.message = function(params){
         // Included noty plugin implementation
+        var allowedType = ["alert", "success", "error", "warning", "information", "confirm"];
+        if(allowedType.indexOf(params.type) < 0){
+            params.type = "information"
+        }
         return noty({
                  theme: 'wso2',
                  layout: 'top',
