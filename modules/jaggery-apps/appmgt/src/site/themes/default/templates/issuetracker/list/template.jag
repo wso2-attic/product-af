@@ -209,25 +209,6 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
-<!--
-            <div class="container">
-                        <article class="main">
-                        <% jagg.includeBlock("page/messages", null); %>
-                        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.ISSUES}); %>
-                        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-                        <header class="separator">
-                                <div class="content">
-                                     <div class="row-fluid">
-<div <%=hiddenSummary%> align="right" class="span6" style="color: #888888;float: right;font-style: italic;margin-left: 20px;margin-right: 20px;margin-top: 20px;" >
-</a></div>
-                                </div>
-                            </div>
-                        </header>
-<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>" id="iframeId"></iframe>
-                        <div class="clearfix"></div>
-                      </article>
-            </div>
--->
 
 <% }); %>              
 
