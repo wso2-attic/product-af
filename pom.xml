@@ -876,6 +876,11 @@
             <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
             <version>${appfac.version}</version>
        </dependency>
+          <dependency>
+              <groupId>org.wso2.carbon.appfactory</groupId>
+              <artifactId>org.wso2.carbon.appfactory.custom.userstore</artifactId>
+              <version>${appfac.version}</version>
+          </dependency>
        <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.stratos.listners</artifactId>
