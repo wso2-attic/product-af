@@ -56,9 +56,9 @@ function createResource(copyToAll) {
     jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
         action: "createResource",
         applicationKey: '<%=applicationKey%>',
-        resourceName: $("#property_name").attr('value').trim(),
-        resourceDescription: $("#property_description").attr('value').trim(),
-        contentValue: $("#property_value").attr('value').trim(),
+        resourceName: $("#property_name").val().trim(),
+        resourceDescription: $("#property_description").val().trim(),
+        contentValue: $("#property_value").val().trim(),
         stage: $("#rssInstance").val(),
         resourceMediaType: mediaType,
         copyToAll:copyToAll
@@ -99,7 +99,7 @@ function drawStagesForCreatePermittedEnvironments(){
       }
     },
     function (jqXHR, textStatus, errorThrown) {
-          $("#property_name").attr('value') 
+          $("#property_name").val()
     });
 }
 
@@ -109,11 +109,11 @@ function updateResource() {
     jagg.post("../blocks/resources/registry/edit/ajax/edit.jag", {
                 action: "updateResource",
                 applicationKey: '<%=applicationKey%>',
-                resourceName: $("#property_name").attr('value'),
-                contentValue: $("#property_value").attr('value').trim(),
+                resourceName: $("#property_name").val(),
+                contentValue: $("#property_value").val().trim(),
                 resourceMediaType: mediaType,
                 deploymentStage: '<%=currentStage%>',
-                description:$("#property_description").attr('value').trim()
+                description:$("#property_description").val().trim()
             },
             function (result) {
             	
@@ -139,7 +139,7 @@ function updateDescription(description){
       applicationKey: '<%=applicationKey%>',
       resourceDescription: description,
       deploymentStage: '<%=currentStage%>',
-      resourceName: $("#property_name").attr('value'),
+      resourceName: $("#property_name").val(),
   });
 }
 
@@ -147,7 +147,7 @@ function deleteResource() {
     jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
                 action: "deleteResource",
                 applicationKey: '<%=applicationKey%>',
-                resourceName: $("#property_name").attr('value'),
+                resourceName: $("#property_name").val(),
                 stage: '<%=currentStage%>',
             },
             function (result) {
@@ -162,8 +162,8 @@ function updateUIForStage() {
     jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
                 action: "getResource",
                 applicationKey: '<%=applicationKey%>',
-                stage: $("#stage").attr('value'),
-                resourceName: $("#property_name").attr('value').trim(),
+                stage: $("#stage").val(),
+                resourceName: $("#property_name").val().trim(),
             },
             function (result) {
                 var stage = jQuery.parseJSON(result);
@@ -279,7 +279,7 @@ function validatePropertyNameAndCreate() {
     jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
             action: "propertyExistInStages",
             applicationKey: '<%=applicationKey%>',
-            propertyName: $("#property_name").attr('value').trim(),
+            propertyName: $("#property_name").val().trim(),
             givenValues: $("#rssInstance").val(),
             copyToAll:false
     },

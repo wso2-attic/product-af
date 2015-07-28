@@ -156,7 +156,7 @@ function updateAuthUI(selectedStage){
 
 function validateMandatoryInputs(){
     jagg.removeMessage();
-	var apiName = $("#api_name").attr('value').trim();
+	var apiName = $("#api_name").val().trim();
 	validate = true;
 	var errorMsg = "";
 
@@ -220,8 +220,8 @@ function updateResource() {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "updateExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    apiName: $("#api_name").attr('value').trim(),
-	    authType:$("#api_auth").attr('value'),
+	    apiName: $("#api_name").val().trim(),
+	    authType:$("#api_auth").val(),
 	    givenValues: inputString
     },
     function (result) {
@@ -241,8 +241,8 @@ function createResource(copyToAll) {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "createExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    apiName: $("#api_name").attr('value').trim(),
-	    authType:$("#api_auth").attr('value'),
+	    apiName: $("#api_name").val().trim(),
+	    authType:$("#api_auth").val(),
 	    givenValues: inputString,
 	    copyToAll:copyToAll
     },
@@ -261,7 +261,7 @@ function deleteResource() {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "deleteExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    resourceName: $("#api_name").attr('value'),
+	    resourceName: $("#api_name").val(),
 	    stage: '<%=env%>'
     },
     function (result) {
@@ -307,7 +307,7 @@ function validatePropertyNameAndCreate() {
     jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
             action: "propertyExistInStages",
             applicationKey: '<%=applicationKey%>',
-            propertyName: $("#api_name").attr('value').trim(),
+            propertyName: $("#api_name").val().trim(),
 	    givenValues: inputString,
 	    copyToAll:false
     },
