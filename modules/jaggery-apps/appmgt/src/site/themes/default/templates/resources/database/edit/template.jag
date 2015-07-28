@@ -778,7 +778,7 @@ language=appInfo.language;
                 <% } %>
             </div>
 
-            <div class="extra_fields_box hide" id="create_user_div">
+            <div class="extra_fields_box" id="create_user_div">
                 <div class="extra_fields">
                     <div class="extra_field_row">
                         <div class="pw_50">
