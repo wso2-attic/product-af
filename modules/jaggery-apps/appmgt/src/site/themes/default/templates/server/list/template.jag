@@ -26,9 +26,10 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
     var helpTips = outputs.helpTips;
     var appVersionsInStages= outputs.appVersionsInStages;
     %>
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css" />
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/pagination.css'))%>" rel="stylesheet" type="text/css" />
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js')) %>"></script>
+    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
+    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js')) %>"></script>
     
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
