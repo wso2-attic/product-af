@@ -93,7 +93,7 @@
                     <div class="col-md-9">
                         <select id="appVersionList" class="version-number"></select>
                         <div id="version-url-container">
-                            <div class="version-url"><span id="app-version-url"><b>URL : </b>deployment in progress...</span> </div>
+                            <div class="version-url"><a id="version-url-link" target="_blank"><span id="app-version-url"><b>URL : </b>deployment in progress...</span></a></div>
                             <div class="sec">
                                 <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button>
 
@@ -138,14 +138,14 @@
                           <strong><span id="appStage"></span></strong> Stage
                       </div>
                       <div class="clearfix"></div>
-                         <div class="block-action-button">
-                         <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                        <div class="block-action-button">
+                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                             <span class="fw-stack fw-lg btn-action-ico">
                             <i class="fw fw-ring fw-stack-2x"></i>
                             <i class="fw fw-lifecycle fw-stack-1x"></i>
                             </span> Manage Lifecycle
-                         </a>
-                        </div>
+                        </a>
+                      </div>
                   </div>
               </div>
               <div class="col-md-4">

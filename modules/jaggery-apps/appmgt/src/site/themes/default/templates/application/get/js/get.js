@@ -213,13 +213,12 @@ function loadLaunchUrl(version, stage) {
 
            // display app url
            var repoUrlHtml = "<b>URL : </b>" + appURL;
+           $('#version-url-link').attr({href:appURL});
            $("#app-version-url").html(repoUrlHtml);
 
-
-            // set url to launch button
-            $('#btn-launchApp').attr({url:appURL});
-
-            $('#btn-launchApp').removeAttr('disabled');
+           // set url to launch button
+           $('#btn-launchApp').attr({url:appURL});
+           $('#btn-launchApp').removeAttr('disabled');
         }
     }, function (jqXHR, textStatus, errorThrown) {
             // show error to the user
