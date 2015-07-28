@@ -47,6 +47,7 @@ class appfactory (
 		                "conf/embedded-ldap.xml",
                     "conf/carbon.xml",
                     "conf/registry.xml",
+                    "conf/user-mgt.xml",
                     "conf/jndi.properties",
                     "conf/issuetracker/issuetracker.xml",
                     "conf/security/authenticators.xml",
@@ -67,8 +68,7 @@ class appfactory (
 
   $common_templates = [
                     "conf/tenant-mgt.xml",
-                    "conf/appfactory/appfactory.xml", 
-                    "conf/user-mgt.xml",
+                    "conf/appfactory/appfactory.xml",
                     "conf/log4j.properties",
                     "conf/etc/cache.xml",
                     "conf/datasources/master-datasources.xml",
