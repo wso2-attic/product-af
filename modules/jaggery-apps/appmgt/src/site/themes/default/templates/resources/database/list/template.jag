@@ -95,42 +95,37 @@ function hideSpin() {
 }
 
 </script>
-<input type="hidden" id='applicationKey'
-	value='<%=request.getParameter("applicationKey")%>' />
-<div class="container">
-	<article class="main database-page">
+<input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+    <article class="main database-page">
         <!-- following div can be removed after new ux-->
         <div style="height: 80px; "></div>
         <!-- -->
-		<header class="separator">
-			<div>
-				<% jagg.includeBlock("page/messages", null); %>
-				<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-				<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-			</div>
-			<div class="content">
-				<h1 class="inline_box">Databases</h1>
-				<a id="addNewDBBtn" name="addNewDBBtn" href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false' class="btn main btn_group_first push_left_40">Add New Database</a>
-			</div>
-		</header>
+    	<header class="separator">
+    		<div>
+    			<% jagg.includeBlock("page/messages", null); %>
+    			<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+    			<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+    		</div>
+    		<div class="content">
+    			<h1 class="inline_box">Databases</h1>
+    			<a id="addNewDBBtn" name="addNewDBBtn" href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false' class="btn main btn_group_first push_left_40">Add New Database</a>
+    		</div>
+    	</header>
 
-		<% jagg.includeBlock("page/help", {"section": "databases"}); %>
-		<div style="clear:both"></div>
+    	<% jagg.includeBlock("page/help", {"section": "databases"}); %>
+    	<div style="clear:both"></div>
     		<div class="clearfix"></div>
 
- 		<section class="separator">
-			<div class="content clear">
-			    <table class="data-table push_top_20" id="dbSection"></table>
-			</div>
-		</section>
+    		<section class="separator">
+    		<div class="content clear">
+    		    <table class="data-table push_top_20" id="dbSection"></table>
+    		</div>
+    	</section>
 
-		<div style="clear:both"></div>
+    	<div style="clear:both"></div>
 
-		<div class="clearfix"></div>
-	</article>
-</div>
-<!-- /container -->
-
+    	<div class="clearfix"></div>
+    </article>
 <%
 }); %>
 

@@ -321,7 +321,11 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 
 			List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 			parameters.add(new BasicNameValuePair(ACTION, "getAllSubscriptions"));
-			parameters.add(new BasicNameValuePair(USERNAME, username));
+			parameters.add(new BasicNameValuePair(SELECTED_APP, applicationId));
+
+			if (log.isDebugEnabled()) {
+				log.debug("Calling getAllSubscriptions api passing selectedApp=" + applicationId);
+			}
 
 			HttpPost postMethod =
 			                      createHttpPostRequest(apiManagerUrl, parameters,
@@ -334,17 +338,22 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 					HttpEntity responseEntity = httpResponse.getEntity();
 					String responseBody = EntityUtils.toString(responseEntity);
 
-					JsonObject response = getJsonObject(responseBody);
-					JsonArray subscriptions = response.getAsJsonArray(SUBSCRIPTIONS);
+					if (log.isDebugEnabled()) {
+						log.debug("Response body of getAllSubscriptions : " + responseBody);
+					}
 
-					if (subscriptions != null) {
-						for (JsonElement subscription : subscriptions) {
+					JsonObject response = getJsonObject(responseBody);
+					JsonObject subscriptions = response.getAsJsonObject(SUBSCRIPTIONS);
+					JsonArray applications = subscriptions.getAsJsonArray(APPLICATIONS);
+
+					if (applications != null) {
+						for (JsonElement application : applications) {
 							String applicationName =
-							                         ((JsonObject) subscription).get(NAME)
+							                         ((JsonObject) application).get(NAME)
 							                                                    .getAsString();
 							if (applicationName.equals(applicationId)) {
 								JsonArray applicationSubscriptions =
-								                                     ((JsonObject) subscription).getAsJsonArray(SUBSCRIPTIONS);
+								                                     ((JsonObject) application).getAsJsonArray(SUBSCRIPTIONS);
 								for (JsonElement applicationSubscription : applicationSubscriptions) {
 									API apiInfo =
 									              populateAPIInfo((JsonObject) applicationSubscription);

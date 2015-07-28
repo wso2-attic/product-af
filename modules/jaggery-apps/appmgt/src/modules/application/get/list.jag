@@ -216,7 +216,6 @@
     };
 
     var convertAppInfo =  function(resourceContent){
-        log.info("\n\n App info ============================+++++++ \n" + stringify(session.get("APP_INFO")) + "\n");
         var application = extractAppInfo(resourceContent,false);
         application.users=modApplication.getUsersOfApplication(resourceContent.id);
 
@@ -224,8 +223,6 @@
         var applicationTypeBean = applicationTypeManager.getApplicationTypeBean(application.type);
         application["iconColorClass"] = applicationTypeBean.getIconColorClass();
         application["iconImageClass"] = applicationTypeBean.getIconImageClass();
-        log.info("====== " + applicationTypeBean.getIconColorClass());
-        log.info("====== " + applicationTypeBean.getIconImageClass());
 
         session.put("APP_INFO",application);
         

@@ -56,9 +56,9 @@ function createResource(copyToAll) {
     jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
         action: "createResource",
         applicationKey: '<%=applicationKey%>',
-        resourceName: $("#property_name").attr('value').trim(),
-        resourceDescription: $("#property_description").attr('value').trim(),
-        contentValue: $("#property_value").attr('value').trim(),
+        resourceName: $("#property_name").val().trim(),
+        resourceDescription: $("#property_description").val().trim(),
+        contentValue: $("#property_value").val().trim(),
         stage: $("#rssInstance").val(),
         resourceMediaType: mediaType,
         copyToAll:copyToAll
@@ -99,7 +99,7 @@ function drawStagesForCreatePermittedEnvironments(){
       }
     },
     function (jqXHR, textStatus, errorThrown) {
-          $("#property_name").attr('value') 
+          $("#property_name").val()
     });
 }
 
@@ -109,11 +109,11 @@ function updateResource() {
     jagg.post("../blocks/resources/registry/edit/ajax/edit.jag", {
                 action: "updateResource",
                 applicationKey: '<%=applicationKey%>',
-                resourceName: $("#property_name").attr('value'),
-                contentValue: $("#property_value").attr('value').trim(),
+                resourceName: $("#property_name").val(),
+                contentValue: $("#property_value").val().trim(),
                 resourceMediaType: mediaType,
                 deploymentStage: '<%=currentStage%>',
-                description:$("#property_description").attr('value').trim()
+                description:$("#property_description").val().trim()
             },
             function (result) {
             	
@@ -139,7 +139,7 @@ function updateDescription(description){
       applicationKey: '<%=applicationKey%>',
       resourceDescription: description,
       deploymentStage: '<%=currentStage%>',
-      resourceName: $("#property_name").attr('value'),
+      resourceName: $("#property_name").val(),
   });
 }
 
@@ -147,7 +147,7 @@ function deleteResource() {
     jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
                 action: "deleteResource",
                 applicationKey: '<%=applicationKey%>',
-                resourceName: $("#property_name").attr('value'),
+                resourceName: $("#property_name").val(),
                 stage: '<%=currentStage%>',
             },
             function (result) {
@@ -162,8 +162,8 @@ function updateUIForStage() {
     jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
                 action: "getResource",
                 applicationKey: '<%=applicationKey%>',
-                stage: $("#stage").attr('value'),
-                resourceName: $("#property_name").attr('value').trim(),
+                stage: $("#stage").val(),
+                resourceName: $("#property_name").val().trim(),
             },
             function (result) {
                 var stage = jQuery.parseJSON(result);
@@ -279,7 +279,7 @@ function validatePropertyNameAndCreate() {
     jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
             action: "propertyExistInStages",
             applicationKey: '<%=applicationKey%>',
-            propertyName: $("#property_name").attr('value').trim(),
+            propertyName: $("#property_name").val().trim(),
             givenValues: $("#rssInstance").val(),
             copyToAll:false
     },
@@ -295,117 +295,90 @@ function validatePropertyNameAndCreate() {
 
 //]]
 </script>
+<article class="main">
+    <!-- following div can be removed after new ux-->
+    <div style="height: 80px; "></div>
+    <!-- -->
+    <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+     <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+     </div>
+    	<div class="content">
+            <h1>Runtime Configs</h1>
+         </div>
+    </header>
+    <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
+    <% jagg.includeBlock("page/help", {"section": "resources-properties"}); %>
+    <section class="separator">        
+        <div class="content clear">
+        	<div class="form-container">
 
+                <form action="#" id="createProp" method="post" class="hold right_label">
+                  <fieldset>
+                        <div class="input_row">
+                        	<%
+                        		var disableStr = "";
+                        		if(isEdit == "true"){
+                        			disableStr = "disabled='disabled'";
+                        	%>
+                        			<!-- label for="property_name" ><strong>Name</strong> <em>*</em></label -->
+                        			<input id="property_name" type="hidden" name="property_name" value="<%=propertyName%>" class="half" />
+                        			
+                        			<div class="input_row">
+                                    	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
+                                		<select id='rssInstances' class="select_list half big" name="rssInstance" disabled="disabled"></select>
+                                	</div>
+                        	<%
+                        		}else{
+                        	%>
+                            		<label for="property_name" ><strong>Name</strong> <em>*</em></label>
+                            		<input id="property_name" type="text" name="property_name" value="<%=propertyName%>" class="half required" />
+        
+                                    <div class="input_row">
+                                    	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
+                                		<select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
+                                		<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
+                                	</div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="input_row">
+                            <label for="property_description"><strong>Description</strong></label>
+                            <textarea name="property_description" id="property_description" rows="5" <% if((isEdit && isEdit == "true") && !isUpdatePermitted ){ %>disabled<%}%>  class="full"/><%=propertyDescription%></textarea>
+                        </div>
 
-            <div class="container">
-				<article class="main">
-				       
-                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
-			 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-                         </div>
-                        	<div class="content">
-                                <h1>Runtime Configs</h1>
-                             </div>
-                        </header>
-                        <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
-                        <section class="separator">
-                            <div class="page_nav">
-                                <div class="content clear">
-                                    <ol class="breadcrumb left">
-                                        <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">Properties</a></li>
-                                        <%if(isEdit!='true'){%>
-                                        <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
-                                        <%}else{%>
-                                        <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
-                                        <%}%>
-                                    </ol>
-                                    <%
-                                      	if(isEdit == "true" && hasDeleteResourcePermissions){
-                                      %>
-                                    <div class="right btn_group" id="delete_button_div">
-                                        <ul class="inline_box inline_list btn_group_list">
-                                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Property</a>
-                                            </li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                    <%
-                                    }
-                                    %>
-                                </div>
-                            </div>
-                            <div class="content clear well">
-                            	<div class="form-container">
+                                              
+                        <div class="input_row">
+                            <label for="property_value"><strong>Value</strong> <em>*</em></label>
+                            <textarea name="property_value" id="property_value" rows="2" class="full<% if((isEdit && isEdit == "true") && !isUpdatePermitted ){ %>" disabled<%}%> required"><%=propertyValue%></textarea>
+                        </div>
 
-                                    <form action="#" id="createProp" method="post" class="hold right_label">
-                                      <fieldset>
-                                            <div class="input_row">
-                                            	<%
-                                            		var disableStr = "";
-                                            		if(isEdit == "true"){
-                                            			disableStr = "disabled='disabled'";
-                                            	%>
-                                            			<!-- label for="property_name" ><strong>Name</strong> <em>*</em></label -->
-                                            			<input id="property_name" type="hidden" name="property_name" value="<%=propertyName%>" class="half" />
-                                            			
-                                            			<div class="input_row">
-        	                                            	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
-                                                    		<select id='rssInstances' class="select_list half big" name="rssInstance" disabled="disabled"></select>
-        	                                        	</div>
-                                            	<%
-                                            		}else{
-                                            	%>
-                                                		<label for="property_name" ><strong>Name</strong> <em>*</em></label>
-                                                		<input id="property_name" type="text" name="property_name" value="<%=propertyName%>" class="half required" />
-                            
-        	                                            <div class="input_row">
-        	                                            	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
-                                                    		<select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
-                                                    		<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
-        	                                        	</div>
-                                                <% } %>
-                                            </div>
-                                            
-	                                        <div class="input_row">
-	                                            <label for="property_description"><strong>Description</strong></label>
-	                                            <textarea name="property_description" id="property_description" rows="5" <% if((isEdit && isEdit == "true") && !isUpdatePermitted ){ %>disabled<%}%>  class="full"/><%=propertyDescription%></textarea>
-	                                        </div>
+                  </fieldset>
+                  	   <div class="buttonrow">  
 
-                                                                  
-                                            <div class="input_row">
-                                                <label for="property_value"><strong>Value</strong> <em>*</em></label>
-                                                <textarea name="property_value" id="property_value" rows="2" class="full<% if((isEdit && isEdit == "true") && !isUpdatePermitted ){ %>" disabled<%}%> required"><%=propertyValue%></textarea>
-                                            </div>
+                      <%
+                      	if(isEdit && isEdit == "true" && isUpdatePermitted){
+                      %>
+                        
+                        <!--input type="button" name="submit" value="Create Property" class="btn main" onclick="createResource();"/-->
+                        <input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
 
-                                      </fieldset>
-                                      	   <div class="buttonrow">  
+                        <%
+                        }else if(!isEdit || (isEdit && isEdit == "false")){
+                        %>
+                        	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
 
-	                                      <%
-	                                      	if(isEdit && isEdit == "true" && isUpdatePermitted){
-	                                      %>
-	                                        
-	                                        <!--input type="button" name="submit" value="Create Property" class="btn main" onclick="createResource();"/-->
-	                                        <input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
+                        <%
+                        }
+                        %>
+                    	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'"><% if(isUpdatePermitted){ %>Cancel<%} else {%>Cancel<%}%></a>
+					</div>
+                 </form>
 
-	                                        <%
-	                                        }else if(!isEdit || (isEdit && isEdit == "false")){
-	                                        %>
-	                                        	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
-
-	                                        <%
-	                                        }
-	                                        %>
-                                        	<a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'"><% if(isUpdatePermitted){ %>Cancel<%} else {%>Cancel<%}%></a>
-										</div>
-                                     </form>
-
-								</div>
-                            </div>
-                        </section>
-                        <div class="clearfix"></div>
-                 </article>
-            </div>
-
+			</div>
+        </div>
+    </section>
+    <div class="clearfix"></div>
+ </article>
 <% }); %>
 

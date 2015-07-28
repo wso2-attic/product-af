@@ -340,7 +340,12 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
           });
 
           $('#delete_button_div').click(function(event){
-            	jagg.popMessage({type:'confirm',title:'Delete Datasource',content:'Are you sure you want to delete datasource ' + dsName + '?', okCallback:function(){ deleteDataSource();}, cancelCallback:function(){}});
+            	jagg.popMessage({
+            	type:'confirm',
+            	title:'Delete Datasource',
+            	content:'Are you sure you want to delete datasource ' + dsName + '?',
+            	okCallback:function(){ deleteDataSource();},
+                cancelCallback:function(){}});
         	});
 
           $("#datasource_username_select").on('change', function(e) {
@@ -354,136 +359,134 @@ var hasDataSourceDeletePermission = outputs.hasDeleteResourcePermissions;
     //]]
 </script>
 
-
-<div class="container">
-    <article class="main">
-
-        <header><div> <% jagg.includeBlock("page/messages", null); %>
-         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
-            <div class="content">
-                <h1>Runtime Configs</h1>
-            </div>
-        </header>
-        <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
-        <section class="separator">
-            <div class="page_nav">
-                <div class="content clear">
-                    <ol class="breadcrumb left">
-                        <li class="breadcrumb_item"><a
-                                href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=inputs.applicationKey%>"
-                                class="breadcrumb_link">Datasources</a></li>
-                        <li class="breadcrumb_item name"></li>
-                    </ol>
-                    <% if(hasDataSourceDeletePermission){ %>
-                        <div class="right btn_group" id="delete_button_div">
-                            <div class="right btn_list_box">
-                                <ul class="inline_box inline_list btn_list">
-                                    <li class="inline_item"><a id="delete_button_div" href="#" class="btn main btn_list_first">Delete Datasource</a></li>
-                                </ul>
-                                <div class="clearfix"></div>
-                            </div>
+<article class="main">
+    <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
+    <!-- -->
+    <header><div> <% jagg.includeBlock("page/messages", null); %>
+     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+     <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
+        <div class="content">
+            <h1>Runtime Configs</h1>
+        </div>
+    </header>
+    <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+    <% jagg.includeBlock("page/help", {"section": "resources-datasources"}); %>
+    <section class="separator">
+        <div class="page_nav">
+            <div class="content clear">
+                <ol class="breadcrumb left">
+                    <li class="breadcrumb_item"><a
+                            href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=inputs.applicationKey%>"
+                            class="breadcrumb_link">Datasources</a></li>
+                    <li class="breadcrumb_item name"></li>
+                </ol>
+                <% if(hasDataSourceDeletePermission){ %>
+                    <div class="right btn_group" id="delete_button_div">
+                        <div class="right btn_list_box">
+                            <ul class="inline_box inline_list btn_list">
+                                <li class="inline_item"><a id="delete_button_div" href="#" class="btn main btn_list_first">Delete Datasource</a></li>
+                            </ul>
+                            <div class="clearfix"></div>
                         </div>
-                     <% } %>
-                </div>
+                    </div>
+                 <% } %>
             </div>
+        </div>
 
 
-            <div class="content clear well">
-                <div class="form-container">
+        <div class="content clear">
+            <div class="form-container">
 
-                    <form action="#" method="post" class="hold right_label" onsubmit="return false;">
-                        <fieldset>
-                            <input type="hidden" name="datasource_name" id="datasource_name"
-                                   value="<%= dsName%>"/>
-                            <input type="hidden" name="datasource_description" id="datasource_description"
-                                   value=""/>
-
-
-
-                            <div id="database_info_id">
-				<div class="input_row">
-                                    <label for="datasource_environment"><strong>Environment</strong> <em>*</em></label>
-                                    <select class="select_list half big" id="datasource_environment"
-                                            name="datasource_environment">
-                                        <option value="<%= currentStage%>"><%= currentStage%></option>
-                                    </select>
-                                </div>
+                <form action="#" method="post" class="hold right_label" onsubmit="return false;">
+                    <fieldset>
+                        <input type="hidden" name="datasource_name" id="datasource_name"
+                               value="<%= dsName%>"/>
+                        <input type="hidden" name="datasource_description" id="datasource_description"
+                               value=""/>
 
 
-                                <div class="input_row">
-                                 <div id="datasource_url_select_div">
-                                    <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
-                                        <select class="select_list full big datasource_url" id="datasource_url_select"
-                                                name="datasource_url_select">
-                                        </select>
-                                 </div>
-                                </div>
 
-                                <div class="input_row">
-                                    <label for="datasource_password"><strong>&nbsp;&nbsp;&nbsp;</strong></label>
-                                    <input type="text" id="datasource_url_text" class="full" style="display:none;"/>
-                                </div>
-
-                                <div class="input_row">
-                                    <label for="database_driver"><strong>Database Driver</strong> <em>*</em></label>
-                                    <select class="select_list half big" id="database_driver"
-                                            name="database_driver">
-                                        <option value="com.mysql.jdbc.Driver">mySql</option>
-                                        <!--option value="org.h2.Driver">H2</option-->
-                                    </select>
-                                </div>
-
-                                <div class="input_row">
-                                    <label for="datasource_username"><strong>Username</strong> <em>*</em></label>
-
-                                    <div id="datasource_username_div">
-                                        <select class="select_list half big" id="datasource_username_select"></select>
-                                    </div>
-                                    <div>
-                                        <label id="no_users_error" generated="true" class="error" style="display:none;">There
-                                            are no attached users for the selected Database. Please attach users to the
-                                            Database.</label>
-                                    </div>
-
-                                    <div>
-                                        <input type="text" style="display:none;" name="datasource_username_text"
-                                               id="datasource_username_text" class="half" value=""/>
-                                    </div>
-                                </div>
-
-                                <div class="input_row">
-                                    <label for="datasource_password"><strong>Password</strong> <em>*</em></label>
-                                    <input type="password" name="datasource_password" id="datasource_password"
-                                           class="half"/>
-                                </div>
-                                <div class="buttonrow">
-                                 <% if(hasDataSourceUpdatePermission){ %>
-                                        <input type='button' name='Submit' value='Update Datasource'
-                                               onclick="if(validateForm()){updateDataSource();}"
-                                               class='btn main'/>
-                                  <% } %>
-                                  <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
-                                  </div>
-                             </div>
-                            <hr/>
-                            <div class="controlset">
-                                <input type="hidden" id='applicationKey'
-                                       value='<%=request.getParameter("applicationKey")%>'/>
-                                <input type="hidden" name="stages" id='stages' value='<%=outputs.deploymentStages%>'/>
+                        <div id="database_info_id">
+			<div class="input_row">
+                                <label for="datasource_environment"><strong>Environment</strong> <em>*</em></label>
+                                <select class="select_list half big" id="datasource_environment"
+                                        name="datasource_environment">
+                                    <option value="<%= currentStage%>"><%= currentStage%></option>
+                                </select>
                             </div>
 
-                        </fieldset>
+
+                            <div class="input_row">
+                             <div id="datasource_url_select_div">
+                                <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
+                                    <select class="select_list full big datasource_url" id="datasource_url_select"
+                                            name="datasource_url_select">
+                                    </select>
+                             </div>
+                            </div>
+
+                            <div class="input_row">
+                                <label for="datasource_password"><strong>&nbsp;&nbsp;&nbsp;</strong></label>
+                                <input type="text" id="datasource_url_text" class="full" style="display:none;"/>
+                            </div>
+
+                            <div class="input_row">
+                                <label for="database_driver"><strong>Database Driver</strong> <em>*</em></label>
+                                <select class="select_list half big" id="database_driver"
+                                        name="database_driver">
+                                    <option value="com.mysql.jdbc.Driver">mySql</option>
+                                    <!--option value="org.h2.Driver">H2</option-->
+                                </select>
+                            </div>
+
+                            <div class="input_row">
+                                <label for="datasource_username"><strong>Username</strong> <em>*</em></label>
+
+                                <div id="datasource_username_div">
+                                    <select class="select_list half big" id="datasource_username_select"></select>
+                                </div>
+                                <div>
+                                    <label id="no_users_error" generated="true" class="error" style="display:none;">There
+                                        are no attached users for the selected Database. Please attach users to the
+                                        Database.</label>
+                                </div>
+
+                                <div>
+                                    <input type="text" style="display:none;" name="datasource_username_text"
+                                           id="datasource_username_text" class="half" value=""/>
+                                </div>
+                            </div>
+
+                            <div class="input_row">
+                                <label for="datasource_password"><strong>Password</strong> <em>*</em></label>
+                                <input type="password" name="datasource_password" id="datasource_password"
+                                       class="half"/>
+                            </div>
+                            <div class="buttonrow">
+                             <% if(hasDataSourceUpdatePermission){ %>
+                                    <input type='button' name='Submit' value='Update Datasource'
+                                           onclick="if(validateForm()){updateDataSource();}"
+                                           class='btn main'/>
+                              <% } %>
+                              <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
+                              </div>
+                         </div>
+                        <hr/>
+                        <div class="controlset">
+                            <input type="hidden" id='applicationKey'
+                                   value='<%=request.getParameter("applicationKey")%>'/>
+                            <input type="hidden" name="stages" id='stages' value='<%=outputs.deploymentStages%>'/>
+                        </div>
+
+                    </fieldset>
 
 
-                    </form>
+                </form>
 
-                </div>
             </div>
-        </section>
-        <div class="clearfix"></div>
-    </article>
-    </div><!-- /container -->
-
-
+        </div>
+    </section>
+    <div class="clearfix"></div>
+</article>
 <% }); %>

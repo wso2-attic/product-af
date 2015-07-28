@@ -448,8 +448,9 @@ function hideNotification() {
 
 %>
 <!-- BOF App factory menu actionbar -->
-<div class="action-bar">
    <% if (outputs.hasAppCreationPermission) { %>
+   <div class="action-bar">
+
 
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
                 <span class="fw-stack fw-lg btn-action-ico">
@@ -457,22 +458,22 @@ function hideNotification() {
                     <i class="fw fw-add fw-stack-1x"></i>
                 </span> <span class="hidden-xs">Add New Application</span>
         </a>
-       <% } %>
+
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
-                </span> <span class="hidden-xs">upload exsisting</span>
+                </span> <span class="hidden-xs">upload existing</span>
         </a>
-        <a href="#" class="btn-action">
-                <span class="fw-stack fw-lg btn-action-ico">
-                    <i class="fw fw-ring fw-stack-2x"></i>
-                    <i class="fw  fw-deploy fw-stack-1x"></i>
-                </span> <span class="hidden-xs">Deploy Sample Application</span>
-        </a>
+
+        <!--<a href="#" class="btn-action">-->
+                <!--<span class="fw-stack fw-lg btn-action-ico">-->
+                    <!--<i class="fw fw-ring fw-stack-2x"></i>-->
+                    <!--<i class="fw  fw-deploy fw-stack-1x"></i>-->
+                <!--</span> <span class="hidden-xs">Deploy Sample Application</span>-->
+        <!--</a>-->
     </div><!-- EOF App factory menu actionbar-->
-
-
+   <% } %>
     <div class="container-fluid">
         <div class="row row-centered">
             <div class="col-centered col-md-4 ">
@@ -506,7 +507,9 @@ function hideNotification() {
     </div><!-- EOF App factory menu -->
 
     <!-- BOF App factory menu actionbar -->
+        <% if (outputs.hasAppCreationPermission) { %>
     <div class="action-bar">
+
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
@@ -517,16 +520,17 @@ function hideNotification() {
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
-                </span> <span class="hidden-xs">upload exsisting</span>
+                </span> <span class="hidden-xs">upload existing</span>
         </a>
-        <a href="#" class="btn-action">
-                <span class="fw-stack fw-lg btn-action-ico">
-                    <i class="fw fw-ring fw-stack-2x"></i>
-                    <i class="fw  fw-deploy fw-stack-1x"></i>
-                </span> <span class="hidden-xs">Deploy Sample Application</span>
-        </a>
-    </div><!-- EOF App factory menu actionbar-->
 
+        <!--<a href="#" class="btn-action">-->
+                <!--<span class="fw-stack fw-lg btn-action-ico">-->
+                    <!--<i class="fw fw-ring fw-stack-2x"></i>-->
+                    <!--<i class="fw  fw-deploy fw-stack-1x"></i>-->
+                <!--</span> <span class="hidden-xs">Deploy Sample Application</span>-->
+        <!--</a>-->
+    </div><!-- EOF App factory menu actionbar-->
+      <% } %>
 
     <div class="container-fluid">
         <div class="row row-centered app-sort-bar">

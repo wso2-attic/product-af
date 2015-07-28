@@ -18,23 +18,42 @@
  */
 
 include("/jagg/jagg.jag");
+include('/jagg/constants.jag');
+
 var site = require("/site/conf/site.json");
 
 (function () {
-
+    var type = request.getParameter('type');
     jagg.render({
-        "name":"page/base",
+        "name":"page/master",
         "inputs":{
             "title":"WSO2 App Factory",
             "pagePath":"/site/pages/apptypeselection.jag",
             "body":[
                 {
-                    "name":"layout/base",
+                    "name":"layout/master",
                     "inputs":{
                         "title":"WSO2 App Factory",
                         "middle":[
                             {
                             	"name":"application/select"
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                                "name":"breadcrumb",
+                                "inputs":{
+                                    "noSidePane": true,
+                                    "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/apptypeselection.jag",
+                                            "displayName": "Project Type",
+                                            "params": {
+                                                "type":type
+                                            }
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }

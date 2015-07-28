@@ -60,6 +60,16 @@ body {
 .breadcrumb-secondary span {
     margin-left: 0.5em
 }
+
+.breadcrumb-secondary a, .version-url a{
+    cursor: pointer;
+    color:rgba(255,255,255,0.75);
+}
+.breadcrumb-secondary a:hover, .version-url a:hover{
+    color: #fff;
+    text-decoration: none;
+}
+
 .action-bar {
     background-color: #303030;
     min-height: 45px;
@@ -810,6 +820,10 @@ a.btn-action {
     padding: 18px;
     min-height: 26em;
 }
+
+.block-general a, .block-team a, .block-database a{
+    color:#fff;
+}
 .block-general h3,
 .block-team h3,
 .block-database h3 {
@@ -898,7 +912,13 @@ a.btn-action {
 }
 .block-life-cycle .block-action-button:hover {
     background-color: rgb(0, 95, 143);
+    color: rgba(255,255,255,0.75);
 }
+
+.block-issues .block-action-button:hover {
+    background-color: rgb(4, 97, 89);
+}
+
 .block-description-multiline {
     margin-left: 4em;
     font-size: 1.3em;
@@ -1252,4 +1272,13 @@ a.btn-action {
 .switch .toggle-button{
     position: absolute;
     margin-top: -8px;
+}
+
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: #CACACA ;
+}
+
+#app-version-url {
+    white-space: nowrap;
 }

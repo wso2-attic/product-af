@@ -47,7 +47,7 @@ var PROMOTE = "promote";
 var PROMOTED = "Promoted";
 var PROMOTED_STATUS_SUCCESS = "";
 
-
+var PLACE_HOLDER_APPNAME= "PH_APP_NAME";
 //appfactory.xml keys
 var SSO_NAME = "SSORelyingParty.Name";
 var SSO_PROVIDER = "SSORelyingParty.IdentityProviderURL";

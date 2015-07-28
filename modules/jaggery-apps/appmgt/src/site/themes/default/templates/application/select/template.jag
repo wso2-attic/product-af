@@ -33,18 +33,6 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
     var type = '<%=type%>';
 </script>
 <!--#############################################################-->
-    <!-- BOF App factory menu -->
-    <div class="navbar navbar-secondary">
-        <div class="container-fliud">
-            <div class="row">
-                <div class="col-md-12 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs"></i>
-                    <span class="hidden-xs">Application Cloud /</span>
-                    <span class="">Project Type</span>
-                </div>
-            </div>
-        </div>
-    </div><!-- EOF App factory menu -->
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
@@ -62,7 +50,6 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
         <div class="row listing " data-count="<%=outputs.applicationTypesHolder.length%>">
             <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
                 <% var appTypeBean = outputs.applicationTypesHolder[i].applicationTypeBean; %>
-                <% log.info("+++++++++++++++++++ : " + appTypeBean.displayName);%>
                     <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 ">
                     <div class="cloud-app-type <%=appTypeBean.getIconColorClass()%>" id="<%=i+1%>"
                      data-description="<%=appTypeBean.getDescription()%> "

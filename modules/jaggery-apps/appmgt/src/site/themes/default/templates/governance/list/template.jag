@@ -18,8 +18,8 @@
  */
 
 jagg.template("governance/list", function(inputs, outputs, jagg){%>
-<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
-<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
+<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
 <%
@@ -543,7 +543,7 @@ function drawVersionsList(newStage) {
             updateTabs();
         }
 
-        $("#governance_list_container").removeClass("hide").addClass("separator");
+        //$("#governance_list_container").removeClass("hide").addClass("separator");
     }, function (jqXHR, textStatus, errorThrown) {
         $("#loader").html("");
     });
@@ -919,11 +919,11 @@ function addETA(uiElement, version, stage) {
     var modifiedVersion = version.replace(/\./g, "_");
     $('input[type="text"], input[type="hidden"]', $(uiElement).parent().parent()).each(function (index, element) {
         if ($(this).attr('id') == "etaFrom_" + modifiedVersion) {
-            etaFrom = $(this).attr('value');
+            etaFrom = $(this).val();
         }
         if ($(this).attr('id') == "etaTo_" + modifiedVersion) {
 
-            etaTo = $(this).attr('value');
+            etaTo = $(this).val();
 
             //Adding date validation
             var currentDate = new Date();
@@ -1097,7 +1097,7 @@ function initDatePicker() {
 
 function initPops() {
 
-    $('.hide_button').live('click', function () {
+    $('.hide_button').on('click', function () {
         $(this).parents('.qtip').qtip("hide");
     });
     $('.js_demote_popover').each(function () {
@@ -1604,8 +1604,6 @@ function hideNotification() {
     }
     %>
     <input type="hidden" name="hasRetirePermission" id="hasRetirePermission" value="<%=outputs.hasRetirePermission%>"/>
-
-<div class="container">
     <article class="main">
         <%
     jagg.includeBlock("page/messages", null);
@@ -1633,16 +1631,11 @@ function hideNotification() {
             <div class="loader" id="loader_id" style="padding-left:40px;padding-top:40px;">
                 <span class="icon-spinner icon-spin icon-large spin-large"></span>
             </div>
-            <div class="content clear well" id="whereItAllGoes">
-                <div class="clearfix"></div>
-            </div>
         </section>
 
         <div class="clearfix"></div>
     </article>
 
-</div>
-<!-- /container -->
 
 <style>
     li.governance_option {

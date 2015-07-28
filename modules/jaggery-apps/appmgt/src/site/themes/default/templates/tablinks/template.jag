@@ -24,8 +24,6 @@ include("/jagg/constants.jag");
     var applicationName = inputs.applicationName;
     var pageName = inputs.pageName;
     %>
-
-<div class="inner-wrapper">
     <!-- left pane wrapper -->
     <div class="left-pane">
 

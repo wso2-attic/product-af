@@ -18,19 +18,20 @@
  */
 
 include("/jagg/jagg.jag");
+include('/jagg/constants.jag');
 var site = require("/site/conf/site.json");
  var applicationKey=request.getParameter("applicationKey");
  var applicationName = request.getParameter('applicationName');
 (function () {
 
     jagg.render({
-        "name":"page/base",
+        "name":"page/master",
         "inputs":{
             "title":"WSO2 App Factory",
             "pagePath":"/site/pages/issuetracker.jag",
             "body":[
                 {
-                    "name":"layout/base",
+                    "name":"layout/master",
                     "inputs":{
                         "title":"WSO2 App Factory",
                         "middle":[
@@ -45,9 +46,24 @@ var site = require("/site/conf/site.json");
                             {
                             	"name":"breadcrumb",
                                 "inputs":{
-                                    "applicationKey":applicationKey,
-                                    "applicationName":applicationName,
-                                    "pageName":"Track Issues"
+                                    "linkParams":[
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/issuetracker.jag",
+                                            "displayName": "Issues",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         ],

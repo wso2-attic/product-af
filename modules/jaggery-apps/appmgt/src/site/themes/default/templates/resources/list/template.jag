@@ -549,7 +549,6 @@ function setOverviewHelpTips(helpTips){
 <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 <input type="hidden" name="hasTenantAdminPermission" id="hasTenantAdminPermission" value="<%=hasTenantAdminPermission%>"/>
 
-<div class="container">
     <article class="main">
             <% jagg.includeBlock("page/messages", null); %>
             <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
@@ -672,7 +671,7 @@ function setOverviewHelpTips(helpTips){
             <div class="clearfix"></div>
             <hr />
             <section class="separator">
-                <div class="content clear">
+                <div class="content clear" style="padding-bottom: 15px;">
                 <h2 class="next_page"><a>User Realm Support <span class="icon-circle-arrow-right"></span></a></h2>
 
 			<div class="help-block"><span class="help-icon">?</span> <span id="userRealmHelp"></span></div>
@@ -685,6 +684,4 @@ function setOverviewHelpTips(helpTips){
     %>
        </article>
        <input type="hidden" name="userName"  id="loggeduserName" value='<%= jagg.getUser() %>'/>
-</div><!-- /container -->
-
 <% }); %>

@@ -238,82 +238,79 @@ function deleteConfirmation(name,rssInstanceName){
 }
 </script>
 
+<article class="main">
+	<header><div><% jagg.includeBlock("page/messages", null); %>
+     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+	 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
+		<div class="content">
+			<h1>Runtime Configs</h1>
+		</div>
+	</header>
+	<% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
+	<section class="separator">
+		<div class="page_nav">
+			<div class="content clear">
+				<ol class="breadcrumb left">
+					<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
+			    	<li class="breadcrumb_item"><h2> <%  if(isEdit!='true') {%>Create New DB User <%} else { %> <%=user%> <%}%></h2></li>
+			    </ol>
 
-<div class="container">
-	<article class="main">
-		<header><div><% jagg.includeBlock("page/messages", null); %>
-	     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-		 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
-			<div class="content">
-				<h1>Runtime Configs</h1>
+			    <%if(isEdit=='true') {%>
+			    	<% if(hasDataSourceDeletePermissionInCurrentStage){ %>
+				    	<div class="right btn_list_box" >
+				    		<ul class="inline_box inline_list btn_list">
+				    			<li class="breadcrumb_item" style="float: right; margin-top: -5px;">
+				    				<span class="icon-spinner icon-spin icon-large" id="deleteSpin" style="margin-right: 10px; display:none;"></span>
+				    				<a href="#" class="btn main" onclick="deleteUser('<%=user%>', '<%=environment%>' )" >Delete User</a>
+				    			</li>
+				    		</ul>
+				    	</div>
+			    	 <%}%>
+			    <%}%>
 			</div>
-		</header>
-		<% jagg.includeBlock("resources/menu", {page:'database_config',applicationName:applicationName,applicationKey:applicationKey}); %>
-		<section class="separator">
-			<div class="page_nav">
-				<div class="content clear">
-					<ol class="breadcrumb left">
-						<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
-				    	<li class="breadcrumb_item"><h2> <%  if(isEdit!='true') {%>Create New DB User <%} else { %> <%=user%> <%}%></h2></li>
-				    </ol>
+		</div> <!-- /page_nav -->
 
-				    <%if(isEdit=='true') {%>
-				    	<% if(hasDataSourceDeletePermissionInCurrentStage){ %>
-					    	<div class="right btn_list_box" >
-					    		<ul class="inline_box inline_list btn_list">
-					    			<li class="breadcrumb_item" style="float: right; margin-top: -5px;">
-					    				<span class="icon-spinner icon-spin icon-large" id="deleteSpin" style="margin-right: 10px; display:none;"></span>
-					    				<a href="#" class="btn main" onclick="deleteUser('<%=user%>', '<%=environment%>' )" >Delete User</a>
-					    			</li>
-					    		</ul>
-					    	</div>
-				    	 <%}%>
-				    <%}%>
-				</div>
-			</div> <!-- /page_nav -->
-
-			<div class="content clear well">
-				<div class="form-container">
-					<form action="#" method="post" class="hold right_label">
-						<fieldset>
+		<div class="content clear well">
+			<div class="form-container">
+				<form action="#" method="post" class="hold right_label">
+					<fieldset>
+						<div class="input_row">
+							<label for="Username"><strong>Username<em> *</em></strong></label>
+							<input type="text" id="Username" class="half" maxlength="5"/>
+						</div>
+						<%  if(isEdit!='true') {%>
 							<div class="input_row">
-								<label for="Username"><strong>Username<em> *</em></strong></label>
-								<input type="text" id="Username" class="half" maxlength="5"/>
+								<label for="Password"><strong>Password<em> *</em></strong> </label>
+								<input type="password" id="Password" class="half" maxlength="15"/>
 							</div>
+
+							<div class="input_row">
+								<label for="repeatPassword"><strong>Repeat Password <em> *</em></strong> </label>
+								<input type="password" id="repeatPassword" class="half" maxlength="15"/>
+							</div>
+						<%}%>
+
+						<input type="hidden" id='applicationKey' value='<%=applicationKey%>' />
+						<div class="input_row">
+							<label for="rssInstances"><strong>Database Environment <em> *</em></strong> </label>
+							<select id='rssInstances' class="select_list half big"></select>
+						</div>
+
+					</fieldset>
+
+
+						<div class="buttonrow">
 							<%  if(isEdit!='true') {%>
-								<div class="input_row">
-									<label for="Password"><strong>Password<em> *</em></strong> </label>
-									<input type="password" id="Password" class="half" maxlength="15"/>
-								</div>
-
-								<div class="input_row">
-									<label for="repeatPassword"><strong>Repeat Password <em> *</em></strong> </label>
-									<input type="password" id="repeatPassword" class="half" maxlength="15"/>
-								</div>
+							<input type='button' name='Submit' value='Create DB User' onclick="if(validateForm()){createDatabaseUser(this);}" class='btn main'/>
 							<%}%>
+							<a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
+							<span id="saveSpin" class="icon-spinner icon-spin icon-large" style="margin-left: 10px; display:none;"></span>
+						</div>
 
-							<input type="hidden" id='applicationKey' value='<%=applicationKey%>' />
-							<div class="input_row">
-								<label for="rssInstances"><strong>Database Environment <em> *</em></strong> </label>
-								<select id='rssInstances' class="select_list half big"></select>
-							</div>
-
-						</fieldset>
-
-
-							<div class="buttonrow">
-								<%  if(isEdit!='true') {%>
-								<input type='button' name='Submit' value='Create DB User' onclick="if(validateForm()){createDatabaseUser(this);}" class='btn main'/>
-								<%}%>
-								<a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
-								<span id="saveSpin" class="icon-spinner icon-spin icon-large" style="margin-left: 10px; display:none;"></span>
-							</div>
-
-					</form>
-				</div>
-			</div><!-- /content clear well -->
-		</section>
-		<div class="clearfix"></div>
-		</article><!-- /main -->
-	</div><!-- /container -->
+				</form>
+			</div>
+		</div><!-- /content clear well -->
+	</section>
+	<div class="clearfix"></div>
+	</article><!-- /main -->
 <% }); %>

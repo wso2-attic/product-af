@@ -55,7 +55,7 @@
             <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
         </UserStoreManager>
 -->
-<UserStoreManager class="<%= @usrmgt_class %>">
+<UserStoreManager class="org.wso2.carbon.appfactory.userstore.AppFactoryCustomUserStoreManager">
     <Property name="TenantManager"><%= @tenant_manager_class %></Property>
     <Property name="ConnectionURL">ldap://ldap.<%= @wso2_env_domain %>:10389</Property>
     <Property name="ConnectionName"><%= @usrmgt_connectionname %></Property>

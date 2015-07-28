@@ -103,6 +103,25 @@ public class Utils {
                         + "Please check if you provided a valid Login and Password.");
             }
 
+	        if (responseCode == HttpStatus.SC_NOT_FOUND) {
+		        HttpEntity responseEntity = response.getEntity();
+		        String responseBody = EntityUtils.toString(responseEntity);
+		        if (log.isDebugEnabled()) {
+			        log.debug("Response body of when the response code is 404 : " + responseBody);
+		        }
+
+		        JsonObject jsonBody = getJsonObject(responseBody);
+
+		        // When we load Runtime Config Overview page, for the first time (before we click on Go to API Manager button),
+		        // there's no application has been created in APIM side. So, APIM 1.9.0 throws an exception as application does not exist.
+		        if (jsonBody.getAsJsonObject("subscriptionCallbackResponse") != null) {
+			        JsonObject subscriptionCallbackResponse = jsonBody.getAsJsonObject("subscriptionCallbackResponse");
+			        if (subscriptionCallbackResponse.get("message").getAsString().contains("does not exist")) {
+				        return null;
+			        }
+		        }
+	        }
+
             if (responseCode != HttpStatus.SC_OK) {
                 throw new Exception("Error in invoking path "
                         + ". Return status is " + responseCode);

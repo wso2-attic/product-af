@@ -39,7 +39,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
             $('#table').html('<div class="row-fluid"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/processing.gif"))%>" id="processIndicator" style="width:16px;height:16px;"/></div></div>');
             jagg.post("../blocks/resources/database/add/ajax/add.jag", {
                 action:"getDatabases",
-                applicationKey:$("#applicationKey").attr('value')
+                applicationKey:$("#applicationKey").val()
             }, function (result) {
 
                 if (result != undefined) {
@@ -83,7 +83,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"getCreatableRSSinstances",
-            applicationKey:$("#applicationKey").attr('value')
+            applicationKey:$("#applicationKey").val()
         }, function (result) {
             if(result != undefined){
 
@@ -133,7 +133,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
             action:"dropDatabase",
-            applicationKey:$("#applicationKey").attr('value'),
+            applicationKey:$("#applicationKey").val(),
             databaseName:name,
             rssInstanceName:rssInstanceName
 
@@ -173,7 +173,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
     }
 
     function showCreateDSCheckBox(){
-        var databaseEnvironment = $("#rssInstances").attr('value');
+        var databaseEnvironment = $("#rssInstances").val();
         //TODO: remove the hardcoded name
         if(databaseEnvironment == 'Development'){
             if($('#addDatasourceCheckBox').is(':disabled')){
@@ -189,8 +189,8 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
     jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
                     action:"getDatabaseUsersForRssInstance",
-                    applicationKey:$("#applicationKey").attr('value'),
-                    rssInstance:$("#rssInstances").attr('value')
+                    applicationKey:$("#applicationKey").val(),
+                    rssInstance:$("#rssInstances").val()
             }, function (result) {
                  $("#js_db_user").html('');
                  $("#js_db_user").append('<option value="choose_user">Choose User</option>');
@@ -217,7 +217,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                         return;
                      }
 
-                     $("#js_db_user").live("change", "select2-selecting", function(e) {
+                     $("#js_db_user").on("change", "select2-selecting", function(e) {
                             if((e.val == 'create_new_user') && $(this).next(".extra_fields_box").css("display") == "none"){
                                 $(this).next(".extra_fields_box").slideToggle(250);
                             } else {
@@ -240,8 +240,8 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
         function loadTemplatesForSelectedStage(selectionValue){
             jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
             action:"getAvailableTemplatesToAttachToDatabase",
-            applicationKey:$("#applicationKey").attr('value'),
-            rssInstance:$("#rssInstances").attr('value')
+            applicationKey:$("#applicationKey").val(),
+            rssInstance:$("#rssInstances").val()
         }, function (result) {
                 $("#js_db_template").html('');
                 $("#js_db_template").append('<option value="choose_template">Choose Template</option>');
@@ -268,7 +268,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                     return;
                 }
 
-                $("#js_db_template").live("change", "select2-selecting", function(e) {
+                $("#js_db_template").on("change", "select2-selecting", function(e) {
                 if((e.val == 'create_new_template') && $(this).next(".extra_fields_box").css("display") == "none"){
                     $(this).next(".extra_fields_box").slideToggle(250);
                 } else {
@@ -300,14 +300,14 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
         $(btn).attr('disabled','disabled');
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
                     action:"createDatabaseAndAttachUser",
-                    applicationKey:$("#applicationKey").attr('value'),
-                    databaseName:$("#databaseName").attr('value').trim(),
+                    applicationKey:$("#applicationKey").val(),
+                    databaseName:$("#databaseName").val().trim(),
                     databaseServerInstanceName:$('#rssInstances').val(),
                    // isBasic:$('#extra_fieldset_id').attr('data-hidden'),
 		   			isBasic:isBasicDbCreation,
-                    customPassword:$('#databaseUserPassword').attr('value').trim(),
-                    userName:$("#js_db_user").attr('value'),
-                    templateName:$("#js_db_template").attr('value'),
+                    customPassword:$('#databaseUserPassword').val().trim(),
+                    userName:$("#js_db_user").val(),
+                    templateName:$("#js_db_template").val(),
                     copyToAll:$('#copyToAll').is(':checked'),
                     createDatasource:createDatasource,
                     databaseDescription:$("#database_description").val().trim()
@@ -346,8 +346,8 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
      		jagg.post("../blocks/resources/database/add/ajax/add.jag", {
                     action:"createDatabase",
-                    applicationKey:$("#applicationKey").attr('value'),
-                    databaseName:$("#databaseName").attr('value'),
+                    applicationKey:$("#applicationKey").val(),
+                    databaseName:$("#databaseName").val(),
                     databaseServerInstanceName:$('#rssInstances').val()
                 },
                 function (result) {
@@ -355,11 +355,11 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 	                if(result=='success'){
 	                	jagg.post("../blocks/resources/database/add/ajax/add.jag", {
 	                		action:" ",
-	                		applicationKey:$("#applicationKey").attr('value'),
-	                		dbServerInstanceName:$("#rssInstances").attr('value'),
-	                		databaseName:$("#databaseName").attr('value'),
-	                		users :$("#js_db_user").attr('value'),
-	                		templates :$("#js_db_template").attr('value')
+	                		applicationKey:$("#applicationKey").val(),
+	                		dbServerInstanceName:$("#rssInstances").val(),
+	                		databaseName:$("#databaseName").val(),
+	                		users :$("#js_db_user").val(),
+	                		templates :$("#js_db_template").val()
 	                	},
 	                	function (result) {
 	                		if(result=='success'){
@@ -403,7 +403,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
             validation=false;
         }
 
-        var rssInstance = $("#rssInstances").attr('value');
+        var rssInstance = $("#rssInstances").val();
 
         if(rssInstance == ""){
             validation = false;
@@ -416,7 +416,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
     function checkUserName() {
         var validation = true;
 
-        var username = $("#db_username").attr('value').trim();
+        var username = $("#db_username").val().trim();
 
         if (username == "" || username.length == 0) {
             jagg.message({content:'Username cannot be empty!',type:'error', id:'databasecreation' });
@@ -434,7 +434,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
     function validatePwdPattern(pwdId){
     	var validation = true;
-    	var password = $("#"+pwdId).attr('value').trim();
+    	var password = $("#"+pwdId).val().trim();
     	if (password == "" || password.length == 0) {
             jagg.message({content:'Password cannot be empty!',type:'error', id:'databasecreation' });
             validation=false;
@@ -449,7 +449,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
     function validatePassword() {
     	var repeatPassword = $("#new_user_repeat_password").val().trim();
-    	var password = $("#new_user_password").attr('value').trim();
+    	var password = $("#new_user_password").val().trim();
     	var validation = validatePwdPattern("new_user_password");
 
     	if (validation && password != repeatPassword) {
@@ -478,14 +478,14 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
         jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {		// call backend
             action:"createDatabaseUser",
             applicationKey:$("#applicationKey").val(),
-            password:$("#new_user_password").attr('value').trim(),
-            rssInstance:$("#rssInstances").attr('value'),
-            username:$("#db_username").attr('value').trim()
+            password:$("#new_user_password").val().trim(),
+            rssInstance:$("#rssInstances").val(),
+            username:$("#db_username").val().trim()
         },function (result) {
 
         	var result = $.trim(result);
         	if(result=='success') {
-        		loadUsersForSelectedStage($("#db_username").attr('value'));
+        		loadUsersForSelectedStage($("#db_username").val());
                 $('#js_db_user').next().hide();
             }
 
@@ -500,7 +500,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
      function validateTemplate(){
 	    jagg.removeMessage();
-        var templateName = $("#template_name").attr('value').trim();
+        var templateName = $("#template_name").val().trim();
         var validation = false;
         if(templateName == "" || templateName.length == 0){
             jagg.message({content:'Template name cannot be empty!',type:'error', id:'databasecreation' });
@@ -551,7 +551,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
      jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
                                     action:"createTemplate",
-                                    applicationKey:$("#applicationKey").attr('value'),
+                                    applicationKey:$("#applicationKey").val(),
                                     templateName:templateName,
                                     environment:environment,
                                     alterPriv:alterPriv.checked,
@@ -618,7 +618,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"getAttachedUsers",
-            applicationKey:$("#applicationKey").attr('value'),
+            applicationKey:$("#applicationKey").val(),
             dbname:name,
             rssInstance:rssInstanceName
         }, function (result) {
@@ -658,7 +658,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
             action:"getAvailableTemplatesToAttachToDatabase",
-            applicationKey:$("#applicationKey").attr('value'),
+            applicationKey:$("#applicationKey").val(),
             rssInstance:rssInstanceName
         }, function (result) {
             if(result != undefined){
@@ -680,9 +680,9 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
             action:"getAvailableUsersToAttachToDatabase",
-            applicationKey:$("#applicationKey").attr('value'),
-            dbServerInstanceName:$("#newDatabaseServerInstanceName").attr('value'),
-            databaseName:$("#newDatabaseName").attr('value')
+            applicationKey:$("#applicationKey").val(),
+            dbServerInstanceName:$("#newDatabaseServerInstanceName").val(),
+            databaseName:$("#newDatabaseName").val()
         }, function (result) {
             if(result != undefined){
                 var parsedArray = jQuery.parseJSON(result);
@@ -706,11 +706,11 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
     function attachNewUser(){
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"attachNewUser",
-            applicationKey:$("#applicationKey").attr('value'),
-            dbServerInstanceName:$("#newDatabaseServerInstanceName").attr('value'),
-            databaseName:$("#newDatabaseName").attr('value'),
-            users :$("#users").attr('value'),
-            templates :$("#templates").attr('value')
+            applicationKey:$("#applicationKey").val(),
+            dbServerInstanceName:$("#newDatabaseServerInstanceName").val(),
+            databaseName:$("#newDatabaseName").val(),
+            users :$("#users").val(),
+            templates :$("#templates").val()
 
         },
         function (result) {
@@ -727,7 +727,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"detachUser",
-            applicationKey:$("#applicationKey").attr('value'),
+            applicationKey:$("#applicationKey").val(),
             dbServerInstanceName:rssInstanceName,
             databaseName:name,
             username :username
@@ -761,7 +761,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"getUserPrivileges",
-            applicationKey:$("#applicationKey").attr('value'),
+            applicationKey:$("#applicationKey").val(),
             dbname:dbname,
             rssInstanceName:rssInstanceName,
             username:username
@@ -836,11 +836,11 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"editUserPermissions",
-            applicationKey:$("#applicationKey").attr('value'),
+            applicationKey:$("#applicationKey").val(),
             databaseName:inheriteddatabaseName,
             rssInstanceName:inheritedrssInstanceName,
             username:inheritedusername,
-            password:$("#userpassword").attr('value'),
+            password:$("#userpassword").val(),
             alterPriv:alterPriv.checked,
             alterRoutinePriv:alterRoutinePriv.checked,
             createPriv:createPriv.checked,
@@ -920,19 +920,19 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
         }
 
         if($("#advancecheckbox").is(':checked')){
-        	var rssInstance = $("#rssInstances").attr('value');
+        	var rssInstance = $("#rssInstances").val();
         	if(rssInstance == ''){
         		validation = false;
         		jagg.message({content:'Database Environment cannot be empty!',type:'error', id:'databasecreation'  });
         	}
 
-        	var user = $("#js_db_user").attr('value');
+        	var user = $("#js_db_user").val();
         	if(user=="create_new_user" || user=="choose_user"){
         		validation = false;
         		jagg.message({content:'Select valid User!',type:'error', id:'databasecreation'  });
         	}
 
-        	var template = $("#js_db_template").attr('value');
+        	var template = $("#js_db_template").val();
         	if(template=="create_new_template" || template=="choose_template"){
         		validation = false;
         		jagg.message({content:'Select valid Permission Template!',type:'error', id:'databasecreation'  });
@@ -994,7 +994,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 //             event.preventDefault();
 //         });
 
-        $("#js_permission_template").live("change", "select2-selecting", function(e) {
+        $("#js_permission_template").on("change", "select2-selecting", function(e) {
             if(e.val == 'create_new_template' && $(this).parent().next(".additional_fields_box").css("display") == "none"){
                 $(this).parent().next(".additional_fields_box").slideToggle(250);
             } else {
@@ -1054,188 +1054,179 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
     });
     </script>
+<article class="main">
+    <!-- following div can be removed after new ux-->
+    <div style="height: 80px; "></div>
+    <!-- -->
+    <header class="separator">
+        <div>
+            <% jagg.includeBlock("page/messages", null); %>
+            <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+            <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+        </div>
+        <div class="content">
+            <h1>Databases</h1>
+         </div>
+    </header>
+    <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+    <section class="separator">
+        <div class="content clear">
+            <div class="form-container">
 
-        <div class="container">
-                    <article class="main">
-                            <header class="separator">
-                                <div>
-                                    <% jagg.includeBlock("page/messages", null); %>
-				                    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                                    <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-                                </div>
-                                <div class="content">
-                                    <h1>Databases</h1>
-                                 </div>
-                            </header>
-                            <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
-                            <section class="separator">
-                                <div class="page_nav">
-                                    <div class="content clear">
-                                        <ol class="breadcrumb">
-						<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
-                                                <li class="breadcrumb_item"><h2>Create New Database</h2></li>
-                                        </ol>
-                                     </div>
-                                </div>
-                                <div class="content clear well">
-                                    <div class="form-container">
+                <form id='displayPage'  method='post'  class="hold right_label">
+                  <fieldset>
+                        <div class="input_row">
+                            <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
+                            <input type="text" id='databaseName' maxlength="5"/>
+                        </div>
+                        <div class="input_row" id="db_env_div">
+                            <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
+                            <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
+                        </div>
+                        <%if((isEdit=="false")&&(AllowedAllStages)){%>
+                        <div class="input_row">
+                            <legend id="copyall">
+                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
+                            </legend>
+                        </div>
+						<%}%>
+                        <div class="input_row">
+                            <label for="database_description"><strong>Description</strong></label>
+                            <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
+                        </div>
+                        <div id="password_section">
+                        <div class="input_row">
+                            <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
+                            <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
+                        </div>
 
-                                        <form id='displayPage'  method='post'  class="hold right_label">
-                                          <fieldset>
-                                                <div class="input_row">
-                                                    <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
-                                                    <input type="text" id='databaseName' maxlength="5"/>
+                        <div class="input_row">
+                            <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
+                            <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
+                        </div>
+                        </div>
+                   </fieldset>
+
+                   					    <fieldset class="push_top_10">
+
+	<legend id="js_extra_fieldset_on" data-down="hidden">
+
+		<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
+	 </legend>
+	<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
+
+                            <div class="extra_fieldset hide">
+                                <div class="input_row">
+                                    <label for="db_user" ><strong>User</strong> <em>*</em></label>
+                                    <select class="select_list half big" id="js_db_user" name="db_user"></select>
+
+                                    <div class="extra_fields_box hide" >
+                                        <div class="extra_fields">
+
+                                            <div class="extra_field_row">
+                                                <div class="pw_50">
+                                                <label for="db_username"><strong>Username:</strong></label>
+                                                <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
                                                 </div>
-                                                <div class="input_row" id="db_env_div">
-                                                    <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
-                                                    <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
-                                                </div>
-                                                <%if((isEdit=="false")&&(AllowedAllStages)){%>
-                                                <div class="input_row">
-					                                <legend id="copyall">
-						                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
-						                            </legend>
-						                        </div>
-                        						<%}%>
-                                                <div class="input_row">
-                                                    <label for="database_description"><strong>Description</strong></label>
-                                                    <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
-                                                </div>
-                                                <div id="password_section">
-                                                <div class="input_row">
-                                                    <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
-                                                    <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
-                                                </div>
-
-                                                <div class="input_row">
-	                                                <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
-	                                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
-                                                </div>
-                                                </div>
-                                           </fieldset>
-
-                                       					    <fieldset class="push_top_10">
-
-						<legend id="js_extra_fieldset_on" data-down="hidden">
-
- 						<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
- 					 </legend>
-						<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
-
-                                                <div class="extra_fieldset hide">
-                                                    <div class="input_row">
-                                                        <label for="db_user" ><strong>User</strong> <em>*</em></label>
-                                                        <select class="select_list half big" id="js_db_user" name="db_user"></select>
-
-                                                        <div class="extra_fields_box hide" >
-                                                            <div class="extra_fields">
-
-                                                                <div class="extra_field_row">
-                                                                    <div class="pw_50">
-                                                                    <label for="db_username"><strong>Username:</strong></label>
-                                                                    <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="extra_field_row">
-                                                                    <div class="left pw_50">
-                                                                        <label for="new_user_password"><strong>Password:</strong></label>
-                                                                        <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
-                                                                    </div>
-                                                                    <div class="right pw_50">
-                                                                        <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
-                                                                        <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
-                                                                    </div>
-                                                                    <div class="clearfix"></div>
-                                                                </div>
-                                                                <div class="extra_field_row last" style="padding-top:20px;">
-                                                                    <div class="pw_100">
-                                                                    <label for="permission_template"></label>
-                                                                    <!--button class="btn main" onclick="if(validateUser()){createDatabaseUser();}">Create DB User</button-->
-                                                                    <input type='button' name='Submit' value='Create DB User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
-                                                                    <a class="js_cancel_user">Cancel</a>
-                                                                    </div>
-
-                                                                </div>
-                                                                <div class="clearfix"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="input_row">
-                                                        <label for="db_template" ><strong>Permission Template</strong> <em>*</em></label>
-                                                        <select id='js_db_template' class="select_list half big" name="db_template">
-                                                        </select>
-                                                         <div class="extra_fields_box hide" >
-                                                            <div class="extra_fields">
-
-                                                                <div class="extra_field_row">
-                                                                    <div class="pw_50">
-                                                                    <label for="template_name"><strong>Template Name:</strong></label>
-                                                                    <input type="text" name="template_name" id="template_name" class="half" maxlength="10"/>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="extra_field_row">
-                                                                <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions </label></h2><br/><br/>
-
-                                                                <fieldset id="checkArray">
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='updatePriv' checked="checked" /> UPDATE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='deletePriv' checked="checked" /> DELETE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createPriv' checked="checked" /> CREATE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='dropPriv' checked="checked" /> DROP</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='grantPriv' checked="checked" /> GRANT</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='referencesPriv' checked="checked" /> REFERENCES</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='indexPriv' checked="checked" /> INDEX</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='alterPriv' checked="checked" /> ALTER</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createTmpTablePriv' checked="checked" /> CREATE_TEMP_TABLE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='lockTablesPriv' checked="checked" /> LOCK_TABLES</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createViewPriv' checked="checked" /> CREATE_VIEW</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='showViewPriv' checked="checked" /> SHOW_VIEW</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='createRoutinePriv' checked="checked" /> CREATE_ROUTINE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='alterRoutinePriv' checked="checked" /> ALTER_ROUTINE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='executePriv' checked="checked" /> EXECUTE</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='eventPriv' checked="checked" /> EVENT</label></br>
-                                                                    <label style="width:100%"><input type="checkbox" name="permission[]" id='triggerPriv' checked="checked" /> TRIGGER</label></br>
-                                                                </fieldset>
-                                                                </div>
-                                                                <div class="extra_field_row last" style="padding-top:20px;">
-                                                                    <div class="pw_100">
-                                                                    <label for="permission_template"></label>
-                                                                    <!--button class="btn main" onclick="if(validateTemplate()){createTemplate();}"  >Save</button-->
-                                                                      <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate();}" class='btn main'/>
-                                                                    <a class="js_cancel_template">Cancel</a>
-                                                                    </div>
-
-                                                                </div>
-                                                                <div class="clearfix"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!--<div class="input_row">
-                                                    <legend>
-                                                    <input type="checkbox" disabled align="left" id="addDatasourceCheckBox"> Add Datasource
-                                                    </legend>
-                                                    </div>-->
-                                                </div>
-                                           </fieldset>
-
-                                            <div class="buttonrow">
-
-
-
-						<input type='button' name='Submit' value="Create Database" class="btn main" onclick="if(validateForm()){createDatabase(this);}"
-                                                       class='btn btn-primary'/>
-                                               <a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
                                             </div>
+                                            <div class="extra_field_row">
+                                                <div class="left pw_50">
+                                                    <label for="new_user_password"><strong>Password:</strong></label>
+                                                    <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
+                                                </div>
+                                                <div class="right pw_50">
+                                                    <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
+                                                    <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="extra_field_row last" style="padding-top:20px;">
+                                                <div class="pw_100">
+                                                <label for="permission_template"></label>
+                                                <!--button class="btn main" onclick="if(validateUser()){createDatabaseUser();}">Create DB User</button-->
+                                                <input type='button' name='Submit' value='Create DB User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
+                                                <a class="js_cancel_user">Cancel</a>
+                                                </div>
 
-                                         </form>
-
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </section>
-                            <div class="clearfix"></div>
-                     </article>
-                </div><!-- /container -->
+                                <div class="input_row">
+                                    <label for="db_template" ><strong>Permission Template</strong> <em>*</em></label>
+                                    <select id='js_db_template' class="select_list half big" name="db_template">
+                                    </select>
+                                     <div class="extra_fields_box hide" >
+                                        <div class="extra_fields">
 
+                                            <div class="extra_field_row">
+                                                <div class="pw_50">
+                                                <label for="template_name"><strong>Template Name:</strong></label>
+                                                <input type="text" name="template_name" id="template_name" class="half" maxlength="10"/>
+                                                </div>
+                                            </div>
+                                            <div class="extra_field_row">
+                                            <h2 class="next_page"><label><input type="checkbox" name="selectAll" id="selectAll" checked="checked" onclick="selectAllOptions()"> Select All Permissions </label></h2><br/><br/>
+
+                                            <fieldset id="checkArray">
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='selectPriv' checked="checked" /> SELECT</label><br />
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='insertPriv' checked="checked" /> INSERT</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='updatePriv' checked="checked" /> UPDATE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='deletePriv' checked="checked" /> DELETE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createPriv' checked="checked" /> CREATE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='dropPriv' checked="checked" /> DROP</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='grantPriv' checked="checked" /> GRANT</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='referencesPriv' checked="checked" /> REFERENCES</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='indexPriv' checked="checked" /> INDEX</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='alterPriv' checked="checked" /> ALTER</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createTmpTablePriv' checked="checked" /> CREATE_TEMP_TABLE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='lockTablesPriv' checked="checked" /> LOCK_TABLES</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createViewPriv' checked="checked" /> CREATE_VIEW</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='showViewPriv' checked="checked" /> SHOW_VIEW</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='createRoutinePriv' checked="checked" /> CREATE_ROUTINE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='alterRoutinePriv' checked="checked" /> ALTER_ROUTINE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='executePriv' checked="checked" /> EXECUTE</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='eventPriv' checked="checked" /> EVENT</label></br>
+                                                <label style="width:100%"><input type="checkbox" name="permission[]" id='triggerPriv' checked="checked" /> TRIGGER</label></br>
+                                            </fieldset>
+                                            </div>
+                                            <div class="extra_field_row last" style="padding-top:20px;">
+                                                <div class="pw_100">
+                                                <label for="permission_template"></label>
+                                                <!--button class="btn main" onclick="if(validateTemplate()){createTemplate();}"  >Save</button-->
+                                                  <input type='button' name='Submit' value='Create Template' onclick="if(validateTemplate()){createTemplate();}" class='btn main'/>
+                                                <a class="js_cancel_template">Cancel</a>
+                                                </div>
+
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--<div class="input_row">
+                                <legend>
+                                <input type="checkbox" disabled align="left" id="addDatasourceCheckBox"> Add Datasource
+                                </legend>
+                                </div>-->
+                            </div>
+                       </fieldset>
+
+                        <div class="buttonrow">
+
+
+
+	<input type='button' name='Submit' value="Create Database" class="btn main" onclick="if(validateForm()){createDatabase(this);}"
+                                   class='btn btn-primary'/>
+                           <a href="#" onclick="return callPreviousPage();" style="text-decoration: none;">Cancel</a>
+                        </div>
+
+                     </form>
+
+                </div>
+            </div>
+        </section>
+        <div class="clearfix"></div>
+ </article>
         <%
 }); %>

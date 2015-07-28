@@ -47,7 +47,25 @@ var applicationName = request.getParameter('applicationName');
                                 "inputs":{
                                     "applicationKey":applicationKey,
                                     "applicationName":applicationName,
-                                    "pageName":"Configure Databases"
+                                    "pageName":"Configure Databases",
+                                    "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/databases.jag",
+                                            "displayName": "Databases",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         ],

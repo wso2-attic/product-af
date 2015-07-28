@@ -344,105 +344,95 @@ isEdit = request.getParameter("isEdit");
     });
     //]]
 </script>
+<article class="main">
+    <!-- following div can be removed after new ux-->
+    <div style="height: 80px; "></div>
+    <!-- -->
+    <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
+     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+     <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
+    	<div class="content">
+            <h1>Runtime Configs</h1>
+         </div>
+    </header>
+    <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
+    <% jagg.includeBlock("page/help", {"section": "resources-datasources"}); %>
+    <section class="separator">        
+        <div class="content clear">
+        	<div class="form-container">
 
-
-<div class="container">
-				<article class="main">
-                        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
-                         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
-                        	<div class="content">
-                                <h1>Runtime Configs</h1>
-                             </div>
-                        </header>
-                        <% jagg.includeBlock("resources/menu", {page:'datasources',applicationName:applicationName,applicationKey:applicationKey}); %>
-                        <section class="separator">
-                            <div class="page_nav">
-                                <div class="content clear">
-                                    <ol class="breadcrumb">
-                                            <li class="breadcrumb_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="breadcrumb_link">Datasources</a></li>
-                                            <li class="breadcrumb_item"><h2>Create New Datasource</h2></li>
-                                    </ol>
-                                 </div>
+                <form action="#" method="post" class="hold right_label" onsubmit="return false;">
+                  <fieldset>
+                        <div class="input_row">
+                            <label for="datasource_name"><strong>Datasource Name</strong> <em>*</em></label>
+                            <input type="text" name="datasource_name" id="datasource_name" class="half" />
+                        </div>
+                        <div class="input_row">
+                            <label for="datasource_description"><strong>Description</strong></label>
+                            <textarea name="datasource_description" id="datasource_description" rows="5" class="full"></textarea>
+                        </div>
+                        <div class="input_row">
+                        	<label for="database_driver"><strong>Database Driver</strong> <em>*</em></label>
+                            <select class="select_list half big" id="database_driver" name="database_driver" onchange="fillUrlTemplate(this.value,'#datasource_url_text_value')">
+                            	<option value="com.mysql.jdbc.Driver">mySql</option>
+                            	<!--option value="org.h2.Driver">H2</option-->
+                            </select>
+                        </div>
+                        <div class="input_row">
+                                <label for="rssInstance" ><strong>Datasource Environment</strong> <em>*</em></label>
+                                <select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
+                                <div>
+                            	<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
                             </div>
-                            <div class="content clear well">
-                            	<div class="form-container">
-
-                                    <form action="#" method="post" class="hold right_label" onsubmit="return false;">
-                                      <fieldset>
-                                            <div class="input_row">
-                                                <label for="datasource_name"><strong>Datasource Name</strong> <em>*</em></label>
-                                                <input type="text" name="datasource_name" id="datasource_name" class="half" />
-                                            </div>
-                                            <div class="input_row">
-                                                <label for="datasource_description"><strong>Description</strong></label>
-                                                <textarea name="datasource_description" id="datasource_description" rows="5" class="full"></textarea>
-                                            </div>
-                                            <div class="input_row">
-                                            	<label for="database_driver"><strong>Database Driver</strong> <em>*</em></label>
-                                                <select class="select_list half big" id="database_driver" name="database_driver" onchange="fillUrlTemplate(this.value,'#datasource_url_text_value')">
-                                                	<option value="com.mysql.jdbc.Driver">mySql</option>
-                                                	<!--option value="org.h2.Driver">H2</option-->
-                                                </select>
-                                            </div>
-                                            <div class="input_row">
-                                                    <label for="rssInstance" ><strong>Datasource Environment</strong> <em>*</em></label>
-                                                    <select id='rssInstances' class="select_list half big" name="rssInstance" onChange="environmentSelected(this.value)"></select>
-                                                    <div>
-                                                	<input type="text" name="rssInstance" id="rssInstance" class="half"  style="display:none;"/>
-                                                </div>
-                                                </div>
-                                            <div class="input_row">
-                                                <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
-                                                	<div>
-	                                                	<select class="select_list full big datasource_url" id="datasource_url_select" name="datasource_url_select">
-	                                                    </select>
-
-	                                                </div>
-                                             </div>
-                                             <div class="input_row" id="datasource_url_text" style="display:none;">
-                                             <label for="datasource_password"><strong>&nbsp;&nbsp;&nbsp;</strong></label>
-                                             <input type="text" class="full" id="datasource_url_text_value" name="datasource_url_text_value"/>
-                                             </div>
-                                            <div class="input_row">
-                                            	<label for="datasource_username"><strong>Username</strong> <em>*</em></label>
-                                                	<div id="datasource_username_div">
-                                                    	<select class="select_list half big" id="datasource_username_select" onchange="userSelected(this.value)"></select>
-                                                    </div>
-                                                    <div>
-                                                        <label id="no_users_error" generated="true" class="error" style="display:none;">There are no attached users for the selected Database. Please attach users to the Database.</label>
-                                                    </div>
-
-                                                <div>
-                                                	<input type="text" name="datasource_username_text" id="datasource_username_text" class="half"  style="display:none;"/>
-                                                </div>
-                                            </div>
-                                            <div class="input_row">
-                                                <label for="datasource_password"><strong>Password</strong> <em>*</em></label>
-                                                <input type="password" name="datasource_password" id="datasource_password" class="half" maxlength="15"/>
-                                            </div>
-
-
-                                            <div class="controlset">
-                                                <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
-                                                <input type="hidden" name="stages" id='stages' value='<%=outputs.deploymentStages%>' />
-                                            </div>
-                                        </fieldset>
-
-                                         <div class="buttonrow">
-                                         	 <input type='submit' name='Submit' value='Create Datasource' onclick="if(validateForm()){createDatasource(this);}" class='btn main'/>
-                                         	 <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
-                                        </div>
-
-
-                                     </form>
-
-								</div>
                             </div>
-                        </section>
-                        <div class="clearfix"></div>
-                 </article>
-            </div><!-- /container -->
+                        <div class="input_row">
+                            <label for="datasource_url"><strong>Database URL</strong> <em>*</em></label>
+                            	<div>
+                                	<select class="select_list full big datasource_url" id="datasource_url_select" name="datasource_url_select">
+                                    </select>
+
+                                </div>
+                         </div>
+                         <div class="input_row" id="datasource_url_text" style="display:none;">
+                         <label for="datasource_password"><strong>&nbsp;&nbsp;&nbsp;</strong></label>
+                         <input type="text" class="full" id="datasource_url_text_value" name="datasource_url_text_value"/>
+                         </div>
+                        <div class="input_row">
+                        	<label for="datasource_username"><strong>Username</strong> <em>*</em></label>
+                            	<div id="datasource_username_div">
+                                	<select class="select_list half big" id="datasource_username_select" onchange="userSelected(this.value)"></select>
+                                </div>
+                                <div>
+                                    <label id="no_users_error" generated="true" class="error" style="display:none;">There are no attached users for the selected Database. Please attach users to the Database.</label>
+                                </div>
+
+                            <div>
+                            	<input type="text" name="datasource_username_text" id="datasource_username_text" class="half"  style="display:none;"/>
+                            </div>
+                        </div>
+                        <div class="input_row">
+                            <label for="datasource_password"><strong>Password</strong> <em>*</em></label>
+                            <input type="password" name="datasource_password" id="datasource_password" class="half" maxlength="15"/>
+                        </div>
 
 
+                        <div class="controlset">
+                            <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+                            <input type="hidden" name="stages" id='stages' value='<%=outputs.deploymentStages%>' />
+                        </div>
+                    </fieldset>
+
+                     <div class="buttonrow">
+                     	 <input type='submit' name='Submit' value='Create Datasource' onclick="if(validateForm()){createDatasource(this);}" class='btn main'/>
+                     	 <a href="listDatasources.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Cancel</a>
+                    </div>
+
+
+                 </form>
+
+			</div>
+        </div>
+    </section>
+    <div class="clearfix"></div>
+ </article>
 <% }); %>
