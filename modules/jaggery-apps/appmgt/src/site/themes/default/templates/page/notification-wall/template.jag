@@ -30,6 +30,10 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
     var stateCompletionTimeoutDuration = 1800;
 
     %>
+    <!-- After moving all the pages to new UX styles, we need to remove below two resources. -->
+    <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/jquery.qtip.min.css'))%>">
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
+
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
     <script type="text/javascript">
 
