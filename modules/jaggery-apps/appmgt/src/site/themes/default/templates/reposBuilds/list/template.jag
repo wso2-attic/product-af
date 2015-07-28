@@ -58,7 +58,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
 
     .old_build_logs_dropdown{
     	border: 1px solid #69A6B5; 
-    	background-color: #DDEBEE; 
+    	background-color: #555555; 
     	width: 80px;
     	-webkit-border-radius: 3px;
     	-moz-border-radius: 3px; 
@@ -73,76 +73,135 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
         background-color: #aaa;
     }
 /*=============MODAL STYLES=============*/
-.btn-close {
-  color: #aaaaaa;
-  font-size: 30px;
-  text-decoration: none;
-  position: absolute;
-  right: 5px;
-  top: 0;
+.modal-open {
+  overflow: hidden;
 }
-.btn-close:hover {
-  color: #919191;
-}
-.modal:before {
-  content: "";
-  display: none;
-  background: rgba(0, 0, 0, 0.6);
+.modal {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
-  z-index: 10;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
 }
-.modal:target:before {
-  display: block;
+.modal.fade .modal-dialog {
+  -webkit-transition: -webkit-transform .3s ease-out;
+       -o-transition:      -o-transform .3s ease-out;
+          transition:         transform .3s ease-out;
+  -webkit-transform: translate(0, -25%);
+      -ms-transform: translate(0, -25%);
+       -o-transform: translate(0, -25%);
+          transform: translate(0, -25%);
 }
-.modal:target .modal-dialog {
+.modal.in .modal-dialog {
   -webkit-transform: translate(0, 0);
-  -ms-transform: translate(0, 0);
-  transform: translate(0, 0);
-  top: 20%;
+      -ms-transform: translate(0, 0);
+       -o-transform: translate(0, 0);
+          transform: translate(0, 0);
+}
+.modal-open .modal {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .modal-dialog {
-  background: #fefefe;
-  border: #333333 solid 1px;
-  border-radius: 5px;
-  margin-left: -400px;
-  position: absolute;
-  overflow:scroll;
-  left: 50%;
-  top: -100%;
-  z-index: 11;
-  width: 920px;
-  -webkit-transform: translate(0, -500%);
-  -ms-transform: translate(0, -500%);
-  transform: translate(0, -500%);
-  -webkit-transition: -webkit-transform 0.3s ease-out;
-  -moz-transition: -moz-transform 0.3s ease-out;
-  -o-transition: -o-transform 0.3s ease-out;
-  transition: transform 0.3s ease-out;
+  position: relative;
+  width: auto;
+  margin: 10px;
 }
-.modal-body {
-  padding: 20px;
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+          background-clip: padding-box;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 6px;
+  outline: 0;
+  -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+          box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
 }
-.modal-header,
-.modal-footer {
-  padding: 10px 20px;
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000;
+}
+.modal-backdrop.fade {
+  filter: alpha(opacity=0);
+  opacity: 0;
+}
+.modal-backdrop.in {
+  filter: alpha(opacity=50);
+  opacity: .5;
 }
 .modal-header {
-  border-bottom: #eeeeee solid 1px;
+  min-height: 16.42857143px;
+  padding: 15px;
+  color : #555;
+  border-bottom: 1px solid #e5e5e5;
 }
-.modal-header h2 {
-  font-size: 20px;
+.modal-header .close {
+  margin-top: -2px;
+}
+.modal-title {
+  margin: 0;
+  line-height: 1.42857143;
+}
+.modal-body {
+  position: relative;
+  padding: 15px;
 }
 .modal-footer {
-  border-top: #eeeeee solid 1px;
+  padding: 15px;
   text-align: right;
+  border-top: 1px solid #e5e5e5;
 }
-/*ADDED TO STOP SCROLLING TO TOP*/
-#close {
-  display: none;
+.modal-footer .btn + .btn {
+  margin-bottom: 0;
+  margin-left: 5px;
+}
+.modal-footer .btn-group .btn + .btn {
+  margin-left: -1px;
+}
+.modal-footer .btn-block + .btn-block {
+  margin-left: 0;
+}
+.modal-scrollbar-measure {
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+  height: 50px;
+  overflow: scroll;
+}
+@media (min-width: 768px) {
+  .modal-dialog {
+    width: 600px;
+    margin: 30px auto;
+  }
+  .modal-content {
+    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+  }
+  .modal-sm {
+    width: 300px;
+  }
+}
+@media (min-width: 992px) {
+  .modal-lg {
+    width: 900px;
+  }
+}
+
+pre{
+ max-height : 500px;
+ overflow: scroll;
 }
 /*=====================================*/
     </style>
@@ -1060,7 +1119,7 @@ $.cookie('selectedStage', selectedStage);
                             '</span>'+
 '<select onchange="viewMasterBuildLogs();" id="master_old_build_logs_dropdown" class="old_build_logs_dropdown ">'+getBuildLogDropDownOptions()
 
-+'</select>'+'<a href="#modal-one" class="btn main small master_build_logs" name="master_build_logs" style="margin-left: 20px;">Show Build Logs</a>'+
++'</select>'+'<a href="#modal-one" data-toggle="modal" data-target="#modal-one" class="btn main small master_build_logs" name="master_build_logs" style="margin-left: 20px;">Show Build Logs</a>'+
                         '</div>') +
                         '</td>'+
                         '<td class="td-3">' +
@@ -1209,7 +1268,7 @@ $.cookie('selectedStage', selectedStage);
                                     '<span '+currentBuildStatusHidden+' class="build_status">'+currentBuildStatus+' ' +
                                     '</span>'+
 '<select onchange="viewForkedBuildLogs();" id="forked_old_build_logs_dropdown" class="old_build_logs_dropdown ">'+getForkedBuildLogDropDownOptions()+'</select>'+
-'<a href="#modal-one" class="btn main small forked_build_logs" name="forked_build_logs"  style="margin-left: 20px;">Show Build Logs</a>'+
+'<a href="#modal-one" data-toggle="modal" data-target="#modal-one" class="btn main small forked_build_logs" name="forked_build_logs"  style="margin-left: 20px;" >Show Build Logs</a>'+
                                 '</div>')+
                                 '<div class="fork-data-buttons">'+
                                     '<ul class="inline_list" '+buildDeployHide+'>'+
@@ -1609,19 +1668,19 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
     </div><!-- /container -->
 
 <!-- Modal -->
-<div class="modal" id="modal-one" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-header">
-      <h2>Jenkins Build Log</h2>
-      <a href="#close" class="btn-close" aria-hidden="true">x</a>
-      <!--CHANGED TO "#close"-->
-    </div>
-    <div class="modal-body">
-      <pre id="build_logs">We are sorry. No build logs available. </pre>
-    </div>
-    <div class="modal-footer">
-      <a href="#close" class="btn">Close</a>
-      <!--CHANGED TO "#close"-->
+<div class="modal fade" id="modal-one" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+          <h2>Jenkins Build Log</h2>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <pre id="build_logs">Retrieving logs.... </pre>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
     </div>
   </div>
 </div>
