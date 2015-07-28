@@ -655,237 +655,217 @@ language=appInfo.language;
 
 </script>
 <article class="main">
+    <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
+    <!-- -->
+    <header class="separator">
+        <div>
+            <% jagg.includeBlock("page/messages", null); %>
+            <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+            <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+        </div>
+    	<div class="content">
+            <h1>Databases</h1>
+        </div>
+    </header>
 
-        <header class="separator">
-            <div>
-                <% jagg.includeBlock("page/messages", null); %>
-                <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-            </div>
-        	<div class="content">
-                <h1>Databases</h1>
-            </div>
-        </header>
+    <div class="content" style="display:none" id="permission_entry">
+        <div class="left pw_50">
+            <ul class="list big push_bottom">
+                <li>
+                    <label >DB User</label>
+                    <select class="half big"  name="permission_template">
+                        <option value="db_user_1">db_1</option>
+                    </select>
+                </li>
+            </ul>
+        </div>
+        <div class="right pw_50">
+            <ul class="list big push_bottom">
+                <li><label>Permission Template</label>
+                    <select class="half big select_list" name="permission_template">
+                        <option value="template1">template1</option>
+                        <option value="template1">template2</option>
+                    </select>
+                    <input type="button" value="Remove" onclick="removeElement(this)" />
+                </li>
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+    </div>
 
-        <section class="separator">
-            <div class="page_nav">
-                <div class="content clear">
-                    <ol class="breadcrumb left">
-                        <li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
-                        <li id="dbNameConatiner"class="breadcrumb_item"></li>
-                    </ol>
-                    <% if(hasDataSourceDeletePermissionInCurrentStage){ %>
-                    <div class="right btn_list_box">
-                        <ul class="inline_box inline_list btn_list">
-                            <li class="inline_item"><a id="btn_delete_db" href="#" class="btn main btn_list_first">Delete Database</a>
+	<section class="separator clear">
+			<div class="content">
+			<div>
+                    <form class="inline-form form-container">
+							<h2>Database URL</h2>
+                            <input type="text" class="medium-large-text-box" id="dburl" disabled value="" />
+                            <a class="copy-link" id ="copymain" title="Copy URL" data-clipboard-text="" data-tooltip="Copied!">
+                    	        <span class="icon-copy"></span>
+                            </a>
+                    </form>
+			</div>
+        </div>
+	</section>
+
+     <section class="separator clear">
+            <div class="content">
+                <div>
+                    <h2>Attached Users</h2>
+                            <ul class="list_table push_top_20" id="tblAttachedUsers">
+                                    <li class="list_row_item first_list_row_item">
+                                            <ul class="list_row first_list_row">
+                                              <li class="list_col first_list_col" style="width:44.3%">
+                                                <h2 class="list_col_heading">Database User</h2>
+                                              </li>
+                                              <% if(hasDatabaseUpdatePermissionInCurrentStage) { %>
+                                              <li class="list_col">
+                                                <h2 class="list_col_heading">Action</h2>
+                                              </li>
+                                              <% } %>
+                                            </ul>
+                                        </li>
+                            </ul>
+                </div>
+                <div class="form-container" id="formEditPriv" style="display:none;margin-top:20px;">
+                    <form class="hold right_label" method="post" action="#" >
+                        <fieldset>
+                            <div class="clearfix"></div>
+                            <div class="controlset">
+                                <div class="input_row" id="checkArray">
+                                    <label><input type="checkbox" name="permission" id="editselectPriv" checked="checked"> SELECT</label><br>
+                                    <label><input type="checkbox" name="permission" id="editinsertPriv" checked="checked"> INSERT</label><br>
+                                    <label><input type="checkbox" name="permission" id="editupdatePriv" checked="checked"> UPDATE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editdeletePriv" checked="checked"> DELETE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreatePriv" checked="checked"> CREATE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editdropPriv" checked="checked"> DROP</label><br>
+                                    <label><input type="checkbox" name="permission" id="editgrantPriv" checked="checked"> GRANT</label><br>
+                                    <label><input type="checkbox" name="permission" id="editreferencesPriv" checked="checked"> REFERENCES</label><br>
+                                    <label><input type="checkbox" name="permission" id="editindexPriv" checked="checked"> INDEX</label><br>
+                                    <label><input type="checkbox" name="permission" id="editalterPriv" checked="checked"> ALTER</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreateTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editlockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreateViewPriv" checked="checked"> CREATE_VIEW</label><br>
+                                    <label><input type="checkbox" name="permission" id="editshowViewPriv" checked="checked"> SHOW_VIEW</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreateRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editalterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editexecutePriv" checked="checked"> EXECUTE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editeventPriv" checked="checked"> EVENT</label><br>
+                                    <label><input type="checkbox" name="permission" id="edittriggerPriv" checked="checked"> TRIGGER</label><br>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <input type="hidden" value="app_105" id="applicationKey">
+
+                        <div class="buttonrow">
+                            <input type="button" class="btn main" id="btn_save_user_prev" value="Save" name="Submit">
+                            <a id="btn_edit_cancel" onclick='formEditPrivHide();'>Cancel</a>
+                            <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    </section>
+    <section class="separator clear">
+            <div class="content clear">
+                <div class="left">
+                    <h2>Available Users</h2>
+                </div>
+                <% if(hasDatabaseUpdatePermissionInCurrentStage){ %>
+                <div class="right btn_list_box">
+                    <span class="btn main btn_list_first" id="add_new_user_btn">Add New User</span>
+                </div>
+                <% } %>
+            </div>
+
+            <div class="extra_fields_box hide" id="create_user_div">
+                <div class="extra_fields">
+                    <div class="extra_field_row">
+                        <div class="pw_50">
+                            <label for="db_username"><strong>Username:</strong></label>
+                            <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
+                        </div>
+                    </div>
+                    <div class="extra_field_row">
+                        <div class="left pw_50">
+                            <label for="new_user_password"><strong>Password:</strong></label>
+                            <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
+                        </div>
+                        <div class="right pw_50">
+                            <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
+                            <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="extra_field_row last" style="padding-top:20px;">
+                        <div class="pw_100">
+                        <input type='button' name='Submit' value='Create User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
+                        <a class="js_cancel_user">Cancel</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div>
+                        <ul class="list_table push_top_20" id="tblAvailableUsers">
+                            <li class="list_row_item first_list_row_item">
+                                <ul class="list_row first_list_row">
+                                      <li class="list_col first_list_col" style="width:44.3%">
+                                        <h2 class="list_col_heading">Database User</h2>
+                                      </li>
+                                      <% if(hasDatabaseUpdatePermissionInCurrentStage) { %>
+                                      <li class="list_col">
+                                        <h2 class="list_col_heading">Action</h2>
+                                      </li>
+                                      <% } %>
+                                </ul>
                             </li>
                         </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <% } %>
-                </div>
-            </div>
 
-        </section>
-
-
-        <div class="content well" style="display:none" id="permission_entry">
-            <div class="left pw_50">
-                <ul class="list big push_bottom">
-                    <li>
-                        <label >DB User</label>
-                        <select class="half big"  name="permission_template">
-                            <option value="db_user_1">db_1</option>
-                        </select>
-                    </li>
-                </ul>
-            </div>
-            <div class="right pw_50">
-                <ul class="list big push_bottom">
-                    <li><label>Permission Template</label>
-                        <select class="half big select_list" name="permission_template">
-                            <option value="template1">template1</option>
-                            <option value="template1">template2</option>
-                        </select>
-                        <input type="button" value="Remove" onclick="removeElement(this)" />
-                    </li>
-                </ul>
-            </div>
-            <div class="clearfix"></div>
-        </div>
-
-		<section class="separator clear">
- 			<div class="content well">
-    			<div>
-                        <form class="inline-form form-container">
-								<h2>Database URL</h2>
-                                <input type="text" class="medium-large-text-box" id="dburl" disabled value="" />
-                                <a class="copy-link" id ="copymain" title="Copy URL" data-clipboard-text="" data-tooltip="Copied!">
-                        	        <span class="icon-copy"></span>
-                                </a>
-                        </form>
-    			</div>
-            </div>
-		</section>
-
-         <section class="separator clear">
-                <div class="content well">
-                    <div>
-                        <h2>Attached Users</h2>
-                                <ul class="list_table push_top_20" id="tblAttachedUsers">
-                                        <li class="list_row_item first_list_row_item">
-                                                <ul class="list_row first_list_row">
-                                                  <li class="list_col first_list_col" style="width:44.3%">
-                                                    <h2 class="list_col_heading">Database User</h2>
-                                                  </li>
-                                                  <% if(hasDatabaseUpdatePermissionInCurrentStage) { %>
-                                                  <li class="list_col">
-                                                    <h2 class="list_col_heading">Action</h2>
-                                                  </li>
-                                                  <% } %>
-                                                </ul>
-                                            </li>
-                                </ul>
-                    </div>
-                    <div class="form-container" id="formEditPriv" style="display:none;margin-top:20px;">
-                        <form class="hold right_label" method="post" action="#" >
-                            <fieldset>
-                                <div class="clearfix"></div>
-                                <div class="controlset">
-                                    <div class="input_row" id="checkArray">
-                                        <label><input type="checkbox" name="permission" id="editselectPriv" checked="checked"> SELECT</label><br>
-                                        <label><input type="checkbox" name="permission" id="editinsertPriv" checked="checked"> INSERT</label><br>
-                                        <label><input type="checkbox" name="permission" id="editupdatePriv" checked="checked"> UPDATE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editdeletePriv" checked="checked"> DELETE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreatePriv" checked="checked"> CREATE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editdropPriv" checked="checked"> DROP</label><br>
-                                        <label><input type="checkbox" name="permission" id="editgrantPriv" checked="checked"> GRANT</label><br>
-                                        <label><input type="checkbox" name="permission" id="editreferencesPriv" checked="checked"> REFERENCES</label><br>
-                                        <label><input type="checkbox" name="permission" id="editindexPriv" checked="checked"> INDEX</label><br>
-                                        <label><input type="checkbox" name="permission" id="editalterPriv" checked="checked"> ALTER</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreateTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editlockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreateViewPriv" checked="checked"> CREATE_VIEW</label><br>
-                                        <label><input type="checkbox" name="permission" id="editshowViewPriv" checked="checked"> SHOW_VIEW</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreateRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editalterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editexecutePriv" checked="checked"> EXECUTE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editeventPriv" checked="checked"> EVENT</label><br>
-                                        <label><input type="checkbox" name="permission" id="edittriggerPriv" checked="checked"> TRIGGER</label><br>
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <input type="hidden" value="app_105" id="applicationKey">
-
-                            <div class="buttonrow">
-                                <input type="button" class="btn main" id="btn_save_user_prev" value="Save" name="Submit">
-                                <a id="btn_edit_cancel" onclick='formEditPrivHide();'>Cancel</a>
-                                <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-        </section>
-        <section class="separator clear">
-                <div class="content clear">
-                    <div class="left">
-                        <h2>Available Users</h2>
-                    </div>
-                    <% if(hasDatabaseUpdatePermissionInCurrentStage){ %>
-                    <div class="right btn_list_box">
-                        <span class="btn main btn_list_first" id="add_new_user_btn">Add New User</span>
-                    </div>
-                    <% } %>
                 </div>
 
-                <div class="extra_fields_box hide" id="create_user_div">
-                    <div class="extra_fields">
-                        <div class="extra_field_row">
-                            <div class="pw_50">
-                                <label for="db_username"><strong>Username:</strong></label>
-                                <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
-                            </div>
-                        </div>
-                        <div class="extra_field_row">
-                            <div class="left pw_50">
-                                <label for="new_user_password"><strong>Password:</strong></label>
-                                <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
-                            </div>
-                            <div class="right pw_50">
-                                <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
-                                <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
-                            </div>
+                <div class="form-container" id="formEditPriv" style="display:none;margin-top:20px;">
+                    <form class="hold right_label" method="post" action="#" >
+                        <fieldset>
                             <div class="clearfix"></div>
-                        </div>
-                        <div class="extra_field_row last" style="padding-top:20px;">
-                            <div class="pw_100">
-                            <input type='button' name='Submit' value='Create User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
-                            <a class="js_cancel_user">Cancel</a>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                </div>
-
-                <div class="content well">
-                    <div>
-                            <ul class="list_table push_top_20" id="tblAvailableUsers">
-                                <li class="list_row_item first_list_row_item">
-                                    <ul class="list_row first_list_row">
-                                          <li class="list_col first_list_col" style="width:44.3%">
-                                            <h2 class="list_col_heading">Database User</h2>
-                                          </li>
-                                          <% if(hasDatabaseUpdatePermissionInCurrentStage) { %>
-                                          <li class="list_col">
-                                            <h2 class="list_col_heading">Action</h2>
-                                          </li>
-                                          <% } %>
-                                    </ul>
-                                </li>
-                            </ul>
-
-                    </div>
-
-                    <div class="form-container" id="formEditPriv" style="display:none;margin-top:20px;">
-                        <form class="hold right_label" method="post" action="#" >
-                            <fieldset>
-                                <div class="clearfix"></div>
-                                <div class="controlset">
-                                    <div class="input_row" id="checkArray">
-                                        <label><input type="checkbox" name="permission" id="editselectPriv" checked="checked"> SELECT</label><br>
-                                        <label><input type="checkbox" name="permission" id="editinsertPriv" checked="checked"> INSERT</label><br>
-                                        <label><input type="checkbox" name="permission" id="editupdatePriv" checked="checked"> UPDATE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editdeletePriv" checked="checked"> DELETE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreatePriv" checked="checked"> CREATE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editdropPriv" checked="checked"> DROP</label><br>
-                                        <label><input type="checkbox" name="permission" id="editgrantPriv" checked="checked"> GRANT</label><br>
-                                        <label><input type="checkbox" name="permission" id="editreferencesPriv" checked="checked"> REFERENCES</label><br>
-                                        <label><input type="checkbox" name="permission" id="editindexPriv" checked="checked"> INDEX</label><br>
-                                        <label><input type="checkbox" name="permission" id="editalterPriv" checked="checked"> ALTER</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreateTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editlockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreateViewPriv" checked="checked"> CREATE_VIEW</label><br>
-                                        <label><input type="checkbox" name="permission" id="editshowViewPriv" checked="checked"> SHOW_VIEW</label><br>
-                                        <label><input type="checkbox" name="permission" id="editcreateRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editalterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editexecutePriv" checked="checked"> EXECUTE</label><br>
-                                        <label><input type="checkbox" name="permission" id="editeventPriv" checked="checked"> EVENT</label><br>
-                                        <label><input type="checkbox" name="permission" id="edittriggerPriv" checked="checked"> TRIGGER</label><br>
-                                    </div>
+                            <div class="controlset">
+                                <div class="input_row" id="checkArray">
+                                    <label><input type="checkbox" name="permission" id="editselectPriv" checked="checked"> SELECT</label><br>
+                                    <label><input type="checkbox" name="permission" id="editinsertPriv" checked="checked"> INSERT</label><br>
+                                    <label><input type="checkbox" name="permission" id="editupdatePriv" checked="checked"> UPDATE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editdeletePriv" checked="checked"> DELETE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreatePriv" checked="checked"> CREATE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editdropPriv" checked="checked"> DROP</label><br>
+                                    <label><input type="checkbox" name="permission" id="editgrantPriv" checked="checked"> GRANT</label><br>
+                                    <label><input type="checkbox" name="permission" id="editreferencesPriv" checked="checked"> REFERENCES</label><br>
+                                    <label><input type="checkbox" name="permission" id="editindexPriv" checked="checked"> INDEX</label><br>
+                                    <label><input type="checkbox" name="permission" id="editalterPriv" checked="checked"> ALTER</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreateTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editlockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreateViewPriv" checked="checked"> CREATE_VIEW</label><br>
+                                    <label><input type="checkbox" name="permission" id="editshowViewPriv" checked="checked"> SHOW_VIEW</label><br>
+                                    <label><input type="checkbox" name="permission" id="editcreateRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editalterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editexecutePriv" checked="checked"> EXECUTE</label><br>
+                                    <label><input type="checkbox" name="permission" id="editeventPriv" checked="checked"> EVENT</label><br>
+                                    <label><input type="checkbox" name="permission" id="edittriggerPriv" checked="checked"> TRIGGER</label><br>
                                 </div>
-                            </fieldset>
-                            <input type="hidden" value="app_105" id="applicationKey">
-
-                            <div class="buttonrow">
-                                <input type="button" class="btn main" id="btn_save_user_prev" value="Save" name="Submit">
-                                <a id="btn_edit_cancel" onclick='formEditPrivHide();'>Cancel</a>
-                                <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
                             </div>
-                        </form>
-                    </div>
+                        </fieldset>
+                        <input type="hidden" value="app_105" id="applicationKey">
+
+                        <div class="buttonrow">
+                            <input type="button" class="btn main" id="btn_save_user_prev" value="Save" name="Submit">
+                            <a id="btn_edit_cancel" onclick='formEditPrivHide();'>Cancel</a>
+                            <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
+                        </div>
+                    </form>
                 </div>
-        </section>
-        <div class="clearfix"></div>
+            </div>
+    </section>
+    <div class="clearfix"></div>
  </article>
 <%
 }); %>
