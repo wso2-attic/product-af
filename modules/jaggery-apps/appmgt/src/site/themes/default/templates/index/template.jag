@@ -462,14 +462,14 @@ function hideNotification() {
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
-                </span> <span class="hidden-xs">upload exsisting</span>
+                </span> <span class="hidden-xs">upload existing</span>
         </a>
-        <a href="#" class="btn-action">
-                <span class="fw-stack fw-lg btn-action-ico">
-                    <i class="fw fw-ring fw-stack-2x"></i>
-                    <i class="fw  fw-deploy fw-stack-1x"></i>
-                </span> <span class="hidden-xs">Deploy Sample Application</span>
-        </a>
+        <!--<a href="#" class="btn-action">-->
+                <!--<span class="fw-stack fw-lg btn-action-ico">-->
+                    <!--<i class="fw fw-ring fw-stack-2x"></i>-->
+                    <!--<i class="fw  fw-deploy fw-stack-1x"></i>-->
+                <!--</span> <span class="hidden-xs">Deploy Sample Application</span>-->
+        <!--</a>-->
     </div><!-- EOF App factory menu actionbar-->
 
 
@@ -517,14 +517,14 @@ function hideNotification() {
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
-                </span> <span class="hidden-xs">upload exsisting</span>
+                </span> <span class="hidden-xs">upload existing</span>
         </a>
-        <a href="#" class="btn-action">
-                <span class="fw-stack fw-lg btn-action-ico">
-                    <i class="fw fw-ring fw-stack-2x"></i>
-                    <i class="fw  fw-deploy fw-stack-1x"></i>
-                </span> <span class="hidden-xs">Deploy Sample Application</span>
-        </a>
+        <!--<a href="#" class="btn-action">-->
+                <!--<span class="fw-stack fw-lg btn-action-ico">-->
+                    <!--<i class="fw fw-ring fw-stack-2x"></i>-->
+                    <!--<i class="fw  fw-deploy fw-stack-1x"></i>-->
+                <!--</span> <span class="hidden-xs">Deploy Sample Application</span>-->
+        <!--</a>-->
     </div><!-- EOF App factory menu actionbar-->
 
 

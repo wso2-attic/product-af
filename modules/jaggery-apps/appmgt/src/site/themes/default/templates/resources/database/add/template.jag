@@ -217,7 +217,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                         return;
                      }
 
-                     $("#js_db_user").live("change", "select2-selecting", function(e) {
+                     $("#js_db_user").on("change", "select2-selecting", function(e) {
                             if((e.val == 'create_new_user') && $(this).next(".extra_fields_box").css("display") == "none"){
                                 $(this).next(".extra_fields_box").slideToggle(250);
                             } else {
@@ -268,7 +268,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                     return;
                 }
 
-                $("#js_db_template").live("change", "select2-selecting", function(e) {
+                $("#js_db_template").on("change", "select2-selecting", function(e) {
                 if((e.val == 'create_new_template') && $(this).next(".extra_fields_box").css("display") == "none"){
                     $(this).next(".extra_fields_box").slideToggle(250);
                 } else {
@@ -994,7 +994,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 //             event.preventDefault();
 //         });
 
-        $("#js_permission_template").live("change", "select2-selecting", function(e) {
+        $("#js_permission_template").on("change", "select2-selecting", function(e) {
             if(e.val == 'create_new_template' && $(this).parent().next(".additional_fields_box").css("display") == "none"){
                 $(this).parent().next(".additional_fields_box").slideToggle(250);
             } else {
@@ -1055,62 +1055,57 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
     });
     </script>
 <article class="main">
-        <header class="separator">
-            <div>
-                <% jagg.includeBlock("page/messages", null); %>
-                <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-            </div>
-            <div class="content">
-                <h1>Databases</h1>
-             </div>
-        </header>
-        <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
-        <section class="separator">
-            <div class="page_nav">
-                <div class="content clear">
-                    <ol class="breadcrumb">
-	<li class="breadcrumb_item"><a href="javascript:callPreviousPage();" class="breadcrumb_link">Database Configurations</a></li>
-                            <li class="breadcrumb_item"><h2>Create New Database</h2></li>
-                    </ol>
-                 </div>
-            </div>
-            <div class="content clear well">
-                <div class="form-container">
+    <!-- following div can be removed after new ux-->
+    <div style="height: 80px; "></div>
+    <!-- -->
+    <header class="separator">
+        <div>
+            <% jagg.includeBlock("page/messages", null); %>
+            <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+            <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+        </div>
+        <div class="content">
+            <h1>Databases</h1>
+         </div>
+    </header>
+    <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
+    <section class="separator">
+        <div class="content clear">
+            <div class="form-container">
 
-                    <form id='displayPage'  method='post'  class="hold right_label">
-                      <fieldset>
-                            <div class="input_row">
-                                <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
-                                <input type="text" id='databaseName' maxlength="5"/>
-                            </div>
-                            <div class="input_row" id="db_env_div">
-                                <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
-                                <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
-                            </div>
-                            <%if((isEdit=="false")&&(AllowedAllStages)){%>
-                            <div class="input_row">
-                                <legend id="copyall">
-	                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
-	                            </legend>
-	                        </div>
-    						<%}%>
-                            <div class="input_row">
-                                <label for="database_description"><strong>Description</strong></label>
-                                <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
-                            </div>
-                            <div id="password_section">
-                            <div class="input_row">
-                                <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
-                                <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
-                            </div>
+                <form id='displayPage'  method='post'  class="hold right_label">
+                  <fieldset>
+                        <div class="input_row">
+                            <label for="database_name" ><strong>Database Name</strong> <em>*</em></label>
+                            <input type="text" id='databaseName' maxlength="5"/>
+                        </div>
+                        <div class="input_row" id="db_env_div">
+                            <label for="db_environment" ><strong>Database Environment</strong> <em>*</em></label>
+                            <select id='rssInstances' class="select_list half big" name="db_environment" onChange="reloadUsersNTemplates()"></select>
+                        </div>
+                        <%if((isEdit=="false")&&(AllowedAllStages)){%>
+                        <div class="input_row">
+                            <legend id="copyall">
+                                <input type="checkbox" align="left" id="copyToAll"> Create Database and Datasources in all environments
+                            </legend>
+                        </div>
+						<%}%>
+                        <div class="input_row">
+                            <label for="database_description"><strong>Description</strong></label>
+                            <textarea name="database_description" id="database_description" rows="5" class="full"></textarea>
+                        </div>
+                        <div id="password_section">
+                        <div class="input_row">
+                            <label for="default_user_password" ><strong>Default User Password</strong><em>*</em></label>
+                            <input type="password" id='databaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
+                        </div>
 
-                            <div class="input_row">
-                                <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
-                                <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
-                            </div>
-                            </div>
-                       </fieldset>
+                        <div class="input_row">
+                            <label for="default_user_password" ><strong>Confirm Password</strong><em>*</em></label>
+                            <input type="password" id='confirmDatabaseUserPassword' class="half js_extra_field_disabled" maxlength="15"/>
+                        </div>
+                        </div>
+                   </fieldset>
 
                    					    <fieldset class="push_top_10">
 

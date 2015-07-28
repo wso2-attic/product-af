@@ -47,7 +47,41 @@ var site = require("/site/conf/site.json");
                                 "inputs":{
                                     "applicationKey":applicationKey,
                                     "applicationName":applicationName,
-                                    "pageName":"Configure Resources"
+                                    "pageName":"Configure Resources",
+                                     "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/configureenvironment.jag",
+                                            "displayName": "Runtime Configs",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/listDatasources.jag",
+                                            "displayName": "Datasources",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/editdatasource.jag",
+                                            "displayName": "Edit Datasource",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         ],
