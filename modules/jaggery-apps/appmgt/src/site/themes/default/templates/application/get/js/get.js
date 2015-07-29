@@ -216,11 +216,11 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
            if(resJSON.url) {
                appURL = resJSON.url;
            }
+            // display app url
+            var repoUrlHtml = "<b>URL : </b>" + appURL;
+            $("#app-version-url").html(repoUrlHtml);
 
-           // display app url
-           var repoUrlHtml = "<b>URL : </b>" + appURL;
-           $("#app-version-url").html(repoUrlHtml);
-           if(appURL.indexOf("progress"!= -1)) {
+            if(resJSON.url) {
                 $('#version-url-link').attr({href:appURL});
                 // set url to launch button
                 $('#btn-launchApp').attr({url:appURL});
@@ -228,6 +228,7 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
             }
             // create accept and deploy section
             showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
+            }
         }
     }, function (jqXHR, textStatus, errorThrown) {
             // show error to the user

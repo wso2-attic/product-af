@@ -1134,7 +1134,7 @@ $.cookie('selectedStage', selectedStage);
                             '<ul class="inline_list">'+
                                 '<li class="inline_item">'+
                                     '<a class="btn main small js_create_branch" rel="popover" >Create Branch</a>'+
-                                     '<div class="icon_link_popover popover_form" style="width:500px;margin-top:95px;">'+
+        '<div class="icon_link_popover popover_form" style="width:500px;margin-top:95px;background-color:#000000;">'+
                                         '<form class="form-container" onSubmit="return false;">'+
                                                 '<div class="input_row separator">'+
                                                     '<label for="create_branch" class="push_right_10" align="center">Version:</label>'+

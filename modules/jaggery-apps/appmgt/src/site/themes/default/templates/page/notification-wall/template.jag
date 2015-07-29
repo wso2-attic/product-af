@@ -82,24 +82,13 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 
 		if(event.properties.state == "DELETE"){
                         break;
-                } 
-
+                }
                     $("#notificationBar").append(
                         $('<div class="' + notificationMsgClass + '">'+'<div class="msg "><i class="' + 
                             iClass + '"></i><span>' +  event.object.title + getNotificationDetails(event.object.content) + 
                             '</span></div>' + '<div class="notification-time">' + getTimeDetails(retrievedTime, event.published) + 
                             '</div></div>'
                         ));
-
-                $('.info-left').qtip({
-                    content: {
-                        attr: 'data-tooltip' // Tell qTip2 to look inside this attr for its content
-                    },
-                    position : {
-                        my: 'top right'
-                    }
-                });
-
             }
         }
         setTimeout(pollNotifications,'<%=polling_period%>');
