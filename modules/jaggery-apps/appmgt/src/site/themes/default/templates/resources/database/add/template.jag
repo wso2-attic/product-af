@@ -217,17 +217,6 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                         return;
                      }
 
-                     $("#js_db_user").on("change", "select2-selecting", function(e) {
-                            if((e.val == 'create_new_user') && $(this).next(".extra_fields_box").css("display") == "none"){
-                                $(this).next(".extra_fields_box").slideToggle(250);
-                            } else {
-                                if($(this).next(".extra_fields_box").css("display") == "block") {
-                                    $(this).next(".extra_fields_box").slideToggle(250);
-                                }
-                            }
-                     });
-
-
             },
             function (jqXHR, textStatus, errorThrown) {
                     if ( jqXHR.status != 0){
@@ -237,6 +226,17 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 
             }
 
+
+    function handleCreateUserChange(){
+        if(($("#js_db_user").val() == 'create_new_user') && $("#js_db_user").next(".extra_fields_box").css("display") == "none"){
+            $("#js_db_user").next(".extra_fields_box").slideToggle(250);
+        } else {
+            if($("#js_db_user").next(".extra_fields_box").css("display") == "block") {
+                $("#js_db_user").next(".extra_fields_box").slideToggle(250);
+            }
+        }
+    }
+           
         function loadTemplatesForSelectedStage(selectionValue){
             jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
             action:"getAvailableTemplatesToAttachToDatabase",
@@ -268,18 +268,6 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                     return;
                 }
 
-                $("#js_db_template").on("change", "select2-selecting", function(e) {
-                if((e.val == 'create_new_template') && $(this).next(".extra_fields_box").css("display") == "none"){
-                    $(this).next(".extra_fields_box").slideToggle(250);
-                } else {
-                    if($(this).next(".extra_fields_box").css("display") == "block") {
-                        $(this).next(".extra_fields_box").slideToggle(250);
-                    }
-                }
-
-
-             });
-
         },
         function (jqXHR, textStatus, errorThrown) {
 
@@ -288,6 +276,16 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
             }
 
         });
+    }
+
+   function handlePermissoinTemplateSelectChange(){
+        if(($("#js_db_template").val() == 'create_new_template') && $("#js_db_template").next(".extra_fields_box").css("display") == "none"){
+            $("#js_db_template").next(".extra_fields_box").slideToggle(250);
+        } else {
+            if($("#js_db_template").next(".extra_fields_box").css("display") == "block") {
+                $("#js_db_template").next(".extra_fields_box").slideToggle(250);
+            }
+        }
     }
 
     function createDatabase(btn){
@@ -947,6 +945,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
     }
 
     $(document).ready(function(){
+        $("#js_extra_fieldset_on").next().next().slideUp('fast')
         $('.js_cancel_user').click(function(){
             $('#js_db_user').next().hide();
             $('#js_db_user').select2('val','choose_user');
@@ -1110,17 +1109,18 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                    					    <fieldset class="push_top_10">
 
 	<legend id="js_extra_fieldset_on" data-down="hidden">
-
 		<input type="checkbox" name="advanced_options" align="left" id="advancecheckbox"> Advanced Options
 	 </legend>
+
 	<div id="createAdvancedHelp" style="margin-left:220px;font-size:13px;color:#777;"></div>
 
-                            <div class="extra_fieldset hide">
+                            <div class="extra_fieldset">
+                                <!-- user -->
                                 <div class="input_row">
                                     <label for="db_user" ><strong>User</strong> <em>*</em></label>
-                                    <select class="select_list half big" id="js_db_user" name="db_user"></select>
+                                    <select class="select_list half big" onchange="handleCreateUserChange();return false;" id="js_db_user" name="db_user"></select>
 
-                                    <div class="extra_fields_box hide" >
+                                    <div class="extra_fields_box " >
                                         <div class="extra_fields">
 
                                             <div class="extra_field_row">
@@ -1153,11 +1153,12 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
                                         </div>
                                     </div>
                                 </div>
+                                <!-- permission template  -->
                                 <div class="input_row">
                                     <label for="db_template" ><strong>Permission Template</strong> <em>*</em></label>
-                                    <select id='js_db_template' class="select_list half big" name="db_template">
+                                    <select id='js_db_template' class="select_list half big" name="db_template" onchange="handlePermissoinTemplateSelectChange(); return false;">
                                     </select>
-                                     <div class="extra_fields_box hide" >
+                                     <div class="extra_fields_box" >
                                         <div class="extra_fields">
 
                                             <div class="extra_field_row">
