@@ -956,6 +956,42 @@
         }
     };
 
+    var getAppVersionsByStage = function(applicationKey, stage){
+        var allResults = getAppVersionsInStages(applicationKey);
+        return generateCustomUrlResponse(parse(allResults),stage);
+    };
+
+    function generateCustomUrlResponse(allResults, stage){
+        var simplifiedAppInfo = {};
+        if(allResults.length > 0){
+            var appinfo = allResults[0];
+            simplifiedAppInfo["key"] = appinfo.key;
+            simplifiedAppInfo["type"] = appinfo.type;
+            simplifiedAppInfo["mappedSubDomain"] = appinfo.mappedSubDomain;
+            simplifiedAppInfo["customUrl"] = appinfo.customUrl;
+            simplifiedAppInfo["customUrlVerificationCode"] = appinfo.customUrlVerificationCode;
+            simplifiedAppInfo["isUploadable"] = appinfo.isUploadable;
+            simplifiedAppInfo["name"] = appinfo.name;
+            simplifiedAppInfo["versions"] = getSimplifiedVersionArray(appinfo.versions, stage);
+        }
+        return simplifiedAppInfo;
+    }
+
+    function getSimplifiedVersionArray(versionsArray, stage){
+        var simplifiedVersionArray = [];
+        for (var i = 0; i < versionsArray.length; i++) {
+            var version = versionsArray[i];
+            if (0 == version.stage.localeCompare(stage)) {
+                simplifiedVersionArray.push(
+                        {
+                            "version": version.version,
+                            "productionMappedDomain": version.productionMappedDomain
+                        });
+            }
+        }
+        return simplifiedVersionArray;
+    }
+
 var getStage = function(applicationKey, version) {
     jagg.module("permission").checkUserAuthenticated();
     var tenantDomain = modManager.getTenantDomain();

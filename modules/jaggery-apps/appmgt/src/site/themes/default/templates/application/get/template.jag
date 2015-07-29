@@ -83,7 +83,8 @@
                     if (customUrl) { %>
                         <div class="sec prod-url">
                           <a id="prod-url" href="#"><%=customUrl%></a>
-                          <a href="#"><i class="fw fw-settings"></i></a>
+                          <a href="<%=jagg.getAbsoluteUrl("/site/pages/customurl.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                          <i class="fw fw-settings"></i></a>
                         </div>
                     <%}%>
             </div>
