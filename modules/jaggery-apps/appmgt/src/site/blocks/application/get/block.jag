@@ -34,15 +34,31 @@ jagg.block("application/get", {
     	var log = new Log();
         var applicationKey = request.getParameter("applicationKey");
     	var mod = jagg.module("manager");
+    	var lifeCycleModule = jagg.module("lifecycle");
 
         var userName = jagg.getUser();
+        var stagesMap = {};
+
         if(userName) {
+
+            // create stages map
+            var stages = lifeCycleModule.getAllLifeCycleStages();
+            for (var index in stages) {
+                var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO + stages[index]);
+                stagesMap[stages[index]] = isAllowed;
+            }
+
             var applicationType = mod.getApplicationType(applicationKey);
             var isCodeEditorSupported = mod.getApplicationTypeBean(applicationType).isCodeEditorSupported();
+            var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
+            var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
         }
 
     	return {
-			"isCodeEditorSupported":isCodeEditorSupported
+			"isCodeEditorSupported":isCodeEditorSupported,
+			"hasDomainMappingPermission":hasDomainMappingPermission,
+			"fineGrainedDomainMappingAllowedStage":fineGrainedDomainMappingAllowedStage,
+			"stagesMap": stagesMap
     	};
     }
 

@@ -3,6 +3,7 @@ var currentVersion = null;
 var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
+//var domainMappedVersion = null;
 
 // page initialization
 $(document).ready(function() {
@@ -90,6 +91,11 @@ function loadAppInfoFromServer(version) {
                 // get the relevant application info object
                 // since this always gives only one element array, take the first element
                 var appInfo = resultData[0];
+
+                // filter the domain mapped version for future reference
+//                setDomainMappedVersion(appInfo);
+
+                // filter the selected app version
                 var currentAppInfo = filterAppVersionInfo(appInfo, version);
 
                 // load application version specific data
@@ -158,7 +164,7 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
     $('#appVersionList').val(currentAppInfo.version);
 
     // set launch app url
-    loadLaunchUrl(currentAppInfo.version, currentAppInfo.stage);
+    loadLaunchUrl(appInfo, currentAppInfo);
 
     if (!versionChangeEventAdded) {
         $('#btn-launchApp').click(function() {
@@ -193,14 +199,14 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
 }
 
 //// load application launch url
-function loadLaunchUrl(version, stage) {
+function loadLaunchUrl(appInfo, currentAppInfo) {
     $('#btn-launchApp').attr('disabled','disabled');
 
     jagg.post("../blocks/application/get/ajax/list.jag", {
        action: "getMetaDataForAppVersion",
        applicationKey: applicationInfo.key,
-       version: version,
-       stage: stage,
+       version: currentAppInfo.version,
+       stage: currentAppInfo.stage,
        state: "started",
        type: applicationInfo.type
     }, function (result) {
@@ -213,13 +219,15 @@ function loadLaunchUrl(version, stage) {
             // display app url
             var repoUrlHtml = "<b>URL : </b>" + appURL;
             $("#app-version-url").html(repoUrlHtml);
-            if(appURL.indexOf("progress"!= -1)){
+
+            if(resJSON.url) {
                 $('#version-url-link').attr({href:appURL});
                 // set url to launch button
                 $('#btn-launchApp').attr({url:appURL});
                 $('#btn-launchApp').removeAttr('disabled');
-                // create accept and deploy section
-                showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
+            }
+            // create accept and deploy section
+            showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
             }
         }
     }, function (jqXHR, textStatus, errorThrown) {
@@ -327,6 +335,7 @@ function submitChangeAppIcon(newIconObj) {
     }
 }
 
+// check the file is an image file
 function validateIconImage(filename, fileSize) {
     var ext = getFileExtension(filename);
     var extStatus = false;
@@ -354,12 +363,91 @@ function validateIconImage(filename, fileSize) {
     return false;
 }
 
+// accept and deploy show
+function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
+    var promoteStatus = currentAppInfo.promoteStatus;
+    var pendingState = "pending";
+    var deployAction = "deploy";
+    var state = "started";
+    var stage = currentAppInfo.stage;
+
+    // hide the button by default
+    $("#acceptDeployWrapper").hide();
+
+    if(appUrl) {
+        if(pendingState == promoteStatus && deploymentPermission[stage]) {
+            addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
+        }
+    } else {
+        if(deploymentPermission[stage]) {
+           if(pendingState == promoteStatus) {
+                addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
+           } else {
+                addDeployHandler(appInfo, currentAppInfo, deployAction, state);
+           }
+        }
+    }
+}
+
+function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
+    $("#accepndeploy-button").click(function(event) {
+        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, true);
+    });
+    $("#acceptDeployWrapper").show();
+}
+
+
+function addDeployHandler(appInfo, currentAppInfo, deployAction, state) {
+    $("#accepndeploy-button").click(function(event) {
+        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, false);
+    });
+    $("#acceptDeployWrapper").show();
+}
+
+
+function deployApp(version, stage, deployAction, state, type, isUpdateState) {
+   jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+           action: "copyNewDependenciesAndDeployArtifact",
+           applicationKey: applicationInfo.key,
+           deployAction:deployAction,
+           stage:stage,
+           tagName: "",
+           version:version
+       }, function (result) {
+           jagg.message({content: "The Deployment is underway. Please wait and refresh page after few minutes.", type: 'success', id:'notification'});
+
+           if (isUpdateState) {
+                updateAppVersionPromoteStatus("", version, stage);
+           }
+           $("#acceptDeployWrapper").hide();
+       }, function (jqXHR, textStatus, errorThrown) {
+            jagg.message({content: "Error occurred while deploying the artifact.", type: 'error', id:'notification'});
+       });
+}
+
+// update the app version promote status
+function updateAppVersionPromoteStatus(nextState, version, nextStage) {
+    jagg.post("../blocks/application/update/ajax/update.jag", {
+       action: "updatePromoteStatus",
+       applicationKey: applicationInfo.key,
+       nextStage:nextStage,
+       version:version,
+       state:nextState
+    }, function (result) {
+        console.info(result);
+    },
+    function (jqXHR, textStatus, errorThrown) {
+        console.log("Error while updating application promote status!");
+    });
+}
+
+// Utility Functions Goes Here
+// extract file extension
 function getFileExtension(filename) {
     var parts = filename.split('.');
     return parts[parts.length - 1];
 }
 
-// Utility Functions Goes Here
 // number formatting util function
 function formatCount(count) {
    if(count) {

@@ -29,7 +29,13 @@
     var iconUrl = "<%=iconUrl%>";
     var appDomain = "<%=getProperty(DOMAIN_NAME) %>";
     var applicationInfo = <%=applicationInfo%>;
+    var deploymentPermission  = JSON.parse('<%=stringify(outputs.stagesMap)%>') ;
+
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
+    var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
+    var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>') ;
+    var mappedSubDomain = applicationInfo.mappedSubDomain;
+
 </script>
 
 <!-- end of setting global javascript variable -->
@@ -49,7 +55,6 @@
 
 <!-- BOF Container -->
 <div class="container-fluid app-content-section">
-
     <div class="row">
       <div class="col-md-12 app-preview">
           <div class="app-thumb">
@@ -93,7 +98,7 @@
                     <div class="col-md-9">
                         <select id="appVersionList" class="version-number"></select>
                         <div id="version-url-container">
-                            <div class="version-url"><span id="app-version-url"><b>URL : </b>deployment in progress...</span> </div>
+                            <div class="version-url"><a id="version-url-link" target="_blank"><span id="app-version-url"><b>URL : </b>deployment in progress...</span></a></div>
                             <div class="sec">
                                 <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button>
 
@@ -128,25 +133,42 @@
           <div class="row">
               <div class="col-md-4" >
                   <div class="block-life-cycle">
-                      <h3>Lifecycle Mgt</h3>
-                      <div class="block-icon pull-left">
+
+                        <h3>Lifecycle Mgt</h3>
+                        <div class="block-icon pull-left">
                           <i class="fw fw-lifecycle fw-5x"></i>
-                      </div>
-                      <div class="block-description pull-right" id="lifecycle-mgt-main">
-                          Application <strong><%=appName%></strong> is in
-                          <br>
-                          <strong><span id="appStage"></span></strong> Stage
-                      </div>
-                      <div class="clearfix"></div>
-                         <div class="block-action-button">
-                         <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                            <span class="fw-stack fw-lg btn-action-ico">
-                            <i class="fw fw-ring fw-stack-2x"></i>
-                            <i class="fw fw-lifecycle fw-stack-1x"></i>
-                            </span> Manage Lifecycle
-                         </a>
                         </div>
+                        <div class="block-description pull-right" id="lifecycle-mgt-main">
+                          Application <strong><%=appName%></strong> is in <br>
+                          <strong><span id="appStage"></span></strong> Stage
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                            <div class="block-action-button">
+                                <span class="fw-stack fw-lg btn-action-ico">
+                                    <i class="fw fw-ring fw-stack-2x"></i>
+                                    <i class="fw fw-lifecycle fw-stack-1x"></i>
+                                </span> Manage Lifecycle
+                            </div>
+                        </a>
+
+                        <!-- BOF permission based icon section -->
+                        <div class="clearfix"></div>
+
+                        <div class="permission-change-block" id="acceptDeployWrapper" style="display:none;">
+                            <div class="block-action-button" id="accepndeploy-button">
+                                <span class="fw-stack fw-lg btn-action-ico">
+                                    <i class="fw fw-ring fw-stack-2x"></i>
+                                    <i class="fw fw-check fw-stack-1x"></i>
+                                </span> Accept & deploy
+                           </div>
+                        </div>
+
+                        <!-- EOF permission based icon section -->
                   </div>
+
               </div>
               <div class="col-md-4">
                   <div class="block-repos">
