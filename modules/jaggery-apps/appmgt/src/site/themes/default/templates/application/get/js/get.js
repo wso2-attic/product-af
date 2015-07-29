@@ -3,7 +3,7 @@ var currentVersion = null;
 var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
-var domainMappedVersion = null;
+//var domainMappedVersion = null;
 
 // page initialization
 $(document).ready(function() {
@@ -93,7 +93,7 @@ function loadAppInfoFromServer(version) {
                 var appInfo = resultData[0];
 
                 // filter the domain mapped version for future reference
-                setDomainMappedVersion(appInfo);
+//                setDomainMappedVersion(appInfo);
 
                 // filter the selected app version
                 var currentAppInfo = filterAppVersionInfo(appInfo, version);
@@ -116,21 +116,6 @@ function loadAppInfoFromServer(version) {
             }
       });
 }
-
-// set domain mapped version
-function setDomainMappedVersion(appInfo) {
-    if (appInfo) {
-        for (var i in appInfo.versions) {
-            var versionInfo = appInfo.versions[i];
-            var previousDomain = versionInfo.productionMappedDomain;
-            if (previousDomain && previousDomain.trim().length > 0) {
-                domainMappedVersion = versionInfo.version;
-                break;
-            }
-        }
-    }
-}
-
 
 // filter application data by version
 function filterAppVersionInfo(appInfo, version) {
@@ -234,16 +219,15 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
 
            // display app url
            var repoUrlHtml = "<b>URL : </b>" + appURL;
-           $('#version-url-link').attr({href:appURL});
            $("#app-version-url").html(repoUrlHtml);
-
-           // set url to launch button
-           $('#btn-launchApp').attr({url:appURL});
-           $('#btn-launchApp').removeAttr('disabled');
-
-           // create accept and deploy section
-           showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
-
+           if(appURL.indexOf("progress"!= -1)) {
+                $('#version-url-link').attr({href:appURL});
+                // set url to launch button
+                $('#btn-launchApp').attr({url:appURL});
+                $('#btn-launchApp').removeAttr('disabled');
+            }
+            // create accept and deploy section
+            showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
         }
     }, function (jqXHR, textStatus, errorThrown) {
             // show error to the user
@@ -379,23 +363,23 @@ function validateIconImage(filename, fileSize) {
 }
 
 // accept and deploy show
-
 function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
     var promoteStatus = currentAppInfo.promoteStatus;
     var pendingState = "pending";
     var deployAction = "deploy";
     var state = "started";
+    var stage = currentAppInfo.stage;
 
     // hide the button by default
     $("#acceptDeployWrapper").hide();
 
     if(appUrl) {
-        if(pendingState === promoteStatus && deploymentPermission[stage]) {
+        if(pendingState == promoteStatus && deploymentPermission[stage]) {
             addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
         }
     } else {
         if(deploymentPermission[stage]) {
-           if(pendingState === promoteStatus) {
+           if(pendingState == promoteStatus) {
                 addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
            } else {
                 addDeployHandler(appInfo, currentAppInfo, deployAction, state);
@@ -406,7 +390,7 @@ function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
 
 function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
     $("#accepndeploy-button").click(function(event) {
-        acceptAndDeploy(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type);
+        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, true);
     });
     $("#acceptDeployWrapper").show();
 }
@@ -414,21 +398,16 @@ function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
 
 function addDeployHandler(appInfo, currentAppInfo, deployAction, state) {
     $("#accepndeploy-button").click(function(event) {
-        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type);
+        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, false);
     });
     $("#acceptDeployWrapper").show();
 }
 
-// accept and deploy
-function acceptAndDeploy(applicationKey, version, stage, deployAction, state, type) {
-   deployApp(applicationKey, version, stage, deployAction, state, type);
-   updateAppVersionPromoteStatus("", version, stage);
-};
 
-function deployApp(version, stage, deployAction, state, type) {
+function deployApp(version, stage, deployAction, state, type, isUpdateState) {
    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
            action: "copyNewDependenciesAndDeployArtifact",
-           applicationKey: applicationKey,
+           applicationKey: applicationInfo.key,
            deployAction:deployAction,
            stage:stage,
            tagName: "",
@@ -436,42 +415,28 @@ function deployApp(version, stage, deployAction, state, type) {
        }, function (result) {
            jagg.message({content: "The Deployment is underway. Please wait and refresh page after few minutes.", type: 'success', id:'notification'});
 
-           if((stage == fgdmAllowedStage) && hasDomainMappingPermission === 'true' &&
-                mappedSubDomain && !domainMappedVersion) {
-                remapDomainToVersion(version);
+           if (isUpdateState) {
+                updateAppVersionPromoteStatus("", version, stage);
            }
+           $("#acceptDeployWrapper").hide();
        }, function (jqXHR, textStatus, errorThrown) {
             jagg.message({content: "Error occurred while deploying the artifact.", type: 'error', id:'notification'});
        });
 }
 
 // update the app version promote status
-function updateAppVersionPromoteStatus(promoteStatus, version, nextStage) {
+function updateAppVersionPromoteStatus(nextState, version, nextStage) {
     jagg.post("../blocks/application/update/ajax/update.jag", {
        action: "updatePromoteStatus",
-       applicationKey: applicationKey,
+       applicationKey: applicationInfo.key,
        nextStage:nextStage,
        version:version,
-       state:promoteStatus
+       state:nextState
     }, function (result) {
         console.info(result);
     },
     function (jqXHR, textStatus, errorThrown) {
         console.log("Error while updating application promote status!");
-    });
-}
-
-// Remap existing domain to a new version
-function remapDomainToVersion(version) {
-    jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
-        action:"remapDomainToVersion",
-        oldVersion: "",
-        newVersion:version,
-        applicationKey:applicationKey
-    },function (result) {
-        jagg.message({content: "Production url is mapped to version - " + version, type: 'success', id:'notification'});
-    },function (jqXHR, textStatus, errorThrown) {
-       jagg.message({content:jqXHR.responseText,type:'error',id:'notification' });
     });
 }
 

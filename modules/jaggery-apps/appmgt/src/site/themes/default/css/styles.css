@@ -70,6 +70,10 @@ body {
     text-decoration: none;
 }
 
+.alert{
+    border-radius: 0px;
+}
+
 .action-bar {
     background-color: #303030;
     min-height: 45px;
@@ -96,6 +100,11 @@ body {
     background-color: #000
 }
 /* general buttons */
+
+button[disabled]{
+    opacity: 0.65;
+    cursor: not-allowed;
+}
 
 .cu-btn {
     font-size: 1.1em;
@@ -562,6 +571,7 @@ a.btn-action {
 .app-preview {
     background: #464646;
     padding: 40px;
+    min-height: 13em;
 }
 .app-preview h2 {
     color: #fff;
@@ -788,13 +798,13 @@ a.btn-action {
 .left-pane ul {
     margin-top: 70px;
     list-style: none;
+    padding-left: 0;
     -webkit-margin-after: 0em;
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
     -webkit-padding-start: 0px;
 }
 .left-pane ul li {
-    padding: 16px 22px 18px;
     cursor: pointer;
 }
 .left-pane ul li i {
@@ -807,6 +817,8 @@ a.btn-action {
 
 .left-pane a{
     color: #fff;
+    display: block;
+    padding: 16px 22px 18px;
 }
 
 .left-pane a:hover{
@@ -841,8 +853,17 @@ a.btn-action {
     border-color: transparent;
 }
 .version-url {
-    width: 50%;
+    width: 48%;
 }
+
+.version-url>a>span{
+    width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
 .sec .ctrl-edit-button {
     margin-left: -3px;
     margin-top: -2px;
@@ -930,6 +951,19 @@ a.btn-action {
     font-size: 1.3em;
     font-weight: 300;
 }
+
+.permission-change-block {
+    background-color: #034A6F;
+    width: 100%;
+    height: 50px;
+    margin-top: 3em;
+}
+
+.permission-change-block .block-action-button{
+    width: 100%;
+    text-align: center;
+}
+
 .btn-edit li {
     font-size: 1.42em;
     font-weight: 100;
@@ -986,7 +1020,7 @@ a.btn-action {
 .add-issue-content #add-issue-button span.fw-stack {
     font-size: 20px;
 }
-.form-group>label.error {
+.form-group .error {
     line-height: 1.5em;
     color: rgb(255, 255, 255);
     background-color: #e74c3c;
@@ -1054,22 +1088,22 @@ a.btn-action {
     -webkit-transform: translate(-50%, -50%);
 }
 
-.loading .loading-animation .loading-logo {
+.loading .loading-animation .logo {
     position: relative;
 }
 
-.loading .loading-animation .loading-logo .pulse-line,
-.loading .loading-animation .loading-logo .circle {
+.loading .loading-animation .logo .pulse-line,
+.loading .loading-animation .logo .circle {
     fill: none;
     stroke: #fff;
 }
 
-.loading .loading-animation .loading-logo .circle {
+.loading .loading-animation .logo .circle {
     stroke-dasharray: 100;
     opacity: 0.5;
 }
 
-.loading .loading-animation .loading-logo .pulse-line {
+.loading .loading-animation .logo .pulse-line {
     stroke-dasharray: 200;
     stroke-dashoffset: 200;
     animation: dash 4s linear  infinite;
@@ -1096,7 +1130,7 @@ a.btn-action {
     }
 }
 
-.loading .loading-animation .loading-logo .signal {
+.loading .loading-animation .logo .signal {
     border: 5px solid #fff;
     border-radius: 50px;
     height: 50px;
@@ -1279,6 +1313,7 @@ a.btn-action {
     background-color: #CACACA ;
 }
 
-#app-version-url {
-    white-space: nowrap;
+/* custom URL section */
+.form-section{
+    margin-top: 3em;
 }
