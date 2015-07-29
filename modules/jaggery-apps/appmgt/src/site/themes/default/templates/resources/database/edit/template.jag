@@ -668,6 +668,22 @@ language=appInfo.language;
             <h1>Databases</h1>
         </div>
     </header>
+    <section class="separator">
+            <div class="page_nav">
+                <div class="content clear">
+                    <% if(hasDataSourceDeletePermissionInCurrentStage){ %>
+                    <div class="right btn_list_box">
+                        <ul class="inline_box inline_list btn_list">
+                            <li class="inline_item"><a id="btn_delete_db" href="#" class="btn main btn_list_first">Delete Database</a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+</section>
 
     <div class="content" style="display:none" id="permission_entry">
         <div class="left pw_50">
