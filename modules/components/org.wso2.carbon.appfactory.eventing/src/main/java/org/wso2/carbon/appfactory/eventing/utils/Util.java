@@ -30,49 +30,54 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 public class Util {
     private static Log log = LogFactory.getLog(Util.class);
 
-    public static String getTCPConnectionURL() throws AppFactoryEventException {
-        String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        if (tenantDomain != null && !tenantDomain.equals(EventingConstants.CARBON_SUPER)) {
-            currentUser = currentUser + "@" + tenantDomain;
-        }
-        if (tenantDomain != null && tenantDomain.equals(EventingConstants.CARBON_SUPER)) {
-            currentUser = EventingConstants.ADMIN;
-        }try {
-            AppFactoryConfiguration appFactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
-            String messageBrokerServerUrl = appFactoryConfiguration.getFirstProperty(EventingConstants.NOTIFICATION_SERVER_URL);
-            AndesAdminServiceClient client = new AndesAdminServiceClient(messageBrokerServerUrl);
-            AppFactoryUtil.setAuthHeaders(client.getStub()._getServiceClient(), currentUser);
-            String accessToken = client.getAccessToken();
-            String connectionUrl = appFactoryConfiguration.getFirstProperty(EventingConstants.TCP_CONNECTION_URL);
-            if (currentUser.equals(EventingConstants.ADMIN)) {
-                connectionUrl = connectionUrl.replace(EventingConstants.CONNECTION_USER, currentUser).
-                        replace(EventingConstants.ACCESS_TOKEN, accessToken);
-            } else {
-                connectionUrl = connectionUrl.replace(EventingConstants.CONNECTION_USER, getCurrentUser()).
-                        replace(EventingConstants.ACCESS_TOKEN, accessToken);
-            }return connectionUrl;
-        } catch (AppFactoryException e) {
-            String error = "Failed to get tcp connection URL to message broker due to " + e.getMessage();
-            log.error(error, e);
-            throw new AppFactoryEventException(error, e);
-        }
-    }
+	public static String getTCPConnectionURL() throws AppFactoryEventException {
 
-    private static String getCurrentUser() {
-        String userName = "";
-        if (CarbonContext.getThreadLocalCarbonContext().getTenantId() != 0) {
-            userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "!"
-                    + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        } else {
-            userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        }
-        return userName.trim();
-    }
+		// The tenant creation process can be triggered in following combinations
+		// When the tenantDomain is carbon.super and contextUser is empty -> currentUser and connectionUser should get from user-mgt.xml
+		// When the tenantDomain is carbon.super and contextUser is available -> currentUser and connectionUser should be contextUser
+		// When the tenantDomain is not carbon.super and contextUser is available -> currentUser should be 'contextUser@tenantDomain'
+		// and connectionUser should be 'contextUser!tenantDomain'
+
+		String currentUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+		String connectionUser = currentUser;
+
+		if (tenantDomain != null && EventingConstants.CARBON_SUPER.equals(tenantDomain) &&
+		    StringUtils.isEmpty(currentUser)) {
+			currentUser = UserCoreUtil.getRealmService().getBootstrapRealmConfiguration().getAdminUserName();
+			connectionUser = currentUser;
+		}
+
+		if (tenantDomain != null && !EventingConstants.CARBON_SUPER.equals(tenantDomain)) {
+			currentUser = currentUser + "@" + tenantDomain;
+			connectionUser = currentUser + "!" + tenantDomain;
+		}
+
+		try {
+			AppFactoryConfiguration appFactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+			String messageBrokerServerUrl =
+					appFactoryConfiguration.getFirstProperty(EventingConstants.NOTIFICATION_SERVER_URL);
+			AndesAdminServiceClient client = new AndesAdminServiceClient(messageBrokerServerUrl);
+			AppFactoryUtil.setAuthHeaders(client.getStub()._getServiceClient(), currentUser);
+
+			String accessToken = client.getAccessToken();
+			String connectionUrl = appFactoryConfiguration.getFirstProperty(EventingConstants.TCP_CONNECTION_URL);
+
+			connectionUrl = connectionUrl.replace(EventingConstants.CONNECTION_USER, connectionUser).
+					replace(EventingConstants.ACCESS_TOKEN, accessToken);
+
+			return connectionUrl;
+		} catch (AppFactoryException e) {
+			String error = "Failed to get tcp connection URL to message broker due to " + e.getMessage();
+			log.error(error, e);
+			throw new AppFactoryEventException(error, e);
+		}
+	}
 
     public static String getUniqueSubscriptionId(String topic, String subscriberId) {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
