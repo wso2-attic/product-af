@@ -205,7 +205,6 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
 <!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <!-- include custom js functions -->
-<script src="js/custom/custom.js"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-1.11.1/jquery.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
