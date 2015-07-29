@@ -805,6 +805,7 @@ a.btn-action {
     -webkit-padding-start: 0px;
 }
 .left-pane ul li {
+    padding: 16px 22px 18px;
     cursor: pointer;
 }
 .left-pane ul li i {
@@ -1020,7 +1021,7 @@ a.btn-action {
 .add-issue-content #add-issue-button span.fw-stack {
     font-size: 20px;
 }
-.form-group .error {
+.form-group>label.error {
     line-height: 1.5em;
     color: rgb(255, 255, 255);
     background-color: #e74c3c;
@@ -1088,22 +1089,22 @@ a.btn-action {
     -webkit-transform: translate(-50%, -50%);
 }
 
-.loading .loading-animation .logo {
+.loading .loading-animation .loading-logo {
     position: relative;
 }
 
-.loading .loading-animation .logo .pulse-line,
-.loading .loading-animation .logo .circle {
+.loading .loading-animation .loading-logo .pulse-line,
+.loading .loading-animation .loading-logo .circle {
     fill: none;
     stroke: #fff;
 }
 
-.loading .loading-animation .logo .circle {
+.loading .loading-animation .loading-logo .circle {
     stroke-dasharray: 100;
     opacity: 0.5;
 }
 
-.loading .loading-animation .logo .pulse-line {
+.loading .loading-animation .loading-logo .pulse-line {
     stroke-dasharray: 200;
     stroke-dashoffset: 200;
     animation: dash 4s linear  infinite;
@@ -1130,7 +1131,7 @@ a.btn-action {
     }
 }
 
-.loading .loading-animation .logo .signal {
+.loading .loading-animation .loading-logo .signal {
     border: 5px solid #fff;
     border-radius: 50px;
     height: 50px;
@@ -1311,6 +1312,10 @@ a.btn-action {
 
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #CACACA ;
+}
+
+#app-version-url {
+    white-space: nowrap;
 }
 
 /* custom URL section */
