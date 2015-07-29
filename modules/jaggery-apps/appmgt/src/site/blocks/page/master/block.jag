@@ -25,9 +25,6 @@ jagg.block("page/master", {
             applicationName: applicationName, applicationKey: applicationKey
         };
         %>
-        <script>
-        var helpParams = <%=stringify(params)%>;
-        </script>
 
     <%
     },
