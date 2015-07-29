@@ -82,7 +82,7 @@
                     var customUrl = applicationInfo.customUrl;
                     if (customUrl) { %>
                         <div class="sec prod-url">
-                          <a id="prod-url" href="#"><%=%></a>
+                          <a id="prod-url" href="#"><%=customUrl%></a>
                           <a href="#"><i class="fw fw-settings"></i></a>
                         </div>
                     <%}%>
