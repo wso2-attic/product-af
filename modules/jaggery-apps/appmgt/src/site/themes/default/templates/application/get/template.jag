@@ -19,6 +19,11 @@
         appDescription = applicationInfo.description;
     }
 
+    // generate create version url
+    var createVersionUrl = jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag");
+    if (applicationInfo.isUploadable) {
+        createVersionUrl = jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag");
+    }
 %>
 
 <!-- start of setting global javascript variable values from jaggery side -->
@@ -34,7 +39,6 @@
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
     var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>') ;
-    var mappedSubDomain = applicationInfo.mappedSubDomain;
 
 </script>
 
@@ -120,7 +124,7 @@
                     </div>
                     <div class="col-md-3">
                       <div class="btn-create-version">
-                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                        <a href="<%=createVersionUrl%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-add fw-stack-1x"></i>

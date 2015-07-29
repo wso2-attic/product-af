@@ -200,8 +200,6 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
 
 //// load application launch url
 function loadLaunchUrl(appInfo, currentAppInfo) {
-    $('#btn-launchApp').attr('disabled','disabled');
-
     jagg.post("../blocks/application/get/ajax/list.jag", {
        action: "getMetaDataForAppVersion",
        applicationKey: applicationInfo.key,
@@ -211,11 +209,11 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
        type: applicationInfo.type
     }, function (result) {
         if(result) {
-           var resJSON = jQuery.parseJSON(result);
-           var appURL = "deployment in progress...";
-           if(resJSON.url) {
-               appURL = resJSON.url;
-           }
+            var resJSON = jQuery.parseJSON(result);
+            var appURL = "deployment in progress...";
+            if(resJSON.url) {
+                appURL = resJSON.url;
+            }
             // display app url
             var repoUrlHtml = "<b>URL : </b>" + appURL;
             $("#app-version-url").html(repoUrlHtml);
@@ -225,10 +223,17 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
                 // set url to launch button
                 $('#btn-launchApp').attr({url:appURL});
                 $('#btn-launchApp').removeAttr('disabled');
+                $('#version-url-link').removeAttr('disabled');
+            } else {
+                // disable links and buttons
+                $('#btn-launchApp').attr('disabled','disabled');
+                $('#version-url-link').attr('disabled','disabled');
+                // remove previous urls
+                $('#version-url-link').removeAttr('href');
+                $('#btn-launchApp').removeAttr('url');
             }
             // create accept and deploy section
             showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
-            }
         }
     }, function (jqXHR, textStatus, errorThrown) {
             // show error to the user
