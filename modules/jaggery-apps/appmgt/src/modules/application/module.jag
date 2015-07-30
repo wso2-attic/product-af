@@ -94,6 +94,10 @@ jagg.module("application", {
         return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppVersionsInStages.apply(this, arguments);
     },
 
+    getAppVersionsByStage:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppVersionsByStage.apply(this, arguments);
+    },
+
     getAppCountInStage:function () {
         return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppCountInStage.apply(this, arguments);
     },

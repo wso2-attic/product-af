@@ -18,6 +18,7 @@ package org.wso2.carbon.appfactory.ext.appserver;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.stratos.common.threading.StratosThreadPool;
 import org.apache.stratos.messaging.domain.topology.Cluster;
 import org.apache.stratos.messaging.domain.topology.Member;
 import org.apache.stratos.messaging.domain.topology.MemberStatus;
@@ -35,6 +36,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /*
 * This class is use to listen to complete stratos topology
@@ -54,10 +56,11 @@ public class LeaderElector {
         isNotifyEligible = false;
         this.terminated = false;
         this.topologyEventReceiver = new TopologyEventReceiver();
+        ExecutorService executorService = StratosThreadPool.getExecutorService(
+                "appfactory.stratos.thread.executor.service2", 1);
+        topologyEventReceiver.setExecutorService(executorService);
         addEvenListener();
-
-        Thread thread = new Thread(topologyEventReceiver);
-        thread.start();
+        topologyEventReceiver.execute();
         log.info("Stratos Manager topology receiver thread started");
     }
 
@@ -89,9 +92,9 @@ public class LeaderElector {
                         for (Cluster cluster : service.getClusters()) {
                             for (Member member : cluster.getMembers()) {
                                 MemberStatus memStatus = member.getStatus();
-                                if (MemberStatus.Activated.equals(memStatus)) {
-                                    memberIpMap.put(member.getMemberIp(),
-                                                    InetAddress.getByName(member.getMemberIp()));
+                                if (MemberStatus.Active.equals(memStatus)) {
+                                    memberIpMap.put(member.getDefaultPublicIP(),
+                                                    InetAddress.getByName(member.getDefaultPublicIP()));
                                 }
                             }
                         }

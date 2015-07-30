@@ -1,109 +1,3 @@
-<!--
-<section class="content push_top_40">
-    <div class="form-container">
-        <fieldset>
-            <div class="input_row">
-                <label for="projectKey" ><strong>Project</strong> <em>*</em></label>
-                <select id="projectKey" disabled class="select_list half big">
-                  {{#each project}}
-                    <option value="{{key}}">{{name}}</option>
-                  {{/each}}
-                  </select>
-            </div>
-
-
-            <div class="input_row">
-                <label for="key" ><strong>Key</strong> <em>*</em></label>
-                <input type='text' id='key' name="key" placeholder="Unique Key" disabled maxlength="40" value="{{issue.key}}" class="half required"/>
-            </div>
-
-
-            <div class="input_row">
-                <label for="summary" ><strong>Summary</strong> <em>*</em></label>
-                <input type='text' id='summary' name="summary" disabled placeholder="Issue Summary" maxlength="40" value="{{issue.summary}}" class="half required"/>
-            </div>
-
-
-            <div class="input_row">
-                <label for="description" >Description</label>
-                <textarea name='description' id='description' rows="5" cols="10" class="half" maxlength="250">{{issue.description}}</textarea>
-
-            </div>
-
-
-            <div class="input_row">
-                <label for="type" ><strong>Type</strong> <em>*</em></label>
-                <select id="type" class="select_list half big">
-                    <option value="bug">Bug</option>
-                    <option value="tasks">Task</option>
-                    <option value="plus">New Feature</option>
-                    <option value="arrow-up">Improvement</option>
-                </select>
-            </div>
-
-            <div class="input_row">
-                <label for="priority" ><strong>Priority</strong> <em>*</em></label>
-                <select id="priority" class="select_list half big">
-                        <option value="angle-double-up">Highest</option>
-                        <option value="angle-up">High</option>
-                        <option value="angle-down">Low</option>
-                        <option value="angle-double-down">Lowest</option>
-                </select>
-            </div>
-
-            <div class="input_row">
-                <label for="issue_status" ><strong>Status</strong> <em>*</em></label>
-                 <select id="issue_status" class="select_list half big">
-                        <option value="ban">Blocker</option>
-                        <option value="exclamation">Critical</option>
-                        <option value="circle-o">Non Critical</option>   
-                 </select>
-            </div>
-
-            <div class="input_row">
-                <label for="assignee" ><strong>Assignee</strong> <em>*</em></label>
-                <select id="assignee" name="assignee" class="select_list half big">
-                {{#each users}}
-                    <option value="{{name}}">{{name}}</option>
-                {{/each}}
-                </select>
-                  </div>
-
-            <div class="input_row">
-                <label for="version" ><strong>Version</strong> <em>*</em></label>
-               <select id='version' class="select_list half big">
-                {{#each version}}
-                    <option value="{{id}}">{{version}}</option>
-                {{/each}}
-                </select>
-
-            </div>
-
-
-            <div class="input_row">
-                <label for="severity" ><strong>Severity</strong> <em>*</em></label>
-                <select id="severity" class="select_list half big">
-                        <option value="NONE">None</option>
-                         <option value="BLOCKER">Blocker</option>
-                         <option value="CRITICAL">Critical</option>
-                         <option value="TRIVIAL">Trivial</option>
-                         <option value="MAJOR">Major</option>
-                         <option value="MINOR">Minor</option>
-
-                </select>
-            </div>
-
-        </fieldset>
-
-        <div class="buttonrow">
-                <input type="button" value="Update Issue" class="btn main" id='editIssue' />
-            <a href="/issuetracker/index.jag?appkey={{appkey}}">Cancel</a>
-        </div>
-    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
-
-</div>
--->
-
   <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
         <a href="/issuetracker/index.jag?appkey={{appkey}}" class="btn-action">
@@ -130,19 +24,19 @@
                 <div class="form-group">
                     <label for="type">Type: </label>
                     <select id="type" class="form-control select2">
-                          <option value="Bug" data-icon="fa-bug">Bug</option>
-                          <option value="Task" data-icon="fa-tasks">Task</option>
-                          <option value="New Feature" data-icon="fa-plus">New Feature</option>
-                          <option value="Improvement" data-icon="fa-arrow-up">Improvement</option>
+                          <option value="BUG" data-icon="fa-bug">Bug</option>
+                          <option value="TASK" data-icon="fa-tasks">Task</option>
+                          <option value="NEW_FEATURE" data-icon="fa-plus">New Feature</option>
+                          <option value="IMPROVEMENT" data-icon="fa-arrow-up">Improvement</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
-                        <option value="Highest" data-icon="fa-angle-double-up">Highest</option>
-                        <option value="High" data-icon="fa-angle-up">High</option>
-                        <option value="Low" data-icon="fa-angle-down">Low</option>
-                        <option value="Lowest" data-icon="fa-angle-double-down">Lowest</option>
+                        <option value="HIGHEST" data-icon="fa-angle-double-up">Highest</option>
+                        <option value="HIGH" data-icon="fa-angle-up">High</option>
+                        <option value="LOW" data-icon="fa-angle-down">Low</option>
+                        <option value="LOWEST" data-icon="fa-angle-double-down">Lowest</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -154,10 +48,10 @@
                 <div class="form-group">
                         <label for="status">Status: </label>
                         <select id="status" class="form-control select2">
-                            <option value="Open">Open</option>
-                            <option value="Resolved">Resolved</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Closed">Closed</option>
+                            <option value="OPEN">Open</option>
+                            <option value="RESOLVED">Resolved</option>
+                            <option value="INPROGRESS">In Progress</option>
+                            <option value="CLOSED">Closed</option>
                         </select>
                 </div>
             </div>
@@ -173,9 +67,9 @@
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2">
-                        <option value="Blocker" data-icon="fa-ban">Blocker</option>
-                        <option value="Critical" data-icon="fa-exclamation">Critical</option>
-                        <option value="Non Critical" data-icon="fa-circle-o">Non Critical</option>
+                        <option value="BLOCKER" data-icon="fa-ban">Blocker</option>
+                        <option value="CRITICAL" data-icon="fa-exclamation">Critical</option>
+                        <option value="NONE" data-icon="fa-circle-o">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -219,38 +113,64 @@
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 
-
-<!--
-<script>
-    var type = document.getElementById('type');
-    var project = document.getElementById('projectKey');
-    var priority = document.getElementById('priority');
-    //var status = document.getElementById('status');
-    var severity = document.getElementById('severity');
-    var version= document.getElementById('version');
-    var assignee= document.getElementById('assignee');
-
-
-
-
-    type.value = "{{issue.type}}";
-    project.value = "{{projectKey}}";
-    priority.value = "{{issue.priority}}";
-    //status.value = "{{issue.status}}";
-    severity.value = "{{issue.severity}}";
-    version.value = "{{issue.versionId}}";
-    assignee.value="{{issue.assignee}}";
-
-</script>
--->
 <script type="text/javascript">
  $(document).ready(function() {
-     $("#type").val("{{issue.type}}"); 
-     $("#version").val("{{issue.versionId}}"); 
-     $("#severity").val("{{issue.severity}}");  
-     $("#priority").val("{{issue.priority}}");
-     $("#status").val("{{issue.status}}");
+
+    //setting issue type value
+    setIssueTypeValue();
+    //setting issue severity value
+    setIssueSeverityValue();
+    //setting issue priority value
+    setIssuePriorityValue();
+    //setting issue status value
+    setIssueStatusValue();
  });
+
+    function setIssueTypeValue(){
+        if("{{issue.type}}" == "BUG" || "{{issue.type}}" == "VULNERABILITY")
+        {
+            $("#type").select2("val","BUG");        
+        }
+        else if("{{issue.type}}" == "EPIC" || "{{issue.type}}" == "STORY" || "{{issue.type}}" == "PATCH" || "{{issue.type}}" == "MODERATION" || "{{issue.type}}" == "IMPROVEMENT")
+        {
+            $("#type").select2("val","IMPROVEMENT");   
+        }
+        else
+        {
+            $("#type").select2("val","{{issue.type}}"); 
+        }
+    };
+    
+    function setIssueSeverityValue(){
+        if("{{issue.severity}}" == "NONE" || "{{issue.severity}}" == "MINOR" || "{{issue.severity}}" == "TRIVIAL")
+        {
+            $("#severity").select2("val","NONE"); 
+        }
+        else if("{{issue.severity}}" == "CRITICAL" || "{{issue.severity}}" == "MAJOR")
+        {
+            $("#severity").select2("val","CRITICAL");
+        }
+        else
+        {
+            $("#severity").select2("val","{{issue.severity}}");  
+        }
+    };
+
+    function setIssuePriorityValue(){
+        if("{{issue.priority}}" == "LOW" || "{{issue.priority}}" == "NORMAL")
+        {
+            $("#priority").select2("val","LOW"); 
+        }
+        else
+        {
+            $("#priority").select2("val","{{issue.priority}}");  
+        }
+    };
+
+    function setIssueStatusValue(){
+        $("#status").select2("val","{{issue.status}}"); 
+    };
+
   function formatState (state) {
         if (!state.id) { return state.text; }
         var $state;

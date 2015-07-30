@@ -28,11 +28,11 @@
                         <option value="{{data.issue.type}}">{{data.issue.type}}</option>
                     </select>
                 -->
-                 <input type="text" class="form-control" id="type"  value="{{data.issue.type}}" disabled>
+                 <input type="text" class="form-control" id="type"  value="{{data.issue.issueTypeText}}" disabled>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
-                    <input type="text" class="form-control" id="priority"  value="{{data.issue.priority}}" disabled>
+                    <input type="text" class="form-control" id="priority"  value="{{data.issue.issuePriorityText}}" disabled>
                     <!-- <select id="priority" class="form-control select2" disabled>
                         <option value="{{data.issue.priority}}">{{data.issue.priority}}</option>
                     </select> -->
@@ -46,7 +46,7 @@
                 </div>
                 <div class="form-group">
                         <label for="status">Status: </label>
-                         <input type="text" class="form-control" id="status"  value="{{data.issue.status}}" disabled>
+                         <input type="text" class="form-control" id="status"  value="{{data.issue.issueStatusText}}" disabled>
                       <!--  <select id="status" class="form-control select2">
                             <option value="1">Open</option>
                             <option value="2">Resolved</option>
@@ -68,7 +68,7 @@
                     </div>
                 <div class="form-group">
                     <label for="severity">Severity: </label>
-                    <input type="text" class="form-control" id="severity"  value="{{data.issue.severity}}" disabled>
+                    <input type="text" class="form-control" id="severity"  value="{{data.issue.issueSeverityText}}" disabled>
                    <!-- <select id="severity" class="form-control select2" disabled>
                         <option value="{{data.issue.severity}}">{{data.issue.severity}}</option>
                     </select> -->

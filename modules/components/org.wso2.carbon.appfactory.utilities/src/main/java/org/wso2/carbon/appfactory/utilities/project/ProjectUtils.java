@@ -383,7 +383,7 @@ public class ProjectUtils {
             }
         } catch (RegistryException e) {
             String errorMsg = String.format("Unable to find the repository type for application key : %s",
-                                  applicationId);
+                                            applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
@@ -450,11 +450,11 @@ public class ProjectUtils {
             UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext.
                     getThreadLocalCarbonContext().getTenantId());
             Resource resource = userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                                  RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR +
-                                  AppFactoryConstants.RXT_KEY_APPINFO);
+                                                 RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR +
+                                                 AppFactoryConstants.RXT_KEY_APPINFO);
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
-                                               AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
+                                                                                AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
             String[] prodVersionsArr = artifact.getAttributes(AppFactoryConstants.RXT_KEY_APPINFO_PRODUCTION_VERSION);
             List<String> prodVersions = Arrays.asList(prodVersionsArr);
@@ -468,7 +468,7 @@ public class ProjectUtils {
             }
         } catch (RegistryException e) {
             String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
+                                            applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
@@ -487,13 +487,13 @@ public class ProjectUtils {
         try {
             RegistryService registryService = ServiceReferenceHolder.getInstance().getRegistryService();
             UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext.
-                                                            getThreadLocalCarbonContext().getTenantId());
+                    getThreadLocalCarbonContext().getTenantId());
             Resource resource = userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-                                   RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR
-                                     + AppFactoryConstants.RXT_KEY_APPINFO);
+                                                 RegistryConstants.PATH_SEPARATOR + applicationId + RegistryConstants.PATH_SEPARATOR
+                                                 + AppFactoryConstants.RXT_KEY_APPINFO);
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
-                                               AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
+                                                                                AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
             String[] prodVersionsArr = artifact.getAttributes(AppFactoryConstants.RXT_KEY_APPINFO_PRODUCTION_VERSION);
             List<String> prodVersions = Arrays.asList(prodVersionsArr);
@@ -507,7 +507,7 @@ public class ProjectUtils {
             }
         } catch (RegistryException e) {
             String errorMsg = String.format("Unable to load the application information for applicaiton id: %s",
-                                  applicationId);
+                                            applicationId);
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }

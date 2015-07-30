@@ -137,6 +137,11 @@
             <directory>resources/dbscripts/appfactory</directory>
             <outputDirectory>wso2appfactory-${pom.version}/dbscripts/appfactory</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>resources/appfactory/repository/conf</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+        </fileSet>
+
 
 
         <!-- copy p2 related files -->

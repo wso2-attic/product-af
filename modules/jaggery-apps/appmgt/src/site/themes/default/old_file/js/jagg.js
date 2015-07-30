@@ -126,112 +126,41 @@ var messageTimer;
     //jagg.popMessage({content:'Message'});
 
     jagg.popMessage = function(params){
-        $('.qtip').remove();
-        var $modelObject = $('<div class="modal_content">'+
-            '<div class="message_body error_details">'+
-            '<dl>'+
-                '<dt class="modal_msg"></dt>'+
-                '<dd class="img">'+
-                    '<span class="icon-stack">'+
-                        '<i class="icon-circle icon-stack-base"></i>'+
-                        '<i class="icon-exclamation"></i>'+
-                    '</span>'+
-                '</dd>'+
-                '<dd id="contentRowContainer"></dd>'+
-            '</dl>'+
-            '</div>'+
-        '<div class="message_action" id="buttonRowContainer">'+
-        '</div>'+
-        '</div>');
-        var $buttonRow = '';
-        var $contentRow = '';
-        if(params.type == "confirm"){
-            //show ok and cancel buttons and register callbacks for each.
-            $buttonRow = $('<ul class="inline_list">'+
-                                '<li class="inline_item"><a href="#" class="btn sub big modal_cancel" >Cancel</a></li>'+
-                                '<li class="inline_item"><a href="#" class="btn main big modal_action">OK</a></li>'+
-                            '</ul>');
-
-            $('.modal_action',$buttonRow).click(function(){
-                $('#qtip').qtip("hide");
-            });
-            $('.modal_cancel',$buttonRow).click(function(){
-                $('#qtip').qtip("hide");
-            });
-            if(typeof params.okCallback == 'function'){
-                $('.modal_action',$buttonRow).click(params.okCallback);
-            }
-            if(typeof params.cancelCallback == 'function'){
-                $('.modal_cancel',$buttonRow).click(params.cancelCallback);
-            }
+        // Included noty plugin implementation
+        var allowedType = ["alert", "success", "error", "warning", "information", "confirm"];
+        if(allowedType.indexOf(params.type) < 0){
+            params.type = "confirm"
         }
-
-        if(params.type == "ok"){
-            //show ok and cancel buttons and register callbacks for each.
-            $buttonRow = $('<ul class="inline_list">'+
-                '<li class="inline_item"><a href="#" class="btn main big modal_action">Ok</a></li>'+
-                '</ul>');
-
-            $('.modal_action',$buttonRow).click(function(){
-                $('#qtip').qtip("hide");
-            });
-            if(typeof params.okCallback == 'function'){
-                $('.modal_action',$buttonRow).click(params.okCallback);
-            }
-
-            $('.modal_msg',$modelObject ).remove();
-            $('.img',$modelObject ).remove();
-        }
-
-
-        if( (typeof $buttonRow) == "object"){
-            $('#buttonRowContainer',$modelObject).append($buttonRow);
-        }else{
-            $('#buttonRowContainer',$modelObject).html($buttonRow);
-        }
-
-        if( (typeof params.content == "object")){
-            $('#contentRowContainer',$modelObject).append(params.content);
-        }else{
-            $('#contentRowContainer',$modelObject).html(params.content);
-        }
-
-
-
-        //text(params.btnText);
-        $('.modal_msg',$modelObject).html(params.title);
-
-        $('#qtip').qtip(
-            {
-                content: {
-                    text: function(api){
-                        return $modelObject;
-                    },
-                    prerender: true
-                },
-
-                position: {
-                    my: 'center',
-                    at: 'center',
-                    target: $(window)
-                },
-                show: {
-                    ready: true,
-                    solo: true,
-                    modal: {
-                        blur: true,
-                        escape: true
-                    },
-                    when: false
-                },
-
-                hide: true,
-                style: {
-                    classes: 'modal_box',
-                    widget: false,
-                    def: false
-                }
-            });
+        return noty({
+                        theme: 'wso2',
+                        layout: 'center',
+                        type: confirm,
+                        text: params.content,
+                        animation: {
+                            open: {height: 'toggle'}, // jQuery animate function property object
+                            close: {height: 'toggle'}, // jQuery animate function property object
+                            easing: 'swing', // easing
+                            speed: 500 // opening & closing animation speed
+                        },
+                        buttons: [
+                            {
+                                addClass: 'btn btn-primary', text: 'Ok', onClick: function($noty) {
+                                // this = button element
+                                // $noty = $noty element
+                                $noty.close();
+                                noty({text: 'Operation Successfull.', type: 'success'});
+                                params.okCallback();
+                            }
+                            },
+                            {
+                                addClass: 'btn btn-danger', text: 'Cancel', onClick: function($noty) {
+                                $noty.close();
+                                params.cancelCallback();
+                                //noty({text: 'You clicked "Cancel" button', type: 'error'});
+                            }
+                            }
+                        ]
+                    });
 
     };
 

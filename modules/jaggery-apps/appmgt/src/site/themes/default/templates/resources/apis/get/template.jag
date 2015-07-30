@@ -512,9 +512,9 @@ var helpTips = outputs.helpTips;
 </style>
 
 <article class="main">
-   <!-- following div can be removed after new ux-->
+    <!-- following div can be removed after new ux-->
         <div style="height: 80px; "></div>
-        <!-- -->
+    <!-- -->
     <header>
       <div> <% jagg.includeBlock("page/messages", null); %>
        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>

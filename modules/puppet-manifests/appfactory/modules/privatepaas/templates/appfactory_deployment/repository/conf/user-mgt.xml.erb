@@ -24,7 +24,7 @@
                 <Password><%= @usrmgt_password %></Password>
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
-            <Property name="dataSource">jdbc/<%=@user_store%></Property>
+            <Property name="dataSource">jdbc/userstore</Property>
             <Property name="MultiTenantRealmConfigBuilder"><%= @tenant_realm_builder_class %></Property>
         </Configuration>
         <!--<UserStoreManager class="org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager">
@@ -55,7 +55,7 @@
             <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
         </UserStoreManager>
 -->
-<UserStoreManager class="<%= @usrmgt_class %>">
+<UserStoreManager class="org.wso2.carbon.appfactory.userstore.AppFactoryCustomUserStoreManager">
     <Property name="TenantManager"><%= @tenant_manager_class %></Property>
     <Property name="ConnectionURL">ldap://ldap.<%= @wso2_env_domain %>:10389</Property>
     <Property name="ConnectionName"><%= @usrmgt_connectionname %></Property>

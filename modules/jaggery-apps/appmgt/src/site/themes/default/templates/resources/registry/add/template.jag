@@ -327,8 +327,22 @@ function validatePropertyNameAndCreate() {
                         			<div class="input_row">
                                     	<label for="rssInstance"><strong>Registry Environment</strong> <em>*</em></label>
                                 		<select id='rssInstances' class="select_list half big" name="rssInstance" disabled="disabled"></select>
-                                	</div>
-                        	<%
+                                		   <%
+                                    if(isEdit == "true" && hasDeleteResourcePermissions){
+                                        %>
+                                      <div class="right " id="delete_button_div">
+                                          <ul class="inline_box inline_list btn_group_list">
+                                              <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete Property</a>
+                                              </li>
+                                          </ul>
+                                          <div class="clearfix"></div>
+                                      </div>
+                                      <%
+                                    }
+                                    %>
+
+                                                        </div>
+                                                <%
                         		}else{
                         	%>
                             		<label for="property_name" ><strong>Name</strong> <em>*</em></label>

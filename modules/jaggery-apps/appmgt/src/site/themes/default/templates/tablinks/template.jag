@@ -96,6 +96,12 @@ include("/jagg/constants.jag");
                 </a>
             </li>
             <% } %>
+
+            <li class="<% if (pageName == "logs") { %>selected<%}%>">
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/customurl.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Custom URL">
+                    <i class="fa fa-hdd-o"></i> Custom URL
+                </a>
+            </li>
         </ul>
     </div>
 

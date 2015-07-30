@@ -65,10 +65,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
             <artifactId>org.apache.stratos.messaging</artifactId>
         </dependency>
     </dependencies>

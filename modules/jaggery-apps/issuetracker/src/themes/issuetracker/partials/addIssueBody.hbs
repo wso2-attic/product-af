@@ -21,19 +21,19 @@
                 <div class="form-group">
                     <label for="type">Type: </label>
                     <select id="type" class="form-control select2">
-                        <option value="Bug" data-icon="fa-bug">Bug</option>
-                        <option value="Task" data-icon="fa-tasks">Task</option>
-                        <option value="New Feature" data-icon="fa-plus">New Feature</option>
-                        <option value="Improvement" data-icon="fa-arrow-up">Improvement</option>
+                        <option value="BUG" data-icon="fa-bug">Bug</option>
+                        <option value="TASK" data-icon="fa-tasks">Task</option>
+                        <option value="NEW_FEATURE" data-icon="fa-plus">New Feature</option>
+                        <option value="IMPROVEMENT" data-icon="fa-arrow-up">Improvement</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
-                        <option value="Highest" data-icon="fa-angle-double-up">Highest</option>
-                        <option value="High" data-icon="fa-angle-up">High</option>
-                        <option value="Low" data-icon="fa-angle-down">Low</option>
-                        <option value="Lowest" data-icon="fa-angle-double-down">Lowest</option>
+                        <option value="HIGHEST" data-icon="fa-angle-double-up">Highest</option>
+                        <option value="HIGH" data-icon="fa-angle-up">High</option>
+                        <option value="LOW" data-icon="fa-angle-down">Low</option>
+                        <option value="LOWEST" data-icon="fa-angle-double-down">Lowest</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -55,9 +55,9 @@
                 <div class="form-group">
                     <label for="severity">Severity: </label>
                     <select id="severity" class="form-control select2">
-                        <option value="Blocker" data-icon="fa-ban">Blocker</option>
-                        <option value="Critical" data-icon="fa-exclamation">Critical</option>
-                        <option value="Non Critical" data-icon="fa-circle-o">Non Critical</option>
+                        <option value="BLOCKER" data-icon="fa-ban">Blocker</option>
+                        <option value="CRITICAL" data-icon="fa-exclamation">Critical</option>
+                        <option value="NONE" data-icon="fa-circle-o">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -83,7 +83,7 @@
                         Save Issue
                     </button>
                 </div>
-                <input type="hidden" name="projectKey"  id="projectKey" value='{{project.name}}'/>
+                <input type="hidden" name="projectKey"  id="projectKey" value='{{appkey}}'/>
                 <div class="clearfix"></div>
                 <div id="push"></div>
                 <div id="push"></div>

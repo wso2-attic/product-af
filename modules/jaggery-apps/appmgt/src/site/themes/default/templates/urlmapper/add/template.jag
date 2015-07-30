@@ -1,0 +1,182 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+include("/jagg/constants.jag");
+jagg.template("urlmapper/add", function (inputs, outputs, jagg) { %>
+<%
+var applicationName = request.getParameter("applicationName");
+var applicationKey = request.getParameter("applicationKey");
+var hasDomainMappingPermission = outputs.hasDomainMappingPermission;
+var domainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
+var initialAppVersionInfo = outputs.initialAppVersionInfo;
+var defaultDomainName = getProperty(DOMAIN_NAME);
+var mappedVersion = "";
+
+if (initialAppVersionInfo.versions.length > 0 ) {
+    var versionString = "" ;
+    var mappedVersionExists = false;
+    for (var i = 0; i < initialAppVersionInfo.versions.length; i++) {
+        var version = initialAppVersionInfo.versions[i];
+        if(version.productionMappedDomain){
+            mappedVersionExists = true;
+            mappedVersion= version.version;
+            versionString +="<option selected "+'value="'+version.version+'" '+">"+version.version+"</option>";
+        } else {
+            versionString +="<option"+' value="'+version.version+'" '+">"+version.version+"</option>";
+        }
+    }
+    if(!mappedVersionExists){
+        versionString = "<option></option>" + versionString;
+    }
+}
+
+%>
+
+<!-- start of setting global javascript variable values from jaggery side -->
+<script type="text/javascript" charset="utf-8">
+    var applicationName = "<%=applicationName%>";
+    var applicationKey = "<%=applicationKey%>";
+    var hasDomainMappingPermission = '<%=hasDomainMappingPermission%>';
+    var domainMappingAllowedStage = "<%=domainMappingAllowedStage%>";
+    var defaultDomainName = "<%=defaultDomainName%>";           // default domain host name
+
+    // holds data required to populate the elements
+    var initialAppVersionInfo =jQuery.parseJSON('<%=initialAppVersionInfo%>');
+</script><!-- end of setting global javascript variable -->
+
+<div class="container-fluid app-content-section">
+    <div class="row">
+         <div class="col-md-12 msg-issues">
+             Most domain registrars provide step-by-step instructions in their Web sites. For your convenience, we have listed the general steps below.<br>
+                <ul>
+                    <li>Sign in to the domain registrar’s site.</li>
+                    <li>Navigate to your Domain Name Server (DNS) management page. The location and name of this page vary by the host, but can generally be found under the 'Domain Management' or 'Advanced Settings' section.</li>
+                    <li>Find the CNAME settings. Under the 'CNAME value or alias,' enter the subdomain you'd like to map the URL to. The subdomain for bar.foo.com is bar.</li>
+                    <li>Set the CNAME destination to the production URL bar.foo.wso2apps.com and save the changes.</li>
+                </ul>
+         </div>
+    </div>
+ <div class="clearfix"></div>
+<div id="push"></div>
+ <div class="row form-section">
+ <form enctype="multipart/form-data" method='post' action='<%=jagg.getAbsoluteUrl("/site/blocks/urlmapper/update/ajax/update.jag")%>' name="customUrlForm" id="customUrlForm">
+     <input type="hidden" name="action" id="action" value="updateDomainMapping" />
+     <input type="hidden" name="userName"  id="userName" value='<%=jagg.getUser()%>'/>
+     <input type="hidden" name="domainMappingAllowedStage"  id="domainMappingAllowedStage" value='<%=domainMappingAllowedStage%>'/>
+     <input type="hidden" name="applicationKey"  id="applicationKey" value="<%=applicationKey%>"/>
+     <div class="col-md-5 forms">
+        <div class="loading-cover loading-overlay">
+              <div class="loader">
+              </div>
+          </div>
+         <div class="form-group">
+             <label for="production-url">Default Production URL:
+                 <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left"
+                    title="This URL will be assigned to a version once it is promoted to production."></i>
+             </label>
+            <!-- <div class="alert alert-info" role="alert">This URL will be assigned to a version once it is
+             promoted to production.</div>-->
+             <input type="text" class="form-control" id="production-url" placeholder=""
+                     value="<%=initialAppVersionInfo.mappedSubDomain+'.'+defaultDomainName%>" disabled>
+         </div>
+         <input  type='hidden' maxlength="19" id='existingProdUrl' name="existingProdUrl"
+         value="<%=(initialAppVersionInfo.customUrl)?initialAppVersionInfo.customUrl:''%>"/>
+
+            <% if (hasDomainMappingPermission) {%>
+         <div class="form-group" for="productionCustom">
+            <label for="production-Custom">Custom URL: </label>
+
+             <div class="input-group" >
+                 <input type="text" class="form-control mygroup" id="productionCustom" name="productionCustom"
+                 placeholder="Enter your custom URL" value="<%=(initialAppVersionInfo.customUrl)?initialAppVersionInfo.customUrl:''%>">
+                     <span class="input-group-btn">
+                         <button class="btn btn-info" type="button" id="verifyUrl" name="verifyUrl"
+                         onclick="verifyCustomUrl()"
+         <%=(initialAppVersionInfo.customUrl && initialAppVersionInfo.customUrlVerificationCode != null &&
+             initialAppVersionInfo.customUrlVerificationCode.length > 0)?'disabled':''%>>Verify URL</button>
+                     </span>
+             </div>
+
+         </div>
+
+            <% if (initialAppVersionInfo.versions.length > 0 ) {%>
+         <div class="form-group" for="productionVersion">
+             <label for="production-Version">Mapped version in production: </label>
+             <select id="productionVersion" name="productionVersion" class="form-control select2 mygroup"
+             placeholder="Select a state" allowClear="true">
+                <%=versionString%>
+             </select>
+         </div>
+            <% } else {%>
+                 <div class="form-group">
+                        <label for="production-custom">Mapped version in production: </label>
+                        <div class="alert alert-warning" role="alert">No version in production stage. Promote your version
+                        to map URL. <a>Click here </a> to promote your app</div>
+                    </div>
+            <% }%>
+
+         <div class="form-group">
+             <button class="cu-btn cu-btn-sm cu-btn-blue" id="addCustomUrl" onclick="submitForm(); return false;"
+             disabled>
+             <span class="fw-stack fw-lg btn-action-ico">
+                 <i class="fw fw-ring fw-stack-2x"></i>
+                 <i class="fw fw-add fw-stack-1x"></i>
+             </span>
+                 Update
+             </button>
+         </div>
+         <% } else { %>
+         <div class="form-group" for="productionCustom">
+            <label for="production-Custom">Custom URL: </label>
+
+                <input type="text" class="form-control" id="productionCustom" name="productionCustom"
+                 placeholder="Custom URL is not defined yet" disabled
+                 value="<%=(initialAppVersionInfo.customUrl)?initialAppVersionInfo.customUrl:''%>">
+         </div>
+
+            <% if (initialAppVersionInfo.versions.length > 0 ) { %>
+            <div class="form-group">
+                <label for="production-custom">Mapped version in production: </label>
+                <input type="text" class="form-control" id="productionVersionIn" name="productionVersionIn"
+                 placeholder="No version in production stage." disabled
+                 value="<%=mappedVersion%>">
+            </div>
+            <% } else {%>
+                 <div class="form-group">
+                        <label for="production-custom">Mapped version in production: </label>
+                        <div class="alert alert-warning" role="alert">No version in production stage</div>
+                    </div>
+            <% }%>
+     <% }%>
+
+     </div>
+</form>
+ </div>
+</div><!-- /.container -->
+<div class="clearfix"></div>
+<div id="push"></div>
+<% jagg.includeBlock("page/notification-wall", {"wall_name" : applicationKey + " - App Wall","applicationKey" : applicationKey, "pageName":"App Home"});%>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/urlmapper/add/js/customurl.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+
+   <%
+}); %>

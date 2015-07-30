@@ -8,7 +8,7 @@ $().ready(function() {
         issue.description   = $("#description").val();
         issue.type          = $("#type option:selected").val();
         issue.priority      = $("#priority option:selected").val();
-        issue.status        = "Open";
+        issue.status        = "OPEN";
         issue.assignee      = $("#assignee option:selected").val();
         issue.versionId     = $("#version").val();
         issue.severity      = $("#severity option:selected").val();

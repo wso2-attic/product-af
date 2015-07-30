@@ -18,12 +18,11 @@ package org.wso2.carbon.appfactory.core.task;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.tenant.mgt.stub.TenantMgtAdminServiceStub;
-import org.apache.stratos.tenant.mgt.stub.beans.xsd.TenantInfoBean;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.core.TenantCreationNotificationInitializer;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.ntask.core.Task;
+import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 
 import java.io.IOException;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.Map;
  */
 public class AppFactoryTenantCreationNotificationInitializerTask implements Task {
     private static final Log log = LogFactory.getLog(AppFactoryTenantCreationNotificationInitializerTask.class);
-    public TenantMgtAdminServiceStub stub;
     public Map<String, String> properties;
 
     @Override

@@ -100,6 +100,29 @@ var permission = jagg.module("permission");
         } else {
             response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
         }
+    } else if(action == "updateDomainMapping"){
+
+        var newCustomUrl = request.getParameter("productionCustom");
+        newCustomUrl = newCustomUrl.toLowerCase();
+        var newVersionToMap = request.getParameter("productionVersion");
+        var applicationKey = request.getParameter("applicationKey");
+        if (permission.isUserAccessGranted(applicationKey, PERMISSION_DOMAIN_MAPPING)){
+            try {
+                changeDomainMapping(applicationKey, newVersionToMap, newCustomUrl);
+            } catch (e) {
+                var msg = "Error while updating the production/customer url(s) "
+                            +( (newVersionToMap) ? " to version:"+newVersionToMap:"")
+                            +( (newCustomUrl) ?" to new custom URL:"+newCustomUrl:"")
+                            +" for application: "+applicationKey
+                            +", tenantDomain:"+jagg.module("manager").getTenantDomain();
+                log.error(msg);
+                log.error(e);
+                response.status = 400;
+                response.content = e;
+            }
+        } else {
+            response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
+        }
     } else if(action == "removeCustomUrl"){
         var applicationKey = request.getParameter("applicationKey");
         var stage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
@@ -121,6 +144,51 @@ var permission = jagg.module("permission");
 	}
 }());
 
+
+function changeDomainMapping(applicationKey, newVersionToMap, newCustomUrl){
+    var modApplication = jagg.module("application");
+    var modUrlMapper = jagg.module("urlmapper");
+    var domainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+    var initialAppVersionInfo = modApplication.getAppVersionsByStage(applicationKey, domainMappingAllowedStage);
+
+    var existingCustomUrl = initialAppVersionInfo.customUrl;
+    var existingMappedVersion = getExistingMappedVersion(initialAppVersionInfo.versions);
+    if(newCustomUrl == existingCustomUrl && (existingMappedVersion) && ! newVersionToMap){
+        throw "Cannot remove existing mapped version";
+    }
+    if(newCustomUrl) {  // if new custom Url is defined
+        if(existingMappedVersion){      // if there is already existing mapped version
+            modUrlMapper.mapNewCustomUrlToVersion(
+                    domainMappingAllowedStage,newCustomUrl,applicationKey,newVersionToMap,true);
+        } else {        // if there is no already existing mapped version
+            if(existingCustomUrl){      // if there is existing custom url
+                modUrlMapper.updateExistingUnmappedCustomUrl(domainMappingAllowedStage,newCustomUrl,applicationKey);
+            } else {                    // if there is no existing custom url
+                modUrlMapper.addNewCustomUrl(domainMappingAllowedStage, newCustomUrl, applicationKey, null, true);
+            }
+            modUrlMapper.remapDomainToVersion(
+                    domainMappingAllowedStage, applicationKey, newVersionToMap,existingMappedVersion);
+        }
+    } else {        // if new custom url is not defined
+        if(existingCustomUrl){
+            modUrlMapper.removeDomainMappingFromApplication(domainMappingAllowedStage,applicationKey,null,true);
+        } else {
+            modUrlMapper.remapDomainToVersion(
+                    domainMappingAllowedStage, applicationKey, newVersionToMap,existingMappedVersion);
+        }
+
+    }
+}
+
+function getExistingMappedVersion(versionsArray){
+    for (var i = 0; i < versionsArray.length; i++) {
+        var version = versionsArray[i];
+        if(version.productionMappedDomain){
+            return version.version;
+        }
+    }
+    return null;
+}
 
 
 %>
