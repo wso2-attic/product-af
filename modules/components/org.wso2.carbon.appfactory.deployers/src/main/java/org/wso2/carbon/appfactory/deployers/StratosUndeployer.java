@@ -129,7 +129,7 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
         String baseUrl = getBaseRepoUrl();
         String gitRepoUrl;
         if (subscribeOnDeployment) {
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                     + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR + applicationId
                     + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
                     AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
@@ -143,7 +143,7 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
                 preDevRepoNameAppender = "_" + tenantAwareUsername;
             }
 
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                     + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
                     + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         }

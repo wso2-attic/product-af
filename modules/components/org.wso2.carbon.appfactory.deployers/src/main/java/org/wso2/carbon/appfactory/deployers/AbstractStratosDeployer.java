@@ -325,7 +325,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String baseUrl = getBaseRepoUrl();
         String gitRepoUrl = "";
         if (subscribeOnDeployment) {
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                          + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR + applicationId
                          + AppFactoryConstants.MINUS +version
                          + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
@@ -338,7 +338,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
             if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom))
                 preDevRepoNameAppender = "_" + MultitenantUtils.getTenantAwareUsername(DeployerUtil.getParameterValue(metadata,"tenantUserName"));
 
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                          + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
                          + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         }
