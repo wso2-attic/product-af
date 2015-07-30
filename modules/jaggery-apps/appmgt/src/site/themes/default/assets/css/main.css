@@ -388,7 +388,7 @@ box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.05);  }
 	background-color:#ffffff;-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box;border:1px solid #B1D1D8;  -webkit-box-shadow:0 0 2px rgba(221, 235, 238, 0.4);-moz-box-shadow:0 0 2px rgba(221, 235, 238, 0.4);box-shadow:0 0 2px rgba(221, 235, 238, 0.4);white-space:normal; }  
  
 
-.popover_box { padding-bottom: 5px; background-color:#ffffff;-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box;border:1px solid #B1D1D8;  -webkit-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);-moz-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);box-shadow:0 0 2px rgba(221, 235, 238, 0.6);white-space:normal; }
+.popover_box { padding-bottom: 5px; background-color:#000000;-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box;border:1px solid #B1D1D8;  -webkit-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);-moz-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);box-shadow:0 0 2px rgba(221, 235, 238, 0.6);white-space:normal; }
 .issue_down { min-width: 578px; } 
 .issue_up { min-width: 168px; }
 .issue_up .input_row { margin-bottom: 15px; } 

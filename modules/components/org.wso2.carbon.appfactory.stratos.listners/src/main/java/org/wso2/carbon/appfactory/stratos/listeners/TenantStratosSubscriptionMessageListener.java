@@ -134,9 +134,7 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
                                 tenantInfoBean.getTenantDomain(), true);
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
-                        //TODO punnadi
                         signUp(repositoryBean, runtimeBean, stage);
-                        // subscribe(runtimeBean, tenantInfoBean, repositoryBean, getConfigContext(), stage);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
                     }

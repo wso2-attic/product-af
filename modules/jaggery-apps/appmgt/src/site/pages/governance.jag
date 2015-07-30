@@ -51,7 +51,7 @@ var site = require("/site/conf/site.json");
                                     "linkParams": [
                                         {
                                             "basePath":"/site/pages/application.jag",
-                                            "displayName": "Runtime Configs",
+                                            "displayName": applicationName,
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName

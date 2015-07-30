@@ -17,35 +17,10 @@
  *   under the License.
  */
 
-jagg.block("page/master", {
-    initialize:function (data) {
-        var applicationName = request.getParameter("applicationName");
-        var applicationKey = request.getParameter("applicationKey");
-        var params = {
-            applicationName: applicationName, applicationKey: applicationKey
-        };
-        %>
+jagg.initializer("urlmapper/add", {
 
-    <%
-    },
+    preInitialize:function () {
 
-    getInputs:function () {
-        return {
-            title:null,
-            pagePath:null,
-            body:null
-        };
-    },
-
-    getOutputs:function (inputs) {
-        return inputs;
-    },
-
-    getInputBlocks:function () {
-        return [
-            "body"
-        ];
     }
-
 });
 %>

@@ -31,7 +31,7 @@
                     <label for="priority">Priority: </label>
                     <select id="priority" class="form-control select2">
                         <option value="HIGHEST" data-icon="fa-angle-double-up">Highest</option>
-                        <option value="HIG" data-icon="fa-angle-up">High</option>
+                        <option value="HIGH" data-icon="fa-angle-up">High</option>
                         <option value="LOW" data-icon="fa-angle-down">Low</option>
                         <option value="LOWEST" data-icon="fa-angle-double-down">Lowest</option>
                     </select>
@@ -57,7 +57,7 @@
                     <select id="severity" class="form-control select2">
                         <option value="BLOCKER" data-icon="fa-ban">Blocker</option>
                         <option value="CRITICAL" data-icon="fa-exclamation">Critical</option>
-                        <option value="NON_CRITICAL" data-icon="fa-circle-o">Non Critical</option>
+                        <option value="NONE" data-icon="fa-circle-o">Non Critical</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -83,7 +83,7 @@
                         Save Issue
                     </button>
                 </div>
-                <input type="hidden" name="projectKey"  id="projectKey" value='{{project.name}}'/>
+                <input type="hidden" name="projectKey"  id="projectKey" value='{{appkey}}'/>
                 <div class="clearfix"></div>
                 <div id="push"></div>
                 <div id="push"></div>

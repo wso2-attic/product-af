@@ -575,7 +575,7 @@ function setHelpTips(helpTips){
                     </header>
 <!-- <% jagg.includeBlock("page/help", {"section": "memberAddition"}); %>-->
 				<section class="separator">
-						<div class="mini_content well">
+						<div class="mini_content">
                             <div class="form-container" name="#">
                             <div class="help-block"><span class="help-icon">?</span> <span id="addMemberHelp"></span></div>
                             <div id="select_user_box">

@@ -120,7 +120,7 @@ jagg.template("password-change", function(inputs, outputs, jagg) { %>
             </div>
         </header>
         <section class="separator">
-            <div class="mini_content well">
+            <div class="mini_content">
                 <div class="form-container" name="#">
 
                             <!--  <select class="select_list_custom select2-input" id="allUsersList" type="text"></select>     -->
