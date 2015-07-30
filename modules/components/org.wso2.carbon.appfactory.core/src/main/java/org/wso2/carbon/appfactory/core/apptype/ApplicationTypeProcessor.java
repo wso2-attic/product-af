@@ -110,4 +110,16 @@ public interface ApplicationTypeProcessor {
      * @throws UnsupportedOperationException if validation is not required for the app type
      */
     public ApplicationTypeValidationStatus validate(String uploadedFileName) throws UnsupportedOperationException;
+
+	/**
+	 * This is generate deployable file according to the artifact type.
+	 *
+	 * @param rootPath Storage path of the artifacts to generate deployable file
+	 * @param applicationId application id of the application
+	 * @param version version of the application
+	 * @param stage stage to deploy the file
+	 * @throws AppFactoryException
+	 */
+	public void generateDeployableFile(String rootPath, String applicationId,
+	                                   String version, String stage) throws AppFactoryException;
 }

@@ -31,7 +31,7 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * This class creates a GIT repository in stratos for the built artifacts and
+ * This class creates a GIT_REPOSITORY_CONTEXT repository in stratos for the built artifacts and
  * subscribes to the stratos cartridges for "subscription upon deployment" type
  * apps.
  */

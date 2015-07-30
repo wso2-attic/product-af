@@ -20,14 +20,17 @@ package org.wso2.carbon.appfactory.nonbuild;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.appfactory.deployers.AbstractStratosDeployer;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
-import org.wso2.carbon.appfactory.nonbuild.artifact.ArtifactGeneratorFactory;
-import org.wso2.carbon.appfactory.nonbuild.artifact.DeployableArtifact;
+import org.wso2.carbon.appfactory.repository.mgt.RepositoryManager;
+import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
+import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -62,18 +65,11 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 		super.setTempPath(getArtifactTempPath(applicationId, version, artifactType, stageName, tenantDomain));
 		super.setStoragePath(getArtifactStoragePath(applicationId, version, artifactType, stageName, tenantDomain));
 
-		ArtifactGeneratorFactory artifactGeneratorFactory = ArtifactGeneratorFactory.newInstance();
-		
 		String tmpStgPath = getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
 		                                                         tenantDomain,jobName);
-		DeployableArtifact deployableArtifact =
-		                                        artifactGeneratorFactory.generateDeployableArtifact(tmpStgPath,
-		                                                                                            applicationId,
-		                                                                                            version, stageName,
-		                                                                                            artifactType,
-		                                                                                            tenantDomain);
-		deployableArtifact.generateDeployableFile();
-
+		loadRepository(tmpStgPath, applicationId, version, tenantDomain);
+		ApplicationTypeManager.getInstance().getApplicationTypeBean(artifactType).
+				getProcessor().generateDeployableFile(tmpStgPath, applicationId, version, stageName);
 		super.deployLatestSuccessArtifact(parameters);
 	}
 
@@ -224,4 +220,41 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
         super.setStoragePath(getArtifactStoragePath(applicationId, version, artifactType, stageName, tenantDomain));
         super.deployPromotedArtifact(parameters);
     }
+
+	/**
+	 * Checkout repository from given location.
+	 *
+	 * @param rootPath location for checkout
+	 * @param applicationId application id of the application
+	 * @param version version of the application
+	 * @param tenantDomain current tenant domain
+	 * @throws AppFactoryException
+	 */
+	private void loadRepository(String rootPath, String applicationId, String version, String tenantDomain)
+			throws AppFactoryException {
+		try {
+			File filePath = new File(rootPath + File.separator + AppFactoryConstants.AF_GIT_TMP_FOLDER);
+			if (!filePath.exists()) {
+				if(!filePath.mkdirs()){
+					// try to create directory again.
+					if(!filePath.mkdir()){
+						throw new AppFactoryException("Failed to create directory:" + filePath.getAbsolutePath());
+					}
+				}
+			}
+			AppfactoryRepositoryClient appfactoryGitClient =
+					(new RepositoryManager()).getRepositoryProvider(AppFactoryConstants.GIT_REPOSITORY_TYPE).getRepositoryClient();
+			AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+			appfactoryGitClient.init(
+					appfactoryConfiguration.getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD),
+					appfactoryConfiguration.getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
+			RepositoryManager repositoryManager = new RepositoryManager();
+			String appfactoryGitRepoURL = repositoryManager.getURLForAppversion(applicationId, version,
+			                                                                    AppFactoryConstants.GIT_REPOSITORY_TYPE,
+			                                                                    tenantDomain, false, "");
+			appfactoryGitClient.checkOut(appfactoryGitRepoURL, version, filePath);
+		} catch (RepositoryMgtException e) {
+			throw new AppFactoryException(e);
+		}
+	}
 }

@@ -182,7 +182,8 @@ public class AppFactoryConstants {
 	/**
 	 * Defining git related constants
 	 */
-	public static final String GIT ="git";
+	public static final String GIT_REPOSITORY_CONTEXT ="git";
+	public static final String GIT_REPOSITORY_TYPE ="git";
 	public static final String GIT_REPOSITORY_EXTENSION =".git";
 	public static final String GIT_IGNORE_FILE = ".gitignore";
 	public static final String GIT_IGNORE_CONTENT = "*\n\n" + "!.gitignore";
@@ -220,19 +221,8 @@ public class AppFactoryConstants {
 	public static final String TRUNK = "trunk";
 	public static final String BRANCH = "branches";
 	public static final String TAG = "tags";
+	public static final String SRC_LOCATION = "src";
 	public static final String MASTER = "master";
-
-	public static final String FILE_TYPE_CAR = "car";
-	public static final String FILE_TYPE_JAXWS = "jaxws";
-	public static final String FILE_TYPE_JAXRS = "jaxrs";
-	public static final String FILE_TYPE_WAR = "war";
-	public static final String FILE_TYPE_JAGGERY = "jaggery";
-	public static final String FILE_TYPE_DBS = "dbs";
-	public static final String FILE_TYPE_BPEL = "bpel";
-	public static final String FILE_TYPE_PHP = "php";
-	public static final String FILE_TYPE_ESB = "esb";
-	public static final String FILE_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
-	public static final String FILE_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
 
 	public static final String TRUNK_WEBAPP_ARTIFACT_VERSION_NAME = "TrunkVersioning.WebappVersioning.ArtifactVersionName";
 	public static final String TRUNK_WEBAPP_SOURCE_VERSION_NAME = "TrunkVersioning.WebappVersioning.SourceVersionName";
@@ -241,20 +231,6 @@ public class AppFactoryConstants {
 
 	public static final String SCM_READ_WRITE_PERMISSION = "RepositoryProviderConfig.%s.Property.ReadWritePermission";
 	public static final String REPO_ACCESSABILITY = "EnablePerDeveloperRepos";
-
-	/**
-	 * Defines the property name for maven archetype generation parameters
-	 */
-	public static final String CAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.CApp.Properties";
-	public static final String WEBAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.WebApp.Properties";
-	public static final String JAX_WEBAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.JAXWS.Properties";
-	public static final String JAX_RS_WEBAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.JAXRS.Properties";
-	public static final String JAGGERY_APP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.Jaggery.Properties";
-	public static final String DBS_APP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.DBS.Properties";
-	public static final String ESB_APP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.ESB.Properties";
-	public static final String BPEL_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.BPEL.Properties";
-	public static final String PHP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.php.Properties";
-	public static final String PREFERRED_REPOSITORY_TYPE = "RepositoryType";
 
 	public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
 	public static final String SECRET_ALIAS_ATTR_NAME = "secretAlias";
@@ -299,14 +275,8 @@ public class AppFactoryConstants {
 	public static final String RESOURCES_FILE_LOCATION = "resources";
 	public static final String ESB_CAPPS_LOCAL_REPO = "esbcappslocalrepo";
 
-	public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
-			FILE_TYPE_CAR, FILE_TYPE_JAXRS, FILE_TYPE_JAXWS, FILE_TYPE_JAGGERY,
-			FILE_TYPE_BPEL };
 	public static final String CONSUME = "consume";
 	public static final String INVOKE_PERMISSION = "/permission/admin/appfactory/realm";
-
-	public static String[] JENKINS_FREESTYLE_PROJECT_TYPE = { FILE_TYPE_DBS,
-			FILE_TYPE_PHP, FILE_TYPE_ESB };
 
 	// constants added for Deployers
 
@@ -395,20 +365,7 @@ public class AppFactoryConstants {
 
 	public static final String APPLICATION_LIFECYCLE_STATE_KEY = "registry.lifecycle.ApplicationLifecycle.state";
 
-	// Subscription Upon Deployment specifics
-	public static final String STRATOS_SM_HOME = "https://localhost";
-	public static final String STRATOS_DEV_SM = STRATOS_SM_HOME + ":9463";
-	public static final String STRATOS_TEST_SM = STRATOS_SM_HOME + ":9464";
-	public static final String STRATOS_PROD_SM = STRATOS_SM_HOME + ":9466";
-	public static final String STRATOS_DEPLOYMENT_POLICY = "deployp";
-	public static final String STRATOS_AUTOSCALE_POLICY = "economy";
-
-	public static final String SERVER_URL = "https://sc.s2.appfactory.private.wso2.com:9466";
-	public static final String TENANT_ADMIN = "admin";
-	public static final String TENANT_PW = "admin";
-
 	public static final String SIGNED_JWT_AUTH_USERNAME = "Username";
-
 
     /**
      * External system variables
@@ -498,6 +455,10 @@ public class AppFactoryConstants {
 	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_SOURCE_LOCATION = "built_artifact";
 	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_ASSEMBLY_XML_LOCATION = "assembly.xml";
 	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_BIN_XML_LOCATION = "bin.xml";
+
+	public static final String AF_GIT_TMP_FOLDER = "repository";
+	public static final String DEPLOYABLE_ARTIFACT_FOLDER = "artifact";
+	public static final String ZIP_FILE_EXTENSION = "zip";
 
 
 	public static final String AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME = "StartStage";
