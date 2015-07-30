@@ -29,8 +29,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.ServerResponse;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
@@ -41,8 +43,6 @@ import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -76,7 +76,7 @@ public class DomainMappingUtils {
     public static final String JSON_PAYLOAD_KEY_APP_CONTEXT = "applicationContext";
     private static final Log log = LogFactory.getLog(DomainMappingUtils.class);
     private final static RxtManager rxtManager = RxtManager.getInstance();
-    private static final String AUTHORIZATION_HEADER = "Authorization";
+
 
     // Default prod url
     private static final String DEFAULT_URL_PREFIX = "{prefix}";
@@ -84,117 +84,6 @@ public class DomainMappingUtils {
     private static final String DEFAULT_URL_SUFFIX = "{suffix}";
     private static final String DEFAULT_URL_FORMAT =
             DEFAULT_URL_PREFIX + "." + DEFAULT_URL_MIDDLE + "." + DEFAULT_URL_SUFFIX;
-
-    /**
-     * Send rest POST request to Stratos SM.
-     *
-     * @param stage                         the stage of the Stratos SM
-     * @param body                          message body
-     * @param addSubscriptionDomainEndPoint end point to send the message
-     * @throws AppFactoryException
-     */
-    public static DomainMappingResponse sendPostRequest(String stage, String body, String addSubscriptionDomainEndPoint)
-                                                                                            throws AppFactoryException {
-        HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        String endPointUrl = getSMUrl(stage) + addSubscriptionDomainEndPoint;
-        PostMethod postMethod = new PostMethod(endPointUrl);
-
-        // password as garbage value since we authenticate with mutual ssl
-        postMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue());
-        StringRequestEntity requestEntity;
-        try {
-            requestEntity = new StringRequestEntity(body, "application/json", "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            String msg = "Error while setting parameters";
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        }
-        postMethod.setRequestEntity(requestEntity);
-        return send(httpClient, postMethod);
-    }
-
-    /**
-     * Get auth header value
-     *
-     * @return auth header in basic encode
-     */
-    private static String getAuthHeaderValue() {
-        String usernameInContext = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String tenantLessUserName = MultitenantUtils.getTenantAwareUsername(usernameInContext);
-        String userName = tenantLessUserName+ UserCoreConstants.TENANT_DOMAIN_COMBINER+
-                          CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-        // password as garbage value since we authenticate with mutual ssl.
-        // We need to set the auth header for requests with the username.
-        byte[] getUserPasswordInBytes = (userName + ":nopassword").getBytes();
-        String encodedValue = new String(Base64.encodeBase64(getUserPasswordInBytes));
-        return "Basic " + encodedValue;
-    }
-
-    /**
-     * Send REST DELETE request to stratos SM.
-     *
-     * @param stage                            the stage of the Stratos SM
-     * @param removeSubscriptionDomainEndPoint end point to send the message
-     * @throws AppFactoryException
-     */
-    public static DomainMappingResponse sendDeleteRequest(String stage, String removeSubscriptionDomainEndPoint)
-                                                                                           throws AppFactoryException {
-        HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        String endPointUrl = getSMUrl(stage) + removeSubscriptionDomainEndPoint;
-        DeleteMethod deleteMethod = new DeleteMethod(endPointUrl);
-        deleteMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue());
-        return send(httpClient, deleteMethod);
-    }
-
-    /**
-     * Send rest GET request to Stratos SM
-     *
-     * @param stage                         the stage of the Stratos SM
-     * @param getSubscriptionDomainEndPoint end point to send the message
-     * @throws AppFactoryException
-     */
-    public static DomainMappingResponse sendGetRequest(String stage, String getSubscriptionDomainEndPoint)
-                                                                                           throws AppFactoryException {
-        HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        String endPointUrl = getSMUrl(stage) + getSubscriptionDomainEndPoint;
-        GetMethod getMethod = new GetMethod(endPointUrl);
-        getMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue());
-        return send(httpClient, getMethod);
-    }
-
-    /**
-     * Send rest request.
-     *
-     * @param httpClient client object
-     * @param method     method type
-     * @throws AppFactoryException
-     */
-    private static DomainMappingResponse send(HttpClient httpClient, HttpMethodBase method) throws AppFactoryException {
-        int responseCode;
-        String responseString = null;
-        try {
-            responseCode = httpClient.executeMethod(method);
-        } catch (IOException e) {
-            String msg = "Error occurred while executing method " + method.getName();
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-        }
-        try {
-            responseString = method.getResponseBodyAsString();
-        } catch (IOException e) {
-            String msg = "error while getting response as String for " + method.getName();
-            log.error(msg, e);
-            throw new AppFactoryException(msg, e);
-
-        } finally {
-            method.releaseConnection();
-        }
-        if (log.isDebugEnabled()) {
-            log.debug(" DomainMappingManagementService response id: " + responseCode + " message:  " + responseString);
-        }
-        return new DomainMappingResponse(responseString, responseCode);
-    }
 
     /**
      * Generate json payload for add new subscription domain

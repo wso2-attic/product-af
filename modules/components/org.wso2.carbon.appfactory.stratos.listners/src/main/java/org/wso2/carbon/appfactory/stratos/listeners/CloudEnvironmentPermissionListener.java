@@ -19,23 +19,18 @@ package org.wso2.carbon.appfactory.stratos.listeners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.stratos.common.beans.TenantInfoBean;
-import org.apache.stratos.common.exception.StratosException;
+import org.apache.stratos.common.exception.ApacheStratosException;
 import org.apache.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.RoleBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.stratos.listeners.dto.CloudRegistryResource;
 import org.wso2.carbon.appfactory.stratos.util.AppFactoryS4ListenersUtil;
-import org.wso2.carbon.appfactory.stratos.util.ListenerUtils;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 
-import java.util.List;
 import java.util.Set;
 
 public class CloudEnvironmentPermissionListener implements TenantMgtListener {
@@ -50,19 +45,19 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
 
     @Override
     public void onSubscriptionPlanChange(int arg0, String arg1, String arg2)
-            throws StratosException {
+            throws ApacheStratosException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onTenantActivation(int arg0) throws StratosException {
+    public void onTenantActivation(int arg0) throws ApacheStratosException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onTenantCreate(TenantInfoBean tenInfoBean) throws StratosException {
+    public void onTenantCreate(TenantInfoBean tenInfoBean) throws ApacheStratosException {
         log.info("*********adding permissions******") ;
         int tenantId = tenInfoBean.getTenantId();
         PrivilegedCarbonContext.startTenantFlow();
@@ -71,7 +66,7 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
         String currentCloudStage = System.getProperty(AppFactoryConstants.CLOUD_STAGE);
         if (currentCloudStage == null || currentCloudStage.isEmpty()) {
             log.error(AppFactoryConstants.CLOUD_STAGE + " system variable is not set. No permissions related to cloud environments are added.");
-            throw new StratosException(AppFactoryConstants.CLOUD_STAGE + " system variable is not set. No permissions related to cloud environments are added.");
+            throw new ApacheStratosException(AppFactoryConstants.CLOUD_STAGE + " system variable is not set. No permissions related to cloud environments are added.");
         }
         try {
             addCloudRolePermissions(tenInfoBean, currentCloudStage);
@@ -116,25 +111,25 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
    
 
     @Override
-    public void onTenantDeactivation(int arg0) throws StratosException {
+    public void onTenantDeactivation(int arg0) throws ApacheStratosException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onTenantInitialActivation(int arg0) throws StratosException {
+    public void onTenantInitialActivation(int arg0) throws ApacheStratosException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onTenantRename(int arg0, String arg1, String arg2) throws StratosException {
+    public void onTenantRename(int arg0, String arg1, String arg2) throws ApacheStratosException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onTenantUpdate(TenantInfoBean arg0) throws StratosException {
+    public void onTenantUpdate(TenantInfoBean arg0) throws ApacheStratosException {
         // TODO Auto-generated method stub
 
     }
