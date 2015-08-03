@@ -896,7 +896,7 @@ node /api-manager/ inherits confignode {
 $server_ip= $ipaddress
 
 class {"apimanager":
-  version            => "1.8.0",
+  version            => "1.9.0",
   offset             => $apim_offset,
   localmember_port   => 4000,
   clustering         => false,

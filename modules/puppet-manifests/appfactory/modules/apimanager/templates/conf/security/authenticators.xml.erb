@@ -34,7 +34,7 @@
 	    <Parameter name="VerifySignatureWithUserDomain">true</Parameter>
             <Parameter name="LoginPage">/carbon/admin/login.jsp</Parameter>
             <Parameter name="ServiceProviderID">APPFACTORY</Parameter>
-	    <!-- IdentityProviderSSOServiceURL is not being used at the moment-->
+	        <!-- IdentityProviderSSOServiceURL is not being used at the moment-->
             <Parameter name="IdentityProviderSSOServiceURL">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/samlsso</Parameter>
             <Parameter name="NameIDPolicyFormat">urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</Parameter>
 	</Config>
