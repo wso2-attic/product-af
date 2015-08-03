@@ -49,7 +49,7 @@ declare -a APPSERVER_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 declare -a SM_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 
 ## patches
-declare -a AM_PATCHES=("patch1132" "patch0999");
+declare -a AM_PATCHES=();
 declare -a AF_PATCHES=("patch0001" "patch0004" "patch0132" "patch0133" "patch1091");
 declare -a AS_PATCHES=("patch0028" "patch0132" "patch0133" "patch9999");
 declare -a ELB_PATCHES=("patch0001" "patch0027" "patch0236" "patch8000");
