@@ -23,7 +23,6 @@ var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var dbInfoForDataTable = outputs.dbInfoForDataTable;
 var hasDBs = false;
-log.info("DDDDDDDD : " + dbInfoForDataTable);
 
 if(parse(dbInfoForDataTable).length > 0){
     hasDBs = true;
@@ -134,9 +133,6 @@ if(parse(dbInfoForDataTable).length > 0){
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<!-- include custom js functions -->
 <script>
     $('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
@@ -151,7 +147,6 @@ if(parse(dbInfoForDataTable).length > 0){
             $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
         }
     });
-    console.log(JSON.stringify(<%=dbInfoForDataTable%>));
     $('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,
