@@ -36,10 +36,11 @@ jagg.block("resources/database/list", {
        var applicationKey = request.getParameter("applicationKey");
        var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
        var helpTips = jagg.module("help").getHelpTips("resources-databases");
-
+       var dbInfoForDataTable = jagg.module("resources").generateDatabaseInfoForDataTable(applicationKey);
        return {
-           "hasCreateResourcePermissions": hasCreateResourcePermissions,
-	       "helpTips":helpTips
+            "hasCreateResourcePermissions": hasCreateResourcePermissions,
+            "dbInfoForDataTable" : dbInfoForDataTable,
+	        "helpTips":helpTips
        };
    }
 

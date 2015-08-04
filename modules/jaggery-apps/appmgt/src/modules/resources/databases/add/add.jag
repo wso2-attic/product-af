@@ -871,4 +871,32 @@ function buildUserPrivilege(result){
 var getAllDatabasesInfo = function (applicationKey, stage) {
     return rssFilter.getAllDatabasesInfo(applicationKey, stage);
 };
+
+
+/**
+ * Generate json object array to insert to the datatable in databases page
+*/
+var generateDatabaseInfoForDataTable = function (applicationKey) {
+    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var allDBInfo = [];
+    for (var i = 0; i < allStages.length; i++) {
+        var allDatabasesPerStage = rssFilter.getAllDatabasesInfo(applicationKey, allStages[i]);
+        //log.info(allDatabasesPerStage);
+        for(var j in allDatabasesPerStage) { 
+            //log.info("db : " + stringify(allDatabasesPerStage[j]));
+            var singleDatabaseInfo = allDatabasesPerStage[j];
+            var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
+            //log.info("db url : " + dbUrl);
+            singleDatabaseInfo.database_url = dbUrl;
+            singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+            singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+            singleDatabaseInfo.type = "MySQL";
+            allDBInfo.push(singleDatabaseInfo);
+        } 
+    }
+    return stringify(allDBInfo);
+    //log.info("All DB INFO : " + stringify(allDBInfo));
+};
+
+
 %>
