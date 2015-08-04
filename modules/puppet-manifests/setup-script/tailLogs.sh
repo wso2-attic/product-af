@@ -10,10 +10,10 @@ xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/appfactory/wso2appfacto
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/appfactory/wso2appfactory-$APPFACTORY_VERSION/repository/logs/wso2carbon.log"; xdotool key Return;
 
 xdotool key ctrl+shift+t 
-xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/api-manager/wso2am-1.7.0/bin"; xdotool key Return;
-xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/api-manager/wso2am-1.7.0/repository/logs/wso2carbon.log"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/api-manager/wso2am-1.9.0/bin"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/api-manager/wso2am-1.9.0/repository/logs/wso2carbon.log"; xdotool key Return;
 
-xdotool key ctrl+shift+t 
+xdotool key ctrl+shift+t
 xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/bps/wso2bps-3.2.0/bin"; xdotool key Return;
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/bps/wso2bps-3.2.0/repository/logs/wso2carbon.log"; xdotool key Return;
 
