@@ -886,7 +886,7 @@ var generateDatabaseInfoForDataTable = function (applicationKey, applicationName
             var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
             singleDatabaseInfo.database_url = dbUrl;
             //singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
-			singleDatabaseInfo.userpriviledges = "<a href='/site/pages/editdatabase.jag?applicationName="
+			singleDatabaseInfo.userpriviledges = "<a href='editdatabase.jag?applicationName="
 												 + applicationName + "&applicationKey=" + applicationKey + "&dbName="
 												 + singleDatabaseInfo.name + "&environment=" + singleDatabaseInfo.stage
 												 + "'><i class='fa fa-edit'></i></a>";
