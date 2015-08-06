@@ -34,9 +34,10 @@ jagg.block("resources/database/list", {
  getOutputs:function (inputs) {
        var log = new Log();
        var applicationKey = request.getParameter("applicationKey");
+       var applicationName = request.getParameter("applicationName");
        var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
        var helpTips = jagg.module("help").getHelpTips("resources-databases");
-       var dbInfoForDataTable = jagg.module("resources").generateDatabaseInfoForDataTable(applicationKey);
+       var dbInfoForDataTable = jagg.module("resources").generateDatabaseInfoForDataTable(applicationKey,applicationName);
        return {
             "hasCreateResourcePermissions": hasCreateResourcePermissions,
             "dbInfoForDataTable" : dbInfoForDataTable,
