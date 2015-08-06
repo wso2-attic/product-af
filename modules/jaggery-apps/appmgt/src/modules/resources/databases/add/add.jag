@@ -876,7 +876,7 @@ var getAllDatabasesInfo = function (applicationKey, stage) {
 /**
  * Generate json object array to insert to the datatable in databases page
 */
-var generateDatabaseInfoForDataTable = function (applicationKey) {
+var generateDatabaseInfoForDataTable = function (applicationKey, applicationName) {
     var allStages = getProperties(DEPLOYMENT_STAGES);
     var allDBInfo = [];
     for (var i = 0; i < allStages.length; i++) {
@@ -885,8 +885,12 @@ var generateDatabaseInfoForDataTable = function (applicationKey) {
             var singleDatabaseInfo = allDatabasesPerStage[j];
             var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
             singleDatabaseInfo.database_url = dbUrl;
-            singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
-            singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+            //singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+			singleDatabaseInfo.userpriviledges = "<a href='/site/pages/editdatabase.jag?applicationName="
+												 + applicationName + "&applicationKey=" + applicationKey + "&dbName="
+												 + singleDatabaseInfo.name + "&environment=" + singleDatabaseInfo.stage
+												 + "'><i class='fa fa-edit'></i></a>";
+			singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
 			// currently we dont record database type, support only MySQL.change this when multiple types are allowed
 			singleDatabaseInfo.type = "MySQL";
 
