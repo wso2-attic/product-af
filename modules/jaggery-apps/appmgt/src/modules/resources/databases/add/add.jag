@@ -887,7 +887,9 @@ var generateDatabaseInfoForDataTable = function (applicationKey) {
             singleDatabaseInfo.database_url = dbUrl;
             singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
             singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
-            singleDatabaseInfo.type = "MySQL";
+			// currently we dont record database type, support only MySQL.change this when multiple types are allowed
+			singleDatabaseInfo.type = "MySQL";
+
             allDBInfo.push(singleDatabaseInfo);
         } 
     }
