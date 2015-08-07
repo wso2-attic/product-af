@@ -281,9 +281,7 @@ public class AppFactoryConstants {
 	// constants added for Deployers
 
 	public static final String APPLICATION_TYPE_JAXRS = "jaxrs";
-	public static final String APPLICATION_TYPE_DBS = "dbs";
-	public static final String APPLICATION_TYPE_ESB = "esb";
-	public static final String APPLICATION_TYPE_XML = "xml";
+
 	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";

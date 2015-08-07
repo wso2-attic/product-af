@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><artifact name="EchoServiceEP-Development" version="${version}" type="registry/resource" serverRole="EnterpriseServiceBus">
-    <file>registry-info.xml</file>
-</artifact>

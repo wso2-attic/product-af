@@ -23,9 +23,7 @@
     </plugins>
   </build>
   <modules>
-    <module>${artifactId}ApplicationResources</module>
     <module>${artifactId}SimpleProxy</module>
-    <module>${artifactId}ResourcesCAR</module>
     <module>${artifactId}</module>
   </modules>
 </project>
