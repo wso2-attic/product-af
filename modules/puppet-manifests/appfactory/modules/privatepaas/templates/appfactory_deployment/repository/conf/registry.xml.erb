@@ -35,6 +35,10 @@
         <dataSource>jdbc/governance</dataSource>
     </dbConfig>
 
+    <dbConfig name="config">
+        <dataSource>jdbc/config</dataSource>
+    </dbConfig>
+
     <%- database = @ppaas_registry_db -%>
     <remoteInstance url="https://HOSTNAME">
         <id>governance</id>
@@ -49,10 +53,6 @@
         <instanceId>governance</instanceId>
         <targetPath>/_system/governance</targetPath>
     </mount>
-
-    <dbConfig name="config">
-        <dataSource>jdbc/config</dataSource>
-    </dbConfig>
 
     <%- database = @ppaas_config_db -%>
     <remoteInstance url="https://HOSTNAME">
