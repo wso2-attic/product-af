@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
@@ -27,6 +28,7 @@ import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +43,9 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 	private static final String ECHO_ENDPOINT_RESOURCE_NAME = "EchoServiceEP.xml";
 	private static final String ECHO_ENDPOINT_RESOURCE_DESCRIPTION = "ESB default echo service endpoint";
 	private static final String ECHO_WSDL_RESOURCE_DESCRIPTION = "Echo wsdl to publish";
+	private static final String PARAM_APP_STAGE = "{stage}";
+	private static final String PARAM_APP_STAGE_NAME_SUFFIX = "StageParam";
+	private static final String AF_START_STAGE = "StartStage";
 
 	private RemoteRegistryService appfactoryRemoteRegistryService = null;
 	private File echoEndpointFile = null;
@@ -60,11 +65,7 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 		    throws AppFactoryException {
         if (APPLICATION_TYPE_ESB.equalsIgnoreCase(application.getType())) {
 
-
-	        String serverURL = RuntimeManager.getInstance().getRuntimeBean
-			        (ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
-			                               .getRuntimes()[0])
-	                                         .getServerURL();
+	        String serverURL = constructServerURL(application);
 
 	        //Create resources
 	        try {
@@ -90,13 +91,12 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
         }
     }
 
-    @Override
+	@Override
     public void onDeletion(Application application, String userName, String tenantDomain) throws AppFactoryException {
         if (APPLICATION_TYPE_ESB.equalsIgnoreCase(application.getType())) {
-	        String serverURL = RuntimeManager.getInstance().getRuntimeBean
-			        (ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
-			                               .getRuntimes()[0])
-	                                        .getServerURL();
+
+	        String serverURL = constructServerURL(application);
+	        
 	        //Sending the request with empty content for deletion
 	        appfactoryRemoteRegistryService.deleteRegistryResource(serverURL, userName, application.getId(),
 	                                                               ECHO_ENDPOINT_RESOURCE_NAME, "", "",
@@ -107,6 +107,28 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
         }
 
     }
+
+	private String constructServerURL(Application application) throws AppFactoryException {
+		RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(
+				ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType()).getRuntimes()[0]);
+		String serverURL = runtimeBean.getServerURL();
+		String urlStageValue = "";
+
+		try {
+			urlStageValue = runtimeBean.getProperty(AppFactoryUtil.getAppfactoryConfiguration().
+					getFirstProperty(AF_START_STAGE) + PARAM_APP_STAGE_NAME_SUFFIX);
+		} catch (Exception e){
+			// no need to throw just log and continue
+			log.warn("Error while getting the url stage value fo application:" + application.getId(), e);
+		}
+
+		if(urlStageValue == null){
+			urlStageValue = "";
+		}
+
+		serverURL = serverURL.replace(PARAM_APP_STAGE, urlStageValue);
+		return serverURL;
+	}
 
     @Override
     public void onUserAddition(Application application, UserInfo user, String tenantDomain) throws AppFactoryException {
