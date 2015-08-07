@@ -48,47 +48,52 @@
             </definition>
         </datasource>
         <datasource>
-            <name>WSO2_USERSTORE_DB</name>
-            <description>The datasource used for user manager</description>
-            <jndiConfig>
-                <name>jdbc/userstore</name>
-            </jndiConfig>
-            <definition type="RDBMS">
-                <configuration>
-                    <%- database = @ppaas_userstore_db -%>
-                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
-                    <username><%= database[2] %></username>
-                    <password><%= database[3] %></password>
-                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
-                    <maxActive>50</maxActive>
-                    <maxWait>60000</maxWait>
-                    <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
-                </configuration>
-            </definition>
+           <name>WSO2_USERSTORE_DB</name>
+           <description>The datasource used for user manager</description>
+           <jndiConfig>
+               <name>jdbc/userstore</name>
+           </jndiConfig>
+           <definition type="RDBMS">
+               <configuration>
+                   <%- database = @userstore_database -%>
+                   <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
+                   <username><%= database[2] %></username>
+                   <password><%= database[3] %></password>
+                   <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                   <maxActive>150</maxActive>
+                   <maxWait>60000</maxWait>
+                   <testOnBorrow>true</testOnBorrow>
+                   <validationQuery>SELECT 1</validationQuery>
+                   <validationInterval>30000</validationInterval>
+                   <minIdle>5</minIdle>
+               </configuration>
+           </definition>
         </datasource>
-
-	    <datasource>
-            <name>WSO2_REGISTRY_DB</name>
-            <description>The datasource used for registry</description>
-            <jndiConfig>
-                <name>jdbc/governance</name>
-            </jndiConfig>
-            <definition type="RDBMS">
-                <configuration>
-                    <%- database = @ppaas_registry_db -%>
-                    <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
-                    <username><%= database[2] %></username>
-                    <password><%= database[3] %></password>
-                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
-                    <maxActive>50</maxActive>
-                    <maxWait>60000</maxWait>
-                    <testOnBorrow>true</testOnBorrow>
-                    <validationQuery>SELECT 1</validationQuery>
-                    <validationInterval>30000</validationInterval>
-                </configuration>
-            </definition>
+        <datasource>
+           <name>WSO2_REGISTRY_DB</name>
+           <description>The datasource used for registry</description>
+           <jndiConfig>
+               <name>jdbc/governance</name>
+           </jndiConfig>
+           <definition type="RDBMS">
+               <configuration>
+                   <%- database = @registry_database -%>
+                   <url>jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>?autoReconnect=true</url>
+                   <username><%= database[2] %></username>
+                   <password><%= database[3] %></password>
+                   <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                   <maxActive>150</maxActive>
+                   <maxWait>60000</maxWait>
+                   <testOnBorrow>true</testOnBorrow>
+                   <validationQuery>SELECT 1</validationQuery>
+                   <validationInterval>30000</validationInterval>
+                   <minIdle>5</minIdle>
+                   <removeAbandoned>true</removeAbandoned>
+                   <logAbandoned>true</logAbandoned>
+                   <removeAbandonedTimeout>180</removeAbandonedTimeout>
+                   <jdbcInterceptors>ResetAbandonedTimer</jdbcInterceptors>
+               </configuration>
+           </definition>
         </datasource>
 
          <datasource>
