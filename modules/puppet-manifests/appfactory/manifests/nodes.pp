@@ -95,35 +95,35 @@ node basenode {
 ############## Stratos DBS for Dev Setup #########################
 
 ##PPAAS - Docker
-  #$ppaas_registry_db_schema  = "ppaasregistry"
-  #$ppaas_userstore           = "ppaasuserstore"
+  $ppaas_registry_db_schema  = "ppaasregistry"
+  $ppaas_userstore           = "ppaasuserstore"
   $ppaas_config_db_schema    = "PPAAS_CONFIG_DB"
-  #$ppaas_registry_db         = [$mysql_server_1,$ppaas_registry_db_schema,'root','root']
-  #$ppaas_userstore_db        = [$mysql_server_1, $ppaas_userstore,'root','root']
+  $ppaas_registry_db         = [$mysql_server_1,$ppaas_registry_db_schema,'root','root']
+  $ppaas_userstore_db        = [$mysql_server_1, $ppaas_userstore,'root','root']
   $ppaas_config_db           = [$mysql_server_1, $ppaas_config_db_schema,'root','root']
 
 ## Dev ##
-  $dev_registry_db_schema  = "devregistry"
-  $dev_userstore           = "devuserstore"
+ # $dev_registry_db_schema  = "devregistry"
+ # $dev_userstore           = "devuserstore"
   $dev_config_db_schema    = "DEV_CONFIG_DB"
-  $devpaas_database       = [$mysql_server_1,$dev_registry_db_schema,'root','root']
-  $dev_userstore_db         = [$mysql_server_1, $dev_userstore,'root','root']
+ # $devpaas_database       = [$mysql_server_1,$dev_registry_db_schema,'root','root']
+ # $dev_userstore_db         = [$mysql_server_1, $dev_userstore,'root','root']
   $dev_config_db         = [$mysql_server_1, $dev_config_db_schema,'root','root']
 
 ## Test ##
-  $test_registry_db_schema  = "testregistry"
-  $test_userstore           = "testuserstore"
+ # $test_registry_db_schema  = "testregistry"
+ # $test_userstore           = "testuserstore"
   $test_config_db_schema    = "TEST_CONFIG_DB"
-  $testpaas_database       = [$mysql_server_1,$test_registry_db_schema,'root','root']
-  $test_userstore_db         = [$mysql_server_1, $test_userstore,'root','root']
+ # $testpaas_database       = [$mysql_server_1,$test_registry_db_schema,'root','root']
+ #$test_userstore_db         = [$mysql_server_1, $test_userstore,'root','root']
   $test_config_db         = [$mysql_server_1, $test_config_db_schema,'root','root']
 
 ## Prod ##
-  $prod_registry_db_schema  = "prodregistry"
-  $prod_userstore           = "produserstore"
+  #$prod_registry_db_schema  = "prodregistry"
+  #$prod_userstore           = "produserstore"
   $prod_config_db_schema    = "PROD_CONFIG_DB"
-  $prodpaas_database       = [$mysql_server_1,$prod_registry_db_schema,'root','root']
-  $prod_userstore_db         = [$mysql_server_1, $prod_userstore,'root','root']
+  #$prodpaas_database       = [$mysql_server_1,$prod_registry_db_schema,'root','root']
+  #$prod_userstore_db         = [$mysql_server_1, $prod_userstore,'root','root']
   $prod_config_db         = [$mysql_server_1, $prod_config_db_schema,'root','root']
 
   $domain         = 'appfactory.private.wso2.com'
@@ -640,11 +640,13 @@ node /clean.devsetup/ inherits confignode {
     $bam_config_database_name,$rss_mgt_config_database_name,
     $ts_config_database_name,$ues_config_database_name,$apim_config_database_name,
     $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
-    $dev_registry_db_schema, $dev_userstore, $dev_config_db_schema,
-    $test_registry_db_schema,$test_userstore, $test_config_db_schema,
-    $prod_registry_db_schema,$prod_userstore, $prod_config_db_schema,
-    #$ppaas_registry_db_schema,$ppaas_userstore,
-    $ppaas_config_db_schema
+    #$dev_registry_db_schema, $dev_userstore,
+    $dev_config_db_schema,
+    #$test_registry_db_schema,$test_userstore,
+    $test_config_db_schema,
+    #$prod_registry_db_schema,$prod_userstore,
+    $prod_config_db_schema,
+    $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
   ]
 
   class {"mysql::clean":
@@ -673,8 +675,7 @@ node /backup.devsetup/ inherits confignode {
     $test_config_db_schema,
     #$prod_registry_db_schema,$prod_userstore,
     $prod_config_db_schema,
-    #$ppaas_registry_db_schema,$ppaas_userstore,
-    $ppaas_config_db_schema
+    $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
   ]
 
   class {"mysql::backup":
@@ -710,17 +711,17 @@ node /mysql/ inherits confignode{
     ues_config =>  {config => $ues_config_database, script_name => "mysql"},
     apim_config =>  {config => $apimgt_config_database, script_name => "mysql"},
     apimdb =>  {config => $apimgt_database, script_name => "apim-mysql"},
-    devregistry =>  {config => $devpaas_database, script_name => "mysql"},
-    devuser_store =>  {config => $dev_userstore_db, script_name =>"mysql" },
+    #devregistry =>  {config => $devpaas_database, script_name => "mysql"},
+    #devuser_store =>  {config => $dev_userstore_db, script_name =>"mysql" },
     devconfigdb =>  {config => $dev_config_db, script_name => "mysql"},
-    testregistry =>  {config => $testpaas_database, script_name => "mysql"},
-    testuser_store =>  {config => $test_userstore_db, script_name => "mysql"},
+    #testregistry =>  {config => $testpaas_database, script_name => "mysql"},
+    #testuser_store =>  {config => $test_userstore_db, script_name => "mysql"},
     testconfigdb =>  {config => $test_config_db, script_name => "mysql"},
-    prodregistry =>  {config => $prodpaas_database, script_name => "mysql"},
-    produser_store =>  {config => $prod_userstore_db, script_name => "mysql"},
+    #prodregistry =>  {config => $prodpaas_database, script_name => "mysql"},
+    #produser_store =>  {config => $prod_userstore_db, script_name => "mysql"},
     prodconfigdb =>  {config => $prod_config_db, script_name => "mysql"},
-    #ppaasregistry =>  {config => $ppaas_registry_db, script_name => "mysql"},
-    #ppaasuser_store =>  {config => $ppaas_userstore_db, script_name => "mysql"},
+    ppaasregistry =>  {config => $ppaas_registry_db, script_name => "mysql"},
+    ppaasuser_store =>  {config => $ppaas_userstore_db, script_name => "mysql"},
     ppaasconfigdb =>  {config => $ppaas_config_db, script_name => "mysql"},
     dbApimStats =>  {config => $bam_apim_stat_db, script_name => undef},
     dbAfStats =>  {config => $bam_af_stat_db, script_name => undef},
@@ -1102,8 +1103,8 @@ node /ppaas/ inherits confignode {
     target             => "/mnt/${server_ip}/ppaas",
     ppaas_mysql_host   => $ppaas_mysql_host,
     offset             => $dev_paas_offset,
-    #registry_db_schema => $ppaas_registry_db_schema,
-    #user_store         => $ppaas_userstore,
+    registry_db_schema => $ppaas_registry_db_schema,
+    user_store         => $ppaas_userstore,
     config_db_schema   => $ppaas_config_db_schema
   }
 }
