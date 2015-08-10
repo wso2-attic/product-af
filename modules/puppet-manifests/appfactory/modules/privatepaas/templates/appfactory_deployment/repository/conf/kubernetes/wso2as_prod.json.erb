@@ -55,7 +55,7 @@
             "name": "payload_parameter.START_CMD",
             "value": "PCA"
         },
-        <%- database = @prodpaas_database -%>
+        <%- database = @ppaas_registry_db -%>
         {
            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_URL",
            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
@@ -68,7 +68,7 @@
            "name": "payload_parameter.CONFIG_PARAM_REGISTRY_DB_PASSWORD",
            "value": "<%= database[3] %>"
         },
-        <%- database = @prod_userstore_db -%>
+        <%- database = @ppaas_userstore_db -%>
         {
            "name": "payload_parameter.CONFIG_PARAM_USER_MGT_DB_URL",
            "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
