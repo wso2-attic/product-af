@@ -22,867 +22,114 @@ jagg.template("resources/database/edit", function (inputs, outputs, jagg) { %>
 var hasDataSourceCreatePermission = outputs.hasCreateResourcePermissions;
 var hasDataSourceDeletePermissionInCurrentStage = outputs.hasDataSourceDeletePermissionInCurrentStage;
 var hasDatabaseUpdatePermissionInCurrentStage = outputs.hasDataBaseUpdatePermissionInCurrentStage;
+var userInfo = outputs.userInfo;
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
+var dbName = request.getParameter("dbName");
+var environment = request.getParameter("environment");
 appInfo=session.get("APP_INFO");
 language=appInfo.language;
 %>
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.min.css'))%>">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/dataTables.responsive.css'))%>">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.override.css'))%>">
 
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="#" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Database
+        </a>
+        <a href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Add New User</span>
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
 
-<script type="text/javascript">
-    //this is for zeroclipboard pluging
-    var _defaults = {
-     moviePath:         "<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
-     trustedDomains:    undefined,                  // Domains that we should trust (single string or array of strings)
-     hoverClass:        "zeroclipboard-is-hover",   // The class used to hover over the object
-     activeClass:       "zeroclipboard-is-active",  // The class used to set object active
-     allowScriptAccess: "sameDomain",               // SWF outbound scripting policy
-     useNoCache:        true,                       // Include a nocache query parameter on requests for the SWF
-     amdModuleId:       null                       // AMD module ID or path to access the ZeroClipboard object
-   };
-   ZeroClipboard.setDefaults(_defaults);
-
-
-	var applicationKey='',
-	        dbUser='',
-	        selectedUser='',
-	        selectedTemplate='',
-	        selectedTemplateForAttachuser='';
-	var applicationKey='<%=request.getParameter("applicationKey")%>';
-	var dbName='<%=request.getParameter("dbName") %>';
-	var environment='<%=request.getParameter("environment") %>';
-	var MAX_USER_NAME_LENGTH = 8;
-    var ck_password = /^[A-Za-z0-9!@#$%^*_~]{6,15}$/;
-
-	$(document).ready(function(){
-
-	    $('#dbNameConatiner').html('<h2>'+dbName+'</hs2>') ;
-	    $('#addNew_permission').click(function(){
-	        var newEntry = $('#permission_entry').clone().show();
-	        newEntry.appendTo('#permission_listing');
-	    });
-	     getDatabaseUsers();
-	    //getDatabases();
-	    getattachedeUsers();
-	    getDbUserTemplateInfoForStages();
-	    $('select#dbUsersDD').change(function(){
-	        selectedUser=$(this).val();
-	        getUserPrivileges(selectedUser);
-	    });
-	    $('select#templateDD').change(function(){
-	    	$("#section_template_permissions").show();
-	    	if($('#templateDD option:selected').attr('id') == "templateDefaultValue"){
-	    		$("#section_template_permissions").hide();
-	    	}
-	        selectedTemplate=$(this).val();
-	        selectedTemplateForAttachuser= selectedTemplate+'@'+environment;
-	         if(selectedTemplate.length>0){
-	             getTemplate(selectedTemplate);
-	         }
-	    });
-	    $('#btn_save').click(function(){
-		    if($('select#dbUsersDD').val() && $('select#templateDD').val()){
-			    attachNewUser($('select#dbUsersDD').val(),$('select#templateDD').val()+'@'+environment);
-		    } else if (!($('select#dbUsersDD').val())){
-		    	jagg.message({type:'error',content:'No Users selected', id:'tempalte_edit'});
-		    } else if (!($('select#templateDD').val())){
-		    	jagg.message({type:'error',content:'No Templates selected', id:'tempalte_edit'});
-		    }
-	    });
-
-	    $('#btn_delete_db').click(function(event){
-	        event.preventDefault();
-	        jagg.popMessage({type:'confirm',title:'Delete Database',content:'Are you sure you want to delete the database '+dbName+' ?',okCallback:function(){ deleteDatabase();},cancelCallback:function(){}});
-	    });
-	    $('#create_user_div').slideUp('fast');
-        $('#add_new_user_btn').click(function(event){
-	          $('#create_user_div').slideDown('fast');
-	    });
-
-        $('.js_cancel_user').click(function(){
-            $('#create_user_div').slideUp('fast');
-        });
-	});
-
-	var removeElement = function(clickedElem){
-	    $(clickedElem).parent().parent().parent().parent().remove();
-	}
-
-	function setValue(value){
-	    if(value == 'Y'){
-		    return true;
-		}else if (value == 'N'){
-		    return false;
-		}
-	}
-
-	function getValue(value){
-		if(value == 'checked'){
-		     return true;
-		}else{
-		     return false;
-		}
-	}
-
-	function showEditUser(username){
-	    formEditPrivHide();
-	    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-	        action:"getUserPrivileges",
-	        applicationKey:applicationKey,
-	        dbname:dbName,
-	        rssInstanceName:environment,
-	        username:username
-	    }, function (result) {
-	        if(result != undefined){
-	            var parsedArray = jQuery.parseJSON(result);
-	            $("#editselectPriv").prop('checked', setValue(parsedArray[0].selectPriv));
-	            $("#editinsertPriv").prop('checked', setValue(parsedArray[0].insertPriv));
-	            $("#editupdatePriv").prop('checked', setValue(parsedArray[0].updatePriv));
-	            $("#editdeletePriv").prop('checked', setValue(parsedArray[0].deletePriv));
-	            $("#editcreatePriv").prop('checked', setValue(parsedArray[0].createPriv));
-	            $("#editdropPriv").prop('checked', setValue(parsedArray[0].dropPriv));
-	            $("#editgrantPriv").prop('checked', setValue(parsedArray[0].grantPriv));
-	            $("#editreferencesPriv").prop('checked', setValue(parsedArray[0].referencesPriv));
-	            $("#editindexPriv").prop('checked', setValue(parsedArray[0].indexPriv));
-	            $("#editalterPriv").prop('checked', setValue(parsedArray[0].alterPriv));
-	            $("#editcreateTmpTablePriv").prop('checked', setValue(parsedArray[0].createTmpTablePriv));
-	            $("#editlockTablesPriv").prop('checked', setValue(parsedArray[0].lockTablesPriv));
-	            $("#editcreateViewPriv").prop('checked', setValue(parsedArray[0].createViewPriv));
-	            $("#editshowViewPriv").prop('checked', setValue(parsedArray[0].showViewPriv));
-	            $("#editcreateRoutinePriv").prop('checked', setValue(parsedArray[0].createRoutinePriv));
-	            $("#editalterRoutinePriv").prop('checked', setValue(parsedArray[0].alterRoutinePriv));
-	            $("#editexecutePriv").prop('checked', setValue(parsedArray[0].executePriv));
-	            $("#editeventPriv").prop('checked', setValue(parsedArray[0].eventPriv));
-	            $("#edittriggerPriv").prop('checked', setValue(parsedArray[0].triggerPriv));
-	            $('#btn_save_user_prev').click(function(){
-	                   editUserPermission(username);
-	           });
-	            $("#formEditPriv").show();
-	        }
-	    },
-	    function (jqXHR, textStatus, errorThrown) {
-
-	        if (jqXHR.status != 0){
-	               jagg.message({type:'error',content:'Error occurred while reading templates', id:'tempalte_edit'});
-	        }
-
-	    });
-	 }
-
-	 function formEditPrivHide(){
-	    $("#formEditPriv").hide();
-	 }
-
-	 function editUserPermission(username){
-	     var alterPriv=($("#editalterPriv"));
-	     var alterRoutinePriv=($("#editalterRoutinePriv"));
-	     var createPriv=($("#editcreatePriv"));
-	     var createRoutinePriv=($("#editcreateRoutinePriv"));
-	     var createTmpTablePriv=($("#editcreateTmpTablePriv"));
-	     var createViewPriv=($("#editcreateViewPriv"));
-	     var deletePriv=($("#editdeletePriv"));
-	     var dropPriv=($("#editdropPriv"));
-	     var eventPriv=($("#editeventPriv"));
-	     var executePriv=($("#editexecutePriv"));
-	     var grantPriv=($("#editgrantPriv"));
-	     var indexPriv=($("#editindexPriv"));
-	     var insertPriv=($("#editinsertPriv"));
-	     var lockTablesPriv=($("#editlockTablesPriv"));
-	     var referencesPriv=($("#editreferencesPriv"));
-	     var selectPriv=($("#editselectPriv"));
-	     var showViewPriv=($("#editshowViewPriv"));
-	     var triggerPriv=($("#edittriggerPriv"));
-	     var updatePriv=($("#editupdatePriv"));
-	     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-	         action:"editUserPermissions",
-	         applicationKey:applicationKey,
-	         databaseName:dbName,
-	         rssInstanceName:environment,
-	         username:username,
-	         alterPriv:getValue(alterPriv.attr('checked')),
-	         alterRoutinePriv:getValue(alterRoutinePriv.attr('checked')),
-	         createPriv:getValue(createPriv.attr('checked')),
-	         createRoutinePriv:getValue(createRoutinePriv.attr('checked')),
-	         createTmpTablePriv:getValue(createTmpTablePriv.attr('checked')),
-	         createViewPriv:getValue(createViewPriv.attr('checked')),
-	         deletePriv:getValue(deletePriv.attr('checked')),
-	         dropPriv:getValue(dropPriv.attr('checked')),
-	         eventPriv:getValue(eventPriv.attr('checked')),
-	         executePriv:getValue(executePriv.attr('checked')),
-	         grantPriv:getValue(grantPriv.attr('checked')),
-	         indexPriv:getValue(indexPriv.attr('checked')),
-	         insertPriv:getValue(insertPriv.attr('checked')),
-	         lockTablesPriv:getValue(lockTablesPriv.attr('checked')),
-	         referencesPriv:getValue(referencesPriv.attr('checked')),
-	         selectPriv:getValue(selectPriv.attr('checked')),
-	         showViewPriv:getValue(showViewPriv.attr('checked')),
-	         triggerPriv:getValue(triggerPriv.attr('checked')),
-	         updatePriv:getValue(updatePriv.attr('checked'))
-	     }                  ,
-	     function (result) {
-	            formEditPrivHide();
-	            jagg.removeMessage();
-	            jagg.message({content:'Privileges are applied to the user successfully',type:'success', id:'tempalte_edit' });
-	            setTimeout(function(){jagg.removeMessage()},5000);
-	     },
-	     function (jqXHR, textStatus, errorThrown) {
-	     });
-	 }
-
-	function getDatabaseUsers(){
-    	jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
-                action:"getAvailableUsersToAttachToDatabase",
-                applicationKey:applicationKey,
-                databaseName:dbName,
-                dbServerInstanceName:environment
-            },
-            function (result) {
-                var users=jQuery.parseJSON(result);
-                if(result != undefined || result==true){
-                    var options='';
-                    for(var u in users){
-                       options+='<option value="'+users[u]+'">'+users[u]+'</option>';
-                    }
-                    $('#dbUsersDD').append(options);
-                    var $table='';
-                    for(var u in users){
-                        $table += '<li class="list_row_item push_top_10 ">' +
-                                        '<ul class="list_row  ">' +
-                                            '<li class="list_col" style="width:44.3%">' +
-                                                '<div class="list_col_content">' +
-                                                    users[u] +
-                                                '</div>' +
-                                            '</li>' +
-                                            '<% if(hasDatabaseUpdatePermissionInCurrentStage) { %>' +
-                                            '<li class="list_col">' +
-                                                '<div class="list_col_content" >' +
-                                                    '<span class="btn main push_right_20 push_bottom_10" onclick="attachNewUser(\'' + users[u] + '\')">Attach User</span>' +
-                                                    '<span class="btn main push_right_20 push_bottom_10" onclick="deleteUser(\'' + users[u] + '\')">Delete User</span>' +
-                                                '</div>' +
-                                            '</li>' +
-                                            '<% } %>' +
-                                        '</ul>' +
-                                    '</li>';
-                    }
-                    if (users.length == 0) {
-                        $('#tblAvailableUsers').html("<div class='noData-message'>No Users Available Yet.</div>");
-                    } else {
-                        $('#tblAvailableUsers').html($table);
-                    }
-                }
-            },
-            function (jqXHR, textStatus, errorThrown) {
-                // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-            });
-	}
-
-    function getattachedeUsers(){
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-                    action:"getAttachedUsers",
-                    applicationKey:applicationKey,
-                    dbname:dbName,
-                    rssInstance:environment
-                },
-                function (result) {
-                    var users=jQuery.parseJSON(result);
-                    if(result){
-                    	var $table='';
-                    	for(var u in users){
-	                    	$table +=	'<li class="list_row_item push_top_10 ">' +
-	                    	          		'<ul class="list_row  ">' +
-	                    	             		'<li class="list_col" style="width:44.3%">' +
-	                    	          				'<div class="list_col_content">' +
-	                    	                  			users[u] +
-	                    	                    	'</div>' +
-	                    	           			'</li>' +
-	                    	           			'<% if(hasDatabaseUpdatePermissionInCurrentStage) { %>' +
-	                    	   					'<li class="list_col">' +
-	                    	              			'<div class="list_col_content" >' +
-	                    	   							'<span class="btn main push_right_20 push_bottom_10" onclick="detachUser(\'' + users[u] + '\')">Detach User</span>' +
-	                    	   							'<span class="btn main push_right_20 push_bottom_10" onclick="showEditUser(\'' + users[u] + '\')">Edit Privileges</span>' +
-	                    	            			'</div>' +
-	              								'</li>' +
-	              								'<% } %>' +
-	                    	  				'</ul>' +
-	                   					'</li>';
-                    	}
-	                    if(users.length == 0){
-	                    	$('#tblAttachedUsers').html("<div class='noData-message'>No Users Attached Yet.</div>");
-	                    }else{
-	                  		$('#tblAttachedUsers').html($table);
-						}
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                });
-    }
-
-    function getUserPrivileges(userName){
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-                    action:"getUserPrivileges",
-                    applicationKey:applicationKey,
-                    dbname:dbName,
-                    rssInstanceName:environment,
-                    username:userName
-                },
-                function (result) {
-                    var privilages=jQuery.parseJSON(result)[0];
-                    if(result != undefined || result==true){
-                       for(var p in privilages){
-                           if(privilages[p]=="Y"){
-                               $('#'+p).prop('checked', true);
-                           } else{
-                               $('#'+p).prop('checked', false);
-                           }
-                           $('#'+p).prop('disabled', 'disabled');
-                       }
-                    }else if(result==false){
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                });
-    }
-
-    function getDatabases(){
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-                    action:"getDatabases",
-                    applicationKey:applicationKey
-                },
-                function (result) {
-                    var users=jQuery.parseJSON(result);
-                    if(result != undefined || result==true){
-                    }else if(result==false){
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                });
-    }
-
-    function getDbUserTemplateInfoForStages(){
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-                    action:"getDbUserTemplateInfoForStages",
-                    applicationKey:applicationKey
-                },
-                function (result) {
-                    var info=jQuery.parseJSON(result);
-                    if(result != undefined || result==true){
-                        var templateArray=getTemplatesForStage(info,environment);
-                        var options='';
-                        for(var t in templateArray){
-                            var name=templateArray[t].name.split('@')[0];
-                            options+='<option value="'+name+'">'+templateArray[t].name+'</option>';
-                        }
-                     //   options+='<option value="default">Select Template...</option>';
-                        $('#templateDD').append(options);
-					var url = getDBUrl(info,environment);
-					$('#dburl').val(url);
-					$("#copymain").attr("data-clipboard-text", url);
-					var clip = new ZeroClipboard($('#copymain'));
-					clip.on( 'load', function(client) {});
-        	        clip.on( 'complete', function(client, args) {
-                       		$('#copymain').qtip({
-                        		content:{
-                                		attr: 'data-tooltip'
-                        		},
-                        		show:{
-                                		event:'click',
-                                		ready:true
-                        		},
-                        		hide:{
-                                		distance:20
-                        		}
-                    		});
-            		});
-            		clip.on( 'mousedown', function(client) { } );
-
-                    }else if(result==false){
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                });
-    }
-
-    function getTemplatesForStage(result,stage){
-        for(var s in result){
-            if(result[s].stage===stage){
-                return result[s].templates; //returns an array
-            }
-        }
-
-    }
-
-    function getDBUrl(result,stage){
-		for(var i in result){
-	    	if(result[i].stage===stage){
-				var dbs = result[i].dbs;
-				for(var j in dbs){
-			    	if(dbs[j].dbName===dbName){
-					return dbs[j].url;
-			    	}
-				}
-	    	}
-		}
-    }
-    function selectAllOptions() {
-        var selectAll = document.getElementById('selectAll');
-        var c = new Array();
-        c = document.getElementsByTagName('input');
-        if (selectAll.checked) {
-            for (var i = 0; i < c.length; i++) {
-                if (c[i].type == 'checkbox') {
-                    c[i].checked = true;
-                }
-            }
-        } else {
-            for (var j = 0; j < c.length; j++) {
-                if (c[j].type == 'checkbox') {
-                    c[j].checked = false;
-                }
-            }
-        }
-    }
-
-    function getTemplate(templateName){
-        jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
-            action:"getDetailedTemplate",
-            applicationKey:applicationKey,
-            templateName:templateName,
-            environment:environment
-        }, function (result) {
-            if(result != undefined){
-                var privilages = jQuery.parseJSON(result)[0];
-                for(var p in privilages){
-                    if(privilages[p]=="Y"){
-                        $('#'+p).prop('checked', true);
-
-
-                    } else if(privilages[p]=="N"){
-                        $('#'+p).removeAttr("checked");
-                    }
-                    $('#'+p).prop('disabled', 'disabled');
-
-                }
-
-            }
-
-        }, function (jqXHR, textStatus, errorThrown) {
-            if (jqXHR.status != 0){
-                jagg.message({content:'Error while retrieving detailed template',type:'error', id:'tempalte_edit' });
-            }
-        });
-    }
-
-    function detachUser(userName) {
-    	var isValid=true;
-    	jagg.removeMessage();
-
-		if(isValid){
-			jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-			     action: "detachUser",
-			     applicationKey: applicationKey,
-			     databaseName: dbName,
-			     dbServerInstanceName: environment,
-			     username: userName
-			    },
-			    function (result) {
-			        document.location.reload(true);
-			    },
-			    function (jqXHR, textStatus, errorThrown) {
-			    });
-		}
-    }
-
-    function attachNewUser(userName) {
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-                    action:"attachNewUser",
-                    applicationKey:applicationKey,
-                    databaseName:dbName,
-                    dbServerInstanceName:environment,
-                    users:userName,
-                    templates:applicationKey + "_admin@" + environment
-                },
-                function (result) {
-                    //var users=jQuery.parseJSON(result);
-                    if(result !== undefined && result.trim()=='success'){
-                         document.location.reload(true);
-                    }else{
-                        jagg.message({type:'error',content:'Database Configurations not modified!', id:'tempalte_edit'});
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-
-                    if (jqXHR.status != 0){
-                        jagg.message({type:'error',content:'Database Configurations not modified!', id:'tempalte_edit'});
-                    }
-
-                });
-    }
-
-    function deleteUser(userName) {
-        jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
-            action:"deleteUser",
-            applicationKey:applicationKey,
-            name:userName,
-            rssInstanceName:environment
-        },function (result) {
-            document.location.reload(true);
-        },function (jqXHR, textStatus, errorThrown) {
-            if (jqXHR.status != 0) {
-                jagg.message({content:'Error occurred while deleting user: ' + userName +
-                    'User might be already attached to a database.',type:'error', id:'dbusercreation' });
-            }
-        });
-    }
-
-    function deleteDatabase(){
-//earlier deleteDatasource:<%= language=="Java" %> since datasources were created for only java applications
-        jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
-                    action:"dropDatabase",
-                    applicationKey:applicationKey,
-                    databaseName:dbName,
-                    rssInstanceName:environment,
-                    deleteDatasource:false
-                },
-                function (result) {
-                    if(result){
-                    	window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/listdatabases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>");
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                });
-    }
-
-    // call previous page
-    function callPreviousPage(){
-		var oldURL = document.referrer;
-		window.location.replace(oldURL);
-    }
-
-    function validateUser() {
-	    jagg.removeMessage();
-        var validation = true;
-
-        if (!checkUserName()) {
-            validation=false;
-        }
-
-        if (!validatePassword()) {
-            validation=false;
-        }
-
-        if (environment == "") {
-            validation = false;
-            jagg.message({content:'DB Environment cannot be empty!',type:'error', id:'databasecreation' });
-        }
-
-        return validation;
-    }
-
-    function checkUserName() {
-        var validation = true;
-
-        var username = $("#db_username").attr('value').trim();
-
-        if (username == "" || username.length == 0) {
-            jagg.message({content:'Username cannot be empty!',type:'error', id:'databasecreation' });
-            validation=false;
-        }
-
-        var usernamePattern = /^[a-zA-Z0-9_]{1,7}$/;
-        if (username.length > 0 && !usernamePattern.test(username)) {
-            jagg.message({content:'Invalid Username - Use maximum 7 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).',type:'error', id:'databasecreation' });
-            validation=false;
-        }
-
-        return validation;
-    }
-
-    function validatePwdPattern(password) {
-    	var validation = true;
-    	if (password == "" || password.length == 0) {
-            jagg.message({content:'Password cannot be empty!',type:'error', id:'databasecreation' });
-            validation=false;
-        } else {
-			if(!ck_password.test(password)) {
-				validation=false;
-				jagg.message({content:'Invalid Password - Use 6 to 15 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers. Add special characters (such as !, @, #, $, %, ^, *, _).',type:'error', id:'databasecreation' });
-			}
-		}
-		return validation;
-    }
-
-    function validatePassword() {
-    	var repeatPassword = $("#new_user_repeat_password").attr('value').trim();
-    	var password = $("#new_user_password").attr('value').trim();
-    	var validation = validatePwdPattern(password);
-
-    	if (validation && password != repeatPassword) {
-    		jagg.message({content:'Password does not match!',type:'error', id:'databasecreation' });
-    		validation=false;
-    	}
-
-    	return validation;
-    }
-
-    function createDatabaseUser() {
-        jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
-            action:"createDatabaseUser",
-            applicationKey:applicationKey,
-            password:$("#new_user_password").attr('value'),
-            rssInstance:environment,
-            username:$("#db_username").attr('value')
-        },function (result) {
-        	var result = $.trim(result);
-        	if (result == 'success') {
-                $('#create_user_div').slideUp('fast');
-				getDatabaseUsers();
-				$('#db_username').val('');
-				$('#new_user_password').val('');
-				$('#new_user_repeat_password').val('');
-            }
-        },function (jqXHR, textStatus, errorThrown) {
-            if ( jqXHR.status != 0){
-                jagg.message({content:jqXHR.responseText, type:'error', id:'databasecreation' });
-            }
-        });
-     }
-
-</script>
-<article class="main">
-    <!-- following div can be removed after new ux-->
-        <div style="height: 80px; "></div>
-    <!-- -->
-    <header class="separator">
-        <div>
-            <% jagg.includeBlock("page/messages", null); %>
-            <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-            <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+ <div class="container-fluid app-content-section">
+        <div class="row">
+          <div class="col-md-12 msg-issues">
+              Orem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+              Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+              Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.
+          </div>
         </div>
-    	<div class="content">
-            <h1>Databases</h1>
-        </div>
-    </header>
-    <section class="separator">
-            <div class="page_nav">
-                <div class="content clear">
-                    <% if(hasDataSourceDeletePermissionInCurrentStage){ %>
-                    <div class="right btn_list_box">
-                        <ul class="inline_box inline_list btn_list">
-                            <li class="inline_item"><a id="btn_delete_db" href="#" class="btn main btn_list_first">Delete Database</a>
-                            </li>
-                        </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <% } %>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="push"></div>
+                <div class="datatable">
+                    <table id="issuelist" class="display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Attach user to Database</th>
+                            <th>Priviledges</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                    </table>
+
                 </div>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
             </div>
-
-</section>
-
-    <div class="content" style="display:none" id="permission_entry">
-        <div class="left pw_50">
-            <ul class="list big push_bottom">
-                <li>
-                    <label >DB User</label>
-                    <select class="half big"  name="permission_template">
-                        <option value="db_user_1">db_1</option>
-                    </select>
-                </li>
-            </ul>
         </div>
-        <div class="right pw_50">
-            <ul class="list big push_bottom">
-                <li><label>Permission Template</label>
-                    <select class="half big select_list" name="permission_template">
-                        <option value="template1">template1</option>
-                        <option value="template1">template2</option>
-                    </select>
-                    <input type="button" value="Remove" onclick="removeElement(this)" />
-                </li>
-            </ul>
-        </div>
-        <div class="clearfix"></div>
+    </div><!-- /.container -->
+
+
     </div>
-
-	<section class="separator clear">
-			<div class="content">
-			<div>
-                    <form class="inline-form form-container">
-							<h2>Database URL</h2>
-                            <input type="text" class="medium-large-text-box" id="dburl" disabled value="" />
-                            <a class="copy-link" id ="copymain" title="Copy URL" data-clipboard-text="" data-tooltip="Copied!">
-                    	        <span class="icon-copy"></span>
-                            </a>
-                    </form>
-			</div>
-        </div>
-	</section>
-
-     <section class="separator clear">
-            <div class="content">
-                <div>
-                    <h2>Attached Users</h2>
-                            <ul class="list_table push_top_20" id="tblAttachedUsers">
-                                    <li class="list_row_item first_list_row_item">
-                                            <ul class="list_row first_list_row">
-                                              <li class="list_col first_list_col" style="width:44.3%">
-                                                <h2 class="list_col_heading">Database User</h2>
-                                              </li>
-                                              <% if(hasDatabaseUpdatePermissionInCurrentStage) { %>
-                                              <li class="list_col">
-                                                <h2 class="list_col_heading">Action</h2>
-                                              </li>
-                                              <% } %>
-                                            </ul>
-                                        </li>
-                            </ul>
-                </div>
-                <div class="form-container" id="formEditPriv" style="display:none;margin-top:20px;">
-                    <form class="hold right_label" method="post" action="#" >
-                        <fieldset>
-                            <div class="clearfix"></div>
-                            <div class="controlset">
-                                <div class="input_row" id="checkArray">
-                                    <label><input type="checkbox" name="permission" id="editselectPriv" checked="checked"> SELECT</label><br>
-                                    <label><input type="checkbox" name="permission" id="editinsertPriv" checked="checked"> INSERT</label><br>
-                                    <label><input type="checkbox" name="permission" id="editupdatePriv" checked="checked"> UPDATE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editdeletePriv" checked="checked"> DELETE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreatePriv" checked="checked"> CREATE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editdropPriv" checked="checked"> DROP</label><br>
-                                    <label><input type="checkbox" name="permission" id="editgrantPriv" checked="checked"> GRANT</label><br>
-                                    <label><input type="checkbox" name="permission" id="editreferencesPriv" checked="checked"> REFERENCES</label><br>
-                                    <label><input type="checkbox" name="permission" id="editindexPriv" checked="checked"> INDEX</label><br>
-                                    <label><input type="checkbox" name="permission" id="editalterPriv" checked="checked"> ALTER</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreateTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editlockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreateViewPriv" checked="checked"> CREATE_VIEW</label><br>
-                                    <label><input type="checkbox" name="permission" id="editshowViewPriv" checked="checked"> SHOW_VIEW</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreateRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editalterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editexecutePriv" checked="checked"> EXECUTE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editeventPriv" checked="checked"> EVENT</label><br>
-                                    <label><input type="checkbox" name="permission" id="edittriggerPriv" checked="checked"> TRIGGER</label><br>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <input type="hidden" value="app_105" id="applicationKey">
-
-                        <div class="buttonrow">
-                            <input type="button" class="btn main" id="btn_save_user_prev" value="Save" name="Submit">
-                            <a id="btn_edit_cancel" onclick='formEditPrivHide();'>Cancel</a>
-                            <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
-                        </div>
-                    </form>
-                </div>
-            </div>
-    </section>
-    <section class="separator clear">
-            <div class="content clear">
-                <div class="left">
-                    <h2>Available Users</h2>
-                </div>
-                <% if(hasDatabaseUpdatePermissionInCurrentStage){ %>
-                <div class="right btn_list_box">
-                    <span class="btn main btn_list_first" id="add_new_user_btn">Add New User</span>
-                </div>
-                <% } %>
-            </div>
-
-            <div class="extra_fields_box" id="create_user_div">
-                <div class="extra_fields">
-                    <div class="extra_field_row">
-                        <div class="pw_50">
-                            <label for="db_username"><strong>Username:</strong></label>
-                            <input type="text" name="db_username" id="db_username" class="half" maxlength="7"/>
-                        </div>
-                    </div>
-                    <div class="extra_field_row">
-                        <div class="left pw_50">
-                            <label for="new_user_password"><strong>Password:</strong></label>
-                            <input type="password" name="new_user_password" id="new_user_password" class="half" maxlength="15"/>
-                        </div>
-                        <div class="right pw_50">
-                            <label for="new_user_repeat_password"><strong>Repeat Password:</strong></label>
-                            <input type="password" name="new_user_repeat_password" id="new_user_repeat_password" class="half" maxlength="15"/>
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="extra_field_row last" style="padding-top:20px;">
-                        <div class="pw_100">
-                        <input type='button' name='Submit' value='Create User' onclick="if(validateUser()){createDatabaseUser();}" class='btn main'/>
-                        <a class="js_cancel_user">Cancel</a>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-            </div>
-
-            <div class="content">
-                <div>
-                        <ul class="list_table push_top_20" id="tblAvailableUsers">
-                            <li class="list_row_item first_list_row_item">
-                                <ul class="list_row first_list_row">
-                                      <li class="list_col first_list_col" style="width:44.3%">
-                                        <h2 class="list_col_heading">Database User</h2>
-                                      </li>
-                                      <% if(hasDatabaseUpdatePermissionInCurrentStage) { %>
-                                      <li class="list_col">
-                                        <h2 class="list_col_heading">Action</h2>
-                                      </li>
-                                      <% } %>
-                                </ul>
-                            </li>
-                        </ul>
-
-                </div>
-
-                <div class="form-container" id="formEditPriv" style="display:none;margin-top:20px;">
-                    <form class="hold right_label" method="post" action="#" >
-                        <fieldset>
-                            <div class="clearfix"></div>
-                            <div class="controlset">
-                                <div class="input_row" id="checkArray">
-                                    <label><input type="checkbox" name="permission" id="editselectPriv" checked="checked"> SELECT</label><br>
-                                    <label><input type="checkbox" name="permission" id="editinsertPriv" checked="checked"> INSERT</label><br>
-                                    <label><input type="checkbox" name="permission" id="editupdatePriv" checked="checked"> UPDATE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editdeletePriv" checked="checked"> DELETE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreatePriv" checked="checked"> CREATE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editdropPriv" checked="checked"> DROP</label><br>
-                                    <label><input type="checkbox" name="permission" id="editgrantPriv" checked="checked"> GRANT</label><br>
-                                    <label><input type="checkbox" name="permission" id="editreferencesPriv" checked="checked"> REFERENCES</label><br>
-                                    <label><input type="checkbox" name="permission" id="editindexPriv" checked="checked"> INDEX</label><br>
-                                    <label><input type="checkbox" name="permission" id="editalterPriv" checked="checked"> ALTER</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreateTmpTablePriv" checked="checked"> CREATE_TEMP_TABLE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editlockTablesPriv" checked="checked"> LOCK_TABLES</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreateViewPriv" checked="checked"> CREATE_VIEW</label><br>
-                                    <label><input type="checkbox" name="permission" id="editshowViewPriv" checked="checked"> SHOW_VIEW</label><br>
-                                    <label><input type="checkbox" name="permission" id="editcreateRoutinePriv" checked="checked"> CREATE_ROUTINE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editalterRoutinePriv" checked="checked"> ALTER_ROUTINE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editexecutePriv" checked="checked"> EXECUTE</label><br>
-                                    <label><input type="checkbox" name="permission" id="editeventPriv" checked="checked"> EVENT</label><br>
-                                    <label><input type="checkbox" name="permission" id="edittriggerPriv" checked="checked"> TRIGGER</label><br>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <input type="hidden" value="app_105" id="applicationKey">
-
-                        <div class="buttonrow">
-                            <input type="button" class="btn main" id="btn_save_user_prev" value="Save" name="Submit">
-                            <a id="btn_edit_cancel" onclick='formEditPrivHide();'>Cancel</a>
-                            <span style="margin-left: 10px; display:none;" class="icon-spinner icon-spin icon-large" id="saveSpin"></span>
-                        </div>
-                    </form>
-                </div>
-            </div>
-    </section>
     <div class="clearfix"></div>
- </article>
+    <div id="push"></div>
+<% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/resources/database/edit/js/edit.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
+
+<script>
+    $('.side-pane-trigger').click(function(){
+        var rightPane = $('.right-pane');
+        var leftPane = $('.left-pane');
+        if (rightPane.hasClass('visible')){
+            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+            leftPane.animate({"left":"-18em"}, "slow");
+            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        } else {
+            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+            leftPane.animate({"left":"0em"}, "slow");
+            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        }
+    });
+    var usrInfo = <%=userInfo%>; 
+    $('.datatable table').dataTable({
+            responsive: true,
+            "orderCellsTop": true,
+            data: usrInfo,
+            "columns": [
+                { "data": "username", "width": "10%"},
+                { "data": "attachuser" , "width": "5%","sClass" : "dt-body-center"},
+                { "data": "priviledges" , "width": "40%"},
+                { "data": "editpriviledges", "width": "3%","sClass" : "dt-body-center"  },
+                { "data": "trash", "orderable": false, "width": "3%", "sClass" : "dt-body-center" }
+            ]
+        });
+    var applicationKey = '<%=applicationKey%>';
+    var dbName = '<%=dbName%>';
+    var environment = '<%=environment%>';
+    $(document).ready(function() {
+    });
+</script>
+
 <%
 }); %>
 
