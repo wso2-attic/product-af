@@ -167,6 +167,10 @@ jagg.module("resources", {
 		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getUserPrivileges.apply(this, arguments);
 	},
 
+    getPriviledgesString:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getPriviledgesString.apply(this, arguments);
+    },
+
 	editUserPermissions:function () {
 		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").editUserPermissions.apply(this, arguments);
 	},
