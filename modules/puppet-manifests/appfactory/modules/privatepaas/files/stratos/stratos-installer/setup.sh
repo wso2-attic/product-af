@@ -606,9 +606,9 @@ fi
 if [[ !(-d $stratos_extract_path) ]]; then
     echo "Extracting Apache Stratos"
     unzip -q $stratos_pack_zip -d $stratos_path
-    cp -rf $current_dir/../patches/patch0008/ $stratos_path/apache-stratos-4.1.0/repository/components/patches/
-    cp -rf $current_dir/../themes/theme1/* $stratos_path/apache-stratos-4.1.0/repository/deployment/server/jaggeryapps/console/themes/theme1/
-    mv -f $stratos_path/apache-stratos-4.1.0 $stratos_extract_path
+    cp -rf $current_dir/../patches/patch0008/ $stratos_path/apache-stratos-<%=@stratos_version%>/repository/components/patches/
+    cp -rf $current_dir/../themes/theme1/* $stratos_path/apache-stratos-<%=@stratos_version%>/repository/deployment/server/jaggeryapps/console/themes/theme1/
+    mv -f $stratos_path/apache-stratos-<%=@stratos_version%> $stratos_extract_path
 fi
 
 #if [[ ( ($profile = "default" || $profile = "stratos") && $config_mb = "true") ]]; then
