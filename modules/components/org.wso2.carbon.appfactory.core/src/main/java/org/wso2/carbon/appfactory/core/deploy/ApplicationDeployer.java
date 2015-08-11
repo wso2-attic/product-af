@@ -51,9 +51,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static org.wso2.carbon.appfactory.core.util.CommonUtil.getAdminUsername;
-import static org.wso2.carbon.appfactory.core.util.CommonUtil.getServerAdminPassword;
-
 /**
  * This service will deploy an artifact (specified as a combination of
  * application, stage, version and revision) to a set of servers associated with
@@ -542,15 +539,8 @@ public class ApplicationDeployer {
     private Collection<File> getFilesToDelete(String applicationId, String version, File applicationRootLocation,
                                               String fileExtension, String applicationType) {
 
-        if (AppFactoryConstants.APPLICATION_TYPE_ESB.equals(applicationType)) {
-
-            return FileUtils.listFiles(applicationRootLocation,
-                                       new String[]{AppFactoryConstants.APPLICATION_TYPE_XML}, true);
-
-        } else {
-            return FileUtils.listFiles(applicationRootLocation, new ArtifactFileFilter(applicationId, version,
-                                                                                       fileExtension), null);
-        }
+	    return FileUtils.listFiles(applicationRootLocation, new ArtifactFileFilter(applicationId, version,
+	                                                                               fileExtension), null);
     }
 
     /**

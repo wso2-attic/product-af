@@ -61,18 +61,19 @@ public class AppFactoryConstants {
 	public static final String PERMISSION_RESOURCE_CREATE = "/permission/admin/appfactory/resources/create/";
 	public static final String PROPERTY_ARTIFACT_VERSION_NAME = "TrunkVersioning.ServiceVersioning.ArtifactVersionName";
 
-	public static final String RUNTIMES="Runtimes";
-	public static final String RUNTIME="Runtime";
-	public static final String RUNTIME_REPOSITORY_URL_PATTERN="PAASArtifactStorageURLPattern";
-	public static final String RUNTIME_ALIAS_PREFIX="AliasPrefix";
-	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX="CartridgeTypePrefix";
-	public static final String RUNTIME_DEPLOYMENT_POLICY="DeploymentPolicy";
-	public static final String RUNTIME_AUTOSCALE_POLICY="AutoscalePolicy";
-	public static final String RUNTIME_REPO_URL="RepoURL";
-	public static final String RUNTIME_DATA_CARTRIDGE_TYPE="DataCartridgeType";
-	public static final String RUNTIME_DATA_CARTRIDGE_ALIAS="DataCartridgeAlias";
-	public static final String RUNTIME_SUBSCRIBE_ON_DEPLOYMENT="SubscribeOnDeployment";
-	public static final String RUNTIME_REPO_PROVIDER_URL="repoProviderUrl";
+	public static final String RUNTIMES = "Runtimes";
+	public static final String RUNTIME = "Runtime";
+	public static final String RUNTIME_REPOSITORY_URL_PATTERN = "PAASArtifactStorageURLPattern";
+	public static final String RUNTIME_ALIAS_PREFIX = "AliasPrefix";
+	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX = "CartridgeTypePrefix";
+	public static final String RUNTIME_DEPLOYMENT_POLICY = "DeploymentPolicy";
+	public static final String RUNTIME_AUTOSCALE_POLICY = "AutoscalePolicy";
+	public static final String RUNTIME_REPO_URL = "RepoURL";
+	public static final String RUNTIME_DATA_CARTRIDGE_TYPE = "DataCartridgeType";
+	public static final String RUNTIME_DATA_CARTRIDGE_ALIAS = "DataCartridgeAlias";
+	public static final String RUNTIME_SUBSCRIBE_ON_DEPLOYMENT = "SubscribeOnDeployment";
+	public static final String RUNTIME_SERVER_URL = "ServerURL";
+	public static final String RUNTIME_REPO_PROVIDER_URL = "repoProviderUrl";
 	public static final String RUNTIME_NAME_FOR_APPTYPE ="runtimesNameForApptype";
 
 	public static final String ROLE_NAME = "name";
@@ -279,11 +280,6 @@ public class AppFactoryConstants {
 	public static final String INVOKE_PERMISSION = "/permission/admin/appfactory/realm";
 
 	// constants added for Deployers
-
-	public static final String APPLICATION_TYPE_JAXRS = "jaxrs";
-	public static final String APPLICATION_TYPE_DBS = "dbs";
-	public static final String APPLICATION_TYPE_ESB = "esb";
-	public static final String APPLICATION_TYPE_XML = "xml";
 	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";

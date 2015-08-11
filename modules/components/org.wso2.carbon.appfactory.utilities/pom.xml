@@ -125,7 +125,7 @@
 			<groupId>org.wso2.carbon</groupId>
 			<artifactId>org.wso2.carbon.um.ws.api</artifactId>
 		</dependency>
-	</dependencies>
+    </dependencies>
     <repositories>
         <repository>
             <id>wso2-nexus</id>

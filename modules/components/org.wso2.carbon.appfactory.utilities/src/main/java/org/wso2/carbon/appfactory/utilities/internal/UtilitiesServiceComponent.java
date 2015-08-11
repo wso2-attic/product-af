@@ -23,39 +23,46 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.ArtifactStorage;
+import org.wso2.carbon.appfactory.core.RemoteRegistryService;
 import org.wso2.carbon.appfactory.utilities.dataservice.DSApplicationListener;
+import org.wso2.carbon.appfactory.utilities.esb.ESBApplicationListener;
 import org.wso2.carbon.appfactory.utilities.storage.FileArtifactStorage;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 
 /**
- * @scr.component name="org.wso2.carbon.appfactory.artifact.storage" immediate="true"
+ * @scr.component name="org.wso2.carbon.appfactory.utilities" immediate="true"
  * @scr.reference name="appfactory.configuration"
- * interface="org.wso2.carbon.appfactory.common.AppFactoryConfiguration"
- * cardinality="1..1" policy="dynamic"
- * bind="setAppFactoryConfiguration"
- * unbind="unsetAppFactoryConfiguration"
+ *              interface="org.wso2.carbon.appfactory.common.AppFactoryConfiguration"
+ *              cardinality="1..1" policy="dynamic"
+ *              bind="setAppFactoryConfiguration"
+ *              unbind="unsetAppFactoryConfiguration"
  * @scr.reference name="registry.service"
- * interface="org.wso2.carbon.registry.core.service.RegistryService"
- * cardinality="1..1" policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
+ *              interface="org.wso2.carbon.registry.core.service.RegistryService"
+ *              cardinality="1..1" policy="dynamic"
+ *              bind="setRegistryService"
+ *              unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
- * 				  interface="org.wso2.carbon.user.core.service.RealmService"
- * 				  cardinality="1..1" policy="dynamic"
- * 				  bind="setRealmService"
- * 				  unbind="unsetRealmService"
+ * 				interface="org.wso2.carbon.user.core.service.RealmService"
+ * 				cardinality="1..1" policy="dynamic"
+ * 				bind="setRealmService"
+ * 				unbind="unsetRealmService"
  * @scr.reference name="config.context.service"
- * interface="org.wso2.carbon.utils.ConfigurationContextService"
- * cardinality="1..1" policy="dynamic"
- * bind="setConfigurationContextService"
- * unbind="unsetConfigurationContextService"
+ *              interface="org.wso2.carbon.utils.ConfigurationContextService"
+ *              cardinality="1..1" policy="dynamic"
+ *              bind="setConfigurationContextService"
+ *              unbind="unsetConfigurationContextService"
+ * @scr.reference name="appfactory.registry.service"
+ *              interface="org.wso2.carbon.appfactory.core.RemoteRegistryService"
+ *              cardinality="1..1" policy="dynamic"
+ *              bind="setAppfactoryRemoteRegistryService"
+ *              unbind="unsetAppfactoryRemoteRegistryService"
  */
 public class UtilitiesServiceComponent {
     Log log = LogFactory.getLog(org.wso2.carbon.appfactory.utilities.internal.UtilitiesServiceComponent.class);
-    private static ConfigurationContextService configContextService = null;
 
     protected void activate(ComponentContext context) {
 
@@ -76,6 +83,9 @@ public class UtilitiesServiceComponent {
             int listenerPriority = Integer.valueOf(appFactoryConfiguration.getFirstProperty("EventHandlers.DSApplicationHandler.priority"));
             bundleContext.registerService(ApplicationEventsHandler.class.getName(),
                                           new DSApplicationListener("DSApplicationListener", listenerPriority), null);
+	        int esbListenerPriority = Integer.valueOf(appFactoryConfiguration.getFirstProperty("EventHandlers.ESBApplicationHandler.priority"));
+	        bundleContext.registerService(ApplicationEventsHandler.class.getName(),
+	                                      new ESBApplicationListener("ESBApplicationListener", esbListenerPriority), null);
 
 
         } catch (Throwable e) {
@@ -93,7 +103,6 @@ public class UtilitiesServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("Setting the ConfigurationContext");
         }
-        configContextService = contextService;
         ServiceReferenceHolder.getInstance().setConfigContextService(contextService);
     }
 
@@ -126,11 +135,30 @@ public class UtilitiesServiceComponent {
 
     protected void setRealmService(RealmService realmService) {
         ServiceReferenceHolder.getInstance().setRealmService(realmService);
-        log.debug("set up RealmService for org.wso2.carbon.appfactoutilities.internalion");
+	    if(log.isDebugEnabled()) {
+		    log.debug("set up RealmService for org.wso2.carbon.appfactoutilities.internalion");
+	    }
     }
 
     protected void unsetRealmService(RealmService realmService){
         ServiceReferenceHolder.getInstance().setRealmService(null);
-        log.debug("un set RealmService for org.wso2.carbon.appfactoutilities.internalion");
+        if(log.isDebugEnabled()) {
+	        log.debug("un set RealmService for org.wso2.carbon.appfactoutilities.internalion");
+        }
     }
+
+	protected void setAppfactoryRemoteRegistryService(RemoteRegistryService appfactoryRemoteRegistryService){
+		ServiceReferenceHolder.getInstance().setAppfactoryRemoteRegistryService(appfactoryRemoteRegistryService);
+		if(log.isDebugEnabled()){
+			log.debug("Setup appfactory remote registry service initialization");
+		}
+	}
+
+	protected void unsetAppfactoryRemoteRegistryService(RemoteRegistryService appfactoryRemoteRegistryService){
+		ServiceReferenceHolder.getInstance().setAppfactoryRemoteRegistryService(null);
+		if(log.isDebugEnabled()){
+			log.debug("unset appfactory remote registry service");
+		}
+	}
+
 }
