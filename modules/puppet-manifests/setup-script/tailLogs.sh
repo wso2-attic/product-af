@@ -10,10 +10,10 @@ xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/appfactory/wso2appfacto
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/appfactory/wso2appfactory-$APPFACTORY_VERSION/repository/logs/wso2carbon.log"; xdotool key Return;
 
 xdotool key ctrl+shift+t 
-xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/api-manager/wso2am-1.7.0/bin"; xdotool key Return;
-xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/api-manager/wso2am-1.7.0/repository/logs/wso2carbon.log"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/api-manager/wso2am-1.9.0/bin"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/api-manager/wso2am-1.9.0/repository/logs/wso2carbon.log"; xdotool key Return;
 
-xdotool key ctrl+shift+t 
+xdotool key ctrl+shift+t
 xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/bps/wso2bps-3.2.0/bin"; xdotool key Return;
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/bps/wso2bps-3.2.0/repository/logs/wso2carbon.log"; xdotool key Return;
 
@@ -22,8 +22,8 @@ xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/mb/wso2mb-2.2.0/bin"; x
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/mb/wso2mb-2.2.0/repository/logs/wso2carbon.log"; xdotool key Return;
 
 xdotool key ctrl+shift+t
-xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/buildserver/wso2as-$wso2asversion/bin"; xdotool key Return; 
-xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/buildserver/wso2as-$wso2asversion/repository/logs/wso2carbon.log"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/jenkins"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/jenkins/logs/jenkins.log"; xdotool key Return;
 
 xdotool key ctrl+shift+t
 xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/gitblit/"; xdotool key Return; 
@@ -62,8 +62,8 @@ xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/test_pass/privatepaas/i
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/test_pass/privatepaas/install/apache-activemq-5.9.1/data/activemq.log"; xdotool key Return;
 
 xdotool key ctrl+shift+t 
-xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/dev_pass/privatepaas/install/apache-stratos-default/bin"; xdotool key Return;
-xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/dev_pass/privatepaas/install/apache-stratos-default/repository/logs/wso2carbon.log"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/prod_pass/privatepaas/install/apache-stratos-default/bin"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/prod_pass/privatepaas/install/apache-stratos-default/repository/logs/wso2carbon.log"; xdotool key Return;
 
 xdotool key ctrl+shift+t 
 xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/prod_pass/privatepaas/install/apache-activemq-5.9.1/bin"; xdotool key Return;

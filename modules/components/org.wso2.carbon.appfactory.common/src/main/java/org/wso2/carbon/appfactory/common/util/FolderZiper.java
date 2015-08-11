@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.appfactory.nonbuild.utility;
+package org.wso2.carbon.appfactory.common.util;
 
 import java.io.File;
 import java.io.FileInputStream;

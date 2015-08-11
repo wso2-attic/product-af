@@ -21,112 +21,147 @@ jagg.template("resources/database/list", function (inputs, outputs, jagg) { %>
 <%
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
+var dbInfoForDataTable = outputs.dbInfoForDataTable;
+var hasDBs = false;
+
+if(parse(dbInfoForDataTable).length > 0){
+    hasDBs = true;
+}
 %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-    	initializeUserActivity("databases",'<%=applicationKey%>', '<%=applicationName%>');
-        drawDatabasesTable();
+        initializeUserActivity("databases",'<%=applicationKey%>', '<%=applicationName%>');
     });
-
-    function drawDatabasesTable() {
-        $("#dbSection").show();
-        $("#dbSection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
-        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-            action: "getAllDatabasesInfo",
-            applicationKey: "<%=applicationKey%>"
-        }, function (result) {
-            if (result !== undefined) {
-                var databasesByName = jQuery.parseJSON(result);
-                var tableDataRow = "";
-                var zeroDB = true;
-
-                for (var index in databasesByName) {
-                    var databases = databasesByName[index];
-                    if (databases.length > 0 ) {
-                        tableDataRow += '<tr>';
-                        for (var count in databases) {
-                            var db = databases[count];
-                            if (count == 0) {
-                                tableDataRow += '<td class=td-3>' + db.name + '</td>' +
-                                    '<td class=td-3>' + db.description + '</td>' +
-                                    '<td class=td-3>MySQL</td>' +
-                                    '<td class=td-3>';
-                             }
-                            var url = '<%=jagg.getAbsoluteUrl("/site/pages/editdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey %>&dbName=' + db.name + '&environment=' + db.stage;
-                            tableDataRow += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'"><span class="icon-edit"></span></a><span style="padding-left:6px;">' + db.stage + '</span></br>';
-                            zeroDB = false;
-                        }
-                        tableDataRow += '</td></tr>';
-                    }
-                }
-
-
-                if (!zeroDB) {
-                    $('#dbSection').html('<tr>' +
-                                        '<th>Name</th>' +
-                                        '<th>Description</th>' +
-                                        '<th>Database Type</th>' +
-                                        '<th>Environment</th>' +
-                                        '</tr>');
-                    $("#dbSection").html($("#dbSection").html() + tableDataRow);
-                } else {
-                    $("#dbSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
-                }
-            } else {
-                $("#dbSection").html('<tr><td style="border:none;padding:0;margin:0;"><div class="noData-message">Databases have not been created yet.</div></td></tr>');
-            }
-            hideSpin();
-    },
-    function (jqXHR, textStatus, errorThrown) {
-
-        if (jqXHR.status != 0){
-            jagg.message({content:'Error occurred while reading databases database users and templates',type:'error', id:'databaseoverwiew' });
-        }
-
-    	hideSpin();
-    });
-}
-
-
-
-function hideSpin() {
-	$('div#configlist> span.icon-spinner').remove();
-}
-
 </script>
+
 <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
-    <article class="main database-page">
-        <!-- following div can be removed after new ux-->
-        <div style="height: 80px; "></div>
-        <!-- -->
-    	<header class="separator">
-    		<div>
-    			<% jagg.includeBlock("page/messages", null); %>
-    			<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-    			<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-    		</div>
-    		<div class="content">
-    			<h1 class="inline_box">Databases</h1>
-    			<a id="addNewDBBtn" name="addNewDBBtn" href='<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false' class="btn main btn_group_first push_left_40">Add New Database</a>
-    		</div>
-    	</header>
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.min.css'))%>">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/dataTables.responsive.css'))%>">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.override.css'))%>">
 
-    	<% jagg.includeBlock("page/help", {"section": "databases"}); %>
-    	<div style="clear:both"></div>
-    		<div class="clearfix"></div>
+<!-- BOF App factory menu -->
+<div class="navbar navbar-secondary">
+    <div class="container-fliud">
+        <div class="row">
+            <div class="side-pane-trigger">
+                <i class="fa fa-reorder"></i>
+            </div>
+            <div class="breadcrumb-secondary">
+                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud </span> / <%=applicationName%> / Databases
+            </div>
+        </div>
+    </div>
+</div><!-- EOF App factory menu --> 
+ <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Overview
+        </a>
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Add New Database</span>
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+<div class="container-fluid app-content-section">
+        <div class="row">
+            <div class="col-md-12 msg-issues">
+                Orem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+                Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+                Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
+                Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,
+                imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
+            </div>
+        </div>
+    <% if(!hasDBs) {%>
+        <div class="row row-centered">
+            <div class="col-centered col-xs-10 col-sm-7  col-md-7 col-lg-6">
+                <div class="add-issue-content">
+                    <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                        </span>
+                        <span class="hidden-xs">Create your first Database</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    <%} else {%>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="push"></div>
+                <div class="datatable">
+                    <table id="" class="display" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Stage</th>
+                            <th>Description</th>
+                            <th>Database URL</th>
+                            <th>Type</th>
+                            <th>Users & Privileges</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                    </table>
 
-    		<section class="separator">
-    		<div class="content clear">
-    		    <table class="data-table push_top_20" id="dbSection"></table>
-    		</div>
-    	</section>
+                </div>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
+            </div>
+        </div>
+    <%}%>
+</div><!-- /.container -->
 
-    	<div style="clear:both"></div>
 
-    	<div class="clearfix"></div>
-    </article>
+    </div>
+    <div class="clearfix"></div>
+    <div id="push"></div>
+<% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+
+
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
+<script>
+    $('.side-pane-trigger').click(function(){
+        var rightPane = $('.right-pane');
+        var leftPane = $('.left-pane');
+        if (rightPane.hasClass('visible')){
+            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+            leftPane.animate({"left":"-18em"}, "slow");
+            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        } else {
+            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+            leftPane.animate({"left":"0em"}, "slow");
+            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
+        }
+    });
+    $('.datatable table').dataTable({
+            responsive: true,
+            "orderCellsTop": true,
+            data : <%=dbInfoForDataTable%>,
+            "columns": [
+                { "data": "name", "width": "5%"},
+                { "data": "stage", "width": "8%"},
+                { "data": "description" , "width": "30%"},
+                { "data": "database_url" , "width": "30%"},
+                { "data": "type", "width": "5%" },
+                { "data": "userpriviledges", "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
+                { "data": "trash", "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
+            ]
+        });
+</script>
 <%
 }); %>
-
 

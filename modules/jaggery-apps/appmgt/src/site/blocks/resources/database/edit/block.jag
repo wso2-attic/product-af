@@ -32,8 +32,41 @@ jagg.block("resources/database/edit", {
         var applicationKey = request.getParameter("applicationKey");
         var permissionModule = jagg.module("permission");
         var currentStage = request.getParameter("environment");
-
+        var dbName = request.getParameter("dbName");
+        var resourceModule = jagg.module("resources");
+        var hasPermission = permissionModule.isUserAccessGranted(applicationKey,
+                                                                 PERMISSION_RESOURCES_READ_FOR_STAGE + currentStage);
+        var userInfoArray = [];
+        if(hasPermission){
+            var unAttachedUsers = resourceModule.getAvailableUsersToAttachToDatabase(applicationKey,dbName, currentStage);
+            var attachedUsers = resourceModule.getAttachedUsers(applicationKey, dbName, currentStage);
+            for(var i in attachedUsers){
+                //log.info(attachedUsers[i]);
+                var user = {};
+                user.username = "<a>" + attachedUsers[i] + "</a>";
+                user.attachuser = "<label class='switch'> <input type='checkbox' checked><span class='toggle-button'></span></label>";
+                var priviledgeJsonArray =  resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, attachedUsers[i]);
+                var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
+                user.priviledges = priviledgeString;
+                user.editpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+                user.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+                userInfoArray.push(user);
+            }
+            for(var i in unAttachedUsers){
+                //log.info("un : "+unAttachedUsers[i]);
+                var user = {};
+                user.username = "<a>" + unAttachedUsers[i] + "</a>";
+                user.attachuser = "<label class='switch'> <input type='checkbox' ><span class='toggle-button'></span></label>";
+                var priviledgeJsonArray = resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, unAttachedUsers[i]);
+                var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
+                user.priviledges = priviledgeString; 
+                user.editpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+                user.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+                userInfoArray.push(user);
+            }
+        }
         return {
+            "userInfo": stringify(userInfoArray),
             "hasCreateResourcePermissions": hasUILevelResourceCreationPermission(applicationKey),
             "hasDataSourceDeletePermissionInCurrentStage": permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + currentStage),
             "hasDataBaseUpdatePermissionInCurrentStage": permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + currentStage)

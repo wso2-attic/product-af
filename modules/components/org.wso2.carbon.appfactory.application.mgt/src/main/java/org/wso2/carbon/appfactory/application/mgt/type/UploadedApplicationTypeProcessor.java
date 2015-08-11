@@ -220,4 +220,26 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 			return new ApplicationTypeValidationStatus(false, e.getMessage());
 		}
 	}
+
+	@Override
+	public void generateDeployableFile(String rootPath, String applicationId,
+	                                   String version, String stage) throws AppFactoryException {
+		String applicationExtenstion = ProjectUtils.getApplicationExtenstion(applicationId,
+		                                                                     CarbonContext.getThreadLocalCarbonContext()
+		                                                                                  .getTenantDomain());
+		String artifactFileName = applicationId + AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR
+		                          + version + AppFactoryConstants.FILENAME_EXTENSION_SEPERATOR + applicationExtenstion;
+		String uploadedAppSrcFile = rootPath + File.separator + AppFactoryConstants.AF_GIT_TMP_FOLDER + File.separator
+		                            + artifactFileName;
+		String uploadedApptmpFolder = rootPath + File.separator + AppFactoryConstants.DEPLOYABLE_ARTIFACT_FOLDER;
+		try {
+			FileUtils.copyFileToDirectory(new File(uploadedAppSrcFile), new File(uploadedApptmpFolder));
+		} catch (IOException e) {
+			String errMsg =
+					"Error when copying folder from src to artifact tmp : " +
+					e.getMessage();
+			log.error(errMsg, e);
+			throw new AppFactoryException(errMsg, e);
+		}
+	}
 }

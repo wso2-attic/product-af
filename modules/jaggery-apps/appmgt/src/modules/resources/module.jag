@@ -167,10 +167,16 @@ jagg.module("resources", {
 		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getUserPrivileges.apply(this, arguments);
 	},
 
+    getPriviledgesString:function () {
+        return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getPriviledgesString.apply(this, arguments);
+    },
+
 	editUserPermissions:function () {
 		return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").editUserPermissions.apply(this, arguments);
 	},
-	
+    generateDatabaseInfoForDataTable :function () {
+        return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").generateDatabaseInfoForDataTable.apply(this, arguments);
+    },  	
     createApplication:function () {
         return jagg.require(jagg.getModulesDir() + "resources/apis/add/add.jag").createApplication.apply(this, arguments);
     },
