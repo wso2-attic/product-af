@@ -34,11 +34,9 @@ jagg.template("resources/list", function(inputs, outputs, jagg) { %>
     var helpTips = outputs.helpTips;
     %>
 
-    <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
-
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-<script type="text/javascript">
-       
+    <script type="text/javascript">
+
 //this is for zeroclipboard pluging
      var _defaults = {
         moviePath:"<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/js/vendor/ZeroClipboard/ZeroClipboard.swf'))%>",        // URL to movie
@@ -349,88 +347,59 @@ function convertProperties(properties){
    return result;
 }
 
-  function prepareDataModel(resultJson){
-    	var tableModel = {};
-		var j = 0;
-		for(var apiName in resultJson){
-			var tableRowModel = {};
-			tableRowModel['name'] = apiName;
-			var details = resultJson[apiName];
-		    var stages = {};
-			for (var i = 0; i < details.length; i++) {
-				var envDetail = details[i];
-				var stageModel = {};
-				for(var envName in envDetail){
-					var apiData = envDetail[envName];
-					for (var k = 0; k < apiData.length; k++) {
-						var data = apiData[k];
-						if(data.name == 'authentication'){
-							tableRowModel[data.name] = data.value;
-						}else{
-							stageModel[data.name] = data.value;
-						}
-
-					}
-					stages[envName]	= stageModel;
-				}
-			}
-			 tableRowModel['stages']= stages;
-			 tableModel[j++] = tableRowModel;
-		}
-		return tableModel;
-    }
-
 function drawApisTable() {
+
     $("#externalapi").show();
-    $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
-    jagg.post("../blocks/resources/externalapi/get/ajax/list.jag", {
-            action:"getExternalAPIs",
-            applicationKey:$("#applicationKey").val()
+        $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+        jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
+            action:"getAllDependencyList",
+            applicationKey:$("#applicationKey").val(),
+            resourceType:"External API"
         },
         function (result) {
-            var elementIds=[];
-			var apiIndex;
-			var resultJson = JSON.parse(result);
-			if(jQuery.isEmptyObject(resultJson)){
+
+			var externalApis = JSON.parse(result);
+			if(jQuery.isEmptyObject(externalApis)){
         		$("#externalapi").empty().append("<div class='noData-message'>No External APIs are created yet.</div>");
         	}
-			else{
-				var tableModel = prepareDataModel(resultJson);
+			else
+			{
 				var tableBodyHTML = "";
-				var url = "#";
-				var count = 0;
-				for (var index in tableModel) {
-					tableBodyHTML += '<div class="list_col_content">';
-				    var row = tableModel[index];
-			        elementIds.push(row.name);
 
-				      count = 0;
-				    for (var stageName in row.stages) {
-				        var stageValues = row.stages[stageName];
-				        url = "<%=jagg.getAbsoluteUrl("/site/pages/externalapi.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=apimanager&isEdit=true&resourceName=" + row.name+"&environment="+stageName;
+				for (var externalApi in externalApis) {
 
-				        if (count++ == 0) {
-				            tableBodyHTML += '<li class="list_row_item first_list_row_item">' + '<ul class="list_row first_list_row">'
-				            				+ '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">'
-				            				+ '<li>' + row.name + '</li>' + '</ul>';
-				            tableBodyHTML += '</div></li><li class="col-9">' + '<div class="list_col_content">' + '<ul class="list">'
-				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>';
-
-				        }
-				    }
-
-				   		tableBodyHTML+= '</li></ul>';
-						tableBodyHTML+='</div>';
+                    tableBodyHTML += '<div class="list_col_content"> ' +
+                                        '<li class="list_row_item first_list_row_item"> ' +
+                                            '<ul class="list_row first_list_row"> ' +
+                                                '<li class="col-3">' +
+                                                    '<div class="list_col_content">' +
+                                                        '<ul class="list">' +
+                                                            '<li>' + externalApi + '</li>' +
+                                                        '</ul> ' +
+                                                    '</div>' +
+                                                '</li>' +
+                                                '<li class="col-5">' +
+                                                    '<div class="list_col_content">' +
+                                                        '<ul class="list">' +
+                                                            '<li>' + externalApis[externalApi].description + '</li>' +
+                                                        '</ul> ' +
+                                                    '</div>' +
+                                                '</li>' +
+                                            '</ul>' +
+                                        '</li>' +
+                                    '</div>';
 				}
-
 				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
-	            			'<ul class="list_row first_list_row">' +
-	            			'<li class="col-3">' +
-	            			'<h2 class="list_col_heading">Name</h2>' +
-	            			'</li>' +
-	            			'<li class="col-9">' +
-	            			'<h2 class="list_col_heading">Authentication</h2>'+
-	            			'</li>';
+				                        '<ul class="list_row first_list_row">' +
+	            			                '<li class="col-3">' +
+	            			                    '<h2 class="list_col_heading">Name</h2>' +
+                                            '</li>' +
+                                            '<li class="col-5">' +
+	            			                    '<h2 class="list_col_heading">Description</h2>'+
+	            			                '</li>' +
+                                        '</ul> ' +
+                                    '</li>';
+
 				$("#externalapi").empty().append(initTableTxt).append(tableBodyHTML);
         	}
         },
@@ -545,143 +514,143 @@ function setOverviewHelpTips(helpTips){
 //]]
 </script>
 
-<input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
-<input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
-<input type="hidden" name="hasTenantAdminPermission" id="hasTenantAdminPermission" value="<%=hasTenantAdminPermission%>"/>
+<article class="main">
+        <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
+        <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
+        <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
+        <input type="hidden" name="hasTenantAdminPermission" id="hasTenantAdminPermission" value="<%=hasTenantAdminPermission%>"/>
+        <input type="hidden" name="userName"  id="loggeduserName" value='<%= jagg.getUser() %>'/>
 
-    <article class="main">
-            <% jagg.includeBlock("page/messages", null); %>
-            <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-	        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-            <!-- following div can be removed after new ux-->
-            <div style="height: 80px; "></div>
-            <!-- -->
-            <header>
-                <div class="content">
-                    <h1>Runtime Configs</h1>
-                 </div>
-            </header>
+        <div style="height: 80px; "></div>
+        <% jagg.includeBlock("page/messages", null); %>
+        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+        <header>
+            <div class="content">
+                <h1>Runtime Configs</h1>
+             </div>
+        </header>
 
-            <% jagg.includeBlock("resources/menu", {page:'overview',applicationName:applicationName,applicationKey:applicationKey}); %>
-            <% jagg.includeBlock("page/help", {"section": "resourcesOverview"}); %>
-            <div id="dbSectionWithSeparator">
-            <section class="separator">
-                <div class="content clear" id="datasource-heading" >
-                    <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Datasources<span class="icon-circle-arrow-right"></span></a></h2>
+        <% jagg.includeBlock("resources/menu", {page:'overview',applicationName:applicationName,applicationKey:applicationKey}); %>
+        <% jagg.includeBlock("page/help", {"section": "resourcesOverview"}); %>
+        <div id="dbSectionWithSeparator">
+        <section class="separator">
+            <div class="content clear" id="datasource-heading" >
+                <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/listDatasources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Datasources<span class="icon-circle-arrow-right"></span></a></h2>
 
-			<div class="help-block"><span class="help-icon">?</span> <span id="datasourceHelp"></span></div>
-                    <ul class="list_table push_top_20" id="dbSection" >
+        <div class="help-block"><span class="help-icon">?</span> <span id="datasourceHelp"></span></div>
+                <ul class="list_table push_top_20" id="dbSection" >
 
-                     </ul>
-					<!--div align="center" id="configlist" style="margin-top: 10px;">
-						<span class="icon-spinner icon-spin icon-large"></span>
-					</div-->
-                     <ul class="list_table push_top_20">
-                        <li class="list_row_item no_bottom_border">
-                            <div>
-                                <div class="af_container">
-                                    <div class="af_row">
-                                        <div class="col-3">
-                                        <%if(outputs.hasCreateResourcePermissions){%>
-                                        <div class="list_col_content">
-                                                <a id="addDS_action" name="addDS_action" href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=false'" class="btn main">Add Datasource</a>
-                                            </div>
+                 </ul>
+                <!--div align="center" id="configlist" style="margin-top: 10px;">
+                    <span class="icon-spinner icon-spin icon-large"></span>
+                </div-->
+                 <ul class="list_table push_top_20">
+                    <li class="list_row_item no_bottom_border">
+                        <div>
+                            <div class="af_container">
+                                <div class="af_row">
+                                    <div class="col-3">
+                                    <%if(outputs.hasCreateResourcePermissions){%>
+                                    <div class="list_col_content">
+                                            <a id="addDS_action" name="addDS_action" href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/dbadministration.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isDefaultMode=true&isEdit=false'" class="btn main">Add Datasource</a>
                                         </div>
-                                        <%}%>
                                     </div>
-                                    </div>
-                                </div>
-                            </ul>
-                       </li>
-                    </ul>
-                </div>
-            </section>
-            <div class="clearfix"></div>
-            <hr></hr>
-            </div>
-
-            <section class="separator">
-                <div class="content clear">
-                    <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Enterprise APIs <span class="icon-circle-arrow-right"></span></a></h2>
-                    <div class="help-block"><span class="help-icon">?</span> <span id="apiHelp"></span></div>
-                    <ul class="list_table push_top_20" id="apiSection"><div class='noData-message'>APIs have not been subscribed to yet.</div></ul>
-                    <div id="subcscribe_btn_container_enterprise"class="list_col_content"></div>
-                </div>
-            </section>
-            <div class="clearfix"></div>
-            <hr />
-            <section class="separator">
-                <div class="content clear">
-                    <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">External APIs <span class="icon-circle-arrow-right"></span></a></h2>
-                    <div class="help-block"><span class="help-icon">?</span> <span id="externalApiHelp"></span></div>
-                    <ul class="list_table push_top_20" id="externalapi"></ul>
-                    <div id="subcscribe_btn_container"class="list_col_content"></div>
-                    <ul class="list_table push_top_20" >
-                    <!--      <li class="list_row_item no_bottom_border">
-                    <ul class="list_row">
-                    <li class="list_col first_list_col resources_apiname_col">
-
-
-
-
-                    </li>
-                    <li class="list_col resources_apidescription_col">
-                    <div class="list_col_content">
-                    </div>
-                    </li>
-                    <li class="list_col last_list_col resources_apiprovider_col">
-                    <div class="list_col_content">
-                    </div>
-                    </li>
-                    </ul>
-                    </li> -->
-                    </ul>
-                </div>
-            </section>
-
-            <div class="clearfix"></div>
-            <hr />
-            <section class="separator">
-                <div class="content clear">
-                    <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Properties <span class="icon-circle-arrow-right"></span></a></h2>
-
-		    <div class="help-block"><span class="help-icon">?</span> <span id="propertyHelp"></span></div>
-                    <% jagg.includeBlock("resources/registry/list", {"isNamesOnly":false});%>
-                    <%if(outputs.hasCreateResourcePermissions){%>
-                        <ul class="list_table">
-                            <li class="list_col first_list_col resources_endregname_col">
-                                <div>
-                                <div class="af_container">
-                                    <div class="af_row">
-                                        <div class="col-3">
-                                <div class="list_col_content">
-                                    <a id="addPropertyBtn" name="addPropertyBtn" class="btn main" href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=configureenvironment">Add Properties</a>
+                                    <%}%>
                                 </div>
                                 </div>
-                                </div>
-                                </div>
-                                </div>
-                            </li>
+                            </div>
                         </ul>
-                    <%}%>
-                </div>
-            </section>
-             <%
-    if (hasTenantAdminPermission == true) { %>
-            <div class="clearfix"></div>
-            <hr />
-            <section class="separator">
-                <div class="content clear" style="padding-bottom: 15px;">
-                <h2 class="next_page"><a>User Realm Support <span class="icon-circle-arrow-right"></span></a></h2>
+                   </li>
+                </ul>
+            </div>
+        </section>
+        <div class="clearfix"></div>
+        <hr></hr>
+        </div>
 
-			<div class="help-block"><span class="help-icon">?</span> <span id="userRealmHelp"></span></div>
-                    <input type="checkbox" name="enable_user_realm" id="enable_user_realm_check"> Enable UserRealm Support</input>
+        <section class="separator">
+            <div class="content clear">
+                <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Enterprise APIs <span class="icon-circle-arrow-right"></span></a></h2>
+                <div class="help-block"><span class="help-icon">?</span> <span id="apiHelp"></span></div>
+                <ul class="list_table push_top_20" id="apiSection"><div class='noData-message'>APIs have not been subscribed to yet.</div></ul>
+                <div id="subcscribe_btn_container_enterprise"class="list_col_content"></div>
+            </div>
+        </section>
+        <div class="clearfix"></div>
+        <hr />
+        <section class="separator">
+            <div class="content clear">
+                <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">External APIs <span class="icon-circle-arrow-right"></span></a></h2>
+                <div class="help-block"><span class="help-icon">?</span> <span id="externalApiHelp"></span></div>
+                <ul class="list_table push_top_20" id="externalapi"></ul>
+                <div id="subcscribe_btn_container"class="list_col_content"></div>
+                <ul class="list_table push_top_20" >
+                <!--      <li class="list_row_item no_bottom_border">
+                <ul class="list_row">
+                <li class="list_col first_list_col resources_apiname_col">
+
+
+
+
+                </li>
+                <li class="list_col resources_apidescription_col">
+                <div class="list_col_content">
                 </div>
-            </section>
-            <div class="clearfix"></div>
-            <%
-    }
-    %>
-       </article>
-       <input type="hidden" name="userName"  id="loggeduserName" value='<%= jagg.getUser() %>'/>
+                </li>
+                <li class="list_col last_list_col resources_apiprovider_col">
+                <div class="list_col_content">
+                </div>
+                </li>
+                </ul>
+                </li> -->
+                </ul>
+            </div>
+        </section>
+
+        <div class="clearfix"></div>
+        <hr />
+        <section class="separator">
+            <div class="content clear">
+                <h2 class="next_page"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Properties <span class="icon-circle-arrow-right"></span></a></h2>
+
+        <div class="help-block"><span class="help-icon">?</span> <span id="propertyHelp"></span></div>
+                <% jagg.includeBlock("resources/registry/list", {"isNamesOnly":false});%>
+                <%if(outputs.hasCreateResourcePermissions){%>
+                    <ul class="list_table">
+                        <li class="list_col first_list_col resources_endregname_col">
+                            <div>
+                            <div class="af_container">
+                                <div class="af_row">
+                                    <div class="col-3">
+                            <div class="list_col_content">
+                                <a id="addPropertyBtn" name="addPropertyBtn" class="btn main" href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=configureenvironment">Add Properties</a>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                        </li>
+                    </ul>
+                <%}%>
+            </div>
+        </section>
+         <%
+if (hasTenantAdminPermission == true) { %>
+        <div class="clearfix"></div>
+        <hr />
+        <section class="separator">
+            <div class="content clear">
+            <h2 class="next_page"><a>User Realm Support <span class="icon-circle-arrow-right"></span></a></h2>
+
+        <div class="help-block"><span class="help-icon">?</span> <span id="userRealmHelp"></span></div>
+                <input type="checkbox" name="enable_user_realm" id="enable_user_realm_check"> Enable UserRealm Support</input>
+            </div>
+        </section>
+        <div class="clearfix"></div>
+        <%
+}
+%>
+   </article>
+
 <% }); %>

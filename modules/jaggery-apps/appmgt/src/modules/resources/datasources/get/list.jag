@@ -29,7 +29,7 @@ var rssFilter = jagg.module("rss-filter");
 var carbon = require('carbon');
 var server = carbon.server;
 
-var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
+var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr) {
     var ws = require('ws');
     var reloadAllDS = new ws.WSRequest();
     var options = new Array();
@@ -44,9 +44,8 @@ var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
 		reloadAllDS.send(payload);
 	   	result = reloadAllDS.responseE4X;
         if(log.isDebugEnabled()){
-            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+            log.debug("Invoking service endpoint : " + epr + " returned result:" + result);
         }
-        
  		return parseResponse(result);
     } catch (e) {
         var msg = "Error while reloading datasources for application key: " + applicationKey + " & stage: " + epr;
