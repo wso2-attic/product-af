@@ -47,13 +47,17 @@ include("/jagg/config_reader.jag");
  	           
  	                if (property.mediaType == "External API") {
  	                    var apiName = property.name;
- 	                    var details = externalAPIs[apiName];
+ 	                    var description = property.description;
+                        var externalApi = {};
+                        var details = externalApi["details"];
  	                    if(details == undefined ){
  	                    	details = [];
  	                    }
  	                    var detail = mod.getDetailedPropertyValuesInStages(applicationKey + "/" + apiName, [stage]);
  	                    details.push(detail);
- 	                   externalAPIs[apiName] = details;
+ 	                   externalApi.description = description;
+                       externalApi["details"] = details;
+                       externalAPIs[apiName] = externalApi;;
  	                }
  	            }
 	        } else {

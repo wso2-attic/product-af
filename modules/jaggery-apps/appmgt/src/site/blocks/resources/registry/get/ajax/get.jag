@@ -30,47 +30,76 @@ var log = new Log();
         print(UNAUTHORIZED_ERROR_RESPONSE);
         return;
     }
-	if (action == "getAllDependencies") {
-		var mod = jagg.module("resources");
-		var permissionModule = jagg.module("permission");
-		var dependencies = {};
-		var response = {};
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-		var applicationKey = request.getParameter("applicationKey");
+    if(action == "getAllDependencyList") {
+        var mod = jagg.module("resources");
+        var applicationKey = request.getParameter("applicationKey");
+        var resourceType = request.getParameter("resourceType");
+        var stages = getProperties(DEPLOYMENT_STAGES);
+        var modPermission = jagg.module("permission");
+        var result = {};
+        var properties;
+        for (var i = 0; i < stages.length; i++) {
+            var stage = stages[i];
+            if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage)) {
+                try {
+                    properties = mod.getPropertiesInEnvironment(applicationKey, resourceType, stage);
+                    for (var index in properties) {
+                        var property = properties[index];
+                        var resultProperty = {};
+                        resultProperty.description = property.description;
+                        result[property.name] = resultProperty;
+                    }
+                } catch (e) {
+                    var msg = "Error while getting list of properties for application : " + applicationKey;
+                    log.error(msg);
+                    log.error(e);
+                    response.status = 500;
+                    response.content = msg;
+                }
+            }
+        }
+        print(result);
+    } else if (action == "getAllDependencies") {
+        var mod = jagg.module("resources");
+        var permissionModule = jagg.module("permission");
+        var dependencies = {};
+        var response = {};
+        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var applicationKey = request.getParameter("applicationKey");
 
-		var allStages = getProperties(DEPLOYMENT_STAGES);
-		var allowedStages=getAllowedStages(allStages,PERMISSION_RESOURCES_READ_FOR_STAGE,applicationKey);
+        var allStages = getProperties(DEPLOYMENT_STAGES);
+        var allowedStages=getAllowedStages(allStages,PERMISSION_RESOURCES_READ_FOR_STAGE,applicationKey);
 
-		var result={};
-		try {
-			dependencies = mod.getDetailedPropertyValuesInStages(applicationKey,allowedStages);
-			for(var stage in dependencies){
-				var tmpStage=dependencies[stage];
-				for(var regEntry in tmpStage){
-					var tmpRegEntry=tmpStage[regEntry];
-					if(tmpRegEntry.mediaType!="External API" && tmpRegEntry.mediaType=="Registry"){
-						var resultEntry=result[tmpRegEntry.name];
-						if(resultEntry==null){
-							resultEntry=result[tmpRegEntry.name]={
-							};
-							resultEntry.description=tmpRegEntry.description;
-							resultEntry.environments={
-							};
-						}
-						resultEntry.environments[stage]={
-						};
-						resultEntry.environments[stage].value=tmpRegEntry.value;
-					}
-				}
-			}
-			if (result != null) {
-				print(result);
-			} else {
-				throw "Error while getting the resources of application";
-			}
-		} catch (e) {
-			throw "Error while getting dependent resources " + e.toString();
-		}
+        var result={};
+        try {
+            dependencies = mod.getDetailedPropertyValuesInStages(applicationKey,allowedStages);
+            for(var stage in dependencies){
+                var tmpStage=dependencies[stage];
+                for(var regEntry in tmpStage){
+                    var tmpRegEntry=tmpStage[regEntry];
+                    if(tmpRegEntry.mediaType!="External API" && tmpRegEntry.mediaType=="Registry"){
+                        var resultEntry=result[tmpRegEntry.name];
+                        if(resultEntry==null){
+                            resultEntry=result[tmpRegEntry.name]={
+                            };
+                            resultEntry.description=tmpRegEntry.description;
+                            resultEntry.environments={
+                            };
+                        }
+                        resultEntry.environments[stage]={
+                        };
+                        resultEntry.environments[stage].value=tmpRegEntry.value;
+                    }
+                }
+            }
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while getting the resources of application";
+            }
+        } catch (e) {
+            throw "Error while getting dependent resources " + e.toString();
+        }
 	} else if (action == "getResource") {
 
 		var mod = jagg.module("resources");

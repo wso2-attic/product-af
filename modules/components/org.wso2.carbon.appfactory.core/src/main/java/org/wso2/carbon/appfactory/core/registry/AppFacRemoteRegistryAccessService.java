@@ -281,9 +281,8 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
             }
             return value;
         } catch (RegistryException e) {
-            String message =
-                    "Error occured while retriving dependency value from " + resourcePath +
-                            " from registry " + serverURL;
+            String message = "Error occured while retriving dependency value from " +
+                    resourcePath + " from registry " + serverURL;
             log.error(message, e);
             throw new AppFactoryException(message, e);
         }
@@ -295,9 +294,7 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
     @Override
     public Dependency[] getAllRegistryResources(String serverURL, String username, String resourcePath)
             throws AppFactoryException {
-        Registry governanceRegistry;
         Dependency[] dependencies = new Dependency[0];
-
         try {
             WSRegistryServiceClient wsclient = new WSRegistryServiceClient(serverURL, null);
             AppFactoryUtil.setAuthHeaders(wsclient.getStub()._getServiceClient(), username);

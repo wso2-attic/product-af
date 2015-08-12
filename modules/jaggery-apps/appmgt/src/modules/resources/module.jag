@@ -263,12 +263,15 @@ jagg.module("resources", {
     propertyExistsInStages:function () {
     	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").propertyExistsInStages.apply(this, arguments);
     },
+
     copyNewProperties:function () {
     	return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").copyNewProperties.apply(this, arguments);
     },
+
     setUserRealmSupport:function () {
     	return jagg.require(jagg.getModulesDir() + "resources/userrealm/realm.jag").setUserRealmSupport.apply(this, arguments);
     },
+
     isUserRealmSupported:function () {
     	return jagg.require(jagg.getModulesDir() + "resources/userrealm/realm.jag").isUserRealmSupported.apply(this, arguments);
     },
@@ -276,13 +279,34 @@ jagg.module("resources", {
     deleteAllResourcesOfApplication:function () {
         return jagg.require(jagg.getModulesDir() + "resources/delete/delete.jag").deleteAllResourcesOfApplication.apply(this, arguments);
     },
+
     getAllDatabasesInfo: function () {
         return jagg.require(jagg.getModulesDir() + "resources/databases/add/add.jag").getAllDatabasesInfo.apply(this, arguments);
     },
+
     getAllDatasourcesInfo: function () {
         return jagg.require(jagg.getModulesDir() + "resources/datasources/get/list.jag").getAllDatasourcesInfo.apply(this, arguments);
-    },checkDataSourceSupport: function () {
+    },
+
+    checkDataSourceSupport: function () {
     	return jagg.require(jagg.getModulesDir() + "resources/datasources/get/list.jag").checkDataSourceSupport.apply(this, arguments);
+    },
+
+    getAllPropertyList: function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getAllPropertyList.apply(this, arguments);
+    },
+
+    addPropertyToDatabase: function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").addPropertyToDatabase.apply(this, arguments);
+    },
+
+    copyNewPropertiesInDatabase: function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").copyNewPropertiesInDatabase.apply(this, arguments);
+    },
+
+    getPropertiesInEnvironment: function () {
+        return jagg.require(jagg.getModulesDir() + "resources/registry/resource.jag").getPropertiesInEnvironment.apply(this, arguments);
     }
+
 });
 %>

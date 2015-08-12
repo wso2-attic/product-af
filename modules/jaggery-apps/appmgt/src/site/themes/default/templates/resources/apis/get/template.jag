@@ -64,6 +64,7 @@ var helpTips = outputs.helpTips;
     function saveAndRetrieve(isSyncNeeded){
         $("#keySection").show();
     	$("#keySection").html('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+    	$("#showKeysBtn").attr('disabled', 'disabled');
     	jagg.post("../blocks/resources/apis/key/ajax/key.jag", {
     		action:"getSavedKeys",
     		applicationKey:$("#applicationKey").val(),
@@ -190,7 +191,7 @@ var helpTips = outputs.helpTips;
         	}
         	else{
                     $("#renewApiBtnDisabled").hide();
-   	            $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys()">Sync Keys</button>');
+   	            $('#renewbtnContainer').append('<button type="button" id="renewApiBtn" class="btn main push_top_20 push_bottom_40" onclick="syncKeys(true)">Sync Keys</button>');
 	            var tableBodyHTML = '<li class="list_row_item first_list_row_item">'
 	            						+'<ul class="list_row first_list_row">'
 	            							+'<li class="list_col col-2">'
@@ -269,7 +270,6 @@ var helpTips = outputs.helpTips;
 				}
 
 				$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
-                saveAndRetrieve(false);
         	}
         },
         function (jqXHR, textStatus, errorThrown) {
@@ -284,9 +284,9 @@ var helpTips = outputs.helpTips;
         });
     }
 
-    function syncKeys(){
+    function syncKeys(isSync){
 	jagg.removeMessage('uniqueId1');
-    	saveAndRetrieve(true);
+    	saveAndRetrieve(isSync);
     }
 
 // ////////////// External api
@@ -297,7 +297,8 @@ var helpTips = outputs.helpTips;
 		for(var apiName in resultJson){
 			var tableRowModel = {};
 			tableRowModel['name'] = apiName;
-			var details = resultJson[apiName];
+			var externalApi = resultJson[apiName];
+			var details = externalApi["details"];
 		    var stages = {};
 			for (var i = 0; i < details.length; i++) {
 				var envDetail = details[i];
@@ -316,6 +317,7 @@ var helpTips = outputs.helpTips;
 					stages[envName]	= stageModel;
 				}
 			}
+             tableRowModel["description"] = externalApi["description"]
 			 tableRowModel['stages']= stages;
 			 tableModel[j++] = tableRowModel;
 		}
@@ -373,10 +375,12 @@ var helpTips = outputs.helpTips;
 				            tableBodyHTML+='<span id="snippet_'+row.name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;'
 				            				+'<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
 
-				            tableBodyHTML += '</div></li><li class="col-5">' + '<div class="list_col_content">' + '<ul class="list">'
-				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>';
+				            tableBodyHTML += '</div></li><li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">'
+				            				+ '<li>' + row.authentication + '</li>' + '</ul> </div></li>' +
+				            				 '<li class="col-3">' + '<div class="list_col_content">' + '<ul class="list">'
+				            				+ '<li>' + row.description + '</li>' + '</ul> </div></li>';
 
-				            tableBodyHTML += '<li class="col-4">';
+				            tableBodyHTML += '<li class="col-3">';
 				        }
 				        tableBodyHTML += '<div class="list_col_content">';
 				        tableBodyHTML += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'"><span class="icon-edit"></span></a><span style="padding-left:6px;font-size: 0.857142857em;"><b>'+ stageName +' :</b> ' + formatUrlValue('url:' + stageValues['url']) +' </span></br>';
@@ -397,10 +401,13 @@ var helpTips = outputs.helpTips;
 	            			'<li class="col-3">' +
 	            			'<h2 class="list_col_heading">Name</h2>' +
 	            			'</li>' +
-	            			'<li class="col-5">' +
+	            			'<li class="col-3">' +
 	            			'<h2 class="list_col_heading">Authentication</h2>'+
 	            			'</li>' +
-	            			'<li class="col-4">' +
+	            			'<li class="col-3">' +
+	            			'<h2 class="list_col_heading">Description</h2>'+
+	            			'</li>' +
+	            			'<li class="col-3">' +
 	            			'<h2 class="list_col_heading">Values</h2>'+
 	            			'</li>' +
 	            			'</ul>' +
@@ -424,6 +431,86 @@ var helpTips = outputs.helpTips;
             // add the error label in the grid
         });
     }
+
+    function loadExternalAPIsInitialView() {
+        $("#externalapi").show();
+        $("#externalapi").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+        jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
+            action:"getAllDependencyList",
+            applicationKey:$("#applicationKey").val(),
+            resourceType:"External API"
+        },
+        function (result) {
+            var elementIds=[];
+			var externalApis = JSON.parse(result);
+			if(jQuery.isEmptyObject(externalApis)){
+			    $("#loadExternalAPIVlBtn").attr('disabled', 'disabled');
+        		$("#externalapi").empty().append("<div class='noData-message'>No External APIs are created yet.</div>");
+        	} else {
+        	    $("#loadExternalAPIVlBtn").removeAttr('disabled');
+			    var codeSnippetHTML=codeSnippet.generate("<%=language%>","Properties","<%=applicationKey%>",name);
+			    var snippets=(codeSnippetHTML!=undefined);
+				var tableBodyHTML = "";
+
+				for (var externalApi in externalApis) {
+
+                    tableBodyHTML += '<div class="list_col_content"> ' +
+                                        '<li class="list_row_item first_list_row_item">' +
+                                            '<ul class="list_row first_list_row">' +
+                                                '<li class="col-3">' +
+                                                    '<div class="list_col_content">' +
+                                                        '<ul class="list">' +
+                                                            '<li>' + externalApi + '</li>' +
+                                                        '</ul>';
+                    if(snippets)
+                        tableBodyHTML+='<span id="snippet_'+externalApi+'" class="pointer_cursor">' +
+                                            '<a class="next_page">Code Snippet</a>&nbsp;' +
+                                            '<span class="icon-circle-arrow-down" style="color:#F47A20;"></span>' +
+                                        '</span>';
+
+                    tableBodyHTML += '</div></li>' +
+                                     '<li class="col-5">' +
+                                        '<div class="list_col_content">' + '<ul class="list">'
+                                    + '<li>' + externalApis[externalApi].description + '</li>' + '</ul> </div></li></ul></li>';
+
+                    if(snippets)
+                        tableBodyHTML += '<div id="code'+externalApi+'" style="display: none;" class="code">' +
+                                            codeSnippet.generate("Java","Apis","<%=applicationKey%>",externalApi); +
+                                         '</div>';
+
+                    tableBodyHTML+='</div>';
+				}
+				var initTableTxt = '<li class="list_row_item first_list_row_item">' +
+	            			            '<ul class="list_row first_list_row">' +
+	            			                '<li class="col-3">' +
+	            			                    '<h2 class="list_col_heading">Name</h2>' +
+	            			                '</li>' +
+	            			                '<li class="col-5">' +
+	            			                    '<h2 class="list_col_heading">Description</h2>'+
+	            			                '</li> ' +
+                                        '</ul> ' +
+                                    '</li>';
+
+				$("#externalapi").empty().append(initTableTxt).append(tableBodyHTML);
+				for (var index in elementIds) {
+				    var name = elementIds[index];
+
+				    //tableBodyHTML += '<ul class="list_row first_list_row">'
+					$("#snippet_"+name).click(function(){
+						$crtl=$(this);
+		 				$(this).parent().parent().parent().next().slideToggle( "fast", function(){
+		  	 				});
+						});
+				}
+
+				$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
+        	}
+        },
+        function (jqXHR, textStatus, errorThrown) {
+            // add the error label in the grid
+        });
+    }
+
     function showHideTabs(linkTab){
         $('li',$(linkTab).parent()).removeClass('active');
         $(linkTab).addClass('active');
@@ -440,7 +527,7 @@ var helpTips = outputs.helpTips;
     	initializeUserActivity("apis",'<%=applicationKey%>', '<%=applicationName%>');
 	    setHelpTips(<%= helpTips %>);
     	loadKeyNameMappings();
-    	loadExternalAPIs();
+    	loadExternalAPIsInitialView();
     	isAppOwner();
     });
 
@@ -505,17 +592,9 @@ var helpTips = outputs.helpTips;
 
 </script>
 
-<style type="text/css">
-    .span9 label{
-     font-size:12px;
-    }
-</style>
-
 <article class="main">
-    <!-- following div can be removed after new ux-->
-        <div style="height: 80px; "></div>
-    <!-- -->
-    <header>
+   <div style="height: 80px; "></div>
+   <header>
       <div> <% jagg.includeBlock("page/messages", null); %>
        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
@@ -546,7 +625,16 @@ var helpTips = outputs.helpTips;
          <h2 class=" no_margin">Saved Keys</h2>
          <ul class="list_table push_top_20" id="keySection">
          </ul>
-         <div id="renewbtnContainer"></div>
+         <div class="left btn_list_box">
+            <ul class="inline_box inline_list btn_list" id="keysButtonsContainer">
+                <li class="inline_item">
+                    <button type="button" id="showKeysBtn" class="btn main push_top_20 push_bottom_40" onclick=syncKeys(false)>Show Keys</button>
+                </li>
+                <li class="inline_item" id="renewbtnContainer"></li>
+            </ul>
+         </div>
+      </div>
+      <div class="content clear">
          <h2>Subscribed APIs</h2>
          <div class="help-block"><span class="help-icon">?</span> <span id="enterpriseApiHelp"></span></div>
          <ul class="list_table push_top_20" id="apiSection">
@@ -575,7 +663,14 @@ var helpTips = outputs.helpTips;
           <div class="help-block"><span class="help-icon">?</span> <span id="apiHelp"></span></div>
          <ul class="list_table push_top_20" id="externalapi">
          </ul>
+         <div class="right btn_list_box">
+            <ul class="inline_box inline_list btn_list">
+                <button type="button" id="loadExternalAPIVlBtn" name="loadExternalAPIVlBtn" class="btn main push_top_20 push_bottom_40"
+                                                                    onclick="loadExternalAPIs()">Show More Detail</button>
+            </ul>
+         </div>
       </div>
    </section>
 </article>
+
 <% }); %>

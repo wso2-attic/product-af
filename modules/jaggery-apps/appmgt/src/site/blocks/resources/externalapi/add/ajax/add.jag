@@ -44,6 +44,7 @@ var loggedInUser = jagg.getUser();
         var applicationKey = request.getParameter("applicationKey");
         var apiName = request.getParameter("apiName");
         var authType = request.getParameter("authType");
+        var description = request.getParameter("description");
         var givenValues = request.getParameter("givenValues");
         var copyToAll=request.getParameter("copyToAll");
         var propname = "";
@@ -78,7 +79,8 @@ var loggedInUser = jagg.getUser();
                  	targetStage=targetStages;
                 	
                 }
-                mod.putPropertyCollection(apiName, "ExternalAPI", "External API", applicationKey, targetStage);
+                mod.putPropertyCollection(apiName, description, "External API", applicationKey, targetStage);
+                mod.addPropertyToDatabase(apiName, "External API", applicationKey, description, targetStage);
                 propname = apiName + "/url";
                 log.debug("Adding property:" + propname + " url value: " + url);
 
