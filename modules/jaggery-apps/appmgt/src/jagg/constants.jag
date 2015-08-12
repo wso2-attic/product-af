@@ -204,6 +204,7 @@ var ISSUE_TRACKER_SERVER_URL = "IssueTrackerConnector.issueTracker.Property.Url"
 
 var DEPLOYER_APPTYPE_EP= ".PAASServicesURL";
 var SC_URL=".TenantMgtUrl";
+var GREG_SERVER_URL= ".GregServerURL";
 
 //For Codenvy
 var CODENVY_BASE_URL = "Codenvy.Property.Url";
