@@ -1,0 +1,388 @@
+<wsdl:definitions 
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+	xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+    xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+	xmlns:ns="http://services.ext.appfactory.carbon.wso2.org"
+	targetNamespace="http://services.ext.appfactory.carbon.wso2.org">
+    <wsdl:documentation>AppFactoryResourceManagementService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema 
+					xmlns:ax270="http://common.appfactory.carbon.wso2.org/xsd"
+					xmlns:ax272="http://services.ext.appfactory.carbon.wso2.org/xsd"
+					attributeFormDefault="qualified" elementFormDefault="qualified"	
+                   targetNamespace="http://services.ext.appfactory.carbon.wso2.org">
+            <xs:import namespace="http://common.appfactory.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://services.ext.appfactory.carbon.wso2.org/xsd"/>
+            <xs:element name="AppFactoryResourceManagementServiceAppFactoryException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="AppFactoryException" nillable="true"
+                                    type="ax270:AppFactoryException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addOrUpdateResource">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateResources">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addOrUpdateResources">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateResource">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addResources">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addResource">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteResource">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="appFactoryResource" nillable="true"
+                                    type="ax272:AppFactoryResource"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema 
+					xmlns:ax271="http://services.ext.appfactory.carbon.wso2.org/xsd"
+					attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://services.ext.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="AppFactoryResource">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="appFactoryResources" nillable="true"
+                                type="ax271:AppFactoryResource"/>
+                    <xs:element minOccurs="0" name="collection" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="mediaType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resourceContent" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resourcePath" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="resourceProperties" nillable="true"
+                                type="ax271:ResourceProperty"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="ResourceProperty">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="propertyName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="propertyValue" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
+                   targetNamespace="http://common.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="AppFactoryException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="addResourceRequest">
+        <wsdl:part name="parameters" element="ns:addResource"/>
+    </wsdl:message>
+    <wsdl:message name="AppFactoryResourceManagementServiceAppFactoryException">
+        <wsdl:part name="parameters" element="ns:AppFactoryResourceManagementServiceAppFactoryException"/>
+    </wsdl:message>
+    <wsdl:message name="updateResourceRequest">
+        <wsdl:part name="parameters" element="ns:updateResource"/>
+    </wsdl:message>
+    <wsdl:message name="addOrUpdateResourceRequest">
+        <wsdl:part name="parameters" element="ns:addOrUpdateResource"/>
+    </wsdl:message>
+    <wsdl:message name="addResourcesRequest">
+        <wsdl:part name="parameters" element="ns:addResources"/>
+    </wsdl:message>
+    <wsdl:message name="addOrUpdateResourcesRequest">
+        <wsdl:part name="parameters" element="ns:addOrUpdateResources"/>
+    </wsdl:message>
+    <wsdl:message name="updateResourcesRequest">
+        <wsdl:part name="parameters" element="ns:updateResources"/>
+    </wsdl:message>
+    <wsdl:message name="deleteResourceRequest">
+        <wsdl:part name="parameters" element="ns:deleteResource"/>
+    </wsdl:message>
+    <wsdl:portType name="AppFactoryResourceManagementServicePortType">
+        <wsdl:operation name="addResource">
+            <wsdl:input message="ns:addResourceRequest" wsaw:Action="urn:addResource"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:addResourceAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+        <wsdl:operation name="updateResource">
+            <wsdl:input message="ns:updateResourceRequest" wsaw:Action="urn:updateResource"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:updateResourceAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResource">
+            <wsdl:input message="ns:addOrUpdateResourceRequest" wsaw:Action="urn:addOrUpdateResource"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:addOrUpdateResourceAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+        <wsdl:operation name="addResources">
+            <wsdl:input message="ns:addResourcesRequest" wsaw:Action="urn:addResources"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:addResourcesAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResources">
+            <wsdl:input message="ns:addOrUpdateResourcesRequest" wsaw:Action="urn:addOrUpdateResources"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:addOrUpdateResourcesAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+        <wsdl:operation name="updateResources">
+            <wsdl:input message="ns:updateResourcesRequest" wsaw:Action="urn:updateResources"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:updateResourcesAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteResource">
+            <wsdl:input message="ns:deleteResourceRequest" wsaw:Action="urn:deleteResource"/>
+            <wsdl:fault message="ns:AppFactoryResourceManagementServiceAppFactoryException"
+                        name="AppFactoryResourceManagementServiceAppFactoryException"
+                        wsaw:Action="urn:deleteResourceAppFactoryResourceManagementServiceAppFactoryException"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="AppFactoryResourceManagementServiceSoap11Binding"
+                  type="ns:AppFactoryResourceManagementServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="addResource">
+            <soap:operation soapAction="urn:addResource" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateResource">
+            <soap:operation soapAction="urn:updateResource" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResource">
+            <soap:operation soapAction="urn:addOrUpdateResource" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addResources">
+            <soap:operation soapAction="urn:addResources" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateResources">
+            <soap:operation soapAction="urn:updateResources" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResources">
+            <soap:operation soapAction="urn:addOrUpdateResources" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteResource">
+            <soap:operation soapAction="urn:deleteResource" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="AppFactoryResourceManagementServiceSoap12Binding"
+                  type="ns:AppFactoryResourceManagementServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="addResource">
+            <soap12:operation soapAction="urn:addResource" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateResource">
+            <soap12:operation soapAction="urn:updateResource" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResource">
+            <soap12:operation soapAction="urn:addOrUpdateResource" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addResources">
+            <soap12:operation soapAction="urn:addResources" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateResources">
+            <soap12:operation soapAction="urn:updateResources" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResources">
+            <soap12:operation soapAction="urn:addOrUpdateResources" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteResource">
+            <soap12:operation soapAction="urn:deleteResource" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="AppFactoryResourceManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="AppFactoryResourceManagementServiceAppFactoryException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="AppFactoryResourceManagementServiceHttpBinding"
+                  type="ns:AppFactoryResourceManagementServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="addResource">
+            <http:operation location="addResource"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="updateResource">
+            <http:operation location="updateResource"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResource">
+            <http:operation location="addOrUpdateResource"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addResources">
+            <http:operation location="addResources"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="updateResources">
+            <http:operation location="updateResources"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addOrUpdateResources">
+            <http:operation location="addOrUpdateResources"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="deleteResource">
+            <http:operation location="deleteResource"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="AppFactoryResourceManagementService">
+        <wsdl:port name="AppFactoryResourceManagementServiceHttpsSoap11Endpoint"
+                   binding="ns:AppFactoryResourceManagementServiceSoap11Binding">
+            <soap:address
+                    location="https://greg.dev.appfactory.private.wso2.com:9473/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="AppFactoryResourceManagementServiceHttpsSoap12Endpoint"
+                   binding="ns:AppFactoryResourceManagementServiceSoap12Binding">
+            <soap12:address
+                    location="https://greg.dev.appfactory.private.wso2.com:9473/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="AppFactoryResourceManagementServiceHttpsEndpoint"
+                   binding="ns:AppFactoryResourceManagementServiceHttpBinding">
+            <http:address
+                    location="https://greg.dev.appfactory.private.wso2.com:9473/services/AppFactoryResourceManagementService.AppFactoryResourceManagementServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
