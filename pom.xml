@@ -1030,6 +1030,12 @@
 		      <version>${appfac.version}</version>
 		      <scope>provided</scope>
 	    </dependency>
+          <dependency>
+              <groupId>org.wso2.carbon.appfactory</groupId>
+              <artifactId>org.wso2.carbon.appfactory.ext.stub</artifactId>
+              <version>${appfac.version}</version>
+              <scope>provided</scope>
+          </dependency>
 	    <dependency>
 		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>
