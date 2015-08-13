@@ -316,8 +316,7 @@ public class TenantStratosSubscriptionMessageListener implements MessageListener
                 throw new Exception(msg, e);
             }
             TenantUserRoleManager tenantUserRoleManager = new TenantUserRoleManager();
-            tenantUserRoleManager.onTenantCreate(StratosUtils.convertCarbonTenantInfoBeanToTenantInfoBean(
-                    tenantInfoBean));
+            tenantUserRoleManager.onTenantCreate(tenantInfoBean);
             TenantMgtUtil.activateTenantInitially(tenantInfoBean, tenantId);
             return TenantMgtUtil.prepareStringToShowThemeMgtPage(tenant.getId());
         } finally {
