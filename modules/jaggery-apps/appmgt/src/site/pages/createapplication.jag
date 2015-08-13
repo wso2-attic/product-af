@@ -21,7 +21,7 @@ include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 
 (function () {
-
+    var type = request.getParameter('type');
     jagg.render({
         "name":"page/master",
         "inputs":{
@@ -35,6 +35,25 @@ var site = require("/site/conf/site.json");
                         "middle":[
                             {
                             	"name":"application/add"
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                                "name":"breadcrumb",
+                                "inputs":{
+                                    "noSidePane": true,
+                                    "linkParams": [
+                                        {
+
+                                            "displayName": "Create new app"
+                                            // uncomment following once APPFAC-3233 is fixed
+                                            //"basePath":"/site/pages/createapplication.jag",
+                                            //"params": {
+                                            //    "type":type
+                                            //}
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     }
