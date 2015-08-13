@@ -355,6 +355,12 @@ public class JDBCResourceDAO {
             preparedStatement.execute();
             if (preparedStatement.getUpdateCount() > 0) {
                 databaseConnection.commit();
+
+                JDBCResourceCacheManager.clearCache(applicationKey, environment, resourceType);
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache cleared for resource type : " + resourceType + " of application : " +
+                            applicationKey + " in : " + environment);
+                }
                 return true;
             }
         } catch (SQLException e) {
