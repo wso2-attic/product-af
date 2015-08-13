@@ -49,7 +49,6 @@
     </build>
     <modules>
         <module>main_car_artifact</module>
-        <module>resources_car_artifact</module>
     </modules>
 </project>
 

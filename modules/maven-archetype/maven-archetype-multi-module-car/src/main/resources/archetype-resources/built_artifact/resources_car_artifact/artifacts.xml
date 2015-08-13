@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><artifacts>
-    <artifact name="ResourcesCAR" version="${version}" type="carbon/application">
-        <dependency artifact="${rootArtifactId}EchoServiceEP" version="${version}" include="true" serverRole="EnterpriseServiceBus"/>
-    </artifact>
-</artifacts>

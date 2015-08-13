@@ -41,7 +41,7 @@ var buttonValue = "Add API";
 if(isEdit != null && isEdit == "true"){
 	var log = new Log();
     headerMsg = resourceName;
-    buttonValue = "Save";   
+    buttonValue = "Save";
 }
 
 var disabledText = "";
@@ -58,7 +58,7 @@ var helpTips = outputs.helpTips;
 var editApiData = [];
 
 function createAuthUI(value, emptyOnly){
-	
+
 	$('#api_authdiv').empty();
 	if(!emptyOnly){
 		var theLine = '';
@@ -75,7 +75,7 @@ function createAuthUI(value, emptyOnly){
 	        theLine += '<input id="api_username" type="text" name="username" class="half" required <%=disabledText%>/></div>';
 	        theLine += '<div class="input_row"><label for="password" ><strong>Password</strong> <em>*</em></label>';
 	        theLine += '<input id="api_password" type="password" name="password" class="half" required <%=disabledText%>/></div>';
-	    } 
+	    }
 		theLine += '<div class="input_row"><label for="api_url" ><strong>API URL</strong> <em>*</em></label>';
         theLine += '<input id="api_url" type="url" name="api_url" class="half" required <%=disabledText%>/>';
 	    $('#api_authdiv').append(theLine);
@@ -101,7 +101,7 @@ function drawStagesForCreatePermittedEnvironments(){
       }
     },
     function (jqXHR, textStatus, errorThrown) {
- 	   
+
     });
 }
 
@@ -113,9 +113,9 @@ function drawStagesForUpdatePermittedEnvironments(){
 	    stage:'<%=env%>'
     },
     function (result) {
-    	editApiData = JSON.parse(result); 
+    	editApiData = JSON.parse(result);
 		var tmpStage=editApiData['<%=env%>'];
-	  
+
      	// Set the environments dropdown with stages belongs to current edit
      	//We only edit a property of a certain stage. Hence only appending one value
         $("#api_stage").empty().append('<option selected="selected"><%=env%></option>');
@@ -156,7 +156,7 @@ function updateAuthUI(selectedStage){
 
 function validateMandatoryInputs(){
     jagg.removeMessage();
-	var apiName = $("#api_name").val().trim();
+	var apiName = $("#api_name").attr('value').trim();
 	validate = true;
 	var errorMsg = "";
 
@@ -220,8 +220,8 @@ function updateResource() {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "updateExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    apiName: $("#api_name").val().trim(),
-	    authType:$("#api_auth").val(),
+	    apiName: $("#api_name").attr('value').trim(),
+	    authType:$("#api_auth").attr('value'),
 	    givenValues: inputString
     },
     function (result) {
@@ -241,8 +241,9 @@ function createResource(copyToAll) {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "createExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    apiName: $("#api_name").val().trim(),
-	    authType:$("#api_auth").val(),
+	    apiName: $("#api_name").attr('value').trim(),
+	    authType:$("#api_auth").attr('value'),
+	    description: $("#api_description").attr('value'),
 	    givenValues: inputString,
 	    copyToAll:copyToAll
     },
@@ -261,7 +262,7 @@ function deleteResource() {
     jagg.post("../blocks/resources/externalapi/add/ajax/add.jag", {
 	    action: "deleteExternalApi",
 	    applicationKey: '<%=applicationKey%>',
-	    resourceName: $("#api_name").val(),
+	    resourceName: $("#api_name").attr('value'),
 	    stage: '<%=env%>'
     },
     function (result) {
@@ -307,7 +308,7 @@ function validatePropertyNameAndCreate() {
     jagg.syncPost("../blocks/resources/registry/get/ajax/get.jag", {
             action: "propertyExistInStages",
             applicationKey: '<%=applicationKey%>',
-            propertyName: $("#api_name").val().trim(),
+            propertyName: $("#api_name").attr('value').trim(),
 	    givenValues: inputString,
 	    copyToAll:false
     },
@@ -323,80 +324,109 @@ function validatePropertyNameAndCreate() {
 
 </script>
 
-<article class="main">
-    <!-- following div can be removed after new ux-->
-    <div style="height: 80px; "></div>
-    <!-- -->
-    <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
-    <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-    <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
-	<div class="content">
-        <h1>Runtime Configs</h1>
-     </div>
-    </header>
-    <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
-    <% jagg.includeBlock("page/help", {"section": "resources-apis"}); %>
-   <section class="separator">        
-        <div class="content clear">
-        	<div class="form-container">
 
-                <form action="#" id="createExternalApi" method="post" class="hold right_label">
-                    <fieldset>
+<div class="container">
+	<article class="main">
+        <header class="breakDownFix"><div><% jagg.includeBlock("page/messages", null); %>
+	 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
+        	<div class="content">
+                <h1>Runtime Configs</h1>
+             </div>
+        </header>
+        <% jagg.includeBlock("resources/menu", {page:'apis',applicationName:applicationName,applicationKey:applicationKey}); %>
 
-                    <% if(isEdit == "true"){ %>
-                    <input id="api_name" name="api_name" class="half" type="hidden"/>
-            		    <div class="input_row">
-	                        <label><strong>Environment</strong> <em>*</em></label>
-	                        <select class="select_list half big" id="api_stage" disabled="disabled"></select>
-                        </div>
-                    	<div class="input_row">
-                    	    <label><strong>Authentication</strong> <em>*</em></label>
-                    		<input id="api_auth" type="text" name="api_auth" class="half" disabled="disabled"/>
-            		    </div>
-                	<% }else{ %>
-                        <div class="input_row">
-                            <label for="api_name" ><strong>API Name</strong> <em>*</em></label>
-                            <input id="api_name" type="text" name="api_name" class="half" required/>
-                        </div>
-                        <div class="input_row">
-	                        <label><strong>Environment</strong> <em>*</em></label>
-	                        <select class="select_list half big" id="api_stage" name="api_stage" onchange="updateUIForStage()"></select> 
-                        </div>
+       <section class="separator">
+            <div class="page_nav">
+                <div class="content clear">
+                    <ol class="breadcrumb left">
+                        <li class="breadcrumb_item"><a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'" class="breadcrumb_link">APIs</a></li>
+                       <% if(isEdit==="true" && hasDeleteResourcePermissions){	%>
+                        <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
 
-                        <div class="input_row">
-                            <label><strong>Authentication</strong> <em>*</em></label>
-                            <select class="select_list half big" id="api_auth" >
-                                <option value="none">None</option>
-							    <option value="oauth">OAuth</option>
-						        <option value="token">Access Token</option>
-								<option value="basic">Basic Auth</option>
-							</select>
-							<div class="help-block" style="padding-left: 215px"><span class="help-icon">?</span> <span id="authenticationHelp"></span></div>
-                        </div>
-                    <% } %>
-                        <div id="api_authdiv"/>
-                </fieldset>
-                  <div>
-                	 
-                    <div class="buttonrow">
-                        <% if(isEdit == "true"){ 
-                        	if(hasUpdateResourcePermissions){
-                        %>
-                        	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
-                        <%
-                        		}
-                        	}else{
-                        %>	
-                        	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
-                        <% } %>	
-                        <a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">Cancel</a>
+                          </ol>
+                    <div class="right btn_group" id="delete_button_div">
+                        <ul class="inline_box inline_list btn_group_list">
+
+                            <li class="inline_item"><a href="#" class="btn main" id="deleteResBtn">Delete External API</a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
                     </div>
+                        <%}else{%>
+                        <li class="breadcrumb_item"><h2><%=headerMsg%></h2></li>
+                         </ol>
+                        <%}%>
+                          <!-- li class="breadcrumb_item"><h3><%=env%></h3></li> -->
+                </div>
+            </div>
+            <div class="content clear well">
+            	<div class="form-container">
 
-                 </form>
+                    <form action="#" id="createExternalApi" method="post" class="hold right_label">
+                        <fieldset>
 
-			</div>
-        </div>
-    </section>
-    <div class="clearfix"></div>
- </article>
+                        <% if(isEdit == "true"){ %>
+                        <input id="api_name" name="api_name" class="half" type="hidden"/>
+                		    <div class="input_row">
+		                        <label><strong>Environment</strong> <em>*</em></label>
+		                        <select class="select_list half big" id="api_stage" disabled="disabled"></select>
+                            </div>
+                        	<div class="input_row">
+                        	    <label><strong>Authentication</strong> <em>*</em></label>
+                        		<input id="api_auth" type="text" name="api_auth" class="half" disabled="disabled"/>
+                		    </div>
+                    	<% }else{ %>
+                            <div class="input_row">
+                                <label for="api_name" ><strong>API Name</strong> <em>*</em></label>
+                                <input id="api_name" type="text" name="api_name" class="half" required/>
+                            </div>
+                            <div class="input_row">
+		                        <label><strong>Environment</strong> <em>*</em></label>
+		                        <select class="select_list half big" id="api_stage" name="api_stage" onchange="updateUIForStage()"></select>
+                            </div>
+
+                             <div class="input_row">
+                                <label for="api_description"><strong>Description</strong></label>
+                                <textarea name="api_description" id="api_description" rows="5" <% if((isEdit && isEdit == "true") && !hasUpdateResourcePermissions ){ %>disabled<%}%>  class="full"/></textarea>
+                             </div>
+
+                            <div class="input_row">
+                                <label><strong>Authentication</strong> <em>*</em></label>
+                                <select class="select_list half big" id="api_auth" >
+                                    <option value="none">None</option>
+								    <option value="oauth">OAuth</option>
+							        <option value="token">Access Token</option>
+									<option value="basic">Basic Auth</option>
+								</select>
+								<div class="help-block" style="padding-left: 215px"><span class="help-icon">?</span> <span id="authenticationHelp"></span></div>
+                            </div>
+                        <% } %>
+                            <div id="api_authdiv"/>
+                    </fieldset>
+                      <div>
+
+                        <div class="buttonrow">
+                            <% if(isEdit == "true"){
+                            	if(hasUpdateResourcePermissions){
+                            %>
+                            	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
+                            <%
+                            		}
+                            	}else{
+                            %>
+                            	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
+                            <% } %>
+                            <a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">Cancel</a>
+                        </div>
+
+                     </form>
+
+				</div>
+            </div>
+        </section>
+        <div class="clearfix"></div>
+     </article>
+</div>
+
 <% }); %>

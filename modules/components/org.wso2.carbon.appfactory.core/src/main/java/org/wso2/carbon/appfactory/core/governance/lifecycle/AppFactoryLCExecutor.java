@@ -23,15 +23,13 @@ import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.governance.api.util.GovernanceUtils;
 import org.wso2.carbon.governance.registry.extensions.aspects.utils.LifecycleConstants;
 import org.wso2.carbon.governance.registry.extensions.aspects.utils.StatCollection;
 import org.wso2.carbon.governance.registry.extensions.executors.ServiceVersionExecutor;
@@ -43,20 +41,17 @@ import org.wso2.carbon.registry.core.ResourcePath;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
-import org.wso2.carbon.registry.core.session.UserRegistry;
-//import org.wso2.carbon.registry.metadata.exception.MetadataException;
-//import org.wso2.carbon.registry.metadata.models.endpoint.HTTPEndpointV1;
-//import org.wso2.carbon.registry.metadata.models.service.HTTPServiceV1;
-//import org.wso2.carbon.registry.metadata.models.version.ServiceVersionV1;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.xml.stream.XMLStreamException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.wso2.carbon.governance.registry.extensions.executors.utils.Utils.populateParameterMap;
+
+//import org.wso2.carbon.registry.metadata.exception.MetadataException;
+//import org.wso2.carbon.registry.metadata.models.endpoint.HTTPEndpointV1;
+//import org.wso2.carbon.registry.metadata.models.service.HTTPServiceV1;
+//import org.wso2.carbon.registry.metadata.models.version.ServiceVersionV1;
 
 
 /**
@@ -155,9 +150,11 @@ public class AppFactoryLCExecutor implements Execution {
                         "" + tenantId, user, version, targetState);
 
                 String appType = AppFactoryCoreUtil.getApplicationType(currentAppID, tenantDomain);
-                // if target lifecycle stage is production(last stage) and it is jaxrs app,
+                // if target lifecycle stage is production(last stage) and apptype is supporting persisting endpoint as
+                // as a HTTP service,
                 // we persist application endpoint as a HTTP service.
-                if (AppFactoryConstants.APPLICATION_TYPE_JAXRS.equals(appType) &&
+                if (ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).
+		                isPersistApplicationEndPointMetaData() &&
                         AppFactoryUtil.getNextLifeCycleStage(targetState) == null) {
                     persistApplicationEndpointMetaData(requestContext.getRegistry(), appVersion,
                             currentAppID, targetState, user);

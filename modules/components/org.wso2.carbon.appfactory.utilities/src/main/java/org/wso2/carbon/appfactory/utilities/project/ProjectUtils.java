@@ -233,7 +233,7 @@ public class ProjectUtils {
      */
     public static void configureFinalName(String path) throws AppFactoryException {
         File artifactDir = new File(path);
-        String[] fileExtension = {AppFactoryConstants.APPLICATION_TYPE_XML};
+        String[] fileExtension = {AppFactoryConstants.XML_EXTENSION};
         List<File> fileList = (List<File>) FileUtils.listFiles(artifactDir, fileExtension, true);
         for (File file : fileList) {
             setArtifactName(file);

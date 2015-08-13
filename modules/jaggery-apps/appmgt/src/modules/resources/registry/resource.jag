@@ -22,99 +22,65 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 
 var log = new Log("modules/resources/registry/resource.jag");
-
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
-
 var loggedInUser = jagg.getUser();
-
 var modManager = jagg.module("manager");
 var permissionModule = jagg.module("permission");
 var lifeCycleModule = jagg.module("lifecycle");
 var carbon = require('carbon');
 var server = carbon.server;
-var DEPENDENCY_PATH = "/governance/dependencies/";
+var DEPENDANCIES_PATH = "/dependencies/";
+var PATH_SEPERATOR = "/";
 
-// create the base dependency path and base app path. secure them with appIdRole and deny for everyone role.
-// you need to start the tenant flow if you have not started.
-var createBaseAppPath = function (stage, appId) {
-    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + SC_URL) + '/services/';
-    var cookie = modManager.getBackendCookie(serverUrl);
-    // path is - /dependencies/
-    var dependencyPath = '/' + Packages.org.wso2.carbon.appfactory.core.util.Constants.DEPENDENCIES_HOME + '/';
-    // path is - /_system/governance/dependencies
-    var baseResourcePath = Packages.org.wso2.carbon.registry.core.RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-            Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR +
-            Packages.org.wso2.carbon.appfactory.core.util.Constants.DEPENDENCIES_HOME;
-
-    try {
-        var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-        var username = jagg.getUser();
-        var appBasePathExists = regService.resourceExists(serverUrl, username, dependencyPath + appId);
-        // if app resource path is not created, create it and allow to appidRole.
-        if (!appBasePathExists) {
-            regService.putRegistryCollection(serverUrl, cookie, dependencyPath + appId, null, null);
-
-            // allow resource path for appIdRole
-            var uniqueAppRoleName = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil.getRoleNameForApplication(appId);
-            permissionModule.authorizeRole(stage, uniqueAppRoleName, baseResourcePath + '/' + appId,
-                    Packages.org.wso2.carbon.registry.core.ActionConstants.GET);
-            permissionModule.authorizeRole(stage, uniqueAppRoleName, baseResourcePath + '/' + appId,
-                    Packages.org.wso2.carbon.registry.core.ActionConstants.PUT);
-            permissionModule.authorizeRole(stage, uniqueAppRoleName, baseResourcePath + '/' + appId,
-                    Packages.org.wso2.carbon.registry.core.ActionConstants.DELETE);
-        }
-
-    } catch (e) {
-        log.error("Error while putting resource : " + dependencyPath + appId + " in remote registry : " + serverUrl);
-        log.error(e);
-        throw e;
-    }
-};
-
-//Add properties
+/**
+ * Add property of an application to the registry in the given stages
+ *
+ * @param propname name of the property, which needs to be saved
+ * @param propcontent content of the property, which needs to be saved
+ * @param description description about the property
+ * @param proptype type of the property. i.e: property, external api
+ * @param appId Id of the applicaiton
+ * @param stages the environments, to which the property needs to be added
+ */
 var addPropertyToStages = function (propname, propcontent, description, proptype, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var path = "/dependencies/" + appId + "/" + propname;
-
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         var correlationKey = appId + "-" + stage + "-property-" + propname.split("/")[0];
 
         try {
-            var tenantDomain = modManager.getTenantDomain();
             var username = jagg.getUser();
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
-            try{
+            try {
                 var notificationTitle = "Property " + propname + " created. ";
-                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(appId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(
+                appId, loggedInUser, notificationTitle, "", correlationKey, "INFO");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             }  catch (e) {
                 //we don't throw here since this is message sending to wall.
-                log.error("Error while sending property creation success notification for property : " + propname
-                          + " in stage : " + stage + " for application id : " + appId);
+                log.error("Error while sending property creation success notification for property : " +
+                propname + " in stage : " + stage + " for application id : " + appId);
                 log.error(e);
             }
         } catch (e) {
-
-            try{
-                var notificationTitle = "Property : " + propname + " creation failed for application : " + appId +
-                                        " in stage : " + stage;
-                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(appId, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
+            try {
+                var notificationTitle = "Property : " + propname + " creation failed for application : " + appId + " in stage : " + stage;
+                var eventBuilderInstance = EventBuilder.resourceCreationCompletedEvent(
+                appId, loggedInUser, notificationTitle, "", correlationKey, "ERROR");
                 var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
             }  catch (e) {
                 //we don't throw here since this is message sending to wall.
-                log.error("Error while sending property creation failure notification for property : " + propname
-                          + " in stage : " + stage + " for application id : " + appId);
+                log.error("Error while sending property creation failure notification for property : " + propname +
+                    " in stage : " + stage + " for application id : " + appId);
                 log.error(e);
             }
             log.error("Error while adding registry property to stages in server : " + serverUrl + " to path : " + path);
             log.error(e);
             throw e;
         }
-        clearResourceCache(stage, appId, propname, context, tenantDomain);
     }
 };
 
@@ -122,93 +88,100 @@ var addPropertyCollectionToStages = function (path, description, mediatype, appI
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
         try {
-            var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             var appFactoryResource = new org.wso2.carbon.appfactory.core.registry.AppFacResource(path,"");
+
             appFactoryResource.setCollection(true);
             appFactoryResource.setMediaType(mediatype);
+            appFactoryResource.setDescription(description);
             regService.addOrUpdateResource(serverUrl, username, appId, appFactoryResource);
         } catch (e) {
             log.error("Error while putting collection : " + path + " in remote registry : " + serverUrl);
             log.error(e);
             throw e;
         }
-        clearParentCache(stage, appId, context, tenantDomain);
     }
 };
 
-// Add properties
+/**
+ * Add property to the initial stages of the application
+ *
+ * @param propname name of the property, which needs to be added
+ * @param propcontent content  of the property, which needs to be added
+ * @param description description about the property, which needs to be saved
+ * @param proptype type of the property, which needs to be saved
+ * @param appId Id of the application
+ */
 var addPropertyToInitialStages = function (propname, propcontent, description, proptype, appId) {
 	var stages = lifeCycleModule.getInitialLifeCycleStages();
-
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var path = "/dependencies/" + appId + "/" + propname;
-		try {
-            var tenantDomain=modManager.getTenantDomain() ;
-            var context=multitenancy.getPrivilegedCarbonContext();
-            var tenantManager= multitenancy.getTenantManager();
-            var username = jagg.getUser();
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
+        var username = jagg.getUser();
+        try {
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
-	    } catch (e) {
+        } catch (e) {
             log.error("Error while putting property : " + path + " to initial stages in remote registry : " + serverUrl);
             log.error(e);
             throw e;
-	    }
-        clearResourceCache(stage, appId, propname, context, tenantDomain);
+        }
 	}
 };
 
-//Update Property description
+/**
+ * Update the description of a property in the given stages
+ *
+ * @param propname name of the property, which needs to be updated
+ * @param mediatype type of the propety
+ * @param description desctiption about the property, which needs to be updated
+ * @param appId Id of the application
+ * @param stages envirionment stages, in which the property needs to be updated
+ */
 var updatePropertyDescriptionInStages = function (propname, mediatype, description, appId, stages) {
       for (var i = 0; i < stages.length ; i++) {
-          var stage = stages[i];
-          var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-          var cookie = modManager.getBackendCookie(serverUrl);
-          var path = "/dependencies/" + appId + "/" + propname;
-
+        var stage = stages[i];
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
-            var tenantDomain = modManager.getTenantDomain();
-            var context = multitenancy.getPrivilegedCarbonContext();
-            var tenantManager = multitenancy.getTenantManager();
             var username = jagg.getUser();
             var appFactoryResource = new org.wso2.carbon.appfactory.core.registry.AppFacResource(path,"");
             appFactoryResource.setCollection(true);
             appFactoryResource.setMediaType(mediatype);
             appFactoryResource.setDescription(description);
-
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             regService.addOrUpdateResource(serverUrl, username, appId, appFactoryResource);
-
-        } catch (e) {
-            log.error("Error while updating property description of property : " + path + " in remote registry : "
-                      + serverUrl);
+            var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
+            resManager.updateProperty(appId, mediatype, propname, stage, description);
+      } catch (e) {
+            log.error("Error while updating property description of property : " + path + " in remote registry : " + serverUrl);
             log.error(e);
             throw e;
-        }
-
-          clearResourceCache(stage, appId, propname, context, tenantDomain);
+      }
   }
 };
 
 
-//Get property values from stages
+/**
+ * Get the values of a given property in given stage for given application
+ *
+ * @param propname name of the property, which's value needs to be retrieved
+ * @param appId Id of the applicaiton
+ * @param stage environment stage, from which the property needs to be retrieved
+ * @returns {*}
+ */
 var getPropertyValueInStage = function (propname, appId, stage) {
-    var path = "/_system/" + stage + "/governance/dependencies/" + appId + "/" + propname;
+    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
+    var username = jagg.getUser();
+    var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
     var resourceValue;
     try {
-        var tenantDomain = modManager.getTenantDomain();
-        var username = modManager.getDomainlessUserName();
-        var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
-        resourceValue = regService.getResourceValue(path);
+        var regService;
+        regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+        resourceValue = regService.getRegistyResourceValue(serverUrl, username, path);
         return resourceValue;
     } catch (e) {
         var msg = "Error while retrieving resource from registry : " + path + " for the application : " + appId +
@@ -220,17 +193,21 @@ var getPropertyValueInStage = function (propname, appId, stage) {
 };
 
 
+/**
+ * Check whether a given property is available in given stages for an application
+ *
+ * @param propname name of the property, which needs to be checked
+ * @param appId Id of the application
+ * @param stages environment stages, in which the property needs to be checked
+ * @returns {boolean}
+ */
 var propertyExistsInStages = function (propname, appId, stages) {
     var existsInSatges = false;
     for (var i = 0; i < stages.length; i++) {
-
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var path = "/dependencies/" + appId + "/" + propname;
-
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
-            var tenantDomain = modManager.getTenantDomain();
             var username = jagg.getUser();
             var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             existsInSatges = regService.resourceExists(serverUrl, username, path);
@@ -246,22 +223,24 @@ var propertyExistsInStages = function (propname, appId, stages) {
     return true;
 };
 
+/**
+ * Check whether a property is available in all stages
+ *
+ * @param propname name of the property, which needs to be checked
+ * @param appId Id of the application
+ * @returns {boolean}
+ */
 var propertyExistsInAllStages = function (propname, appId) {
     var existsInAllSatges = false;
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    var stages = getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
-
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var path = "/dependencies/" + appId + "/" + propname;
-
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
-            var tenantDomain = modManager.getTenantDomain();
             var username = jagg.getUser();
             var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             existsInAllSatges = regService.resourceExists(serverUrl, username, path);
-
             if (!existsInAllSatges) {
                 return false;
             }
@@ -274,25 +253,28 @@ var propertyExistsInAllStages = function (propname, appId) {
     return false;
 };
 
-//Get property values from stages
+/**
+ * Retrive the value of a given property in all stages
+ *
+ * @param propname name of the property, which's value needs to be retrieved
+ * @param appId Id of the application
+ * @returns {{}}
+ */
 var getPropertyValueInAllStages = function (propname, appId) {
     var valueByStage = {};
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    var stages = getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
-
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var path = "/dependencies/" + appId + "/" + propname;
-        var value;
+        var username = jagg.getUser();
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
-            var tenantDomain = modManager.getTenantDomain();
             var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-            value = regService.getRegistyResourceValue(serverUrl, cookie, path);
+            var value = regService.getRegistyResourceValue(serverUrl, username, path);
             valueByStage[stage] = value;
         } catch (e) {
-            log.error("Error in retrieving resource : " + path + " from remote registry : " + serverUrl
-                      + " while getting the property values in all stages.");
+            log.error("Error in retrieving resource : " + path + " from remote registry : " +
+                serverUrl + " while getting the property values in all stages.");
             log.error(e);
             throw e;
         }
@@ -302,20 +284,20 @@ var getPropertyValueInAllStages = function (propname, appId) {
 
 
 // Get property values from stages
+/**
+ * Retrieve all the properties in the given stage for an application
+ *
+ * @param appId Id of the application, which's properties needs to be retrieved
+ * @param stage environment stage, from which the properties needs to be retrieved
+ * @returns {Array}
+ */
 var getPropertiesInStage = function (appId, stage) {
-
     var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-    var cookie = modManager.getBackendCookie(serverUrl);
-    var path = "/dependencies/" + appId;
-
+    var username = jagg.getUser();
+    var path = DEPENDANCIES_PATH + appId;
     try {
-        var resources;
-        var tenantDomain = modManager.getTenantDomain();
-        var regService;
-        regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-        resources = regService.getAllRegistryResources(serverUrl, cookie, path);
-
-        //var resources = regService.getAllRegistryResources(serverUrl, cookie, path);
+        var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+        var resources = regService.getAllRegistryResources(serverUrl, username, path);
         var dependencies = new Array();
         for (var k in resources) {
             var resource = resources[k];
@@ -336,32 +318,29 @@ var getPropertiesInStage = function (appId, stage) {
 };
 
 
+/**
+ * Get the detail information of a given property in given stage for an application
+ *
+ * @param propname name of the property, which's information needs to be retrieved
+ * @param appId Id of the applicaiton
+ * @param stage environment stage, from which the prperty information needs to be retrieved
+ * @returns {{}}
+ */
 var getDetailedPropertyValueInStage = function (propname, appId, stage) {
-
     var object = {};
-
     var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
     var username = jagg.getUser();
-    var path = "/dependencies/" + appId + "/" + propname;
-
+    var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
     try {
-        var resource;
-        var tenantDomain = modManager.getTenantDomain();
-        var context = multitenancy.getPrivilegedCarbonContext();
-        var tenantManager = multitenancy.getTenantManager();
-        var regService;
-        regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-        resource = regService.getRegistryResource(serverUrl, username, path);
-
-        //var resource= regService.getRegistryResource(serverUrl, cookie, path);
+        var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+        var resource = regService.getRegistryResource(serverUrl, username, path);
         object.name = resource.name;
         object.description = (resource.description == null)? "":resource.description;
         object.value = resource.value;
         object.mediaType = resource.mediaType;
-
     } catch (e) {
-        log.error("Error in retrieving resource : " + path + " in remote registry : " + serverUrl + " while getting "
-                  + "detailed property values in stage.");
+        log.error("Error in retrieving resource : " + path + " in remote registry : " + serverUrl +
+            " while getting detailed property values in stage.");
         log.error(e);
         throw e;
     }
@@ -370,19 +349,23 @@ var getDetailedPropertyValueInStage = function (propname, appId, stage) {
 
 
 //Get property values from stages
+/**
+ * Get all the properties available in the given stages for an application
+ *
+ * @param appId Id of the application
+ * @param stages environment stages, from which the property needs to be retrieved
+ * @returns {{}}
+ */
 var getDetailedPropertyValuesInStages = function (appId, stages) {
-
     var resourcesByStage = {};
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var path = "/_system/" + stage + "/governance/dependencies/" + appId;
+        var path = DEPENDANCIES_PATH + appId;
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
+        var username = jagg.getUser();
         try {
-            var resources;
-            var tenantDomain = modManager.getTenantDomain();
-            var username = modManager.getDomainlessUserName();
-            var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
-            resources = regService.getAllResources(path);
-
+            var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+            var resources = regService.getAllRegistryResources(serverUrl, username, path);
             var dependencies = new Array();
             for (var k in resources) {
                 var resource = resources[k];
@@ -394,7 +377,6 @@ var getDetailedPropertyValuesInStages = function (appId, stages) {
                 dependencies[k] = object;
             }
             resourcesByStage[stage] = dependencies;
-
         } catch (e) {
             var msg = "Error while retrieving registry resource : " + path + " for the application: " + appId +
                 " in a stage: " + stage;
@@ -406,74 +388,86 @@ var getDetailedPropertyValuesInStages = function (appId, stages) {
     return resourcesByStage;
 };
 
+/**
+ * Save the collection of resources to the registry in the given stages for an application
+ *
+ * @param dictionary collection of resources, whcih needs to be saved to the registry
+ * @param description the description of the resources
+ * @param mediatype type of the resources
+ * @param appId Id of the application
+ * @param stages environment stages, to which the resources needs to be saved
+ */
 var putResourcesForCollectionInStages = function (dictionary, description, mediatype, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var reosurcesArray =   java.lang.reflect.Array.newInstance(org.wso2.carbon.appfactory.core.registry.AppFacResource, Object.keys(dictionary).length);
+        var reosurcesArray = java.lang.reflect.Array.newInstance(
+            org.wso2.carbon.appfactory.core.registry.AppFacResource, Object.keys(dictionary).length);
 		var loop = -1 ;
 		for (var j in dictionary) {
-	            loop++ ;
-	            var elm = dictionary[j];
-	            var resourceTmp=new org.wso2.carbon.appfactory.core.registry.AppFacResource(elm.name,elm.value);
-
-	            resourceTmp.setDescription(description);
-	            resourceTmp.setMediaType(mediatype);
-
-	            reosurcesArray[loop]=resourceTmp;
+            loop++ ;
+            var elm = dictionary[j];
+            var resourceTmp = new org.wso2.carbon.appfactory.core.registry.AppFacResource(elm.name,elm.value);
+            resourceTmp.setDescription(description);
+            resourceTmp.setMediaType(mediatype);
+            reosurcesArray[loop]=resourceTmp;
 	    }
         try {
-            var tenantDomain = modManager.getTenantDomain();
             var username = jagg.getUser();
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
             var ret = regService.addOrUpdateResources(serverUrl, username, appId,reosurcesArray);
         } catch (e) {
-            log.error("Error in updating remote registry : " + serverUrl + " with resource : " + elm.value
-                      + " while putting resources for collection in stages.");
+            log.error("Error in updating remote registry : " + serverUrl + " with resource : " +
+                elm.value + " while putting resources for collection in stages.");
             log.error(e);
             throw e;
         }
-
-        clearParentCache(stage, appId, context, tenantDomain);
     }
 };
 
+/**
+ * Update the given property in given stages for an application
+ *
+ * @param propname name of the property, which needs to be updated
+ * @param propcontent new content of the property, whcih needs to be updated
+ * @param description new description of the property, which needs to be updated
+ * @param proptype type of the propery, whcih needs to be updated
+ * @param appId Id of the application
+ * @param stages environment stages, in which the property needs to be updated
+ */
 var updatePropertyInStages = function (propname, propcontent, description, proptype, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var cookie = modManager.getBackendCookie(serverUrl);
-        var path = "/dependencies/" + appId + "/" + propname;
-
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
-            var tenantDomain = modManager.getTenantDomain();
             var username = jagg.getUser();
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-                //TODO change to stub call
             var status = regService.putRegistryProperty(serverUrl, username, appId, propname, propcontent, description, proptype, false);
-
+            var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
+            resManager.updateProperty(appId, proptype, propname, stage, description);
         } catch (e) {
-            log.error("Error in updating resource : " + path + " in remote registry : " + serverUrl
-                      + " while updating property in given stages.");
+            log.error("Error in updating resource : " + path + " in remote registry : " +
+                serverUrl + " while updating property in given stages.");
             log.error(e);
             throw e;
         }
-
-        clearResourceCache(stage, appId, propname, context, tenantDomain);
     }
 };
 
 
+/**
+ * delete a given property from all stages
+ *
+ * @param propname name of the property, which needs to be deleted
+ * @param appId Id of the application
+ */
 var deletePropertyFromAllStages = function (propname, appId) {
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    var stages = getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
-
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var path = "/dependencies/" + appId + "/" + propname;
-
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             deleteResource(serverUrl, path, null, null, null, null, stage);
         } catch (e) {
@@ -485,19 +479,26 @@ var deletePropertyFromAllStages = function (propname, appId) {
     }
 };
 
+/**
+ * delete a given property from given stages
+ *
+ * @param propname name of the property, which needs to be deleted
+ * @param resourceMediaType type of the resource, which needs to be deleted
+ * @param contentValue content of the property
+ * @param resourceDescription description of the property
+ * @param appId Id of the application
+ * @param stages environment stages, from which the property needs to be deleted
+ */
 var deletePropertyFromStages = function (propname, resourceMediaType, contentValue, resourceDescription, appId, stages) {
-
     for (var i = 0; i < stages.length; i++) {
-
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var path = "/dependencies/" + appId + "/" + propname;
-
+        var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             deleteResource(serverUrl, appId, propname, contentValue, resourceDescription, resourceMediaType, stage);
         } catch (e) {
-            log.error("Error in deleting resource : " + path + " from remote registry : " + serverUrl
-                      + " while deleting property from given stages.");
+            log.error("Error in deleting resource : " + path + " from remote registry : " +
+                serverUrl + " while deleting property from given stages.");
             log.error(e);
             throw e;
         }
@@ -510,14 +511,13 @@ var deletePropertyFromStages = function (propname, resourceMediaType, contentVal
  * @param appId application id
  */
 var deleteAllRegistryResourcesFromAllStages = function (appId) {
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
+    var stages = getProperties(DEPLOYMENT_STAGES);
     var tenantDomain=modManager.getTenantDomain();
     var errorOccurred = false;
     for (var i = 0; i < stages.length; i++) {
-
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
-        var path = "/dependencies/" + appId;
+        var path = DEPENDANCIES_PATH + appId;
         try {
             if(log.isDebugEnabled()) {
                 log.debug("deleting registry resource: "+path+ "from stage: "+stage+
@@ -545,86 +545,95 @@ var deleteAllRegistryResourcesFromAllStages = function (appId) {
  * @param serverUrl Server url
  * @param path resource path
  */
-var deleteResource = function(serverUrl, appId, propname, propcontent, description, proptype, stage){
+var deleteResource = function(serverUrl, appId, propname, propcontent, description, proptype, stage) {
     var tenantDomain = modManager.getTenantDomain();
     var username = jagg.getUser();
-
     try {
         var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
         regService.deleteRegistryResource(serverUrl, username, appId, propname, propcontent, description, proptype, false);
+        var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
+        resManager.deleteProperty(appId, propname, stage, proptype);
     } catch (e) {
         log.error("Error while deleting resource : " + propname + " from remote registry : " + serverUrl
                   + "of application id : " + appId + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
     }
-
-    clearResourceCache(stage, appId, propname, context, tenantDomain);
 };
 
+/**
+ * Copy the properties from one stage to another stage, when stage transition happens
+ *
+ * @param appId Id of the application
+ * @param sourceStage source stage, from which the properties needs to be copied
+ * @param targetStage target stage, to which the properties needs to be copied
+ */
 var copyNewProperties = function (appId, sourceStage, targetStage) {
-    var hasPermissionToStage = permissionModule.isUserAccessGranted(appId,
-                                                                    PERMISSION_RESOURCES_READ_FOR_STAGE + sourceStage);
-    if (!hasPermissionToStage) {
+    if (!permissionModule.isUserAccessGranted(appId, PERMISSION_RESOURCES_READ_FOR_STAGE + sourceStage)) {
         var msg = "User does not have permission to read resources from stage " + sourceStage;
         log.error(msg);
         throw msg;
     }
-    hasPermissionToStage = permissionModule.isUserAccessGranted(appId,
-                                                                PERMISSION_RESOURCES_CREATE_FOR_STAGE + targetStage);
-    if (!hasPermissionToStage) {
+    if (!permissionModule.isUserAccessGranted(appId, PERMISSION_RESOURCES_CREATE_FOR_STAGE + targetStage)) {
         var msg = "User does not have permission to create resources in stage " + targetStage;
         log.error(msg);
         throw msg;
     }
     var sourceServerUrl = getProperty(DEPLOYMENT_STAGES + "." + sourceStage + DEPLOYER_APPTYPE_EP);
     var targetServerUrl = getProperty(DEPLOYMENT_STAGES + "." + targetStage + DEPLOYER_APPTYPE_EP);
-    var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-
-    var applicationResourcesPath = Packages.org.wso2.carbon.registry.core.RegistryConstants.GOVERNANCE_REGISTRY_BASE_PATH +
-                                   Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR +
-                                   Packages.org.wso2.carbon.appfactory.core.util.Constants.DEPENDENCIES_HOME +
-                                   Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + appId;
-    var username = jagg.getUser();
-    var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
-
-    regService.copyNonExistingResources(sourceServerUrl, applicationResourcesPath, targetServerUrl,
-                                                             appId, username);
-
-    clearParentCache(targetStage, appId, context, tenantDomain);
-};
-
-
-var clearResourceCache = function (stage, appId, propName, context, tenantDomain) {
-    var cachePath = Packages.org.wso2.carbon.registry.core.RegistryConstants.SYSTEM_COLLECTION_BASE_PATH +
-                    Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + stage + DEPENDENCY_PATH +
-                    appId + Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + propName;
+    var applicationResourcesPath = DEPENDANCIES_PATH + appId;
     try {
-        registryResourceService = server.osgiService("org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService");
-        registryResourceService.removeRegistryCache(cachePath);
-    } catch (e) {
-        log.error("Error while clear registry cache for property : " + propName + " of application : " + appId +
-                  " in stage : " + stage);
+        var username = jagg.getUser();
+        var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
+        regService.copyNonExistingResources(sourceServerUrl, applicationResourcesPath, targetServerUrl, appId, username);
+        copyNewPropertiesInDatabase(appId, sourceStage, targetStage);
+    } catch (e){
+        log.error("Error while copying properties from stage : " + sourceStage + " to stage : " + targetStage +
+                  " for application : " + appId);
         log.error(e);
         throw e;
     }
 };
 
-var clearParentCache = function(stage, appId, context, tenantDomain){
-    var cachePath = Packages.org.wso2.carbon.registry.core.RegistryConstants.SYSTEM_COLLECTION_BASE_PATH +
-                    Packages.org.wso2.carbon.registry.core.RegistryConstants.PATH_SEPARATOR + stage + DEPENDENCY_PATH +
-                    appId;
+
+var addPropertyToDatabase = function (propName, propType, appId, description, stages) {
+    for (var stage in stages) {
+        try {
+            var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
+            if(!resManager.isPropertyExists(appId, propName, propType, stages[stage])) {
+                resManager.addProperty(propName, appId, stages[stage], description, propType);
+            }
+        } catch (e) {
+            log.error("Error while inserting the property type : " + propType + " with name : " + propName +
+                      " to the database for the application : " + appId + " in stage : " + stage);
+            log.error(e);
+            throw e;
+        }
+    }
+};
+
+var copyNewPropertiesInDatabase = function (appId, sourceStage, targetStage) {
     try {
-        registryResourceService = server.osgiService("org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService");
-        registryResourceService.removeRegistryCache(cachePath);
+        var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
+        resManager.copyNewProperties(appId, sourceStage, targetStage);
     } catch (e) {
-        log.error("Error while clear registry cache for parent resource of application : " + appId + " in stage : " +
-                  stage);
+        log.error("Error while copying properties in database from stage : " + sourceStage + " to stage : " +
+                  targetStage + " for application : " + appId);
         log.error(e);
         throw e;
     }
-}
+};
+
+var getPropertiesInEnvironment = function (appId, resourceType, environment) {
+    try {
+        var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
+        return resManager.getPropertiesInEnvironment(appId, resourceType, environment);
+    } catch (e) {
+        log.error("Error while getting properties from database for resource type : " + resourceType +
+                  " application : " + appId + " in environment : " + environment);
+        log.error(e);
+        throw e;
+    }
+};
 
 %>

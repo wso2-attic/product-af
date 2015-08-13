@@ -51,6 +51,7 @@ public class ApplicationTypeBean {
 	private String deployerClassName;
 	//Fully qualified class name of application undeployer
 	private String undeployerClassName;
+	private boolean persistApplicationEndPointMetaData;
 	public ApplicationTypeBean(){
 	}
 
@@ -253,4 +254,11 @@ public class ApplicationTypeBean {
 		this.undeployerClassName = undeployerClassName;
 	}
 
+	public boolean isPersistApplicationEndPointMetaData() {
+		return persistApplicationEndPointMetaData;
+	}
+
+	public void setPersistApplicationEndPointMetaData(boolean persistApplicationEndPointMetaData) {
+		this.persistApplicationEndPointMetaData = persistApplicationEndPointMetaData;
+	}
 }
