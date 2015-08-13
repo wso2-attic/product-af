@@ -333,7 +333,7 @@ function fileUploadSubmit(e, data){
 
 function fileUploadSend(e, data) {
     var appKey = $('#applicationKey').val().trim();
-    if (data.files.length < 1 || !appKey.length || appKey == "null" ) {
+    if (data.files.length < 1 || !appKey.length || appKey == null ) {
         $('#progress').hide();
         return false;
     }
@@ -408,6 +408,11 @@ function fileUploadFail(e, data){
 }
 //End of JQuery file upload callback functions
 
+function showLoader(show){
+    var showOrHide = (show) ? 'show' : 'hide';
+    $('.loader').loading(showOrHide);
+    $('.loading-cover').overlay(showOrHide);
+}
  var ie = (function() {
      var undef, v = 3,
          div = document.createElement('div');
@@ -424,6 +429,7 @@ function fileUploadFail(e, data){
  $(document).ready(function($) {
 
     $('#progress').hide();
+    showLoader(false);
      $("#appIcon").change(function() {
          $("#icon").val($("#appIcon").val());
 
@@ -555,11 +561,11 @@ function fileUploadFail(e, data){
 
      $("#createAppForm").ajaxForm({
          beforeSubmit: function(){
-            $("#createAppForm").append($("#appIcon"));
          },
          complete: function(result,status) { // on complete
              if(status.toLowerCase() != 'success') {
                 showTopErrorMessage("Error occurred while creating the application");
+                showLoader(false);
                 return false;
              }
              var resp = result.responseText;
@@ -612,7 +618,6 @@ function fileUploadFail(e, data){
          }
          msg = msg.replace(/[^a-zA-Z0-9]+/g, '');
          msg = msg.toLowerCase();
-         var appKeyLength = ($("#applicationKey").val()).length;
          if (msg.length >= MAX_APP_KEY_LENGTH) {
              $("#applicationKey").val(msg.substring(0, $("#applicationKey").attr('maxlength')));
          } else {
@@ -620,18 +625,16 @@ function fileUploadFail(e, data){
              $('#appHome').text(url);
              $('#applicationKey').val(msg);
          }
-         var validator = $( "#createAppForm" ).validate();
-         validator.element( "#applicationName" );
-     });
-
-     $('#applicationName').focusout(function(event) {
-         var originalAppKey = $("#applicationKey").attr('value');
-         var originalAppName = $("#applicationName").attr('value');
-         validateDuplicateApplicationName(originalAppName);
-         var appkey = originalAppKey;
-         $('#applicationKey').val(appkey);
-         var validator = $( "#createAppForm" ).validate();
-         validator.element( "#applicationName" );
+         var isNameValid = validateApplicationName();
+         if(isNameValid){
+            if ((appCreationType == "existing") && !fileUploadSuccess) { // if uploadable apptype and upload isn't success
+                $("#add-application").prop("disabled", true);
+            } else {
+                $("#add-application").prop("disabled", false);
+            }
+         } else {
+            $("#add-application").prop("disabled", true);
+         }
      });
 
      // Validate Icon
@@ -654,6 +657,7 @@ function fileUploadFail(e, data){
 
  //New Function to submit upload apps and create new apps
  function submitAppForm(type) {
+    showLoader(true);
     var validator = $( "#createAppForm" ).validate();
     var formValidated = validator.form();
     if(formValidated) {
@@ -664,6 +668,8 @@ function fileUploadFail(e, data){
          }
          $("#createAppForm").submit();
          showTopSuccessMsg("Application creation started!.");
+    } else {
+        showLoader(false);
     }
  }
 
@@ -683,20 +689,6 @@ function fileUploadFail(e, data){
 
     </script>
 <!--#######################################################################-->
-
-
-    <!-- BOF App factory menu -->
-    <div class="navbar navbar-secondary">
-        <div class="container-fliud">
-            <div class="row">
-                <div class="col-md-10 breadcrumb-secondary"> <!--changed from 3 to 10 -->
-                    <i class="fa fa-cubes visible-xs"></i>
-                    <span class="hidden-xs">Application Cloud /</span>
-                    <span class="">Create new app</span>
-                </div>
-            </div>
-        </div>
-    </div><!-- EOF App factory menu -->
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
@@ -733,6 +725,9 @@ function fileUploadFail(e, data){
             <form enctype="multipart/form-data" method='post' action='<%=jagg.getAbsoluteUrl("/site/blocks/application/add/ajax/add.jag")%>'  name="createAppForm" id="createAppForm">
                 <input type="hidden" name="action" id="action" value="createNewApplication" />
                 <div class="col-md-5 forms">
+                    <div class="loading-cover loading-overlay">
+                      <div class="loader"></div>
+                    </div>
                     <div class="form-group" for="applicationName">
                         <label for="application-name">Application Name: </label>
                         <input type="appname" class="form-control" name="applicationName" id="applicationName" placeholder="Enter Application name">
@@ -806,7 +801,7 @@ function fileUploadFail(e, data){
     </div><!-- /.container -->
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <!-- include custom js functions -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
 <!--####################################################################### end-->
