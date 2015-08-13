@@ -26,6 +26,8 @@ import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
  * This service is used to do operation against artifacts.
@@ -51,12 +53,14 @@ public class ArtifactCreator extends AbstractAdmin {
     public void createArtifact(String applicationId, String version, String revision, boolean doDeploy,
                                String deployStage, String tagName, String repoFrom) throws AppFactoryException {
 
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String tenantUserName =
+                MultitenantUtils.getTenantAwareUsername(CarbonContext.getThreadLocalCarbonContext().getUsername())
+                + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
         try {
             //doDeploy - indicates that it is an commit or not
             log.info("Artifact Create Service triggered....");
 
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            String tenantUserName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" + tenantDomain;
 
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, tenantDomain);
             boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
@@ -67,14 +71,20 @@ public class ArtifactCreator extends AbstractAdmin {
                 //triggered by auto commit
                 performBuild = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId, version);
                 if (log.isDebugEnabled()) {
-                    log.debug("Triggered by auto commit " + performBuild + " and " + performDeploy + " repoFrom " +
-                              repoFrom);
+                    log.debug("Triggered by auto commit performBuild: " + performBuild
+                              + ", performDeploy : " + performDeploy
+                              + ", application id : " + applicationId +", version : " + version
+                              + ", tenant domain : " +tenantDomain+ ", repoFrom " + repoFrom
+                              +" triggered by user: "+tenantUserName);
                 }
             } else {
                 //triggered by manual build
                 if (log.isDebugEnabled()) {
-                    log.debug("Triggered by manual build " + performBuild + " and " + performDeploy + " repoFrom " +
-                              repoFrom);
+                    log.debug("Triggered by manual build " + performBuild
+                              + ", performDeploy : " + performDeploy
+                              + ", application id : " + applicationId +", version : " + version
+                              + ", tenant domain : " +tenantDomain+ ", repoFrom " + repoFrom
+                              + " triggered by user: "+tenantUserName);
                 }
             }
 
@@ -86,19 +96,22 @@ public class ArtifactCreator extends AbstractAdmin {
                 ServiceHolder.getContinuousIntegrationSystemDriver().startBuild(applicationId, version, performDeploy,
                               deployStage, tagName, tenantDomain,tenantUserName, repoFrom);
                 log.info("Start a build job [Buildable Artifact] in CI to application id : " + applicationId +
-                         " version : " + version + " tenant domain : " + tenantDomain + " repoFrom : " + repoFrom);
+                         ", version : " + version + ", tenant domain : " + tenantDomain +", repoFrom : " + repoFrom
+                         +" triggered by user: "+tenantUserName);
 
             }
             if (!appIsBuilServerRequired && performDeploy) {
                 ApplicationDeployer applicationDeployer = new ApplicationDeployer();
                 applicationDeployer.deployArtifact(applicationId, deployStage, version, tagName, "deploy", repoFrom);
                 log.info("Start artifact deploying  job for Application ID : " + applicationId + " , version " + version
-                         + " by " + tenantDomain + " repoFrom " + repoFrom);
+                         + ", tenantDomain : " + tenantDomain + ", repoFrom " + repoFrom
+                         +" triggered by user: "+tenantUserName);
             }
         } catch (RegistryException e) {
             String errMsg =
-                    "Error when try to get the application type from registry that given application id and tenant domain : " +
-                    e.getMessage();
+                    "Error when try to get the application type from registry that given " +
+                    "application id : " + applicationId +", version : " + version + ", tenant domain : " + tenantDomain
+                    +" triggered by user: "+tenantUserName ;
             log.error(errMsg, e);
             throw new AppFactoryException(errMsg, e);
         }
