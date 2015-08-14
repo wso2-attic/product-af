@@ -12,7 +12,10 @@ class greg (
   $owner=root,
   $group=root,
   $clustering='true',
-  $target="/mnt"
+  $target="/mnt",
+  $registry_db_schema = 'devregistry',
+  $user_store         = 'devuserstore',
+  $config_db_schema   = 'DEV_CONFIG_DB',
   ) inherits params {
 
 
