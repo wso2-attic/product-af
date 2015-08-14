@@ -69,7 +69,7 @@ fi
 _update_patches AF_PATCHES[@] appfactory appfactory/files/patches/repository/components/patches
 _update_patches AM_PATCHES[@] apimanager apimanager/files/patches/repository/components/patches
 _update_patches AS_PATCHES[@] as as/files/patches/repository/components/patches
-_update_patches GREG_PATCHES[@] as greg/files/patches/repository/components/patches
+_update_patches GREG_PATCHES[@] appfactory greg/files/patches/repository/components/patches
 _update_patches ELB_PATCHES[@] elb elb/files/patches/repository/components/patches
 _update_patches IS_PATCHES[@] identity identity/files/patches/repository/components/patches
 _update_patches JPP_PATCHES[@] jppserver jppserver/files/patches/repository/components/patches
