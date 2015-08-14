@@ -121,11 +121,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
-            <artifactId>appfactory-authentication-plugin</artifactId>
-            <type>hpi</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-plugin</artifactId>
             <type>hpi</type>
         </dependency>
