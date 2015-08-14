@@ -3,7 +3,7 @@ class greg (
   $version,
   $offset=0,
   $members=undef,
-  $as_subdomain='am',
+  $stage_subdomain,
   $localmember_port=4100,
   $config_db=governance,
   $maintenance_mode=true,
@@ -13,9 +13,10 @@ class greg (
   $group=root,
   $clustering='true',
   $target="/mnt",
-  $registry_db_schema = 'devregistry',
-  $user_store         = 'devuserstore',
-  $config_db_schema   = 'DEV_CONFIG_DB',
+  $registry_db_schema,
+  $user_store,
+  $config_db_schema,
+  $stage         = "Development",
   ) inherits params {
 
 
@@ -26,16 +27,16 @@ class greg (
   $service_templates 	= [
           "conf/carbon.xml",
           "conf/tomcat/catalina-server.xml",
+          "conf/user-mgt.xml",
+          "conf/registry.xml",
+          "conf/datasources/master-datasources.xml",
       ]
 
   $common_templates = [
           "conf/tenant-mgt.xml",
           "conf/appfactory/appfactory.xml",
-          "conf/user-mgt.xml",
-          "conf/registry.xml",
           "conf/log4j.properties",
           "conf/etc/cache.xml",
-          "conf/datasources/master-datasources.xml",
       ]
 
   tag ('greg')

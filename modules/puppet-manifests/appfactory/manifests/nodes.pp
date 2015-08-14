@@ -943,6 +943,8 @@ class {"greg":
   registry_db_schema => $dev_registry_db_schema,
   user_store         => $dev_userstore,
   config_db_schema   => $dev_config_db_schema,
+  pass_stage         => "Development",
+  stage_subdomain    => "dev",
   members            => {
   },
 target             => "/mnt/${server_ip}/dev_greg",
@@ -950,6 +952,53 @@ stage              => "deploy"
 }
 }
 
+node /test_greg/ inherits confignode {
+$server_ip= $ipaddress
+
+class {"greg":
+  version            => "4.6.0",
+  offset             => $test_greg_offset,
+  localmember_port   => 4000,
+  clustering         => false,
+  maintenance_mode   => true,
+  owner              => $owner,
+  group              => $group,
+  sub_cluster_domain => "mgt",
+  registry_db_schema => $test_registry_db_schema,
+  user_store         => $test_userstore,
+  config_db_schema   => $test_config_db_schema,
+  pass_stage         => "Testing",
+  stage_subdomain    => "test",
+  members            => {
+  },
+target             => "/mnt/${server_ip}/test_greg",
+stage              => "deploy"
+}
+}
+
+node /prod_greg/ inherits confignode {
+$server_ip= $ipaddress
+
+class {"greg":
+  version            => "4.6.0",
+  offset             => $prod_greg_offset,
+  localmember_port   => 4000,
+  clustering         => false,
+  maintenance_mode   => true,
+  owner              => $owner,
+  group              => $group,
+  sub_cluster_domain => "mgt",
+  registry_db_schema => $prod_registry_db_schema,
+  user_store         => $prod_userstore,
+  config_db_schema   => $prod_config_db_schema,
+  pass_stage         => "Production",
+  stage_subdomain    => "prod",
+  members            => {
+  },
+target             => "/mnt/${server_ip}/prod_greg",
+stage              => "deploy"
+}
+}
 
 node /bam/ inherits confignode {
   $server_ip = $ipaddress
