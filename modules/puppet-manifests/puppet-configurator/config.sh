@@ -34,6 +34,7 @@ declare -A APPFAC_EXTS=(["org.wso2.carbon.appfactory.build.stub"]=1 ["org.wso2.c
 declare -a BPS=("org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.bps.ext");
 declare -a JPPSERVER=("org.wso2.carbon.appfactory.core" "org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.multitenant.jenkins" "org.wso2.carbon.appfactory.repository.mgt.service" "org.wso2.carbon.appfactory.s4.integration");
 declare -a APPSERVER=("org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.ext" "org.wso2.carbon.appfactory.application.mgt.stub");
+declare -a GREGSERVER=("org.wso2.carbon.appfactory.core" "org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.ext" "org.wso2.carbon.appfactory.custom.userstore");
 declare -a STRATOS_MANAGER=("org.wso2.carbon.appfactory.custom.userstore" "org.wso2.carbon.appfactory.stratos.listners" "org.wso2.carbon.appfactory.common" "org.wso2.carbon.appfactory.eventing" "org.wso2.carbon.appfactory.s4.integration");
 declare -a STORAGE=("org.wso2.carbon.appfactory.common");
 declare -a JPPSERVER_LIBS=("org.wso2.carbon.appfactory.jenkinsext" "org.wso2.carbon.appfactory.s4.integration" "org.wso2.carbon.appfactory.build.stub" "org.wso2.carbon.appfactory.application.deployer.stub")
@@ -46,12 +47,14 @@ declare -a JPP_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 declare -a BPS_COMMON=("nimbus-jose-jwt");
 declare -a GITBLIT_COMMON=("nimbus-jose-jwt");
 declare -a APPSERVER_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
+declare -a GREGSERVER_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 declare -a SM_COMMON=("signedjwt-authenticator" "nimbus-jose-jwt");
 
 ## patches
 declare -a AM_PATCHES=();
 declare -a AF_PATCHES=("patch0001" "patch0004" "patch0132" "patch0133" "patch1091");
 declare -a AS_PATCHES=("patch0028" "patch0132" "patch0133" "patch9999");
+declare -a GREG_PATCHES=("patch0004");
 declare -a ELB_PATCHES=("patch0001" "patch0027" "patch0236" "patch8000");
 declare -a IS_PATCHES=("patch0031" "patch0137");
 declare -a JPP_PATCHES=("patch0028");
