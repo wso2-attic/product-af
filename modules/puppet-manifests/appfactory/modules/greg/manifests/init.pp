@@ -16,7 +16,7 @@ class greg (
   $registry_db_schema,
   $user_store,
   $config_db_schema,
-  $stage         = "Development",
+  $pass_stage = "Development",
   ) inherits params {
 
 
