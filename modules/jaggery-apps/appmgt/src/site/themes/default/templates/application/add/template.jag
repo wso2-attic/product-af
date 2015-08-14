@@ -627,8 +627,13 @@ function showLoader(show){
          }
          var isNameValid = validateApplicationName();
          if(isNameValid){
-            if ((appCreationType == "existing") && !fileUploadSuccess) { // if uploadable apptype and upload isn't success
-                $("#add-application").prop("disabled", true);
+            if (appCreationType == "existing") {
+                $("#fileupload").prop("disabled", false);
+                if(!fileUploadSuccess){
+                    $("#add-application").prop("disabled", true);
+                } else {
+                     $("#add-application").prop("disabled", false);
+                }
             } else {
                 $("#add-application").prop("disabled", false);
             }
