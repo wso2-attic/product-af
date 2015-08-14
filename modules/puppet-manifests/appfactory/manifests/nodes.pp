@@ -946,8 +946,7 @@ class {"greg":
   members            => {
   },
 target             => "/mnt/${server_ip}/dev_greg",
-stage              => "deploy",
-amtype             => "greg"
+stage              => "deploy"
 }
 }
 
