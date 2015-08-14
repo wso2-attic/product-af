@@ -99,8 +99,16 @@
            "value": "<%= @ipaddress %>"
         },
         {
-        "name": "payload_parameter.CONFIG_PARAM_WORKER_HOST_NAME",
-        "value": "appserver.prod.<%= @domain %>"
+           "name": "payload_parameter.CONFIG_PARAM_WORKER_HOST_NAME",
+           "value": "appserver.prod.<%= @domain %>"
+        },
+        {
+           "name": "payload_parameter.S2GIT_IP",
+           "value": "<%= @ipaddress %>"
+        },
+        {
+           "name": "payload_parameter.S2GIT_DOMAIN",
+           "value": "s2git.<%= @domain %>"
         }
     ]
 }

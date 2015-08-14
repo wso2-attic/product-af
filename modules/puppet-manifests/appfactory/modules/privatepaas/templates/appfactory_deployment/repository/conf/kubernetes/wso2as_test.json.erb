@@ -83,24 +83,32 @@
         },
         <%- database = @test_config_db -%>
         {
-         "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_URL",
-         "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
+           "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_URL",
+           "value": "jdbc:mysql://<%= database[0] %>:3306/<%= database[1] %>"
         },
         {
-         "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_USER_NAME",
-         "value": "<%= database[2] %>"
+           "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_USER_NAME",
+           "value": "<%= database[2] %>"
         },
         {
-         "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_PASSWORD",
-         "value": "<%= database[2] %>"
+           "name": "payload_parameter.CONFIG_PARAM_CONFIG_DB_PASSWORD",
+           "value": "<%= database[2] %>"
         },
         {
-         "name": "payload_parameter.CONFIG_PARAM_LDAP_HOST",
-         "value": "<%= @ipaddress %>"
+           "name": "payload_parameter.CONFIG_PARAM_LDAP_HOST",
+           "value": "<%= @ipaddress %>"
         },
         {
-         "name": "payload_parameter.CONFIG_PARAM_WORKER_HOST_NAME",
-         "value": "appserver.test.<%= @domain %>"
+           "name": "payload_parameter.CONFIG_PARAM_WORKER_HOST_NAME",
+           "value": "appserver.test.<%= @domain %>"
+         },
+         {
+           "name": "payload_parameter.S2GIT_IP",
+           "value": "<%= @ipaddress %>"
+         },
+         {
+           "name": "payload_parameter.S2GIT_DOMAIN",
+           "value": "s2git.<%= @domain %>"
          }
     ]
 }
