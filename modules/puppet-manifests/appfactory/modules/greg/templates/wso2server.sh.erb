@@ -290,6 +290,7 @@ do
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -DworkerNode=true \
     -Dtenant.idle.time=10 \
+    -Dstratos.stage=<%=@greg_stage%> \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$CARBON_HOME/repository/logs/heap-dump.hprof" \
     -DapplyPatches \
@@ -320,6 +321,7 @@ do
     -Dcom.sun.jndi.ldap.connect.pool.timeout=3000  \
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Dtenant.idle.time=10 \
+    -Dstratos.stage=<%=@greg_stage%> \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$CARBON_HOME/repository/logs/heap-dump.hprof" \
     -DapplyPatches \
