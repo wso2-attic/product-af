@@ -943,13 +943,12 @@ class {"greg":
   registry_db_schema => $dev_registry_db_schema,
   user_store         => $dev_userstore,
   config_db_schema   => $dev_config_db_schema,
-  pass_stage         => "Development",
   stage_subdomain    => "dev",
-  members            => {
-  },
-target             => "/mnt/${server_ip}/dev_greg",
-stage              => "deploy"
-}
+  greg_stage         => "Development",
+  members            => {},
+  target             => "/mnt/${server_ip}/dev_greg",
+  stage              => "deploy"
+ }
 }
 
 node /test_greg/ inherits confignode {
@@ -967,7 +966,7 @@ class {"greg":
   registry_db_schema => $test_registry_db_schema,
   user_store         => $test_userstore,
   config_db_schema   => $test_config_db_schema,
-  pass_stage         => "Testing",
+  greg_stage         => "Testing",
   stage_subdomain    => "test",
   members            => {
   },
@@ -991,7 +990,7 @@ class {"greg":
   registry_db_schema => $prod_registry_db_schema,
   user_store         => $prod_userstore,
   config_db_schema   => $prod_config_db_schema,
-  pass_stage         => "Production",
+  greg_stage         => "Production",
   stage_subdomain    => "prod",
   members            => {
   },
