@@ -32,7 +32,7 @@
         <module>org.wso2.carbon.appfactory.events.notification.stub</module>
         <module>org.wso2.carbon.appfactory.build.stub</module>
         <module>org.wso2.carbon.appfactory.stratos.listeners.stub</module>
-        <module>org.wso2.carbon.appfactory.ext.stub</module>
+        <module>org.wso2.carbon.appfactory.resource.mgt.stub</module>
         <module>org.wso2.carbon.appfactory.tenant.mgt.stub</module>
         <module>org.wso2.carbon.appfactory.createtenant.stub</module>
     </modules>

@@ -31,16 +31,32 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Export-Package>org.wso2.carbon.appfactory.resource.mgt.*,</Export-Package>
-            <Private-Package>org.wso2.carbon.appfactory.resource.mgt.internal.*,</Private-Package>
-            <Import-Package>!javax.xml.namespace,
-                            javax.xml.namespace; version=0.0.0,
-                            org.wso2.carbon.registry.metadata.*,
-                            javax.activation.DataHandler.*,javax.activation.DataSource.*
-                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
-                            *;resolution:=optional</Import-Package>
-            <DynamicImport-Package>*</DynamicImport-Package>
-            <Axis2Deployer>ApplicationTypeDeployer</Axis2Deployer>
+            <!--<Export-Package>org.wso2.carbon.appfactory.resource.mgt.*,</Export-Package>-->
+            <!--<Private-Package>org.wso2.carbon.appfactory.resource.mgt.internal.*,</Private-Package>-->
+            <!--<Import-Package>!javax.xml.namespace,-->
+                            <!--javax.xml.namespace; version=0.0.0,-->
+                            <!--org.wso2.carbon.registry.metadata.*,-->
+                            <!--javax.activation.DataHandler.*,javax.activation.DataSource.*-->
+                            <!--org.apache.axiom.*; version="${axiom.osgi.version.range}",-->
+                            <!--*;resolution:=optional</Import-Package>-->
+            <!--<DynamicImport-Package>*</DynamicImport-Package>-->
+            <!--&lt;!&ndash;<Axis2Deployer>ApplicationTypeDeployer</Axis2Deployer>&ndash;&gt;-->
+              <Internal-Package>
+                  org.wso2.carbon.appfactory.resource.mgt.internal,
+              </Internal-Package>
+              <Export-Package>
+                  !org.wso2.carbon.appfactory.resource.mgt.internal,
+                  org.wso2.carbon.appfactory.resource.mgt.*,
+              </Export-Package>
+              <Import-Package>
+                  !javax.xml.namespace,
+                  javax.xml.namespace; version=0.0.0,
+                  javax.activation.DataHandler.*,javax.activation.DataSource.*
+                  org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                  *;resolution:=optional
+              </Import-Package>
+              <DynamicImport-Package>*</DynamicImport-Package>
+
           </instructions>
         </configuration>
       </plugin>
@@ -86,11 +102,6 @@
       <artifactId>org.wso2.carbon.appfactory.stratos.listeners.stub</artifactId>
       <scope>provided</scope>
     </dependency>
-      <dependency>
-          <groupId>org.wso2.carbon.appfactory</groupId>
-          <artifactId>org.wso2.carbon.appfactory.resource.mgt.stub</artifactId>
-          <scope>provided</scope>
-      </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.ntask.common</artifactId>

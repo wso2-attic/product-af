@@ -48,8 +48,8 @@
       <module>modules/p2-profile-gen</module>
       <module>modules/webapps</module>
       <module>modules/statistics</module>
-      <module>modules/distribution</module>
-      <module>modules/integration</module>
+      <!--module>modules/distribution</module>
+      <module>modules/integration</module-->
    </modules>
    <profiles>
       <profile>
@@ -1032,9 +1032,14 @@
 	    </dependency>
           <dependency>
               <groupId>org.wso2.carbon.appfactory</groupId>
-              <artifactId>org.wso2.carbon.appfactory.ext.stub</artifactId>
+              <artifactId>org.wso2.carbon.appfactory.resource.mgt.stub</artifactId>
               <version>${appfac.version}</version>
               <scope>provided</scope>
+          </dependency>
+          <dependency>
+              <groupId>org.wso2.carbon.appfactory</groupId>
+              <artifactId>org.wso2.carbon.appfactory.resource.mgt</artifactId>
+              <version>${appfac.version}</version>
           </dependency>
 	    <dependency>
 		      <groupId>org.wso2.carbon.appfactory</groupId>
