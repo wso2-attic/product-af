@@ -28,15 +28,24 @@
     </Authenticator>
 
     <!-- Authenticator Configurations for SAML2SSOAuthenticator -->
-    <Authenticator name="SAML2SSOAuthenticator" disabled="false">
+    <Authenticator name="SAML2SSOAuthenticator" disabled="true">
         <Priority>10</Priority>
         <Config>
-            <Parameter name="LandingPage">/home/index.html</Parameter>
             <Parameter name="LoginPage">/carbon/admin/login.jsp</Parameter>
-	        <Parameter name="ServiceProviderID">APPFACTORY</Parameter>
+            <Parameter name="ServiceProviderID">APPFACTORY</Parameter>
             <Parameter name="IdentityProviderSSOServiceURL">https://<%= @wso2_env_domain %>/samlsso</Parameter>
-	        <Parameter name="KeyAlias">wso2carbon</Parameter>
-        </Config>
+            <Parameter name="NameIDPolicyFormat">urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</Parameter>
+	</Config>
+
+	<!-- If this authenticator should skip any URI from authentication, specify it under "SkipAuthentication"
+	<SkipAuthentication>
+            <UrlContains></UrlContains>
+        </SkipAuthentication> -->
+
+	<!-- If this authenticator should skip any URI from session validation, specify it under "SkipAuthentication
+        <SkipSessionValidation>
+            <UrlContains></UrlContains>
+        </SkipSessionValidation> -->
     </Authenticator>
 
 </Authenticators>

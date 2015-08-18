@@ -26,8 +26,8 @@
 	proxyPort="80"
     -->
     <Connector  protocol="org.apache.coyote.http11.Http11NioProtocol"
-		redirectPort="9443"
                 port="9763"
+                redirectPort="9443"
                 bindOnInit="false"
                 maxHttpHeaderSize="8192"
                 acceptorThreadCount="<%= @as_accept_thread_count %>"
@@ -41,9 +41,9 @@
                 compression="on"
                 compressionMinSize="2048"
                 noCompressionUserAgents="gozilla, traviata"
-                compressableMimeType="text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg" 
+                compressableMimeType="text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg"
                 URIEncoding="UTF-8"/>
-   
+
     <!--
 	optional attributes:
 
@@ -71,12 +71,10 @@
                 compressionMinSize="2048"
                 noCompressionUserAgents="gozilla, traviata"
                 compressableMimeType="text/html,text/javascript,application/x-javascript,application/javascript,application/xml,text/css,application/xslt+xml,text/xsl,image/gif,image/jpg,image/jpeg"
-                keystoreFile="${carbon.home}/repository/resources/security/wso2carbon.jks"
-                keystorePass="wso2carbon" 
                 URIEncoding="UTF-8"/>
 
 
-   
+
     <Engine name="Catalina" defaultHost="localhost">
 
       <!--Realm className="org.apache.catalina.realm.MemoryRealm" pathname="${carbon.home}/repository/conf/tomcat/tomcat-users.xml"/-->
@@ -94,4 +92,3 @@
     </Engine>
   </Service>
 </Server>
-
