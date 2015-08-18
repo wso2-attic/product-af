@@ -27,7 +27,6 @@
     -->
     <Connector  protocol="org.apache.coyote.http11.Http11NioProtocol"
 		redirectPort="9443"
-		proxyPort="80"
                 port="9763"
                 bindOnInit="false"
                 maxHttpHeaderSize="8192"
@@ -52,7 +51,6 @@
     -->
     <Connector  protocol="org.apache.coyote.http11.Http11NioProtocol"
                 port="9443"
-                proxyPort="443"
                 bindOnInit="false"
                 sslProtocol="TLS"
                 maxHttpHeaderSize="8192"
