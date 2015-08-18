@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.appfactory.ext.services;
+package org.wso2.carbon.appfactory.core.services;
 
 public class ResourceProperty {
 	private String propertyName;

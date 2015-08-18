@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.appfactory.ext.services;
+package org.wso2.carbon.appfactory.resource.mgt.services;
 
 public class AppFactoryResource {
 	private String resourceContent;
