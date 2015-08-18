@@ -26,7 +26,6 @@ var getUsersofTenant = function getUsersofTenant() {
         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         var tenantMgtService = server.osgiService('org.wso2.carbon.cloudmgt.users.service.UserManagementService');
         var users = tenantMgtService.getUsersofTenant();
-        log.info(users.length);
     }catch (e){
     	log.error(e);
     }finally{
@@ -59,7 +58,6 @@ var getUsersofTenant = function getUsersofTenant() {
             }
             
             tmpUser.roles=allRoles;
-            log.info("test "+tmpUser.roles);
             var troles=tmproles;
             tmpUser.displayRoles=[];
             for(var ttRole in troles){
@@ -114,7 +112,6 @@ var getUserInfo = function getUserInfo(userName) {
         tmpUser.firstName=tmpfirstName;
         tmpUser.lastName=tmplastName;
         tmpUser.roles=tmproles;
-        log.info(userName + " Role "+  tmpUser.roles);
         var troles=tmpUser.roles;
         tmpUser.displayRoles=[];
         for(var ttRole in troles){
