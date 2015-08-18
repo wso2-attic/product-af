@@ -30,13 +30,12 @@ class greg (
           "conf/user-mgt.xml",
           "conf/registry.xml",
           "conf/datasources/master-datasources.xml",
+          "conf/security/authenticators.xml",
       ]
 
   $common_templates = [
-          "conf/tenant-mgt.xml",
           "conf/appfactory/appfactory.xml",
           "conf/log4j.properties",
-          "conf/etc/cache.xml",
       ]
 
   tag ('greg')
