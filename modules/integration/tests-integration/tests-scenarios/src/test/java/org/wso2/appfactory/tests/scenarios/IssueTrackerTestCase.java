@@ -165,7 +165,7 @@ public class IssueTrackerTestCase extends AFIntegrationTest {
                 .get("success").getAsBoolean();
         Assert.assertEquals(isSuccses, true, "Comment saving failed");
         JsonObject issueObject = issueTrackerRestClient.getIssue(issuePKey, applicationKey, UPDATE_TYPE);
-        boolean isEqual = issueObject.get("comments").getAsJsonArray().get(0).getAsJsonObject().get("description")
+        boolean isEqual = issueObject.get("comments").getAsJsonArray().get(1).getAsJsonObject().get("description")
                 .getAsString().equals(COMMENT);
         Assert.assertEquals(isEqual, true, "Comment saving failed");
     }
