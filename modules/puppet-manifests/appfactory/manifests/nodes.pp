@@ -1044,7 +1044,7 @@ node /dev.paas/ inherits confignode {
     target             => "/mnt/${server_ip}/dev_pass",
     ppaas_mb_ip        => $ppaas_mb_ip,
     ppaas_cep_ip       => $ppaas_cep_ip,
-    ppaas_mysql_host   => c,
+    ppaas_mysql_host   => $ppaas_mysql_host,
     server_ip          => $server_ip,
     appserver_subdomain=> "dev",
     paas_stage              => "Development",
