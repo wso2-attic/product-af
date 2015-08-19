@@ -26,13 +26,10 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var uploadableAppExts = outputs.uploadableAppExts;
     var mod = jagg.module("manager");
     var uploadableApplicationMaxSize=outputs.uploadableApplicationMaxSize;
-    var type = request.getParameter("type");
-    var appTypeDisplayName = request.getParameter("appTypeDisplayName");
-    var appType = request.getParameter("apptype");
-
-    var apptypeIconImageClass = request.getParameter("apptypeIconImageClass");
-    var iconColor = request.getParameter("apptypeIconColor");
-    var iconImage = request.getParameter("apptypeIconImage");
+    var type = outputs.type;
+    var appTypeDisplayName = outputs.appTypeDisplayName;
+    var appType = outputs.appType;
+    var apptypeIconImageClass = outputs.apptypeIconImageClass;
 
 
     var buttonCreateUpload = "Create";

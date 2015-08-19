@@ -35,6 +35,11 @@ jagg.block("application/add", {
 		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
 		var webContext = getProperty(WEB_CONTEXT_ROOT);
         var tempAppTypeArray = [];
+        var apptypeIconImageClass = request.getParameter("apptypeIconImageClass");
+        var appTypeDisplayName = request.getParameter("appTypeDisplayName");
+        var type = request.getParameter("type");
+        var appType = request.getParameter("apptype");
+
 
         if (!applicationTypes || applicationTypes.length === 0) {
 
@@ -113,7 +118,11 @@ jagg.block("application/add", {
 		    "uploadableAppExts":uploadableAppExts,
 		    "uploadableApplicationMaxSize":uploadableApplicationMaxSize,
 		    "appFacURL":appFacURL,
-		    "webContext":webContext
+		    "webContext":webContext,
+            "apptypeIconImageClass":apptypeIconImageClass,
+            "appTypeDisplayName":appTypeDisplayName,
+            "type":type,
+            "appType":appType
 		};
     }
 });
