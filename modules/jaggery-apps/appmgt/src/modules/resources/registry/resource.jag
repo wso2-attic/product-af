@@ -46,7 +46,7 @@ var PATH_SEPERATOR = "/";
 var addPropertyToStages = function (propname, propcontent, description, proptype, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         var correlationKey = appId + "-" + stage + "-property-" + propname.split("/")[0];
 
@@ -88,7 +88,7 @@ var addPropertyCollectionToStages = function (path, description, mediatype, appI
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
 
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         try {
             var username = jagg.getUser();
             var regService = regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
@@ -119,7 +119,7 @@ var addPropertyToInitialStages = function (propname, propcontent, description, p
 	var stages = lifeCycleModule.getInitialLifeCycleStages();
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         var username = jagg.getUser();
         try {
@@ -145,7 +145,7 @@ var addPropertyToInitialStages = function (propname, propcontent, description, p
 var updatePropertyDescriptionInStages = function (propname, mediatype, description, appId, stages) {
       for (var i = 0; i < stages.length ; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             var username = jagg.getUser();
@@ -206,7 +206,7 @@ var propertyExistsInStages = function (propname, appId, stages) {
     var existsInSatges = false;
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             var username = jagg.getUser();
@@ -236,7 +236,7 @@ var propertyExistsInAllStages = function (propname, appId) {
     var stages = getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             var username = jagg.getUser();
@@ -266,7 +266,7 @@ var getPropertyValueInAllStages = function (propname, appId) {
     var stages = getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var username = jagg.getUser();
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
@@ -293,7 +293,7 @@ var getPropertyValueInAllStages = function (propname, appId) {
  * @returns {Array}
  */
 var getPropertiesInStage = function (appId, stage) {
-    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
     var username = jagg.getUser();
     var path = DEPENDANCIES_PATH + appId;
     try {
@@ -329,7 +329,7 @@ var getPropertiesInStage = function (appId, stage) {
  */
 var getDetailedPropertyValueInStage = function (propname, appId, stage) {
     var object = {};
-    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
     var username = jagg.getUser();
     var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
     try {
@@ -362,7 +362,7 @@ var getDetailedPropertyValuesInStages = function (appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
         var path = DEPENDANCIES_PATH + appId;
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var username = jagg.getUser();
         try {
             var regService = server.osgiService('org.wso2.carbon.appfactory.core.RemoteRegistryService');
@@ -401,7 +401,7 @@ var getDetailedPropertyValuesInStages = function (appId, stages) {
 var putResourcesForCollectionInStages = function (dictionary, description, mediatype, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var reosurcesArray = java.lang.reflect.Array.newInstance(
             org.wso2.carbon.appfactory.core.registry.AppFacResource, Object.keys(dictionary).length);
 		var loop = -1 ;
@@ -439,7 +439,7 @@ var putResourcesForCollectionInStages = function (dictionary, description, media
 var updatePropertyInStages = function (propname, propcontent, description, proptype, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             var username = jagg.getUser();
@@ -467,7 +467,7 @@ var deletePropertyFromAllStages = function (propname, appId) {
     var stages = getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             deleteResource(serverUrl, path, null, null, null, null, stage);
@@ -493,7 +493,7 @@ var deletePropertyFromAllStages = function (propname, appId) {
 var deletePropertyFromStages = function (propname, resourceMediaType, contentValue, resourceDescription, appId, stages) {
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
         try {
             deleteResource(serverUrl, appId, propname, contentValue, resourceDescription, resourceMediaType, stage);
@@ -517,7 +517,7 @@ var deleteAllRegistryResourcesFromAllStages = function (appId) {
     var errorOccurred = false;
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
-        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_SERVER_URL);
+        var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
         var path = DEPENDANCIES_PATH + appId;
         try {
             if(log.isDebugEnabled()) {
@@ -580,8 +580,8 @@ var copyNewProperties = function (appId, sourceStage, targetStage) {
         log.error(msg);
         throw msg;
     }
-    var sourceServerUrl = getProperty(DEPLOYMENT_STAGES + "." + sourceStage + GREG_SERVER_URL);
-    var targetServerUrl = getProperty(DEPLOYMENT_STAGES + "." + targetStage + GREG_SERVER_URL);
+    var sourceServerUrl = getProperty(DEPLOYMENT_STAGES + "." + sourceStage + GREG_URL);
+    var targetServerUrl = getProperty(DEPLOYMENT_STAGES + "." + targetStage + GREG_URL);
     var applicationResourcesPath = DEPENDANCIES_PATH + appId;
     try {
         var username = jagg.getUser();
