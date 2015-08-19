@@ -33,29 +33,23 @@ import javax.naming.NamingException;
 import java.util.Properties;
 
 /**
- * Durable subscriber for topic "subscribe_tenant_in_stratos" in MB.
- * TenantStratosSubscriptionMessageListener is set as the message listener
+ * Durable subscriber in stratos for topics  in MB - tenant creation.
+ * StratosSubscriptionMessageListener is set as the message listener
  */
-public class TenantStratosSubscriptionDurableSubscriber {
-    private static Log log = LogFactory.getLog(TenantStratosSubscriptionDurableSubscriber.class);
+public class StratosSubscriptionDurableSubscriber {
+    private static Log log = LogFactory.getLog(StratosSubscriptionDurableSubscriber.class);
     private String subscriptionId;
     private String topicName;
-    TopicConnectionFactory connFactory;
-    TopicConnection topicConnection = null;
-    TopicSession topicSession = null;
-    TopicSubscriber topicSubscriber = null;
-    InitialContext ctx = null;
 
-    public TenantStratosSubscriptionDurableSubscriber(String topicName, String subscriptionId)
+    public StratosSubscriptionDurableSubscriber(String topicName, String subscriptionId)
             throws AppFactoryException {
         this.topicName = topicName;
         this.subscriptionId = subscriptionId;
         try {
             subscribe();
         } catch (AppFactoryEventException e) {
-            String msg = "Subscriber activation failed for topic" + topicName + " and subscription id " +
-                         subscriptionId;
-            throw new AppFactoryException(msg, e);
+            throw new AppFactoryException("Subscriber activation failed for topic" + topicName + " and subscription " +
+                                          "id :  " + subscriptionId, e);
         }
     }
 
@@ -70,51 +64,36 @@ public class TenantStratosSubscriptionDurableSubscriber {
         properties.put(AppFactoryConstants.CF_NAME_PREFIX + AppFactoryConstants.CF_NAME, Util.getTCPConnectionURL());
         properties.put(CarbonConstants.REQUEST_BASE_CONTEXT, true);
         properties.put(AppFactoryConstants.TOPIC, topicName);
+        TopicConnectionFactory connFactory;
+        TopicConnection topicConnection;
+        TopicSession topicSession;
+        TopicSubscriber topicSubscriber;
+        InitialContext ctx;
         try {
             ctx = new InitialContext(properties);
             connFactory = (TopicConnectionFactory) ctx.lookup(AppFactoryConstants.CF_NAME);
             topicConnection = connFactory.createTopicConnection();
             topicSession = topicConnection.createTopicSession(false, TopicSession.CLIENT_ACKNOWLEDGE);
-	        Topic topic;
-	        try {
-		        topic = (Topic) ctx.lookup(topicName);
-	        } catch (NamingException e) {
-		        topic = topicSession.createTopic(topicName);
-	        }
+            Topic topic;
+            try {
+                topic = (Topic) ctx.lookup(topicName);
+            } catch (NamingException e) {
+                topic = topicSession.createTopic(topicName);
+            }
             topicSubscriber = topicSession.createDurableSubscriber(topic, subscriptionId);
-            topicSubscriber.setMessageListener(new TenantStratosSubscriptionMessageListener(topicConnection,
-                                                                                            topicSession,
-                                                                                            topicSubscriber));
-	        topicConnection.start();
+            topicSubscriber.setMessageListener(
+                    new StratosSubscriptionMessageListener(topicConnection, topicSession, topicSubscriber));
+            topicConnection.start();
             if (log.isDebugEnabled()) {
-                log.debug("Durable Subscriber created for topic " + topicName + " with subscription id" +
+                log.debug("Durable Subscriber created for topic " + topicName + " with subscription id : " +
                           subscriptionId);
             }
         } catch (NamingException e) {
-            String errorMsg = "Failed to subscribe to topic:" + topicName + " due to " + e.getMessage();
-            throw new AppFactoryEventException(errorMsg, e);
+            throw new AppFactoryEventException("Failed to subscribe to topic : " + topicName + " with subscription id" +
+                                               " : " + subscriptionId, e);
         } catch (JMSException e) {
-            String errorMsg = "Failed to subscribe to topic:" + topicName + " due to " + e.getMessage();
-            throw new AppFactoryEventException(errorMsg, e);
+            throw new AppFactoryEventException("Failed to subscribe to topic : " + topicName + " with subscription id" +
+                                               " : " + subscriptionId, e);
         }
     }
-
-    /**
-     * Stops all subscriptions
-     *
-     * @throws AppFactoryEventException
-     */
-    public void stopSubscription() throws AppFactoryEventException {
-        try {
-            if (topicConnection != null) {
-                topicConnection.stop();
-                topicConnection.close();
-            }
-        } catch (JMSException e) {
-            String errorMsg = "Failed to un-subscribe due to:" + e.getMessage();
-            throw new AppFactoryEventException(errorMsg, e);
-        }
-    }
-
-
 }
