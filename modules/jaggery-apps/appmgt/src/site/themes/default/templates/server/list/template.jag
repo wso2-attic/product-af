@@ -26,9 +26,10 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
     var helpTips = outputs.helpTips;
     var appVersionsInStages= outputs.appVersionsInStages;
     %>
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css" />
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/pagination.css'))%>" rel="stylesheet" type="text/css" />
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js')) %>"></script>
+    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
+    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js')) %>"></script>
     
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
@@ -239,7 +240,9 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
             <input type="hidden" name="userName"  id="userName" value='<%=
     jagg.getUser()
     %>'/>
-   <div class="container">
+
+    <!-- Start container -->
+    <div>
        <article class="main" id="server_logs">
        <%
     jagg.includeBlock("page/messages", null);
@@ -247,6 +250,9 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
      <%
     jagg.includeBlock("page/notification-wall", {"wall_name": applicationKey + " - App Wall", "applicationKey": applicationKey, "pageName": "App Home"});
     %>
+        <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
+        <!-- -->
            <header class="separator">
                <div class="content">
                    <h1>Logs</h1>
@@ -317,7 +323,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
                             </div>
                             <div class="af_row push_top_10">
                                 <div class="col-4">
-                                    <input id="date_of_stage" type="text" class="datepicker" placeholder="Date" />
+                                    <input id="date_of_stage" type="text" class="datepicker" placeholder="Date" style="color:black;"/>
                                 </div>
                                 <div class="col-4">
                                     <button id="btn_download_logs" class="btn main small"  name="download_file" onclick="downloadLogs()" type="button">Download</button>
@@ -336,7 +342,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
                 <div class="af_container">
                     <div class="af_row push_top_20">
                         <div class="col-12">
-                            <pre id="download_logs_content"  style="overflow-y: auto;">
+                            <pre id="download_logs_content"  style="overflow-y: auto;color:black;">
                             </pre>
                             <div id="page-selection"></div>
                         </div>
@@ -356,5 +362,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
                 </form>
     <div class="clearfix"></div>
     </article>
-</div><!-- /container -->
+    </div><!-- End of container -->
+
+<!-- BOF Notification pane -->
 <% }); %>

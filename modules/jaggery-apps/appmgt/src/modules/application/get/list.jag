@@ -50,24 +50,17 @@
     // In index.jag page this method is called before rendering. via getAllAppsOfUser()
     // So untill we fix it from there dont remove start tenantflow here.
     var getAllApps = function(userName){
-                var appsOfUser;
-                var tenantDomain=modManager.getTenantDomain() ;
-                var context=multitenancy.getPrivilegedCarbonContext();
-                var tenantManager= multitenancy.getTenantManager();
-                try{
-                    context.startTenantFlow();
-                    context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                    context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                    var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService') ;
-                    appsOfUser = service.getApplicationInfoForUser(userName);
-                } catch (e) {
-                    log.error("Error while getting list of all applications of the user : " + userName + " of tenant "
-                              + "domain : " + tenantDomain);
-                    log.error(e);
-                    throw e;
-                } finally {
-                    context.endTenantFlow();
-                }
+        var appsOfUser;
+        var tenantDomain=modManager.getTenantDomain();
+        try{
+           var service = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService') ;
+           appsOfUser = service.getApplicationSummaryForUser(userName);
+        } catch (e) {
+           log.error("Error while getting list of all applications of the user : " + userName + " of tenant "
+                     + "domain : " + tenantDomain);
+           log.error(e);
+           throw e;
+        }
         return appsOfUser;
     };
 
@@ -83,17 +76,19 @@
             var service = server
                     .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
             appsCreatedByUser = service.getApplicationsCreatedByUser(userName);
+            var obj = stringify(appsCreatedByUser)
         } catch (e) {
             log.error("Error while getting all applications created by user : " + userName + " of tenant domain : "
                       + tenantDomain);
             log.error(e);
             throw e;
         }
-        return appsCreatedByUser;
+        return obj;
     };
 
-    var getRepoURL = function(applicationKey, version, auth)
+    var getRepoURL = function(applicationKey, version, auth, isForked)
     {
+
         if (auth) {
             jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
         }
@@ -102,7 +97,7 @@
         var tenantDomain=modManager.getTenantDomain() ;
         try{
             url = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
-                    getURLForAppVersion(applicationKey, version, "");
+                    getURLForAppVersion(applicationKey, version, jagg.getUser().split('@')[0], isForked);
 
         } catch (e) {
             log.error("Error while getting RepoURL for the application : " + applicationKey + " with version : "
@@ -142,12 +137,11 @@
              var result;
              result = getAllApps(userName.split('@')[0]);
              var elementsArray = new Array();
-             for (var applicationKey in
-            result){
+             for (var applicationKey in result){
                  var appInfo = convertAppInfo(result[applicationKey]);
                  if (appInfo != null) {
                      elementsArray.push(appInfo);
-                     modMananger.cacheTenantInfo(tenantDomain, appInfo.key , TENANT_INFO_APP_TYPE, appInfo.type);
+                     modMananger.cacheApplicationInfo(tenantDomain, appInfo.key , APPLICATION_INFO_APP_TYPE, appInfo.type);
                  }
              }
              return stringify(elementsArray);
@@ -160,8 +154,36 @@
     };
     
     var getAppInfo = function (applicationKey) {
+
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+        // ################################################################################################
+
+        /*
+
+            create constant
+            seesion get the value 
+            if it is null
+            creat it and session put
+        */
+        /*
+        session.put("aabbcc","Hasitha");
+        var rrrrr = session.get("aabbcc");
+        log.info("RRRRRRRR  " + rrrrr);
+
+        var applicationsIconList = session.get("APPLICATIONS_ICON_LIST");
+        if(applicationsIconList == null){
+            server.osgiService('org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager').getApplicationTypeBean();
+            var obj[applicationKey] = "";
+        }
+        */
+
         var result;
         var tenantDomain=modManager.getTenantDomain();
+        
         try {
             result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
                     .getApplication(applicationKey);
@@ -171,8 +193,24 @@
             log.error(e);
             throw e;
         }
+
+
         if (result != null) {
-            return convertAppInfo(result);
+
+            var applicationsIconList = session.get("APPLICATIONS_ICON_LIST");
+            if(applicationsIconList == null){
+
+            }
+
+            
+
+            var application = convertAppInfo(result);
+            //log.info("\n\n" + stringify(application)+ "\n\n");
+            //log.info("Application type =>  " + application.type);
+            
+            // add icon this to application here!!!!!
+            return application;
+
         }
         return null;
     };
@@ -180,7 +218,15 @@
     var convertAppInfo =  function(resourceContent){
         var application = extractAppInfo(resourceContent,false);
         application.users=modApplication.getUsersOfApplication(resourceContent.id);
+
+        var applicationTypeManager = Packages.org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager.getInstance();
+        var applicationTypeBean = applicationTypeManager.getApplicationTypeBean(application.type);
+        application["iconColorClass"] = applicationTypeBean.getIconColorClass();
+        application["iconImageClass"] = applicationTypeBean.getIconImageClass();
+
         session.put("APP_INFO",application);
+        
+        //log.info("\n\n User home cache --- \n" + stringify(session.get(USER_HOME_CAHCE)) + "\n");
         return application;
     }
 
@@ -216,6 +262,8 @@
         application.isUploadable = modManager.getApplicationTypeBean(application.type).isUploadableAppType();	
 	    application.name = resourceContent.name;
         application.repoAccessability = resourceContent.repoAccessability;
+        application.appTypeIcon = modManager.getApplicationTypeBean(application.type).getIconImageClass();
+
 
         //TODO
         application.inProduction = false;
@@ -252,10 +300,10 @@
         var visibilityPermissionToStage = PERMISSION_VISIBILITY_STAGE + stageName;
 
         var allAppVersionArray = new Array();
-        var applicationList = session.get("application_list");
+        var applicationList = session.get(APPLICATION_LIST_CACHE);
         if(applicationList == null) {
             applicationList = mod.getAllAppsOfUser(jagg.getUser());
-           session.put('application_list', applicationList);
+           session.put(APPLICATION_LIST_CACHE, applicationList);
         }
         var parsedArray = parse(applicationList);
 
@@ -269,7 +317,6 @@
                 }
             }
         }
-
         return stringify(allAppVersionArray);
     };
 
@@ -354,6 +401,7 @@
 
     		 var elementsArray = new Array();
              for (var applicationKey in result){
+                 log.info("$$$$$$$$$applicationKey:  " + applicationKey)
                  var appInfo = convertAppInfoLightWeight(result[applicationKey]);
                  if (appInfo != null) {
                      elementsArray.push(appInfo);
@@ -534,8 +582,10 @@
             appList[APPLICATION_CREATION_STATUS.FAULTY] ={};
 
             for (var listKey in result){
+                log.info("$$$$$$$$$applicationKey:  " + listKey)
                 var appInfo = convertAppInfoLightWeight(result[listKey]);
                 if (appInfo != null) {
+                    log.info("***************appInfo.applicationCreationStatus: " + appInfo.key)
                     var creationStatus = (appInfo.applicationCreationStatus) ? (appInfo.applicationCreationStatus) :
                                          APPLICATION_CREATION_STATUS.PENDING;
                     appList[creationStatus][appInfo.key] = appInfo;
@@ -804,10 +854,10 @@
     {
         jagg.module("permission").checkUserAuthenticated();
         var allAppVersionArray = new Array();
-        var applicationList = session.get("application_list");
+        var applicationList = session.get(APPLICATION_LIST_CACHE);
         if(applicationList == null) {
             applicationList = mod.getAllAppsOfUser(userName);
-            session.put('application_list', applicationList);
+            session.put(APPLICATION_LIST_CACHE, applicationList);
         }
         var allStages = getAllStages();
         var parsedStages = parse(allStages);
@@ -906,6 +956,42 @@
         }
     };
 
+    var getAppVersionsByStage = function(applicationKey, stage){
+        var allResults = getAppVersionsInStages(applicationKey);
+        return generateCustomUrlResponse(parse(allResults),stage);
+    };
+
+    function generateCustomUrlResponse(allResults, stage){
+        var simplifiedAppInfo = {};
+        if(allResults.length > 0){
+            var appinfo = allResults[0];
+            simplifiedAppInfo["key"] = appinfo.key;
+            simplifiedAppInfo["type"] = appinfo.type;
+            simplifiedAppInfo["mappedSubDomain"] = appinfo.mappedSubDomain;
+            simplifiedAppInfo["customUrl"] = appinfo.customUrl;
+            simplifiedAppInfo["customUrlVerificationCode"] = appinfo.customUrlVerificationCode;
+            simplifiedAppInfo["isUploadable"] = appinfo.isUploadable;
+            simplifiedAppInfo["name"] = appinfo.name;
+            simplifiedAppInfo["versions"] = getSimplifiedVersionArray(appinfo.versions, stage);
+        }
+        return simplifiedAppInfo;
+    }
+
+    function getSimplifiedVersionArray(versionsArray, stage){
+        var simplifiedVersionArray = [];
+        for (var i = 0; i < versionsArray.length; i++) {
+            var version = versionsArray[i];
+            if (0 == version.stage.localeCompare(stage)) {
+                simplifiedVersionArray.push(
+                        {
+                            "version": version.version,
+                            "productionMappedDomain": version.productionMappedDomain
+                        });
+            }
+        }
+        return simplifiedVersionArray;
+    }
+
 var getStage = function(applicationKey, version) {
     jagg.module("permission").checkUserAuthenticated();
     var tenantDomain = modManager.getTenantDomain();
@@ -935,7 +1021,7 @@ var getVersionInfo = function(applicationKey, artifacts) {
                     versionInfo.stage = element['stage'];
                     versionInfo.isAutoBuild = element['autoBuild'] ? "true" : "false" ;
                     versionInfo.isAutoDeploy = element['autoDeploy'] ? "true" : "false";
-                    versionInfo.repoURL = getRepoURL(applicationKey, versionInfo.version, true);
+                    versionInfo.repoURL = getRepoURL(applicationKey, versionInfo.version, true, false);
                     versionInfo.lastBuildResult =element['lastBuildStatus']!=null ? element['lastBuildStatus'] : '';
                     versionInfo.currentBuildStatus =element['currentBuildStatus'];
                     versionInfo.promoteStatus =element['promoteStatus'];
@@ -1020,6 +1106,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
                 if (applicationInfo == undefined) {
                     continue;
                 }
+                log.info("applicationInfo.versions: ***********************" + applicationList.length)
                 versionCount += applicationInfo.versions.length;
             }
 
@@ -1090,7 +1177,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
                         + " with version : " + version);
               log.error(e);
               throw e;
-      	   }
+      	  }
           
       	  if(result !=null) {
       	      return stringify(result);
@@ -1102,19 +1189,12 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
     };
 
     var isApplicationsOfUserChanged = function(){
-       var tenantDomain=modManager.getTenantDomain() ;
-       var context=multitenancy.getPrivilegedCarbonContext();
-       var tenantManager= multitenancy.getTenantManager();
-
+       var tenantDomain=modManager.getTenantDomain();
        try{
-           context.startTenantFlow();
-           context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
            var isApplicationsOfUserChanged = ApplicationsOfUserCache.getApplicationsOfUserCache().isUserInvitedToApplication(MultitenantUtils.getTenantAwareUsername(jagg.getUser()));
        }catch (e){
            var errMsg = "Error  while checking user : " + jagg.getUser() + " added to an application \n" ;
            log.debug( errMsg );
-       }finally{
-           context.endTenantFlow();
        }
        return isApplicationsOfUserChanged;
     }

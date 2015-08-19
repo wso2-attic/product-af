@@ -38,13 +38,10 @@ if(pagePath != null && pagePath.equals("apimanager")){
 var headerMsg = "Add New External API";
 var buttonValue = "Add API";
 
-var mod = jagg.module("resources");
-var modPermission = jagg.module("permission");
-
 if(isEdit != null && isEdit == "true"){
 	var log = new Log();
     headerMsg = resourceName;
-    buttonValue = "Save";   
+    buttonValue = "Save";
 }
 
 var disabledText = "";
@@ -61,7 +58,7 @@ var helpTips = outputs.helpTips;
 var editApiData = [];
 
 function createAuthUI(value, emptyOnly){
-	
+
 	$('#api_authdiv').empty();
 	if(!emptyOnly){
 		var theLine = '';
@@ -78,7 +75,7 @@ function createAuthUI(value, emptyOnly){
 	        theLine += '<input id="api_username" type="text" name="username" class="half" required <%=disabledText%>/></div>';
 	        theLine += '<div class="input_row"><label for="password" ><strong>Password</strong> <em>*</em></label>';
 	        theLine += '<input id="api_password" type="password" name="password" class="half" required <%=disabledText%>/></div>';
-	    } 
+	    }
 		theLine += '<div class="input_row"><label for="api_url" ><strong>API URL</strong> <em>*</em></label>';
         theLine += '<input id="api_url" type="url" name="api_url" class="half" required <%=disabledText%>/>';
 	    $('#api_authdiv').append(theLine);
@@ -104,7 +101,7 @@ function drawStagesForCreatePermittedEnvironments(){
       }
     },
     function (jqXHR, textStatus, errorThrown) {
- 	   
+
     });
 }
 
@@ -116,9 +113,9 @@ function drawStagesForUpdatePermittedEnvironments(){
 	    stage:'<%=env%>'
     },
     function (result) {
-    	editApiData = JSON.parse(result); 
+    	editApiData = JSON.parse(result);
 		var tmpStage=editApiData['<%=env%>'];
-	  
+
      	// Set the environments dropdown with stages belongs to current edit
      	//We only edit a property of a certain stage. Hence only appending one value
         $("#api_stage").empty().append('<option selected="selected"><%=env%></option>');
@@ -246,6 +243,7 @@ function createResource(copyToAll) {
 	    applicationKey: '<%=applicationKey%>',
 	    apiName: $("#api_name").attr('value').trim(),
 	    authType:$("#api_auth").attr('value'),
+	    description: $("#api_description").attr('value'),
 	    givenValues: inputString,
 	    copyToAll:copyToAll
     },
@@ -385,8 +383,13 @@ function validatePropertyNameAndCreate() {
                             </div>
                             <div class="input_row">
 		                        <label><strong>Environment</strong> <em>*</em></label>
-		                        <select class="select_list half big" id="api_stage" name="api_stage" onchange="updateUIForStage()"></select> 
+		                        <select class="select_list half big" id="api_stage" name="api_stage" onchange="updateUIForStage()"></select>
                             </div>
+
+                             <div class="input_row">
+                                <label for="api_description"><strong>Description</strong></label>
+                                <textarea name="api_description" id="api_description" rows="5" <% if((isEdit && isEdit == "true") && !hasUpdateResourcePermissions ){ %>disabled<%}%>  class="full"/></textarea>
+                             </div>
 
                             <div class="input_row">
                                 <label><strong>Authentication</strong> <em>*</em></label>
@@ -402,18 +405,18 @@ function validatePropertyNameAndCreate() {
                             <div id="api_authdiv"/>
                     </fieldset>
                       <div>
-                    	 
+
                         <div class="buttonrow">
-                            <% if(isEdit == "true"){ 
+                            <% if(isEdit == "true"){
                             	if(hasUpdateResourcePermissions){
                             %>
                             	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
                             <%
                             		}
                             	}else{
-                            %>	
+                            %>
                             	<input type="submit" value="<%=buttonValue%>" class="btn main" id="create_button"/>
-                            <% } %>	
+                            <% } %>
                             <a href="javascript:location.href='<%=jagg.getAbsoluteUrl("/site/pages/apimanager.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'">Cancel</a>
                         </div>
 

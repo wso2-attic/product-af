@@ -22,8 +22,6 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
 <%
     var baseURL = getProperty(BASE_URL);
     var gitURL = null;
-    var mod = jagg.module("manager");
-    var tenantDomain = mod.getTenantDomain();
     var loggedInUser = jagg.getUser();
     var appDomain = getProperty("DomainName");
     var applicationName = request.getParameter("applicationName");
@@ -62,7 +60,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
             versions = [],
             element = {},
             count = 0;
-        jagg.post("../blocks/buildandrepo/list/ajax/list.jag", {
+        jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "getbuildandrepodata",
                 buildableforstage:"true",
                 metaDataNeed:"false",
@@ -211,7 +209,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
     function doCreateBranch(applicationKey,srcVersion,targetVersion,button){
         if(validateBranch(targetVersion)){
             $(button).attr('disabled','disabled').val('Creating..');
-            jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
@@ -250,7 +248,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
 
     function doDeploy(applicationKey,deployAction,stage,tagName,version,element){
         element.attr('disabled',true);
-        jagg.post("../blocks/build/add/ajax/add.jag", {
+        jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
                     action: "deployArtifact",
                     applicationKey: applicationKey,
                     deployAction:deployAction,
@@ -364,8 +362,11 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
         }
 
     </script>
-    <div class="container">
+
         <article class="main">
+
+        <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
         <%
     jagg.includeBlock("page/messages", null);
     jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
@@ -404,7 +405,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
                                     value="<%=request.getParameter('applicationKey')%>" />
 				 <div class="input_row">
                                     <label><strong>Upload New Version</strong></label>
-                                    <span id="iconContainer">
+                                    <span id="iconContainer" style="display: inline-block;">
                                         <input id="uploaded_application" type="file" name="uploaded_application" value="Browse..." />
                                     </span>
                                         <input type="button" value="Upload" class="btn main" id='appcreation' onclick="uploadNewVersion()" />
@@ -429,7 +430,6 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
                     </div>
                </div>
         </article>
-    </div><!-- /container -->
     <%
 }); %>
 

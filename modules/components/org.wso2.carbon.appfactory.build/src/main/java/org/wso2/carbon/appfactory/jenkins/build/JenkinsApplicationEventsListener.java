@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.appfactory.jenkins.build;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
@@ -28,9 +27,9 @@ import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
@@ -44,7 +43,6 @@ import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
@@ -93,22 +91,8 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         if(isUploadableAppType){
         	initialVersion = AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION;
         }
-        jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, userName, repoURL,
-                                        AppFactoryConstants.ORIGINAL_REPOSITORY);
-        jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
-
-        // adding app creator to jenkins
-        jenkinsCISystemDriver.addUsersToApplication(application.getId(), new String[]{userName.split("@")[0]},
-                                                    tenantDomain);
-        JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
-        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
-        String stage = JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(), versions[0]);
-        if (ArrayUtils.isNotEmpty(versions)) {
-
-            // No need to create job.
-            jenkinsCISystemDriver.startBuild(application.getId(), versions[0], true, stage, "", tenantDomain,
-                                             userName, AppFactoryConstants.ORIGINAL_REPOSITORY);
-        }
+        jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, userName,
+                                        repoURL, AppFactoryConstants.ORIGINAL_REPOSITORY);
         try {
             String infoMsg = "Jenkins space created for application id: " + application.getId() + ".";
             EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(infoMsg,
@@ -149,9 +133,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                             application.getId() + " for tenant domain: " + tenantDomain);
         }
         JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
-        String[] versions = appVersionDAO.getAllVersionsOfApplication(application.getId());
-        String deployerType = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType())
-                                                    .getProperty(AppFactoryConstants.DEPLOYER_TYPE).toString();
+        String[] versions = appVersionDAO.getAllVersionNamesOfApplication(application.getId());
         JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
         Undeployer undeployer = new StratosUndeployer();
 
@@ -168,7 +150,8 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             log.info("Successfully deleted the jenkins job : " + jobName +
                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                     " from tenant domain : " + tenantDomain + " in jenkins");
-            undeployer.undeployArtifact(deployerType, application.getId(), application.getType(), version, lifecycleStage, applicationTypeBean, runtimeBean);
+            undeployer.undeployArtifact(application.getId(), application.getType(), version, lifecycleStage,
+                                        applicationTypeBean, runtimeBean);
             log.info("Successfully undeployed the artifact version : " + version +
                      " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                      " from tenant domain : " + tenantDomain + " from dep sync repo");
@@ -182,17 +165,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     @Override
     public void onUserAddition(Application application, UserInfo user, String tenantDomain)
             throws AppFactoryException {
-
-        if (!AppFactoryCoreUtil.isBuildServerRequiredProject(application.getType())) {
-            return;
-        }
-
-        log.info("User Addition event recieved for : " + application.getId() + " " +
-                application.getName() + " User Name : " + user.getUserName());
-
-        ServiceContainer.getJenkinsCISystemDriver()
-                .addUsersToApplication(application.getId(),
-                        new String[]{user.getUserName()}, tenantDomain);
+        // User addition/removal is disabled for the jenkins since appfactory 2.2.0
     }
 
     /**
@@ -284,12 +257,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             deploymentState = "removeAD";
         }
 
-        ServiceContainer.getJenkinsCISystemDriver().editADJobConfiguration(application.getId(),
-                version.getVersion(),
-                deploymentState,
-                pollingPeriod,
-                tenantDomain);
-
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -306,28 +273,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                 " To Version : " + newVersion.getVersion());
         int pollingPeriod = 0;
 
-        // noinspection ConstantConditions
-        if (previousVersion != null) {
-            ServiceContainer.getJenkinsCISystemDriver()
-                    .editADJobConfiguration(application.getId(), previousVersion.getVersion(),
-                            "removeAD", pollingPeriod, tenantDomain);
-        }
-
-        // noinspection ConstantConditions
-        if (newVersion != null) {
-            AppFactoryConfiguration configuration = ServiceContainer.getAppFactoryConfiguration();
-            pollingPeriod =
-                    Integer.parseInt(configuration.getFirstProperty("ApplicationDeployment.DeploymentStage." +
-                            newStage +
-                            ".AutomaticDeployment.PollingPeriod"));
-            ServiceContainer.getJenkinsCISystemDriver().editADJobConfiguration(application.getId(),
-                    newVersion.getVersion(),
-                    "addAD",
-                    pollingPeriod,
-                    tenantDomain);
-
-        }
-
     }
 
     /**
@@ -336,10 +281,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
     @Override
     public void onUserDeletion(Application application, UserInfo user, String tenantDomain)
             throws AppFactoryException {
-        ServiceContainer.getJenkinsCISystemDriver()
-                .removeUsersFromApplication(application.getId(),
-                        new String[]{user.getUserName()},
-                        tenantDomain);
+        // User addition/removal is disabled for the jenkins since appfactory 2.2.0
     }
 
 
@@ -386,7 +328,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
             }
 
             if (version == null || version.trim().equals("")) {
-                String[] versions = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(application.getId());
+                String[] versions = JDBCAppVersionDAO.getInstance().getAllVersionNamesOfApplication(application.getId());
                 for (String version2 : versions) {
                     jenkinsCISystemDriver.createJob(application.getId(), version2, "",
                             tenantDomain, forkedUser, repoURL,
@@ -397,13 +339,6 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                         forkedUser, repoURL,
                         AppFactoryConstants.FORK_REPOSITORY);
             }
-
-            jenkinsCISystemDriver.setupApplicationAccount(application.getId(), tenantDomain);
-            // adding app creator to jenkins
-            jenkinsCISystemDriver.addUsersToApplication(application.getId(),
-                    new String[]{forkedUser}, tenantDomain);
-
-            //TO-DO give the user the ability to select auto build for a particular forked version
         }
 
     }

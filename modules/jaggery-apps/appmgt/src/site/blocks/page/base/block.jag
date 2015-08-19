@@ -27,7 +27,7 @@ jagg.block("page/base", {
         %>
         <script>
         var helpParams = <%=stringify(params)%>;
-    </script>
+        </script>
 
     <%
     },

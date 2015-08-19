@@ -25,7 +25,7 @@ var caramel;
         caramel.render({
             title  : { text : 'Issue Tracker | Add Issue'},
             header : { domain : domain, userName : userName},
-            body   : { project: project.getProjectsOfDomain(), users: user.getUsersOfApp(), appkey: appkey, isEnabled: 'disabled'}
+            body   : { project: project.getProjectByKey(appkey), users: user.getUsersOfApp(), appkey: appkey, isEnabled: 'disabled', loggedInUser: userName, versions: project.getAllVersionOfProject(appkey) }
         });
     }
 }());

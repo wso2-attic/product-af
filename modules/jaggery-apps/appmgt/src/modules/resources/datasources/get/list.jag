@@ -29,7 +29,7 @@ var rssFilter = jagg.module("rss-filter");
 var carbon = require('carbon');
 var server = carbon.server;
 
-var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
+var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr) {
     var ws = require('ws');
     var reloadAllDS = new ws.WSRequest();
     var options = new Array();
@@ -44,9 +44,8 @@ var reloadAllDataSources = function reloadAllDataSources(applicationKey, epr){
 		reloadAllDS.send(payload);
 	   	result = reloadAllDS.responseE4X;
         if(log.isDebugEnabled()){
-            log.debug("Invoking service endpoint:"+endPoint+" returned result:"+result);
+            log.debug("Invoking service endpoint : " + epr + " returned result:" + result);
         }
-        
  		return parseResponse(result);
     } catch (e) {
         var msg = "Error while reloading datasources for application key: " + applicationKey + " & stage: " + epr;
@@ -220,13 +219,9 @@ var getAllDatasourcesInfo = function (applicationKey, stage) {
  * This is for checking datasource support
  */
 var checkDataSourceSupport = function (applicationKey) {
-    var context=multitenancy.getPrivilegedCarbonContext();
     var modManager = jagg.module("manager");
     var tenantDomain=modManager.getTenantDomain();
     try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain,true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         var regService = server.osgiService('org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService');
         return regService.checkDataSourceSupport(applicationKey);
     }catch(e){
@@ -234,8 +229,6 @@ var checkDataSourceSupport = function (applicationKey) {
                   + tenantDomain);
         log.error(e);
         throw e;
-    }finally{
-        context.endTenantFlow();
     }
 }
 

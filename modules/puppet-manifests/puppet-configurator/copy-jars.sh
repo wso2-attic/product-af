@@ -131,25 +131,21 @@ _update_common_jars APPSERVER_COMMON[@] paaspuppet/files/puppet/modules/appserve
 _update_common_jars SM_COMMON[@] privatepaas/files/appfactory_deployment/repository/components/dropins "*" "*"
 
 
-echo "[Build Server] Creating minimal jenkins.war and runtime"
+echo "[Jenkins] Creating jenkins.war"
 mkdir -p ${PACKS_DIR}/tmp
 cd ${PACKS_DIR}
 unzip -q ${PACKS_DIR}/jenkins.war -d tmp
-#we are moving contents of WEB-INF/lib as base runtime
-mv tmp/WEB-INF/lib/* ${PUPPET_MODULES_HOME}/jppserver/files/configs/lib/runtimes/jenkins
-
-#cp  $resorce_dir/lib/jenkins/lib/*  $BUILD_SERVER_AS_HOME/lib/runtimes/jenkins
-#web.xml has modification
-cp -f ${PUPPET_MODULES_HOME}/jppserver/files/jenkins/web.xml tmp/WEB-INF
-cp -f ${PUPPET_MODULES_HOME}/jppserver/files/jenkins/webapp-classloading.xml tmp/META-INF
 
 #pack jenkins plugins placed in resources folder to minimal jenkins.war
-cp -rf ${PUPPET_MODULES_HOME}/jppserver/files/jenkins/plugins/* tmp/WEB-INF/plugins
-cp -rf ${AF_HOME}/resources/plugins/jenkins/* tmp/WEB-INF/plugins
+cp -rf ${PUPPET_MODULES_HOME}/jenkins/files/plugins/* tmp/WEB-INF/plugins
+
+#removing existing appfactory-plugin
+rm -rf tmp/WEB-INF/plugins/appfactory-plugin*.hpi
+cp -rf ${AF_HOME}/resources/plugins/jenkins/appfactory-plugin*.hpi tmp/WEB-INF/plugins
 cd tmp
 zip -rq jenkins.war *
 cd ..
-cp tmp/jenkins.war ${PUPPET_MODULES_HOME}/jppserver/files/configs/repository/resources/
+cp tmp/jenkins.war ${PACKS_DIR}/
 rm -rf tmp
 
 #copying BPEL to BPS

@@ -1,5 +1,9 @@
 package org.wso2.appfactory.integration.test.utils.rest;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONObject;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
@@ -60,7 +64,7 @@ public class DatasourceClient extends BaseClient {
      */
     public JSONObject createDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
                                        String dbUserName, String password, boolean copyToAll, String applicationKey)
-            throws AFIntegrationTestException {
+            throws Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, CREATE_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -91,7 +95,7 @@ public class DatasourceClient extends BaseClient {
      * @throws Exception
      */
     public JSONObject deleteDatasource(String dsName, String stage, String applicationKey) throws
-                                                                                           AFIntegrationTestException {
+            Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, DELETE_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -123,7 +127,7 @@ public class DatasourceClient extends BaseClient {
      */
     public JSONObject editDatasource(String dsName, String stage, String dbUrl, String dbDescription, String driver,
                                String dbUserName, String password, boolean isEdit, String applicationKey)
-            throws AFIntegrationTestException {
+            throws Exception {
         Map<String, String> msgBody = new HashMap<String, String>();
         msgBody.put(REQUEST_KEY_ACTION, EDIT_DATASOURCE);
         msgBody.put(DATASOURCE_NAME, dsName);
@@ -164,5 +168,22 @@ public class DatasourceClient extends BaseClient {
         }
     }
 
-
+    /**
+     *  Get data source info url for  given stage
+     * @param stage
+     * @return
+     * @throws AFIntegrationTestException
+     */
+    public String getDataSourceInfoUrl(String stage) throws AFIntegrationTestException {
+        Map<String, String> msgBody = new HashMap<String, String>();
+        msgBody.put(REQUEST_KEY_ACTION, "getDataSourceInfoUrl");
+        msgBody.put("stage", stage);
+        HttpResponse response = doPostRequest(APPMGT_DATASOURCE_GET, msgBody);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            return response.getData();
+        } else {
+            throw new AFIntegrationTestException("Error occurred while retrieving datasource info url for stage : " +
+                                                 stage + response.getResponseCode() + response.getData());
+        }
+    }
 }

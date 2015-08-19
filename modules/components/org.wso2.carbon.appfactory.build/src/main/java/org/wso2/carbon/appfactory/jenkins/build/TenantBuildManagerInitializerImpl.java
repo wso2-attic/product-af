@@ -15,18 +15,20 @@
  */
 package org.wso2.carbon.appfactory.jenkins.build;
 
-import java.rmi.RemoteException;
-
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.client.ServiceClient;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub.BuildServerManagementServiceBuildServerManagementExceptionException;
-import org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub.BuildServerManagementServiceStub;
-import org.wso2.carbon.appfactory.common.AppFactoryConstants;
+import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.TenantBuildManagerInitializer;
-import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.utils.CarbonUtils;
+
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * Default implementation of {@link TenantBuildManagerInitializer}
@@ -41,35 +43,79 @@ public class TenantBuildManagerInitializerImpl implements
 	 */
 	@Override
 	public void onTenantCreation(String tenantDomain, String usagePlan) {
-		log.info("**********************Initializing build manager for "
-				+ tenantDomain + " with " + usagePlan + " *************");
+		log.info("Initializing jenkins for tenant "+ tenantDomain);
 		try {
-			
-			String endPoint = ServiceContainer.getAppFactoryConfiguration().
-                    getFirstProperty(JenkinsCIConstants.BASE_URL_CONFIG_SELECTOR) + "/services/BuildServerManagementService";
-			
-			BuildServerManagementServiceStub buildServerMgr = new BuildServerManagementServiceStub(endPoint);
-			ServiceClient client = buildServerMgr._getServiceClient();
-			CarbonUtils.setBasicAccessSecurityHeaders(
-					ServiceContainer.getAppFactoryConfiguration()
-							.getFirstProperty(
-									AppFactoryConstants.SERVER_ADMIN_NAME),
-					ServiceContainer.getAppFactoryConfiguration()
-							.getFirstProperty(
-									AppFactoryConstants.SERVER_ADMIN_PASSWORD),
-					client);
-			buildServerMgr.createTenant(tenantDomain);
-
-		} catch (AxisFault e) {
-			String msg = "Problem occurred when creaing tenant in build server";
+			createTenantFolder(tenantDomain);
+			RestBasedJenkinsCIConnector.getInstance().extractMvnRepo(tenantDomain);
+		} catch (AppFactoryException e) {
+			String msg = "Error occurred while tenant creation in jenkins";
 			log.error(msg, e);
-		} catch (RemoteException e) {
-			String msg = "Problem occurred when creaing tenant in build server";
-			log.error(msg, e);
-		} catch (BuildServerManagementServiceBuildServerManagementExceptionException e) {
-			String msg = "Problem occurred when creaing tenant in build server";
+		} catch (XMLStreamException e) {
+			String msg = "Error occurred while tenant creation in jenkins";
 			log.error(msg, e);
 		}
 
+	}
+
+	/**
+	 * Set values in OmElement
+	 *
+	 * @param template Jenkins job configuration template
+	 * @param selector Selector of the template
+	 * @param value    related value from the project
+	 * @throws org.wso2.carbon.appfactory.common.AppFactoryException
+	 */
+	protected void setValueUsingXpath(OMElement template, String selector, String value)
+			throws AppFactoryException {
+
+		try {
+			AXIOMXPath axiomxPath = new AXIOMXPath(selector);
+			Object selectedObject = axiomxPath.selectSingleNode(template);
+
+			if (selectedObject != null && selectedObject instanceof OMElement) {
+				OMElement svnRepoPathElement = (OMElement) selectedObject;
+				svnRepoPathElement.setText(value);
+			} else {
+				log.warn("Unable to find xml element matching selector : " + selector);
+			}
+
+		} catch (Exception e) {
+			String msg = "Error while setting values using Xpath selector:" + selector;
+			log.error(msg, e);
+			throw new AppFactoryException(msg, e);
+		}
+	}
+
+	/**
+	 * Create tenant job. This will create "Folder Job"(folder with the name of {@code tenantDomain} in
+	 * $JENKINS_HOME/jobs directory) to represent the tenant in the jenkins
+	 *
+	 * @param tenantDomain tenant Domain
+	 * @throws AppFactoryException
+	 * @throws XMLStreamException
+	 */
+	protected void createTenantFolder(String tenantDomain) throws AppFactoryException, XMLStreamException {
+		String fileLocation =
+				CarbonUtils.getCarbonConfigDirPath() + File.separator + JenkinsCIConstants.CONFIG_FOLDER +
+				File.separator + JenkinsCIConstants.TENANT_FOLDER_CONFIG_FILE;
+		InputStream inputStream;
+		try {
+			inputStream = new FileInputStream(fileLocation);
+		} catch (FileNotFoundException e) {
+			String msg = "Default job configuration for tenant folder creation not found in: " + fileLocation;
+			log.error(msg, e);
+			throw new AppFactoryException(msg, e);
+		}
+		StAXOMBuilder builder = new StAXOMBuilder(inputStream);
+		OMElement buildTemplate = builder.getDocumentElement();
+		setValueUsingXpath(buildTemplate,
+		                   JenkinsCIConstants.TENANT_FOLDER_CONFIG_DISPLAY_NAME,
+		                   tenantDomain);
+		setValueUsingXpath(buildTemplate,
+		                   JenkinsCIConstants.TENANT_FOLDER_CONFIG_DESCRIPTION,
+		                   tenantDomain);
+
+		// Here we are sending tenant domain as the job name for tenant job
+		RestBasedJenkinsCIConnector.getInstance().createTenantJob(tenantDomain, buildTemplate, tenantDomain);
 	}
 }

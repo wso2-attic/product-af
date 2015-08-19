@@ -33,17 +33,12 @@ var multitenancy = carbon.multitenancy;
 /*This method removes a given user from the application specified by applicationKey*/
 removeUserFromApplication=function removeUserFromApplication (applicationKey,users) {
 
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
+    var tenantDomain=modManager.getTenantDomain();
     var isDeleted = false;
 
     var userArray=users.split(",");
 
     try{
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         isDeleted = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.' +
                 'ApplicationUserManagementService').removeUsersFromApplication(userArray, applicationKey);
         return isDeleted;
@@ -53,9 +48,7 @@ removeUserFromApplication=function removeUserFromApplication (applicationKey,use
                   + " of tenant : " + tenantDomain);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
-    }
+    } 
 
 
 };

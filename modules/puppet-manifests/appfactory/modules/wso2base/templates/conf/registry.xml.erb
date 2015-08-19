@@ -125,63 +125,7 @@
         <instanceId>instanceid</instanceId>
         <targetPath>/_system/nodes</targetPath>
     </mount-->
-    <dbConfig name="devsm">
-    	<dataSource>jdbc/<%= @dev_registry_db_schema%></dataSource>
-    </dbConfig>
 
-    <remoteInstance url="https://governance.cloud-test.wso2.com">
-            <id>devremoteid</id>
-            <dbConfig>devsm</dbConfig>
-            <readOnly>false</readOnly>
-            <registryRoot>/</registryRoot>
-            <enableCache>true</enableCache>
-            <%- database = @registry_database -%>
-            <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @dev_registry_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/Development/governance" overwrite="true">
-            <instanceId>devremoteid</instanceId>
-            <targetPath>/_system/Development/governance</targetPath>
-    </mount>
-
-    <dbConfig name="testsm">
-            <dataSource>jdbc/<%= @test_registry_db_schema%></dataSource>
-    </dbConfig>
-
-    <remoteInstance url="https://governance.cloud-test.wso2.com">
-            <id>testsm</id>
-            <dbConfig>testsm</dbConfig>
-            <readOnly>false</readOnly>
-            <registryRoot>/</registryRoot>
-            <enableCache>true</enableCache>
-             <%- database = @registry_database -%>
-            <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @test_registry_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/Testing/governance" overwrite="true">
-            <instanceId>testsm</instanceId>
-            <targetPath>/_system/Testing/governance</targetPath>
-    </mount>
-
-    <dbConfig name="prodsm">
-            <dataSource>jdbc/<%= @prod_registry_db_schema%></dataSource>
-    </dbConfig>
-
-    <remoteInstance url="https://governance.cloud-test.wso2.com">
-            <id>prodsm</id>
-            <dbConfig>prodsm</dbConfig>
-            <readOnly>false</readOnly>
-            <registryRoot>/</registryRoot>
-            <enableCache>true</enableCache>
-             <%- database = @registry_database -%>
-            <cacheId><%= database[2] %>@jdbc:mysql://<%= database[0] %>:3306/<%= @prod_registry_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/Production/governance" overwrite="true">
-            <instanceId>prodsm</instanceId>
-            <targetPath>/_system/Production/governance</targetPath>
-    </mount>
-    
     <versionResourcesOnChange>false</versionResourcesOnChange>
 
     <!-- NOTE: You can edit the options under "StaticConfiguration" only before the

@@ -46,6 +46,8 @@ public class Constants {
     public static final String SANDBOX_CONSUMER_SECRET = "sandboxConsumerSecret";
     public static final String ACTION = "action";
     public static final String SUBSCRIPTIONS = "subscriptions";
+    public static final String SELECTED_APP = "selectedApp";
+    public static final String APPLICATIONS = "applications";
     public static final String USERNAME = "username";
     public static final String DESCRIPTION = "description";
     public static final String WSDL = "wsdl";

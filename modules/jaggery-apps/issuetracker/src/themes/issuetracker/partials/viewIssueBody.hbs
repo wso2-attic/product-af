@@ -1,155 +1,138 @@
 
 <input type="hidden" name="ukey" id="ukey" value="{{data.issue.key}}"/>
 <input type="hidden" name="reporter" id="reporter" />
+<!--BOF App factory menu actionbar -->
+<div class="action-bar">
+    <a href="/issuetracker/index.jag?appkey={{appkey}}" class="btn-action">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Issues
+    </a>
+</div><!-- EOF App factory menu actionbar-->
 
-<section class="content push_top_40">
-    <div class="form-container">
-        <fieldset>
-            <div class="input_row">
-                <label for="projectId" ><strong>Project</strong> </label>
-                {{data.projectName}}
+<!-- BOF new UX -->
+<div class="container-fluid cloud-container">
+        <div class="row">
+            <div class="col-md-5 forms">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="summary">Summary: </label>
+                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{data.issue.summary}}" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                    <label for="type">Type: </label>
+                 <!--   <select id="type" class="form-control select2" disabled>
+                        <option value="{{data.issue.type}}">{{data.issue.type}}</option>
+                    </select>
+                -->
+                 <input type="text" class="form-control" id="type"  value="{{data.issue.issueTypeText}}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority: </label>
+                    <input type="text" class="form-control" id="priority"  value="{{data.issue.issuePriorityText}}" disabled>
+                    <!-- <select id="priority" class="form-control select2" disabled>
+                        <option value="{{data.issue.priority}}">{{data.issue.priority}}</option>
+                    </select> -->
+                </div>
+                <div class="form-group">
+                    <label for="reporter">Reporter: </label>
+                    <input type="text" class="form-control" id="reporter"  value="{{data.issue.reporter}}" disabled>
+                    <!-- <select id="reporter" class="form-control select2" disabled>
+                        <option value="{{data.issue.reporter}}">{{data.issue.reporter}}</option>
+                    </select> -->
+                </div>
+                <div class="form-group">
+                        <label for="status">Status: </label>
+                         <input type="text" class="form-control" id="status"  value="{{data.issue.issueStatusText}}" disabled>
+                      <!--  <select id="status" class="form-control select2">
+                            <option value="1">Open</option>
+                            <option value="2">Resolved</option>
+                            <option value="2">In Progress</option>
+                            <option value="2">Closed</option>
+                        </select>
+                       -->
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="version">Version: </label>
+                    <input type="text" class="form-control" id="version"  value="{{versionNumber}}" disabled>
+                    <!--<select id="version" class="form-control select2" disabled>
+                    {{#each versions}}
+                    <option value="{{id}}">{{version}}</option>
+                    {{/each}}
+                    </select>-->
+                    </div>
+                <div class="form-group">
+                    <label for="severity">Severity: </label>
+                    <input type="text" class="form-control" id="severity"  value="{{data.issue.issueSeverityText}}" disabled>
+                   <!-- <select id="severity" class="form-control select2" disabled>
+                        <option value="{{data.issue.severity}}">{{data.issue.severity}}</option>
+                    </select> -->
+                </div>
+                <div class="form-group">
+                    <label for="assignee">Assignee: </label>
+                    <input type="text" class="form-control" id="assignee"  value="{{data.issue.assignee}}" disabled>
+                    <!-- <select id="assignee" class="form-control select2" disabled>
+                        <option value="1"> {{data.issue.assignee}}</option>
+                    </select> -->
+                </div>
             </div>
 
-            <div class="input_row">
-                <label for="summary" ><strong>Summary</strong> </label>
-                {{data.issue.summary}}
+            <div class="col-md-12">
+                <hr class="gray-hr"/>
+                <div class="form-group">
+                    <label>Comments: </label>
+                    <textarea class="form-control" rows="3" id="commentVal" placeholder="Write your comment here" ></textarea>
+                    <div class="pull-right">
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="commentAdd">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fa fa-comment fa-stack-1x"></i>
+                        </span>
+                            Add comment
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div id="push"></div>
+                    {{#each data.comments}}
+                    {{#if id}}                    
+                    <div class="comment-line">
+                        <p id="desc_{{id}}">{{description}}</p>
+                        <span class="pull-right">{{#if updatedTime}} {{updatedTime}} {{else}} {{createdTime}} {{/if}}, By {{creator}}</span>
+                        <div class="triangle pull-right"></div>
+                        <div class="clearfix"></div>
+                    </div>
+                    {{/if}}
+                    {{/each}}
+                </div>
+                <div class="form-group">
+
+                </div>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
             </div>
-
-
-            <div class="input_row">
-                <label for="description"><strong>Description</strong></label>
-                <p class="issue-item-detail">{{data.issue.description}}</p>
-            </div>
-
-
-            <div class="input_row">
-                <label for="type" ><strong>Type</strong> </label>
-                {{data.issue.type}}
-            </div>
-
-            <div class="input_row">
-                <label for="priority" ><strong>Priority</strong> </label>
-               {{data.issue.priority}}
-            </div>
-
-
-            <div class="input_row">
-                <label for="priority" ><strong>Reporter</strong> </label>
-               {{data.issue.reporter}}
-            </div>
-
-
-
-            <div class="input_row">
-                <label for="status" ><strong>Status</strong> </label>
-                 {{data.issue.status}}
-            </div>
-
-            <div class="input_row">
-                <label for="assignee" ><strong>Assignee</strong> </label>
-               {{data.issue.assignee}}
-            </div>
-
-            <div class="input_row">
-                <label for="severity" ><strong>Severity</strong> </label>
-                {{data.issue.severity}}
-            </div>
-
-        </fieldset>
-
-        <input type="button" value="Edit Issue" class="btn main edit-btn" onClick="window.location.href='{{url "/issue/edit"}}?issuePkey={{data.issue.key}}&projectKey={{data.projectKey}}&appkey={{appkey}}'" />
-
-</div><!-- /form-container -->
-
-<hr>
-
-<div class="span12"><h3>Comments</h3></div>
-
-<table class="comment-table">
-    {{#each data.comments}}
-     {{#if id}}
-    <tr><td colspan="2">
-        <span class="comment-date-text">
-        {{creator}}
-        {{#if updatedTime}}
-            updated
-        {{else}}
-            added
-        {{/if}}
-
-        comment - {{#if updatedTime}} {{updatedTime}} {{else}} {{createdTime}} {{/if}}
-        </span>
-        {{#if isOwner}}
-        <a class="icon-edit" href="#" onclick="showCommentbox({{id}}, '{{creator}}')" title="Edit" ></a>
-        <a class="icon-trash" href="#" onclick="deleteComment({{id}})" title="Delete"></a>
-        {{/if}}
-
-    </td> </tr>
-    <tr><td colspan="2" id="desc_{{id}}">{{description}}</td> </tr>
-
-    <tr><td colspan="2"> <hr></td></tr>
-    {{/if}}
-     {{/each}}
-</table>
-
-<div style="display:none;" id="editCommentBox">
-    <input type='text' id='comment' name="comment" />
-    <input type="button" value="Comment" id="commentMe">
-</div>
-
-
-
-
-<textarea name="review-text" id="commentVal" rows="4" cols="200" style="width: 100%; height: 100px;"></textarea>
-<br>
-<a style="margin:5px 0 0 0" href="#" id="commentAdd" class="btn main" >Comment</a>
-
-
-
-<div id="windowTitleDialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="windowTitleLabel" aria-hidden="true">
-    <div class="modal-header">
-        <a href="#" class="close" data-dismiss="modal">&times;</a>
-        <h3>Enter your comment.</h3>
-    </div>
-    <div class="modal-body">
-        <div class="divDialogElements">
-           <textarea name="review-text" id="commentpopup" rows="4" cols="200" style="width: 100%; height: 100px;"></textarea>
-           <input type="hidden" name="comment_id" id="comment_id" />
-
         </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" onclick="closeDialog ();">Cancel</a>
-        <a href="#" class="btn main" onclick="okClicked ();" id="commentEdit">OK</a>
-    </div>
-</div>
+    </div><!-- /.container -->
+<!-- EOF new UX-->
 
-
+<!-- old js files--><!--
 <script src="{{url "/themes/issuetracker/js/jquery-1.8.3.min.js"}}"></script>
 <script src="{{url "/themes/issuetracker/js/bootstrap-modal.js"}}"></script>
+--><!--old js files -->
 
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{url "/themes/issuetracker/js/jquery-1.11.1/jquery.min.js"}}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url "/themes/issuetracker/js/bootstrap-3.2.0/bootstrap.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
+<!-- include custom js functions -->
+<script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 <script type="text/javascript">
-    function showCommentbox(id, creator){
-        document.getElementById ("commentpopup").value = $("#desc_"+id).text();
-        $("#comment_id").val(id);
-        $("#reporter").val(creator);
-        $("#windowTitleDialog").modal ("show");
-    }
-
     $(document).ready(function() {
-        $("#windowTitleDialog").bind ('show', function () {});
     });
-
-    function closeDialog () {
-        $('#windowTitleDialog').modal('hide');
-    };
-
-    function okClicked () {
-        var commentId = $("#comment_id").val();
-        var popup  = $("#commentpopup").val();
-        $('#desc_'+commentId).text(popup);
-        closeDialog ();
-    };
-
-
 </script>

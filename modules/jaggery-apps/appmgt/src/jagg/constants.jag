@@ -45,8 +45,9 @@ var TAGGED = "Tagged";
 var LATEST = "Latest";
 var PROMOTE = "promote";
 var PROMOTED = "Promoted";
+var PROMOTED_STATUS_SUCCESS = "";
 
-
+var PLACE_HOLDER_APPNAME= "PH_APP_NAME";
 //appfactory.xml keys
 var SSO_NAME = "SSORelyingParty.Name";
 var SSO_PROVIDER = "SSORelyingParty.IdentityProviderURL";
@@ -61,6 +62,8 @@ var SCM_ADMIN_USER_NAME="RepositoryMGTConfig.SCMServerAdminUserName";
 var SCM_ADMIN_PASSWORD="RepositoryMGTConfig.SCMServerAdminPassword";
 var SCM_SERVER_URL="RepositoryMGTConfig.SCMServerURL";
 var BASE_URL="ContinuousIntegrationProvider.jenkins.Property.BaseURL";
+var JENKINS_ADMIN_USERNAME = "JenkinsServerAdminUsername";
+var JENKINS_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
 
 var WEB_CONTEXT_ROOT = "WebContextRoot";
 var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
@@ -235,8 +238,15 @@ var ERROR_NOTIFICATION_POLLING_PERIOD="NotificationConfig.MessageBroker.PollingP
 var GIT_BASE_URL="RepositoryProviderConfig.git.Property.BaseURL";
 
 // Tenant Info
-var TENANT_INFO_CACHE = "TENANT_INFO_CACHE";
-var TENANT_INFO_APP_TYPE = "APP_TYPE";
+var TENANT_INFO = "TENANT_INFO";
+var PERMISSION_CACHE = "PERMISSION_CACHE";
+var APPLICATION_CACHE = "APPLICATION_CACHE";
+var APPLICATION_LIST_CACHE = "application_list";
+var LAST_BACKEND_ACCESS_TIME_FOR_GETTING_APPLIST = "last_backend_access_time_for_getting_appList";
+var TENANT_PERM_CACHE = "tenantPermCache";
+var USER_ROLES = "USER_ROLES";
+var APPLICATION_INFO_CACHE = "APPLICATION_INFO_CACHE";
+var APPLICATION_INFO_APP_TYPE = "APP_TYPE";
 var UNAUTHORIZED_ERROR_RESPONSE ={"errorCode":"401","errorMessage":"Unauthorized access!!!"};
 
 // Cache

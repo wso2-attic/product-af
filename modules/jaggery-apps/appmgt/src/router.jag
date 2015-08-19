@@ -17,9 +17,7 @@
  *  under the License.
  *
  */
-%>
 
-<%
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
@@ -39,6 +37,7 @@ if (uriMatcher.match(PAGE_URL)) {
         try {
             context.startTenantFlow();
             context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+            context.getThreadLocalCarbonContext().setUsername(jagg.getUser());
             include(args.suffix);
         } finally {
             context.endTenantFlow();

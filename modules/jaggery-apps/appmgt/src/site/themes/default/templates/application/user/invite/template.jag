@@ -23,7 +23,6 @@ include("/jagg/constants.jag"); %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
-    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
     var isOTTenant=outputs.isOTTenant;
     var helpTips = outputs.helpTips;
@@ -38,7 +37,7 @@ include("/jagg/constants.jag"); %>
     function updateTable() {
 
 
-        jagg.syncPost("../blocks/application/users/get/ajax/list.jag", {
+        jagg.syncPost("../blocks/application/user/get/ajax/list.jag", {
             action: "getUsersOfApplication",
             applicationKey:$("#applicationKey").attr('value')
         }, function (result) {
@@ -49,7 +48,7 @@ include("/jagg/constants.jag"); %>
 
 /*send the invitaion a given user for a given roles*/
 function sendInvite(users){
-    jagg.post("../blocks/application/users/add/ajax/add.jag", {
+    jagg.post("../blocks/application/user/add/ajax/add.jag", {
                 action:"inviteUserToApplication",
                 applicationKey:$("#applicationKey").attr('value'),
                 users:users.toString()
@@ -98,7 +97,7 @@ function searchUser(autocomplete){
     $('#userListContainer').html("");
     ClearOptionsFast('autocompleteBox');
     //jagg post to get users contains a given part of text in the name
-    jagg.post("../blocks/application/users/get/ajax/list.jag", {
+    jagg.post("../blocks/application/user/get/ajax/list.jag", {
                 action:"getAllUsersHavingName",
                 userName: searchPara//$("#searchTxt").attr('value')
             },
@@ -488,7 +487,7 @@ $(document).ready(function(){
 });
 var loadAllUsers = function(){
 
-     jagg.post("../blocks/application/users/get/ajax/list.jag", {
+     jagg.post("../blocks/application/user/get/ajax/list.jag", {
                 action:"getAllUsersHavingName",
                 userName: '*'//$("#searchTxt").attr('value')
             },
@@ -556,24 +555,27 @@ function setHelpTips(helpTips){
 
 </script>
 
-<div class="container">
 
 				<article class="main">
 
 				     <% jagg.includeBlock("page/messages", null); %>
 				     <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.TEAM}); %>
 				     <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+                    <!-- following div can be removed after new ux-->
+                    <div style="height: 80px; "></div>
+                    <!-- -->
                     <header class="separator">
                         <div class="content">
-                            <ol class="breadcrumb">
-                                    <li class="breadcrumb_item"><a class="breadcrumb_link" href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Team</a></li>
-                                    <li class="breadcrumb_item"><h1>Add Members</h1></li>
-                            </ol>
+                            <div class="left">
+                                <h1 class="inline_box">Application Team</h1>
+
+                            </div>
+
                          </div>
                     </header>
 <!-- <% jagg.includeBlock("page/help", {"section": "memberAddition"}); %>-->
 				<section class="separator">
-						<div class="mini_content well">
+						<div class="mini_content">
                             <div class="form-container" name="#">
                             <div class="help-block"><span class="help-icon">?</span> <span id="addMemberHelp"></span></div>
                             <div id="select_user_box">
@@ -630,7 +632,7 @@ function setHelpTips(helpTips){
 
 				<div class="clearfix"></div>
                 </article>
-</div><!-- /container -->
+
 <input type="hidden" id="userName" value='<%= jagg.getUser() %>' />
 <input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
 

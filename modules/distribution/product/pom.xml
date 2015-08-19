@@ -105,19 +105,19 @@
             <artifactId>php-archetype</artifactId>
             <type>jar</type>
         </dependency>
-	 <dependency>
+	<dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>dotnet-archetype</artifactId>
+            <type>jar</type>
+        </dependency>
+	<dependency>
+            <groupId>org.wso2.appfactory</groupId>
+            <artifactId>maven-archetype-multi-module-car</artifactId>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.appfactory</groupId>
-            <artifactId>appfactory-authentication-plugin</artifactId>
-            <type>hpi</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>

@@ -5,9 +5,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -17,11 +17,15 @@
 
 # nodejs cartridge node
 node /nodejs/ inherits base {
+  $docroot = "/var/local/"
   require java
   class {'agent':
     type => 'nodejs',
   }
-  class {'nodejs':}
 
-  Class['stratos_base'] -> Class['java'] -> Class['nodejs'] ~> Class['agent']
+class {'nodejs':
+    manage_repo => true,
+   }
+
+Class['stratos_base'] -> Class['java'] -> Class['nodejs'] ~> Class['agent']
 }

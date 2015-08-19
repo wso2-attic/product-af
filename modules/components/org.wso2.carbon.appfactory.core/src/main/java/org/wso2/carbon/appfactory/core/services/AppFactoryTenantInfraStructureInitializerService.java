@@ -221,7 +221,6 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
         properties.put(AppFactoryConstants.RUNTIMES, runtimeJson);
         properties.put(AppFactoryConstants.TENANT_INFO, tenantInfoJson);
         properties.put(AppFactoryConstants.STAGE,stage);
-	    properties.put(AppFactoryConstants.SERVER_URL, serverURL);
         TaskInfo taskInfo = new TaskInfo(taskName, AppFactoryTenantInfraStructureInitializerService.CLOUD_INITIALIZER_TASK,
                 properties, triggerInfo);
         try {

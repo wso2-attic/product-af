@@ -19,12 +19,10 @@
 
 jagg.template("page/help", function (inputs, outputs, jagg) { %>
 
-<% var section = inputs.section; 
-   var modHelp = jagg.module("help");
-   var helpDetails = modHelp.getHelpMessage(section);
+<%
+   var helpDetails = outputs.helpDetails;
 %>
 <script type="text/javascript">
-var section = '<%= section %>';
 var helpDetails = '<%= helpDetails %>';
 $(document).ready(function(){
 getHelpMessages();

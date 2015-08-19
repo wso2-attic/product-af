@@ -3,26 +3,22 @@ $().ready(function() {
     // **checked**
     $('#saveIssue').click(function() {
         var projectKey = $("#projectKey").attr('value');
-
         var issue = new Object();
-        issue.summary       = $("#summary").attr('value');
-        issue.description   = $("#description").attr('value');
-        issue.type          = $("#type").attr('value');
-        issue.priority      = $("#priority").attr('value');
-        issue.status        = $("#issue_status").attr('value');
-        issue.assignee      = $("#assignee").attr('value');
-        issue.versionId     = $('#version').val();
-        issue.severity      = $("#severity").attr('value');
-        issue.version       = $( "#version option:selected" ).text();
-
+        issue.summary       = $("#summary").val();
+        issue.description   = $("#description").val();
+        issue.type          = $("#type option:selected").val();
+        issue.priority      = $("#priority option:selected").val();
+        issue.status        = "OPEN";
+        issue.assignee      = $("#assignee option:selected").val();
+        issue.versionId     = $("#version").val();
+        issue.severity      = $("#severity option:selected").val();
+        issue.version       = $("#version option:selected" ).val();
+        
         var jsonString = JSON.stringify(issue);
-
         if(issue.summary == null || issue.summary == "" || issue.summary==undefined){
             jagg.message({content:'Issue summary can not be empty',type:'error' });
             return;
         }
-
-
         var response = "";
         $.ajax({
             type: 'POST',
@@ -44,25 +40,24 @@ $().ready(function() {
         });
     });
 
-    $('#editIssue').click(function() {
-        var key = $("#key").attr('value');
+    $('#updateIssue').click(function() {
+        var key = $("#key").val();
 
         var issue = new Object();
         //issue.projectId=$("#projectId").attr('value');
-        issue.key=key;
-        issue.summary=$("#summary").attr('value');
-        issue.description= $("#description").attr('value');
-        issue.type=$("#type").attr('value');
-        issue.priority=$("#priority").attr('value');
-        issue.status=$("#issue_status").attr('value');
-        issue.assignee=$("#assignee").attr('value');
-        issue.versionId=$("#version").attr('value');
-        issue.severity=$("#severity").attr('value');
-        issue.version       = $( "#version option:selected" ).text();
+        issue.key = key;
+        issue.summary = $("#summary").val();
+        issue.description = $("#description").val();
+        issue.type = $("#type option:selected").val();
+        issue.priority = $("#priority option:selected").val();
+        issue.status = $("#status").val();
+        issue.assignee = $("#assignee").val();
+        issue.versionId = $("#version").val();
+        issue.severity = $("#severity option:selected").val();
+        issue.version = $("#version option:selected").text();
 
         var jsonString = JSON.stringify(issue);
         var isSuccess = false;
-
         $.ajax({
             type: 'POST',
             url: "save",
@@ -89,8 +84,7 @@ $().ready(function() {
     // **checked**
     $('#commentAdd').click(function() {
         var issueUniqueKey = $("#ukey").attr('value');
-        var description = $("#commentVal").attr('value').trim();
-
+        var description = $("#commentVal").val();
         if(description){
 
             var comment = new Object();

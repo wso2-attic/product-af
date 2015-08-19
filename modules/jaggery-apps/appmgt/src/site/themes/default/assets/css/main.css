@@ -17,7 +17,7 @@
    ========================================================================== */
 
 /* Fonts */
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,300,400italic);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,300,400italic);
 body { font: 0.875em/150% 'Open Sans', sans-serif; background-color: #636871; font-weight: 400; }
 
 /*  Open Sans font weight value are Light - 300; Normal - 400; Normal Italic - 400; Semi-Bold - 600; Semi-Bold Italic - 600; Bold - 700;
@@ -111,9 +111,9 @@ a:hover { color: #EB7067;
 	#home .main_menu { float: left; width: 60px; }
 	.main_list { margin: 0; padding: 0;  }
 	.main_list_item { margin: 0; }
-	.main_list_link { border-top: 1px solid #636871; border-bottom: 1px solid #292E38; display: block; height: 60px;  background-color: #4E545E; text-decoration: none; color: #FFF;  }
-	.main_list_link:hover {  border-top: 1px solid #636871; background-color: #636871; color: #FFF;  } 
-	.main_list_link.active { border-top: 1px solid #34D3EA; background-color: #18CDE8; color: #292E38; font-weight: 700; }
+	.main_list_link { border-top: 1px solid #636871; border-bottom: 1px solid #282828; display: block; height: 60px;  background-color: #282828; text-decoration: none; color: #FFF;  }
+	.main_list_link:hover {  border-top: 1px solid #636871; background-color: #282828; color: #FFF;  } 
+	.main_list_link.active { border-top: 1px solid #34D3EA; background-color: #282828; color: #282828; font-weight: 700; }
 	.main_list_link span { padding-left: 20px; width: 60px; display: inline-block; font-size: 1.42857142857em; line-height: 60px; vertical-align: middle; }
 
    /* Container */
@@ -388,7 +388,7 @@ box-shadow: 0 0px 10px 5px rgba(0, 0, 0, 0.05);  }
 	background-color:#ffffff;-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box;border:1px solid #B1D1D8;  -webkit-box-shadow:0 0 2px rgba(221, 235, 238, 0.4);-moz-box-shadow:0 0 2px rgba(221, 235, 238, 0.4);box-shadow:0 0 2px rgba(221, 235, 238, 0.4);white-space:normal; }  
  
 
-.popover_box { padding-bottom: 5px; background-color:#ffffff;-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box;border:1px solid #B1D1D8;  -webkit-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);-moz-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);box-shadow:0 0 2px rgba(221, 235, 238, 0.6);white-space:normal; }
+.popover_box { padding-bottom: 5px; background-color:#000000;-webkit-background-clip:padding-box;-moz-background-clip:padding;background-clip:padding-box;border:1px solid #B1D1D8;  -webkit-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);-moz-box-shadow:0 0 2px rgba(221, 235, 238, 0.6);box-shadow:0 0 2px rgba(221, 235, 238, 0.6);white-space:normal; }
 .issue_down { min-width: 578px; } 
 .issue_up { min-width: 168px; }
 .issue_up .input_row { margin-bottom: 15px; } 
@@ -550,7 +550,7 @@ table.basic a { text-decoration: none; }
    ============ */
 .progress {
   height: 10px;
-  width: 100px; 
+  width: 100%;
   overflow: hidden;
   background-color: #f7f7f7;
    -webkit-border-radius: 3px;

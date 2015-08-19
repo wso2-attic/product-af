@@ -37,80 +37,69 @@ function createFork(applicationKey, tenantAwareUserNameArray, type, version) {
 
     var doForkResult, versionCreationEventResult;
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var loggedInUserName = jagg.getUser();
     var userNameArray = tenantAwareUserNameArray.toString().split(",");
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
 
         for(var i = 0; i < userNameArray.length ; i++){
+            log.info("invoking fork for user " + userNameArray[i]);
+            doForkResult = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
+            createFork(applicationKey, userNameArray[i], type);
+            var x = jagg.module("application").getAppVersionsInStages(applicationKey, userNameArray[i], "false", "true", "false");
+            var appInfo=parse(x);
+            var userId = modManager.getTenantAwareUsername(userNameArray[i]);
+            for(var appIndex in appInfo ){
+                    var elementAppInfo=appInfo[appIndex];
+                    var versions=elementAppInfo.versions;
+                    for(var index in versions){
 
-        log.info("invoking fork for user " + userNameArray[i]);
-        
+                    var versionElement=versions[index];
 
-        doForkResult = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService').
-                createFork(applicationKey, userNameArray[i], type);
+                    var key = 'repouser';
+                    var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
+                    '<repouser>' +
+                    '<key>' + applicationKey + '</key>' +
+                    '<name>' + userId + '</name>' +
+                    '<version>' + versionElement.version + '</version>' +
+                    '<isAutoBuild>' + versionElement.isAutoBuild + '</isAutoBuild>' +
+                    '<isAutoDeploy>' + versionElement.isAutoDeploy+ '</isAutoDeploy>' +
+                    '<repoURL>' + doForkResult + '</repoURL>' +
+                    '<LastBuildStatus> </LastBuildStatus>' +
+                    '<CurrentBuildStatus> </CurrentBuildStatus>' +
+                    '<PromoteStatus> </PromoteStatus>' +
+                    '<lastdeployedid> </lastdeployedid>' +
+                    '</repouser>' +
+                    '</metadata>]]>';
+                    var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
+                    modLifecycle.addGenericArtifact(key, content, lifecycleAttribute);
+                    applicationDAO.getInstance().forkApplicationVersion(applicationKey,versionElement.version, userId);
+                    }
 
-        var x = jagg.module("application").getAppVersionsInStages(applicationKey, userNameArray[i], "false", "true", "false");
-        var appInfo=parse(x);
-        
-        var userId = modManager.getTenantAwareUsername(userNameArray[i]);
+            }
+            //Finally notify application management service about the application fork.
+            var publishForkRepoEvent = new ws.WSRequest();
+            var publishForkRepoOptions = new Array();
+            publishForkRepoOptions.useSOAP = 1.1;
+            publishForkRepoOptions.action = "urn:publishForkRepository";
+            modManager.setAuthHeaders(publishForkRepoOptions);
 
-        for(var appIndex in appInfo ){
-                var elementAppInfo=appInfo[appIndex];
-                var versions=elementAppInfo.versions;
-                for(var index in versions){
+            var forkEventPayload =
+                '<ser:publishForkRepository xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
+                        '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
+                        '<ser:type>' + type + '</ser:type>' +
+                        '<ser:version>' + version + '</ser:version>' +
+                        '<ser:userName>' + loggedInUserName + '</ser:userName>' +
+                '<ser:forkedUser>' + userNameArray[i] + '</ser:forkedUser>' +
+                        '</ser:publishForkRepository>';
 
-                var versionElement=versions[index];
 
-                var key = 'repouser';
-                var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
-                '<repouser>' +
-                '<key>' + applicationKey + '</key>' +
-                '<name>' + userId + '</name>' +
-                '<version>' + versionElement.version + '</version>' +
-                '<isAutoBuild>' + versionElement.isAutoBuild + '</isAutoBuild>' +
-                '<isAutoDeploy>' + versionElement.isAutoDeploy+ '</isAutoDeploy>' +
-                '<repoURL>' + doForkResult + '</repoURL>' +
-                '<LastBuildStatus> </LastBuildStatus>' +
-                '<CurrentBuildStatus> </CurrentBuildStatus>' +
-                '<PromoteStatus> </PromoteStatus>' +
-                '<lastdeployedid> </lastdeployedid>' +
-                '</repouser>' +
-                '</metadata>]]>';
-                var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
-                modLifecycle.addGenericArtifact(key, content, lifecycleAttribute);
-                applicationDAO.getInstance().forkApplicationVersion(applicationKey,versionElement.version, userId);
-                }
-
-        }
-        //Finally notify application management service about the application fork.
-        var publishForkRepoEvent = new ws.WSRequest();
-        var publishForkRepoOptions = new Array();
-        publishForkRepoOptions.useSOAP = 1.1;
-        publishForkRepoOptions.action = "urn:publishForkRepository";
-        modManager.setAuthHeaders(publishForkRepoOptions);
-        
-        var forkEventPayload =
-            '<ser:publishForkRepository xmlns:ser="http://service.mgt.application.appfactory.carbon.wso2.org">' +
-                    '<ser:applicationId>' + applicationKey + '</ser:applicationId>' +
-                    '<ser:type>' + type + '</ser:type>' +
-                    '<ser:version>' + version + '</ser:version>' +
-                    '<ser:userName>' + loggedInUserName + '</ser:userName>' +
-		    '<ser:forkedUser>' + userNameArray[i] + '</ser:forkedUser>' +
-                    '</ser:publishForkRepository>';
-                    
-                    
-        var publishForkRepoEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
-        publishForkRepoEvent.open(publishForkRepoOptions, publishForkRepoEndpoint, true);
-        publishForkRepoEvent.send(forkEventPayload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + publishForkRepoEndpoint);
-        }
+            var publishForkRepoEndpoint = getProperty(APPFACTORY_SERVER_URL) + "ApplicationManagementService";
+            publishForkRepoEvent.open(publishForkRepoOptions, publishForkRepoEndpoint, true);
+            publishForkRepoEvent.send(forkEventPayload);
+            if (log.isDebugEnabled()) {
+                log.debug("Invoking service endpoint:" + publishForkRepoEndpoint);
+            }
         }
         return "true";
     } catch (e) {
@@ -118,8 +107,6 @@ function createFork(applicationKey, tenantAwareUserNameArray, type, version) {
                   " in tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
     
 };
@@ -129,24 +116,13 @@ function createForkBranch(applicationKey, tenantAwareUserNameArray, type, versio
 
     var doForkResult, versionCreationEventResult;
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var loggedInUserName = jagg.getUser();
     var userNameArray = tenantAwareUserNameArray.toString().split(",");
-
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-
         for(var i = 0; i < userNameArray.length ; i++){
-
-	        
 	        var ret = server.osgiService('org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService') ;
 	        doForkResult = ret.createForkBranch(applicationKey, userNameArray[i], type,version);
-
 	        var userId = modManager.getTenantAwareUsername(userNameArray[i]);
-	        	        
 	        var key = 'repouser';
             var content = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
             '<repouser>' +
@@ -198,8 +174,6 @@ function createForkBranch(applicationKey, tenantAwareUserNameArray, type, versio
                   + " in tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
     
     

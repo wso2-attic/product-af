@@ -28,8 +28,6 @@ public class RuntimeBean {
 
 	//property which holds the runtime name
 	private String runtimeName;
-	//Fully qualified class name of application deployer.
-	private String deployerClassName;
 	//Defining the artifact storage URL where the application artifacts is stored
 	private String paasRepositoryURLPattern;
 	//Prefix of the cartridge type
@@ -48,8 +46,8 @@ public class RuntimeBean {
 	private String dataCartridgeAlias;
 	//This is used to define whether subscription is required at the time of deployment
 	private boolean subscribeOnDeployment;
-	//Fully qualified class name of application undeployer
-	private String undeployerClassName;
+	//server url type
+	private String serverURL;
 	private Map<String, String> properties = new HashMap<String, String>();
 
 	public String getRuntimeName() {
@@ -58,14 +56,6 @@ public class RuntimeBean {
 
 	public void setRuntimeName(String runtimeName) {
 		this.runtimeName = runtimeName;
-	}
-
-	public String getDeployerClassName() {
-		return deployerClassName;
-	}
-
-	public void setDeployerClassName(String deployerClassName) {
-		this.deployerClassName = deployerClassName;
 	}
 
 	public String getPaasRepositoryURLPattern() {
@@ -132,19 +122,19 @@ public class RuntimeBean {
 		this.subscribeOnDeployment = subscribeOnDeployment;
 	}
 
-	public String getUndeployerClassName() {
-		return undeployerClassName;
-	}
-
-	public void setUndeployerClassName(String undeployerClassName) {
-		this.undeployerClassName = undeployerClassName;
-	}
-
 	public void setProperties(Map<String, String> props) {
 		properties = props;
 	}
 
 	public String getProperty(String name) {
 		return properties.get(name);
+	}
+
+	public String getServerURL() {
+		return serverURL;
+	}
+
+	public void setServerURL(String serverURL) {
+		this.serverURL = serverURL;
 	}
 }

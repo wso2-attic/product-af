@@ -40,6 +40,7 @@ jagg.block("resources/list", {
     	var datasources = {};
     	var hasDataSourceModifyPermission =  false;
     	var isDataSourceRetrieveSucceeded = false;
+    	var hasCreatePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_DATASOURCE_CREATE);
     	for (var i = 0; i < deploymentStages.length; i++) {
     		// TODO - remove these
     		var hasConfigureDbAdministrationPermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + deploymentStages[i]);
@@ -72,7 +73,8 @@ jagg.block("resources/list", {
     		"hasDataSourceModifyPermission":hasDataSourceModifyPermission,
             "hasTenantAdminPermission":hasTenantAdminPermission,
     		"dataSourceSupport":dataSourceSupport,
-	        "helpTips":helpTips
+	        "helpTips":helpTips,
+	        "hasCreatePermission":hasCreatePermission
     	};
     }
 

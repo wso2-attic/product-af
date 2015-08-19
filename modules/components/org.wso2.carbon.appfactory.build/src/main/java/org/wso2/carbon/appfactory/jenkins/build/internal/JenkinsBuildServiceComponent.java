@@ -24,6 +24,8 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.core.*;
 import org.wso2.carbon.appfactory.jenkins.build.*;
+import org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategy;
+import org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategy;
 import org.wso2.carbon.appfactory.nonbuild.NonBuildableStorage;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryManager;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -186,16 +188,71 @@ public class JenkinsBuildServiceComponent {
 		        } catch (Exception e1) {
 		        	log.error("Appfactory Non-Build Storage register problem ," + e1.getMessage());
 		        }
-				
+
 				bundleContext.registerService(
 						TenantBuildManagerInitializer.class.getName(),
 						new TenantBuildManagerInitializerImpl(), null);
+
+				ClassLoader loader = getClass().getClassLoader();
+				SetBucketStrategy(loader);
+				SetJenkinsClusterStrategy(loader);
 			} else {
 				log.info("Jenkins is not enabled");
 			}
 
 		} catch (Throwable e) {
 			log.error("Error in registering Jenkins build service ", e);
+		}
+	}
+
+	/**
+	 * Set jenkins cluster selecting strategy
+	 *
+	 * @param loader Class loader
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	private void SetJenkinsClusterStrategy(ClassLoader loader) {
+		String clusterClzName = ServiceContainer
+				.getAppFactoryConfiguration()
+				.getFirstProperty(JenkinsCIConstants.JENKINS_LB_CLUSTER_SELECTING_STRATEGY);
+		ClusterSelectingStrategy clusterSelectingStrategy = null;
+		try {
+			Class<?> clusterClzz = Class.forName(clusterClzName, true, loader);
+			clusterSelectingStrategy = (ClusterSelectingStrategy) clusterClzz.newInstance();
+			ServiceContainer.setClusterSelectingStrategy(clusterSelectingStrategy);
+		} catch (ClassNotFoundException e) {
+			log.error("Class: " + clusterClzName + " not found to set ClusterSelectingStrategy!", e);
+		} catch (InstantiationException e) {
+			log.error("Error occurred while initializing the Class: " + clusterClzName + " as ClusterSelectingStrategy!", e);
+		} catch (IllegalAccessException e) {
+			log.error("Error occurred while initializing the Class: " + clusterClzName + " as ClusterSelectingStrategy!", e);
+		}
+	}
+
+	/**
+	 * Set bucket selecting strategy
+	 *
+	 * @param loader Class loader
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	private void SetBucketStrategy(ClassLoader loader) {
+		String bucketClzName = ServiceContainer
+				.getAppFactoryConfiguration()
+				.getFirstProperty(JenkinsCIConstants.JENKINS_LB_BUCKET_SELECTING_STRATEGY);
+		try {
+			Class<?> bucketClzz = Class.forName(bucketClzName, true, loader);
+			BucketSelectingStrategy bucketSelectingStrategy = (BucketSelectingStrategy) bucketClzz.newInstance();
+			ServiceContainer.setBucketSelectingStrategy(bucketSelectingStrategy);
+		} catch (ClassNotFoundException e) {
+			log.error("Class: " + bucketClzName + " not found to set BucketSelectingStrategy!", e);
+		} catch (InstantiationException e) {
+			log.error("Error occurred while initializing the Class: " + bucketClzName + " as BucketSelectingStrategy!", e);
+		} catch (IllegalAccessException e) {
+			log.error("Error occurred while initializing the Class: " + bucketClzName + " as BucketSelectingStrategy!", e);
 		}
 	}
 

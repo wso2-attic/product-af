@@ -3,6 +3,7 @@
 	<id>appfactory-jaxrs</id>
 	<resources>
 		<resource>src/*</resource>
+                <resource>built_artifact/*</resource>
 		<resource>.project</resource>
 	</resources>
 </archetype>

@@ -35,9 +35,6 @@ var getAPIsOfUserApp = function(appKey, appowner){
 	var context=multitenancy.getPrivilegedCarbonContext();
 	var tenantManager= multitenancy.getTenantManager();
 	try{
-		context.startTenantFlow();
-		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
 		var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
 		apis = service.getAPIsOfUserApp(appKey, appowner.trim(), session.get("SAML_TOKEN"));
 			
@@ -46,28 +43,28 @@ var getAPIsOfUserApp = function(appKey, appowner){
 		}
 
 		var apisArray = [];
-		for(var i = 0; i < apis.length; i++){
-			var api = apis[i];
-			var apiInfo = {};
-			var apiName = api.apiName;
-			var apiVersion = api.apiVersion;
-			var apiProvider = api.apiProvider;
-			var description = api.description;
+            if (apis) {
+                for(var i = 0; i < apis.length; i++){
+                    var api = apis[i];
+                    var apiInfo = {};
+                    var apiName = api.apiName;
+                    var apiVersion = api.apiVersion;
+                    var apiProvider = api.apiProvider;
+                    var description = api.description;
 
-			apiInfo.name = apiName;
-			apiInfo.version = apiVersion;
-			apiInfo.provider = apiProvider;
-			apiInfo.description = description;
-			apisArray.push(apiInfo);
-		}
+                    apiInfo.name = apiName;
+                    apiInfo.version = apiVersion;
+                    apiInfo.provider = apiProvider;
+                    apiInfo.description = description;
+                    apisArray.push(apiInfo);
+                }
+            }
 		return apisArray;	
 	}catch(e){
 		log.error("Error while getting the list of APIs of application : " + appKey + " of tenant domain : "
 				  + tenantDomain);
 		log.error(e);
 		throw e;
-	}finally {
-		context.endTenantFlow();
 	}
 }
 

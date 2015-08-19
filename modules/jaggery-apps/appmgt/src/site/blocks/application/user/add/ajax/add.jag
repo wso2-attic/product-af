@@ -1,0 +1,72 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function () {
+    var mod, obj, result,
+            action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+    if (action == "inviteUserToApplication") {
+    	mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var users = request.getParameter("users");
+        var response = {};
+        if (jagg.module("permission").isUserAccessGranted(applicationKey,PERMISSION_USER_INVITE)){
+            try {
+                var result = mod.addUserToApplicationWS(applicationKey,users);
+
+                if (result != null) {
+                    print(result);
+                } else {
+                    throw "Error while adding user as "+users;
+                }
+            } catch(e) {
+                throw "Error while adding user as "+users;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to invite users to application";
+            print(response);
+        }
+
+    } else if(action == "activateUser") {
+    	mod = jagg.module("user");
+    	var userName = request.getParameter("userName");
+    	var email = request.getParameter("email");
+    	var confirmationKey = request.getParameter("confirmationKey");
+    	
+    	try {
+            var result = mod.invokeUserActivationProcess(userName,email,confirmationKey);
+            var wso2=new Namespace("http://wso2.org");
+            return result.wso2::success;
+        } catch(e) {
+            throw "Error while activating user";
+        }
+    } else {
+	    throw new Error("No action specified");
+    }
+
+}());
+%>

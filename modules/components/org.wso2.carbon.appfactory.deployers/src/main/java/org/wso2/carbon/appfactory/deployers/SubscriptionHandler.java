@@ -31,7 +31,7 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * This class creates a GIT repository in stratos for the built artifacts and
+ * This class creates a GIT_REPOSITORY_CONTEXT repository in stratos for the built artifacts and
  * subscribes to the stratos cartridges for "subscription upon deployment" type
  * apps.
  */
@@ -160,10 +160,10 @@ public class SubscriptionHandler {
      *            application ID
      * @return generated repository URL e.g. Development/12/myApplication
      */
-    public String generateRepoUrlFromTemplate(String patternStage,
-                                                     String patternAlias, int tenantId, String stage, String appName) {
-        String repoUrl = patternStage.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage) + File.separator +
-                   Integer.toString(tenantId) + File.separator +
+    public String generateRepoUrlFromTemplate(String patternStage,String patternAlias,
+                                              int tenantId, String stage, String appName) {
+        String repoUrl = patternStage.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage) +
+                         File.separator + Integer.toString(tenantId) + File.separator +
                    patternAlias.replace(AppFactoryConstants.APP_NAME_PLACE_HOLDER, appName);
         if(log.isDebugEnabled()) {
             log.debug("generated repo URL: " + repoUrl);

@@ -137,6 +137,11 @@
             <directory>resources/dbscripts/appfactory</directory>
             <outputDirectory>wso2appfactory-${pom.version}/dbscripts/appfactory</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>resources/appfactory/repository/conf</directory>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf</outputDirectory>
+        </fileSet>
+
 
 
         <!-- copy p2 related files -->
@@ -457,7 +462,8 @@
                 <include>org.wso2.appfactory:bpel-archetype:jar</include>
                 <include>org.wso2.appfactory:esb-archetype:jar</include>
                 <include>org.wso2.appfactory:php-archetype:jar</include>
-	            <include>org.wso2.appfactory:dotnet-archetype:jar</include>
+	        <include>org.wso2.appfactory:dotnet-archetype:jar</include>
+	        <include>org.wso2.appfactory:maven-archetype-multi-module-car:jar</include>
             </includes>
         </dependencySet>
         
@@ -466,7 +472,7 @@
             <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
             <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/jenkins</outputDirectory>
             <includes>
-                <include>org.wso2.appfactory:appfactory-authentication-plugin:hpi</include>
+                <!--<include>org.wso2.appfactory:appfactory-authentication-plugin:hpi</include>-->
                 <include>org.wso2.appfactory:appfactory-plugin:hpi</include>
             </includes>
         </dependencySet>
@@ -493,7 +499,7 @@
                 <include>org.wso2.appfactory:org.wso2.carbon.issue.tracker:war</include>
             </includes>
             <outputFileNameMapping>
-                issuetracker-2.1.0.war
+                issuetracker-${pom.version}.war
             </outputFileNameMapping>
         </dependencySet>
 
@@ -660,8 +666,8 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>resources/appfactory.xml</source>
-            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/appfactory</outputDirectory>
+            <source>resources/tenant_folder_config.xml</source>
+            <outputDirectory>wso2appfactory-${pom.version}/repository/conf/jenkins</outputDirectory>
             <fileMode>644</fileMode>
         </file>
         <file>

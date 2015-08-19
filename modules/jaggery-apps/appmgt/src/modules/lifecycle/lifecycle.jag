@@ -44,18 +44,7 @@ var invokeCreateArtifact = function invokeCreateArtifact(applicationKey, version
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
     }
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(userName);
-        server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(false), stage, tagName, repofrom);
-    } finally {
-        context.endTenantFlow();
-    }
-
+    server.osgiService('org.wso2.carbon.appfactory.core.build.ArtifactCreator').createArtifact(applicationKey, version, revision, Boolean(false), stage, tagName, repofrom);
 };
 
 var invokeDeployToStage = function invokeDeployToStage(applicationKey, revision, version, stageName, build) {
@@ -169,10 +158,6 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
     var tenantManager = multitenancy.getTenantManager();
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-
         var key = 'appversion';
         var content ='<metadata xmlns="http://www.wso2.org/governance/metadata">' +
                 '<appversion>' +
@@ -203,8 +188,6 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
                   + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
 
 };
@@ -463,20 +446,11 @@ var updateStage = function updateStage(applicationID, stage, version) {
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
     }
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(userName);
         server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').updateCurrentStage(applicationID, stage, version);
-
     }catch(e){
         log.error("Error while updating application version " +version + " to " + stage + "\n" + e.message);
         throw "Error while updating application version " +version + " to " + stage;
-    } finally {
-        context.endTenantFlow();
     }
 };
 
@@ -789,48 +763,38 @@ var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, versio
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
     }
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
-    try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(userName);
-        log.debug("Updating auto build status. \n Application key: " + applicationKey + " stage: " + stageName + " version: " + version + " isEnable: " + isEnable);
+    log.debug("Updating auto build status. \n Application key: " + applicationKey + " stage: " + stageName + " version: " + version + " isEnable: " + isEnable);
 
-        var isBuild = (isEnable == "true" || isEnable == 'true') ? true : false;
+    var isBuild = (isEnable == "true" || isEnable == 'true') ? true : false;
+    try {
+        server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                   .publishSetApplicationAutoBuild(applicationKey, stageName, version, isBuild);
         try {
-            server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
-                    .publishSetApplicationAutoBuild(applicationKey, stageName, version, isBuild);
-            try {
-                var notificationTitle = "Auto build is " + isBuild + " for version " + version;
-                var eventBuilderInstance = CtsIntegrationEventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "INFO");
-                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-            } catch (e) {
-                // we don't throw here because its seding a message to wall
-                log.error("Error while sending notification : \'Auto build is " + isBuild + " for version : "
-                          + version + "\' of application : " + applicationKey + " of user : " + loggedInUser);
-                log.error(e)
-            }
-            return "true";
+            var notificationTitle = "Auto build is " + isBuild + " for version " + version;
+            var eventBuilderInstance = CtsIntegrationEventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "INFO");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            try {
-                var notificationTitle = "Changing auto build status for version " + version + " failed";
-                var eventBuilderInstance = CtsIntegrationEventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "ERROR");
-                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-            } catch (e) {
-                // we don't throw here because its seding a message to wall
-                log.error("Error while sending notification : \'Changing auto build status for version " + version
-                          + " failed\'" + " of application : " + applicationKey + " of user : " + loggedInUser);
-                log.error(e)
-            }
-            log.error("Error while updating auto build for the application : " + applicationKey + " with version : "
-                      + version + " in stage : " + stageName + "  with auto build state enabled : " + isEnable);
-            log.error(e);
-            throw e;
+            // we don't throw here because its seding a message to wall
+            log.error("Error while sending notification : \'Auto build is " + isBuild + " for version : "
+                              + version + "\' of application : " + applicationKey + " of user : " + loggedInUser);
+            log.error(e)
         }
-    } finally {
-        context.endTenantFlow();
+        return "true";
+    } catch (e) {
+        try {
+            var notificationTitle = "Changing auto build status for version " + version + " failed";
+            var eventBuilderInstance = CtsIntegrationEventBuilder.autoBuildStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            // we don't throw here because its seding a message to wall
+            log.error("Error while sending notification : \'Changing auto build status for version " + version
+                             + " failed\'" + " of application : " + applicationKey + " of user : " + loggedInUser);
+            log.error(e)
+        }
+        log.error("Error while updating auto build for the application : " + applicationKey + " with version : "
+                      + version + " in stage : " + stageName + "  with auto build state enabled : " + isEnable);
+        log.error(e);
+        throw e;
     }
 };
 
@@ -841,49 +805,40 @@ var updateAutoDeployment = function updateAutoDeployment(applicationKey, stageNa
     if (loggedInUser != null) {
         userName = loggedInUser.split("@")[0];
     }
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
+    log.debug(" updating auto deploy status. application key: " + applicationKey + " stage: " + stageName + " version: "
+                    + version + " isEnable: " + isEnable);
+    var isDeploy = (isEnable == "true" || isEnable == 'true') ? true : false;
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-        context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        context.getThreadLocalCarbonContext().setUsername(userName);
-        log.debug(" updating auto deploy status. application key: " + applicationKey + " stage: " + stageName + " version: "
-                + version + " isEnable: " + isEnable);
-        var isDeploy = (isEnable == "true" || isEnable == 'true') ? true : false;
+        server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                        .publishSetApplicationAutoDeploy(applicationKey, stageName, version, isDeploy);
         try {
-            server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
-                    .publishSetApplicationAutoDeploy(applicationKey, stageName, version, isDeploy);
-            try {
-                var notificationTitle = "Auto deploy is " + isDeploy + " for version " + version;
-                var eventBuilderInstance = CtsIntegrationEventBuilder.autoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "INFO");
-                EventNotifier.getInstance().notify(eventBuilderInstance);
-            } catch (e) {
-                //we don't thow here since its a message sending to the wall
-                log.error("Error while sending notification : " + "\'Auto deploy is " + isDeploy + " for version "
-                          + version + "\' of application : " + applicationKey + " of user : " + loggedInUser);
-                log.error(e)
-            }
-            return "true";
+            var notificationTitle = "Auto deploy is " + isDeploy + " for version " + version;
+            var eventBuilderInstance = CtsIntegrationEventBuilder
+                    .autoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "INFO");
+            EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
-            try {
-                var notificationTitle = "Changing auto deploy status for version " + version + " failed";
-                var eventBuilderInstance = CtsIntegrationEventBuilder.createAutoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "ERROR");
-                var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
-            } catch (e) {
-                //we don't thow here since its a message sending to the wall
-                log.error("Error while sending notification : \'Changing auto deploy status for version " + version
-                          + " failed\' of application : " + applicationKey + " of user : " + loggedInUser);
-                log.error(e)
-            }
-            log.error("Error while updating auto deployment for the application : " + applicationKey
-                      + " with version : " + version + " in " + stageName + " stage "
-                      + "  with auto build state enabled : " + isEnable);
-            log.error(e);
-            throw e;
+            //we don't thow here since its a message sending to the wall
+            log.error("Error while sending notification : " + "\'Auto deploy is " + isDeploy + " for version "
+                        + version + "\' of application : " + applicationKey + " of user : " + loggedInUser);
+            log.error(e)
         }
-    } finally {
-        context.endTenantFlow();
+        return "true";
+    } catch (e) {
+        try {
+            var notificationTitle = "Changing auto deploy status for version " + version + " failed";
+            var eventBuilderInstance = CtsIntegrationEventBuilder.createAutoDeployStatusChangeEvent(applicationKey, loggedInUser, notificationTitle, "", "ERROR");
+            var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
+        } catch (e) {
+            //we don't thow here since its a message sending to the wall
+            log.error("Error while sending notification : \'Changing auto deploy status for version " + version
+                        + " failed\' of application : " + applicationKey + " of user : " + loggedInUser);
+            log.error(e)
+        }
+        log.error("Error while updating auto deployment for the application : " + applicationKey
+                    + " with version : " + version + " in " + stageName + " stage "
+                    + "  with auto build state enabled : " + isEnable);
+        log.error(e);
+        throw e;
     }
 };
 

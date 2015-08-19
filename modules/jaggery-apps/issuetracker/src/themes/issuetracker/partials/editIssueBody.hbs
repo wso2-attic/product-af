@@ -1,136 +1,197 @@
-<section class="content push_top_40">
-    <div class="form-container">
-        <fieldset>
-            <div class="input_row">
-                <label for="projectKey" ><strong>Project</strong> <em>*</em></label>
-                <select id="projectKey" disabled class="select_list half big">
-                  {{#each project}}
-                    <option value="{{key}}">{{name}}</option>
-                  {{/each}}
-                  </select>
+  <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="/issuetracker/index.jag?appkey={{appkey}}" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Issues
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+<input type='hidden' id='key' name="key"  disabled maxlength="40" value="{{issue.key}}"/>
+<!-- until new UX has field for issue status this hidden field will be used-->
+
+    <div class="container-fluid cloud-container">
+        <div class="row">
+            <div class="col-md-5 forms">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="summary">Summary: </label>
+                        <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{issue.summary}}" >
+                    </div>
+                </div>
+                <div class="col-md-6">
+                <div class="form-group">
+                    <label for="type">Type: </label>
+                    <select id="type" class="form-control select2">
+                          <option value="BUG" data-icon="fa-bug">Bug</option>
+                          <option value="TASK" data-icon="fa-tasks">Task</option>
+                          <option value="NEW_FEATURE" data-icon="fa-plus">New Feature</option>
+                          <option value="IMPROVEMENT" data-icon="fa-arrow-up">Improvement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority: </label>
+                    <select id="priority" class="form-control select2">
+                        <option value="HIGHEST" data-icon="fa-angle-double-up">Highest</option>
+                        <option value="HIGH" data-icon="fa-angle-up">High</option>
+                        <option value="LOW" data-icon="fa-angle-down">Low</option>
+                        <option value="LOWEST" data-icon="fa-angle-double-down">Lowest</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reporter">Reporter: </label>
+                    <select id="reporter" class="form-control select2">
+                        <option value="1">{{loggedInUser}}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                        <label for="status">Status: </label>
+                        <select id="status" class="form-control select2">
+                            <option value="OPEN">Open</option>
+                            <option value="RESOLVED">Resolved</option>
+                            <option value="INPROGRESS">In Progress</option>
+                            <option value="CLOSED">Closed</option>
+                        </select>
+                </div>
             </div>
-
-
-            <div class="input_row">
-                <label for="key" ><strong>Key</strong> <em>*</em></label>
-                <input type='text' id='key' name="key" placeholder="Unique Key" disabled maxlength="40" value="{{issue.key}}" class="half required"/>
-            </div>
-
-
-            <div class="input_row">
-                <label for="summary" ><strong>Summary</strong> <em>*</em></label>
-                <input type='text' id='summary' name="summary" disabled placeholder="Issue Summary" maxlength="40" value="{{issue.summary}}" class="half required"/>
-            </div>
-
-
-            <div class="input_row">
-                <label for="description" >Description</label>
-                <textarea name='description' id='description' rows="5" cols="10" class="half" maxlength="250">{{issue.description}}</textarea>
-
-            </div>
-
-
-            <div class="input_row">
-                <label for="type" ><strong>Type</strong> <em>*</em></label>
-                <select id="type" class="select_list half big">
-                    <option value="NEW_FEATURE">New Feature</option>
-                    <option value="BUG">Bug</option>
-                    <option value="TASK">Task</option>
-                    <option value="IMPROVEMENT">Improvement</option>
-                    <option value="WISH">Wish</option>
-                    <option value="MODERATION">Moderation</option>
-                    <option value="VULNERABILITY">Security Vulnerability</option>
-                    <option value="EPIC">Epic</option>
-                    <option value="STORY">Story</option>
-                    <option value="PATCH">Patch</option>
-                </select>
-            </div>
-
-            <div class="input_row">
-                <label for="priority" ><strong>Priority</strong> <em>*</em></label>
-                <select id="priority" class="select_list half big">
-                    <option value="HIGHEST">Highest</option>
-                    <option value="HIGH">High</option>
-                    <option value="NORMAL">Normal</option>
-                    <option value="LOW">Low</option>
-                    <option value="LOWEST">Lowest</option>
-               </select>
-            </div>
-
-            <div class="input_row">
-                <label for="issue_status" ><strong>Status</strong> <em>*</em></label>
-                 <select id="issue_status" class="select_list half big">
-                        <option value="OPEN">Open</option>
-                        <option value="RESOLVED">Resolved</option>
-                        <option value="INPROGRESS">In Progress</option>
-                        <option value="CLOSED"">Closed</option>
-                 </select>
-            </div>
-
-            <div class="input_row">
-                <label for="assignee" ><strong>Assignee</strong> <em>*</em></label>
-                <select id="assignee" name="assignee" class="select_list half big">
-                {{#each users}}
-                    <option value="{{name}}">{{name}}</option>
-                {{/each}}
-                </select>
-               <!--<input type='text' id='assignee' name="assignee" placeholder="Assignee" maxlength="40" value="{{issue.assignee}}" class="half required"/>-->
-            </div>
-
-            <div class="input_row">
-                <label for="version" ><strong>Version</strong> <em>*</em></label>
-               <select id='version' class="select_list half big">
-                {{#each version}}
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="version">Version: </label>
+                    <select id="version" class="form-control select2">    
+                    {{#each versions}}
                     <option value="{{id}}">{{version}}</option>
-                {{/each}}
-                </select>
-
+                    {{/each}}
+                    </select>
+                    </div>
+                <div class="form-group">
+                    <label for="severity">Severity: </label>
+                    <select id="severity" class="form-control select2">
+                        <option value="BLOCKER" data-icon="fa-ban">Blocker</option>
+                        <option value="CRITICAL" data-icon="fa-exclamation">Critical</option>
+                        <option value="NONE" data-icon="fa-circle-o">Non Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignee">Assignee: </label>
+                      <select id="assignee" class="form-control select2">
+                      {{#each users}}
+                      <option value="{{name}}">{{name}}</option>
+                      {{/each}}
+                      </select>
+    
+                </div>
             </div>
-
-
-            <div class="input_row">
-                <label for="severity" ><strong>Severity</strong> <em>*</em></label>
-                <select id="severity" class="select_list half big">
-                        <option value="NONE">None</option>
-                         <option value="BLOCKER">Blocker</option>
-                         <option value="CRITICAL">Critical</option>
-                         <option value="TRIVIAL">Trivial</option>
-                         <option value="MAJOR">Major</option>
-                         <option value="MINOR">Minor</option>
-
-                </select>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="description">Description: </label>
+                    <textarea class="form-control" rows="3" id="description" placeholder="Write a small description a" value="{{issue.description}}">{{issue.description}}</textarea>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="updateIssue">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                        </span>
+                        Update Issue
+                    </button>
+                    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+                </div>
+                <div class="clearfix"></div>
+                <div id="push"></div>
+                <div id="push"></div>
             </div>
-
-        </fieldset>
-
-        <div class="buttonrow">
-                <input type="button" value="Update Issue" class="btn main" id='editIssue' />
-            <a href="/issuetracker/index.jag?appkey={{appkey}}">Cancel</a>
         </div>
-    <input type="hidden" name="userName"  id="userName" value='<%= session.get("LOGGED_IN_USER") %>'/>
+    </div><!-- /.container -->
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{url "/themes/issuetracker/js/jquery-1.11.1/jquery.min.js"}}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{url "/themes/issuetracker/js/bootstrap-3.2.0/bootstrap.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.min.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/datatables-1.10.7/jquery.dataTables.columnFilter.js"}}"></script>
+<script src="{{url "/themes/issuetracker/js/select2-4.0.0/select2.min.js"}}"></script>
+<!-- include custom js functions -->
+<script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 
-</div><!-- /form-container -->
+<script type="text/javascript">
+ $(document).ready(function() {
 
+    //setting issue type value
+    setIssueTypeValue();
+    //setting issue severity value
+    setIssueSeverityValue();
+    //setting issue priority value
+    setIssuePriorityValue();
+    //setting issue status value
+    setIssueStatusValue();
+ });
 
-<script>
-    var type = document.getElementById('type');
-    var project = document.getElementById('projectKey');
-    var priority = document.getElementById('priority');
-    var issue_status = document.getElementById('issue_status');
-    var severity = document.getElementById('severity');
-    var version= document.getElementById('version');
-    var assignee= document.getElementById('assignee');
+    function setIssueTypeValue(){
+        if("{{issue.type}}" == "BUG" || "{{issue.type}}" == "VULNERABILITY")
+        {
+            $("#type").select2("val","BUG");        
+        }
+        else if("{{issue.type}}" == "EPIC" || "{{issue.type}}" == "STORY" || "{{issue.type}}" == "PATCH" || "{{issue.type}}" == "MODERATION" || "{{issue.type}}" == "IMPROVEMENT")
+        {
+            $("#type").select2("val","IMPROVEMENT");   
+        }
+        else
+        {
+            $("#type").select2("val","{{issue.type}}"); 
+        }
+    };
+    
+    function setIssueSeverityValue(){
+        if("{{issue.severity}}" == "NONE" || "{{issue.severity}}" == "MINOR" || "{{issue.severity}}" == "TRIVIAL")
+        {
+            $("#severity").select2("val","NONE"); 
+        }
+        else if("{{issue.severity}}" == "CRITICAL" || "{{issue.severity}}" == "MAJOR")
+        {
+            $("#severity").select2("val","CRITICAL");
+        }
+        else
+        {
+            $("#severity").select2("val","{{issue.severity}}");  
+        }
+    };
 
+    function setIssuePriorityValue(){
+        if("{{issue.priority}}" == "LOW" || "{{issue.priority}}" == "NORMAL")
+        {
+            $("#priority").select2("val","LOW"); 
+        }
+        else
+        {
+            $("#priority").select2("val","{{issue.priority}}");  
+        }
+    };
 
+    function setIssueStatusValue(){
+        $("#status").select2("val","{{issue.status}}"); 
+    };
 
+  function formatState (state) {
+        if (!state.id) { return state.text; }
+        var $state;
+        if(state.element.attributes['data-icon']){
+            var $state = $(
+                    '<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }else{
+            var $state = $(
+                    '<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }
+        return $state;
+    };
+    $('.select2').select2({
+        templateResult: formatState,
+        templateSelection :formatState
+    });
 
-    type.value = "{{issue.type}}";
-    project.value = "{{projectKey}}";
-    priority.value = "{{issue.priority}}";
-    issue_status.value = "{{issue.status}}";
-    severity.value = "{{issue.severity}}";
-    version.value = "{{issue.versionId}}";
-    assignee.value="{{issue.assignee}}";
 
 </script>
 

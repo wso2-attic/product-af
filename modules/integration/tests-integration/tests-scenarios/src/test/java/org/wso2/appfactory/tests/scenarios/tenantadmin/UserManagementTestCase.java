@@ -77,7 +77,7 @@ public class UserManagementTestCase extends AFIntegrationTest {
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Invite user to application ", dependsOnMethods = {"testUpdateUserRoles"})
+    @Test(description = "Invite user to application <used in Dev Studio> ", dependsOnMethods = {"testUpdateUserRoles"})
     public void testInviteUsersToApplication() throws Exception {
         boolean success = userMgtClient.inviteUsersToApplication(
                 defaultAppKey, USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES);
@@ -122,7 +122,7 @@ public class UserManagementTestCase extends AFIntegrationTest {
         return returnedUsers;
     }
 
-    private ArrayList<String> getApplicationUsers(String defaultAppKey) throws AFIntegrationTestException {
+    private ArrayList<String> getApplicationUsers(String defaultAppKey) throws Exception {
         JSONArray users = userMgtClient.getUsersOfApplication(defaultAppKey);
         ArrayList<String> returnedUsers = new ArrayList<String>();
         for (int i = 0; i < users.length(); i++) {

@@ -117,6 +117,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>commons-codec.wso2</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jgit.wso2</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
         </dependency>

@@ -38,10 +38,10 @@ include("/jagg/config_reader.jag");
     }
     var application_creation_topic = 'APPLICATION_CREATION';
     if (action == "subscribe") {
-        var application_list = session.get("application_list");
+        var application_list = session.get(APPLICATION_LIST_CACHE);
         if(application_list == null) {
         	application_list = modApplication.getAllAppsOfUser(jagg.getUser());
-            session.put('application_list', application_list);
+            session.put(APPLICATION_LIST_CACHE, application_list);
         }
         var userApps = parse(application_list);
         for (var i = 0; i < userApps.length; i++) {
@@ -57,10 +57,10 @@ include("/jagg/config_reader.jag");
         mod.subscribe(application_creation_topic, subscriberId);
     } else if (action == "poll") {
         var messages = new Array();
-        var application_list = session.get("application_list");
+        var application_list = session.get(APPLICATION_LIST_CACHE);
         if(application_list == null) {
         	application_list = modApplication.getAllAppsOfUser(jagg.getUser());
-            session.put('application_list', application_list);
+            session.put(APPLICATION_LIST_CACHE, application_list);
         }
         var userApps = parse(application_list);
         for (var i = 0; i < userApps.length; i++) {

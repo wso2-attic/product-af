@@ -20,7 +20,6 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.Storage;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
-import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 
 /**
  * This class will be used to connect to the jenkins persistent storage and deploy artifacts in
@@ -45,7 +44,7 @@ public class JenkinsStorage extends Storage {
     	String jobName =
                 ServiceHolder.getContinuousIntegrationSystemDriver()
                              .getJobName(applicationId, version, revision);
-        return connector.getTagNamesOfPersistedArtifacts(jobName, tenantDomain);
+        return null;
     }
 
     /**

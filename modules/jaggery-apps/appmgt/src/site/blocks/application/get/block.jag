@@ -23,59 +23,44 @@ jagg.block("application/get", {
     initialize:function (data) {
 
     },
+
     getInputs:function () {
         return {
             "applicationKey":null
         }
     },
 
-    getOutputs:function (inputs) {     
+    getOutputs:function (inputs) {
     	var log = new Log();
         var applicationKey = request.getParameter("applicationKey");
-    	var lifeCycleModule = jagg.module("lifecycle");
     	var mod = jagg.module("manager");
-    	
-    	var hasConfigureAPIManagerPermission = true;//jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_CONFIGURATION_API_MANAGER);
-    	var hasRepoReadWritePermission =true;// jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_REPOSITORY_READ_WRITE);
-    	
-    	var map = {};
-    	var stages = lifeCycleModule.getAllLifeCycleStages();
-    	
-    	for(var index in stages){
-    		var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO+stages[index]);
-    		map[stages[index]] = isAllowed ;
-    	}
+    	var lifeCycleModule = jagg.module("lifecycle");
 
-         var permissionModule = jagg.module("permission");
-    	 var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var userName = jagg.getUser();
+        var stagesMap = {};
 
-         var tenantDomain = mod.getTenantDomain();
-	     var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
-		 var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
-	     var helpTips = jagg.module("help").getHelpTips("applicationHome");
+        if(userName) {
 
-		var applicationType = mod.getApplicationType(applicationKey);
-		var executionType = mod.getApplicationTypeBean(applicationType).getExecutionType();
-		var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
-		var hasAppCreationPermission = jagg.module("permission").hasAppCreationPermission();
-		var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
+            // create stages map
+            var stages = lifeCycleModule.getAllLifeCycleStages();
+            for (var index in stages) {
+                var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO + stages[index]);
+                stagesMap[stages[index]] = isAllowed;
+            }
+
+            var applicationType = mod.getApplicationType(applicationKey);
+            var isCodeEditorSupported = mod.getApplicationTypeBean(applicationType).isCodeEditorSupported();
+            var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
+            var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+        }
 
     	return {
-			"tenantDomain": tenantDomain,
-			"hasConfigureAPIManagerPermission": hasConfigureAPIManagerPermission,
-			"hasRepoReadWritePermission": hasRepoReadWritePermission,
-			"stagesMap": map,
-			"hasDomainMappingPermission": hasDomainMappingPermission,
-			"fineGrainedDomainMappingAllowedStage": fineGrainedDomainMappingAllowedStage,
-			"helpTips": helpTips,
-			"executionType": executionType,
-			"isAllowDomainMapping": isAllowDomainMapping,
-			"hasAppCreationPermission": hasAppCreationPermission,
-			"isUploadableAppType": isUploadableAppType
+			"isCodeEditorSupported":isCodeEditorSupported,
+			"hasDomainMappingPermission":hasDomainMappingPermission,
+			"fineGrainedDomainMappingAllowedStage":fineGrainedDomainMappingAllowedStage,
+			"stagesMap": stagesMap
     	};
     }
 
-
 });
 %>
-

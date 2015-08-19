@@ -32,9 +32,9 @@ import java.util.Map;
 public class UserMgtClient extends BaseClient {
 
     //Endpoints
-    public static final String EP_GET_USERS = "application/users/get/ajax/list.jag";
-    public static final String EP_APP_ADD_USERS = "application/users/add/ajax/add.jag";
-    public static final String EP_APP_UPDATE_USERS = "application/users/update/ajax/update.jag";
+    public static final String EP_GET_USERS = "application/user/get/ajax/list.jag";
+    public static final String EP_APP_ADD_USERS = "application/user/add/ajax/add.jag";
+    public static final String EP_APP_UPDATE_USERS = "application/user/update/ajax/update.jag";
 
     // Request actions
     public static final String ACTON_GET_USERS_OF_APPLICATION = "getUsersOfApplication";
@@ -78,7 +78,7 @@ public class UserMgtClient extends BaseClient {
      * ]
      * @throws AFIntegrationTestException
      */
-    public JSONArray getUsersOfApplication(String appKey) throws AFIntegrationTestException {
+    public JSONArray getUsersOfApplication(String appKey) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTON_GET_USERS_OF_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);
@@ -101,7 +101,7 @@ public class UserMgtClient extends BaseClient {
      * @return success or not
      * @throws AFIntegrationTestException if an error occurred
      */
-    public boolean inviteUsersToApplication(String appKey, String userNames) throws AFIntegrationTestException {
+    public boolean inviteUsersToApplication(String appKey, String userNames) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_INVITE_USER_TO_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);
@@ -124,7 +124,7 @@ public class UserMgtClient extends BaseClient {
      * @return success or not
      * @throws AFIntegrationTestException if an error occurred
      */
-    public boolean removeUsersFromApplication(String appKey, String userNames) throws AFIntegrationTestException {
+    public boolean removeUsersFromApplication(String appKey, String userNames) throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_REMOVE_USER_FROM_APPLICATION);
         msgBodyMap.put(REQUEST_KEY_APPKEY, appKey);

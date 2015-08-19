@@ -119,15 +119,7 @@ var addUserToApplicationWS = function addUserToApplicationWS(applicationKey,user
     var tenantManager= multitenancy.getTenantManager();
     var result=false;
     var userNames=users.split(",");
-    try{
-         context.startTenantFlow();
-         context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-         context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-         result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').addUsersToApplication(userNames,applicationKey);
-
-    }finally{
-         context.endTenantFlow();
-    }
+    result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').addUsersToApplication(userNames,applicationKey);
     return result;
 };
 %>

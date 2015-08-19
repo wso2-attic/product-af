@@ -22,7 +22,6 @@ jagg.template("application/user/list", function(inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
-    // jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
     var helpTips = outputs.helpTips;
     %>
@@ -92,7 +91,7 @@ function enableButton(ischecked){
         $('.cleanable').remove();
         var $userListContainer = $('#userDetailsSection');
 
-        jagg.post("../blocks/application/users/get/ajax/list.jag", {
+        jagg.post("../blocks/application/user/get/ajax/list.jag", {
             action: "getUsersOfApplication",
             applicationKey:$("#applicationKey").attr('value')
     }, function (result) {
@@ -521,7 +520,7 @@ $('#removeUsers').click(function(){
     /*delete a given user*/
     function deleteUsers(){
 
-        jagg.post("../blocks/application/users/update/ajax/update.jag", {
+        jagg.post("../blocks/application/user/update/ajax/update.jag", {
                     action:"removeUserFromApplication",
                     applicationKey:$("#applicationKey").attr('value'),
                     users:selectedUsers.toString()
@@ -565,14 +564,15 @@ $('#removeUsers').click(function(){
 
 </script>
 
-
-
-
-<div class="container">
+<div><!-- BOF middle containner -->
     <article class="main">
         <% jagg.includeBlock("page/messages", null); %>
         <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.TEAM}); %>
         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+        
+        <!-- following div can be removed after new ux-->
+        <div style="height: 80px; "></div>
+        <!-- -->
         <header class="separator">
             <div class="content">
                 <div class="left">
@@ -646,12 +646,16 @@ $('#removeUsers').click(function(){
 
     <div class="clearfix"></div>
     </article>
-</div><!-- /container -->
+    </div><!-- /container -->
 
 <input type="hidden" id="userName" value='<%= jagg.getUser() %>' />
 <input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
 
-
+<script>
+    $(document).ready(function(){
+    });
+</script>
+<!-- -->
 
 
 

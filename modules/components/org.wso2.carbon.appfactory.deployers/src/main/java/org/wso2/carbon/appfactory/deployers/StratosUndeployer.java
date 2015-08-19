@@ -16,7 +16,6 @@ import org.wso2.carbon.context.CarbonContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  * Concrete implementation of Stratos Undeployer.
@@ -28,8 +27,7 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
     }
 
     @Override
-    public void undeployArtifact(String deployerType, String applicationId,
-                                 String applicationType, String version, String lifecycleStage,
+    public void undeployArtifact(String applicationId, String applicationType, String version, String lifecycleStage,
                                  ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
                                  throws AppFactoryException {
 
@@ -39,8 +37,8 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
         File applicationTempLocation = Files.createTempDir();
         if (log.isDebugEnabled()) {
             log.debug("Deleting application of application id : " + applicationId + " version : " + version +
-                    " stage :  " + lifecycleStage + " application type : " + applicationType + " deployer type : " +
-                    deployerType + " server deployment path : " + serverDeploymentPath);
+                    " stage :  " + lifecycleStage + " application type : " + applicationType +
+                    " server deployment path : " + serverDeploymentPath);
         }
         try {
             undeployArtifactFromDepSyncGitRepo(
@@ -89,12 +87,11 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
         repositoryClient.retireveMetadata(gitRepoUrl, false, applicationTempLocation);
         File applicationRootLocation = new File(applicationTempLocation, serverDeploymentPath);
 
-        @SuppressWarnings("unchecked")
-        Collection<File> filesToDelete = getFilesToDelete(
-                applicationId, version, fileExtension, applicationRootLocation);
+        // Get file or directory to delete
+        File file = getFileToDelete(applicationId, version, fileExtension, applicationRootLocation);
 
         // Removing files from git
-        for (File file : filesToDelete) {
+        if (file.exists()) {
             if (log.isDebugEnabled()) {
                 log.debug("Removing the file in the path : " + file.getAbsolutePath()+" from dep sync git repo");
             }
@@ -104,15 +101,20 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
                 String msg = "Unable to remove the file from dep sync git repository : " + file.getAbsolutePath();
                 throw new AppFactoryException(msg);
             }
-        }
-
-        repositoryClient.commitLocally("Undelpoying artifacts of applicationId : " + applicationId, true,
-                applicationTempLocation);
-        repositoryClient.pushLocalCommits(gitRepoUrl, AppFactoryConstants.MASTER, applicationTempLocation);
-        if (log.isDebugEnabled()) {
-            log.debug("Deleted artifact for applicationId : " + applicationId + " stage : " + stage + " version : "
-                    + version + " server deployment path : " + serverDeploymentPath +
-                    " application root location : " + applicationRootLocation);
+            repositoryClient.commitLocally("Undelpoying artifacts of applicationId : " + applicationId, true,
+                                           applicationTempLocation);
+            repositoryClient.pushLocalCommits(gitRepoUrl, AppFactoryConstants.MASTER, applicationTempLocation);
+            if (log.isDebugEnabled()) {
+                log.debug("Deleted artifact for applicationId : " + applicationId + " stage : " + stage + " version : "
+                          + version + " server deployment path : " + serverDeploymentPath +
+                          " application root location : " + applicationRootLocation);
+            }
+        } else {
+            if(log.isDebugEnabled()) {
+                log.debug("Unable to remove the file from dep sync git repository: " + file.getAbsolutePath()+
+                          ". File: "+file.getName()+" does not exists in the dep sync git repository: "+gitRepoUrl +
+                          " in server deployment path: "+serverDeploymentPath);
+            }
         }
     }
 
@@ -127,7 +129,7 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
         String baseUrl = getBaseRepoUrl();
         String gitRepoUrl;
         if (subscribeOnDeployment) {
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                     + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR + applicationId
                     + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
                     AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
@@ -141,7 +143,7 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
                 preDevRepoNameAppender = "_" + tenantAwareUsername;
             }
 
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                     + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
                     + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         }

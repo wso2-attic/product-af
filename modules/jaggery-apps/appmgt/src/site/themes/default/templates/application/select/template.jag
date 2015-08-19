@@ -1,0 +1,216 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("application/select", function (inputs, outputs, jagg) { %>
+
+<% 
+    var log = new Log();
+    var type = request.getParameter("type");
+    var buttonCreateUpload;
+    if( type == "new"){
+        buttonCreateUpload = "Create Application";
+    }else{
+        buttonCreateUpload = "Upload Application";
+    }                                
+%>
+<script>
+    var type = '<%=type%>';
+</script>
+<!--#############################################################-->
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Application listing
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+  <% if (outputs.applicationTypesHolder) { %>
+
+    <div class="container-fluid app-type-listing">
+        <div class="row listing " data-count="<%=outputs.applicationTypesHolder.length%>">
+            <% for(var i= 0; i<outputs.applicationTypesHolder.length; i++){ %>
+                <% var appTypeBean = outputs.applicationTypesHolder[i].applicationTypeBean; %>
+                    <div class="col-xs-12 col-sm-6 col-md-3 col-lg-2 ">
+                    <div class="cloud-app-type <%=appTypeBean.getIconColorClass()%>" id="<%=i+1%>"
+                     data-description="<%=appTypeBean.getDescription()%> "
+                     data-appTypeDisplayName="<%=appTypeBean.getDisplayName()%>"
+                     data-apptypeIconImageClass="<%=appTypeBean.getIconImageClass()%>"
+                     data-apptypeIconColor="<%=appTypeBean.getIconColorClass()%>"
+                     data-apptype="<%=appTypeBean.getApplicationTypeName()%>">
+                        <i class="fw <%=appTypeBean.getIconImageClass()%> fw-5x"></i>
+                        <div class="type-name"><%=appTypeBean.getDisplayName()%></div>
+                    </div>
+                </div>
+            <%}%>
+        </div>
+    </div><!-- /.container -->
+    <!-- BOF template block appear on each click -->
+  <div class="app-type-info-template" style="display: none">
+        <div class="longme" style="display: none">
+            <div class="clearfix"></div>
+            <div class="col-md-12 long">
+                <div class="row">
+                    <div class="col-sm-8 col-md-8 col-lg-7">
+                        <h2 class="app-appTypeDisplayName">JAVA Appication</h2>
+                        <div class="app-description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. ultricies nec,
+                            pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla
+                            vel, aliquet nec, vulputate eget, arcu.
+                        </div>
+                        <div class="button-bar">
+                            <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-book"></i> Documentation</a>
+                            <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4 col-lg-5 description-action">
+                          <form id='testForm'  method='post' action='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>?type=<%=type%>'>
+                            <input type="hidden" id="appTypeDisplayName" name="appTypeDisplayName" value="" />
+                            <input type="hidden" id="apptype" name="apptype" value="" />
+                            <input type="hidden" id="apptypeExtension" name="apptypeExtension" value="" />
+                            <input type="hidden" id="apptypeIconColor" name="apptypeIconColor" value="" />
+                            <input type="hidden" id="apptypeIconImageClass" name="apptypeIconImageClass" value="" />
+
+                            <a href="#" class="cu-btn cu-btn-md cu-btn-blue app-create-url" onclick="document.getElementById('testForm').submit()">
+                               <span class="fw-stack fw-lg btn-action-ico">
+                               <i class="fw fw-ring fw-stack-2x"></i>
+                               <i class="fw fw-add fw-stack-1x"></i>
+                               </span>
+                                <%=buttonCreateUpload%>
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%}%>
+    <!-- EOF template block appear on each click -->
+    <div id="push"></div>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<script>
+/**
+ * this function use to append description block on app type selection
+ * */
+$(document).on('click', '.cloud-app-type', function(){
+
+    $('.listing').find('.longme').detach();
+    if($('.cloud-app-type').hasClass('cloud-app-selected')){
+        $('.cloud-app-type').removeClass('cloud-app-selected');
+        $(this).addClass('cloud-app-selected');
+    }else{
+        $(this).addClass('cloud-app-selected');
+
+    }
+
+    var width = $( window ).width(),
+        currentcount = parseInt($(this).attr('id')),
+        appDescription = $(this).attr('data-description'),
+        appName = $(this).attr('data-appname'),
+        appTypeDisplayName = $(this).attr('data-appTypeDisplayName'),
+        apptype = $(this).attr('data-apptype'),
+        extension = $(this).attr('data-apptypeExtention'),
+        apptypeIconColor= $(this).attr('data-apptypeIconColor'),
+        apptypeIconImageClass= $(this).attr('data-apptypeIconImageClass'),
+        dataCount = parseInt($('.listing').attr('data-count'));
+    //content replace with data attributes
+    $('.app-type-info-template').find('.app-name').html(appName);
+    $('.app-type-info-template').find('.app-description').html(appDescription);
+
+    $('.app-type-info-template').find('.app-appTypeDisplayName').html(appTypeDisplayName);
+    $('.app-type-info-template').find('.app-apptype').html(apptype);
+
+    // replace the form hidden input fields values
+    $('#appTypeDisplayName').val(appTypeDisplayName);
+    $('#apptype').val(apptype);
+    $('#apptypeExtension').val(extension);
+    $('#apptypeIconColor').val(apptypeIconColor);
+    $('#apptypeIconImageClass').val(apptypeIconImageClass);
+    var appendHtml =$('.app-type-info-template').html();
+
+
+    if(width >=1170){
+        if(currentcount%7 == 0){
+            $('#'+currentcount+'\\.0').parent().after(appendHtml);
+            $('.longme').fadeIn('slow')
+        }else{
+            var ctest = currentcount+(7- currentcount%7);
+            console.log(ctest)
+            if(ctest > dataCount){
+                $('#'+ dataCount+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }else{
+                $('#'+ctest+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }
+
+        }
+    }else if(width >=970){
+        if(currentcount%4 == 0){
+            $('#'+currentcount+'\\.0').parent().after(appendHtml);
+            $('.longme').fadeIn('slow')
+        }else{
+            var ctest = parseInt(currentcount)+(4- currentcount%4);
+            if(ctest > dataCount){
+                $('#'+ dataCount+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }else{
+                $('#'+ctest+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+
+            }
+
+        }
+    }else if(width >=750 ){
+        if(currentcount%2 == 0){
+            $('#'+currentcount+'\\.0').parent().after(appendHtml);
+            $('.longme').fadeIn('slow')
+        }else{
+            var ctest = parseInt(currentcount)+1;
+            if(ctest > dataCount){
+                $('#'+ dataCount+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+            }else{
+                $('#'+ctest+'\\.0').parent().after(appendHtml);
+                $('.longme').fadeIn('slow')
+
+            }
+
+        }
+
+    }else if(width <750 ){
+        $('#'+currentcount+'\\.0').parent().after(appendHtml);
+        $('.longme').fadeIn('slow')
+
+    }
+
+
+})
+
+
+</script>
+<!--#############################################################-->
+
+<% }); %>

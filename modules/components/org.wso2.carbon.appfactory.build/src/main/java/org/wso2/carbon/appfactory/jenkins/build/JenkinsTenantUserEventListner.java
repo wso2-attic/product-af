@@ -20,9 +20,8 @@ package org.wso2.carbon.appfactory.jenkins.build;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.*;
+import org.wso2.carbon.appfactory.core.TenantUserEventListner;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
-import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 
 public class JenkinsTenantUserEventListner extends TenantUserEventListner  {
 
@@ -45,12 +44,7 @@ public class JenkinsTenantUserEventListner extends TenantUserEventListner  {
 	@Override
 	public void onUserRoleAddition(UserInfo userInfo, String tenantDomain)
 			throws AppFactoryException {
-		// TODO Auto-generated method stub
-//		log.info("******************on user role addition event listner for jenkins is called");
-//		  ServiceContainer.getJenkinsCISystemDriver()
-//          .addUsersToApplication("",
-//                  new String[]{userInfo.getUserName()}, tenantDomain);
-		
+		// Removed user addition to jenkins from Appfactory 2.2.0 M1
 	}
 
 	@Override

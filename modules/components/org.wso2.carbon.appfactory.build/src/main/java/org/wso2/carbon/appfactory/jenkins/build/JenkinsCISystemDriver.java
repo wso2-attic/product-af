@@ -22,13 +22,12 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
-import org.wso2.carbon.appfactory.core.dto.Statistic;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.Statistic;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
 
     public File getArtifact(String applicationId, String version, String artifactName, String tenantDomain)
             throws AppFactoryException {
-        return this.connector.getArtifact(getJobName(applicationId, version, ""), artifactName, tenantDomain);
+        return null;
     }
 
     /**
@@ -132,7 +131,7 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
      * {@inheritDoc}
      */
     public List<String> getAllJobNames( String tenantDomain) throws AppFactoryException {
-        return connector.getAllJobs(tenantDomain);
+        return null;
     }
 
     /**
@@ -166,48 +165,6 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     }
 
     /**
-     * Additional method to be used by {@link JenkinsApplicationEventsListener}.
-     * Method will add a role (in role strategy plugin) to match jobs created
-     * for specified application.
-     * (when a user is added/invited to a application,
-     * {@link JenkinsApplicationEventsListener} will assign
-     * the role associated with application to user.
-     * <p>
-     * <b>NOTE: This method assumes role-strategy plugin is correctly installed
-     * in jenkins server
-     * </p>
-     *
-     * @param applicationId application Id
-     * @throws AppFactoryException if an error occurs
-     */
-    public void setupApplicationAccount(String applicationId, String tenantDomain) throws AppFactoryException {
-        String applicationSelectorRegEx = applicationId.concat(".*");
-        String projectRolePermissions=ServiceContainer.getAppFactoryConfiguration()
-                .getFirstProperty(JenkinsCIConstants.PROJECT_ROLE_PERMISSIONS_CONFIG_SELECTOR);
-       String[]permissions= projectRolePermissions.split(",");
-
-        connector.createRole(applicationId, applicationSelectorRegEx,permissions, tenantDomain);
-    }
-
-    /**
-     * Configures given list of users in jenkins server ( role strategy plugin)
-     * by assigning correct application specific roles and set of global roles.
-     * These role should be already defined in jenkins server.
-     * <p>
-     * <b>NOTE: This method assumes role-strategy plugin is correctly installed
-     * in jenkins server
-     * </p>
-     *
-     * @param applicationId Application Id
-     * @param userIds       set of users (Ids)
-     * @throws AppFactoryException if a error occurs
-     */
-    public void addUsersToApplication(String applicationId, String[] userIds, String tenantDomain)
-            throws AppFactoryException {
-        connector.assignUsers(userIds, new String[]{applicationId}, defaultGlobalRoles, tenantDomain);
-    }
-
-    /**
      * edit the existing jog configuration  when lifeCycle change
      *
      * @param applicationId Application Id
@@ -219,10 +176,9 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     @Deprecated
     public void editADJobConfiguration(String applicationId, String version,  String updateState,
                                   int pollingPeriod, String tenantDomain) throws AppFactoryException {
-        connector.editJob(getJobName(applicationId, version, ""), updateState, pollingPeriod, tenantDomain);
 
     }
-    
+
     public void setJobAutoBuildable(String applicationId, String version,  boolean isAutoBuild,
                                        int pollingPeriod, String tenantDomain) throws AppFactoryException {
         String repositoryType=ProjectUtils.getRepositoryType(applicationId, tenantDomain);
@@ -239,8 +195,8 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
         // get load statistics
         List<Statistic> stats = connector.getOverallLoad(tenantDomain);
         // get build statistics for all jobs
-        List<String> allJobNames = connector.getAllJobs(tenantDomain);
-        Collections.addAll(stats, getBuildStatistics(allJobNames, tenantDomain));
+//        List<String> allJobNames = connector.getAllJobs(tenantDomain);
+//        Collections.addAll(stats, getBuildStatistics(allJobNames, tenantDomain));
         return stats.toArray(new Statistic[stats.size()]);
     }
 
@@ -250,12 +206,11 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     @Override
     public Statistic[] getApplicationStatistics(String applicationId, Map<String, String> parameters, String tenantDomain)
             throws AppFactoryException {
-        List<String> jobsNames = connector.getJobNames(applicationId, tenantDomain);
-        return getBuildStatistics(jobsNames, tenantDomain);
+        return null;
     }
     
     public String getJsonTree(String jobName,String treeStructure, String tenantDomain)throws AppFactoryException{
-        return connector.getJsonTree(jobName, treeStructure, tenantDomain);
+        return null;
     }
 
     /**
@@ -304,17 +259,6 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
 	public void setJobAutoDeployable(String applicationId, String version, boolean isAutoDeployable, String tenantDomain)
             throws AppFactoryException {
 		connector.setJobAutoDeployable(getJobName(applicationId, version, ""), isAutoDeployable, tenantDomain);
-    }
-
-	/**
-	 * Removes permission to access given application for given set of users in jenkins build system.
-	 * @param applicationKey - key of the application.
-	 * @param users - users to be removed from application access.
-	 * @throws AppFactoryException 
-	 */
-	public void removeUsersFromApplication(String applicationKey, String[] users, String tenantDomain) throws AppFactoryException {
-	    connector.unAssignUsers(applicationKey, users, tenantDomain);
-	    
     }
 
 

@@ -20,15 +20,48 @@
 jagg.block("urlmapper/add", {
     initialize:function (data) {
 
+    },
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {
+        var applicationKey = request.getParameter("applicationKey");
+        var mod = jagg.module("manager");
+        var modApplication = jagg.module("application");
+        var userName = jagg.getUser();
+        if(userName) {
+
+            var permissionModule = jagg.module("permission");
+            var isTenantAdmin = permissionModule.hasTenantLevelUserMgtPermission();
+
+            var tenantDomain = mod.getTenantDomain();
+            var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+            var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
+                                                                                           PERMISSION_DOMAIN_MAPPING);
+
+            var applicationType = mod.getApplicationType(applicationKey);
+            var isAllowDomainMapping = mod.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+            var hasAppCreationPermission = jagg.module("permission").hasAppCreationPermission();
+            var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
+            var initialAppVersionInfo = modApplication.getAppVersionsByStage(applicationKey,
+                                                                             fineGrainedDomainMappingAllowedStage);
+        }
+        return {
+            "tenantDomain": tenantDomain,
+            "hasDomainMappingPermission": hasDomainMappingPermission,
+            "fineGrainedDomainMappingAllowedStage": fineGrainedDomainMappingAllowedStage,
+            "isAllowDomainMapping": isAllowDomainMapping,
+            "hasAppCreationPermission": hasAppCreationPermission,
+            "isUploadableAppType": isUploadableAppType,
+            "isTenantAdmin":isTenantAdmin,
+            "initialAppVersionInfo": initialAppVersionInfo
+        };
     }
-
-
-
-
-
-
-
 
 
 });
 %>
+

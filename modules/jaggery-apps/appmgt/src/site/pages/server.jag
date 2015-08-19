@@ -43,6 +43,31 @@ var site = require("/site/conf/site.json");
                             }
                             }
                         ],
+                        "breadcrumb":[
+                            {
+                                "name":"breadcrumb",
+                                "inputs":{
+                                    "linkParams":[
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/server.jag",
+                                            "displayName": "Logs",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
                         "tablinks":[
                             {
                             	"name":"tablinks",

@@ -61,7 +61,12 @@
             session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
             response.sendRedirect("/appmgt/site/pages/index.jag");
             createTenantInfoObject();
-            putUserRolesToSession(ssoRelyingParty.getLoggedInUser(sessionId));
+            
+            var modManager = jagg.module("manager");
+            var tenantInitilizer = Packages.org.wso2.carbon.appfactory.core.AFTenantInitializer;
+            tenantInitilizer.initializeAFTenant(modManager.getTenantDomain());
+
+            putUserRolesToSession();
             return;
         } else {
             // if the saml response is log out request from IDP, we log out from web app.
@@ -91,19 +96,22 @@ function createTenantInfoObject(){
     tenantInfo.tenantDomain=modManager.getTenantDomain();
     tenantInfo.tenantId=modManager.getTenantId();
     tenantInfo.isOTTenant=modManager.getOTtenantProperty();
-    session.put("TENANT_INFO",tenantInfo);
+    session.put(TENANT_INFO,tenantInfo);
 }
 
-function putUserRolesToSession(userName){
-    var mod = jagg.module("tenant");
-    var result = mod.getUserInfo(userName.split("@")[0]);
-
-    if(result != undefined){
-    var userRoles = result.roles.toXMLString().split("\n");
+function putUserRolesToSession(){
+    var context = multitenancy.getPrivilegedCarbonContext();
+    var MultiTenantUtils = Packages.org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+    try {
+        context.startTenantFlow();
+        context.getThreadLocalCarbonContext().setTenantDomain(MultiTenantUtils.getTenantDomain(jagg.getUser()), true);
+        context.getThreadLocalCarbonContext().setUsername(MultiTenantUtils.getTenantAwareUsername(jagg.getUser()));
+        var mod = jagg.module("tenant");
+        var roles = mod.getUserRoles(MultiTenantUtils.getTenantAwareUsername(jagg.getUser()));
+        session.put(USER_ROLES,roles);
+    } finally {
+        context.endTenantFlow();
     }
-    session.put("USER_ROLES",userRoles);
-
-    
 }
 
 %>

@@ -80,11 +80,11 @@ public abstract class AbstractDeployer implements Deployer {
 				AppFactoryConstants.APPLICATION_VERSION);
 		String extension = DeployerUtil.getParameter(parameters,
 		        AppFactoryConstants.APPLICATION_EXTENSION);
-		String tenantDomain = getTenantDomain();
+		String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
 		String pathToPromotedArtifact = getArtifactStoragePath(applicationId,
 				version, artifactType, stageName, tenantDomain);
 
-		File[] fileToDeploy = getArtifact(pathToPromotedArtifact, extension);
+		File[] fileToDeploy = getArtifact(pathToPromotedArtifact, extension, stageName, applicationId, false);
 
 		deploy(artifactType, fileToDeploy, parameters, false);
 	}
@@ -108,7 +108,7 @@ public abstract class AbstractDeployer implements Deployer {
 				AppFactoryConstants.ARTIFACT_TYPE);
 		String version = DeployerUtil.getParameter(parameters,
 				AppFactoryConstants.APPLICATION_VERSION);
-		String tenantDomain = getTenantDomain();
+		String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
 		String extension = DeployerUtil.getParameter(parameters,
 		        AppFactoryConstants.APPLICATION_EXTENSION);
 	    String jobName = DeployerUtil.getParameter(parameters, AppFactoryConstants.JOB_NAME);
@@ -117,7 +117,7 @@ public abstract class AbstractDeployer implements Deployer {
 			String path = this.getSuccessfulArtifactTempStoragePath(applicationId, version, artifactType, stageName,
 			                                                        tenantDomain, jobName);
 
-			File[] artifactToDeploy = getLastBuildArtifact(path, extension);
+			File[] artifactToDeploy = getLastBuildArtifact(path, extension, stageName, applicationId, false);
 
 			if (AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT.equalsIgnoreCase(deployAction)) {
 				deploy(artifactType, artifactToDeploy, parameters, true);
@@ -166,7 +166,7 @@ public abstract class AbstractDeployer implements Deployer {
      * @return Array of artifacts as Files
      * @throws AppFactoryException If there is an issue in filtering artifacts
      */
-    protected File[] getArtifact(String path, String extension) throws AppFactoryException {
+    protected File[] getArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
         List<File> fileList = new ArrayList<File>();
         if (StringUtils.isNotBlank(path)) {
             if (StringUtils.isBlank(extension)) {
@@ -216,12 +216,11 @@ public abstract class AbstractDeployer implements Deployer {
      * @return Array of artifacts as Files
      * @throws AppFactoryException If there is an issue in filtering last build artifacts
      */
-    protected File[] getLastBuildArtifact(String path, String extension) throws AppFactoryException {
-        // Archive folder is considered for freestyle projects.
-        if (StringUtils.isBlank(extension)) {
-            path = path + File.separator + FREE_STYLE_APP_TYPE_FILE_PATH;
-        }
-        return getArtifact(path, extension);
+    protected File[] getLastBuildArtifact(String path, String extension, String stage, String applicationId, boolean isForLabel) throws AppFactoryException {
+	    if (StringUtils.isBlank(extension)) {
+		    path = path + File.separator + FREE_STYLE_APP_TYPE_FILE_PATH;
+	    }
+	    return getArtifact(path, extension, stage, applicationId, isForLabel);
     }
 
 	/**
@@ -257,7 +256,7 @@ public abstract class AbstractDeployer implements Deployer {
 							+ applicationId + ", version :" + version);
 		}
 
-		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, extension);
+		File[] lastSucessFiles = getLastBuildArtifact(lastSucessBuildFilePath, extension, stage, applicationId, true);
 		for (File lastSucessFile : lastSucessFiles) {
 			File lastSuccessArtifactPath = lastSucessFile;
 			String promotedDestDirPath = destDir.getAbsolutePath();
@@ -308,13 +307,35 @@ public abstract class AbstractDeployer implements Deployer {
 		this.storagePath = storagePath;
 	}
 
+	@Deprecated
 	public String getStoragePath() {
+		//TODO: remove this method when removing the org.wso2.carbon.appfactory.nonbuild.NonBuildableArtifactDeployer
 		return this.storagePath;
 	}
+
+	/**
+	 * Storage path wrt {@code tenantDomain}
+	 * @param tenantDomain tenant domain
+	 * @return storage path
+	 */
+	public abstract String getStoragePath(String tenantDomain);
 
 	public void setTempPath(String tempPath) {
 		this.tempPath = tempPath;
 	}
+
+	@Deprecated
+	public String getTempPath() {
+		//TODO: remove this method when removing the org.wso2.carbon.appfactory.nonbuild.NonBuildableArtifactDeployer
+		return this.tempPath;
+	}
+
+	/**
+	 * Temp path wrt {@code tenantDomain}
+	 * @param tenantDomain tenant domain
+	 * @return temp path
+	 */
+	public abstract String getTempPath(String tenantDomain);
 
 	public int getTenantID() {
 		return tenantID;

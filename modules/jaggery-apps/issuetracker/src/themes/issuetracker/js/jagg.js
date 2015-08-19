@@ -280,11 +280,4 @@ var messageTimer;
 		}
 	});
 
-    $('.js_close_message').live("click", function(event) {
-        $(this).closest('.message').slideUp(500, function() {
-            $(this).remove();
-        });
-        event.preventDefault();
-    });
-
 }());

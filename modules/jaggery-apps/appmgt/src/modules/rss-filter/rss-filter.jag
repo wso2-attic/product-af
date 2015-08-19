@@ -43,13 +43,7 @@ var addDatabase = function (databaseName, applicationKey, environment, databaseD
         applicationKey + " and stage: " + environment);
     }
     var tenantDomain = modManager.getTenantDomain() ;
-    var username = modManager.getDomainlessUserName();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     try {
-    	context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(username);
         rssAdapter.addDatabase(databaseName, applicationKey, environment, databaseDescription);
 	} catch(e) {
         var msg = "Error while adding database : " + databaseName + " for tenant: " + tenantDomain +
@@ -57,29 +51,20 @@ var addDatabase = function (databaseName, applicationKey, environment, databaseD
         log.error(msg);
         log.error(e);
         throw e;
-	} finally {
-		context.endTenantFlow();
 	}
 };
 var addDatabaseUser = function (databaseUserName, application, environment) {
     if (log.isDebugEnabled()) {
         log.debug("Adding database user info to RXT " + databaseUserName);
     }
-   var tenantDomain=modManager.getTenantDomain() ;
-   var context=multitenancy.getPrivilegedCarbonContext();
-   var tenantManager= multitenancy.getTenantManager();
+   var tenantDomain=modManager.getTenantDomain();
 	try{
-   	 context.startTenantFlow();
-    	 context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    	 context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
          rssAdapter.addDatabaseUser(databaseUserName, application, environment);
 	}catch(e){
         log.error("Error while adding database user : " + databaseUserName + " to application :  " + application
                   + " in environment : " + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-	}finally {
-    		context.endTenantFlow();
 	}
     
 };
@@ -88,22 +73,14 @@ var addDatabaseTemplate = function (databaseTemplateName, application, environme
         log.debug("Adding database template info to RXT " + databaseTemplateName);
     }
     var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
     try{
-    	context.startTenantFlow();
-    	context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         rssAdapter.addDatabaseUserPermissionTemplate(databaseTemplateName, application, environment); 
     }catch(e){
         log.error("Error while adding database template : " + databaseTemplateName + " to application : " + application
                   + " in environment : " + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-   }finally {
-
-    context.endTenantFlow();
-  }
+   }
 
  
 };
@@ -118,22 +95,15 @@ var getAllDatabases = function (application, environment, allDatabases) {
     //Once we have role based filtering in SS we do not need to do this.
      
     var names;
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
+    var tenantDomain=modManager.getTenantDomain();
     try{
-    	context.startTenantFlow();
-    	context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         names = rssAdapter.getAllDatabases(application, environment);
     }catch(e){
         log.error("Error while getting all databases of application : " + application + " in environment : "
                   + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    }finally {
-      context.endTenantFlow();
-   }
+    }
     if (log.isDebugEnabled()) {
         log.debug("Received database info from  RXT " + names);
     }
@@ -158,21 +128,16 @@ var getAllDatabaseUsers = function (application, environment, allUsers) {
         log.debug("Getting all users of " + application + " in " + environment);
     }
     var userNames;
-     var tenantDomain=modManager.getTenantDomain() ;
-     var context=multitenancy.getPrivilegedCarbonContext();
-     var tenantManager= multitenancy.getTenantManager();
-     try{
-     	context.startTenantFlow();
-    	context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-        userNames = rssAdapter.getAllDatabaseUsers(application, environment);
-     }catch(e){
-         log.error("Error while getting all database users of application : " + application + " in environment : "
-                   + environment + " of tenant domain : " + tenantDomain);
-         log.error(e);
-         throw e;
-    }finally {
-    context.endTenantFlow();
+    var tenantDomain=modManager.getTenantDomain() ;
+    var context=multitenancy.getPrivilegedCarbonContext();
+    var tenantManager= multitenancy.getTenantManager();
+    try{
+       userNames = rssAdapter.getAllDatabaseUsers(application, environment);
+    }catch(e){
+       log.error("Error while getting all database users of application : " + application + " in environment : "
+                 + environment + " of tenant domain : " + tenantDomain);
+       log.error(e);
+       throw e;
     }
 
     var filteredUsers = [];
@@ -194,21 +159,14 @@ var isDatabaseUserExists = function (application, environment, user) {
     if (log.isDebugEnabled()) {
         log.debug("Getting all users of " + application + " in " + environment);
     }
-   var tenantDomain=modManager.getTenantDomain() ;
-   var context=multitenancy.getPrivilegedCarbonContext();
-   var tenantManager= multitenancy.getTenantManager();
+   var tenantDomain=modManager.getTenantDomain();
    try{
-   	 context.startTenantFlow();
-    	 context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    	 context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
          return rssAdapter.isDatabaseUserExist(application,user,environment);
     }catch(e){
        log.error("Error while checking database user : " + user + " of application : " + application
                  + " in environment : " + environment + " of tenant domain : " + tenantDomain);
        log.error(e);
        throw e;
-    }finally {
-    context.endTenantFlow();
     }
     return false;
 };
@@ -217,21 +175,14 @@ var getAllDatabaseTemplates = function (application, environment, allTemplates) 
         log.debug("Getting all template of " + application + " in " + environment);
     }
     var templateNames;
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
+    var tenantDomain=modManager.getTenantDomain();
 	try{
-    		context.startTenantFlow();
-    		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                templateNames = rssAdapter.getAllDatabasePrivilegeTemplates(application, environment);
+    	templateNames = rssAdapter.getAllDatabasePrivilegeTemplates(application, environment);
 	}catch(e){
         log.error("Error while retrieving  all database templates of application : " + application
                   + " in environment : " + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-	}finally {
-    		context.endTenantFlow();
 	}
 
     var filteredTemplates = [];
@@ -254,21 +205,14 @@ var deleteDatabase = function (databaseName, application, environment) {
         log.debug("Deleting db " + databaseName);
     }
  
-    var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
+    var tenantDomain=modManager.getTenantDomain();
 	try{
-    		context.startTenantFlow();
-    		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                rssAdapter.deleteDatabase(databaseName, application, environment);  
+    	rssAdapter.deleteDatabase(databaseName, application, environment);
 	}catch(e){
         log.error("Error while deleting database : " + databaseName + " of application : " + application
                   + " in environment : " + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-	}finally {
-    		context.endTenantFlow();
 	}
 };
 var deleteDatabaseUser = function (databaseUserName, application, environment) {
@@ -277,42 +221,28 @@ var deleteDatabaseUser = function (databaseUserName, application, environment) {
     }
   
     var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
     try{
-    	context.startTenantFlow();
-    	context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
         rssAdapter.deleteDatabaseUser(databaseUserName, application, environment);
     }catch(e){
         log.error("Error while deleting database user : " + databaseUserName + " of application : "
                   + application + " in environment : " + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-   }finally {
-       context.endTenantFlow();
-   } 
+   }
 };
 var deleteDatabaseTemplate = function (databaseTemplateName, application, environment) {
     if (log.isDebugEnabled()) {
         log.debug("Deleting template " + databaseTemplateName);
     }
     var tenantDomain=modManager.getTenantDomain() ;
-    var context=multitenancy.getPrivilegedCarbonContext();
-    var tenantManager= multitenancy.getTenantManager();
     try{
-    		context.startTenantFlow();
-    		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-    		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                rssAdapter.deleteDatabaseUserPermissionTemplate(databaseTemplateName, application, environment);
+    	rssAdapter.deleteDatabaseUserPermissionTemplate(databaseTemplateName, application, environment);
     }catch(e){
         log.error("Error while deleting database template : " + databaseTemplateName + " of application : "
                   + application + " in environment : " + environment + " of tenant domain : " + tenantDomain);
         log.error(e);
         throw e;
-    }finally {
-    context.endTenantFlow();
-   }
+    }
 };
 
 var getTenantAwareDBName = function (fullName) {
@@ -337,14 +267,8 @@ var getAllDatabasesInfo = function (applicationKey, environment) {
     var resultInfo = [];
     var resources = [];
     var tenantDomain = modManager.getTenantDomain();
-    var username = modManager.getDomainlessUserName();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(username);
         resources = rssAdapter.getAllDatabasesInfo(applicationKey, environment);
     } catch (e) {
         var msg = "Error while getting all database info for tenant: " + tenantDomain + ", applicationKey: "
@@ -352,8 +276,6 @@ var getAllDatabasesInfo = function (applicationKey, environment) {
         log.error(msg);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
 
     for (var resource in resources) {
@@ -382,14 +304,8 @@ var getAllDatasourcesInfo = function (applicationKey, environment) {
     var resultInfo = [];
     var resources = [];
     var tenantDomain = modManager.getTenantDomain();
-    var username = modManager.getDomainlessUserName();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(username);
         resources = rssAdapter.getAllDatasourceInfo(applicationKey, environment);
     } catch (e) {
         var msg = "Error while getting all datasource info for tenant: " + tenantDomain + ", applicationKey: " +
@@ -397,8 +313,6 @@ var getAllDatasourcesInfo = function (applicationKey, environment) {
         log.error(msg);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
 
     for (var resource in resources) {
@@ -429,14 +343,8 @@ var addDatasource = function (name, applicationKey, environment, description) {
     var resultInfo = [];
     var resources = [];
     var tenantDomain = modManager.getTenantDomain();
-    var username = modManager.getDomainlessUserName();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(username);
         resources = rssAdapter.addDatasource(name, applicationKey, environment, description);
     } catch (e) {
         var msg = "Error while adding datasource info : tenant: " + tenantDomain + ", application: " +
@@ -444,8 +352,6 @@ var addDatasource = function (name, applicationKey, environment, description) {
         log.error(msg);
         log.error(e);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
 
     for (var resource in resources) {
@@ -472,14 +378,8 @@ var deleteDatasource = function (datasourceName, applicationKey, environment) {
     }
 
     var tenantDomain = modManager.getTenantDomain();
-    var username = modManager.getDomainlessUserName();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(username);
         rssAdapter.deleteDatasource(datasourceName, applicationKey, environment);
     } catch (e) {
         var msg = "Error while deleting datasource from app factory db : tenant: " + tenantDomain +
@@ -487,22 +387,15 @@ var deleteDatasource = function (datasourceName, applicationKey, environment) {
         log.error(e);
         log.error(msg);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
 };
 
 var isDatabaseExist = function(databaseName, environment){
 
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var result;
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         result = rssAdapter.isDatabaseExistForTenant(databaseName, environment, tenantDomain);
     } catch (e) {
         var msg = "Error while checking databse existence from app factory db : tenant: " + tenantDomain +
@@ -510,8 +403,6 @@ var isDatabaseExist = function(databaseName, environment){
         log.error(e);
         log.error(msg);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
     return result;
 }
@@ -519,13 +410,8 @@ var isDatabaseExist = function(databaseName, environment){
 var isDataSourceExist = function(datasourceName, applicationId, stage){
 
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var result;
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         result = rssAdapter.isDatasourceExist(datasourceName, applicationId, stage);
     } catch (e) {
         var msg = "Error while checking datasource existance from app factory db : tenant: " + tenantDomain +
@@ -533,8 +419,6 @@ var isDataSourceExist = function(datasourceName, applicationId, stage){
         log.error(e);
         log.error(msg);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
     return result;
 }
@@ -542,14 +426,9 @@ var isDataSourceExist = function(datasourceName, applicationId, stage){
 var isTemplateExist = function(templateName, applicationId, stage) {
 
     var tenantDomain = modManager.getTenantDomain();
-    var context = multitenancy.getPrivilegedCarbonContext();
-    var tenantManager = multitenancy.getTenantManager();
     var result;
 
     try {
-        context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain), true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         result = rssAdapter.isDatabaseUserPermissionTemplateExist(templateName, applicationId, stage);
     } catch (e) {
         var msg = "Error while checking template :" + templateName+ " from app factory db : tenant: " + tenantDomain +
@@ -557,8 +436,6 @@ var isTemplateExist = function(templateName, applicationId, stage) {
         log.error(e);
         log.error(msg);
         throw e;
-    } finally {
-        context.endTenantFlow();
     }
     return result;
 }

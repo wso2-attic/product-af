@@ -33,9 +33,6 @@ var deleteApplication = function (appKey,userName){
 	var context=multitenancy.getPrivilegedCarbonContext();
         var tenantManager= multitenancy.getTenantManager();
 	try{
-	    context.startTenantFlow();
-        context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain),true);
-        context.getThreadLocalCarbonContext().setUsername(jagg.getUser().split("@")[0]);
         applicationInfoService = server
                 .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
         var application = applicationInfoService.getApplication(appKey);
@@ -49,9 +46,6 @@ var deleteApplication = function (appKey,userName){
                   + " at the deletion request came from user : " + userName);
         log.error(e);
         throw e;
-
-    } finally {
-        context.endTenantFlow();
     }
 }
 

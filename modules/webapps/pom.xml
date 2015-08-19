@@ -27,7 +27,6 @@
     <packaging>pom</packaging>
     <name>Web Apps parent</name>
     <modules>
-       <module>appfactory-authentication-plugin</module>
        <module>appfactory-plugin</module>
        <module>appfactory-gitblit-plugin</module>
        <module>jenkins-tenant-ext</module>

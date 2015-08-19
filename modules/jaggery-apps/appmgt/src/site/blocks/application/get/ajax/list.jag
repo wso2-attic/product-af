@@ -185,31 +185,30 @@ var log=new Log();
         mod = jagg.module("application");
         var applicationKey = request.getParameter("applicationKey");
         var userName = request.getParameter("userName");
-
-        return getAppCountInStage(applicationKey, userName);
+        return mod.getAppCountInStage(applicationKey, userName);
     } else if (action === "getApplicationsOfUser") {
-        
+
         mod = jagg.module("application");
         var userName = request.getParameter("userName");
-        
+
         var loadedApplications = [];
         var pendingApplications = [];
-        
+
         //loads all the applications of the user: from database.
-        var loadedApplications = session.get("application_list");
+        var loadedApplications = session.get(APPLICATION_LIST_CACHE);
         if(loadedApplications == null) {
             loadedApplications = mod.getAllAppsOfUser(userName);
-            session.put('application_list', loadedApplications);
+            session.put(APPLICATION_LIST_CACHE, loadedApplications);
         }
         loadedApplications = parse(loadedApplications);
-        
+
         if (session.get("pendingApplications") !== null) {
             //loads all the applications which are at pending stage: within the session
             pendingApplications = session.get("pendingApplications");
-            
+
             for (var exAppIndex in loadedApplications) {
                 var exApp = loadedApplications[exAppIndex];
-                
+
                 for (var appIndex in pendingApplications) {
                     var appContainer = pendingApplications[appIndex];
                     if (appContainer.userName === userName) {
@@ -218,9 +217,9 @@ var log=new Log();
                         }
                     }
                 }
-                
+
             }
-            
+
             for (var pendingAppIndex in pendingApplications) {
                 loadedApplications.push(pendingApplications[pendingAppIndex].app);
             }
@@ -253,6 +252,11 @@ var log=new Log();
         var metaDataNeed = request.getParameter("metaDataNeed");
         var buildable = request.getParameter("buildable");
         print(mod.getAppVersionsInStages(applicationKey, userName, metaDataNeed, buildable, isRoleBasedPermissionAllowed));
+    } else if (action === "getAppVersionsByStage") {
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = request.getParameter("stage");
+        print(mod.getAppVersionsByStage(applicationKey,stage));
     } else if (action === "getAppVersionsInStagesWithMetaData") {
         mod = jagg.module("application");
         var userName = request.getParameter("userName");
@@ -311,12 +315,12 @@ var log=new Log();
             var resp = mod.getResourceFromTenantSpace(regPath);
         	response.contentType = 'image/jpg';
             print(resp.content);
-        	
+
         } catch (e) {
-            var errMsg = "Error  while loading the icon for "+ applicationKey +" application  \n" ;    
+            var errMsg = "Error  while loading the icon for "+ applicationKey +" application  \n" ;
             log.debug(errMsg);
         }
-     
+
     }else if(action == "isAppIconAvailable") {
     	var readFromReg = false;
         var applicationKey = request.getParameter("applicationKey");
@@ -331,7 +335,7 @@ var log=new Log();
         	}else{
         		readFromReg = true;
         	}
-        }else{ 	
+        }else{
         	readFromReg = true;
         }
          if(readFromReg){
@@ -341,16 +345,16 @@ var log=new Log();
 	            if (resp == false){
 	            	iconList[applicationKey]="true";
 	            	session.put("iconsNotAvailableApps", iconList);
-		        	var errMsg = "App icon is not available for "+ applicationKey +" application  \n" ;    
+		        	var errMsg = "App icon is not available for "+ applicationKey +" application  \n" ;
 		            log.debug(errMsg);
 	            	print("101"); //Image URL is incorrect
 	            }
 	        } catch (e) {
-	        	var errMsg = "Error while checking App icon availability for "+ applicationKey +" application  \n" ;    
+	        	var errMsg = "Error while checking App icon availability for "+ applicationKey +" application  \n" ;
 	            log.error(errMsg);
 	        }
          }
-        
+
     }else if(action == "getUserHomeAppInfo") {
          mod = jagg.module("application");
          var loadedApplications = mod.getUserHomeInfo();
@@ -361,5 +365,37 @@ var log=new Log();
     }
 
 }());
+
+function generateCustomUrlResponse(allResults, stage){
+    var simplifiedAppInfo = {};
+    if(allResults.length > 0){
+        var appinfo = allResults[0];
+        simplifiedAppInfo["key"] = appinfo.key;
+        simplifiedAppInfo["type"] = appinfo.type;
+        simplifiedAppInfo["mappedSubDomain"] = appinfo.mappedSubDomain;
+        simplifiedAppInfo["customUrl"] = appinfo.customUrl;
+        simplifiedAppInfo["customUrlVerificationCode"] = appinfo.customUrlVerificationCode;
+        simplifiedAppInfo["isUploadable"] = appinfo.isUploadable;
+        simplifiedAppInfo["name"] = appinfo.name;
+        simplifiedAppInfo["versions"] = getSimplifiedVersionArray(appinfo.versions, stage);
+    }
+    return simplifiedAppInfo;
+}
+
+function getSimplifiedVersionArray(versionsArray, stage){
+    var simplifiedVersionArray = [];
+    log.info(versionsArray);
+    for (var i = 0; i < versionsArray.length; i++) {
+        var version = versionsArray[i];
+        if (0 == version.stage.localeCompare(stage)) {
+            simplifiedVersionArray.push(
+                    {
+                        "version": version.version,
+                        "productionMappedDomain": version.productionMappedDomain
+                    });
+        }
+    }
+    return simplifiedVersionArray;
+}
 
 %>

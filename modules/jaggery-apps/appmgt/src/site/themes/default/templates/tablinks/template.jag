@@ -23,131 +23,90 @@ include("/jagg/constants.jag");
     var applicationKey = inputs.applicationKey;
     var applicationName = inputs.applicationName;
     var pageName = inputs.pageName;
-    if(jagg.getUser()){
-        if(!applicationKey){
     %>
+    <!-- left pane wrapper -->
+    <div class="left-pane">
 
-        <nav class="main_menu">
-            <% if((outputs.hasCXOPermission)&&(!outputs.isOTtenant)) { %>
-            <ul class="main_list">
-                <li class="main_list_item"><a href="<%=outputs.dashboardUrl%>" class="main_list_link" target="_blank"><span
-                        class="icon-dashboard" title="Dashboards"></span> </a></li>
-            </ul>
+        <ul>
+            <% if (outputs.isOverviewAllowed) { %>
+            <li class="<% if (pageName == "AppHome") { %>selected<%}%>">
+                <a id="menu_appHome" href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Overview">
+                    <i class="fa fa-laptop"></i> Overview
+                </a>
+            </li>
+             <% } %>
+
+            <% if (outputs.isTeamAllowed) { %>
+            <li class="<% if (pageName == "User Administration") { %>selected<%}%>">
+                <a id="menu_userAdmin"  href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Team">
+                    <i class="fa fa-users"></i> Team
+                </a>
+            </li>
             <% } %>
-            <% if (outputs.hasTenantLevelUserMgtPermission||(!outputs.isOTtenant)) { %>
-            <ul class="main_list">
-                <li class="main_list_item"><a href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>" class="main_list_link"><span
-                        class="icon-group"></span> </a></li>
-            </ul>
-
+            <% if (outputs.isReposAndBuildsAllowed) { %>
+            <li class="<% if (pageName == "reposBuilds") { %>selected<%}%>">
+                 <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
+                        <i class="fa fa-cogs"></i> Deployed Versions
+                    </a>
+                <% } else { %>
+                    <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Repos & Builds">
+                        <i class="fa fa-cogs"></i> Repos & Builds
+                    </a>
+                <% } %>
+            </li>
             <% } %>
 
-        </nav>
-    <%
-    } else {
+            <% if ((outputs.isResourcesAllowed) ) { %>
+            <li class="<% if (pageName == "Configure Databases") { %>selected<%}%>">
+                <a id="menu_db" href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Databases">
+                    <i class="fa fa-database"></i> Databases
+                </a>
+            </li>
+            <% } %>
 
-        %>
+            <% if ((outputs.isResourcesAllowed) ) { %>
+            <li class="<% if (pageName == "Configure Resources") { %>selected<%}%>">
+                <a id="menu_dbAdmin" href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Runtime Configs">
+                    <i class="fa fa-wrench"></i> Runtime Configs
+                </a>
+            </li>
+            <% } %>
 
-<div style="width:150px">
-        <nav class="main_menu">
-            <ul class="main_list">
+            <% if (outputs.isIssuesAllowed) { %>
+            <li class="<% if (pageName == "Track Issues") { %>selected<%}%>">
+                <a id="menu_trackIssues" href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Issues">
+                    <i class="fa fa-tags"></i> Issues
+                </a>
+            </li>
+            <% } %>
 
-                <% if (outputs.isOverviewAllowed) { %>
-                    <li class="main_list_item"><a id="menu_appHome" href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="main_list_link <% if (pageName == "AppHome") { %>active<%}%>" title="Overview"><span class="icon-desktop"></span> Overview</a></li>
-                <% } %>
+            <% if (outputs.isLifecylceAllowed) { %>
+            <li class="<% if (pageName == "Governance") { %>selected<%}%>">
+                <a id="menu_governance" href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Lifecycle Management">
+                    <i class="fw fw-lifecycle"></i> Lifecycle Management
+                </a>
+            </li>
+            <% } %>
+            
+            <% if (outputs.isLogsAllowed) { %>
+            <li class="<% if (pageName == "logs") { %>selected<%}%>">
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/server.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Logs">
+                    <i class="fa fa-hdd-o"></i> Logs
+                </a>
+            </li>
+            <% } %>
 
-                <% if (outputs.isTeamAllowed) { %>
-                    <li class="main_list_item">
-                   <a id="menu_userAdmin"  href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="main_list_link
-                   <% if (pageName == "User Administration") { %>active<%}%>" title="Team">
-                               <span class="icon-group"></span> Team</a>
-                    </li>
-                <% } %>
+            <li class="<% if (pageName == "logs") { %>selected<%}%>">
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/customurl.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Custom URL">
+                    <i class="fa fa-hdd-o"></i> Custom URL
+                </a>
+            </li>
+        </ul>
+    </div>
 
-                <% if (outputs.isReposAndBuildsAllowed) { %>
-                    <li class="main_list_item">
+    <!-- left pane wrapper -->
 
-                     <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
-                        <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link
-                        <%
-                            if (pageName == "reposBuilds") { %>active<% } %>" title="Deployed Versions"><span class="icon-cog"></span> Deployed Versions</a></li>
 
-                     <% } else { %>
-                        <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link
-                        <%
-                        if (pageName == "reposBuilds") { %>active<% } %>" title="Repos & Builds"><span class="icon-cog"></span> Repos & Builds</a></li>
-                      <% } %>
-                <% } %>
-
-                <% if ((outputs.isResourcesAllowed) ) { %>
-                    <li class="main_list_item">
-                        <a id="menu_db" href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link
-                        <% if (pageName == "Configure Databases") { %>active<%}%>" title="Databases">
-                                       <i class="database-image"></i>
-                                       Databases
-                        </a>
-                    </li>
-                <%}%>
-
-                <% if ((outputs.isResourcesAllowed) ) { %>
-                    <li class="main_list_item">
-                        <a id="menu_dbAdmin" href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link
-                        <% if (pageName == "Configure Resources") { %>active<%}%>" title="Runtime Configs">
-                                       <span class="icon-wrench"></span>
-                                       Runtime Configs
-                        </a>
-                    </li>
-                <%}%>
-
-                <% if (outputs.isIssuesAllowed) { %>
-                     <li class="main_list_item">
-                        <a id="menu_trackIssues" href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link
-                        <% if (pageName == "Track Issues") { %>active<%}%>" title="Issues">
-                                       <span class="icon-tags"></span>
-                                       Issues
-                        </a>
-                     </li>
-                <%}%>
-
-                <% if (outputs.isLifecylceAllowed) { %>
-                    <li class="main_list_item">
-                        <a id="menu_governance" href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link <%
-                            if (pageName == "Governance") { %>active<% } %>" title="Lifecycle Management">
-                                <span class="icon-legal"></span> Lifecycle Management
-                        </a>
-                    </li>
-                <% } %>
-
-                <% if (outputs.isOtherServicesTabAvailable == 'true') { %>
-                   <li class="main_list_item">
-                       <a id="menu_otherServices" href="<%=jagg.getAbsoluteUrl("/site/pages/otherservices.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                       class="main_list_link
-                       <%if (pageName == "Other Services") { %>active<% } %>" title="Server Logs">
-                                   <span class="icon-hdd"></span>
-                                   Server Logs
-                       </a>
-                   </li>
-                <% } %>
-
-                <% if (outputs.isLogsAllowed) { %>
-                    <li class="main_list_item">
-                        <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/server.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
-                        class="main_list_link
-                        <%if (pageName == "logs") { %>active<% } %>" title="Logs">
-                            <span class="icon-hdd"></span> Logs
-                        </a>
-                    </li>
-                <% } %>
-            </ul>
-        </nav>
-	</div>
    <%
-   }
-   }
 }); %>

@@ -41,6 +41,8 @@ import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -117,8 +119,10 @@ public class DomainMappingUtils {
      * @return auth header in basic encode
      */
     private static String getAuthHeaderValue() {
-        String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@"
-                          + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String usernameInContext = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        String tenantLessUserName = MultitenantUtils.getTenantAwareUsername(usernameInContext);
+        String userName = tenantLessUserName+ UserCoreConstants.TENANT_DOMAIN_COMBINER+
+                          CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
         // password as garbage value since we authenticate with mutual ssl.
         // We need to set the auth header for requests with the username.

@@ -30,6 +30,10 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
     var stateCompletionTimeoutDuration = 1800;
 
     %>
+    <!-- After moving all the pages to new UX styles, we need to remove below two resources. -->
+    <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/jquery.qtip.min.css'))%>">
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
+
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
     <script type="text/javascript">
 
@@ -44,7 +48,7 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
         userName: userName
     },
     function (result) {
-        $("#notificationDataDiv").empty();
+        $("#notificationBar").empty();
         var obj = jQuery.parseJSON(result);
         var retrievedTime = obj.retrievedTime;
 	    obj = obj.list;
@@ -55,58 +59,36 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
                 var event = jQuery.parseJSON(obj[i]);
                 var category = event.object.category;
 
-                var notificationIconDiv = "notification-info-icon";
-                var notificationIcon = "icon-ok-circle";
-                var notificationTitleDiv = "notification-info-title";
+                var notificationMsgClass = "notification-msg noti-success";
+                var iClass = "fw fw-ok ";
 
                 if(category==undefined || category=="ERROR" ){
-                    notificationIconDiv = "notification-error-icon";
-                    notificationIcon = "icon-remove-circle";
-                    notificationTitleDiv = "notification-error-title";
+                    notificationMsgClass = "notification-msg  noti-error";
+                    iClass = "fw fw-error ";
                 }
 
 		if(event.properties.state == "COMPLETE"){
                     correlationKeyArray.push(event.properties.correlationKey);
                 }
-
+                
+                
                 if(event.properties.state == "START" && correlationKeyArray.indexOf(event.properties.correlationKey) == -1){
-                    notificationIcon = "icon-spinner icon-spin";
+                    iClass = "fa fa-spinner fa-pulse fa-spin spin-overide";
                     if(eventStateCompletionTimeout(retrievedTime, event.published)){
-                        notificationIcon = "icon-remove-circle";
+                        iClass = "icon-remove-circle";
                     }
                 }
+                
 
 		if(event.properties.state == "DELETE"){
                         break;
-                } 	
-
-                   $("#notificationDataDiv").append(
-                    $('<div class="notification-subsection">' +
-                        '<div class="'+notificationIconDiv+'">' +
-                            '<span class="'+notificationIcon+'"'+'></span>' +
-                        '</div>' +
-                        '<div class="notification-div">' +
-                            '<div class="'+notificationTitleDiv+'">'+
-                                event.object.title + getNotificationDetails(event.object.content)+'<br>' +
-                                '<span class="icon-time" style="color:#666;"> </span>' +
-                                '<span class="notification-time">'+
-                                    getTimeDetails(retrievedTime, event.published)+
-                                '</span>' +
-                            '</div>'+
-                        '</div>' +
-                        '<div style="clear:both"></div>' +
-                    '</div>'    //subsection
-                ));
-
-                $('.info-left').qtip({
-                    content: {
-                        attr: 'data-tooltip' // Tell qTip2 to look inside this attr for its content
-                    },
-                    position : {
-                        my: 'top right'
-                    }
-                });
-
+                }
+                    $("#notificationBar").append(
+                        $('<div class="' + notificationMsgClass + '">'+'<div class="msg "><i class="' + 
+                            iClass + '"></i><span>' +  event.object.title + getNotificationDetails(event.object.content) + 
+                            '</span></div>' + '<div class="notification-time">' + getTimeDetails(retrievedTime, event.published) + 
+                            '</div></div>'
+                        ));
             }
         }
         setTimeout(pollNotifications,'<%=polling_period%>');
@@ -115,86 +97,34 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 
     });
 }
-var resizeWall = function(){
-    var  docHeight = $(document).height()-$('.main_header').height()-1;
-
-    //We compute the height of all the inner elements here. If that is less than the doc height, then we set overflow to hidden
-    //This is done to avoid the scroll bar in resources pages, if there are low number of notifications.
-
-    var innerChildHeight = $('.notification-container').outerHeight();
-
-    if(docHeight >= innerChildHeight){
-        $('.notification-container').css('overflow-y','hidden');
-        $('.notification-container').css('min-height',$(window).height()+'px');
-    }else{
-        $('.notification-container').css('overflow-y','auto');
-        $('.notification-container').css('min-height',docHeight+'px');
-    }
-};
-var resizeNotifier = function(){
-    var w = $(document).width();
-    var slideButtonRight = 0;
-    var notification_section_width;
-    if(w <= 1300){
-        notification_section_width = 250;
-        slideButtonRight = 250;
-        $('.notification-section').show();
-    }else if(w>1300 && w < 1700) {
-        notification_section_width = 250;
-        slideButtonRight = 250;
-        $('.notification-section').show();
-    }else{
-        notification_section_width = 400;
-        slideButtonRight = 400;
-        $('.notification-section').show();
-    }
-    $('.notification-section').width(notification_section_width);
-    $('.notification-slider-container').css('right',slideButtonRight+"px");
-
-};
 
 $(document).ready(function () {
     pollNotifications();
-    var $notificationWrapper = $('#notificationWrapper');
-    $(document).scroll(function(){
-	var top = $(document).scrollTop();
-	if (top > 0){
-
-		$notificationWrapper.css('margin-top','-61px');
-	}else{
-		$notificationWrapper.css('margin-top','0');
-	}
-
-    });
-    $(window).resize(function(){
-	    resizeWall();
-	    resizeNotifier();
-    });
-    resizeWall();
-    resizeNotifier();
-    $('#notification-slider-btn').click(function(){
-        var w = $(document).width();
-
-        var slideButtonRight = 0;
-        var notification_section_width;
-        if( w < 1700) {
-            notification_section_width = 250;
-            slideButtonRight = 250;
-        }else{
-            notification_section_width = 400;
-            slideButtonRight = 400;
-        }
-        $('.notification-section').width(notification_section_width);
-
-        if( $('#notificationWrapper').is(":visible")){
-            $(this).parent().animate({right:0},500);
-            $('#notificationWrapper').hide('slow');
-        }else{
-            $('#notification-slider-btn').parent().animate({right:slideButtonRight},500);
-            $('#notificationWrapper').show('slow');
+    $('.side-pane-trigger').click(function(){
+        var rightPane = $('.right-pane');
+        var leftPane = $('.left-pane');
+        if (rightPane.hasClass('visible')){
+            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+            leftPane.animate({"left":"-18em"}, "slow");
+            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+        } else {
+            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+            leftPane.animate({"left":"0em"}, "slow");
+            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
         }
     });
 
+    $('.notification-pane-trigger').click(function(){
+        var notificationPane = $('.notification-pane');
+        if(notificationPane.hasClass('visible')){
+            notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+        }else{
+            notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+        }
+    });
+    var scrollHeight = $('.notification-pane').height() - 150;
+    $('.notifications').css('height', scrollHeight);
+    $(".nano").nanoScroller();
 });
 
         //to get time details
@@ -233,24 +163,17 @@ $(document).ready(function () {
             return html;
         }
 
-
 </script>
 <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
-<div class="notification-section" id="notificationWrapper">
-    <div id="notificationBar" class="notification-container">
-<!--<img src="../../../img-dev/loading-small.gif"/>-->
-        <h2 class="notification-header"><%=wallName%></h2>
-        <div id="notificationDataDiv"></div>
+<div class="notification-pane nano" id="notificationWrapper">
+    <div class="notification-pane-trigger">
+            <i class="fw fw-bell fw-1-5x"></i>
+    </div>
+
+    <div id="notificationBar" class="notifications nano-content">
     </div>
 
 </div>
-<div id="notification-slider-container" class="notification-slider-container">
-    <div id="notification-slider-btn" class="notification-slider-btn">
-        <i class="icon-envelope bigger-150"></i>
-    </div>
-    <!-- /.ace-settings-box -->
-</div>
-
     <%
 });
 %>

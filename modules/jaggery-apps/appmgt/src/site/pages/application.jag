@@ -25,14 +25,14 @@ var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var isUploadableApp = request.getParameter("isUploadableApp");
     jagg.render({
-        "name":"page/base",
+        "name":"page/master",
         "inputs":{
             "title":"WSO2 App Factory",
             "pagePath":"/site/pages/application.jag",
             "pageName":"App Home",
             "body":[
                 {
-                    "name":"layout/base",
+                    "name":"layout/master",
                     "inputs":{
                         "title":"WSO2 App Factory",
                         "middle":[

@@ -76,6 +76,7 @@ public class RepositoryHandler extends ApplicationEventsHandler {
             provider.deleteRepository(application.getId(), tenantDomain);
 
             // if forks available, delete forked repos also
+            //TODO : check all the forked repos by different users. and delete all forked repos.
             provider.deleteForkedRepository(application.getId(), userName, tenantDomain);
             log.info("Successfully deleted the repository of application : " + application.getId() +
                     " from tenant domain : " + tenantDomain);

@@ -43,23 +43,33 @@ public class ContinousIntegrationEventBuilderUtil {
      * @param correlationKey correlation key that will comprise of application key, tenant domain, repo type (master/fork) and version
      * @return event that will be triggered when the build is started
      */
-    public static Event buildTriggerBuildEvent(String appId, String repoForm, String buildTriggeredBy, String title, String description,
-                                               Category category, String correlationKey, String userName) {
+    public static Event buildTriggerBuildEvent(String appId, String repoForm, String buildTriggeredBy, String title,
+                                               Category category, String correlationKey) {
+
         Event event = new Event();
-        String sender = Util.getSender(buildTriggeredBy);
-        Event event1 = getDispatchTypesAndTargetForEvent(category, repoForm, appId, sender);
         Event.EventDispatchType[] eventDispatchTypes;
-        eventDispatchTypes = event1.getEventDispatchTypes();
+        if (category == (Category.INFO)) {
+            eventDispatchTypes =
+                    new Event.EventDispatchType[]{Event.EventDispatchType.SOCIAL_ACTIVITY};
+        } else {
+            eventDispatchTypes =
+                    new Event.EventDispatchType[]{
+                            Event.EventDispatchType.SOCIAL_ACTIVITY,
+                            Event.EventDispatchType.GUARANTEED_DELIVERY};
+        }
         event.setEventDispatchTypes(eventDispatchTypes);
-        event.setTarget(event1.getTarget());
+        String sender = Util.getSender(buildTriggeredBy);
         event.setSender(sender);
         event.setCategory(category);
+        if (repoForm.equals(EventingConstants.ORIGINAL_REPO_FORM)) {
+            event.setTarget(appId);
+        } else {
+            event.setTarget(appId + EventingConstants.FORK_USER_CONTEXT + sender);
+        }
         event.setMessageTitle(title);
-        event.setMessageBody(description);
         event.setType(EventingConstants.BUILD);
         event.setState(Event.State.START);
         event.setCorrelationKey(correlationKey);
-        event.setSender(userName);
         return event;
     }
 
@@ -302,45 +312,6 @@ public class ContinousIntegrationEventBuilderUtil {
      * @param sender user who triggered the build
      * @return event object with the dispatch type and target
      */
-    public static Event getDispatchTypesAndTargetForEvent(Event.Category category, String repoForm, String appId, String sender) {
-        Event event = new Event();
 
-
-        //if the main repo build start successful
-        if (category == Event.Category.INFO  & (EventingConstants.ORIGINAL_REPO_FORM).equals(repoForm)) {
-            Event.EventDispatchType[] eventDispatchTypes =
-                    new Event.EventDispatchType[]{Event.EventDispatchType.SOCIAL_ACTIVITY};
-            event.setTarget(appId);
-            event.setEventDispatchTypes(eventDispatchTypes);
-
-        // if the forked repo build start successful
-        } else if (category == Event.Category.INFO & (EventingConstants.FORKED_REPO_FORM).equals(repoForm)) {
-            Event.EventDispatchType[] eventDispatchTypes =
-                    new Event.EventDispatchType[]{Event.EventDispatchType.SOCIAL_ACTIVITY};
-            event.setTarget(appId + EventingConstants.FORK_USER_CONTEXT + sender);
-            event.setEventDispatchTypes(eventDispatchTypes);
-
-        // if the main repo build did not start
-        } else if (category == Event.Category.ERROR & (EventingConstants.ORIGINAL_REPO_FORM).equals(repoForm)) {
-            Event.EventDispatchType[] eventDispatchTypes =
-                    new Event.EventDispatchType[]{
-                            Event.EventDispatchType.SOCIAL_ACTIVITY,
-                            Event.EventDispatchType.GUARANTEED_DELIVERY,
-                            Event.EventDispatchType.EMAIL};
-            event.setTarget(appId);
-            event.setEventDispatchTypes(eventDispatchTypes);
-
-        // if the fork repo build did not start
-        } else {
-            Event.EventDispatchType[] eventDispatchTypes =
-                    new Event.EventDispatchType[]{
-                            Event.EventDispatchType.SOCIAL_ACTIVITY,
-                            Event.EventDispatchType.GUARANTEED_DELIVERY,
-                            Event.EventDispatchType.EMAIL};
-            event.setTarget(appId + EventingConstants.FORK_USER_CONTEXT + sender);
-            event.setEventDispatchTypes(eventDispatchTypes);
-        }
-        return event;
-    }
 
 }

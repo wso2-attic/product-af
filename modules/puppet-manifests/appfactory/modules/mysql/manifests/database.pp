@@ -84,11 +84,20 @@ class mysql::database(
       undef   => "create database $name; grant all on $name.* to $user@'%' identified by '$password';",
       default => "create database $name; grant all on $name.* to $user@'%' identified by '$password'; use $name ;source $sql;"
     }
-
-    exec { "create-$name-db":
-      unless => "/usr/bin/mysql -u$root_user -p$root_password $name",
-      command => "/usr/bin/mysql -u$root_user -p$root_password -e \"$sql_command\"",
+    
+   if $operatingsystem == "Darwin"{
+     exec { "create-$name-db":
+      unless => "/usr/local/mysql/bin/mysql -u$root_user -p$root_password $name",
+      command => "/usr/local/mysql/bin/mysql -u$root_user -p$root_password -e \"$sql_command\"",
     }
+   }
+    else{
+    exec { "create-$name-db":
+       unless => "/usr/bin/mysql -u$root_user -p$root_password $name",
+       command => "/usr/bin/mysql -u$root_user -p$root_password -e \"$sql_command\"",
+     }
+   }
+
     #exec { "create-$name-db-tables":
     #  subscribe => Exec["create-$name-db"],
     #  command   => "/usr/bin/mysql -u$root_user -p$root_password $name < $sql",

@@ -30,7 +30,16 @@ jagg.block("application/add", {
 		var mainHTML = "";
 		var supportiveHTML = "";
 		var uploadableAppTypesHTML = "";
-		var uploadableAppExts = [];
+		var uploadableAppExts = {};
+		var uploadableApplicationMaxSize;
+		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
+		var webContext = getProperty(WEB_CONTEXT_ROOT);
+        var tempAppTypeArray = [];
+        var apptypeIconImageClass = request.getParameter("apptypeIconImageClass");
+        var appTypeDisplayName = request.getParameter("appTypeDisplayName");
+        var type = request.getParameter("type");
+        var appType = request.getParameter("apptype");
+
 
         if (!applicationTypes || applicationTypes.length === 0) {
 
@@ -38,7 +47,9 @@ jagg.block("application/add", {
             //supportiveHTML='<span style="color:#ff0000">"Application Types" are not defined!</span>';
 
         } else {
-
+            var log = new Log();
+            //convert to bytes
+            uploadableApplicationMaxSize = Math.round(modManager.getUploadableApplicationMaxSize()/8)+"";
             mainHTML = '<select id="applicationType" name="applicationType" onChange="selectAppCreationType(this)">';
             uploadableAppTypesHTML = '<select id="uploadableAppType" name="uploadableAppType">';
 
@@ -46,7 +57,7 @@ jagg.block("application/add", {
             var isUploadableAppTypeAvailable = false;
 
             //We need to sort the applications types first. There is no easy way to sort after adding the elements.
-            var tempAppTypeArray = [];
+
             for (var i = 0; i < applicationTypesCount; i++) {
                 var applicationTypeBean = modManager.getApplicationTypeBean(applicationTypes[i]);
                 var displayOrder = applicationTypeBean.getDisplayOrder();
@@ -85,7 +96,7 @@ jagg.block("application/add", {
                 if (isUploadableAppType != null && isUploadableAppType != undefined && isUploadableAppType == true) {
                     isUploadableAppTypeAvailable = true;
                     uploadableAppTypesHTML += displayVal;
-                    uploadableAppExts.push(applicationTypeBean.getExtension());
+                    uploadableAppExts[applicationType] = applicationTypeBean.getExtension();
                 } else {
                     mainHTML += displayVal;
                 }
@@ -98,12 +109,20 @@ jagg.block("application/add", {
         }
 
 		return {
+            "tempAppTypeArray":tempAppTypeArray,
 			"mainHTML":mainHTML,
 			"uploadableAppTypesHTML": uploadableAppTypesHTML,
 			"isUploadableAppTypeAvailable":isUploadableAppTypeAvailable,
 			"helpTips":helpTips,
             "hasApplicationAccessPermission":hasApplicationAccessPermission,
-		    "uploadableAppExts":uploadableAppExts
+		    "uploadableAppExts":uploadableAppExts,
+		    "uploadableApplicationMaxSize":uploadableApplicationMaxSize,
+		    "appFacURL":appFacURL,
+		    "webContext":webContext,
+            "apptypeIconImageClass":apptypeIconImageClass,
+            "appTypeDisplayName":appTypeDisplayName,
+            "type":type,
+            "appType":appType
 		};
     }
 });

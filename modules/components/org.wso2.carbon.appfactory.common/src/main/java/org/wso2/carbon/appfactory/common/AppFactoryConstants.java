@@ -16,8 +16,9 @@
 
 package org.wso2.carbon.appfactory.common;
 
-import java.io.File;
 import org.apache.commons.lang3.text.WordUtils;
+
+import java.io.File;
 
 /**
  * Constants for AppFactory configuration
@@ -60,20 +61,19 @@ public class AppFactoryConstants {
 	public static final String PERMISSION_RESOURCE_CREATE = "/permission/admin/appfactory/resources/create/";
 	public static final String PROPERTY_ARTIFACT_VERSION_NAME = "TrunkVersioning.ServiceVersioning.ArtifactVersionName";
 
-	public static final String RUNTIMES="Runtimes";
-	public static final String RUNTIME="Runtime";
-	public static final String RUNTIME_DEPLOYER_CLASSNAME="DeployerClassName";
-	public static final String RUNTIME_UNDEPLOYER_CLASSNAME="UndeployerClassName";
-	public static final String RUNTIME_REPOSITORY_URL_PATTERN="PAASArtifactStorageURLPattern";
-	public static final String RUNTIME_ALIAS_PREFIX="AliasPrefix";
-	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX="CartridgeTypePrefix";
-	public static final String RUNTIME_DEPLOYMENT_POLICY="DeploymentPolicy";
-	public static final String RUNTIME_AUTOSCALE_POLICY="AutoscalePolicy";
-	public static final String RUNTIME_REPO_URL="RepoURL";
-	public static final String RUNTIME_DATA_CARTRIDGE_TYPE="DataCartridgeType";
-	public static final String RUNTIME_DATA_CARTRIDGE_ALIAS="DataCartridgeAlias";
-	public static final String RUNTIME_SUBSCRIBE_ON_DEPLOYMENT="SubscribeOnDeployment";
-	public static final String RUNTIME_REPO_PROVIDER_URL="repoProviderUrl";
+	public static final String RUNTIMES = "Runtimes";
+	public static final String RUNTIME = "Runtime";
+	public static final String RUNTIME_REPOSITORY_URL_PATTERN = "PAASArtifactStorageURLPattern";
+	public static final String RUNTIME_ALIAS_PREFIX = "AliasPrefix";
+	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX = "CartridgeTypePrefix";
+	public static final String RUNTIME_DEPLOYMENT_POLICY = "DeploymentPolicy";
+	public static final String RUNTIME_AUTOSCALE_POLICY = "AutoscalePolicy";
+	public static final String RUNTIME_REPO_URL = "RepoURL";
+	public static final String RUNTIME_DATA_CARTRIDGE_TYPE = "DataCartridgeType";
+	public static final String RUNTIME_DATA_CARTRIDGE_ALIAS = "DataCartridgeAlias";
+	public static final String RUNTIME_SUBSCRIBE_ON_DEPLOYMENT = "SubscribeOnDeployment";
+	public static final String RUNTIME_SERVER_URL = "ServerURL";
+	public static final String RUNTIME_REPO_PROVIDER_URL = "repoProviderUrl";
 	public static final String RUNTIME_NAME_FOR_APPTYPE ="runtimesNameForApptype";
 
 	public static final String ROLE_NAME = "name";
@@ -116,9 +116,22 @@ public class AppFactoryConstants {
     public static final String GOAL_MAVEN_ARCHETYPE_GENERATE = "archetype:generate";
     public static final String MAVEN_ARCHETYPE_DIR = "archetypeDir";
     public static final String DEFAULT_POM_FILE = "pom.xml";
+    public static final String DEFAULT_TARGET_FOLDER = "target";
+    public static final String DEFAULT_SYNAPSE_NAMESPACE = "http://ws.apache.org/ns/synapse";
+    public static final String DEFAULT_SYNAPSE_NAMESPACE_PREFIX = "xmlns";
     public static final String ARTIFACT_NAME = "${artifactId}-${version}";
 	public static final String MAVEN_ARTIFACT_ID_REPLACEMENT = " -DartifactId=";
 	public static final String MAVEN_ARTIFACT_ID = "-DartifactId=";
+	public static final String XML_EXTENSION = "xml";
+	public static final String CAR_ARTIFACT_CONFIGURATION = "artifact.xml";
+	public static final String CAR_ARTIFACT_CONFIGURATION_ARTIFACT = "artifact";
+	public static final String CAR_ARTIFACT_CONFIGURATION_QNAME_VERSION = "version";
+	public static final String CAR_ARTIFACT_CONFIGURATION_TYPE_SYNAPSE = "synapse/";
+	public static final String CAR_ARTIFACT_CONFIGURATION_QNAME_TYPE = "type";
+	public static final String CAR_ARTIFACT_CONFIGURATION_QNAME_NAME = "name";
+	public static final String CAR_ARTIFACT_SYNAPSE_CONFIG_STORE_LOCATION = "synapse-config";
+	public static final String FILENAME_EXTENSION_SEPERATOR = ".";
+
 
 	/**
 	 * Defining repository related constants
@@ -170,7 +183,8 @@ public class AppFactoryConstants {
 	/**
 	 * Defining git related constants
 	 */
-	public static final String GIT ="git";
+	public static final String GIT_REPOSITORY_CONTEXT ="git";
+	public static final String GIT_REPOSITORY_TYPE ="git";
 	public static final String GIT_REPOSITORY_EXTENSION =".git";
 	public static final String GIT_IGNORE_FILE = ".gitignore";
 	public static final String GIT_IGNORE_CONTENT = "*\n\n" + "!.gitignore";
@@ -203,25 +217,13 @@ public class AppFactoryConstants {
 	public static final String APPLICATION_VERSION = "version";
 	public static final String APPLICATION_EXTENSION = "extension";
 	public static final String APPLICATION_USER = "user";
-	public static final String DEPLOYER_TYPE = "DeployerType";
 	public static final String APPLICATION_BUILD = "build";
 
 	public static final String TRUNK = "trunk";
 	public static final String BRANCH = "branches";
 	public static final String TAG = "tags";
+	public static final String SRC_LOCATION = "src";
 	public static final String MASTER = "master";
-
-	public static final String FILE_TYPE_CAR = "car";
-	public static final String FILE_TYPE_JAXWS = "jaxws";
-	public static final String FILE_TYPE_JAXRS = "jaxrs";
-	public static final String FILE_TYPE_WAR = "war";
-	public static final String FILE_TYPE_JAGGERY = "jaggery";
-	public static final String FILE_TYPE_DBS = "dbs";
-	public static final String FILE_TYPE_BPEL = "bpel";
-	public static final String FILE_TYPE_PHP = "php";
-	public static final String FILE_TYPE_ESB = "esb";
-	public static final String FILE_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
-	public static final String FILE_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
 
 	public static final String TRUNK_WEBAPP_ARTIFACT_VERSION_NAME = "TrunkVersioning.WebappVersioning.ArtifactVersionName";
 	public static final String TRUNK_WEBAPP_SOURCE_VERSION_NAME = "TrunkVersioning.WebappVersioning.SourceVersionName";
@@ -230,20 +232,6 @@ public class AppFactoryConstants {
 
 	public static final String SCM_READ_WRITE_PERMISSION = "RepositoryProviderConfig.%s.Property.ReadWritePermission";
 	public static final String REPO_ACCESSABILITY = "EnablePerDeveloperRepos";
-
-	/**
-	 * Defines the property name for maven archetype generation parameters
-	 */
-	public static final String CAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.CApp.Properties";
-	public static final String WEBAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.WebApp.Properties";
-	public static final String JAX_WEBAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.JAXWS.Properties";
-	public static final String JAX_RS_WEBAPP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.JAXRS.Properties";
-	public static final String JAGGERY_APP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.Jaggery.Properties";
-	public static final String DBS_APP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.DBS.Properties";
-	public static final String ESB_APP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.ESB.Properties";
-	public static final String BPEL_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.BPEL.Properties";
-	public static final String PHP_MAVEN_ARCHETYPE_PROP_NAME = "MavenArchetype.php.Properties";
-	public static final String PREFERRED_REPOSITORY_TYPE = "RepositoryType";
 
 	public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
 	public static final String SECRET_ALIAS_ATTR_NAME = "secretAlias";
@@ -284,35 +272,20 @@ public class AppFactoryConstants {
 	public static final String RXT_KEY_APPVERSION_ISAUTOBUILD = "appversion_isAutoBuild";
 	public static final String RXT_KEY_APPVERSION_ISAUTODEPLOY = "appversion_isAutoDeploy";
 	public static final String RXT_KEY_APPVERSION_PROMOTE = "Promote";
+	public static final String MAVEN_REPO_LOCAL = "maven.repo.local";
+	public static final String RESOURCES_FILE_LOCATION = "resources";
+	public static final String ESB_CAPPS_LOCAL_REPO = "esbcappslocalrepo";
 
-    public static String[] JENKINS_MVN_PROJECT_TYPE = { FILE_TYPE_WAR,
-			FILE_TYPE_CAR, FILE_TYPE_JAXRS, FILE_TYPE_JAXWS, FILE_TYPE_JAGGERY,
-			FILE_TYPE_BPEL };
 	public static final String CONSUME = "consume";
 	public static final String INVOKE_PERMISSION = "/permission/admin/appfactory/realm";
 
-	public static String[] JENKINS_FREESTYLE_PROJECT_TYPE = { FILE_TYPE_DBS,
-			FILE_TYPE_PHP, FILE_TYPE_ESB };
-
 	// constants added for Deployers
-	public static final String APPLICATION_TYPE_WAR = "war";
-	public static final String APPLICATION_TYPE_CAR = "car";
-	public static final String APPLICATION_TYPE_ZIP = "zip";
-	public static final String APPLICATION_TYPE_JAXWS = "jaxws";
-	public static final String APPLICATION_TYPE_JAXRS = "jaxrs";
-	public static final String APPLICATION_TYPE_JAGGERY = "jaggery";
-	public static final String APPLICATION_TYPE_DBS = "dbs";
-	public static final String APPLICATION_TYPE_PHP = "php";
-	public static final String APPLICATION_TYPE_ESB = "esb";
-	public static final String APPLICATION_TYPE_XML = "xml";
-	public static final String APPLICATION_TYPE_BPEL = "bpel";
-	public static final String APPLICATION_TYPE_UPLOADED_WAR = "Uploaded-binary-App-war";
-	public static final String APPLICATION_TYPE_UPLOADED_JAGGERY = "Uploaded-App-Jaggery";
-	public static final String IS_UPLOADABLE_APP_TYPE="IsUploadableAppType";
+	public static final String TENANT_ID = "tenantId";
 	public static final String TENANT_DOMAIN = "tenantdomain";
 	public static final String APP_ID = "applicationId";
 	public static final String USER_NAME = "username";
-
+	public static final String DEPLOYER_CLASSNAME ="DeployerClassName";
+	public static final String UNDEPLOYER_CLASSNAME ="UndeployerClassName";
 	public static final String APP_VERSION = "applicationVersion";
 	public static final String JOB_NAME = "jobName";
 	public static final String TAG_NAME = "tagName";
@@ -330,7 +303,7 @@ public class AppFactoryConstants {
 	public static final String CLASS_NAME="ClassName";
 	public static final String URL_PATTERN = "URLPattern";
 	public static final String BASE_URL = "BaseURL";
-	public static final String ESB_ARTIFACT_PREFIX = "synapse-config";
+
 	public static final String ESB_ARTIFACT_DEPLOYMENT_PATH = "synapse-configs"
 			+ File.separator + "default";
 
@@ -350,8 +323,8 @@ public class AppFactoryConstants {
 	public static final String BAM_BUILD_START = "START";
 
 	// User mgt related
-	public static final String FIRST_LOGGIN_MAPPED_TO = "Initials";
-	public static final String CLAIMS_FIRSTLOGIN = "http://wso2.org/claims/firstlogin";
+	//public static final String FIRST_LOGGIN_MAPPED_TO = "Initials";
+	//public static final String CLAIMS_FIRSTLOGIN = "http://wso2.org/claims/firstlogin";
 
 	// Registry permission in clouds
 	public static final String CLOUD_RESOURCE_PERMISSION = "CloudResourcePermissions.Resources.Resource";
@@ -388,20 +361,7 @@ public class AppFactoryConstants {
 
 	public static final String APPLICATION_LIFECYCLE_STATE_KEY = "registry.lifecycle.ApplicationLifecycle.state";
 
-	// Subscription Upon Deployment specifics
-	public static final String STRATOS_SM_HOME = "https://localhost";
-	public static final String STRATOS_DEV_SM = STRATOS_SM_HOME + ":9463";
-	public static final String STRATOS_TEST_SM = STRATOS_SM_HOME + ":9464";
-	public static final String STRATOS_PROD_SM = STRATOS_SM_HOME + ":9466";
-	public static final String STRATOS_DEPLOYMENT_POLICY = "deployp";
-	public static final String STRATOS_AUTOSCALE_POLICY = "economy";
-
-	public static final String SERVER_URL = "https://sc.s2.appfactory.private.wso2.com:9466";
-	public static final String TENANT_ADMIN = "admin";
-	public static final String TENANT_PW = "admin";
-
 	public static final String SIGNED_JWT_AUTH_USERNAME = "Username";
-
 
     /**
      * External system variables
@@ -427,6 +387,10 @@ public class AppFactoryConstants {
 	public static final String PROPERTY_VALUE_SEPERATOR =",";
     public static final String UNDER_SCORE = "_";
     public static final String DOT = ".";
+    public static final String HYPHEN = "-";
+
+
+	public static final String APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR = "-";
 
 
     public static final String TENANT_MGT_URL = "TenantMgtUrl";
@@ -469,10 +433,31 @@ public class AppFactoryConstants {
 	public static final String SUPPORT_DATASOURCE = "SupportDataSource";
 
     /**
+     * AF DEPLOY Status
+     */
+    public static final String DEPLOY_SUCCESS = "Success";
+
+    /**
      * Symbols
      */
 
+	/**
+	 * mvn goals
+	 */
+	public static final String MVN_GOAL_CLEAN = "clean";
+	public static final String MVN_GOAL_INSTALL = "install";
+	public static final String MVN_GOAL_ASSEMBLY = "-f assembly.xml";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_LOCATION = "_deploy_artifact";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_SOURCE_LOCATION = "built_artifact";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_ASSEMBLY_XML_LOCATION = "assembly.xml";
+	public static final String AF_ARCHETYPE_INITIAL_ARTIFACT_BIN_XML_LOCATION = "bin.xml";
 
+	public static final String AF_GIT_TMP_FOLDER = "repository";
+	public static final String DEPLOYABLE_ARTIFACT_FOLDER = "artifact";
+	public static final String ZIP_FILE_EXTENSION = "zip";
+
+
+	public static final String AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME = "StartStage";
 
 	/**
 	 * Enum to represent of different application stages.

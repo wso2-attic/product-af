@@ -467,7 +467,6 @@ var getUserPrivileges = function (applicationKey,rssInstance, dbname, username){
 		log.error(e);
 		throw e;
 	}
-
 	return buildUserPrivilege(result);
 };
 
@@ -871,4 +870,77 @@ function buildUserPrivilege(result){
 var getAllDatabasesInfo = function (applicationKey, stage) {
     return rssFilter.getAllDatabasesInfo(applicationKey, stage);
 };
+
+
+/**
+ * Generate json object array to insert to the datatable in databases page
+*/
+var generateDatabaseInfoForDataTable = function (applicationKey, applicationName) {
+    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var allDBInfo = [];
+    for (var i = 0; i < allStages.length; i++) {
+        var allDatabasesPerStage = rssFilter.getAllDatabasesInfo(applicationKey, allStages[i]);
+        for(var j in allDatabasesPerStage) { 
+            var singleDatabaseInfo = allDatabasesPerStage[j];
+            var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
+            singleDatabaseInfo.database_url = dbUrl;
+            //singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+			singleDatabaseInfo.userpriviledges = "<a href='editdatabase.jag?applicationName="
+												 + applicationName + "&applicationKey=" + applicationKey + "&dbName="
+												 + singleDatabaseInfo.name + "&environment=" + singleDatabaseInfo.stage
+												 + "'><i class='fa fa-edit'></i></a>";
+			singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+			// currently we dont record database type, support only MySQL.change this when multiple types are allowed
+			singleDatabaseInfo.type = "MySQL";
+
+            allDBInfo.push(singleDatabaseInfo);
+        } 
+    }
+    return stringify(allDBInfo);
+};
+
+/**
+* Convert db priviledges json object to string
+* eg : [{"deletePriv": "Y", "dropPriv": "Y", "eventPriv": "Y"}] --> DELETE, DROP, EVENT
+*/
+var getPriviledgesString = function (privilegeJsonObjectArray) {
+    var privilegeJsonObject = privilegeJsonObjectArray[0];
+    var priviledgeString = "";
+    for(var priv in privilegeJsonObject) {
+        if(privilegeJsonObject[priv] == "Y") {
+            if(priviledgeString!=""){
+                priviledgeString += ", ";
+            }   
+            priviledgeString += priviledgeEnum[priv];
+        }
+    }
+    return priviledgeString;
+};
+
+/**
+* Javascript enum for database priviledges
+*/
+var priviledgeEnum = Object.freeze({
+    "selectPriv" : "SELECT",
+    "insertPriv" : "INSERT",
+    "updatePriv" : "UPDATE",
+    "deletePriv" : "DELETE",
+    "createPriv" : "CREATE",
+    "dropPriv" : "DROP",
+    "grantPriv" : "GRANT",
+    "referencesPriv" : "REFERENCES",
+    "indexPriv" : "INDEX",
+    "alterPriv" : "ALTER",
+    "createTmpTablePriv" : "CREATE TEMP TABLE",
+    "lockTablesPriv" : "LOCK TABLES",
+    "createViewPriv" : "CREATE VIEW",
+    "showViewPriv" : "SHOW VIEW",
+    "createRoutinePriv" : "CREATE ROUTINE",
+    "alterRoutinePriv" : "ALTER ROUTINE",
+    "executePriv" : "EXECUTE",
+    "eventPriv" : "EVENT",
+    "triggerPriv" : "TRIGGER"
+
+});
+
 %>

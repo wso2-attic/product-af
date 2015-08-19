@@ -3,5 +3,6 @@
 	<id>appfactory-jaggery</id>
 	<resources>
             <resource>*/**</resource>
+            <resource>built_artifact/*</resource>
 	</resources>
 </archetype>

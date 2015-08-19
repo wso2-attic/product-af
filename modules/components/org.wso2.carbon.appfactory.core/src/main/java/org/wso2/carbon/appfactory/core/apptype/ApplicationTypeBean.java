@@ -44,6 +44,14 @@ public class ApplicationTypeBean {
 	private String[] runtimes;
     private String executionType;
     private boolean isCodeEditorSupported;
+    private String IconColorClass;
+    private String IconImageClass;
+	private String initialDeployerClassName;
+	//Fully qualified class name of application deployer.
+	private String deployerClassName;
+	//Fully qualified class name of application undeployer
+	private String undeployerClassName;
+	private boolean persistApplicationEndPointMetaData;
 	public ApplicationTypeBean(){
 	}
 
@@ -205,4 +213,52 @@ public class ApplicationTypeBean {
     public void setIsCodeEditorSupported(boolean isCodeEditorSupported) {
         this.isCodeEditorSupported = isCodeEditorSupported;
     }
+
+    public String getIconColorClass() {
+        return IconColorClass;
+    }
+
+    public void setIconColorClass(String iconColorClass) {
+        IconColorClass = iconColorClass;
+    }
+
+    public void setIconImageClass(String iconImageClass) {
+        IconImageClass = iconImageClass;
+    }
+
+    public String getIconImageClass() {
+        return IconImageClass;
+    }
+
+	public String getInitialDeployerClassName() {
+		return initialDeployerClassName;
+	}
+
+	public void setInitialDeployerClassName(String initialDeployerClassName) {
+		this.initialDeployerClassName = initialDeployerClassName;
+	}
+
+	public String getDeployerClassName() {
+		return deployerClassName;
+	}
+
+	public void setDeployerClassName(String deployerClassName) {
+		this.deployerClassName = deployerClassName;
+	}
+
+	public String getUndeployerClassName() {
+		return undeployerClassName;
+	}
+
+	public void setUndeployerClassName(String undeployerClassName) {
+		this.undeployerClassName = undeployerClassName;
+	}
+
+	public boolean isPersistApplicationEndPointMetaData() {
+		return persistApplicationEndPointMetaData;
+	}
+
+	public void setPersistApplicationEndPointMetaData(boolean persistApplicationEndPointMetaData) {
+		this.persistApplicationEndPointMetaData = persistApplicationEndPointMetaData;
+	}
 }

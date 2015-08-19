@@ -57,15 +57,19 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String currentVersion = DeployerUtil.getParameter(parameters, AppFactoryConstants.APPLICATION_VERSION);
         String deployStage = DeployerUtil.getParameter(parameters,AppFactoryConstants.DEPLOY_STAGE);
         String serverDeploymentPath = DeployerUtil.getParameter(parameters,AppFactoryConstants.SERVER_DEPLOYMENT_PATHS);
-        String tenantDomain = getTenantDomain();
+        String tenantDomain = DeployerUtil.getParameter(parameters, AppFactoryConstants.TENANT_DOMAIN);
+        //TODO move tenantId to a constant
+        int tenantId = Integer.parseInt(DeployerUtil.getParameter(parameters, "tenantId"));
 
         String condition = applicatonId + AppFactoryConstants.MINUS + currentVersion + AppFactoryConstants.MINUS +
                            deployStage + AppFactoryConstants.MINUS + tenantDomain;
         synchronized (condition.intern()) {
 
-            File artifactToDeploy = artifactsToDeploy[0];
-            String fileName = artifactToDeploy.getName();
-            addToGitRepo(fileName, artifactToDeploy, parameters, artifactType, serverDeploymentPath, null);
+	        for (File artifactToDeploy : artifactsToDeploy) {
+		        String fileName = artifactToDeploy.getName();
+		        addToGitRepo(fileName, artifactToDeploy, parameters, artifactType, serverDeploymentPath, null,
+		                     tenantDomain,tenantId);
+	        }
 
             if (notify) {
                 // git uses "master" for the main branch while , we need to parse "trunk" here for the main branch
@@ -81,7 +85,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
     private void addToGitRepo(String fileName, File artifacts, Map metadata,
                               String appTypeName, String serverDeploymentPath,
-                              String relativePathFragment) throws AppFactoryException {
+                              String relativePathFragment,String tenantDomain,int tenantId) throws AppFactoryException {
 
         // subscribeOnDeployment is true or not
         boolean subscribeOnDeployment = Boolean.parseBoolean(
@@ -89,8 +93,10 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String applicationId = DeployerUtil.getParameterValue(metadata,
                                                               AppFactoryConstants.APPLICATION_ID);
 
-        int tenantId = getTenantID();
-        String gitRepoUrl = generateRepoUrl(applicationId, metadata, tenantId,
+        String version = DeployerUtil.getParameterValue(metadata,
+                                                        AppFactoryConstants.APPLICATION_VERSION);
+        version = version.replaceAll("\\.+",AppFactoryConstants.MINUS);
+        String gitRepoUrl = generateRepoUrl(applicationId, version, metadata, tenantId,
                                             appTypeName, subscribeOnDeployment);
         String stageName = DeployerUtil.getParameterValue(metadata,
                                                           AppFactoryConstants.DEPLOY_STAGE);
@@ -101,7 +107,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
                 log.debug("SubscribeOnDeployment is true");
             }
             SubscriptionHandler.getInstance().createSubscription(metadata, stageName, username,
-                                                                 tenantId, applicationId, getTenantDomain());
+                                                                 tenantId, applicationId + AppFactoryConstants.MINUS
+                                                                  + version, tenantDomain);
+
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("SubscribeOnDeployment is false");
@@ -111,11 +119,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String defaultPassword = getAdminPassword();
 
         // Create the temporary directory first. without this we can't proceed
-        File tempApptypeDirectory = new File(tempPath + File.separator
-                                             + stageName + File.separator +
-                                             StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_"));
-        String path = tempPath + File.separator
+        String path = getTempPath(tenantDomain) + File.separator
                       + stageName + File.separator + StringUtils.deleteWhitespace(fileName).replaceAll("\\.", "_");
+        File tempApptypeDirectory = new File(path);
         synchronized (path) {
             log.info("====================Thread name:========"+Thread.currentThread().getName());
             // <tempdir>/jaxrs,
@@ -310,7 +316,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         }
     }
 
-    protected String generateRepoUrl(String applicationId, Map metadata,
+    protected String generateRepoUrl(String applicationId,String version, Map metadata,
                                      int tenantId, String appType, boolean subscribeOnDeployment)
             throws AppFactoryException {
         String paasRepositoryURLPattern = DeployerUtil.getParameter(metadata,
@@ -319,8 +325,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String baseUrl = getBaseRepoUrl();
         String gitRepoUrl = "";
         if (subscribeOnDeployment) {
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                          + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR + applicationId
+                         + AppFactoryConstants.MINUS +version
                          + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
                                            AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
                          + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
@@ -331,7 +338,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
             if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom))
                 preDevRepoNameAppender = "_" + MultitenantUtils.getTenantAwareUsername(DeployerUtil.getParameterValue(metadata,"tenantUserName"));
 
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
                          + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
                          + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         }

@@ -24,16 +24,8 @@ var caramel;
     caramel.render({
             title  : { text : 'Issue Tracker | Edit Issue'},
             header : { domain : domain, userName : userName},
-            body : {
-                        project: project.getProjectsOfDomain(),
-                        issue : issueRes.issue,
-                        projectKey: issueRes.projectKey,
-                        version : project.getAllVersionOfProject(projectKey),
-                        isSameUser : (issueRes.issue.reporter == userName),
-                        users: user.getUsersOfApp(),
-                        appkey: appkey
-                    }
-        });
+            body   : { project: project.getProjectByKey(appkey), issue : issueRes.issue, users: user.getUsersOfApp(), appkey: appkey, isEnabled: 'disabled', loggedInUser: userName, versions: project.getAllVersionOfProject(appkey) }
+            });
 }());
 %>
 

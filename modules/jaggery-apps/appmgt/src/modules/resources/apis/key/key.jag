@@ -33,36 +33,31 @@ var permissionModule = jagg.module("permission");
 
 var getSavedKeys = function (applicationId, userName, isSync, envKeyConstants) {
 	if (isSync === "true") {
-	var keys;
-	var tenantDomain=modManager.getTenantDomain() ;
-	var context=multitenancy.getPrivilegedCarbonContext();
-	var tenantManager= multitenancy.getTenantManager();
-	try{
-		context.startTenantFlow();
-		context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-		context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-		var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
-		keys = service.getSavedKeys(applicationId, jagg.getUser(), session.get("SAML_TOKEN"));
+        var keys;
+        var tenantDomain=modManager.getTenantDomain() ;
+        var context=multitenancy.getPrivilegedCarbonContext();
+        var tenantManager= multitenancy.getTenantManager();
+        try{
+            var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
+            keys = service.getSavedKeys(applicationId, jagg.getUser(), session.get("SAML_TOKEN"));
 
-		if(log.isDebugEnabled()){
-			log.debug("Invoking service "+service+" returned result:"+keys);
-		}
-		
-		//If users has subscribed to APIs but keys are not generated
-		if(!keys || keys.length == 0){
-			return null;
-		}
+            if(log.isDebugEnabled()){
+                log.debug("Invoking service "+service+" returned result:"+keys);
+            }
 
-		var mainDictionary = createDataStructure(keys);
-		write(mainDictionary[API_MANAGER_PROD], mainDictionary[API_MANAGER_SANDBOX], applicationId);
-	}catch(e){
-		log.error("Error while retrieving saved keys for application id : " + applicationId + " of tenant domain : "
-				  + tenantDomain);
-		log.error(e);
-		throw e;
-	}finally {
-		context.endTenantFlow();
-	}
+            //If users has subscribed to APIs but keys are not generated
+            if(!keys || keys.length == 0){
+                return null;
+            }
+
+            var mainDictionary = createDataStructure(keys);
+            write(mainDictionary[API_MANAGER_PROD], mainDictionary[API_MANAGER_SANDBOX], applicationId);
+        }catch(e){
+            log.error("Error while retrieving saved keys for application id : " + applicationId + " of tenant domain : "
+                      + tenantDomain);
+            log.error(e);
+            throw e;
+        }
 	}
 	return readFromRegistry(applicationId, envKeyConstants);
 };

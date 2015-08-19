@@ -32,43 +32,42 @@ language=appInfo.language;
 <script type="text/javascript">
   initializeUserActivity("Properties",'<%=applicationKey%>', '<%=applicationName%>');
 </script>
-
-            <div class="container">
-				<article class="main">
-
-                        <header><div><% jagg.includeBlock("page/messages", null); %>
-			 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
-                         <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
-                        	<div class="content">
-                                <h1>Runtime Configs</h1>
+<article class="main">
+            <!-- following div can be removed after new ux-->
+            <div style="height: 80px; "></div>
+            <!-- -->
+                <header><div><% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+                 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %></div>
+                	<div class="content">
+                        <h1>Runtime Configs</h1>
+                     </div>
+                </header>
+                <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
+                 <% jagg.includeBlock("page/help", {"section": "resources-properties"}); %>
+                <section class="separator">
+                    <div class="page_nav" style="border-bottom: 0 ;">
+                        <div class="content clear">
+                            <ol class="breadcrumb left">
+                                    <li class="breadcrumb_item"><h2>Properties</h2></li>
+                            </ol>
+                            <% if(hasCreateResourcePermissions){ %>
+                            <div class="right btn_list_box">
+                                <ul class="inline_box inline_list btn_list">
+                                    <li id="addPropertyBtn" name="addPropertyBtn" class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=resources" class="btn main btn_list_first">Add Property</a></li>
+                                </ul>
+                                <div class="clearfix"></div>
                              </div>
-                        </header>
-                        <% jagg.includeBlock("resources/menu", {page:'endpoints_registry',applicationName:applicationName,applicationKey:applicationKey}); %>
-                         <% jagg.includeBlock("page/help", {"section": "resources-properties"}); %>
-                        <section class="separator">
-                            <div class="page_nav" style="border-bottom: 0 ;">
-                                <div class="content clear">
-                                    <ol class="breadcrumb left">
-                                            <li class="breadcrumb_item"><h2>Properties</h2></li>
-                                    </ol>
-                                    <% if(hasCreateResourcePermissions){ %>
-                                    <div class="right btn_list_box">
-                                        <ul class="inline_box inline_list btn_list">
-                                            <li id="addPropertyBtn" name="addPropertyBtn" class="inline_item"><a href="<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=resources" class="btn main btn_list_first">Add Property</a></li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                     </div>
-                                     <% } %>
-                                </div>
-                            </div>
-                            <div class="content clear">
+                             <% } %>
+                        </div>
+                    </div>
+                    <div class="content clear">
 
-                                <% jagg.includeBlock("resources/registry/list", {"isNamesOnly":true});%>
+                        <% jagg.includeBlock("resources/registry/list", {"isNamesOnly":true});%>
 
 
-                             </div>
-                        </section>
-                        <div class="clearfix"></div>
-                 </article>
-            </div>
+                     </div>
+                </section>
+                <div class="clearfix"></div>
+         </article>
 <% }); %>

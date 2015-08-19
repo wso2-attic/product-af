@@ -96,10 +96,6 @@ public class RuntimeManager {
 			applicationRuntimeBean = new RuntimeBean();
 			applicationRuntimeBean.setRuntimeName(runtimeName);
 
-			applicationRuntimeBean.setDeployerClassName(
-					config.remove(AppFactoryConstants.RUNTIME_DEPLOYER_CLASSNAME));
-			applicationRuntimeBean.setUndeployerClassName(
-					config.remove(AppFactoryConstants.RUNTIME_UNDEPLOYER_CLASSNAME));
 			applicationRuntimeBean.setPaasRepositoryURLPattern(
 					config.remove(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
 			applicationRuntimeBean.setAliasPrefix(
@@ -119,6 +115,9 @@ public class RuntimeManager {
 						Boolean.parseBoolean(config.remove(AppFactoryConstants.RUNTIME_SUBSCRIBE_ON_DEPLOYMENT)));
 			} else {
 				applicationRuntimeBean.setSubscribeOnDeployment(false);
+			}
+			if (config.get(AppFactoryConstants.RUNTIME_SERVER_URL) != null) {
+				applicationRuntimeBean.setServerURL(config.remove(AppFactoryConstants.RUNTIME_SERVER_URL));
 			}
 
 			applicationRuntimeBean.setProperties(config);

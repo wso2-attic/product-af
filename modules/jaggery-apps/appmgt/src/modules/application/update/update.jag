@@ -146,20 +146,14 @@ var updatePromoteStatus = function (appKey, nextStage, version, state){
 	var context=multitenancy.getPrivilegedCarbonContext();
     var tenantManager= multitenancy.getTenantManager();
 	try{
-	        context.startTenantFlow();
-            context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-            context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-			applicationInfoService = server
-					.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
-       	    applicationInfoService.updateRxtWithPromoteState(appKey,nextStage,version,"Promote",state);
+		applicationInfoService = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService');
+       	applicationInfoService.updateRxtWithPromoteState(appKey,nextStage,version,"Promote",state);
 	}catch(e){
 		log.error("Error while updating promote status for application : " + appKey + " with version : " + version
 				  + " and state : " + state + " in stage : " + nextStage + " of tenant domain : " + tenantDomain);
 		log.error(e);
 		throw new e;
-	}finally{
-	   context.endTenantFlow();
-    }
+	}
 }
 
 %>

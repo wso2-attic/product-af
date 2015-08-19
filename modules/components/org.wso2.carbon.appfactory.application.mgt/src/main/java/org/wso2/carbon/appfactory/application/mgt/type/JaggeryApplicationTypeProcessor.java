@@ -16,26 +16,16 @@
 
 package org.wso2.carbon.appfactory.application.mgt.type;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
-import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
-import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
-import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
-import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.appfactory.common.util.FolderZiper;
 
 import java.io.File;
-import java.util.Map;
+import java.io.IOException;
 
 /**
  * PHP application type processor
@@ -44,9 +34,7 @@ public class JaggeryApplicationTypeProcessor extends AbstractFreeStyleApplicatio
     private static final Log log = LogFactory.getLog(JaggeryApplicationTypeProcessor.class);
  @Override
     public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
-        ProjectUtils.generateProjectArchetype(applicationId, workingDirectory,
-                ProjectUtils.getArchetypeRequest(applicationId,
-                        getProperty(MAVEN_ARCHETYPE_REQUEST)));
+	    super.generateApplicationSkeleton(applicationId, workingDirectory);
         File pomFile = new File(workingDirectory + File.separator + AppFactoryConstants.DEFAULT_POM_FILE);
         boolean result = FileUtils.deleteQuietly(pomFile);
         if (!result){
@@ -68,6 +56,60 @@ public class JaggeryApplicationTypeProcessor extends AbstractFreeStyleApplicatio
             }
         }
     }
+
+	@Override
+	public void generateDeployableFile(String rootPath, String applicationId,
+	                                   String version, String stage) throws AppFactoryException {
+		String artifactFileName = "";
+		String artifactZIPFileName = "";
+		if (version.equals(AppFactoryConstants.TRUNK)) {
+			artifactZIPFileName = applicationId + AppFactoryConstants.SNAPSHOT +
+			                      AppFactoryConstants.FILENAME_EXTENSION_SEPERATOR +
+			                      AppFactoryConstants.ZIP_FILE_EXTENSION;
+			artifactFileName = applicationId + AppFactoryConstants.SNAPSHOT;
+		} else {
+			artifactZIPFileName = applicationId + AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR +
+			                      version + AppFactoryConstants.FILENAME_EXTENSION_SEPERATOR +
+			                      AppFactoryConstants.ZIP_FILE_EXTENSION;;
+			artifactFileName = applicationId + AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR + version;
+		}
+		String jaggerySrcFolder = rootPath + File.separator + AppFactoryConstants.AF_GIT_TMP_FOLDER + File.separator
+		                          + AppFactoryConstants.SRC_LOCATION;
+		String jaggeryArtifactTmpFolder = rootPath + File.separator + AppFactoryConstants.DEPLOYABLE_ARTIFACT_FOLDER
+		                                  + File.separator + artifactFileName;
+		String jaggeryArtifactTmpZIP = rootPath + File.separator + AppFactoryConstants.DEPLOYABLE_ARTIFACT_FOLDER
+		                               + File.separator + artifactZIPFileName;
+		try {
+
+			FileUtils.copyDirectory(new File(jaggerySrcFolder), new File(jaggeryArtifactTmpFolder));
+
+		} catch (IOException e) {
+			String errMsg =
+					"Error when copying folder from src to artifact tmp : " +
+					e.getMessage();
+			log.error(errMsg, e);
+			throw new AppFactoryException(errMsg, e);
+		}
+
+		// Zipping application folder
+		try {
+			FolderZiper.zipFolder(jaggeryArtifactTmpFolder, jaggeryArtifactTmpZIP);
+		} catch (Exception e) {
+			String msg = "Unable to zip files : " + artifactFileName;
+			log.error(msg,e);
+			throw new AppFactoryException(msg, e);
+		}
+
+		try {
+			FileUtils.deleteDirectory(new File(jaggeryArtifactTmpFolder));
+		} catch (IOException e) {
+			String errMsg =
+					"Error when zipping the application folder : " +
+					e.getMessage();
+			log.error(errMsg, e);
+			throw new AppFactoryException(errMsg, e);
+		}
+	}
 
     private static String changeFileName(String name, String changedVersion) throws AppFactoryException {
 

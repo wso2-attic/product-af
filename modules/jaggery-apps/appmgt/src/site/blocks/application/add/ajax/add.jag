@@ -41,11 +41,14 @@ var log=new Log();
 		var applicationName = request.getParameter("applicationName");
 		var applicationKey = request.getParameter("applicationKey");
 		var applicationDescription = request.getParameter("applicationDescription");
-		var applicationType = request.getParameter("applicationType");
+		var applicationType = request.getParameter("appType");
 		var repositoryType = request.getParameter("repositoryType");
+        log.info(repositoryType)
                 var repoAccessibility = request.getParameter("repoAccessibility");
 		var userName = request.getParameter("userName");
 		var applicationURL = request.getParameter("applicationURL");
+        var appTypeDisplayName1 = request.getParameter("appTypeDisplayName");
+        log.info("applicationType + " + applicationType);
 		var response = {};
 		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 			try {
@@ -55,19 +58,21 @@ var log=new Log();
 				response.message = message;
 				response.result = 0;
                 var appTypeDisplayName = modManager.getApplicationTypeBean(applicationType).getDisplayName();
+
 				if (appTypeDisplayName) {
 					// adds to session in 'Pending state', until the application
 					// is created.
                     if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType,
                                                           applicationDescription, applicationType, userName,appTypeDisplayName)){
+                        log.info("inside if 1")
 						for (var provider in repositoryProviders) {
 							if (repositoryType == repositoryProviders[provider]) {
-
+                                log.info("repositoryType if 2")
 								result = mod.createApplicationBPEL(applicationName, applicationKey,
 											           applicationDescription, applicationType,
 											           repoAccessibility, repositoryType, userName,
 											           applicationURL, 'trunk', LIFE_CYCLE_NAME);
-
+                                log.info(result)
 								message = "Application was created under Repository type ".concat(repositoryType);
 								response.message = message;
 								response.result = 1;
@@ -95,36 +100,88 @@ var log=new Log();
 			print(response);
 		}
 
-	}else if (action == "uploadExistingApplication") {
+	} else if(action == "uploadExistingArchive") {
+		var status = {};
+		var applicationKey = request.getParameter("applicationKey");
+		var applicationType = request.getParameter("appType");
+		var manager = jagg.module("manager");
+		var tenantDomain = manager.getTenantDomain();
+		try {
+			var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+			if(isUploadableAppType){
+				var result = uploadAndValidateApplication(applicationKey, UPLOADABLE_APPLICATION_INITIAL_VERSION,
+														  request.getFile("fileupload"),applicationType);
+				status = generateValidationResponse(result.status, result.message);
+				log.info("Uploaded archive validation status: "+status.isSuccessful +", message: "+status.message
+						+" for application: "+applicationKey+", tenantDomain:"+tenantDomain);
+			} else {
+				var msg = "Provided application type:"+applicationType+" is not an uploaded application type"
+						  +" application:"+applicationKey;
+				log.warn(msg+", tenantDomain:"+tenantDomain);
+				status = generateValidationResponse(false, msg);
+			}
+		} catch(e) {
+			var msg = "Error occurred while validating the application";
+			log.error(msg+" for application: "+applicationKey+" tenantDomain:"+tenantDomain);
+			log.error(e);
+			status = generateValidationResponse(false, msg);
+		}
+		print(status);
+	} else if (action == "uploadExistingApplication") {
 		var registryMod = jagg.module("registry");
 
 	var applicationName = request.getParameter("applicationName");
 	var applicationKey = request.getParameter("applicationKey");
 	var applicationDescription = request.getParameter("applicationDescription");
-	var applicationType = request.getParameter("uploadableAppType");
+	var applicationType = request.getParameter("appType");
+	var uploadedApplicationKey = request.getParameter("uploadedApplicationKey");
 	var repoAccessibility = request.getParameter("repoAccessibility");
 	var repositoryType = getProperty("RepositoryProviderConfig");
 	var userName = request.getParameter("userName");
 	var applicationURL = request.getParameter("applicationURL");
-
+	var manager = jagg.module("manager");
+	var tenantDomain = manager.getTenantDomain();
 	var response = {};
 	try{
-		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
+		var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+		if(!isUploadableAppType){
+			var msg = "Provided application type:"+applicationType+" is not an uploaded application type"
+					  +" application:"+applicationKey;
+			log.warn(msg+" tenantDomain:"+tenantDomain);
+			response.message = msg;
+			response.result = 0;
+		} else if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
             var appTypeDisplayName = modManager.getApplicationTypeBean(applicationType).getDisplayName();
             if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType,
                                                   applicationDescription, applicationType, userName,appTypeDisplayName)){
 				mod = jagg.module("application");
-				mod.stroreUploadedApplication(applicationKey + "-1.0.0", request.getFile("uploaded_application"),
-                                                             applicationType);
-				result = mod.createApplicationBPEL(applicationName, applicationKey, applicationDescription,
-							           applicationType, repoAccessibility, repositoryType, userName,
-							           applicationURL, UPLOADABLE_APPLICATION_INITIAL_VERSION,
-							           UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME);
-				uploadApplicationIcon(applicationKey, request.getFile("appIcon"));
+				var fileUploadingSuccessful = true;
 
-				var message = "New application was created with uploaded artifact";
-				response.message = message;
-				response.result = 1;
+				var filePath = updateArchiveIfAppKeyHasChanged(applicationType, applicationKey, uploadedApplicationKey);
+				var uploadedFile = new  File(filePath);
+
+				// if file has not uploaded, upload now(Useful when calling from the rest api)
+				if(!uploadedFile.isExists()){
+					var result = uploadAndValidateApplication(applicationKey, UPLOADABLE_APPLICATION_INITIAL_VERSION,
+															  request.getFile("fileupload"),applicationType);
+					fileUploadingSuccessful = result.status;
+				}
+
+				if(fileUploadingSuccessful) {
+					mod.createApplicationBPEL(applicationName, applicationKey, applicationDescription,
+													   applicationType, repoAccessibility, repositoryType, userName,
+													   applicationURL, UPLOADABLE_APPLICATION_INITIAL_VERSION,
+													   UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME);
+					uploadApplicationIcon(applicationKey, request.getFile("appIcon"));
+
+					var message = "New application was created with uploaded artifact";
+					response.message = message;
+					response.result = 1;
+				} else {
+					response.message = "Application validation failed.";
+					response.result = 0;
+				}
+
 			}else{
 				response.message = "Another application with same key is in the process of creation right now.";
 				response.result = 0;
@@ -211,6 +268,7 @@ function isApplicationDuplicateWithSession(applicationKey, applicationName, repo
 		thisApplication.isPending = true;
         thisApplication.applicationCreationStatus = APPLICATION_CREATION_STATUS.PENDING;
         thisApplication.typeDisplayName = appTypeDisplayName;
+        thisApplication.appTypeIcon = modManager.getApplicationTypeBean(applicationType).getIconImageClass();
 
 		appContainer.app = thisApplication;
 
@@ -251,6 +309,48 @@ function uploadApplicationIcon(applicationKey, appIcon){
 		var tenantDomain = modManager.getTenantDomain();
 		log.error("Error while uploading appIcon or no appIcon found to upload for application: "+
 				  applicationKey+" tenant: "+tenantDomain + e.message);
+	}
+}
+
+/**
+ * Upload the application archive to a temporary location and validate the uploaded archive
+ */
+function uploadAndValidateApplication(applicationKey, version, file, applicationType){
+	var applicationMod = jagg.module("application");
+	applicationMod.stroreUploadedApplication(applicationKey, version, file,applicationType);
+	return applicationMod.validateUploadedArchive(applicationKey, version, applicationType);
+}
+
+/**
+ * update the uploaded archive,if the application key has changed after uploading.
+ * For example when the application archive is uploading, app key might be foo_app. But before user click
+ * "Create Application" he might change the app key to bar_app
+ *
+ * @param applicationType application type
+ * @param applicationKey application key
+ * @param uploadedApplicationKey app key when archive is uploaded
+ */
+function updateArchiveIfAppKeyHasChanged(applicationType, applicationKey, uploadedApplicationKey){
+	var applicationMod = jagg.module("application");
+	var filePath = applicationMod
+			.getUploadedApplicationTmpPath(applicationKey, UPLOADABLE_APPLICATION_INITIAL_VERSION, applicationType);
+	if(uploadedApplicationKey && uploadedApplicationKey != applicationKey) {
+		log.info("Application key has changed from:"+uploadedApplicationKey+ " to:"+applicationKey+" after uploading"
+				+" the application archive.");
+		var previousUploadedPath = applicationMod
+				.getUploadedApplicationTmpPath(uploadedApplicationKey, UPLOADABLE_APPLICATION_INITIAL_VERSION, applicationType);
+		var previousUploadedFile = new  File(previousUploadedPath);
+		if(previousUploadedFile.isExists()) {
+			previousUploadedFile.move(filePath);
+		}
+	}
+	return filePath;
+}
+
+function generateValidationResponse(isSuccess, message) {
+	return {
+		isSuccessful: isSuccess,
+		message: message
 	}
 }
 

@@ -1,0 +1,33 @@
+{
+	"type": "nodejsdevelopment",
+	"provider": "wso2",
+	"host": "nodejs.dev.appfactory.private.wso2.com",
+	"displayName": "Nodejs",
+	"description": "Nodejs Cartridge",
+	"version": "1.0.0",
+	"multiTenant": "false",
+	"portMapping": [
+		{
+			"protocol": "http",
+			"port": "8000",
+			"proxyPort": "8280"
+		}
+	],
+	"deployment": {},
+	"iaasProvider": [
+		{
+			"type": "openstack",
+			"imageId": "<%= @iaas_region %>/28613d50-1f38-46af-a68d-bf19b2e5c1e7",
+			"property": [
+				{
+					"name": "instanceType",
+					"value": "<%= @iaas_region %>/<%= @iaas_instance_flavour %>"
+				},
+				{
+					"name": "keyPair",
+					"value": "<%= @os_keypair_name %>"
+				}
+			]
+		}
+	]
+}

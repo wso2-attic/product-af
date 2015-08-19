@@ -44,6 +44,12 @@ public class JenkinsCIConstants {
             "ContinuousIntegrationProvider.jenkins.Property.RetryCount";
     public static final String JENKINS_CLIENT_RETRY_DELAY =
             "ContinuousIntegrationProvider.jenkins.Property.RetryDelay";
+    public static final String ALLOW_ALL_HOSTNAME_VERIFIER =
+            "ContinuousIntegrationProvider.jenkins.HttpClient.allowAllHostNameVerifier";
+    public static final String DEFAULT_MAX_CONNECTIONS_PER_ROUTE =
+            "ContinuousIntegrationProvider.jenkins.HttpClient.defaultMaxConnectionsPerRoute";
+    public static final String MAX_TOTAL_CONNECTIONS =
+            "ContinuousIntegrationProvider.jenkins.HttpClient.maxTotalConnections";
     public static final String REPOSITORY_TYPE = "repository.type";
     public static final String REPOSITORY_URL = "repository.url";
     public static final String SVN_REPOSITORY_XPATH_SELECTOR =
@@ -92,7 +98,25 @@ public class JenkinsCIConstants {
     
     public static final String JENKINS_SERVER_ADMIN_USERNAME = "JenkinsServerAdminUsername";
     public static final String JENKINS_SERVER_ADMIN_PASSWORD = "JenkinsServerAdminPassword";
-    
+
+    /**
+     * Jenkins bucket-cluster
+     */
+    public static final String JENKINS_LB_BASE_ELEMENT = "JenkinsLBConfig";
+    public static final String JENKINS_LB_BUCKET_COUNT = JENKINS_LB_BASE_ELEMENT+".BucketCount";
+    public static final String JENKINS_LB_BUCKET_LIST = JENKINS_LB_BASE_ELEMENT+".BucketList.Property";
+    public static final String JENKINS_LB_BUCKET_SELECTING_STRATEGY = JENKINS_LB_BASE_ELEMENT+"" +
+                                                                      ".BucketSelectingStrategy";
+    public static final String JENKINS_LB_CLUSTER_SELECTING_STRATEGY =
+            JENKINS_LB_BASE_ELEMENT+".ClusterSelectingStrategy";
+    /**
+     * Jenkins job config
+     */
+    public static final String CONFIG_FOLDER = "jenkins";
+    public static final String TENANT_FOLDER_CONFIG_FILE = "tenant_folder_config.xml";
+    public static final String TENANT_FOLDER_CONFIG_DISPLAY_NAME = "displayName";
+    public static final String TENANT_FOLDER_CONFIG_DESCRIPTION = "description";
+
     /**
      * Defines constants related to jenkins role-strategy-pugin
      */

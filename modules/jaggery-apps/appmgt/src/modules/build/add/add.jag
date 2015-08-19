@@ -178,26 +178,13 @@ var deployArtifact = function(applicationId, stage, version, tagName, deployActi
         setTimeout(function(){
             var status;
             var url;
-
-            try {
-                context.startTenantFlow();
-                context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
-                context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
-                context.getThreadLocalCarbonContext().setUsername(userName);
-                status = carbon.server
-                        .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+            status = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
                         .getApplicationStatus(applicationId, version, stage);
-
-                if(!status){
-                    url = carbon.server
-                            .osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+            if(!status){
+                url = carbon.server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
                             .getApplicationUrl(applicationId, version, stage, tenantDomain);
-                } else {
-                    return;
-                }
-
-            } finally {
-                context.endTenantFlow();
+            } else {
+                return;
             }
 
             if(url){

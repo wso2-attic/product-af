@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.appfactory</groupId>
@@ -29,15 +30,17 @@
     <packaging>pom</packaging>
     <name>WSO2 AppFactory - Archetype For Applications</name>
 
- <modules>
+    <modules>
         <module>maven-archetype-jaxrs</module>
         <module>maven-archetype-jaxws</module>
         <module>maven-archetype-jaggery</module>
         <module>maven-archetype-bpel</module>
         <module>maven-archetype-dbs</module>
-		<module>maven-archetype-esb</module>   
-	 	<module>maven-archetype-php</module>
-<module>maven-archetype-webapp</module>
-<module>maven-archetype-dotnet</module>
- </modules>
+        <module>maven-archetype-esb</module>
+        <module>maven-archetype-php</module>
+        <module>maven-archetype-nodejs</module>
+        <module>maven-archetype-webapp</module>
+        <module>maven-archetype-dotnet</module>
+        <module>maven-archetype-multi-module-car</module>
+    </modules>
 </project>

@@ -1,0 +1,9 @@
+<Runtime>
+    <Runtime>esb</Runtime>
+    <PAASArtifactStorageURLPattern>{@stage}/esb</PAASArtifactStorageURLPattern>
+    <AliasPrefix>esb</AliasPrefix>
+    <CartridgeTypePrefix>esb</CartridgeTypePrefix>
+    <DeploymentPolicy>af-deployment</DeploymentPolicy>
+    <AutoscalePolicy>economy</AutoscalePolicy>
+    <SubscribeOnDeployment>false</SubscribeOnDeployment>
+</Runtime>

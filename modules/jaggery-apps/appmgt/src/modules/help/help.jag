@@ -33,7 +33,7 @@ var sections = i18n.localize("sections");
 
 
 var getHelpMessage = function (section) {
-    var roles = session.get("USER_ROLES");
+    var roles = session.get(USER_ROLES);
     var helpTextArray = new Array();
     var helpSection = getHelpText(section);
     if(roles != null) {
@@ -46,7 +46,7 @@ var getHelpMessage = function (section) {
                     log.debug("rolesArray:" + roles);
 	        }
                 if(permittedRoles != null && !alreadyInRoles) {
-                    if(permittedRoles.split(",").indexOf(roles[i]) >= 0) {
+                    if(permittedRoles.split(",").indexOf(String(roles[i])) >= 0) {
 		        alreadyInRoles = true;
                         var helpDetails = helpSection[subSection]["details"];
                         helpTextArray.push(helpDetails);

@@ -6,21 +6,28 @@ var caramel = require('caramel');
         return;
     }
     issue = require('/modules/issue.js'),
-
+    project = require('/modules/project.js');
     pkey = request.getParameter('issuePkey');
     var isRedirection = request.getParameter('isRedirection');
     var appkey = request.getParameter('appkey');
     include('/jagg/jagg.jag');
     userName = context.get(LOGGED_IN_USER);
 	domain = context.get(DOMAIN);
-
+    var issueResult = issue.getIssueByKey(pkey);
+    var versionsResult = project.getAllVersionOfProject(appkey);
+    var versionNo;
+    for(var i in versionsResult) {
+        if(versionsResult[i].id == issueResult.issue.versionId) {
+            versionNo = versionsResult[i].version;
+        }
+    }
     if(isRedirection){
         print(issue.getIssueByKey(pkey));
     }else{
         caramel.render({
             title  : { text : 'Issue Tracker | View Issue'},
             header : { domain : domain, userName : userName},
-            body   : { data : issue.getIssueByKey(pkey), appkey: appkey }
+            body   : { data : issueResult, appkey: appkey, versions: versionsResult, versionNumber : versionNo }
         });
     }
 }());

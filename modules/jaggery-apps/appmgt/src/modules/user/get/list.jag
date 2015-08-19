@@ -44,6 +44,11 @@ function login(userName, password){
  	var tenantManager= multitenancy.getTenantManager();
 	var finalResult={};
 	try{
+        	context.startTenantFlow();
+        	context.getThreadLocalCarbonContext().setTenantId(tenantManager.getTenantId(tenantDomain));
+        	context.getThreadLocalCarbonContext().setTenantDomain(tenantDomain);
+        	context.getThreadLocalCarbonContext().setUsername(userName);
+
 		var result = server.Server.prototype.authenticate(userName,password);
 		if(result === true){
 			jagg.setUser(userName);
@@ -59,6 +64,8 @@ function login(userName, password){
 		log.error("Error while authenticating user : " + userName);
 		log.error(e);
 		throw e;
+	} finally {
+	    context.endTenantFlow();
 	}
 }
 

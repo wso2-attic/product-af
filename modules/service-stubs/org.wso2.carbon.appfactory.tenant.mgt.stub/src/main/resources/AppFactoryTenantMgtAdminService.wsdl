@@ -1,442 +1,561 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ax27="http://beans.common.stratos.carbon.wso2.org/xsd" xmlns:ns="http://services.mgt.tenant.appfactory.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://services.mgt.tenant.appfactory.carbon.wso2.org">
-    <wsdl:documentation>AppFactoryTenantMgtAdminService</wsdl:documentation>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://service.mgt.tenant.appfactory.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ax265="http://service.mgt.tenant.appfactory.carbon.wso2.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax267="http://common.appfactory.carbon.wso2.org/xsd" xmlns:ax269="http://beans.mgt.tenant.appfactory.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://service.mgt.tenant.appfactory.carbon.wso2.org">
+    <wsdl:documentation>TenantManagementService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema xmlns:ax28="http://beans.common.stratos.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://services.mgt.tenant.appfactory.carbon.wso2.org">
-            <xs:import namespace="http://beans.common.stratos.carbon.wso2.org/xsd"/>
-            <xs:element name="AppFactoryTenantMgtAdminServiceException">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="AppFactoryException">
+                <xs:sequence></xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://beans.mgt.tenant.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="UserInfoBean">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="email" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="firstName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="lastName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="roles" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax266="http://service.mgt.tenant.appfactory.carbon.wso2.org/xsd" xmlns:ax268="http://common.appfactory.carbon.wso2.org/xsd" xmlns:ax270="http://beans.mgt.tenant.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.mgt.tenant.appfactory.carbon.wso2.org">
+            <xs:import namespace="http://service.mgt.tenant.appfactory.carbon.wso2.org/xsd"></xs:import>
+            <xs:import namespace="http://common.appfactory.carbon.wso2.org/xsd"></xs:import>
+            <xs:import namespace="http://beans.mgt.tenant.appfactory.carbon.wso2.org/xsd"></xs:import>
+            <xs:element name="TenantManagementServiceTenantManagementException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="AppFactoryTenantMgtAdminServiceException" nillable="true" type="ns:Exception"/>
+                        <xs:element minOccurs="0" name="TenantManagementException" nillable="true" type="ax266:TenantManagementException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="Exception">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:element name="doPostTenantActivation">
+            <xs:element name="TenantManagementServiceAppFactoryException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="tenantInfoBean" nillable="true" type="ax27:TenantInfoBean"/>
+                        <xs:element minOccurs="0" name="AppFactoryException" nillable="true" type="ax268:AppFactoryException"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addUserRoles">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="rolesToBeAdded" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addUserRolesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateUserRoles">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="rolesToBeAdded" nillable="true" type="xs:string"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="rolesToBeRemoved" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateUserRolesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeUserFromTenant">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeUserFromTenantResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUsersofTenant">
+                <xs:complexType>
+                    <xs:sequence></xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUsersofTenantResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax270:UserInfoBean"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="importUsersTotheTenant">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="users" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="defaultPassword" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="importUsersTotheTenantResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getFilteredUserRoles">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getFilteredUserRolesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getTenantId">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getTenantIdResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:int"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUserInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getUserInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax270:UserInfoBean"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://beans.common.stratos.carbon.wso2.org/xsd">
-            <xs:complexType name="TenantInfoBean">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="active" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="admin" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="adminPassword" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="createdDate" nillable="true" type="xs:dateTime"/>
-                    <xs:element minOccurs="0" name="email" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="firstname" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="lastname" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="originatedService" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="successKey" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="tenantId" type="xs:int"/>
-                    <xs:element minOccurs="0" name="usagePlan" nillable="true" type="xs:string"/>
-                </xs:sequence>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://service.mgt.tenant.appfactory.carbon.wso2.org/xsd">
+            <xs:complexType name="TenantManagementException">
+                <xs:sequence></xs:sequence>
             </xs:complexType>
         </xs:schema>
     </wsdl:types>
-    <wsdl:message name="getTenantRequest"/>
-    <wsdl:message name="getTenantResponse"/>
-    <wsdl:message name="retrieveTenantsRequest"/>
-    <wsdl:message name="retrieveTenantsResponse"/>
-    <wsdl:message name="deactivateTenantRequest"/>
-    <wsdl:message name="deactivateTenantResponse"/>
-    <wsdl:message name="doPostTenantActivationRequest">
-        <wsdl:part name="parameters" element="ns:doPostTenantActivation"/>
+    <wsdl:message name="getUsersofTenantRequest">
+        <wsdl:part name="parameters" element="ns:getUsersofTenant"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="doPostTenantActivationResponse"/>
-    <wsdl:message name="AppFactoryTenantMgtAdminServiceException">
-        <wsdl:part name="parameters" element="ns:AppFactoryTenantMgtAdminServiceException"/>
+    <wsdl:message name="getUsersofTenantResponse">
+        <wsdl:part name="parameters" element="ns:getUsersofTenantResponse"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="retrievePartialSearchTenantsRequest"/>
-    <wsdl:message name="retrievePartialSearchTenantsResponse"/>
-    <wsdl:message name="retrievePaginatedTenantsRequest"/>
-    <wsdl:message name="retrievePaginatedTenantsResponse"/>
-    <wsdl:message name="updateTenantRequest"/>
-    <wsdl:message name="updateTenantResponse"/>
-    <wsdl:message name="addTenantRequest"/>
-    <wsdl:message name="addTenantResponse"/>
-    <wsdl:message name="retrievePaginatedPartialSearchTenantsRequest"/>
-    <wsdl:message name="retrievePaginatedPartialSearchTenantsResponse"/>
-    <wsdl:message name="deleteTenantRequest"/>
-    <wsdl:message name="deleteTenantResponse"/>
-    <wsdl:message name="activateTenantRequest"/>
-    <wsdl:message name="activateTenantResponse"/>
-    <wsdl:portType name="AppFactoryTenantMgtAdminServicePortType">
-        <wsdl:operation name="getTenant">
-            <wsdl:input message="ns:getTenantRequest" wsaw:Action="urn:getTenant"/>
-            <wsdl:output message="ns:getTenantResponse" wsaw:Action="urn:getTenantResponse"/>
+    <wsdl:message name="TenantManagementServiceTenantManagementException">
+        <wsdl:part name="parameters" element="ns:TenantManagementServiceTenantManagementException"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getFilteredUserRolesRequest">
+        <wsdl:part name="parameters" element="ns:getFilteredUserRoles"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getFilteredUserRolesResponse">
+        <wsdl:part name="parameters" element="ns:getFilteredUserRolesResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getTenantIdRequest">
+        <wsdl:part name="parameters" element="ns:getTenantId"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getTenantIdResponse">
+        <wsdl:part name="parameters" element="ns:getTenantIdResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="removeUserFromTenantRequest">
+        <wsdl:part name="parameters" element="ns:removeUserFromTenant"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="removeUserFromTenantResponse">
+        <wsdl:part name="parameters" element="ns:removeUserFromTenantResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="TenantManagementServiceAppFactoryException">
+        <wsdl:part name="parameters" element="ns:TenantManagementServiceAppFactoryException"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getUserInfoRequest">
+        <wsdl:part name="parameters" element="ns:getUserInfo"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="getUserInfoResponse">
+        <wsdl:part name="parameters" element="ns:getUserInfoResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="importUsersTotheTenantRequest">
+        <wsdl:part name="parameters" element="ns:importUsersTotheTenant"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="importUsersTotheTenantResponse">
+        <wsdl:part name="parameters" element="ns:importUsersTotheTenantResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="updateUserRolesRequest">
+        <wsdl:part name="parameters" element="ns:updateUserRoles"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="updateUserRolesResponse">
+        <wsdl:part name="parameters" element="ns:updateUserRolesResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="addUserRolesRequest">
+        <wsdl:part name="parameters" element="ns:addUserRoles"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="addUserRolesResponse">
+        <wsdl:part name="parameters" element="ns:addUserRolesResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="TenantManagementServicePortType">
+        <wsdl:operation name="getUsersofTenant">
+            <wsdl:input message="ns:getUsersofTenantRequest" wsaw:Action="urn:getUsersofTenant"></wsdl:input>
+            <wsdl:output message="ns:getUsersofTenantResponse" wsaw:Action="urn:getUsersofTenantResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:getUsersofTenantTenantManagementServiceTenantManagementException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="retrieveTenants">
-            <wsdl:input message="ns:retrieveTenantsRequest" wsaw:Action="urn:retrieveTenants"/>
-            <wsdl:output message="ns:retrieveTenantsResponse" wsaw:Action="urn:retrieveTenantsResponse"/>
+        <wsdl:operation name="getFilteredUserRoles">
+            <wsdl:input message="ns:getFilteredUserRolesRequest" wsaw:Action="urn:getFilteredUserRoles"></wsdl:input>
+            <wsdl:output message="ns:getFilteredUserRolesResponse" wsaw:Action="urn:getFilteredUserRolesResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:getFilteredUserRolesTenantManagementServiceTenantManagementException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="deactivateTenant">
-            <wsdl:input message="ns:deactivateTenantRequest" wsaw:Action="urn:deactivateTenant"/>
-            <wsdl:output message="ns:deactivateTenantResponse" wsaw:Action="urn:deactivateTenantResponse"/>
+        <wsdl:operation name="getTenantId">
+            <wsdl:input message="ns:getTenantIdRequest" wsaw:Action="urn:getTenantId"></wsdl:input>
+            <wsdl:output message="ns:getTenantIdResponse" wsaw:Action="urn:getTenantIdResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:getTenantIdTenantManagementServiceTenantManagementException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="doPostTenantActivation">
-            <wsdl:input message="ns:doPostTenantActivationRequest" wsaw:Action="urn:doPostTenantActivation"/>
-            <wsdl:output message="ns:doPostTenantActivationResponse" wsaw:Action="urn:doPostTenantActivationResponse"/>
-            <wsdl:fault message="ns:AppFactoryTenantMgtAdminServiceException" name="AppFactoryTenantMgtAdminServiceException" wsaw:Action="urn:doPostTenantActivationAppFactoryTenantMgtAdminServiceException"/>
+        <wsdl:operation name="removeUserFromTenant">
+            <wsdl:input message="ns:removeUserFromTenantRequest" wsaw:Action="urn:removeUserFromTenant"></wsdl:input>
+            <wsdl:output message="ns:removeUserFromTenantResponse" wsaw:Action="urn:removeUserFromTenantResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:removeUserFromTenantTenantManagementServiceTenantManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:TenantManagementServiceAppFactoryException" name="TenantManagementServiceAppFactoryException" wsaw:Action="urn:removeUserFromTenantTenantManagementServiceAppFactoryException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="retrievePartialSearchTenants">
-            <wsdl:input message="ns:retrievePartialSearchTenantsRequest" wsaw:Action="urn:retrievePartialSearchTenants"/>
-            <wsdl:output message="ns:retrievePartialSearchTenantsResponse" wsaw:Action="urn:retrievePartialSearchTenantsResponse"/>
+        <wsdl:operation name="getUserInfo">
+            <wsdl:input message="ns:getUserInfoRequest" wsaw:Action="urn:getUserInfo"></wsdl:input>
+            <wsdl:output message="ns:getUserInfoResponse" wsaw:Action="urn:getUserInfoResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:getUserInfoTenantManagementServiceTenantManagementException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedTenants">
-            <wsdl:input message="ns:retrievePaginatedTenantsRequest" wsaw:Action="urn:retrievePaginatedTenants"/>
-            <wsdl:output message="ns:retrievePaginatedTenantsResponse" wsaw:Action="urn:retrievePaginatedTenantsResponse"/>
+        <wsdl:operation name="importUsersTotheTenant">
+            <wsdl:input message="ns:importUsersTotheTenantRequest" wsaw:Action="urn:importUsersTotheTenant"></wsdl:input>
+            <wsdl:output message="ns:importUsersTotheTenantResponse" wsaw:Action="urn:importUsersTotheTenantResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:importUsersTotheTenantTenantManagementServiceTenantManagementException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="updateTenant">
-            <wsdl:input message="ns:updateTenantRequest" wsaw:Action="urn:updateTenant"/>
-            <wsdl:output message="ns:updateTenantResponse" wsaw:Action="urn:updateTenantResponse"/>
+        <wsdl:operation name="updateUserRoles">
+            <wsdl:input message="ns:updateUserRolesRequest" wsaw:Action="urn:updateUserRoles"></wsdl:input>
+            <wsdl:output message="ns:updateUserRolesResponse" wsaw:Action="urn:updateUserRolesResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:updateUserRolesTenantManagementServiceTenantManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:TenantManagementServiceAppFactoryException" name="TenantManagementServiceAppFactoryException" wsaw:Action="urn:updateUserRolesTenantManagementServiceAppFactoryException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="addTenant">
-            <wsdl:input message="ns:addTenantRequest" wsaw:Action="urn:addTenant"/>
-            <wsdl:output message="ns:addTenantResponse" wsaw:Action="urn:addTenantResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedPartialSearchTenants">
-            <wsdl:input message="ns:retrievePaginatedPartialSearchTenantsRequest" wsaw:Action="urn:retrievePaginatedPartialSearchTenants"/>
-            <wsdl:output message="ns:retrievePaginatedPartialSearchTenantsResponse" wsaw:Action="urn:retrievePaginatedPartialSearchTenantsResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="deleteTenant">
-            <wsdl:input message="ns:deleteTenantRequest" wsaw:Action="urn:deleteTenant"/>
-            <wsdl:output message="ns:deleteTenantResponse" wsaw:Action="urn:deleteTenantResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="activateTenant">
-            <wsdl:input message="ns:activateTenantRequest" wsaw:Action="urn:activateTenant"/>
-            <wsdl:output message="ns:activateTenantResponse" wsaw:Action="urn:activateTenantResponse"/>
+        <wsdl:operation name="addUserRoles">
+            <wsdl:input message="ns:addUserRolesRequest" wsaw:Action="urn:addUserRoles"></wsdl:input>
+            <wsdl:output message="ns:addUserRolesResponse" wsaw:Action="urn:addUserRolesResponse"></wsdl:output>
+            <wsdl:fault message="ns:TenantManagementServiceTenantManagementException" name="TenantManagementServiceTenantManagementException" wsaw:Action="urn:addUserRolesTenantManagementServiceTenantManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:TenantManagementServiceAppFactoryException" name="TenantManagementServiceAppFactoryException" wsaw:Action="urn:addUserRolesTenantManagementServiceAppFactoryException"></wsdl:fault>
         </wsdl:operation>
     </wsdl:portType>
-    <wsdl:binding name="AppFactoryTenantMgtAdminServiceSoap11Binding" type="ns:AppFactoryTenantMgtAdminServicePortType">
-        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="retrieveTenants">
-            <soap:operation soapAction="urn:retrieveTenants" style="document"/>
+    <wsdl:binding name="TenantManagementServiceSoap11Binding" type="ns:TenantManagementServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap:binding>
+        <wsdl:operation name="getUsersofTenant">
+            <soap:operation soapAction="urn:getUsersofTenant" style="document"></soap:operation>
             <wsdl:input>
-                <soap:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getTenant">
-            <soap:operation soapAction="urn:getTenant" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deactivateTenant">
-            <soap:operation soapAction="urn:deactivateTenant" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="doPostTenantActivation">
-            <soap:operation soapAction="urn:doPostTenantActivation" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-            <wsdl:fault name="AppFactoryTenantMgtAdminServiceException">
-                <soap:fault use="literal" name="AppFactoryTenantMgtAdminServiceException"/>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="retrievePartialSearchTenants">
-            <soap:operation soapAction="urn:retrievePartialSearchTenants" style="document"/>
+        <wsdl:operation name="getFilteredUserRoles">
+            <soap:operation soapAction="urn:getFilteredUserRoles" style="document"></soap:operation>
             <wsdl:input>
-                <soap:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:input>
             <wsdl:output>
-                <soap:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedTenants">
-            <soap:operation soapAction="urn:retrievePaginatedTenants" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="updateTenant">
-            <soap:operation soapAction="urn:updateTenant" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addTenant">
-            <soap:operation soapAction="urn:addTenant" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedPartialSearchTenants">
-            <soap:operation soapAction="urn:retrievePaginatedPartialSearchTenants" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteTenant">
-            <soap:operation soapAction="urn:deleteTenant" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="activateTenant">
-            <soap:operation soapAction="urn:activateTenant" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-    </wsdl:binding>
-    <wsdl:binding name="AppFactoryTenantMgtAdminServiceSoap12Binding" type="ns:AppFactoryTenantMgtAdminServicePortType">
-        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="retrieveTenants">
-            <soap12:operation soapAction="urn:retrieveTenants" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getTenant">
-            <soap12:operation soapAction="urn:getTenant" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deactivateTenant">
-            <soap12:operation soapAction="urn:deactivateTenant" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="doPostTenantActivation">
-            <soap12:operation soapAction="urn:doPostTenantActivation" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-            <wsdl:fault name="AppFactoryTenantMgtAdminServiceException">
-                <soap12:fault use="literal" name="AppFactoryTenantMgtAdminServiceException"/>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="retrievePartialSearchTenants">
-            <soap12:operation soapAction="urn:retrievePartialSearchTenants" style="document"/>
+        <wsdl:operation name="getTenantId">
+            <soap:operation soapAction="urn:getTenantId" style="document"></soap:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"></soap:body>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeUserFromTenant">
+            <soap:operation soapAction="urn:removeUserFromTenant" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="TenantManagementServiceAppFactoryException"></soap:fault>
+            </wsdl:fault>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getUserInfo">
+            <soap:operation soapAction="urn:getUserInfo" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateUserRoles">
+            <soap:operation soapAction="urn:updateUserRoles" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="TenantManagementServiceAppFactoryException"></soap:fault>
+            </wsdl:fault>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="importUsersTotheTenant">
+            <soap:operation soapAction="urn:importUsersTotheTenant" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addUserRoles">
+            <soap:operation soapAction="urn:addUserRoles" style="document"></soap:operation>
+            <wsdl:input>
+                <soap:body use="literal"></soap:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"></soap:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceAppFactoryException">
+                <soap:fault use="literal" name="TenantManagementServiceAppFactoryException"></soap:fault>
+            </wsdl:fault>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="TenantManagementServiceSoap12Binding" type="ns:TenantManagementServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"></soap12:binding>
+        <wsdl:operation name="getUsersofTenant">
+            <soap12:operation soapAction="urn:getUsersofTenant" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getFilteredUserRoles">
+            <soap12:operation soapAction="urn:getFilteredUserRoles" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getTenantId">
+            <soap12:operation soapAction="urn:getTenantId" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="removeUserFromTenant">
+            <soap12:operation soapAction="urn:removeUserFromTenant" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="TenantManagementServiceAppFactoryException"></soap12:fault>
+            </wsdl:fault>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getUserInfo">
+            <soap12:operation soapAction="urn:getUserInfo" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="updateUserRoles">
+            <soap12:operation soapAction="urn:updateUserRoles" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="TenantManagementServiceAppFactoryException"></soap12:fault>
+            </wsdl:fault>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="importUsersTotheTenant">
+            <soap12:operation soapAction="urn:importUsersTotheTenant" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addUserRoles">
+            <soap12:operation soapAction="urn:addUserRoles" style="document"></soap12:operation>
+            <wsdl:input>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"></soap12:body>
+            </wsdl:output>
+            <wsdl:fault name="TenantManagementServiceAppFactoryException">
+                <soap12:fault use="literal" name="TenantManagementServiceAppFactoryException"></soap12:fault>
+            </wsdl:fault>
+            <wsdl:fault name="TenantManagementServiceTenantManagementException">
+                <soap12:fault use="literal" name="TenantManagementServiceTenantManagementException"></soap12:fault>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="TenantManagementServiceHttpBinding" type="ns:TenantManagementServicePortType">
+        <http:binding verb="POST"></http:binding>
+        <wsdl:operation name="getUsersofTenant">
+            <http:operation location="getUsersofTenant"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedTenants">
-            <soap12:operation soapAction="urn:retrievePaginatedTenants" style="document"/>
+        <wsdl:operation name="getFilteredUserRoles">
+            <http:operation location="getFilteredUserRoles"></http:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="updateTenant">
-            <soap12:operation soapAction="urn:updateTenant" style="document"/>
+        <wsdl:operation name="getTenantId">
+            <http:operation location="getTenantId"></http:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="addTenant">
-            <soap12:operation soapAction="urn:addTenant" style="document"/>
+        <wsdl:operation name="removeUserFromTenant">
+            <http:operation location="removeUserFromTenant"></http:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedPartialSearchTenants">
-            <soap12:operation soapAction="urn:retrievePaginatedPartialSearchTenants" style="document"/>
+        <wsdl:operation name="getUserInfo">
+            <http:operation location="getUserInfo"></http:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteTenant">
-            <soap12:operation soapAction="urn:deleteTenant" style="document"/>
+        <wsdl:operation name="updateUserRoles">
+            <http:operation location="updateUserRoles"></http:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="activateTenant">
-            <soap12:operation soapAction="urn:activateTenant" style="document"/>
+        <wsdl:operation name="importUsersTotheTenant">
+            <http:operation location="importUsersTotheTenant"></http:operation>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addUserRoles">
+            <http:operation location="addUserRoles"></http:operation>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"></mime:content>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:binding name="AppFactoryTenantMgtAdminServiceHttpBinding" type="ns:AppFactoryTenantMgtAdminServicePortType">
-        <http:binding verb="POST"/>
-        <wsdl:operation name="retrieveTenants">
-            <http:operation location="retrieveTenants"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getTenant">
-            <http:operation location="getTenant"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deactivateTenant">
-            <http:operation location="deactivateTenant"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="doPostTenantActivation">
-            <http:operation location="doPostTenantActivation"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="retrievePartialSearchTenants">
-            <http:operation location="retrievePartialSearchTenants"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedTenants">
-            <http:operation location="retrievePaginatedTenants"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="updateTenant">
-            <http:operation location="updateTenant"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addTenant">
-            <http:operation location="addTenant"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="retrievePaginatedPartialSearchTenants">
-            <http:operation location="retrievePaginatedPartialSearchTenants"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteTenant">
-            <http:operation location="deleteTenant"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="activateTenant">
-            <http:operation location="activateTenant"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
-        </wsdl:operation>
-    </wsdl:binding>
-    <wsdl:service name="AppFactoryTenantMgtAdminService">
-        <wsdl:port name="AppFactoryTenantMgtAdminServiceHttpsSoap11Endpoint" binding="ns:AppFactoryTenantMgtAdminServiceSoap11Binding">
-            <soap:address location="https://appserver.dev.appfactorypreview.wso2.com/services/AppFactoryTenantMgtAdminService.AppFactoryTenantMgtAdminServiceHttpsSoap11Endpoint/"/>
+    <wsdl:service name="TenantManagementService">
+        <wsdl:port name="TenantManagementServiceHttpsSoap11Endpoint" binding="ns:TenantManagementServiceSoap11Binding">
+            <soap:address location="https://apps.appfactory.private.wso2.com:9443/services/TenantManagementService.TenantManagementServiceHttpsSoap11Endpoint/"></soap:address>
         </wsdl:port>
-        <wsdl:port name="AppFactoryTenantMgtAdminServiceHttpsSoap12Endpoint" binding="ns:AppFactoryTenantMgtAdminServiceSoap12Binding">
-            <soap12:address location="https://appserver.dev.appfactorypreview.wso2.com/services/AppFactoryTenantMgtAdminService.AppFactoryTenantMgtAdminServiceHttpsSoap12Endpoint/"/>
+        <wsdl:port name="TenantManagementServiceHttpsSoap12Endpoint" binding="ns:TenantManagementServiceSoap12Binding">
+            <soap12:address location="https://apps.appfactory.private.wso2.com:9443/services/TenantManagementService.TenantManagementServiceHttpsSoap12Endpoint/"></soap12:address>
         </wsdl:port>
-        <wsdl:port name="AppFactoryTenantMgtAdminServiceHttpsEndpoint" binding="ns:AppFactoryTenantMgtAdminServiceHttpBinding">
-            <http:address location="https://appserver.dev.appfactorypreview.wso2.com/services/AppFactoryTenantMgtAdminService.AppFactoryTenantMgtAdminServiceHttpsEndpoint/"/>
+        <wsdl:port name="TenantManagementServiceHttpsEndpoint" binding="ns:TenantManagementServiceHttpBinding">
+            <http:address location="https://apps.appfactory.private.wso2.com:9443/services/TenantManagementService.TenantManagementServiceHttpsEndpoint/"></http:address>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
