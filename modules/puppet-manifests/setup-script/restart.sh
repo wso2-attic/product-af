@@ -63,6 +63,15 @@ echo "starting APIM"
 echo "starting stogare server"
 ./$storagepath/bin/wso2server.sh start
 
+echo "starting dev greg server"
+./dev_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
+
+echo "starting test greg server"
+./test_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
+
+echo "starting prod greg server"
+./prod_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
+
 echo "Starting Active MQs"
 ./dev_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
 ./prod_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start

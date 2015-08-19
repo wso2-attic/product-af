@@ -45,6 +45,18 @@ xdotool key ctrl+shift+t
 xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/ues/wso2ues-1.1.0/bin"; xdotool key Return;
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/ues/wso2ues-1.1.0/repository/logs/wso2carbon.log"; xdotool key Return;
 
+xdotool key ctrl+shift+t
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/dev_greg/wso2greg-4.6.0/bin"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/dev_greg/wso2greg-4.6.0/repository/logs/wso2carbon.log"; xdotool key Return;
+
+xdotool key ctrl+shift+t
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/test_greg/wso2greg-4.6.0/bin"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/test_greg/wso2greg-4.6.0/repository/logs/wso2carbon.log"; xdotool key Return;
+
+xdotool key ctrl+shift+t
+xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/prod_greg/wso2greg-4.6.0/bin"; xdotool key Return;
+xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/prod_greg/wso2greg-4.6.0/repository/logs/wso2carbon.log"; xdotool key Return;
+
 xdotool key ctrl+shift+t 
 xdotool type --delay 1 --clearmodifiers "cd ${setupHome}/dev_pass/privatepaas/install/apache-stratos-default/bin"; xdotool key Return;
 xdotool type --delay 1 --clearmodifiers "tailf ${setupHome}/dev_pass/privatepaas/install/apache-stratos-default/repository/logs/wso2carbon.log"; xdotool key Return;
