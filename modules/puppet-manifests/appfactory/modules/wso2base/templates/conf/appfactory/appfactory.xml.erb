@@ -259,7 +259,7 @@
 
     <!-- Issue tracker connector configs-->
     <IssueTrackerConnector name="issueTracker" summaryOnly="false">
-        <Property name="Url">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @issue_port %>/issuetracker-2.1.0/</Property>
+        <Property name="Url">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @issue_port %>/issuetracker-<%= @issue_tracker_version %>/</Property>
         <Property name="FrontUrl">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/issuetracker/</Property>
         <!-- Bigger number will result in higher priority -->
         <Property name="ListenerPriority">40</Property>
