@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
+import org.wso2.carbon.registry.core.service.RegistryService;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -55,6 +56,11 @@ import java.util.Hashtable;
  * cardinality="1..1" policy="dynamic"
  * bind="setAppFactoryConfiguration"
  * unbind="unsetAppFactoryConfiguration"
+ * @scr.reference name="registry.service"
+ * interface="org.wso2.carbon.registry.core.service.RegistryService"
+ * cardinality="1..1" policy="dynamic"
+ * bind="setRegistryService"
+ * unbind="unsetRegistryService"
  */
 public class AppFactoryExtDS {
     private static final Log log = LogFactory.getLog(AppFactoryExtDS.class);
@@ -124,4 +130,15 @@ public class AppFactoryExtDS {
     protected void unsetAppFactoryConfiguration(AppFactoryConfiguration configuration) {
         ServiceHolder.getInstance().setAppFactoryConfiguration(null);
     }
+
+	protected void setRegistryService(RegistryService registryService) {
+		if (registryService != null && log.isDebugEnabled()) {
+			log.debug("Registry service initialized");
+		}
+		ServiceHolder.getInstance().setRegistryService(registryService);
+	}
+
+	protected void unsetRegistryService(RegistryService registryService) {
+		ServiceHolder.getInstance().setRegistryService(null);
+	}
 }

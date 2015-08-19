@@ -1030,6 +1030,17 @@
 		      <version>${appfac.version}</version>
 		      <scope>provided</scope>
 	    </dependency>
+          <dependency>
+              <groupId>org.wso2.carbon.appfactory</groupId>
+              <artifactId>org.wso2.carbon.appfactory.resource.mgt.stub</artifactId>
+              <version>${appfac.version}</version>
+              <scope>provided</scope>
+          </dependency>
+          <dependency>
+              <groupId>org.wso2.carbon.appfactory</groupId>
+              <artifactId>org.wso2.carbon.appfactory.resource.mgt</artifactId>
+              <version>${appfac.version}</version>
+          </dependency>
 	    <dependency>
 		      <groupId>org.wso2.carbon.appfactory</groupId>
 		      <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>

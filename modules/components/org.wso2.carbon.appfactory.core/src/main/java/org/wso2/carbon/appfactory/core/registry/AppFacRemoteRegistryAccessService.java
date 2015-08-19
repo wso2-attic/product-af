@@ -23,12 +23,10 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
-
-import org.wso2.carbon.appfactory.stratos.listeners.stub.AppFactoryResourceManagementServiceAppFactoryExceptionException;
-import org.wso2.carbon.appfactory.stratos.listeners.stub.AppFactoryResourceManagementServiceStub;
-import org.wso2.carbon.appfactory.stratos.services.xsd.AppFactoryResource;
-import org.wso2.carbon.appfactory.stratos.services.xsd.ResourceProperty;
-
+import org.wso2.carbon.appfactory.resource.mgt.services.xsd.AppFactoryResource;
+import org.wso2.carbon.appfactory.resource.mgt.services.xsd.ResourceProperty;
+import org.wso2.carbon.appfactory.resource.mgt.stub.AppFactoryResourceManagementServiceAppFactoryExceptionException;
+import org.wso2.carbon.appfactory.resource.mgt.stub.AppFactoryResourceManagementServiceStub;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;

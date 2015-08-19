@@ -29,6 +29,9 @@ node basenode {
   $dev_paas_offset  = 20
   $test_paas_offset = 21
   $prod_paas_offset = 22
+  $dev_greg_offset  = 30
+  $test_greg_offset = 31
+  $prod_greg_offset = 32
 
 ######## Ports #######
   $af_port          = 9443 + $af_offset
@@ -57,6 +60,10 @@ node basenode {
 
   $prod_paas_port   = 9443 + $prod_paas_offset
   $prod_paas_mb_port = 61616 + $prod_paas_offset
+
+  $dev_greg_port    = 9443 + $dev_greg_offset
+  $test_greg_port    = 9443 + $test_greg_offset
+  $prod_greg_port    = 9443 + $prod_greg_offset
 
   $ipaddress = $appfac_ip
 
@@ -148,7 +155,10 @@ node basenode {
     "192.168.18.246,appserver.${domain}",
     "$ipaddress,mysql-dev-01.${domain}",
     "$ipaddress,mysql-test-01.${domain}",
-    "$ipaddress,mysql-prod-01.${domain}"
+    "$ipaddress,mysql-prod-01.${domain}",
+    "$ipaddress,gregserver.dev.${domain}",
+    "$ipaddress,gregserver.test.${domain}",
+    "$ipaddress,gregserver.prod.${domain}"
   ]
 
   include 'wso2base'
@@ -162,6 +172,7 @@ node confignode inherits basenode  {
   $wso2_env_domain      = $domain
   $af_subdomain         = 'apps'
   $as_subdomain         = 'appserver'
+  $greg_subdomain       = 'gregserver'
   $as_dev_subdomain     = 'dev'
   $as_test_subdomain    = 'test'
   $as_prod_subdomain    = 'prod'
@@ -510,6 +521,10 @@ $apimgt_http_port     = "9769" # we put this because for minimal deployment we u
   $as_accept_thread_count = "2"
   $as_max_threads         = "750"
   $as_min_spare_threads   = "150"
+## GREG
+  $greg_accept_thread_count = "2"
+  $greg_max_threads         = "750"
+  $greg_min_spare_threads   = "150"
 ## SS
   $ss_accept_thread_count = "2"
   $ss_max_threads         = "250"
@@ -913,7 +928,76 @@ class {"apimanager":
 }
 }
 
+node /dev_greg/ inherits confignode {
+$server_ip= $ipaddress
 
+class {"greg":
+  version            => "4.6.0",
+  offset             => $dev_greg_offset,
+  localmember_port   => 4000,
+  clustering         => false,
+  maintenance_mode   => true,
+  owner              => $owner,
+  group              => $group,
+  sub_cluster_domain => "mgt",
+  registry_db_schema => $dev_registry_db_schema,
+  user_store         => $dev_userstore,
+  config_db_schema   => $dev_config_db_schema,
+  stage_subdomain    => "dev",
+  greg_stage         => "Development",
+  members            => {},
+  target             => "/mnt/${server_ip}/dev_greg",
+  stage              => "deploy"
+ }
+}
+
+node /test_greg/ inherits confignode {
+$server_ip= $ipaddress
+
+class {"greg":
+  version            => "4.6.0",
+  offset             => $test_greg_offset,
+  localmember_port   => 4000,
+  clustering         => false,
+  maintenance_mode   => true,
+  owner              => $owner,
+  group              => $group,
+  sub_cluster_domain => "mgt",
+  registry_db_schema => $test_registry_db_schema,
+  user_store         => $test_userstore,
+  config_db_schema   => $test_config_db_schema,
+  greg_stage         => "Testing",
+  stage_subdomain    => "test",
+  members            => {
+  },
+target             => "/mnt/${server_ip}/test_greg",
+stage              => "deploy"
+}
+}
+
+node /prod_greg/ inherits confignode {
+$server_ip= $ipaddress
+
+class {"greg":
+  version            => "4.6.0",
+  offset             => $prod_greg_offset,
+  localmember_port   => 4000,
+  clustering         => false,
+  maintenance_mode   => true,
+  owner              => $owner,
+  group              => $group,
+  sub_cluster_domain => "mgt",
+  registry_db_schema => $prod_registry_db_schema,
+  user_store         => $prod_userstore,
+  config_db_schema   => $prod_config_db_schema,
+  greg_stage         => "Production",
+  stage_subdomain    => "prod",
+  members            => {
+  },
+target             => "/mnt/${server_ip}/prod_greg",
+stage              => "deploy"
+}
+}
 
 node /bam/ inherits confignode {
   $server_ip = $ipaddress
