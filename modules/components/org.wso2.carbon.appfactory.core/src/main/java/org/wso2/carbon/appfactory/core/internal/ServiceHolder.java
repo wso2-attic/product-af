@@ -31,7 +31,6 @@ import java.util.Map;
 
 public class ServiceHolder {
 
-	public static ArtifactStorage artifactStorage;
 	public static Storage storage;
 	public static ContinuousIntegrationSystemDriver continuousIntegrationSystemDriver;
 	public static AppFactoryConfiguration appFactoryConfiguration;
@@ -65,14 +64,6 @@ public class ServiceHolder {
 
 	public static void setContinuousIntegrationSystemDriver(ContinuousIntegrationSystemDriver continuousIntegrationSystemDriver) {
 		ServiceHolder.continuousIntegrationSystemDriver = continuousIntegrationSystemDriver;
-	}
-
-	public static ArtifactStorage getArtifactStorage() {
-		return artifactStorage;
-	}
-
-	public static void setArtifactStorage(ArtifactStorage artifactStorage) {
-		ServiceHolder.artifactStorage = artifactStorage;
 	}
 
 	public static AppFactoryConfiguration getAppFactoryConfiguration() {
@@ -145,6 +136,10 @@ public class ServiceHolder {
 
 	public void setTaskService(TaskService taskService) {
 		ServiceHolder.taskService = taskService;
+	}
+
+	public static void removeStorage() {
+		storageMap.clear();
 	}
 
 	public static void addStorage(String key, Storage storage) {
