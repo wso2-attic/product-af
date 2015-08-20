@@ -24,7 +24,7 @@ import util.Lifecycle;
 
 import javax.ws.rs.*;
 
-@Path("/lifecyclemanagementservice/")
+@Path("/lifecycleManagementService/")
 public interface LifecycleManagementService {
 
     @GET
@@ -36,38 +36,38 @@ public interface LifecycleManagementService {
             throws AppFactoryException,LifecycleManagementException;
 
     @GET
-    @Path("/nextstage/{lifecycleName}/{currentStage}/")
+    @Path("/nextStage/{lifecycleName}/{currentStage}/")
     public String getNextStage(@PathParam("lifecycleName") String lifecycleName,
                                @PathParam("currentStage") String currentStage)
             throws LifecycleManagementException,AppFactoryException;
 
     @GET
-    @Path("/prestage/{lifecycleName}/{currentStage}/")
+    @Path("/previousStage/{lifecycleName}/{currentStage}/")
     public String getPreviousStage(@PathParam("lifecycleName") String lifecycleName,
                               @PathParam("currentStage") String currentStage)
             throws LifecycleManagementException,AppFactoryException;
 
     @GET
-    @Path("/lifecyclemap/")
+    @Path("/lifecycleMap/")
     @Produces({"application/json"})
     public Lifecycle[] getAllLifeCycles() throws LifecycleManagementException, AppFactoryException;
 
     @POST
-    @Path("/lifecycleSet/{appKey}/{lifecycleName}/{tenantDomain}/")
+    @Path("/setLifecycle/{appKey}/{lifecycleName}/{tenantDomain}/")
     public boolean setAppLifecycle(@PathParam("appKey") String appKey,
                                    @PathParam("lifecycleName") String lifecycleName,
                                    @PathParam("tenantDomain") String tenantDomain)
                                    throws LifecycleManagementException;
 
     @POST
-    @Path("/lifecycle/{appKey}/{appVersion}/{tenantDomain}/")
+    @Path("/SetAppVersion/{appKey}/{appVersion}/{tenantDomain}/")
     public boolean setAppVersionLifecycle(@PathParam("appKey") String appKey,
                                           @PathParam("appVersion") String appVersion,
                                           @PathParam("tenantDomain") String tenantDomain)
             throws LifecycleManagementException, AppFactoryException;
 
     @GET
-    @Path("/lifecycleCheck/{appKey}/")
+    @Path("/lifecycleIsChanged/{appKey}/")
     public boolean isAppLCChanged(@PathParam("appKey") String appKey,
                                   @PathParam("tenantDomain") String tenantDomain);
 
