@@ -111,7 +111,8 @@ echo "########### Copying appfac dropin jars ###########"
 
 _update_jars BPS[@] bps/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
 _update_jars APPSERVER[@] paaspuppet/files/puppet/modules/appserver/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
-_update_jars STRATOS_MANAGER[@] privatepaas/files/appfactory_deployment/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
+_update_jars GREGSERVER[@] greg/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION}
+_update_jars STRATOS_MANAGER[@] privatepaas/files/appfactory_deployment/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION}
 _update_jars JPPSERVER[@] jppserver/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
 _update_jars STORAGE[@] storage/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
 rm  ${PUPPET_MODULES_HOME}/jppserver/files/configs/lib/runtimes/jenkins/*
@@ -128,6 +129,7 @@ _update_common_jars AM_COMMON[@] apimanager/files/configs/repository/components/
 _update_common_jars JPP_COMMON[@] jppserver/files/configs/repository/components/dropins "*" "*"
 _update_common_jars GITBLIT_COMMON[@] gitblit/files/ext "*" "*"
 _update_common_jars APPSERVER_COMMON[@] paaspuppet/files/puppet/modules/appserver/files/configs/repository/components/dropins "*" "*"
+_update_common_jars GREGSERVER_COMMON[@] greg/files/configs/repository/components/dropins "*" "*"
 _update_common_jars SM_COMMON[@] privatepaas/files/appfactory_deployment/repository/components/dropins "*" "*"
 
 

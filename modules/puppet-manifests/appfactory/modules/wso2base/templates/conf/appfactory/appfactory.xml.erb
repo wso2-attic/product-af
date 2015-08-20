@@ -510,6 +510,7 @@
             <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %></BaseAccessUrl>
             <TenantMgtUrl>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %></TenantMgtUrl>
             <PAASServicesURL>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %>/services/</PAASServicesURL>
+            <GregServerURL>https://<%= @greg_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= @dev_greg_port %>/services/</GregServerURL>
             <Buildable>true</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Development</RssName>
@@ -604,6 +605,7 @@
             <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %></BaseAccessUrl>
             <TenantMgtUrl>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %></TenantMgtUrl>
             <PAASServicesURL>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %>/services/</PAASServicesURL>
+            <GregServerURL>https://<%= @greg_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= @test_greg_port %>/services/</GregServerURL>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Testing</RssName>
@@ -672,6 +674,7 @@
             <BaseAccessUrl>https:/<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %></BaseAccessUrl>
             <TenantMgtUrl>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %></TenantMgtUrl>
             <PAASServicesURL>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %>/services/</PAASServicesURL>
+            <GregServerURL>https://<%= @greg_subdomain %>.<%= as_prod_subdomain %>.<%= @wso2_env_domain %>:<%= @prod_greg_port %>/services/</GregServerURL>
             <Semantic>Production</Semantic>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>

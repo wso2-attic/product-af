@@ -71,6 +71,10 @@
             <artifactId>org.wso2.carbon.appfactory.application.mgt.stub</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.appfactory</groupId>
+            <artifactId>org.wso2.carbon.appfactory.resource.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.email.sender</artifactId>
         </dependency>
@@ -252,6 +256,8 @@
                                 <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.common
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.application.mgt.stub
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.resource.mgt.stub
                                 </bundleDef>
                                 <bundleDef> org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.core
                                 </bundleDef>
