@@ -57,11 +57,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  *
  */
 
-//	        @scr.reference name="appfactory.registry.service"
-//	        interface="org.wso2.carbon.appfactory.core.RemoteRegistryService"
-//	        cardinality="1..1" policy="dynamic"
-//	        bind="setAppfactoryRemoteRegistryService"
-//	        unbind="unsetAppfactoryRemoteRegistryService"
 public class UtilitiesServiceComponent {
     Log log = LogFactory.getLog(org.wso2.carbon.appfactory.utilities.internal.UtilitiesServiceComponent.class);
 
