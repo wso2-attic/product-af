@@ -31,7 +31,8 @@ public interface LifecycleManagementService {
     @Path("/lifecycleObject/{appKey}/{appVersion}/")
     @Produces({"application/json"})
     public Lifecycle getCurrentLifeCycle(@PathParam("appKey") String appKey,
-                                         @PathParam("appVersion") String appVersion)
+                                         @PathParam("appVersion") String appVersion,
+                                         @PathParam("tenantDomain") String tenantDomain)
             throws AppFactoryException,LifecycleManagementException;
 
     @GET
@@ -42,14 +43,14 @@ public interface LifecycleManagementService {
 
     @GET
     @Path("/prestage/{lifecycleName}/{currentStage}/")
-    public String getPreStage(@PathParam("lifecycleName") String lifecycleName,
+    public String getPreviousStage(@PathParam("lifecycleName") String lifecycleName,
                               @PathParam("currentStage") String currentStage)
             throws LifecycleManagementException,AppFactoryException;
 
     @GET
     @Path("/lifecyclemap/")
     @Produces({"application/json"})
-    public Lifecycle[] getAllLifecycle() throws LifecycleManagementException, AppFactoryException;
+    public Lifecycle[] getAllLifeCycles() throws LifecycleManagementException, AppFactoryException;
 
     @POST
     @Path("/lifecycleSet/{appKey}/{lifecycleName}/{tenantDomain}/")
@@ -67,6 +68,7 @@ public interface LifecycleManagementService {
 
     @GET
     @Path("/lifecycleCheck/{appKey}/")
-    public boolean isAppLCChanged(@PathParam("appKey") String appKey);
+    public boolean isAppLCChanged(@PathParam("appKey") String appKey,
+                                  @PathParam("tenantDomain") String tenantDomain);
 
 }

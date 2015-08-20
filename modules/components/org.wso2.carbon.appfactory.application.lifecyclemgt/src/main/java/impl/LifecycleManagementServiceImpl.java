@@ -50,7 +50,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @return lifecycle object array
      */
-    public Lifecycle[] getAllLifecycle() throws AppFactoryException {
+    public Lifecycle[] getAllLifeCycles() throws AppFactoryException {
         if(lifecycleMap == null) {
             createLifecycleMap();
         }
@@ -130,7 +130,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param currentStage  current stage of the application
      * @return previous stage name
      */
-    public String getPreStage(String lifecycleName, String currentStage)
+    public String getPreviousStage(String lifecycleName, String currentStage)
             throws LifecycleManagementException, AppFactoryException {
         String preStage;
         createLifecycleMap();
@@ -176,12 +176,11 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         LifecycleDAO dao = new LifecycleDAO();
         PrivilegedCarbonContext carbonContext;
         try {
-            //-----------------------------------------------------------------------------------
             PrivilegedCarbonContext.startTenantFlow();
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
-            //-----------------------------------------------------------------------------------
-            GenericArtifact artifact = dao.getAppArtifact(appKey,appVersion);
+
+            GenericArtifact artifact = dao.getAppArtifact(appKey,appVersion,tenantDomain);
             if (artifact == null) {
                 String msg = "Unable to load application details of application :" +appKey+
                         "application version"+appVersion;
@@ -189,7 +188,8 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                 throw new LifecycleManagementException(msg);
             }else{
                 String appInfoLifecycle =
-                        dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME).getLifecycleName();
+                        dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME,tenantDomain).
+                                getLifecycleName();
                 if((artifact.getLifecycleName().equals(appInfoLifecycle)) || appInfoLifecycle == null) {
                     String msg = "Unable to update life cycle of the application :" +appKey;
                     log.error(msg);
@@ -289,13 +289,14 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey application key
      * @return lifecycle object
      */
-    public Lifecycle getCurrentLifeCycle(String appKey,String appVersion)
+    public Lifecycle getCurrentLifeCycle(String appKey,String appVersion,String tenantDomain)
             throws AppFactoryException, LifecycleManagementException {
         Lifecycle lifecycle;
         LifecycleDAO dao = new LifecycleDAO();
-        String lifecycleName = dao.getLifeCycleName(appKey,appVersion);
+        String lifecycleName = dao.getLifeCycleName(appKey,appVersion,tenantDomain);
         if(lifecycleName == null){
-            String errorMsg = "Failed to load life cycle of application :"+appKey+", application version :"+appVersion;
+            String errorMsg = "Failed to load life cycle of application :"+appKey+", application version :"
+                    +appVersion;
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
         }else {
@@ -317,8 +318,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         LifecycleDAO dao = new LifecycleDAO();
         boolean status = false;
         try {
-            GenericArtifact artifact = dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME);
-            if (artifact != null && dao.isAppLifecycleChangeValid(appKey)) {
+            GenericArtifact artifact =
+                    dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME,tenantDomain);
+            if (artifact != null && dao.isAppLifecycleChangeValid(appKey,tenantDomain)) {
                 if (artifact.getLifecycleName() != null && artifact.getLifecycleName().equals(lifecycleName)){
                     String msg = "Unable to update life cycle of the application :" +appKey+".It has been " +
                             "updated already with the life cycle :"+lifecycleName;
@@ -379,17 +381,17 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey application key
      * @return true/false
      */
-    public boolean isAppLCChanged(String appKey){
+    public boolean isAppLCChanged(String appKey,String tenantDomain){
         boolean status = false;
         LifecycleDAO lifecycleDAO = new LifecycleDAO();
         PrivilegedCarbonContext carbonContext;
         try {
-            //-----------------------------------------------------------------------------------
             PrivilegedCarbonContext.startTenantFlow();
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            carbonContext.setTenantDomain("xyz.com", true);
-            //-----------------------------------------------------------------------------------
-            if(lifecycleDAO.getAppArtifact(appKey,AppFactoryConstants.APPLICATION_ARTIFACT_NAME).getLifecycleName()!=null){
+            carbonContext.setTenantDomain(tenantDomain, true);
+
+            if(lifecycleDAO.getAppArtifact(appKey,AppFactoryConstants.APPLICATION_ARTIFACT_NAME,tenantDomain).
+                    getLifecycleName()!=null){
                 status = true;
             }
         } catch (AppFactoryException e) {
