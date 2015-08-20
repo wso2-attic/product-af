@@ -27,7 +27,6 @@
 	<modules>
         <module>org.wso2.carbon.appfactory.application.mgt.stub</module>
         <module>org.wso2.carbon.appfactory.application.deployer.stub</module>
-        <module>org.wso2.carbon.appfactory.artifact.storage.stub</module>
         <module>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</module>
         <module>org.wso2.carbon.appfactory.events.notification.stub</module>
         <module>org.wso2.carbon.appfactory.build.stub</module>
