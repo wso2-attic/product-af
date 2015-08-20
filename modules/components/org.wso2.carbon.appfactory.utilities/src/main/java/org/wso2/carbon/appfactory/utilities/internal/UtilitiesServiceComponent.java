@@ -25,7 +25,6 @@ import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.ArtifactStorage;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
 import org.wso2.carbon.appfactory.utilities.dataservice.DSApplicationListener;
-import org.wso2.carbon.appfactory.utilities.esb.ESBApplicationListener;
 import org.wso2.carbon.appfactory.utilities.storage.FileArtifactStorage;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -55,12 +54,14 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  *              cardinality="1..1" policy="dynamic"
  *              bind="setConfigurationContextService"
  *              unbind="unsetConfigurationContextService"
- * @scr.reference name="appfactory.registry.service"
- *              interface="org.wso2.carbon.appfactory.core.RemoteRegistryService"
- *              cardinality="1..1" policy="dynamic"
- *              bind="setAppfactoryRemoteRegistryService"
- *              unbind="unsetAppfactoryRemoteRegistryService"
+ *
  */
+
+//	        @scr.reference name="appfactory.registry.service"
+//	        interface="org.wso2.carbon.appfactory.core.RemoteRegistryService"
+//	        cardinality="1..1" policy="dynamic"
+//	        bind="setAppfactoryRemoteRegistryService"
+//	        unbind="unsetAppfactoryRemoteRegistryService"
 public class UtilitiesServiceComponent {
     Log log = LogFactory.getLog(org.wso2.carbon.appfactory.utilities.internal.UtilitiesServiceComponent.class);
 
@@ -83,9 +84,9 @@ public class UtilitiesServiceComponent {
             int listenerPriority = Integer.valueOf(appFactoryConfiguration.getFirstProperty("EventHandlers.DSApplicationHandler.priority"));
             bundleContext.registerService(ApplicationEventsHandler.class.getName(),
                                           new DSApplicationListener("DSApplicationListener", listenerPriority), null);
-	        int esbListenerPriority = Integer.valueOf(appFactoryConfiguration.getFirstProperty("EventHandlers.ESBApplicationHandler.priority"));
-	        bundleContext.registerService(ApplicationEventsHandler.class.getName(),
-	                                      new ESBApplicationListener("ESBApplicationListener", esbListenerPriority), null);
+//	        int esbListenerPriority = Integer.valueOf(appFactoryConfiguration.getFirstProperty("EventHandlers.ESBApplicationHandler.priority"));
+//	        bundleContext.registerService(ApplicationEventsHandler.class.getName(),
+//	                                      new ESBApplicationListener("ESBApplicationListener", esbListenerPriority), null);
 
 
         } catch (Throwable e) {
