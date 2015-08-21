@@ -3,7 +3,7 @@ var currentVersion = null;
 var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
-//var domainMappedVersion = null;
+var timer = null;
 
 // page initialization
 $(document).ready(function() {
@@ -91,9 +91,6 @@ function loadAppInfoFromServer(version) {
                 // get the relevant application info object
                 // since this always gives only one element array, take the first element
                 var appInfo = resultData[0];
-
-                // filter the domain mapped version for future reference
-//                setDomainMappedVersion(appInfo);
 
                 // filter the selected app version
                 var currentAppInfo = filterAppVersionInfo(appInfo, version);
@@ -199,7 +196,7 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
 }
 
 //// load application launch url
-function loadLaunchUrl(appInfo, currentAppInfo) {
+var loadLaunchUrl = function(appInfo, currentAppInfo) {
     jagg.post("../blocks/application/get/ajax/list.jag", {
        action: "getMetaDataForAppVersion",
        applicationKey: applicationInfo.key,
@@ -210,30 +207,37 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
     }, function (result) {
         if(result) {
             var resJSON = jQuery.parseJSON(result);
-            var appURL = "deployment in progress...";
-            if(resJSON.url) {
-                appURL = resJSON.url;
-            }
-            // display app url
-            var repoUrlHtml = "<b>URL : </b>" + appURL;
-            $("#app-version-url").html(repoUrlHtml);
-
-            if(resJSON.url) {
+            if(resJSON && "Success" == resJSON.status) {
+                var appURL = resJSON.url;
+                // display app url
+                var repoUrlHtml = "<b>URL : </b>" + appURL;
+                $("#app-version-url").html(repoUrlHtml);
                 $('#version-url-link').attr({href:appURL});
-                // set url to launch button
                 $('#btn-launchApp').attr({url:appURL});
+
+                // set url to launch button
                 $('#btn-launchApp').removeAttr('disabled');
                 $('#version-url-link').removeAttr('disabled');
+                // create accept and deploy section
+                showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
+
+                // clear the timer if exist
+                clearTimeout(timer);
             } else {
+                // remove status message
+                var repoUrlHtml = "<b>URL : </b>deployment in progress...";
+                $("#app-version-url").html(repoUrlHtml);
                 // disable links and buttons
                 $('#btn-launchApp').attr('disabled','disabled');
                 $('#version-url-link').attr('disabled','disabled');
                 // remove previous urls
                 $('#version-url-link').removeAttr('href');
                 $('#btn-launchApp').removeAttr('url');
+                hideAcceptAndDeploy();
+
+                // set the timer until the app get deployed
+                poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
             }
-            // create accept and deploy section
-            showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
         }
     }, function (jqXHR, textStatus, errorThrown) {
             // show error to the user
@@ -246,6 +250,11 @@ function loadLaunchUrl(appInfo, currentAppInfo) {
     });
 }
 
+// pool until the app is deployed
+function poolUntilAppDeploy(callback, appInfo, currentAppInfo) {
+    clearTimeout(timer);
+    timer = setTimeout(callback, 5000, appInfo, currentAppInfo);
+}
 
 // load code envy editor
 function createCodeEnvyUrl(gitURL) {
@@ -368,6 +377,12 @@ function validateIconImage(filename, fileSize) {
     return false;
 }
 
+// accept and deploy hide
+function hideAcceptAndDeploy() {
+    // hide the button by default
+    $("#acceptDeployWrapper").hide();
+}
+
 // accept and deploy show
 function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
     var promoteStatus = currentAppInfo.promoteStatus;
@@ -377,7 +392,6 @@ function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
     var stage = currentAppInfo.stage;
 
     // hide the button by default
-    $("#acceptDeployWrapper").hide();
 
     if(appUrl) {
         if(pendingState == promoteStatus && deploymentPermission[stage]) {
