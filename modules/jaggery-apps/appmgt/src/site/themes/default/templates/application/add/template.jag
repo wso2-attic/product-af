@@ -670,7 +670,7 @@ function showLoader(show){
              $("#action").val("uploadExistingApplication");
          }
          $("#createAppForm").submit();
-         showTopSuccessMsg("Application creation started!.");
+         showTopSuccessMsg("Application creation started.");
     } else {
         showLoader(false);
     }
