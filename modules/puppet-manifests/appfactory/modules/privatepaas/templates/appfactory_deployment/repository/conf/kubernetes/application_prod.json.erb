@@ -1,0 +1,20 @@
+{
+    "applicationId": "<%=@prod_cartridge_alias %>",
+    "alias": "<%=@prod_cartridge_alias %>",
+    "multiTenant": true,
+    "components": {
+        "cartridges": [
+            {
+            "type": "<%=@prod_cartridge_type %>",
+            "cartridgeMin": 1,
+            "cartridgeMax": 1,
+                "subscribableInfo": {
+                "alias": "<%=@prod_cartridge_type %>",
+                "autoscalingPolicy": "autoscaling-policy",
+                "deploymentPolicy": "deployment-policy"
+                }
+            }
+        ]
+    }
+}
+
