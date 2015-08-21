@@ -27,8 +27,6 @@ jagg.template("index", function(inputs, outputs, jagg) {
 %>
 
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-
 <script type="text/javascript" xmlns="http://www.w3.org/1999/html" charset="utf-8">
 var parsedAppArray = [];
 var filterArray = [];
@@ -130,6 +128,10 @@ function addTableRow(application) {
     }
     theLi += '</li>';
     $("#item_list").append(theLi);
+
+    // hide loading image after loading all the version specific data
+    $('.loader').loading('hide');
+    $('.loading-cover').overlay('hide');
 }
 
 /**
@@ -330,6 +332,9 @@ function checkFirstLogin() {
 
 
 $(document).ready(function () {
+        // show loading image
+        $('.loader').loading('show');
+        $('.loading-cover').overlay('show');
 
          //init user activity monitor
         initializeUserActivity("userHome", null, null);
@@ -379,7 +384,6 @@ $(document).ready(function () {
         $.cookie('selectedStage', null);
         $.cookie('selectedVersion', null);
 
-
 });
 
 /** ***********************Utility Methods********************************** */
@@ -421,6 +425,7 @@ function hideNotification() {
 }
 
 </script>
+
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 
 <!--##################################################-->
@@ -485,7 +490,7 @@ function hideNotification() {
     <div id="push"></div>
 </div>
 
-<div class="inner-wrapper" id="userHomeWithApps" style="display:none">
+<div class="inner-wrapper" id="userHomeWithApps" style="display:block">
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
@@ -535,14 +540,19 @@ function hideNotification() {
                 <i class="fa fa-2x fa-th"></i>
             </div>-->
         </div>
-
-<div class="row row-centered app-listing">
+        <div class="row row-centered app-listing">
+            <!-- loading image -->
+            <div class="loading-cover loading-overlay">
+                <div class="loader"></div>
+            </div>
             <!-- BOF listing block -->
-                <ul class="" id="item_list"></ul>
+            <ul class="" id="item_list"></ul>
         </div>
     </div><!-- /.container -->
 </div>
 
-<!--#################################################-->
+<!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <% }); %>
 
