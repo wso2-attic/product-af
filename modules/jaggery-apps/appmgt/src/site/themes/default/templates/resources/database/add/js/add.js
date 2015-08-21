@@ -55,6 +55,7 @@ $('.password-generator').click(function(){
 });
 
 //password strength meter    
+/*
 $(function () {
     $("#password")
         .popover({ title: 'Password Meter', content: "Password must meet the following requirements:" })
@@ -65,14 +66,45 @@ $(function () {
         .tip()
         .addClass('password-meter');
 });
+*/
+"use strict";
+    var options = {};
+    options.ui = {
+        showStatus: true,
+        showErrors: true,
+        showProgressBar: true,
+        showVerdictsInsideProgressBar: true,
+        viewports:{
+          progress: ".strength-meter"
+        },
+        showPopover: true,
+    };
+    //$('#password').pwstrength(options);
+    $("#password").pwstrength("addRule", "testRule", function (options, word, score) {
+        console.log(options);
+        return word.match(/[a-z].[0-9]/) && score;
+    }, 10, true);
+    $('#password').on('show.bs.popover', function () {
+        console.log("popover init");
+        //$('#password').next().addClass(".right");
+        $.fn.popover.Constructor.DEFAULTS.placement = 'right';
+    });
+
+
+
 
 // add new database 
 function addNewDatabase(){
     var dbName = $("#database-name").val().trim();
-    if(dbName==null || dbName == "" || dbName == undefined){
+    var defaultUserName = $("#user-name").val().trim();
+    if(dbName == null || dbName == "" || dbName == undefined){
         jagg.message({content:'Database name field cannot be empty',type:'error'});
         return;
     }
+    if(defaultUserName == null || defaultUserName == "" || defaultUserName == undefined){
+        jagg.message({content:'Default user name field cannot be empty',type:'error'});
+        return;
+    }   
     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
         action: "createDatabaseAndAttachUser",
         applicationKey: appKey,

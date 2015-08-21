@@ -99,7 +99,8 @@ var loggedInUser = jagg.getUser();
 		var isBasic = request.getParameter("isBasic");
 		var createInAll=request.getParameter("copyToAll");
 		var isCreateDatasource= request.getParameter("createDatasource");
-		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        var userNameFromRequest = request.getParameter("userName");
+	    var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
         var databaseDescription = request.getParameter("databaseDescription");
 		if( !hasPermission ){
@@ -154,7 +155,12 @@ var loggedInUser = jagg.getUser();
 
 				if (isBasic == "true") {
 				    // generate possible username
-                    userName = mod.getPossibleUsername(applicationKey, databaseServerInstanceName, databaseName);
+                    if(userNameFromRequest == null || userNameFromRequest == undefined || userNameFromRequest == "") {
+                        userName = mod.getPossibleUsername(applicationKey, databaseServerInstanceName, databaseName);
+                    } else {
+                        userName = userNameFromRequest;
+                    }
+                    
                     templateName = applicationKey + '_admin@'+ databaseServerInstanceName;
 					userName = mod.createDatabaseUser(applicationKey, customPassword, databaseServerInstanceName, userName);
 					if(userName.indexOf('already exists') == -1) {

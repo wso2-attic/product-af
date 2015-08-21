@@ -82,7 +82,7 @@ if(parse(dbInfoForDataTable).length > 0){
         <div class="row row-centered">
             <div class="col-centered col-xs-10 col-sm-7  col-md-7 col-lg-6">
                 <div class="add-issue-content">
-                    <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue">
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false"  id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue">
                         <span class="fw-stack fw-lg btn-action-ico">
                             <i class="fw fw-ring fw-stack-2x"></i>
                             <i class="fw fw-add fw-stack-1x"></i>
