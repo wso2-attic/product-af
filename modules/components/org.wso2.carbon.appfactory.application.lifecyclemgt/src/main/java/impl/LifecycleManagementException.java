@@ -20,7 +20,7 @@ package impl;
 public class LifecycleManagementException extends Exception {
 
     public LifecycleManagementException(String s) {
-            super(s);
-        }
+        super(s);
+    }
 
 }

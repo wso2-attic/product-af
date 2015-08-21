@@ -23,7 +23,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import util.Lifecycle;
 
 import javax.ws.rs.*;
+import java.util.Collection;
 
+/**
+ * Contains operations related to lifecycle management of applications
+ */
 @Path("/lifecycleManagementService/")
 public interface LifecycleManagementService {
 
@@ -50,14 +54,14 @@ public interface LifecycleManagementService {
     @GET
     @Path("/lifecycleMap/")
     @Produces({"application/json"})
-    public Lifecycle[] getAllLifeCycles() throws LifecycleManagementException, AppFactoryException;
+    public Collection<Lifecycle> getAllLifeCycles() throws LifecycleManagementException, AppFactoryException;
 
     @POST
     @Path("/setLifecycle/{appKey}/{lifecycleName}/{tenantDomain}/")
     public boolean setAppLifecycle(@PathParam("appKey") String appKey,
                                    @PathParam("lifecycleName") String lifecycleName,
                                    @PathParam("tenantDomain") String tenantDomain)
-                                   throws LifecycleManagementException;
+            throws LifecycleManagementException, AppFactoryException;
 
     @POST
     @Path("/SetAppVersion/{appKey}/{appVersion}/{tenantDomain}/")
@@ -69,6 +73,6 @@ public interface LifecycleManagementService {
     @GET
     @Path("/lifecycleIsChanged/{appKey}/")
     public boolean isAppLCChanged(@PathParam("appKey") String appKey,
-                                  @PathParam("tenantDomain") String tenantDomain);
+                                  @PathParam("tenantDomain") String tenantDomain) throws AppFactoryException;
 
 }
