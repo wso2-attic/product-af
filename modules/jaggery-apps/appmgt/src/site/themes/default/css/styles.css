@@ -634,6 +634,8 @@ a.btn-action {
 .app-listing {
     position: relative;
     top: 11em;
+    padding: 18px;
+    min-height: 273px;
 }
 #seach-apps {
     border-radius: 0px;
