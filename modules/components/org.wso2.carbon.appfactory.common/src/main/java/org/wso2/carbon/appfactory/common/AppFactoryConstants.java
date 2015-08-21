@@ -459,14 +459,6 @@ public class AppFactoryConstants {
 
 	public static final String AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME = "StartStage";
 
-	/**
-	 * constants for LifeCycleManagement
-	 */
-	public static final String LC_SCXML_ELEMENT = "scxml";
-	public static final String LC_STATE_ELEMENT = "state";
-	public static final String LC_DATA_MODEL_ELEMENT = "datamodel";
-	public static final String LC_ATTRIBUTE_ID = "id";
-
 
 	/**
 	 * Enum to represent of different application stages.

@@ -45,6 +45,11 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     private static final String LC_DATA_ELEMENT = "data";
     private static final String LC_ITEM_ELEMENT = "item";
     private static final String LC_ATTRIBUTE_NAME = "name";
+    private static final String LC_SCXML_ELEMENT = "scxml";
+    public static final String LC_STATE_ELEMENT = "state";
+    public static final String LC_DATA_MODEL_ELEMENT = "datamodel";
+    public static final String LC_ATTRIBUTE_ID = "id";
+
     HashMap<String, Lifecycle> lifecycleMap = null;
     Log log = LogFactory.getLog(LifecycleManagementServiceImpl.class);
 
@@ -101,8 +106,13 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     break;
                 }
             }
+            if(stages.hasNext()){
             nextStage = stages.next().getStageName();
-
+            }else{
+            String msg = "There is no stage after "+currentStage+" stage in the lifecycle :"+lifecycleName ;
+            log.error(msg);
+            throw new LifecycleManagementException(msg);
+        }
         }
 
         return nextStage;
@@ -128,10 +138,17 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
             ListIterator<Stage> stages = stagesList.listIterator();
             while (stages.hasNext()) {
                 if (stages.next().getStageName().equals(currentStage)) {
+                    stages.previous();
                     break;
                 }
             }
-            preStage = stages.previous().getStageName();
+            if(stages.hasPrevious()) {
+                preStage = stages.previous().getStageName();
+            }else{
+                String msg = "There is no stage before "+currentStage+" stage in the lifecycle :"+lifecycleName ;
+                log.error(msg);
+                throw new LifecycleManagementException(msg);
+            }
         }
         return preStage;
     }
@@ -174,23 +191,23 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         }
         OMElement typeElement = configurationElement.getFirstElement();
         configurationElement = typeElement.getFirstElement();
-        Iterator scxmlElement = configurationElement.getChildrenWithName(new QName(AppFactoryConstants.LC_SCXML_ELEMENT));
+        Iterator scxmlElement = configurationElement.getChildrenWithName(new QName(LC_SCXML_ELEMENT));
 
         if (scxmlElement.hasNext()) {
             while (scxmlElement.hasNext()) {
 
                 OMElement lifecycleElement = (OMElement) scxmlElement.next();
-                Iterator stateElements = lifecycleElement.getChildrenWithName(new QName(AppFactoryConstants.LC_STATE_ELEMENT));
+                Iterator stateElements = lifecycleElement.getChildrenWithName(new QName(LC_STATE_ELEMENT));
 
                 while (stateElements.hasNext()) {
 
                     OMElement nextStage = (OMElement) stateElements.next();
-                    String stageName = nextStage.getAttributeValue(new QName(AppFactoryConstants.LC_ATTRIBUTE_ID));
+                    String stageName = nextStage.getAttributeValue(new QName(LC_ATTRIBUTE_ID));
 
                     Stage stage = new Stage();
                     stage.setStageName(stageName);
                     stages.add(stage);
-                    Iterator dataModelElement = nextStage.getChildrenWithName(new QName(AppFactoryConstants.LC_DATA_MODEL_ELEMENT));
+                    Iterator dataModelElement = nextStage.getChildrenWithName(new QName(LC_DATA_MODEL_ELEMENT));
 
                     List<CheckListItem> checkListItems = getCheckListItems(dataModelElement);
                     stage.setItmes(checkListItems);
