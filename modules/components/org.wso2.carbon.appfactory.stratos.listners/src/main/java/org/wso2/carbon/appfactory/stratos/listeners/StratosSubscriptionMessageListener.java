@@ -28,6 +28,7 @@ import org.apache.stratos.manager.service.stub.domain.application.signup.Applica
 import org.apache.stratos.manager.user.management.TenantUserRoleManager;
 import org.apache.stratos.messaging.domain.application.Application;
 import org.apache.stratos.messaging.message.receiver.application.ApplicationManager;
+import org.apache.stratos.messaging.message.receiver.tenant.TenantManager;
 import org.wso2.carbon.tenant.mgt.core.TenantPersistor;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -72,7 +73,6 @@ public class StratosSubscriptionMessageListener implements MessageListener {
     private TopicSession topicSession;
     private TopicSubscriber topicSubscriber;
     private int currentMsgCount = 0;
-    private String REPOSITORY_TYPE = "git";
 
 
     public StratosSubscriptionMessageListener(TopicConnection topicConnection, TopicSession topicSession,
@@ -125,8 +125,16 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             try {
                 currentMsgCount++;
                 String stage = mapMessage.getString(AppFactoryConstants.STAGE);
-                addTenant(tenantInfoBean);
-
+               if (TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
+                   addTenant(tenantInfoBean);
+               }
+               else {
+                   if (log.isDebugEnabled()) {
+                       log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
+                                 "with subscription to cartridges. Tenant domain : " +
+                                 tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
+                   }
+               }
                 for (RuntimeBean runtimeBean : runtimeBeans) {
                     RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
                     try {
@@ -164,7 +172,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             throws AppFactoryException {
         RepositoryBean repositoryBean = new RepositoryBean();
         repositoryBean.setCommitEnabled(true);
-        repositoryBean.setRepositoryType(REPOSITORY_TYPE);
+        repositoryBean.setRepositoryType(AppFactoryConstants.GIT_REPOSITORY_TYPE);
         repositoryBean.setRepositoryAdminUsername(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
                 (AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME));
         repositoryBean.setRepositoryAdminPassword(AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty
