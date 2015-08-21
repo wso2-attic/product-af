@@ -615,7 +615,8 @@ var addPropertyToDatabase = function (propName, propType, appId, description, st
 var copyNewPropertiesInDatabase = function (appId, sourceStage, targetStage) {
     try {
         var resManager = Packages.org.wso2.carbon.appfactory.core.dao.ResourceManager;
-        resManager.copyNewProperties(appId, sourceStage, targetStage);
+        resManager.copyNewProperties(appId, sourceStage, targetStage,"Registry");
+        resManager.copyNewProperties(appId, sourceStage, targetStage,"External API");
     } catch (e) {
         log.error("Error while copying properties in database from stage : " + sourceStage + " to stage : " +
                   targetStage + " for application : " + appId);

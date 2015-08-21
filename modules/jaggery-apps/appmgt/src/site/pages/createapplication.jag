@@ -45,7 +45,7 @@ var site = require("/site/conf/site.json");
                                     "linkParams": [
                                         {
 
-                                            "displayName": "Create new app"
+                                            "displayName": "Create new app",
                                             "basePath":"/site/pages/createapplication.jag",
                                             "params": {
                                                 "type":type
