@@ -84,8 +84,9 @@ public class LifecycleDAO {
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
 
         } catch (RegistryException e) {
-            String errorMsg = "Unable to load application information for application id : " + appKey
-                    + " of the application :" + appKey + " of the tenant :" + tenantDomain;
+            String errorMsg =
+                    "Unable to load application information of the application :" + appKey + " of the tenant :"
+                            + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         } finally {
@@ -136,7 +137,7 @@ public class LifecycleDAO {
             lifeCycleFile = lifeCycleManagementService.getLifecycleConfiguration(lifecycleName);
         } catch (Exception e) {
             String errorMsg =
-                    "Error while loading life cycle configuration file for the life cycle :" + lifecycleName;
+                    "Error while loading the lifecycle configuration file for the life cycle :" + lifecycleName;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         }
@@ -165,13 +166,13 @@ public class LifecycleDAO {
             }
         } catch (GovernanceException e) {
             String errorMsg =
-                    "Error while loading life cycle name for the application " + appKey + " of the version" + appVersion
-                            + "of the tenant :" + tenantDomain;
+                    "Error while loading life cycle name of the application " + appKey + " with the version"
+                            + appVersion + "of the tenant :" + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         } catch (AppFactoryException e) {
             String errorMsg =
-                    "Error while loading details of the application " + appKey + " of the version" + appVersion
+                    "Error while loading details of the application " + appKey + " with the version" + appVersion
                             + "of the tenant :" + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
@@ -196,8 +197,8 @@ public class LifecycleDAO {
         GenericArtifact artifact = getAppArtifact(appKey, appVersion, tenantDomain);
         if (artifact == null) {
             String msg =
-                    "Unable to load application details of application :" + appKey + " application version" + appVersion
-                            + " of the tenant :" + tenantDomain;
+                    "Unable to load application details of application :" + appKey + " with the application version"
+                            + appVersion + " of the tenant :" + tenantDomain;
             log.error(msg);
             throw new LifecycleManagementException(msg);
         } else {
@@ -205,8 +206,8 @@ public class LifecycleDAO {
                 String appInfoLifeCycleName = getArtifactLifecycleName(appKey, tenantDomain);
                 if (appInfoLifeCycleName == null || artifact.getLifecycleName().equals(appInfoLifeCycleName)) {
                     String errorMsg =
-                            "Error while updating the artifact :" + appKey + " application version :" + appVersion
-                                    + " of the tenant :" + tenantDomain;
+                            "Error while updating the artifact :" + appKey + " with the application version :"
+                                    + appVersion + " of the tenant :" + tenantDomain;
                     log.error(errorMsg);
                     throw new LifecycleManagementException(errorMsg);
                 }
@@ -223,7 +224,7 @@ public class LifecycleDAO {
 
             } catch (RegistryException e) {
                 String errorMsg =
-                        "Error while updating the artifact :" + appKey + " application version :" + appVersion
+                        "Error while updating the artifact :" + appKey + " with the application version :" + appVersion
                                 + " of the tenant :" + tenantDomain;
                 log.error(errorMsg, e);
                 throw new AppFactoryException(errorMsg, e);

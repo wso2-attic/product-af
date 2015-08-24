@@ -253,7 +253,8 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         String lifecycleName = dao.getLifeCycleName(appKey, appVersion, tenantDomain);
         if (lifecycleName == null) {
             String errorMsg =
-                    "Failed to load lifecycle of application :" + appKey + ", application version :" + appVersion
+                    "Unable to load the lifecycle of the application :" + appKey + " with application version :"
+                            + appVersion
                             + "of the tenant :" + tenantDomain;
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
@@ -274,14 +275,18 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     public boolean setAppLifecycle(String appKey, String lifecycleName, String tenantDomain)
             throws LifecycleManagementException, AppFactoryException {
         LifecycleDAO dao = new LifecycleDAO();
+        PrivilegedCarbonContext carbonContext;
         boolean status = false;
         try {
+            PrivilegedCarbonContext.startTenantFlow();
+            carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain, true);
             GenericArtifact artifact =
                     dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain);
             if (artifact != null && dao.isAppLifecycleChangeValid(appKey, tenantDomain)) {
                 if (artifact.getLifecycleName() != null && artifact.getLifecycleName().equals(lifecycleName)) {
-                    String msg = "Unable to update lifecycle of the application :" + appKey + " of the tenant :"
-                            + tenantDomain + ".It has been already updated with the lifecycle :" + lifecycleName;
+                    String msg = "Unable to update the lifecycle of the application :" + appKey + " of the tenant :"
+                            + tenantDomain + ". It has already been updated with the lifecycle :" + lifecycleName;
                     log.error(msg);
                     throw new LifecycleManagementException(msg);
                 } else {
@@ -290,15 +295,19 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                 }
             }
         } catch (AppFactoryException e) {
-            String errorMsg = "Error while attaching the lifecycle name " + lifecycleName + " of application " + appKey
-                    + "of the tenant :" + tenantDomain;
+            String errorMsg =
+                    "Error while attaching the lifecycle name " + lifecycleName + " to the application " + appKey
+                            + "of the tenant :" + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
         } catch (GovernanceException e) {
-            String errorMsg = "Error while loading the lifecycle name " + lifecycleName + " of application " + appKey
-                    + "of the tenant :" + tenantDomain;
+            String errorMsg =
+                    "Error while loading the lifecycle name " + lifecycleName + " to the application " + appKey
+                            + "of the tenant :" + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
         return status;
     }
