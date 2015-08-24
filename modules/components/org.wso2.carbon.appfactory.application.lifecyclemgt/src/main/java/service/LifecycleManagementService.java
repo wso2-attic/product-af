@@ -32,47 +32,40 @@ import java.util.Collection;
 public interface LifecycleManagementService {
 
     @GET
-    @Path("/lifecycleObject/{appKey}/{appVersion}/")
-    @Produces({"application/json"})
-    public Lifecycle getCurrentLifeCycle(@PathParam("appKey") String appKey,
-                                         @PathParam("appVersion") String appVersion,
-                                         @PathParam("tenantDomain") String tenantDomain)
-            throws AppFactoryException,LifecycleManagementException;
+    @Path("/lifecycleObject/{appKey}/{appVersion}/{tenantDomain}/")
+    @Produces({ "application/json" })
+    public Lifecycle getCurrentLifeCycle(@PathParam("appKey") String appKey, @PathParam("appVersion") String appVersion,
+            @PathParam("tenantDomain") String tenantDomain) throws AppFactoryException, LifecycleManagementException;
 
     @GET
     @Path("/nextStage/{lifecycleName}/{currentStage}/")
     public String getNextStage(@PathParam("lifecycleName") String lifecycleName,
-                               @PathParam("currentStage") String currentStage)
-            throws LifecycleManagementException,AppFactoryException;
+            @PathParam("currentStage") String currentStage) throws LifecycleManagementException, AppFactoryException;
 
     @GET
     @Path("/previousStage/{lifecycleName}/{currentStage}/")
     public String getPreviousStage(@PathParam("lifecycleName") String lifecycleName,
-                              @PathParam("currentStage") String currentStage)
-            throws LifecycleManagementException,AppFactoryException;
+            @PathParam("currentStage") String currentStage) throws LifecycleManagementException, AppFactoryException;
 
     @GET
     @Path("/lifecycleMap/")
-    @Produces({"application/json"})
+    @Produces({ "application/json" })
     public Collection<Lifecycle> getAllLifeCycles() throws LifecycleManagementException, AppFactoryException;
 
     @POST
     @Path("/setLifecycle/{appKey}/{lifecycleName}/{tenantDomain}/")
-    public boolean setAppLifecycle(@PathParam("appKey") String appKey,
-                                   @PathParam("lifecycleName") String lifecycleName,
-                                   @PathParam("tenantDomain") String tenantDomain)
-            throws LifecycleManagementException, AppFactoryException;
+    public boolean setAppLifecycle(@PathParam("appKey") String appKey, @PathParam("lifecycleName") String lifecycleName,
+            @PathParam("tenantDomain") String tenantDomain) throws LifecycleManagementException, AppFactoryException;
 
     @POST
     @Path("/SetAppVersion/{appKey}/{appVersion}/{tenantDomain}/")
     public boolean setAppVersionLifecycle(@PathParam("appKey") String appKey,
-                                          @PathParam("appVersion") String appVersion,
-                                          @PathParam("tenantDomain") String tenantDomain)
+            @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain)
             throws LifecycleManagementException, AppFactoryException;
 
     @GET
-    @Path("/lifecycleIsChanged/{appKey}/")
-    public boolean isAppLCChanged(@PathParam("appKey") String appKey,
-                                  @PathParam("tenantDomain") String tenantDomain) throws AppFactoryException;
+    @Path("/lifecycleIsChanged/{appKey}/{tenantDomain}/")
+    public boolean isAppLCChanged(@PathParam("appKey") String appKey, @PathParam("tenantDomain") String tenantDomain)
+            throws AppFactoryException;
 
 }
