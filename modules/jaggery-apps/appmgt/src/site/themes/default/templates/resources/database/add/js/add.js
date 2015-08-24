@@ -36,38 +36,22 @@ $('.side-pane-trigger').click(function(){
         $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
     }
 });
-    
-$('input[type=password]').after('<span class="hide-pass"><i class="fa fa-eye"></i> </span>');
-//password show hide characters
-$('.hide-pass').click(function(){
-    if($(this).find('i').hasClass("fa-eye-slash")){
-        $(this).parent().find('input[data-schemaformat=password]').attr('type', 'password');
-        $(this).find('i').removeClass( "fa-eye-slash" );
-    } else {
-        $(this).find('i').addClass( "fa-eye-slash" );
-        $(this).parent().find('input[data-schemaformat=password]').attr('type', 'text');
-    }
-});
 
-//password generator modal
-$('.password-generator').click(function(){
-    $('#password-modal').modal('show');
-});
-
-//password strength meter    
-/*
-$(function () {
-    $("#password")
-        .popover({ title: 'Password Meter', content: "Password must meet the following requirements:" })
-        .blur(function () {
-            $(this).popover('hide');
-        })
-        .data('bs.popover')
-        .tip()
-        .addClass('password-meter');
-});
-*/
-"use strict";
+//add show /hide option on user passsword field
+    $('input[type=password]').after('<span class="hide-pass" title="Show/Hide Password"><i class="fa fa-eye"></i> </span>');
+    $('.hide-pass').click(function(){
+        if($(this).find('i').hasClass("fa-eye-slash")){
+            $(this).parent().find('input[data-schemaformat=password]').attr('type', 'password');
+            $(this).find('i').removeClass( "fa-eye-slash" );
+        }else{
+            $(this).find('i').addClass( "fa-eye-slash" );
+            $(this).parent().find('input[data-schemaformat=password]').attr('type', 'text');
+        }
+    });
+    $('.password-generator').click(function(){
+        $('#password-modal').modal('show');
+    });
+    "use strict";
     var options = {};
     options.ui = {
         showStatus: true,
@@ -79,19 +63,10 @@ $(function () {
         },
         showPopover: true,
     };
-    //$('#password').pwstrength(options);
-    $("#password").pwstrength("addRule", "testRule", function (options, word, score) {
-        console.log(options);
-        return word.match(/[a-z].[0-9]/) && score;
-    }, 10, true);
+    $('#password').pwstrength(options);
     $('#password').on('show.bs.popover', function () {
-        console.log("popover init");
-        //$('#password').next().addClass(".right");
         $.fn.popover.Constructor.DEFAULTS.placement = 'right';
     });
-
-
-
 
 // add new database 
 function addNewDatabase(){

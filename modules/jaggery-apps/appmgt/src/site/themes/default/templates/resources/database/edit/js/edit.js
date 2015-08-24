@@ -1,3 +1,4 @@
+/*
 function getUsersOfDatabaseForDataTable(applicationKey, dbName, environment){
     jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
         action:"getAvailableUsersToAttachToDatabase",
@@ -9,5 +10,7 @@ function getUsersOfDatabaseForDataTable(applicationKey, dbName, environment){
     },function (jqXHR, textStatus, errorThrown) {
             jagg.message({content:'Error occured while getting users of  database!' , type:'error', id:'databasecreation'});
     }); 
-
 }
+*/
+
+

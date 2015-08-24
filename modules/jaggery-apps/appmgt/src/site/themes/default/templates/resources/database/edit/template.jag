@@ -89,7 +89,7 @@ language=appInfo.language;
 
 
 <!-- Model for previledge assignment -->
-<div id="privilege_edit_chkbox_lkj_7j2gcu49" class="modal fade">
+<div id="priviledges_modal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -102,27 +102,30 @@ language=appInfo.language;
                         <div class="col-xs-12 col-md-12 section-title">Data</div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;CREATE</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;ALTER</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;INDEX</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;DROP</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;SHOW VIEW</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;CREATE ROUTINE</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;ALTER ROUTINE</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;EXECUTE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='selectPriv' > &nbsp;SELECT</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='insertPriv' > &nbsp;INSERT</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='updatePriv' > &nbsp;UPDATE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='deletePriv' > &nbsp;DELETE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createPriv' > &nbsp;CREATE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='dropPriv' > &nbsp;DROP</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='grantPriv' > &nbsp;GRANT</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='referencesPriv' > &nbsp;REFERENCES</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='indexPriv' > &nbsp;INDEX</div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12 col-md-12 section-title">Structure</div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;CREATE</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;ALTER</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;INDEX</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;DROP</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;SHOW VIEW</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;CREATE ROUTINE</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;ALTER ROUTINE</div>
-                        <div class="col-xs-6 col-md-3 "> <input type='checkbox' > &nbsp;EXECUTE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='alterPriv' > &nbsp;ALTER</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createTmpTablePriv' > &nbsp;CREATE TEMP TABLE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='lockTablesPriv' > &nbsp;LOCK TABLES</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createViewPriv' > &nbsp;CREATE VIEW</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='showViewPriv' > &nbsp;SHOW VIEW</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createRoutinePriv' > &nbsp;CREATE ROUTINE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='alterRoutinePriv' > &nbsp;ALTER ROUTINE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='executePriv' > &nbsp;EXECUTE</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='eventPriv' > &nbsp;EVENT</div>
+                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='triggerPriv' > &nbsp;TRIGGER</div>
                     </div>
                 </div>
 
@@ -130,7 +133,7 @@ language=appInfo.language;
             </div>
             <div class="modal-footer">
                 <button id="privilege_edit_cancel" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Save</button>
+                <button id="privilege_edit_save" type="button" class="btn btn-primary">Save</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -160,7 +163,10 @@ language=appInfo.language;
             $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
         }
     });
-    var usrInfo = <%=userInfo%>; 
+    var usrInfo = <%=userInfo%>;
+    var applicationKey = '<%=applicationKey%>';
+    var dbName = '<%=dbName%>';
+    var environment = '<%=environment%>'; 
     $('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,
@@ -174,10 +180,13 @@ language=appInfo.language;
             ],
             "fnDrawCallback": function( oSettings ) {
                 $('.switch input[type=checkbox]').on("click",function(){
-                    var isChecked = $(".switch input[type=checkbox]").is(":checked");
-                     if(isChecked){
-                        var currentId = $(this).attr("id");
-                        $('#privilege_edit_'+ currentId).modal({
+                    var isChecked = $(this).is(":checked");
+                    console.log(isChecked);
+                    var currentId = $(this).attr("id");
+                    //getting the user name from checkbox id, removing 'chkbx_'
+                    var userName = currentId.substr(7);
+                    if(isChecked){ 
+                        $('#priviledges_modal').modal({
                             show: true,
                             keyboard: false,
                             backdrop: 'static'
@@ -185,15 +194,109 @@ language=appInfo.language;
                         $('#privilege_edit_cancel').on('click', function (e) {
                             $("#"+ currentId).removeAttr("checked");
                         });
-                     }
+                        $('#privilege_edit_save').on('click', function (e) {
+                            if(priviledgeCheckboxValidation()){
+                            var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
+                            attachUserWithPermissions(userName, permissions);
+                            } else {
+                                 jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
+                            }
+                        });
+                     }else {
+                        detachUserAndDropTemplate(userName);
+                        $("#"+ currentId).removeAttr("checked");
+                        $("#priviledges_"+ userName).html("");
+                    }
+                    
                 });
             }
         });
-    var applicationKey = '<%=applicationKey%>';
-    var dbName = '<%=dbName%>';
-    var environment = '<%=environment%>';
     $(document).ready(function() {
     });
+// Detach a user and drop priviledge template of a user
+function detachUserAndDropTemplate(userName){
+    // detach user from database
+    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action:"detachUser",
+            applicationKey:'<%=applicationKey%>',
+            databaseName:'<%=dbName%>',
+            dbServerInstanceName:'<%=environment%>',
+            username:userName
+    }, function (result) {
+        if(result) {
+            jagg.message({content:'User ' + userName +' detached from database ' + '<%=dbName%>' , type:'success', id:'userdetach'});
+        }
+    },function (jqXHR, textStatus, errorThrown) {
+            jagg.message({content:'Error occured while detaching the user from database' , type:'error', id:'userdetach'});
+    });
+    
+    // drop template
+    jagg.post("../blocks/resources/database/templates/ajax/list.jag", {
+            action:"dropTemplate",
+            applicationKey:'<%=applicationKey%>',
+            templateName: '<%=applicationKey%>' + '_' + '<%=dbName%>' + '_' + userName,
+            environment:'<%=environment%>'
+    }, function (result) {
+            jagg.message({content:'Privilegdes removed for User ' + userName +' of database ' + '<%=dbName%>' , type:'success', id:'userdetach'});
+    
+    },function (jqXHR, textStatus, errorThrown) {
+            jagg.message({content:'Error occured while detaching the user from database' , type:'error', id:'userdetach'});
+    });
+}
+// Attach a user to a database with selected permissions
+function attachUserWithPermissions(userName, permissionsJson) {
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action:"attachUserWithPermissions",
+            applicationKey:'<%=applicationKey%>',
+            databaseName:'<%=dbName%>',
+            dbServerInstanceName:'<%=environment%>',
+            userName:userName,
+            permissions:permissionsJson 
+        },function (result) {
+                if(result){
+                    document.location.reload(true);
+                }
+        },function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status != 0){
+                    jagg.message({type:'error',content:'User ' + userName + ' attaching failed for database ' + '<%=dbName%>', id:'attach_user'});
+                }
+        });
+}
+
+// Create a json object of priviledges with its checked/unchecked value
+function getCheckedPriviledgesAsJson() {
+    var priviledgeCheckboxes = document.getElementsByName('chkbx_priviledge');
+    if(priviledgeCheckboxes.length == 0) {
+        jagg.message({type:'error',content:'Please select one or more priviledges', id:'get_priviledges'});
+        return ;
+    }
+    var allPriviledges = {};
+    for (var i=0; i<priviledgeCheckboxes.length; i++) {
+        var priviledgeId = priviledgeCheckboxes[i].id;
+        if (priviledgeCheckboxes[i].checked) {
+            allPriviledges[priviledgeId] = "Y";
+        } else {
+             allPriviledges[priviledgeId] = "N";
+        }
+    }
+    return allPriviledges;
+}
+
+// Check whether at least one priviledge is selected before attaching user
+function priviledgeCheckboxValidation() {
+    var checkboxes=document.getElementsByName('chkbx_priviledge');
+    var atLeastOneChecked=false;
+    for(var i=0,l=checkboxes.length;i<l;i++)
+    {
+        if(checkboxes[i].checked)
+        {
+            atLeastOneChecked=true;
+            break;
+        }
+    }
+    return atLeastOneChecked;
+}
+
 </script>
 
 <%

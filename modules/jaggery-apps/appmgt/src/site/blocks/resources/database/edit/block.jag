@@ -37,24 +37,21 @@ jagg.block("resources/database/edit", {
         var hasPermission = permissionModule.isUserAccessGranted(applicationKey,
                                                                  PERMISSION_RESOURCES_READ_FOR_STAGE + currentStage);
         var userInfoArray = [];
-var log = new Log();
         if(hasPermission){
             var unAttachedUsers = resourceModule.getAvailableUsersToAttachToDatabase(applicationKey,dbName, currentStage);
             var attachedUsers = resourceModule.getAttachedUsers(applicationKey, dbName, currentStage);
             for(var i in attachedUsers){
-                //log.info(attachedUsers[i]);
                 var user = {};
                 user.username = "<a>" + attachedUsers[i] + "</a>";
                 user.attachuser = '<label class="switch"> <input id="chkbox_' + attachedUsers[i] + '" type="checkbox" checked><span class="toggle-button"></span></label>';
                 var priviledgeJsonArray =  resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, attachedUsers[i]);
                 var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
-                user.priviledges = priviledgeString;
+                user.priviledges = '<div id="priviledges_' + attachedUsers[i] + '" >' + priviledgeString + '</div>';
                 user.editpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
                 user.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
                 userInfoArray.push(user);
             }
             for(var i in unAttachedUsers){
-                log.info("un : "+unAttachedUsers[i]);
                 var user = {};
                 user.username = "<a>" + unAttachedUsers[i] + "</a>";
                 user.attachuser = '<label class="switch"> <input id="chkbox_' + unAttachedUsers[i] + '" type="checkbox" ><span class="toggle-button"></span></label>';
