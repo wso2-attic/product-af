@@ -260,8 +260,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         if (lifecycleName == null) {
             String errorMsg =
                     "Unable to load the lifecycle of the application :" + appKey + " with application version :"
-                            + appVersion
-                            + "of the tenant :" + tenantDomain;
+                            + appVersion + "of the tenant :" + tenantDomain;
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
         } else {
@@ -357,15 +356,15 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      */
     public boolean isAppLCChanged(String appKey, String tenantDomain) throws AppFactoryException {
         boolean status = false;
-        LifecycleDAO lifecycleDAO = new LifecycleDAO();
+        LifecycleDAO dao = new LifecycleDAO();
         PrivilegedCarbonContext carbonContext;
         try {
             PrivilegedCarbonContext.startTenantFlow();
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
 
-            if (lifecycleDAO.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain).
-                    getLifecycleName() != null) {
+            if (dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain)
+                    .getLifecycleName() != null) {
                 status = true;
             }
         } catch (AppFactoryException e) {

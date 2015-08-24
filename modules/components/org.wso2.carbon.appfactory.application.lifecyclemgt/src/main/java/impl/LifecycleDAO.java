@@ -294,9 +294,9 @@ public class LifecycleDAO {
 
             versionNames = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(appKey);
 
-            if (versionNames != null && versionNames.size() == 1) {
-                if (versionNames.get(0).toString().equals(
-                        AppFactoryConstants.TRUNK) || versionNames.get(0).toString().equals(
+            if (versionNames.size() == 1) {
+                if (versionNames.get(0).getVersion().equals(
+                        AppFactoryConstants.TRUNK) || versionNames.get(0).getVersion().equals(
                         AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION)) {
                     status = true;
                 }
