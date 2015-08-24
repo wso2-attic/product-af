@@ -113,10 +113,10 @@ _update_jars BPS[@] bps/files/configs/repository/components/dropins ${OLD_VERSIO
 _update_jars APPSERVER[@] paaspuppet/files/puppet/modules/appserver/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
 _update_jars GREGSERVER[@] greg/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION}
 _update_jars STRATOS_MANAGER[@] privatepaas/files/appfactory_deployment/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION}
-_update_jars JPPSERVER[@] jppserver/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
+#_update_jars JPPSERVER[@] jppserver/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION}
 _update_jars STORAGE[@] storage/files/configs/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION} 
-rm  ${PUPPET_MODULES_HOME}/jppserver/files/configs/lib/runtimes/jenkins/*
-_update_jars JPPSERVER_LIBS[@] jppserver/files/configs/lib/runtimes/jenkins ${OLD_VERSION} ${NEW_VERSION}
+#rm  ${PUPPET_MODULES_HOME}/jppserver/files/configs/lib/runtimes/jenkins/*
+#_update_jars JPPSERVER_LIBS[@] jppserver/files/configs/lib/runtimes/jenkins ${OLD_VERSION} ${NEW_VERSION}
 
 #updating commn jars
 
