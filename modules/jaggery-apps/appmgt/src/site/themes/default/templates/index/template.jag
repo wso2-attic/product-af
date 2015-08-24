@@ -282,8 +282,10 @@ function populateAppOverview() {
         appCount = parsedAppArray.length;
         if(appCount > 0) {
             document.getElementById("userHomeWithApps").style.display = 'block';
+            document.getElementById("userHomeEmpty").style.display = 'none';
         } else {
-             document.getElementById("userHomeEmpty").style.display = 'block';
+            document.getElementById("userHomeWithApps").style.display = 'none';
+            document.getElementById("userHomeEmpty").style.display = 'block';
         }
 
         init();
@@ -479,12 +481,14 @@ function hideLoading() {
             <div class="col-centered col-md-4 ">
                 <div class="cloud-new-content">
                     <h1>New to our Application Cloud ?</h1>
-
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new"
-                     class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
-                    <div class="help">
-                        <i class="fa fa-2x fa-book"></i> Need help ? Read App creation <a href="https://docs.wso2.com/display/AF210/Create+an+Application+from+Scratch"
-                     target="_blank">guide</a> first..
+                    <%
+                        if (outputs.hasAppCreationPermission) { %>
+                            <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
+                            <div class="help">
+                            <i class="fa fa-2x fa-book"></i> Need help ? Read App creation <a href="https://docs.wso2.com/display/AF210/Create+an+Application+from+Scratch" target="_blank">guide</a> first..
+                    <%  } else { %>
+                           <h4>You have not yet been invited to any application, please contact your administrator</h4>
+                    <%  } %>
                     </div>
                 </div>
 
@@ -495,7 +499,7 @@ function hideLoading() {
     <div id="push"></div>
 </div>
 
-<div class="inner-wrapper" id="userHomeWithApps" style="display:block">
+<div class="inner-wrapper" id="userHomeWithApps" style="display:none">
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
