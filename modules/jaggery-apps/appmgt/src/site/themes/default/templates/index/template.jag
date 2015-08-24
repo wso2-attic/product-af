@@ -128,10 +128,6 @@ function addTableRow(application) {
     }
     theLi += '</li>';
     $("#item_list").append(theLi);
-
-    // hide loading image after loading all the version specific data
-    $('.loader').loading('hide');
-    $('.loading-cover').overlay('hide');
 }
 
 /**
@@ -265,8 +261,9 @@ function repopulatePendingApps() {
 /**
 * initialize the user home page
 */
-function init(){
+function init() {
 	createTable();
+	hideLoading();
 }
 
 /**
@@ -275,37 +272,35 @@ function init(){
 function populateAppOverview() {
     $('#item_list').parent().append($('<span class="icon-spinner icon-spin icon-large spin-large" id="main-spinner"></span>'));
     jagg.post("../blocks/application/get/ajax/list.jag", {
-            action: "getAllApps",
-            userName: '<%=userName%>'
-        },
+        action: "getAllApps",
+        userName: '<%=userName%>'
+    },
 
-        function (result) {
-            parsedAppArray = jQuery.parseJSON(result);
-            parsedAppArray.sort(NameComparator);
-            appCount = parsedAppArray.length;
-            if(appCount > 0) {
-                document.getElementById("userHomeWithApps").style.display = 'block';
-            } else {
-                 document.getElementById("userHomeEmpty").style.display = 'block';
-            }
+    function (result) {
+        parsedAppArray = jQuery.parseJSON(result);
+        parsedAppArray.sort(NameComparator);
+        appCount = parsedAppArray.length;
+        if(appCount > 0) {
+            document.getElementById("userHomeWithApps").style.display = 'block';
+        } else {
+             document.getElementById("userHomeEmpty").style.display = 'block';
+        }
 
-            init();
-            $('#main-spinner').remove();
-        },
+        init();
+        $('#main-spinner').remove();
+    },
 
-        function (jqXHR, textStatus, errorThrown) {
-            $('#main-spinner').remove();
-
-            if (jqXHR.status != 0){
-                jagg.message({
-                    content: 'Error occurred while loading user application list',
-                    type: 'error',
-                    id:'uniqueId1'
-                });
-            }
-
-
-        });
+    function (jqXHR, textStatus, errorThrown) {
+        $('#main-spinner').remove();
+        hideLoading();
+        if (jqXHR.status != 0) {
+            jagg.message({
+                content: 'Error occurred while loading user application list',
+                type: 'error',
+                id:'uniqueId1'
+            });
+        }
+    });
 }
 
 
@@ -332,9 +327,7 @@ function checkFirstLogin() {
 
 
 $(document).ready(function () {
-        // show loading image
-        $('.loader').loading('show');
-        $('.loading-cover').overlay('show');
+        showLoading();
 
          //init user activity monitor
         initializeUserActivity("userHome", null, null);
@@ -422,6 +415,18 @@ function setPageRefreshTimeOut(intervalTime) {
 function hideNotification() {
   // create new timer with given time interval
     setTimeout(function () {jagg.removeMessage('inProgress')}, 5000);
+}
+
+function showLoading() {
+    // show loading image
+    $('.loader').loading('show');
+    $('.loading-cover').overlay('show');
+}
+
+function hideLoading() {
+    // hide loading image after loading all the version specific data
+    $('.loader').loading('hide');
+    $('.loading-cover').overlay('hide');
 }
 
 </script>
@@ -555,4 +560,3 @@ function hideNotification() {
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <% }); %>
-
