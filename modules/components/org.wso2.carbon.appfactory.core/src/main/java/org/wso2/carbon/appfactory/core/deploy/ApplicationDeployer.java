@@ -51,9 +51,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static org.wso2.carbon.appfactory.core.util.CommonUtil.getAdminUsername;
-import static org.wso2.carbon.appfactory.core.util.CommonUtil.getServerAdminPassword;
-
 /**
  * This service will deploy an artifact (specified as a combination of
  * application, stage, version and revision) to a set of servers associated with
@@ -542,107 +539,8 @@ public class ApplicationDeployer {
     private Collection<File> getFilesToDelete(String applicationId, String version, File applicationRootLocation,
                                               String fileExtension, String applicationType) {
 
-        if (AppFactoryConstants.APPLICATION_TYPE_ESB.equals(applicationType)) {
-
-            return FileUtils.listFiles(applicationRootLocation,
-                                       new String[]{AppFactoryConstants.APPLICATION_TYPE_XML}, true);
-
-        } else {
-            return FileUtils.listFiles(applicationRootLocation, new ArtifactFileFilter(applicationId, version,
-                                                                                       fileExtension), null);
-        }
-    }
-
-    /**
-     * Delete CApp from given deployment servers
-     *
-     * @param applicationId        application ID
-     * @param deploymentServerUrls deployment servers
-     * @throws AppFactoryException an error
-     */
-    private void deleteCApp(String applicationId, String[] deploymentServerUrls, String version)
-            throws AppFactoryException {
-        for (String deploymentServerUrl : deploymentServerUrls) {
-            try {
-                String deploymentServerIp = getDeploymentHostFromUrl(deploymentServerUrl);
-                ApplicationDeleteClient applicationDeleteClient = new ApplicationDeleteClient(deploymentServerUrl);
-                if (applicationDeleteClient.authenticate(getAdminUsername(applicationId), getServerAdminPassword(),
-                                                         deploymentServerIp)) {
-                    applicationDeleteClient.deleteCarbonApp(applicationId);
-                    if (log.isDebugEnabled()) {
-                        log.debug(applicationId + " is successfully undeployed.");
-                    }
-                } else {
-                    handleException("Failed to login to " + deploymentServerIp + " to undeploy the artifact for " +
-                                    "application key : " + applicationId);
-                }
-            } catch (Exception e) {
-                handleException("Error occurred when un-deploying car file for application key : " + applicationId, e);
-
-            }
-        }
-    }
-
-    /**
-     * Delete web application from given deployment servers
-     *
-     * @param applicationId        application ID
-     * @param deploymentServerUrls deployment servers
-     * @throws AppFactoryException an error
-     */
-    private void deleteWebApp(String applicationId, String[] deploymentServerUrls, String type, String version)
-            throws AppFactoryException {
-        for (String deploymentServerUrl : deploymentServerUrls) {
-            try {
-                String deploymentServerIp = getDeploymentHostFromUrl(deploymentServerUrl);
-                ApplicationDeleteClient applicationDeleteClient = new ApplicationDeleteClient(deploymentServerUrl);
-
-                if (applicationDeleteClient.authenticate(getAdminUsername(applicationId), getServerAdminPassword(),
-                                                         deploymentServerIp)) {
-                    applicationDeleteClient.deleteWebApp(applicationId, type, version);
-                    if (log.isDebugEnabled()) {
-                        log.info(applicationId + " is successfully undeployed.");
-                    }
-                } else {
-                    handleException("Failed to login to " + deploymentServerIp + " to undeploy the artifact for " +
-                                    "application key : " + applicationId);
-                }
-            } catch (Exception e) {
-                handleException("Error occurred when un-deploying war file for application key : " + applicationId, e);
-
-            }
-        }
-    }
-
-    /**
-     * Delete service from given deployment servers
-     *
-     * @param applicationId        application ID
-     * @param deploymentServerUrls deployment servers
-     * @throws AppFactoryException an error
-     */
-    private void deleteService(String applicationId, String[] deploymentServerUrls, String type, String version)
-            throws AppFactoryException {
-        for (String deploymentServerUrl : deploymentServerUrls) {
-            try {
-                String deploymentServerIp = getDeploymentHostFromUrl(deploymentServerUrl);
-                ApplicationDeleteClient applicationDeleteClient = new ApplicationDeleteClient(deploymentServerUrl);
-
-                if (applicationDeleteClient.authenticate(getAdminUsername(applicationId), getServerAdminPassword(),
-                                                         deploymentServerIp)) {
-                    applicationDeleteClient.deleteService(applicationId, type, version);
-                    if (log.isDebugEnabled()) {
-                        log.debug(applicationId + " is successfully undeployed.");
-                    }
-                } else {
-                    handleException("Failed to login to " + deploymentServerIp + " to undeploy the artifact for" +
-                                    " application key : " + applicationId);
-                }
-            } catch (Exception e) {
-                handleException("Error occurred when un-deploying war file for application key : " + applicationId, e);
-
-            }
-        }
+	    return FileUtils.listFiles(applicationRootLocation, new ArtifactFileFilter(applicationId, version,
+	                                                                               fileExtension), null);
     }
 
     /**

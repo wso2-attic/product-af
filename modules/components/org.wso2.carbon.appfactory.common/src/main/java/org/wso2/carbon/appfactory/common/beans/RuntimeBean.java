@@ -46,6 +46,8 @@ public class RuntimeBean {
 	private String dataCartridgeAlias;
 	//This is used to define whether subscription is required at the time of deployment
 	private boolean subscribeOnDeployment;
+	//server url type
+	private String serverURL;
 	private Map<String, String> properties = new HashMap<String, String>();
 
 	public String getRuntimeName() {
@@ -126,5 +128,13 @@ public class RuntimeBean {
 
 	public String getProperty(String name) {
 		return properties.get(name);
+	}
+
+	public String getServerURL() {
+		return serverURL;
+	}
+
+	public void setServerURL(String serverURL) {
+		this.serverURL = serverURL;
 	}
 }

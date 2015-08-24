@@ -18,24 +18,19 @@ package org.wso2.carbon.appfactory.stratos.listeners;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.common.beans.TenantInfoBean;
-import org.apache.stratos.common.exception.StratosException;
-import org.apache.stratos.common.listeners.TenantMgtListener;
+import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
+import org.wso2.carbon.stratos.common.exception.StratosException;
+import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.RoleBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.stratos.listeners.dto.CloudRegistryResource;
 import org.wso2.carbon.appfactory.stratos.util.AppFactoryS4ListenersUtil;
-import org.wso2.carbon.appfactory.stratos.util.ListenerUtils;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 
-import java.util.List;
 import java.util.Set;
 
 public class CloudEnvironmentPermissionListener implements TenantMgtListener {
@@ -113,11 +108,22 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
 
     }
 
-   
+
 
     @Override
     public void onTenantDeactivation(int arg0) throws StratosException {
         // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onTenantUpdate(org.wso2.carbon.stratos.common.beans.TenantInfoBean tenantInfoBean)
+            throws StratosException {
+
+    }
+
+    @Override
+    public void onTenantRename(int i, String s, String s2) throws StratosException {
 
     }
 
@@ -127,21 +133,6 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
 
     }
 
-    @Override
-    public void onTenantRename(int arg0, String arg1, String arg2) throws StratosException {
-        // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public void onTenantUpdate(TenantInfoBean arg0) throws StratosException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onTenantDelete(int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 
 }

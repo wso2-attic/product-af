@@ -23,7 +23,6 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
-import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
@@ -45,6 +44,7 @@ public class DSApplicationListener extends ApplicationEventsHandler {
     private static String testUserName = "testuser";
     private static String testUserPw = "testuser123";
     private static String sampleDSName = "TestDS";
+	private static final String APPLICATION_TYPE_DBS = "dbs";
 
     public DSApplicationListener(String identifier, int priority) {
         super(identifier, priority);
@@ -52,14 +52,14 @@ public class DSApplicationListener extends ApplicationEventsHandler {
 
     @Override
     public void onCreation(Application application, String userName, String tenantDomain, boolean isUploadableAppType) throws AppFactoryException {
-        if (AppFactoryConstants.APPLICATION_TYPE_DBS.equalsIgnoreCase(application.getType())) {
+        if (APPLICATION_TYPE_DBS.equalsIgnoreCase(application.getType())) {
             createSampleDataSource(application);
         }
     }
 
     @Override
     public void onDeletion(Application application, String userName, String tenantDomain) throws AppFactoryException {
-        if (AppFactoryConstants.APPLICATION_TYPE_DBS.equalsIgnoreCase(application.getType())) {
+        if (APPLICATION_TYPE_DBS.equalsIgnoreCase(application.getType())) {
             //deleteSampleDatasource();
         }
 
@@ -67,11 +67,11 @@ public class DSApplicationListener extends ApplicationEventsHandler {
 
     private void createSampleDataSource(Application application) throws AppFactoryException {
 	    try {
-		    String dbHost = ApplicationTypeManager.getInstance().getApplicationTypeBean(AppFactoryConstants.APPLICATION_TYPE_DBS).getProperty("SampleDbHostUrl").toString();
-		    testUserName = ApplicationTypeManager.getInstance().getApplicationTypeBean(AppFactoryConstants.APPLICATION_TYPE_DBS).getProperty("SampleDbUser").toString();
-		    testUserPw = ApplicationTypeManager.getInstance().getApplicationTypeBean(AppFactoryConstants.APPLICATION_TYPE_DBS).getProperty("SampleDbUserPassword").toString();
-		    String sampleDbName = ApplicationTypeManager.getInstance().getApplicationTypeBean(AppFactoryConstants.APPLICATION_TYPE_DBS).getProperty("SampleDbName").toString();
-		    sampleDSName = ApplicationTypeManager.getInstance().getApplicationTypeBean(AppFactoryConstants.APPLICATION_TYPE_DBS).getProperty("SampleDatasourceName").toString();
+		    String dbHost = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbHostUrl").toString();
+		    testUserName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbUser").toString();
+		    testUserPw = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbUserPassword").toString();
+		    String sampleDbName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbName").toString();
+		    sampleDSName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDatasourceName").toString();
 		    sampleDbUrl = "jdbc:mysql://" + dbHost + "/" + sampleDbName;
 	    } catch (AppFactoryException e) {
 		    log.error("Error while setting the sample data source properties", e);

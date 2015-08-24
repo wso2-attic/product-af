@@ -27,8 +27,6 @@ jagg.template("index", function(inputs, outputs, jagg) {
 %>
 
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-
 <script type="text/javascript" xmlns="http://www.w3.org/1999/html" charset="utf-8">
 var parsedAppArray = [];
 var filterArray = [];
@@ -114,32 +112,26 @@ function addTableRow(application) {
     var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
     var iconClass = " <i class="+ icon + "><\/i>"
 
-
     var theLi = '<div class="col-md-3 col-lg-2 col-sm-6"><div class="cloud-app-listing app-color-one">' +
                         iconClass+
                         '<div class="app-icon"><a href="' + url +  '">' +
-                         '<img src="/appmgt/site/themes/default/assets/img/appico.png"></div></a>' +
+                         '<img src="/appmgt/site/themes/default/assets/img/appico.png"></a></div>' +
                          '<div class="app-name" >' + application.name+ '</div>';
 
     // If any of the branches are in production add the green icon
     if (application.inProduction == true) {
         theLi += '<img alt="Green tag" class="green_tag" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("assets/img/green_tag.png"))%>">';
     }
-    if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.COMPLETED){
-        theLi += '</div></div>';
-    } else if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING){
-        theLi = '<li id="'+application.name+'"class="item_disabled">' +
-            '<div style="width: 100%;z-index:20;background: transparent;position:absolute;margin: -10px;height: 100%;opacity: 0.1;"> ' +
-                '<span class="icon-spinner icon-spin" style="font-size: 60px; margin-top: 20px; margin-left:73px"></span>' +
-            '</div>' + '<div class="app_name col truncate">';
-        theLi += '<img id="' + application.name + '_icon" height="50px" width="40px" alt="icon" src="#" title="Application creation is in progress..."></a>';
-        theLi += '<h2>'+application.name+'</h2></div>';
-        theLi += '<div class="app_type col">' + 'Application creation is in progress...'+ '</div>';
-        isAllAppCreated = false;
+    theLi += '</div></div>';
+    if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING){
         handlePendingApps(application.key);
     }
     theLi += '</li>';
     $("#item_list").append(theLi);
+
+    // hide loading image after loading all the version specific data
+    $('.loader').loading('hide');
+    $('.loading-cover').overlay('hide');
 }
 
 /**
@@ -340,6 +332,9 @@ function checkFirstLogin() {
 
 
 $(document).ready(function () {
+        // show loading image
+        $('.loader').loading('show');
+        $('.loading-cover').overlay('show');
 
          //init user activity monitor
         initializeUserActivity("userHome", null, null);
@@ -389,7 +384,6 @@ $(document).ready(function () {
         $.cookie('selectedStage', null);
         $.cookie('selectedVersion', null);
 
-
 });
 
 /** ***********************Utility Methods********************************** */
@@ -431,6 +425,7 @@ function hideNotification() {
 }
 
 </script>
+
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 
 <!--##################################################-->
@@ -483,9 +478,10 @@ function hideNotification() {
                     <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new"
                      class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
                     <div class="help">
-                        <i class="fa fa-2x fa-book"></i> Need help ? Read App creation guide first..
+                        <i class="fa fa-2x fa-book"></i> Need help ? Read App creation <a href="https://docs.wso2.com/display/AF210/Create+an+Application+from+Scratch"
+                     target="_blank">guide</a> first..
                     </div>
-                </div>index.jag
+                </div>
 
             </div>
 
@@ -494,7 +490,7 @@ function hideNotification() {
     <div id="push"></div>
 </div>
 
-<div class="inner-wrapper" id="userHomeWithApps" style="display:none">
+<div class="inner-wrapper" id="userHomeWithApps" style="display:block">
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
@@ -544,46 +540,19 @@ function hideNotification() {
                 <i class="fa fa-2x fa-th"></i>
             </div>-->
         </div>
-
-<div class="row row-centered app-listing">
+        <div class="row row-centered app-listing">
+            <!-- loading image -->
+            <div class="loading-cover loading-overlay">
+                <div class="loader"></div>
+            </div>
             <!-- BOF listing block -->
-                <ul class="" id="item_list"></ul>
+            <ul class="" id="item_list"></ul>
         </div>
     </div><!-- /.container -->
 </div>
 
-
-
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
-<!-- include custom js functions -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
-<!--#################################################-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	<style>
-
-</style>
-    <!--<div class="notification-section">
-        <div id="notificationBar" class="notification-container">
-            <h2 class="big">Notifications on Application Creation</h2>
-            <div id="notificationDataDiv"></div>
-        </div>
-    </div>
-	-->
+<!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <% }); %>
 

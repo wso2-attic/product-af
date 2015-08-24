@@ -134,13 +134,6 @@ public class APIManagerIntegrationService extends AbstractAdmin implements APIIn
 			return true;
 		} finally {
 			httpClient.getConnectionManager().shutdown();
-
-			try {
-				// Remove DefaultApplication from API Manager
-				removeApplication("DefaultApplication", samlToken);
-			} catch (AppFactoryException e) {
-				log.error("Error while deleteing 'DefaultApplication' from API Manager");
-			}
 		}
 	}
 

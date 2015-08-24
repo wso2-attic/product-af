@@ -244,4 +244,10 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
         }
         return cartridgeAlias;
     }
+
+	@Override
+	public void generateDeployableFile(String rootPath, String applicationId,
+	                                   String version, String stage) throws AppFactoryException {
+		log.warn("This method is not supported in Abstract Application Type Processor");
+	}
 }

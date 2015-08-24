@@ -59,6 +59,9 @@
         <DSApplicationHandler>
             <priority>35</priority>
         </DSApplicationHandler>
+        <ESBApplicationHandler>
+            <priority>70</priority>
+        </ESBApplicationHandler>
         <EnvironmentAuthorizationHandler>
             <priority>20</priority>
         </EnvironmentAuthorizationHandler>
@@ -256,7 +259,7 @@
 
     <!-- Issue tracker connector configs-->
     <IssueTrackerConnector name="issueTracker" summaryOnly="false">
-        <Property name="Url">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @issue_port %>/issuetracker-2.1.0/</Property>
+        <Property name="Url">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @issue_port %>/issuetracker-<%= @issue_tracker_version %>/</Property>
         <Property name="FrontUrl">https://<%= @af_subdomain %>.<%= @wso2_env_domain %>:<%= @af_port %>/issuetracker/</Property>
         <!-- Bigger number will result in higher priority -->
         <Property name="ListenerPriority">40</Property>
@@ -507,6 +510,7 @@
             <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %></BaseAccessUrl>
             <TenantMgtUrl>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %></TenantMgtUrl>
             <PAASServicesURL>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %>/services/</PAASServicesURL>
+            <GregServerURL>https://<%= @greg_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= @dev_greg_port %>/services/</GregServerURL>
             <Buildable>true</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Development</RssName>
@@ -601,6 +605,7 @@
             <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %></BaseAccessUrl>
             <TenantMgtUrl>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %></TenantMgtUrl>
             <PAASServicesURL>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %>/services/</PAASServicesURL>
+            <GregServerURL>https://<%= @greg_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= @test_greg_port %>/services/</GregServerURL>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Testing</RssName>
@@ -669,6 +674,7 @@
             <BaseAccessUrl>https:/<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %></BaseAccessUrl>
             <TenantMgtUrl>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %></TenantMgtUrl>
             <PAASServicesURL>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %>/services/</PAASServicesURL>
+            <GregServerURL>https://<%= @greg_subdomain %>.<%= as_prod_subdomain %>.<%= @wso2_env_domain %>:<%= @prod_greg_port %>/services/</GregServerURL>
             <Semantic>Production</Semantic>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
@@ -739,7 +745,7 @@
         <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>
     </JenkinsLBConfig>
     <OtherServices>
-        <Service name="ViewVC">
+        <Service name="ViewVC">me
             <Link>http://www.viewvc.org/</Link>
             <Description>Browse the repository, view files, display diffs between versions.</Description>
             <Title>ViewVC</Title>

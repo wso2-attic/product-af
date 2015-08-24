@@ -324,4 +324,56 @@ public class JDBCResourceDAO {
         }
         return resources.toArray(new Resource[resources.size()]);
     }
+
+    /**
+     * update resources
+     *
+     * @param applicationKey application key
+     * @param resourceType   resource type
+     * @param resourceName   resource Name
+     * @param environment    environment
+     * @param description    description
+     * @return status of update operation
+     * @throws AppFactoryException
+     */
+
+    public boolean updateResource(String applicationKey, String resourceType, String resourceName, String environment,
+                                  String description) throws AppFactoryException {
+        Connection databaseConnection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            databaseConnection = AppFactoryDBUtil.getConnection();
+            preparedStatement = databaseConnection.prepareStatement(SQLConstants.UPDATE_RESOURCE);
+            preparedStatement.setString(1, description);
+            preparedStatement.setString(2, applicationKey);
+            preparedStatement.setInt(3, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.setString(4, resourceType);
+            preparedStatement.setString(5, resourceName);
+            preparedStatement.setString(6, environment);
+            preparedStatement.setInt(7, CarbonContext.getThreadLocalCarbonContext().getTenantId());
+            preparedStatement.execute();
+            if (preparedStatement.getUpdateCount() > 0) {
+                databaseConnection.commit();
+
+                JDBCResourceCacheManager.clearCache(applicationKey, environment, resourceType);
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache cleared for resource type : " + resourceType + " of application : " +
+                            applicationKey + " in : " + environment);
+                }
+                return true;
+            }
+        } catch (SQLException e) {
+            String msg = "Error while updating the database for the resource type : " + resourceType +
+                    " with the name : " + resourceName + " for application : " + applicationKey +
+                    " in environment : " + environment;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        } finally {
+            AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+            AppFactoryDBUtil.closeConnection(databaseConnection);
+        }
+        return false;
+    }
+
 }

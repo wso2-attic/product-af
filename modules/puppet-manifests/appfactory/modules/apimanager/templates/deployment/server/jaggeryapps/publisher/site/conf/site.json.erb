@@ -6,20 +6,41 @@
     },
     "context" : "/publisher",
     "request_url":"READ_FROM_REQUEST",
+	"enableRestrictByRoles" : "true",
+    "enableSelectedTenantSubscription" : "true",
     "ssoConfiguration" : {
         "enabled" : "true",
-        "issuer" : "API_PUBLISHER",
-        "responseSigningEnabled":"true",
+        "issuer" : "API_PUBLISHER",        
         "identityProviderURL" : "https://<%= is_subdomain %>.<%= wso2_env_domain %>:<%= @af_port%>/samlsso",
         "keyStorePassword" : "<%= apipublisher_keystore_password %>",
         "identityAlias" : "<%= apipublisher_keystore_alias %>",
+		"responseSigningEnabled":"true",
         "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
+    },
+
+	"oidcConfiguration" : {
+      "enabled" : "false",
+      "issuer" : "API_PUBLISHER",
+      "identityProviderURI" : "http://localhost:8080/openid-connect-server-webapp/",
+      "authorizationEndpointURI" : "http://localhost:8080/openid-connect-server-webapp/authorize",
+      "tokenEndpointURI" : "http://localhost:8080/openid-connect-server-webapp/token",
+      "userInfoURI" : "http://localhost:8080/openid-connect-server-webapp/userinfo",
+      "jwksURI" : "http://localhost:8080/openid-connect-server-webapp/jwk",
+      "clientConfiguration" : {
+        "clientId" : "client_am_publisher",
+        "clientSecret" : "secret",
+        "responseType" : "code",
+        "authorizationType" : "authorization_code",
+        "scope" : "phone email address openid profile",
+        "redirectURI" : "https://localhost:9443/publisher/jagg/jaggery_oidc_acs.jag"
+      }
     },
 
     "reverseProxy" : {
         "enabled" : false,    // values true , false , "auto" - will look for  X-Forwarded-* headers
         "host" : "sample.proxydomain.com", // If reverse proxy do not have a domain name use IP
         "context":"",
+      //"regContext":"" // Use only if different path is used for registry
     },
 }
 <% else %>
@@ -30,14 +51,16 @@
     },
     "context" : "/publisher",
     "request_url":"READ_FROM_REQUEST",
+	"enableRestrictByRoles" : "true",
+    "enableSelectedTenantSubscription" : "true",
     "ssoConfiguration" : {
         "enabled" : "true",
-        "issuer" : "API_PUBLISHER",
-        "responseSigningEnabled":"true",
+        "issuer" : "API_PUBLISHER",        
         "identityProviderURL" : "https://identity.<%= wso2_env_domain %>/samlsso",
         "keyStorePassword" : "<%= apipublisher_keystore_password %>",
         "keyStorePassword" : "<%= apipublisher_keystore_password %>",
         "identityAlias" : "<%= apipublisher_keystore_alias %>",
+		"responseSigningEnabled":"true",
         "keyStoreName" : "<%= target %>/repository/resources/security/wso2carbon.jks"
     }
 }

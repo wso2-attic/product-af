@@ -116,6 +116,9 @@ public class RuntimeManager {
 			} else {
 				applicationRuntimeBean.setSubscribeOnDeployment(false);
 			}
+			if (config.get(AppFactoryConstants.RUNTIME_SERVER_URL) != null) {
+				applicationRuntimeBean.setServerURL(config.remove(AppFactoryConstants.RUNTIME_SERVER_URL));
+			}
 
 			applicationRuntimeBean.setProperties(config);
 			runtimeManager.getRuntimeBeanMap().put(runtimeName, applicationRuntimeBean);

@@ -45,16 +45,18 @@ language=appInfo.language;
 
 function drawPropertiesTable() {
 	$("#propertySection").show();
-	$("#propertySection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+	$("#propertySection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" style="margin:5px;' +
+	 '                                   font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
 	jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
-		action: "getAllDependencies",
-		applicationKey: '<%=applicationKey%>'
+		action: "getAllDependencyList",
+		applicationKey: '<%=applicationKey%>',
+		resourceType: "Registry"
 	},
 
 	function (response) {
 		if (response) {
 			response = jQuery.parseJSON(response);
-			constructHTML(response);
+			constructInitialHTML(response);
 
  		}
 	},
@@ -68,95 +70,174 @@ function drawPropertiesTable() {
 	});
 }
 
-function constructHTML(properties){
+function constructInitialHTML(properties){
+
     var initTableTxt = '<li class="list_row_item first_list_row_item" <% if (!isNamesOnly) {%>style="border-bottom:0px;"<%}%>>' +
-						'<ul class="list_row first_list_row">' +
+						    '<ul class="list_row first_list_row">' +
+                                '<li class="list_col first_list_col resources_endregname_col col-3">' +
+						            '<h2 class="list_col_heading">Name</h2> ' +
+                                '</li>' +
+                                '<li class=<% if (!isNamesOnly) {%>"list_col col-9"<%}else{%>"list_col col-5"<%}%>>' +
+						            '<h2 class="list_col_heading">Description</h2>'+
+						        '</li>' +
+                            '</ul>' +
+                        '</li>';
 
-						'<li class="list_col first_list_col resources_endregname_col col-3">' +
-						'<h2 class="list_col_heading">Name</h2>' +
-						'</li>' +
-
-						'<li class=<% if (!isNamesOnly) {%>"list_col col-9"<%}else{%>"list_col col-5"<%}%>>' +
-						'<h2 class="list_col_heading">Description</h2>'+
-						'</li>' +
-
-						<% if (isNamesOnly) {%>
-						'<li class="list_col last_list_col resources_values_col col-4">' +
-						'<h2 class="list_col_heading">Values</h2>'+
-						'</li>' +
-						'</ul>' +
-						<%}%>
-						'</li>';
     tableBodyHTML= "";
-		for(var property in properties){
-		    //tableBodyHTML += '<ul class="list_row first_list_row">'
-		var tmpProperty=properties[property];
-		    tableBodyHTML +=constructRow(tmpProperty,property);
+    for(var property in properties){
+        tableBodyHTML += constructInitialRow(property, properties[property].description);
+    }
+    //Checking whether properties are empty
 
-
-		tableBodyHTML += '</li>';
-		}
-
-		//Checking whether properties are empty
-
-        $("#propertySection").empty();
-		if(jQuery.isEmptyObject(properties)){
-            $("#propertySection").html('<div class="noData-message">Property resources have not been created yet.</div>');
-		}else{
-            $("#propertySection").html(initTableTxt + $("#propertySection").html()+ tableBodyHTML);
-            for(var property in properties){
-                //tableBodyHTML += '<ul class="list_row first_list_row">'
-                $("#snippet_"+property).click(function(){
-                    $crtl=$(this);
-                    $(this).parent().parent().parent().next().slideToggle( "fast", function(){
-                        });
+    $("#propertySection").empty();
+    if(jQuery.isEmptyObject(properties)){
+        $("#loadPropertyVlBtn").attr('disabled','disabled');
+        $("#propertySection").html('<div class="noData-message">Property resources have not been created yet.</div>');
+    }else{
+        $("#loadPropertyVlBtn").removeAttr('disabled');
+        $("#propertySection").html(initTableTxt + $("#propertySection").html()+ tableBodyHTML);
+        for(var property in properties){
+            //tableBodyHTML += '<ul class="list_row first_list_row">'
+            $("#snippet_"+property).click(function(){
+                $crtl=$(this);
+                $(this).parent().parent().parent().next().slideToggle( "fast", function(){
                     });
-            }
-		}
+                });
+        }
+    }
 
-		$("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
+    $("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
 
 }
-function constructRow(tmpProperty,name){
-    var codeSnippetHTML=codeSnippet.generate("<%=language%>","Properties","<%=applicationKey%>",name, {loggedinUser:loggedinUser, tenantDomain:tenantDomain, tenantId:tenantId});
+
+function constructInitialRow(name, description){
+
+    var codeSnippetHTML=codeSnippet.generate("<%=language%>","Properties","<%=applicationKey%>",name,
+                                            {loggedinUser:loggedinUser, tenantDomain:tenantDomain, tenantId:tenantId});
     var isNamesOnly = "<%=isNamesOnly%>";
     var snippets=(codeSnippetHTML!=undefined) && isNamesOnly === "true";
 
-    var editURL = "<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&pagePath=resources&isEdit=false&isDelete=true&resourceName=" +name + "%>";
-
     var content='';
     content= '<li class="list_row_item first_list_row_item">'+
-    		'<ul class="list_row first_list_row">'
-        	+'<li class="list_col first_list_col resources_endregname_col col-3">'
-        	+'<div class="list_col_content">'
-            +'<ul class="list">'+name+'</ul>';
- 			if(snippets)
- 	           content +='<span id="snippet_'+name+'" class="pointer_cursor"><a class="next_page">Code Snippet</a>&nbsp;<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
+                '<ul class="list_row first_list_row">' +
+                    '<li class="list_col first_list_col resources_endregname_col col-3">' +
+                        '<div class="list_col_content">' +
+                            '<ul class="list">'+name+'</ul>';
 
- 	 content +='</div></li>'
-             +'<li class=<% if (!isNamesOnly) {%>"list_col resources_endregdescriptionpage_col col-9"<%}else{%>"list_col resources_endregdescriptionpage_col col-5"<%}%>>'
-             +'<div class="list_col_content">'+ tmpProperty.description +'</div>'
-        	 +'</li>'
+    if(snippets)
+       content += '<span id="snippet_'+name+'" class="pointer_cursor">' +
+                     '<a class="next_page">Code Snippet</a>&nbsp;' +
+                     '<span class="icon-circle-arrow-down" style="color:#F47A20;"></span>' +
+                  '</span>';
+
+	content +=  '</div></li>' +
+                '<li class=<% if (!isNamesOnly) {%>"list_col resources_endregdescriptionpage_col col-9"<%}else{%>"list_col resources_endregdescriptionpage_col col-5"<%}%>>' +
+                    '<div class="list_col_content">'+ description +'</div>' +
+                '</li> </ul>';
+
+	if(snippets)
+	    content += '<div id="code'+name+'" style="display: none;" class="code">' + codeSnippetHTML + '</div></li>';
+
+return content;
+}
+
+function constructHtml(properties){
+    var initTableTxt = '<li class="list_row_item first_list_row_item" <% if (!isNamesOnly) {%>style="border-bottom:0px;"<%}%>>' +
+						    '<ul class="list_row first_list_row">' +
+                                '<li class="list_col first_list_col resources_endregname_col col-3">' +
+						            '<h2 class="list_col_heading">Name</h2>' +
+						        '</li>' +
+                                '<li class=<% if (!isNamesOnly) {%>"list_col col-9"<%}else{%>"list_col col-5"<%}%>>' +
+						            '<h2 class="list_col_heading">Description</h2>'+
+						        '</li>' +
+
+						    <% if (isNamesOnly) {%>
+						        '<li class="list_col last_list_col resources_values_col col-4">' +
+						            '<h2 class="list_col_heading">Values</h2>'+
+						        '</li>' +
+						    '</ul>' +
+						    <%}%>
+                        '</li>';
+
+    tableBodyHTML= "";
+    for(var property in properties){
+        var tmpProperty=properties[property];
+        tableBodyHTML +=constructlRow(tmpProperty,property);
+        tableBodyHTML += '</li>';
+    }
+
+    //Checking whether properties are empty
+
+    $("#propertySection").empty();
+    if(jQuery.isEmptyObject(properties)){
+        $("#propertySection").html('<div class="noData-message">Property resources have not been created yet.</div>');
+    }else{
+        $("#propertySection").html(initTableTxt + $("#propertySection").html()+ tableBodyHTML);
+        for(var property in properties){
+            //tableBodyHTML += '<ul class="list_row first_list_row">'
+            $("#snippet_"+property).click(function(){
+                $crtl=$(this);
+                $(this).parent().parent().parent().next().slideToggle( "fast", function(){
+                    });
+                });
+        }
+    }
+
+    $("pre.clipboard").snippet("java",{style:"ide-eclipse",showNum:false});
+}
+
+function constructlRow(tmpProperty,name){
+    var codeSnippetHTML=codeSnippet.generate("<%=language%>","Properties","<%=applicationKey%>",name,
+                                             {loggedinUser:loggedinUser, tenantDomain:tenantDomain, tenantId:tenantId});
+    var isNamesOnly = "<%=isNamesOnly%>";
+    var snippets=(codeSnippetHTML!=undefined) && isNamesOnly === "true";
+
+    var content='';
+    content = '<li class="list_row_item first_list_row_item">' +
+                '<ul class="list_row first_list_row">' +
+                    '<li class="list_col first_list_col resources_endregname_col col-3">' +
+                        '<div class="list_col_content">' +
+                            '<ul class="list">'+name+'</ul>';
+    if(snippets)
+       content += '<span id="snippet_'+name+'" class="pointer_cursor">' +
+                     '<a class="next_page">Code Snippet</a>&nbsp;' +
+                  '<span class="icon-circle-arrow-down" style="color:#F47A20;"></span></span>';
+
+    content += '</div></li>' +
+                '<li class=<% if (!isNamesOnly) {%>"list_col resources_endregdescriptionpage_col col-9"<%}else{%>"list_col resources_endregdescriptionpage_col col-5"<%}%>>' +
+                    '<div class="list_col_content">'+ tmpProperty.description +'</div>' +
+                '</li>'
+
     <% if (isNamesOnly) {%>
 	   		 +'<li class="list_col last_list_col resources_values_col col-4">'
       		 +'<div class="list_col_content">';
+
  	for(var stage in tmpProperty.environments){
-		    url = "<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey %>&pagePath=resources&isEdit=true&resourceName=" +name +"&stage="+ stage ;
-		    content += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'"><span class="icon-edit"></span></a><span style="padding-left:6px;font-size: 0.857142857em;"><b>'+ stage +' : </b>' + formatPropertyValue(tmpProperty.environments[stage].value) + '</span></br>';
-		}
+
+ 	    url = "<%=jagg.getAbsoluteUrl("/site/pages/resources-add.jag")%>?applicationName=<%=applicationName%>" +
+ 	          "&applicationKey=<%=applicationKey %>&pagePath=resources&isEdit=true&resourceName=" +name +"&stage="+ stage ;
+
+        content += '<a title="Edit" style="margin-left:0px;text-decoration:none" href="' +url +'">' +
+                        '<span class="icon-edit"></span>' +
+                   '</a>' +
+                   '<span style="padding-left:6px;font-size: 0.857142857em;">' +
+                        '<b>'+ stage +' : </b>' + formatPropertyValue(tmpProperty.environments[stage].value) +
+                   '</span></br>';
+    }
 
 	content += '</div></li></ul>';
+
 	<%} else {%>
-	        + '</ul>';
+	    + '</ul>';
 	<%}%>
+
 	if(snippets)
-	content+= '<div id="code'+name+'" style="display: none;" class="code">'
-				+codeSnippetHTML
-				+'</div>';
+	    content+= '<div id="code'+name+'" style="display: none;" class="code">' + codeSnippetHTML + '</div>';
 
 return content;
-
 }
+
+
 /**
  * Get MAX_PROPERTY_LENGTH property if property length exceeds MAX_PROPERTY_LENGTH
  * @param value
@@ -169,64 +250,29 @@ function formatPropertyValue(value) {
     return value;
 }
 
-function showUneditableMsg(name){
-    jagg.message({
-        content: 'Resource ' + name + ' is an uneditable resource',
-        type: 'warning'
-    });
-}
+function loadPropertyValues(){
+	$("#propertySection").empty().append('<span class="icon-spinner icon-spin icon-large spin-large" ' +
+                                         'style="margin:5px;font-size:30px;width:40px;height:40px;line-height:40px;"></span>');
+    jagg.post("../blocks/resources/registry/get/ajax/get.jag", {
+		action: "getAllDependencies",
+		applicationKey: '<%=applicationKey%>'
+	},
 
-function clearForm(){
-	$("#resourceName").val("");
-	$("#resourceDescription").val("");
-	$("#contentValue").val("");
-}
+	function (response) {
+		if (response) {
+			response = jQuery.parseJSON(response);
+			constructHtml(response);
 
-function launchUpdateResourceUI (key,description,content) {
-      jagg.message({
-        type: 'custom',
-        title: "Edit Endpoint",
-        content: content,
-        buttons: [{
-                cssClass: 'btn',
-                name: 'Update',
-                cbk: function () {
-                    jagg.post("../blocks/resources/registry/add/ajax/add.jag", {
-                        action: "updateResource",
-                        applicationKey: $("#applicationKey").attr('value'),
-                        resourceName: key,
-                        resourceDescription: description,
-                        stage: $("#sel_stage").attr('value'),
-                        contentValue: $("#update_value").attr('value')
-                    },
+ 		}
+	},
 
-                    function (result) {
-                        if (result !== undefined) {
-                            jagg.message({
-                                content: 'Endpoint has been updated',
-                                type: 'info'
-                            });
-                            drawPropertiesTable();
-                            //window.location.reload(false);
-                            $('#messageModal').modal('hide');
-                        }
-                    },
+	function (jqXHR, textStatus, errorThrown) {
 
-                    function (jqXHR, textStatus, errorThrown) {
+	    if (jqXHR.status != 0){
+	        jagg.message({content:'Error occurred while reading registry resources',type:'warning', id:'propertyoverview' });
+	    }
 
-                        if (jqXHR.status != 0){
-                            jagg.message({
-                                content: 'Error occurred while updating endpoint',
-                                type: 'error'
-                            });
-                        }
-
-                        window.location.reload(false);
-                    });
-                }
-            }
-        ]
-    });
+	});
 }
 
 $(document).ready(function() {
@@ -238,13 +284,19 @@ $(document).ready(function() {
                 my: 'top right'
             }
         });
+});
 
-//$("pre.js").snippet("javascript",{style:"random",transparent:true,showNum:false});
- });
-//]]
+
 </script>
 
-                                <ul class="list_table push_top_20" id="propertySection">
-                                </ul>
+    <ul class="list_table push_top_20" id="propertySection"></ul>
+    <% if (isNamesOnly) {%>
+    <div class="right btn_list_box">
+        <ul class="inline_box inline_list btn_list">
+            <button type="button" id="loadPropertyVlBtn" name="loadPropertyVlBtn" class="btn main push_top_20 push_bottom_40"
+                                                                    onclick="loadPropertyValues()">Show More Detail</button>
+        </ul>
+    </div>
+    <%}%>
 
 <% }); %>

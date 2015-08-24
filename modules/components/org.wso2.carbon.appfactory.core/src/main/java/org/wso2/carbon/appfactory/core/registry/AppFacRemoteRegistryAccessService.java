@@ -23,12 +23,10 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
 import org.wso2.carbon.appfactory.core.dto.Dependency;
-
-import org.wso2.carbon.appfactory.stratos.listeners.stub.AppFactoryResourceManagementServiceAppFactoryExceptionException;
-import org.wso2.carbon.appfactory.stratos.listeners.stub.AppFactoryResourceManagementServiceStub;
-import org.wso2.carbon.appfactory.stratos.services.xsd.AppFactoryResource;
-import org.wso2.carbon.appfactory.stratos.services.xsd.ResourceProperty;
-
+import org.wso2.carbon.appfactory.resource.mgt.services.xsd.AppFactoryResource;
+import org.wso2.carbon.appfactory.resource.mgt.services.xsd.ResourceProperty;
+import org.wso2.carbon.appfactory.resource.mgt.stub.AppFactoryResourceManagementServiceAppFactoryExceptionException;
+import org.wso2.carbon.appfactory.resource.mgt.stub.AppFactoryResourceManagementServiceStub;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
@@ -281,9 +279,8 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
             }
             return value;
         } catch (RegistryException e) {
-            String message =
-                    "Error occured while retriving dependency value from " + resourcePath +
-                            " from registry " + serverURL;
+            String message = "Error occured while retriving dependency value from " +
+                    resourcePath + " from registry " + serverURL;
             log.error(message, e);
             throw new AppFactoryException(message, e);
         }
@@ -295,9 +292,7 @@ public class AppFacRemoteRegistryAccessService implements RemoteRegistryService 
     @Override
     public Dependency[] getAllRegistryResources(String serverURL, String username, String resourcePath)
             throws AppFactoryException {
-        Registry governanceRegistry;
         Dependency[] dependencies = new Dependency[0];
-
         try {
             WSRegistryServiceClient wsclient = new WSRegistryServiceClient(serverURL, null);
             AppFactoryUtil.setAuthHeaders(wsclient.getStub()._getServiceClient(), username);

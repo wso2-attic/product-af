@@ -18,12 +18,11 @@ package org.wso2.carbon.appfactory.stratos.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.stratos.common.listeners.TenantMgtListener;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.stratos.listeners.CloudEnvironmentPermissionListener;
-import org.wso2.carbon.appfactory.stratos.listeners.TenantStratosSubscriptionDurableSubscriber;
+import org.wso2.carbon.appfactory.stratos.listeners.StratosSubscriptionDurableSubscriber;
 import org.wso2.carbon.appfactory.stratos.util.AppFactoryS4ListenersUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -71,10 +70,11 @@ public class AppFactoryS4ListenersServiceComponent {
     protected void activate(ComponentContext context) {
 
         try {
-        	context.getBundleContext().registerService(TenantMgtListener.class.getName(),
-        	                               			new CloudEnvironmentPermissionListener(),null);
-            context.getBundleContext().registerService(TenantStratosSubscriptionDurableSubscriber.class.getName(),
-                                                       new TenantStratosSubscriptionDurableSubscriber
+            context.getBundleContext().registerService(
+                    org.wso2.carbon.stratos.common.listeners.TenantMgtListener.class.getName(),
+                    new CloudEnvironmentPermissionListener(), null);
+            context.getBundleContext().registerService(StratosSubscriptionDurableSubscriber.class.getName(),
+                                                       new StratosSubscriptionDurableSubscriber
                                                                (stage + TENANT_SUBSCRIPTION_TOPIC, stage), null);
 
             if (log.isDebugEnabled()) {

@@ -35,6 +35,7 @@ public class ResourceManager {
     public static final String DATABASE_USER_RESOURCE = "DATABASE_USER";
     public static final String DATABASE_PERMISSION_TEMPLATE_RESOURCE = "DATABASE_TEMPLATE";
     public static final String DATASOURCE_RESOURCE = "DATASOURCE";
+    public static final String PROPERTY_RESOURCE = "PROPERTY";
 
     /**
      * Add database info
@@ -310,4 +311,99 @@ public class ResourceManager {
         return resourceDAO
             .deleteResource(applicationId, datasourceName, DATASOURCE_RESOURCE, environment);
     }
+
+    /**
+     * Add property to the database
+     *
+     * @param propName       name of the property, which needs to be added
+     * @param applicationKey key of the application, to which the property belongs
+     * @param environment    environment, to which the property belongs
+     * @param description    description of the property
+     * @param resourceType   type of the property
+     * @return true if add property operation is success
+     * @throws AppFactoryException
+     */
+    public static boolean addProperty(String propName, String applicationKey, String environment, String description,
+                                      String resourceType) throws AppFactoryException {
+        return resourceDAO.addResource(applicationKey, propName, resourceType, environment, description);
+    }
+
+    /**
+     * Delete a given property from database
+     *
+     * @param applicationKey key of the application, to which the property belongs
+     * @param propName       name of the property, which needs to be added
+     * @param environment    environment, to which the property belongs
+     * @param resourceType   type of the property
+     * @return true if delete property operation is success
+     * @throws AppFactoryException
+     */
+    public static boolean deleteProperty(String applicationKey, String propName, String environment,
+                                         String resourceType) throws AppFactoryException {
+        return resourceDAO.deleteResource(applicationKey, propName, resourceType, environment);
+    }
+
+    /**
+     * Copy the given type of properties of an application from one stage to another stage
+     *
+     * @param applicationKey key of the application, to which the property belongs
+     * @param sourceStage    the environment stage, from which the property needs to be copied
+     * @param targetStage    the environment stage, to which the property needs to be copied
+     * @param resourceType   type of the property
+     * @throws AppFactoryException
+     */
+    public static void copyNewProperties(String applicationKey, String sourceStage, String targetStage,
+                                         String resourceType) throws AppFactoryException {
+        Resource[] resources = resourceDAO.getResources(applicationKey, resourceType, sourceStage);
+        for (Resource resource : resources) {
+            resourceDAO.addResource(applicationKey, resource.getName(), resourceType, targetStage,
+                    resource.getDescription());
+        }
+    }
+
+    /**
+     * Update the description of a given property
+     *
+     * @param applicationKey key of the application, to which the property belongs
+     * @param resourceType   type of the property, which needs to be updated
+     * @param resourceName   name of the property, which needs to be updated
+     * @param environment    environment, to which the property belongs
+     * @param description    description about the property
+     * @return true if update property operation is success
+     * @throws AppFactoryException
+     */
+    public static boolean updateProperty(String applicationKey, String resourceType, String resourceName,
+                                         String environment, String description) throws AppFactoryException {
+        return resourceDAO.updateResource(applicationKey, resourceType, resourceName, environment, description);
+    }
+
+    /**
+     * Check whether a property exists in the database
+     *
+     * @param applicationKey key of the application, to which the property belongs
+     * @param resourceName   name of the property, which needs to be checked
+     * @param resourceType   type of the property, which needs to be checked
+     * @param environment    environment, to which the property belongs
+     * @return true if property exists
+     * @throws AppFactoryException
+     */
+    public static boolean isPropertyExists(String applicationKey, String resourceName, String resourceType,
+                                           String environment) throws AppFactoryException {
+        return resourceDAO.isResourceExists(applicationKey, resourceName, resourceType, environment);
+    }
+
+    /**
+     * Get all the properties of a given type in given environment for an application
+     *
+     * @param applicationKey key of the application, which properties need to be retrieved
+     * @param resourceType   type of the properties, which need to be retrieved
+     * @param environment    environment of the properties, which need to be retrieved
+     * @return array of resources
+     * @throws AppFactoryException
+     */
+    public static Resource[] getPropertiesInEnvironment(String applicationKey, String resourceType, String environment)
+            throws AppFactoryException {
+        return resourceDAO.getResources(applicationKey, resourceType, environment);
+    }
+
 }

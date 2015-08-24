@@ -41,11 +41,15 @@
             <Issuer>API_PUBLISHER</Issuer>
             <AssertionConsumerService>https://apimanager.<%= @wso2_env_domain %>:<%= @apim_port %>/publisher/jagg/jaggery_acs.jag</AssertionConsumerService>
             <CustomLoginPage>appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+            <SignAssertion>true</SignAssertion>
+            <SignResponse>true</SignResponse>
         </ServiceProvider>
         <ServiceProvider>
             <Issuer>API_STORE</Issuer>
             <AssertionConsumerService>https://apimanager.<%= @wso2_env_domain %>:<%= @apim_port %>/store/jagg/jaggery_acs.jag</AssertionConsumerService>
             <CustomLoginPage>appfactory/login_ajaxprocessor.jsp</CustomLoginPage>
+            <SignAssertion>true</SignAssertion>
+            <SignResponse>true</SignResponse>
         </ServiceProvider>
 	 <ServiceProvider>
             <Issuer>WSO2 AppFactory Dashboard</Issuer>

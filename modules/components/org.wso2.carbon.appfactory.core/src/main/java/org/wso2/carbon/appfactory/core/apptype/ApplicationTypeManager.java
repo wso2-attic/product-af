@@ -175,6 +175,11 @@ public class ApplicationTypeManager {
                 applicationTypeBean.setIsCodeEditorSupported(Boolean.parseBoolean(properties.getProperty(
                         ApplicationTypeConstants.IS_CODE_EDITOR_SUPPORTED)));
             }
+			if(properties.getProperty(ApplicationTypeConstants.PERSIST_APPLICATION_ENDPOINT_METADATA) != null){
+				applicationTypeBean.setPersistApplicationEndPointMetaData(
+						Boolean.parseBoolean(properties.getProperty(
+								ApplicationTypeConstants.PERSIST_APPLICATION_ENDPOINT_METADATA)));
+			}
 			applicationTypeBean.setJenkinsJobConfig(buildJob);
             applicationTypeBean.setExecutionType(properties.getProperty(ApplicationTypeConstants.EXECUTION_TYPE));
             applicationTypeBean.setIconColorClass(properties.getProperty(ApplicationTypeConstants.ICON_COLOR_CLASS));

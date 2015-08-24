@@ -121,17 +121,22 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.appfactory</groupId>
-            <artifactId>appfactory-authentication-plugin</artifactId>
-            <type>hpi</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.appfactory</groupId>
             <artifactId>appfactory-plugin</artifactId>
             <type>hpi</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.appfactory</groupId>
             <artifactId>org.wso2.carbon.appfactory.ext</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.appfactory</groupId>
+            <artifactId>org.wso2.carbon.appfactory.resource.mgt</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.appfactory</groupId>
+            <artifactId>org.wso2.carbon.appfactory.resource.mgt.stub</artifactId>
             <type>jar</type>
         </dependency>
 	<dependency>

@@ -489,6 +489,7 @@
                 <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.multitenant.jenkins:jar</include>
                 <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.application.deployer.stub:jar</include>
                 <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.build.stub:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.resource.mgt:jar</include>
             </includes>
         </dependencySet>
 
@@ -499,7 +500,7 @@
                 <include>org.wso2.appfactory:org.wso2.carbon.issue.tracker:war</include>
             </includes>
             <outputFileNameMapping>
-                issuetracker-2.1.0.war
+                issuetracker-${pom.version}.war
             </outputFileNameMapping>
         </dependencySet>
 

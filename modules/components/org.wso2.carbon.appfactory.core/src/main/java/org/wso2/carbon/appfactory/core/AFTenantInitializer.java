@@ -36,6 +36,7 @@ import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.user.api.*;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,6 +48,9 @@ import java.util.Set;
  */
 public class AFTenantInitializer {
     private static Log log = LogFactory.getLog(AFTenantInitializer.class);
+    // TODO: Get this claims from a config file
+    private static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
+    private static String LAST_NAME_CLAIM_URI = "http://wso2.org/claims/lastname";
 
     public static void initializeAFTenant(String tenantDomain) throws UserStoreException, AppFactoryException {
         int tenantId = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
@@ -68,6 +72,11 @@ public class AFTenantInitializer {
                         AppFactoryConstants.TENANT_ROLES_ROLE, tenantInfoBean.getAdminName()));
 
                 UserStoreManager userStoreManager = userRealm.getUserStoreManager();
+                String[] claims = new String[]{FIRST_NAME_CLAIM_URI, LAST_NAME_CLAIM_URI};
+                Map<String, String> claimMappings = userStoreManager.getUserClaimValues(
+                        tenantInfoBean.getAdminName(), claims, null);
+                String firstName = claimMappings.get(FIRST_NAME_CLAIM_URI);
+                String lastName = claimMappings.get(LAST_NAME_CLAIM_URI);
                 AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
                 AppFactoryUtil.addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
 
@@ -78,8 +87,8 @@ public class AFTenantInitializer {
 
                 String value = "<p:CreateTenantRequest xmlns:p=\"http://wso2.org/bps/sample\">" +
                                "<admin xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getAdminName() + "</admin>" +
-                               "<firstName xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getAdminFirstName() + "</firstName>" +
-                               "<lastName xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getAdminLastName() + "</lastName>" +
+                               "<firstName xmlns=\"http://wso2.org/bps/sample\">" + firstName + "</firstName>" +
+                               "<lastName xmlns=\"http://wso2.org/bps/sample\">" + lastName + "</lastName>" +
                                "<adminPassword xmlns=\"http://wso2.org/bps/sample\">" + tenantInfoBean.getAdminPassword() + "</adminPassword>" +
                                "<tenantDomain xmlns=\"http://wso2.org/bps/sample\">" + tenantDomain + "</tenantDomain>" +
                                "<tenantId xmlns=\"http://wso2.org/bps/sample\">" + tenantId +
