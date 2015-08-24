@@ -48,12 +48,12 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     private static final String LC_ITEM_ELEMENT = "item";
     private static final String LC_ATTRIBUTE_NAME = "name";
     private static final String LC_SCXML_ELEMENT = "scxml";
-    HashMap<String, Lifecycle> lifecycleMap = null;
+    private static HashMap<String, Lifecycle> lifecycleMap = null;
     Log log = LogFactory.getLog(LifecycleManagementServiceImpl.class);
 
-    public LifecycleManagementServiceImpl() throws AppFactoryException {
+    public LifecycleManagementServiceImpl() throws AppFactoryException, LifecycleManagementException {
         if (lifecycleMap == null) {
-            createLifecycleMap();
+            init();
         }
     }
 
@@ -67,19 +67,25 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     }
 
     /**
-     * Method to retrieve life cycles and their details and map them
+     * Method to add the life cycles and their details to a map
      */
-    private void createLifecycleMap() throws AppFactoryException {
-        lifecycleMap = new HashMap<String, Lifecycle>();
+    private void init() throws AppFactoryException, LifecycleManagementException {
         LifecycleDAO lifecycleDAO = new LifecycleDAO();
         String[] lifecycleNameList = lifecycleDAO.getLifeCycleList();
-        for (String LifecycleName : lifecycleNameList) {
-            Lifecycle lifecycle = new Lifecycle();
-            lifecycle.setLifecycleName(LifecycleName);
-            lifecycle.setStages(getAllStages(LifecycleName));
-            lifecycleMap.put(LifecycleName, lifecycle);
+        if (lifecycleNameList != null) {
+            lifecycleMap = new HashMap<String, Lifecycle>();
+            for (String LifecycleName : lifecycleNameList) {
+                Lifecycle lifecycle = new Lifecycle();
+                lifecycle.setLifecycleName(LifecycleName);
+                lifecycle.setStages(getAllStages(LifecycleName));
+                lifecycleMap.put(LifecycleName, lifecycle);
+            }
+        } else {
+            String msg =
+                    "Unable to load list of lifecycle from LifeCycleManagementService";
+            log.error(msg);
+            throw new LifecycleManagementException(msg);
         }
-
     }
 
     /**
