@@ -232,7 +232,7 @@ function cc_setup() {
     echo "Setup CC" >> $LOG
     echo "Configuring the Cloud Controller"
 
-    cp -f $current_dir/templates/cloud-controller.xml $stratos_extract_path/repository/conf/
+    cp -f $current_dir/templates/cloud-controller.xml $stratos_extract_path/repository/conf/ 
 
     export cc_path=$stratos_extract_path
     echo "In repository/conf/cloud-controller.xml"
