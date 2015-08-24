@@ -125,10 +125,9 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             try {
                 currentMsgCount++;
                 String stage = mapMessage.getString(AppFactoryConstants.STAGE);
-               if (TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
+               if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
                    addTenant(tenantInfoBean);
-               }
-               else {
+               } else {
                    if (log.isDebugEnabled()) {
                        log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
                                  "with subscription to cartridges. Tenant domain : " +
