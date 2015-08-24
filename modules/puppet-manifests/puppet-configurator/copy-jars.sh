@@ -126,7 +126,7 @@ _update_common_jars BPS_COMMON[@] bps/files/configs/repository/components/dropin
 _update_common_jars MB_COMMON[@] messagebroker/files/configs/repository/components/dropins "*" "*" 
 _update_common_jars SS_COMMON[@] storage/files/configs/repository/components/dropins "*" "*"
 _update_common_jars AM_COMMON[@] apimanager/files/configs/repository/components/dropins "*" "*"
-_update_common_jars JPP_COMMON[@] jppserver/files/configs/repository/components/dropins "*" "*"
+#_update_common_jars JPP_COMMON[@] jppserver/files/configs/repository/components/dropins "*" "*"
 _update_common_jars GITBLIT_COMMON[@] gitblit/files/ext "*" "*"
 _update_common_jars APPSERVER_COMMON[@] paaspuppet/files/puppet/modules/appserver/files/configs/repository/components/dropins "*" "*"
 _update_common_jars GREGSERVER_COMMON[@] greg/files/configs/repository/components/dropins "*" "*"
