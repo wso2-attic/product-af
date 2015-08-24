@@ -52,7 +52,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 
               function (result) {
                    if(result == 101){
-                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dark-app-iconx256.jpg'))%>');
                    }else{
              <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
                var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey="+applicationKey;
@@ -66,7 +66,6 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 
             }
             $(document).ready(function () {
-        	  loadBaseAppIcon('<%=applicationKey%>');
         	    $('.cloud-menu-popover').popover({
                     html : true,
                     title: function() {

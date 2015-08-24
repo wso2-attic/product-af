@@ -41,7 +41,7 @@ function loadAppIcon(appKey) {
     function (result) {
         if(result == 101) {
             // Application icon is not available, set the default
-            $(".app-icon").attr('src', servicePath  + '/site/themes/default/assets/img/app_icon.png');
+            $(".app-icon").attr('src', servicePath  + '/site/themes/default/images/dark-app-iconx256.jpg');
             console.info("101");
         } else {
             $(".app-icon").attr('src', iconUrl);
