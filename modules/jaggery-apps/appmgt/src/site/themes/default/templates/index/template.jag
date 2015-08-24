@@ -115,7 +115,7 @@ function addTableRow(application) {
     var theLi = '<div class="col-md-3 col-lg-2 col-sm-6"><div class="cloud-app-listing app-color-one">' +
                         iconClass+
                         '<div class="app-icon"><a href="' + url +  '">' +
-                         '<img src="/appmgt/site/themes/default/assets/img/appico.png"></a></div>' +
+                         '<img id="' + application.key + '_icon"  src="/appmgt/site/themes/default/images/dark-app-iconx256.jpg"></a></div>' +
                          '<div class="app-name" >' + application.name+ '</div>';
 
     // If any of the branches are in production add the green icon
@@ -197,7 +197,7 @@ function loadAppIcon(appKey) {
 
         function (result) {
          if(result == 101){
-        	 $("#"+appKey+"_icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+        	 $("#"+appKey+"_icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dark-app-iconx256.jpg'))%>');
          }else{
              <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
                var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=";
