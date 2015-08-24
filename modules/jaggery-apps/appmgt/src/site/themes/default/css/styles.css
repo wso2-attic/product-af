@@ -700,6 +700,10 @@ a.btn-action {
     background-color: #383d44;
     font-weight: 300;
 }
+
+.app-name i{
+    position: relative;
+}
 /* cloud app details */
 
 .side-pane-trigger {
@@ -1195,6 +1199,13 @@ a.btn-action {
 .hide-pass>i{
     font-size: 1.5em;
 }
+.progress{
+    border-radius: 0px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
 
 .modal-title{color: #000;}
 .modal-content, .btn{border-radius: 0px;}
@@ -1319,7 +1330,91 @@ a.btn-action {
     white-space: nowrap;
 }
 
+.form-control,.has-error .form-control:focus{
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+
 /* custom URL section */
 .form-section{
     margin-top: 3em;
+}
+
+@media screen and (min-width: 768px) {
+	.modal-dialog  {
+	    /* margin-top:20%; */
+	    width:800px;
+	}
+}
+.modal-content{
+    background-color:#464646;
+}
+.model-body{
+    color:#666;
+}
+.modal-header,.modal-footer{
+    border-color:#404040;
+}
+.modal-title{
+    color:#fff;
+}
+.close{
+    color:#fff;
+    text-shadow:none;
+}
+.no-pad-right{
+    padding-right:0px;
+}
+.no-pad-left{
+    padding-left:0px;
+}
+.padding-bottom-lg{
+    padding-bottom:30px;
+}
+
+.section-title {
+    font-size: 17px;
+    margin: 20px 0px 14px 0px;
+    background-color: #3C3C3C;
+    padding: 3px;
+}
+.popover-content div,.popover-content .password-verdict{
+    color:#333;
+}
+
+.log-container{
+    margin-top: 2em;
+}
+.log-container > pre {
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 12px;
+    line-height: 1.42857143;
+    color: #cecece;
+    word-break: break-all;
+    word-wrap: break-word;
+    border: 1px solid #444;    
+    background-color:#333;
+    border-radius:0;
+}
+.button-container .fa-spinner{
+    margin: 0px 10px;
+}
+.button-container button{
+    margin: 0px !important;
+}
+.note{
+    padding: 10px;
+}
+.note i{
+    margin: 5px;
+}
+.note p{
+    width: 94%;
+}
+#date{
+    height: 42px;
 }
