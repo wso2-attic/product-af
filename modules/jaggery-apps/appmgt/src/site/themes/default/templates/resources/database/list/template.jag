@@ -71,11 +71,10 @@ if(parse(dbInfoForDataTable).length > 0){
 <div class="container-fluid app-content-section">
         <div class="row">
             <div class="col-md-12 msg-issues">
-                Orem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-                Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-                Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
-                Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,
-                imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
+            This allows you to create new MySQL databases which can be used to persist your application data. New
+            database is created with a default user with all permissions granted. To access a database in your
+            application, configure a datasource with above database information first and use datasource to get a
+            connection to the database.
             </div>
         </div>
     <% if(!hasDBs) {%>
@@ -134,19 +133,7 @@ if(parse(dbInfoForDataTable).length > 0){
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
 <script>
-    $('.side-pane-trigger').click(function(){
-        var rightPane = $('.right-pane');
-        var leftPane = $('.left-pane');
-        if (rightPane.hasClass('visible')){
-            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-            leftPane.animate({"left":"-18em"}, "slow");
-            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-        } else {
-            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-            leftPane.animate({"left":"0em"}, "slow");
-            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-        }
-    });
+
     $('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,

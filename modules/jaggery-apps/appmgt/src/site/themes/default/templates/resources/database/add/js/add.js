@@ -22,21 +22,6 @@ function formatState (state) {
 //});
 
 
-// side pane animation
-$('.side-pane-trigger').click(function(){
-    var rightPane = $('.right-pane');
-    var leftPane = $('.left-pane');
-    if (rightPane.hasClass('visible')){
-        rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-        leftPane.animate({"left":"-18em"}, "slow");
-        $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-    } else {
-        rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-        leftPane.animate({"left":"0em"}, "slow");
-        $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-    }
-});
-
 //add show /hide option on user passsword field
     $('input[type=password]').after('<span class="hide-pass" title="Show/Hide Password"><i class="fa fa-eye"></i> </span>');
     $('.hide-pass').click(function(){
@@ -72,11 +57,11 @@ $('.side-pane-trigger').click(function(){
 function addNewDatabase(){
     var dbName = $("#database-name").val().trim();
     var defaultUserName = $("#user-name").val().trim();
-    if(dbName == null || dbName == "" || dbName == undefined){
+    if(!dbName){
         jagg.message({content:'Database name field cannot be empty',type:'error'});
         return;
     }
-    if(defaultUserName == null || defaultUserName == "" || defaultUserName == undefined){
+    if(!defaultUserName){
         jagg.message({content:'Default user name field cannot be empty',type:'error'});
         return;
     }   
