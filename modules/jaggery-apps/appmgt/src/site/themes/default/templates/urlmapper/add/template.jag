@@ -59,6 +59,16 @@ if (initialAppVersionInfo.versions.length > 0 ) {
     var initialAppVersionInfo =jQuery.parseJSON('<%=initialAppVersionInfo%>');
 </script><!-- end of setting global javascript variable -->
 
+<!-- BOF App factory menu actionbar -->
+<div class="action-bar">
+	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+			<span class="fw-stack fw-lg btn-action-ico">
+				<i class="fw fw-ring fw-stack-2x"></i>
+				<i class="fw fw-left-arrow fw-stack-1x"></i>
+			</span> Cancel
+	</a>
+</div><!-- EOF App factory menu actionbar-->
+
 <div class="container-fluid app-content-section">
     <div class="row">
          <div class="col-md-12 msg-issues">
@@ -102,7 +112,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
                          <button class="btn btn-info" type="button" id="verifyUrl" name="verifyUrl"
                          onclick="verifyCustomUrl()"
          <%=(initialAppVersionInfo.customUrl && initialAppVersionInfo.customUrlVerificationCode != null &&
-             initialAppVersionInfo.customUrlVerificationCode.length > 0)?'disabled':''%>>Verify URL</button>
+             initialAppVersionInfo.customUrlVerificationCode.length > 0)?'':'disabled'%>>Verify URL</button>
                      </span>
              </div>
 
@@ -120,7 +130,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
                  <div class="form-group">
                         <label for="production-custom">Mapped Version in Production: </label>
                         <div class="alert alert-warning" role="alert">No version in the production stage. Promote your version
-                        to map URL. <a>Click here </a> to promote your app</div>
+                        to map URL. <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Click here </a> to promote your app</div>
                     </div>
             <% }%>
 
