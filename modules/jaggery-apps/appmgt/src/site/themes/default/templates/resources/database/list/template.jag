@@ -133,19 +133,7 @@ if(parse(dbInfoForDataTable).length > 0){
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
 <script>
-    $('.side-pane-trigger').click(function(){
-        var rightPane = $('.right-pane');
-        var leftPane = $('.left-pane');
-        if (rightPane.hasClass('visible')){
-            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-            leftPane.animate({"left":"-18em"}, "slow");
-            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-        } else {
-            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-            leftPane.animate({"left":"0em"}, "slow");
-            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-        }
-    });
+
     $('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,
