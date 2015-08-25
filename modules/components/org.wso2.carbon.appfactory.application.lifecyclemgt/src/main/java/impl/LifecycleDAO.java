@@ -116,6 +116,11 @@ public class LifecycleDAO {
         LifeCycleManagementService lifeCycleManagementService = new LifeCycleManagementService();
         try {
             lifecycleList = lifeCycleManagementService.getLifecycleList();
+            if (lifecycleList == null) {
+                String msg = "Unable to load list of life cycles from LifeCycleManagementService";
+                log.error(msg);
+                throw new LifecycleManagementException(msg);
+            }
         } catch (Exception e) {
             String errorMsg = "Error occurred while getting the list of lifecycle from LifeCycleManagementService";
             log.error(errorMsg, e);
@@ -191,9 +196,11 @@ public class LifecycleDAO {
      */
     public void updateAppVersionLifeCycle(String appKey, String tenantDomain, String appVersion)
             throws AppFactoryException, LifecycleManagementException {
+
         PrivilegedCarbonContext.startTenantFlow();
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         carbonContext.setTenantDomain(tenantDomain, true);
+
         GenericArtifact artifact = getAppArtifact(appKey, appVersion, tenantDomain);
         if (artifact == null) {
             String msg =

@@ -17,6 +17,9 @@
  */
 package impl;
 
+import bean.CheckListItemBean;
+import bean.LifecycleBean;
+import bean.StageBean;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.commons.logging.Log;
@@ -27,9 +30,6 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.governance.api.exception.GovernanceException;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import service.LifecycleManagementService;
-import util.CheckListItem;
-import util.Lifecycle;
-import util.Stage;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
@@ -48,43 +48,35 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     private static final String LC_ITEM_ELEMENT = "item";
     private static final String LC_ATTRIBUTE_NAME = "name";
     private static final String LC_SCXML_ELEMENT = "scxml";
-    private static HashMap<String, Lifecycle> lifecycleMap = null;
+    private static Map<String, LifecycleBean> lifecycleMap = new HashMap<String, LifecycleBean>();
     Log log = LogFactory.getLog(LifecycleManagementServiceImpl.class);
 
     public LifecycleManagementServiceImpl() throws AppFactoryException, LifecycleManagementException {
-        if (lifecycleMap == null) {
-            init();
-        }
+        init();
     }
 
     /**
      * Method to retrieve life cycles and their details from the registry
      *
-     * @return lifecycle object array
+     * @return collection of lifecycle objects
      */
-    public Collection<Lifecycle> getAllLifeCycles() throws AppFactoryException {
+    public Collection<LifecycleBean> getAllLifeCycles() throws AppFactoryException {
         return lifecycleMap.values();
     }
 
     /**
      * Method to add the life cycles and their details to a map
      */
-    private void init() throws AppFactoryException, LifecycleManagementException {
-        LifecycleDAO lifecycleDAO = new LifecycleDAO();
-        String[] lifecycleNameList = lifecycleDAO.getLifeCycleList();
-        if (lifecycleNameList != null) {
-            lifecycleMap = new HashMap<String, Lifecycle>();
+    private void init() throws AppFactoryException {
+        if (lifecycleMap == null) {
+            LifecycleDAO lifecycleDAO = new LifecycleDAO();
+            String[] lifecycleNameList = lifecycleDAO.getLifeCycleList();
             for (String LifecycleName : lifecycleNameList) {
-                Lifecycle lifecycle = new Lifecycle();
+                LifecycleBean lifecycle = new LifecycleBean();
                 lifecycle.setLifecycleName(LifecycleName);
                 lifecycle.setStages(getAllStages(LifecycleName));
                 lifecycleMap.put(LifecycleName, lifecycle);
             }
-        } else {
-            String msg =
-                    "Unable to load list of lifecycle from LifeCycleManagementService";
-            log.error(msg);
-            throw new LifecycleManagementException(msg);
         }
     }
 
@@ -98,14 +90,13 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     public String getNextStage(String lifecycleName, String currentStage)
             throws LifecycleManagementException, AppFactoryException {
         String nextStage = null;
-        Lifecycle lifecycle = lifecycleMap.get(lifecycleName);
+        LifecycleBean lifecycle = lifecycleMap.get(lifecycleName);
         if (lifecycle == null) {
             String msg = "Unable to load lifecycle details of life cycle :" + lifecycleName;
             log.error(msg);
             throw new LifecycleManagementException(msg);
         } else {
-            ArrayList<Stage> stagesList = (ArrayList<Stage>) lifecycle.getStages();
-            ListIterator<Stage> stages = stagesList.listIterator();
+            Iterator<StageBean> stages = lifecycle.getStages().iterator();
             while (stages.hasNext()) {
                 if (stages.next().getStageName().equals(currentStage)) {
                     if (stages.hasNext()) {
@@ -138,14 +129,13 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     public String getPreviousStage(String lifecycleName, String currentStage)
             throws LifecycleManagementException, AppFactoryException {
         String previousStage = null;
-        Lifecycle lifecycle = lifecycleMap.get(lifecycleName);
+        LifecycleBean lifecycle = lifecycleMap.get(lifecycleName);
         if (lifecycle == null) {
             String msg = "Unable to load lifecycle details of life cycle :" + lifecycleName;
             log.error(msg);
             throw new LifecycleManagementException(msg);
         } else {
-            ArrayList<Stage> stagesList = (ArrayList<Stage>) lifecycle.getStages();
-            ListIterator<Stage> stages = stagesList.listIterator();
+            ListIterator<StageBean> stages = (ListIterator<StageBean>) lifecycle.getStages().iterator();
             while (stages.hasNext()) {
                 if (stages.next().getStageName().equals(currentStage)) {
                     stages.previous();
@@ -176,13 +166,11 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey       application key
      * @param appVersion   application version
      * @param tenantDomain tenant domain
-     * @return true/false
      */
-    public boolean setAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
+    public void setAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
             throws LifecycleManagementException, AppFactoryException {
         LifecycleDAO dao = new LifecycleDAO();
         dao.updateAppVersionLifeCycle(appKey, tenantDomain, appVersion);
-        return true;
     }
 
     /**
@@ -191,8 +179,8 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param lifecycleName life cycle name
      * @return array of stage objects
      */
-    private List<Stage> getAllStages(String lifecycleName) throws AppFactoryException {
-        List<Stage> stages = new ArrayList<Stage>();
+    private Set<StageBean> getAllStages(String lifecycleName) throws AppFactoryException {
+        Set<StageBean> stages = new HashSet<StageBean>();
 
         LifecycleDAO dao = new LifecycleDAO();
 
@@ -221,13 +209,13 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     OMElement nextStage = (OMElement) stateElements.next();
                     String stageName = nextStage.getAttributeValue(new QName(LC_ATTRIBUTE_ID));
 
-                    Stage stage = new Stage();
+                    StageBean stage = new StageBean();
                     stage.setStageName(stageName);
                     stages.add(stage);
                     Iterator dataModelElement = nextStage.getChildrenWithName(new QName(LC_DATA_MODEL_ELEMENT));
 
-                    List<CheckListItem> checkListItems = getCheckListItems(dataModelElement);
-                    stage.setItmes(checkListItems);
+                    Set<CheckListItemBean> checkListItems = getCheckListItems(dataModelElement);
+                    stage.setCheckListItems(checkListItems);
 
                 }
             }
@@ -242,7 +230,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param lifecycleName the name of lifecycle, that should be associated with the application
      * @return life cycle
      */
-    private Lifecycle getLifeCycleByName(String lifecycleName) throws AppFactoryException {
+    private LifecycleBean getLifeCycleByName(String lifecycleName) throws AppFactoryException {
         return lifecycleMap.get(lifecycleName);
     }
 
@@ -252,9 +240,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey application key
      * @return lifecycle object
      */
-    public Lifecycle getCurrentLifeCycle(String appKey, String appVersion, String tenantDomain)
+    public LifecycleBean getCurrentLifeCycle(String appKey, String appVersion, String tenantDomain)
             throws AppFactoryException, LifecycleManagementException {
-        Lifecycle lifecycle;
+        LifecycleBean lifecycle;
         LifecycleDAO dao = new LifecycleDAO();
         String lifecycleName = dao.getLifeCycleName(appKey, appVersion, tenantDomain);
         if (lifecycleName == null) {
@@ -275,19 +263,19 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey        application key
      * @param lifecycleName life cycle name
      * @param tenantDomain  tenant domain
-     * @return true/false
      */
-    public boolean setAppLifecycle(String appKey, String lifecycleName, String tenantDomain)
+    public void setAppLifecycle(String appKey, String lifecycleName, String tenantDomain)
             throws LifecycleManagementException, AppFactoryException {
         LifecycleDAO dao = new LifecycleDAO();
         PrivilegedCarbonContext carbonContext;
-        boolean status = false;
         try {
             PrivilegedCarbonContext.startTenantFlow();
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
+
             GenericArtifact artifact =
                     dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain);
+
             if (artifact != null && dao.isAppLifecycleChangeValid(appKey, tenantDomain)) {
                 if (artifact.getLifecycleName() != null && artifact.getLifecycleName().equals(lifecycleName)) {
                     String msg = "Unable to update the lifecycle of the application :" + appKey + " of the tenant :"
@@ -296,9 +284,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     throw new LifecycleManagementException(msg);
                 } else {
                     dao.setAppInfoLifecycleName(appKey, lifecycleName, tenantDomain);
-                    status = true;
                 }
             }
+
         } catch (AppFactoryException e) {
             String errorMsg =
                     "Error while attaching the lifecycle name " + lifecycleName + " to the application " + appKey
@@ -314,7 +302,6 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
-        return status;
     }
 
     /**
@@ -323,9 +310,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param dataModelElement xml element with check list items
      * @return array of stage objects
      */
-    private List<CheckListItem> getCheckListItems(Iterator dataModelElement) {
+    private Set<CheckListItemBean> getCheckListItems(Iterator dataModelElement) {
 
-        List<CheckListItem> checkListItems = new ArrayList<CheckListItem>();
+        Set<CheckListItemBean> checkListItems = new HashSet<CheckListItemBean>();
 
         OMElement nextDataModel = (OMElement) dataModelElement.next();
 
@@ -339,7 +326,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                 OMElement nextItem = (OMElement) checkElements.next();
                 String itemName = nextItem.getAttributeValue(new QName(LC_ATTRIBUTE_NAME));
 
-                CheckListItem checkListItem = new CheckListItem();
+                CheckListItemBean checkListItem = new CheckListItemBean();
                 checkListItem.setCheckItemName(itemName);
                 checkListItems.add(checkListItem);
             }
@@ -367,6 +354,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     .getLifecycleName() != null) {
                 status = true;
             }
+
         } catch (AppFactoryException e) {
             String errorMsg =
                     "Error while loading lifecycle artifact details of the application :" + appKey + " of the tenant :"

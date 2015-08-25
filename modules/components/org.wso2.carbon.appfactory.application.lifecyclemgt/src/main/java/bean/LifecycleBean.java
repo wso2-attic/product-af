@@ -16,22 +16,44 @@
  *  under the License.
  */
 
-package util;
+package bean;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-@XmlRootElement(name = "CheckListItem")
+/**
+ * Details about life cycles in lifecycle configuration
+ */
+@XmlRootElement(name = "Lifecycle")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CheckListItem {
-    public String checkItemName;
+public class LifecycleBean {
+    private String lifecycleName;
+    //List of Stage objects from Stage class
+    private Set<StageBean> stages;
 
-    public String getCheckItemName() {
-        return checkItemName;
+    public String getLifecycleName() {
+        return this.lifecycleName;
     }
 
-    public void setCheckItemName(String itemName) {
-        this.checkItemName = itemName;
+    public void setLifecycleName(String lifecycleName) {
+        this.lifecycleName = lifecycleName;
+    }
+
+    public Set<StageBean> getStages() {
+        if (stages == null) {
+            return Collections.emptySet();
+        }
+        return this.stages;
+    }
+
+    public void setStages(Set<StageBean> stages) {
+        if (this.stages == null) {
+            this.stages = new HashSet<StageBean>();
+        }
+        this.stages.addAll(stages);
     }
 }

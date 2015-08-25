@@ -16,40 +16,25 @@
  *  under the License.
  */
 
-package util;
+package bean;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-@XmlRootElement(name = "Lifecycle")
+/**
+ * Details about checklist items in lifecycle configuration
+ */
+@XmlRootElement(name = "CheckListItem")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Lifecycle {
-    private String lifecycleName;
-    private List<Stage> stages;
+public class CheckListItemBean {
+    public String checkItemName;
 
-    public String getLifecycleName() {
-        return this.lifecycleName;
+    public String getCheckItemName() {
+        return checkItemName;
     }
 
-    public void setLifecycleName(String lifecycleName) {
-        this.lifecycleName = lifecycleName;
-    }
-
-    public List<Stage> getStages() {
-        if (stages == null) {
-            return Collections.emptyList();
-        }
-        return this.stages;
-    }
-
-    public void setStages(List<Stage> stages) {
-        if (this.stages == null) {
-            this.stages = new ArrayList<Stage>();
-        }
-        this.stages.addAll(stages);
+    public void setCheckItemName(String itemName) {
+        this.checkItemName = itemName;
     }
 }
