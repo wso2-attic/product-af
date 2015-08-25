@@ -47,7 +47,7 @@ jagg.block("resources/database/edit", {
                 var priviledgeJsonArray =  resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, attachedUsers[i]);
                 var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
                 user.priviledges = '<div id="priviledges_' + attachedUsers[i] + '" >' + priviledgeString + '</div>';
-                user.editpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+                user.editpriviledges = '<a class="edit_priviledge" id="edit_' + attachedUsers[i] + '" href="#"><i class="fa fa-edit"></i></a>';
                 user.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
                 userInfoArray.push(user);
             }
