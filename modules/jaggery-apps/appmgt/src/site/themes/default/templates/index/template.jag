@@ -64,8 +64,8 @@ function createTable() {
 
 function addTableColumnHeaders() {
     $("#item_list").html("");
-	var columnHeaderLi = '<li class="item item_header">' +
-    '</li>';
+	var columnHeaderLi = '<div class="item item_header">' +
+    '</div>';
 	$("#item_list").append(columnHeaderLi);
 }
 
