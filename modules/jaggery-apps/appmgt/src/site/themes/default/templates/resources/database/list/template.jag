@@ -40,42 +40,27 @@ if(parse(dbInfoForDataTable).length > 0){
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/dataTables.responsive.css'))%>">
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.override.css'))%>">
 
-<!-- BOF App factory menu -->
-<div class="navbar navbar-secondary">
-    <div class="container-fliud">
-        <div class="row">
-            <div class="side-pane-trigger">
-                <i class="fa fa-reorder"></i>
-            </div>
-            <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i> <span class="hidden-xs">Application Cloud </span> / <%=applicationName%> / Databases
-            </div>
-        </div>
-    </div>
-</div><!-- EOF App factory menu --> 
  <!-- BOF App factory menu actionbar -->
-    <div class="action-bar">
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
-                <span class="fw-stack fw-lg btn-action-ico">
-                    <i class="fw fw-ring fw-stack-2x"></i>
-                    <i class="fw fw-left-arrow fw-stack-1x"></i>
-                </span> Back to Overview
-        </a>
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
-                <span class="fw-stack fw-lg btn-action-ico">
-                    <i class="fw fw-ring fw-stack-2x"></i>
-                    <i class="fw fw-add fw-stack-1x"></i>
-                </span> <span class="hidden-xs">Add New Database</span>
-        </a>
-    </div><!-- EOF App factory menu actionbar-->
+<div class="action-bar">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Overview
+    </a>
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-add fw-stack-1x"></i>
+        </span> <span class="hidden-xs">Add New Database</span>
+    </a>
+</div><!-- EOF App factory menu actionbar-->
 <div class="container-fluid app-content-section">
         <div class="row">
             <div class="col-md-12 msg-issues">
-                Orem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-                Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-                Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.
-                Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut,
-                imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
+            Create new MySQL databases to persist your application data. A new database is created with a default
+            user that has all permissions granted. To access a database from your application, you configure a
+            datasource, which provides a connection to the database.
             </div>
         </div>
     <% if(!hasDBs) {%>
@@ -134,19 +119,7 @@ if(parse(dbInfoForDataTable).length > 0){
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
 <script>
-    $('.side-pane-trigger').click(function(){
-        var rightPane = $('.right-pane');
-        var leftPane = $('.left-pane');
-        if (rightPane.hasClass('visible')){
-            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-            leftPane.animate({"left":"-18em"}, "slow");
-            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-        } else {
-            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-            leftPane.animate({"left":"0em"}, "slow");
-            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-        }
-    });
+
     $('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,

@@ -49,10 +49,11 @@ include("/jagg/config_reader.jag");
  	                    var apiName = property.name;
  	                    var description = property.description;
                         var externalApi = {};
-                        var details = externalApi["details"];
- 	                    if(details == undefined ){
- 	                    	details = [];
- 	                    }
+                        var details = [];
+                        if (externalAPIs[apiName]) {
+                            externalApi = externalAPIs[apiName];
+                            details = externalApi["details"];
+                        }
  	                    var detail = mod.getDetailedPropertyValuesInStages(applicationKey + "/" + apiName, [stage]);
  	                    details.push(detail);
  	                   externalApi.description = description;
