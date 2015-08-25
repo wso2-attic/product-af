@@ -19,18 +19,20 @@
 
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
- var applicationKey=request.getParameter("applicationKey");
- var applicationName = request.getParameter('applicationName');
+var applicationKey=request.getParameter("applicationKey");
+var applicationName = request.getParameter('applicationName');
+var environment = request.getParameter('environment');
+var dbName =  request.getParameter("dbName");
 (function () {
 
     jagg.render({
-        "name":"page/base",
+        "name":"page/master",
         "inputs":{
             "title":"WSO2 App Factory",
             "pagePath":"/site/pages/createdbuser.jag",
             "body":[
                 {
-                    "name":"layout/base",
+                    "name":"layout/master",
                     "inputs":{
                         "title":"WSO2 App Factory",
                         "middle":[
@@ -39,6 +41,41 @@ var site = require("/site/conf/site.json");
                             "inputs":{
                                 "applicationKey":applicationKey
                             }
+                            }
+                        ],
+                        "breadcrumb":[
+                            {
+                                "name":"breadcrumb",
+                                "inputs":{
+                                    "linkParams": [
+                                        {
+                                            "basePath":"/site/pages/application.jag",
+                                            "displayName": applicationName,
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/databases.jag",
+                                            "displayName": "Databases",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName
+                                            }
+                                        },
+                                        {
+                                            "basePath":"/site/pages/createdbuser.jag",
+                                            "displayName": "Add New User",
+                                            "params": {
+                                                "applicationKey":applicationKey,
+                                                "applicationName":applicationName,
+                                                "environment":environment,
+                                                "dbName":dbName
+                                            }
+                                        }
+                                    ]
+                                }
                             }
                         ],
                         "tablinks":[
