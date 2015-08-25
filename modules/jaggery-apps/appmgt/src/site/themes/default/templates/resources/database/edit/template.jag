@@ -53,7 +53,7 @@ language=appInfo.language;
  <div class="container-fluid app-content-section">
         <div class="row">
           <div class="col-md-12 msg-issues">
-            This shows the list of users created in MySQL database server. You can make use of these users to connect to the database using datasource configured for your application.
+           Given here are the users of the database. You can connect to the database as these users.
           </div>
         </div>
         <div class="row">
