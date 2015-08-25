@@ -1,25 +1,6 @@
+$( document ).ready(function() {
 //select 2
-function formatState (state) {
-        if (!state.id) { return state.text; }
-        var $state;
-        if(state.element.attributes['data-icon']){
-            var $state = $(
-                    '<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase() +'"></i>&nbsp;&nbsp;'
-                    + state.text + '</span>'
-            );
-        }else{
-            var $state = $(
-                    '<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'
-                    + state.text + '</span>'
-            );
-        }
-        return $state;
-};
-
-//$('.select2').select2({
-//        templateResult: formatState,
-//        templateSelection :formatState
-//});
+$('select').select2();
 
 
 //add show /hide option on user passsword field
@@ -53,6 +34,7 @@ function formatState (state) {
         $.fn.popover.Constructor.DEFAULTS.placement = 'right';
     });
 
+});
 // add new database 
 function addNewDatabase(){
     var dbName = $("#database-name").val().trim();
