@@ -72,7 +72,7 @@ if(parse(dbInfoForDataTable).length > 0){
                             <i class="fw fw-ring fw-stack-2x"></i>
                             <i class="fw fw-add fw-stack-1x"></i>
                         </span>
-                        <span class="hidden-xs">Create your first Database</span>
+                        <span class="hidden-xs">Create your first database</span>
                     </a>
                 </div>
             </div>
