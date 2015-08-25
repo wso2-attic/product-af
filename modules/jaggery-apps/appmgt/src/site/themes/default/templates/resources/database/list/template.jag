@@ -132,8 +132,35 @@ if(parse(dbInfoForDataTable).length > 0){
                 { "data": "type", "width": "5%" },
                 { "data": "userpriviledges", "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
                 { "data": "trash", "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
-            ]
+            ],
+            "fnDrawCallback": function( oSettings ) {
+                $('.delete_db').on("click",function(){
+                    var currentId = $(this).attr("id");
+                    var environment = $(this).attr("stage");
+                    //getting the database name from  id
+                    var dbName = currentId.substr(7);
+                    deleteDatabase(dbName, environment);
+                });
+            }
         });
+
+//Delete database
+function deleteDatabase(dbName,environment) {
+    jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
+            action:"dropDatabase",
+            applicationKey:'<%=applicationKey%>',
+            databaseName:dbName,
+            rssInstanceName:environment,
+            deleteDatasource:false
+        }, function (result) {
+            if(result){
+                document.location.reload(true);
+            }
+        }, function (jqXHR, textStatus, errorThrown) {
+            jagg.message({type:'error',content:'Database deletion failed for ' + dbName , id:'delete_db'});
+    });
+}
+
 </script>
 <%
 }); %>
