@@ -705,12 +705,13 @@ var loggedInUser = jagg.getUser();
 
 		var rssInstance = request.getParameter("rssInstanceName");
 		var applicationKey = request.getParameter("applicationKey");
-
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
-
-
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
-		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        var dbname = request.getParameter("databaseName");
+        var userName = request.getParameter("userName");
+        var permissions =  request.getParameter("permissions");
+	    	
+        var stage = mod.getStageFromRssInstanceName(rssInstance);
+		// checking whether user is allowed  to update in given stage
+        var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
 		if( !hasPermission ){
 			response.error = true;
@@ -718,32 +719,7 @@ var loggedInUser = jagg.getUser();
 			print(response);
 			return;
 		}
-
-
-		var dbname = request.getParameter("databaseName");
-		var username = request.getParameter("username");
-		var alterPriv=createValue(request.getParameter("alterPriv"));
-		var alterRoutinePriv=createValue(request.getParameter("alterRoutinePriv"));
-		var createPriv=createValue(request.getParameter("createPriv"));
-		var createRoutinePriv=createValue(request.getParameter("createRoutinePriv"));
-		var createTmpTablePriv=createValue(request.getParameter("createTmpTablePriv"));
-		var createViewPriv=createValue(request.getParameter("createViewPriv"));
-		var deletePriv=createValue(request.getParameter("deletePriv"));
-		var dropPriv=createValue(request.getParameter("dropPriv"));
-		var eventPriv=createValue(request.getParameter("eventPriv"));
-		var executePriv=createValue(request.getParameter("executePriv"));
-		var grantPriv=createValue(request.getParameter("grantPriv"));
-		var indexPriv=createValue(request.getParameter("indexPriv"));
-		var insertPriv=createValue(request.getParameter("insertPriv"));
-		var lockTablesPriv=createValue(request.getParameter("lockTablesPriv"));
-		var referencesPriv=createValue(request.getParameter("referencesPriv"));
-		var selectPriv=createValue(request.getParameter("selectPriv"));
-		var showViewPriv=createValue(request.getParameter("showViewPriv"));
-		var triggerPriv=createValue(request.getParameter("triggerPriv"));
-		var updatePriv=createValue(request.getParameter("updatePriv"));
-
-		var response = {};
-
+        // sending message to notification wall
 		try {
             var notificationTitle = "Privileges update started for database " + dbname + " in " + stage;
             var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
@@ -753,10 +729,10 @@ var loggedInUser = jagg.getUser();
         } catch (e) {
             log.error("Error while sending database user privilege update start notification \n" + e.message);
         }
-
-		try {
-			mod.editUserPermissions(applicationKey,dbname,rssInstance,username,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
-
+        // edit user permissions
+        var permissionObj = parse(permissions);
+        try {
+             mod.editUserPermissions(applicationKey,dbname,rssInstance,userName,permissionObj.alterPriv,permissionObj.alterRoutinePriv,permissionObj.createPriv,permissionObj.createRoutinePriv,permissionObj.createTmpTablePriv,permissionObj.createViewPriv,permissionObj.deletePriv,permissionObj.dropPriv,permissionObj.eventPriv,permissionObj.executePriv,permissionObj.grantPriv,permissionObj.indexPriv,permissionObj.insertPriv,permissionObj.lockTablesPriv,permissionObj.referencesPriv,permissionObj.selectPriv,permissionObj.showViewPriv,permissionObj.triggerPriv,permissionObj.updatePriv);
 		} catch(e) {
 			throw "Error while reading permissions";
 		}

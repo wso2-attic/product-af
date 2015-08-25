@@ -150,7 +150,7 @@ language=appInfo.language;
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
 
 <script>
-    $('.side-pane-trigger').click(function(){
+$('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
         var leftPane = $('.left-pane');
         if (rightPane.hasClass('visible')){
@@ -162,12 +162,9 @@ language=appInfo.language;
             leftPane.animate({"left":"0em"}, "slow");
             $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
         }
-    });
-    var usrInfo = <%=userInfo%>;
-    var applicationKey = '<%=applicationKey%>';
-    var dbName = '<%=dbName%>';
-    var environment = '<%=environment%>'; 
-    $('.datatable table').dataTable({
+});
+var usrInfo = <%=userInfo%>;
+$('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,
             data: usrInfo,
@@ -179,6 +176,7 @@ language=appInfo.language;
                 { "data": "trash", "orderable": false, "width": "3%", "sClass" : "dt-body-center" }
             ],
             "fnDrawCallback": function( oSettings ) {
+                // onclick event of checkbox switch
                 $('.switch input[type=checkbox]').on("click",function(){
                     var isChecked = $(this).is(":checked");
                     console.log(isChecked);
@@ -209,10 +207,30 @@ language=appInfo.language;
                     }
                     
                 });
+            // on click event of edit
+            $('.edit_priviledge').on("click",function(){
+                var currentId = $(this).attr("id");
+                //getting the user name from checkbox id, removing 'edit_'
+                var userName = currentId.substr(5);
+                console.log(userName);
+                $('#priviledges_modal').modal({
+                            show: true,
+                            keyboard: false,
+                            backdrop: 'static'
+                }); 
+                $('#privilege_edit_save').on('click', function (e) {
+                            if(priviledgeCheckboxValidation()) {
+                               // detachUserAndDropTemplate(userName);
+                                var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
+                                editUserPriviledges(userName, permissions);
+                            } else {
+                                 jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
+                            }
+                });
+            });
             }
-        });
-    $(document).ready(function() {
-    });
+});
+
 // Detach a user and drop priviledge template of a user
 function detachUserAndDropTemplate(userName){
     // detach user from database
@@ -297,6 +315,23 @@ function priviledgeCheckboxValidation() {
     return atLeastOneChecked;
 }
 
+//Update priviledges of a user attached to a database
+function editUserPriviledges(userName, permissionsJson) {
+     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action:"editUserPermissions",
+            applicationKey:'<%=applicationKey%>',
+            databaseName:'<%=dbName%>',
+            rssInstanceName:'<%=environment%>',
+            userName:userName,
+            permissions:permissionsJson 
+        },function (result) {
+            document.location.reload(true);
+        },function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status != 0){
+                    jagg.message({type:'error',content:'User ' + userName + ' attaching failed for database ' + '<%=dbName%>', id:'attach_user'});
+                }
+        });
+}
 </script>
 
 <%
