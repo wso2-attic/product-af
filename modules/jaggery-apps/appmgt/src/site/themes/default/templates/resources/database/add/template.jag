@@ -43,8 +43,7 @@ language=appInfo.language;
             <div class="col-md-5 col-lg-5 forms">
                     <div class="form-group col-md-12 ">
                         <label for="database-name">Database Name: </label>
-                        <input type="text" class="form-control" id="database-name" placeholder="Enter the database
-                        name">
+                        <input type="text" class="form-control" id="database-name" maxlength="5" placeholder="Enter the database name">
                     </div>
                     <div class="form-group col-md-12">
                         <label for="description">Description: </label>
@@ -65,7 +64,7 @@ language=appInfo.language;
                     
                     <div class="form-group col-md-6">
                         <label for="user-name">Default User Name: </label>
-                        <input type="text" class="form-control" id="user-name" placeholder="Enter the user name">
+                        <input type="text" class="form-control" id="user-name" maxlength="5" placeholder="Enter the user name">
                     </div>
 
                     <div class="clearfix"></div>
