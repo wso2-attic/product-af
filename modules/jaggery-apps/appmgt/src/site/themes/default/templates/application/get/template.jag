@@ -4,6 +4,7 @@
     var log = new Log();
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
+    var userAction = request.getParameter("userAction");
     var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
@@ -35,6 +36,7 @@
     var appDomain = "<%=getProperty(DOMAIN_NAME) %>";
     var applicationInfo = <%=applicationInfo%>;
     var deploymentPermission  = JSON.parse('<%=stringify(outputs.stagesMap)%>') ;
+    var userAction = "<%=userAction%>";
 
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
@@ -265,6 +267,8 @@
 
 
 <!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
