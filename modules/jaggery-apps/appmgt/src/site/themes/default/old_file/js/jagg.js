@@ -107,6 +107,7 @@ var messageTimer;
                  layout: 'top',
                  type: params.type,
                  text: params.content,
+                 timeout: '5000',
                  animation: {
                      open: {height: 'toggle'}, // jQuery animate function property object
                      close: {height: 'toggle'}, // jQuery animate function property object
@@ -124,6 +125,13 @@ var messageTimer;
     //jagg.popMessage({type:'confirm',title:'Model Title',content:'Model Content',okCallback:function(){alert('do this when ok')},cancelCallback:function(){alert('do this when cancel')}});
 
     //jagg.popMessage({content:'Message'});
+
+
+    jagg.removeMessageById = function(id) {
+        if(id) {
+            $.noty.close(id);
+        }
+    };
 
     jagg.popMessage = function(params){
         // Included noty plugin implementation
@@ -176,7 +184,7 @@ var messageTimer;
 			jagg.removeMessage();
 		}
 	});
-	
+
 	jagg.getConvertedVersion=function(version){
 	    return version.replace(/\./g,'_');
 	};

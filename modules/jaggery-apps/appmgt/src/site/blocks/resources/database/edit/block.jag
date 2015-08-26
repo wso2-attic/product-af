@@ -48,7 +48,7 @@ jagg.block("resources/database/edit", {
                 var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
                 user.priviledges = '<div id="priviledges_' + attachedUsers[i] + '" >' + priviledgeString + '</div>';
                 user.editpriviledges = '<a class="edit_priviledge" id="edit_' + attachedUsers[i] + '" href="#"><i class="fa fa-edit"></i></a>';
-                user.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+                user.trash = "<a class='not-active' href=''><i class='fa  fa-trash'></i></a>";
                 userInfoArray.push(user);
             }
             for(var i in unAttachedUsers){
@@ -58,7 +58,7 @@ jagg.block("resources/database/edit", {
                 var priviledgeJsonArray = resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, unAttachedUsers[i]);
                 var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
                 user.priviledges = priviledgeString; 
-                user.editpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
+                user.editpriviledges = "<a class='not-active' href='#'><i class='fa fa-edit'></i></a>";
                 user.trash = '<a class="delete_user" id="delete_' + unAttachedUsers[i] + '" href="#"><i class="fa  fa-trash"></i></a>';
                 userInfoArray.push(user);
             }

@@ -4,6 +4,7 @@
     var log = new Log();
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
+    var userAction = request.getParameter("userAction");
     var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
@@ -35,6 +36,7 @@
     var appDomain = "<%=getProperty(DOMAIN_NAME) %>";
     var applicationInfo = <%=applicationInfo%>;
     var deploymentPermission  = JSON.parse('<%=stringify(outputs.stagesMap)%>') ;
+    var userAction = "<%=userAction%>";
 
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
@@ -48,11 +50,11 @@
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action"  title="Back to Application listing">
             <span class="fw-stack fw-lg btn-action-ico">
                 <i class="fw fw-ring fw-stack-2x"></i>
                 <i class="fw fw-left-arrow fw-stack-1x"></i>
-            </span> Go Back
+            </span> Back to Application listing
     </a>
 </div>
 <!-- EOF App factory menu actionbar-->
@@ -186,7 +188,7 @@
               </div>
               <div class="col-md-4">
                   <div class="block-issues">
-                      <h3>Open Issues</h3>
+                      <h3>Issues</h3>
                       <div class="block-icon pull-left">
                           <span class="fa-stack fa-lg fa-3x">
                               <i class="fa fa-circle-thin fa-stack-2x"></i>
@@ -265,6 +267,8 @@
 
 
 <!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>

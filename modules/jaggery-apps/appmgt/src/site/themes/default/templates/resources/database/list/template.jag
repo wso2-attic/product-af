@@ -42,13 +42,14 @@ if(parse(dbInfoForDataTable).length > 0){
 
  <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-    <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
+     class="btn-action"  title="Back to Overview">
         <span class="fw-stack fw-lg btn-action-ico">
             <i class="fw fw-ring fw-stack-2x"></i>
             <i class="fw fw-left-arrow fw-stack-1x"></i>
         </span> Back to Overview
     </a>
-    <a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/newdatabase.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isEdit=false" class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New Database">
         <span class="fw-stack fw-lg btn-action-ico">
             <i class="fw fw-ring fw-stack-2x"></i>
             <i class="fw fw-add fw-stack-1x"></i>
@@ -139,7 +140,7 @@ if(parse(dbInfoForDataTable).length > 0){
                     var environment = $(this).attr("stage");
                     //getting the database name from  id
                     var dbName = currentId.substr(7);
-                    deleteDatabase(dbName, environment);
+                    jagg.popMessage({type:'confirm',title:'Delete Database',content:'Are you sure you want to delete the database ' + dbName + ' ?', okCallback:function(){deleteDatabase(dbName, environment);}, cancelCallback:function(){}});
                 });
             }
         });
