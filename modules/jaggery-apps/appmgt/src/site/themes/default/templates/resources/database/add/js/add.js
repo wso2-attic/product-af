@@ -2,6 +2,13 @@ $( document ).ready(function() {
 //select 2
 $('select').select2();
 
+//compare password and confirm password
+$("#password-confirm").focusout(function(){
+    if($('#password').val().trim()!= $('#password-confirm').val().trim()) {
+        jagg.message({content:'Password and confirm password fields does not match' , type:'error'});
+    }
+});
+
 
 //add show /hide option on user passsword field
     $('input[type=password]').after('<span class="hide-pass" title="Show/Hide Password"><i class="fa fa-eye"></i> </span>');
@@ -38,7 +45,7 @@ $('select').select2();
 
 // add new database
 function addNewDatabase(){
-    if(validateAddNewDatabaseFileds()) {
+    if(validateEmptyFileds()) {
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action: "createDatabaseAndAttachUser",
             applicationKey: appKey,
@@ -65,7 +72,7 @@ function addNewDatabase(){
 }
 
 // validate user inputs in add new database fields
-function validateAddNewDatabaseFileds() {
+function validateEmptyFileds() {
     if(!$("#database-name").val().trim()) {
         jagg.message({content:'Database name field cannot be empty',type:'error'});
         return false;
@@ -74,9 +81,6 @@ function validateAddNewDatabaseFileds() {
         return false;
     } else if(!$('#password').val().trim()) {
         jagg.message({content:'Password field cannot be empty' , type:'error'});
-        return false;
-    } else if($('#password').val().trim()!= $('#password-confirm').val().trim()) {
-        jagg.message({content:'Password and confirm password fields does not match' , type:'error'});
         return false;
     } else {
         return true;
