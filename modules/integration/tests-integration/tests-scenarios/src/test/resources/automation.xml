@@ -292,7 +292,15 @@
             <git>https://git.appfactory.private.wso2.com:8443/</git>
             <bam>https://bam.appfactory.private.wso2.com:9446/</bam>
             <api>http://apimanager.appfactory.private.wso2.com:9769/</api>
+            <jenkins>https://jenkins.appfactory.private.wso2.com:9500/</jenkins>
         </urls>
+
+        <credentials>
+            <gituser>gitblitsystemadmin</gituser>
+            <gituserpass>admin</gituserpass>
+            <jenkinsuser>jenkinssystemadmin</jenkinsuser>
+            <jenkinsuserpass>admin</jenkinsuserpass>
+        </credentials>
 
         <defaultTenant>
             <firstName>firstName</firstName>
@@ -309,6 +317,7 @@
             <applicationKey>apptest</applicationKey>
             <applicationType>war</applicationType>
             <applicationDescription>applicationDescription</applicationDescription>
+            <defaultVersion>trunk</defaultVersion>
             <versions>
                 <version key="v1">
                     <sourceVersion>trunk</sourceVersion>

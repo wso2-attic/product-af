@@ -34,6 +34,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.gitblit.wso2</groupId>
+            <artifactId>gitblit</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.appfactory</groupId>
             <artifactId>org.wso2.appfactory.integration.admin.clients</artifactId>
         </dependency>

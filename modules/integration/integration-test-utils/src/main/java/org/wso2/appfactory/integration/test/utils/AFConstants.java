@@ -32,6 +32,7 @@ public class AFConstants {
 	public static final String URLS_GIT = "//appFactoryProperties/urls/git";
 	public static final String URLS_BAM = "//appFactoryProperties/urls/bam";
     public static final String URLS_API = "//appFactoryProperties/urls/api";
+    public static final String URLS_JENKINS = "//appFactoryProperties/urls/jenkins";
 
 	public static final String ENV_CREATE_RANDOM_TENANT = "af.test.createRandomTenant";
 	public static final String ENV_CREATED_RANDOM_TENANT_DOMAIN = "af.test.tenant.domain";
@@ -59,6 +60,7 @@ public class AFConstants {
 	                                                  "//appFactoryProperties/defaultApplication/applicationType";
 	public static final String DEFAULT_APP_APP_DESC =
 	                                                  "//appFactoryProperties/defaultApplication/applicationDescription";
+	public static final String DEFAULT_VERSION_NAME = "//appFactoryProperties/defaultApplication/defaultVersion";
 	public static final String DEFAULT_APP_REPO_TYPE =
 	                                                   "//appFactoryProperties/defaultApplication/repositoryType";
 
@@ -102,6 +104,12 @@ public class AFConstants {
     public static final String DEFAULT_API_USER_NAME="//appFactoryProperties/defaultAPI/useNAme";
 
     public static final String DEFAULT_API_PASSWORD="//appFactoryProperties/defaultAPI/password";
+
+
+	public static final String CREDENTIAL_GIT_USERNAME = "//appFactoryProperties/credentials/gituser";
+	public static final String CREDENTIAL_GIT_PASSWORD = "//appFactoryProperties/credentials/gituserpass";
+	public static final String CREDENTIAL_JENKINS_USERNAME = "//appFactoryProperties/credentials/jenkinsuser";
+	public static final String CREDENTIAL_JENKINS_PASSWORD = "//appFactoryProperties/credentials/jenkinsuserpass";
 
     public static final String TRUE = "true";
     public static final String FALSE= "false";

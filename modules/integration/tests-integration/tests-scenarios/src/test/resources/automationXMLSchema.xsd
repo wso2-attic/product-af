@@ -551,6 +551,24 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="bam"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="api"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="jenkins"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="credentials">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="gituser"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="gituserpass"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="jenkinsuser"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="jenkinsuserpass"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -585,6 +603,8 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="applicationDescription"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="defaultVersion"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element name="versions">
                                             <xs:complexType>
                                                 <xs:sequence>
@@ -600,6 +620,22 @@
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="defaultAPI">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="useNAme"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="password"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="addPayload"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="publishPayload"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="subscribePayload"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
