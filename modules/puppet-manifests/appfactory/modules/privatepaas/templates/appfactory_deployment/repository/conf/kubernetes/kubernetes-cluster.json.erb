@@ -4,9 +4,10 @@
     "kubernetesMaster": {
         "hostId": "master",
         "hostname": "master.dev.kubernetes.org",
-        "privateIPAddress": "172.17.8.101",
-        "publicIPAddress": "172.17.8.101",
+        "privateIPAddress": "127.0.0.1",
+        "publicIPAddress": "127.0.0.1",
         "property": [
+             {"KUBERNETES_MASTER_PORT": "8080"}
         ]
     },
     "portRange": {
@@ -17,8 +18,8 @@
         {
             "hostId": "minion-1",
             "hostname": "minion-1.dev.kubernetes.org",
-            "privateIPAddress": "172.17.8.102",
-            "publicIPAddress": "172.17.8.102",
+            "privateIPAddress": "127.0.0.1",
+            "publicIPAddress": "127.0.0.1",
             "property": [
             ]
         }
@@ -27,7 +28,7 @@
     "property": [
         {
             "name": "payload_parameter.MB_IP",
-            "value": "172.17.8.1"
+            "value": "<%= @ipaddress %>"
         },
         {
             "name": "payload_parameter.MB_PORT",
@@ -35,7 +36,7 @@
         },
         {
             "name": "payload_parameter.CEP_IP",
-            "value": "172.17.8.1"
+            "value": "<%= @ipaddress %>"
         },
         {
             "name": "payload_parameter.CEP_PORT",
@@ -47,7 +48,7 @@
         },
         {
             "name": "payload_parameter.METADATA_SERVICE_URL",
-            "value": "https://172.17.8.1:<%= 9443 + Integer(@offset) %>"
+            "value": "https://<%= @ipaddress %>:<%= 9443 + Integer(@offset) %>"
         }
     ]
 }
