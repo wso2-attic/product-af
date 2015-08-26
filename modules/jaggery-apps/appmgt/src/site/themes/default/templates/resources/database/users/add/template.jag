@@ -36,7 +36,8 @@ jagg.template("resources/database/users/add", function(inputs, outputs, jagg) { 
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-	<a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+	<a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
+	 class="btn-action"  title="Back to Database">
 			<span class="fw-stack fw-lg btn-action-ico">
 				<i class="fw fw-ring fw-stack-2x"></i>
 				<i class="fw fw-left-arrow fw-stack-1x"></i>
