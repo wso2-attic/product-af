@@ -168,7 +168,10 @@ $('.datatable table').dataTable({
                     var currentId = $(this).attr("id");
                     //getting the user name from checkbox id, removing 'chkbx_'
                     var userName = currentId.substr(7);
-                    if(isChecked){ 
+                    if(isChecked){
+                        //clear all checked boxes
+                        $('#priviledges_modal input:checkbox').prop('checked', false);
+ 
                         $('#priviledges_modal').modal({
                             show: true,
                             keyboard: false,
@@ -176,6 +179,7 @@ $('.datatable table').dataTable({
                         });
                         $('#privilege_edit_cancel').on('click', function (e) {
                             $("#"+ currentId).removeAttr("checked");
+                            userName = "";
                         });
                         $('#privilege_edit_save').on('click', function (e) {
                             if(priviledgeCheckboxValidation()){
@@ -197,19 +201,22 @@ $('.datatable table').dataTable({
                 var currentId = $(this).attr("id");
                 //getting the user name from  id, removing 'edit_'
                 var userName = currentId.substr(5);
+                markExistingPriviledges(userName);
                 $('#priviledges_modal').modal({
                             show: true,
                             keyboard: false,
                             backdrop: 'static'
                 }); 
                 $('#privilege_edit_save').on('click', function (e) {
-                            if(priviledgeCheckboxValidation()) {
-                               // detachUserAndDropTemplate(userName);
-                                var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
-                                editUserPriviledges(userName, permissions);
-                            } else {
-                                 jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
-                            }
+                    if(priviledgeCheckboxValidation()) {
+                        var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
+                        editUserPriviledges(userName, permissions);
+                    } else {
+                        jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
+                    }
+                });
+                $('#privilege_edit_cancel').on('click', function (e) {
+                    userName = "";
                 });
             });
             // on click event of delete 
@@ -254,6 +261,7 @@ function detachUserAndDropTemplate(userName){
 }
 // Attach a user to a database with selected permissions
 function attachUserWithPermissions(userName, permissionsJson) {
+    if(userName && permissionsJson) {
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"attachUserWithPermissions",
             applicationKey:'<%=applicationKey%>',
@@ -270,6 +278,7 @@ function attachUserWithPermissions(userName, permissionsJson) {
                     jagg.message({type:'error',content:'User ' + userName + ' attaching failed for database ' + '<%=dbName%>', id:'attach_user'});
                 }
         });
+    }
 }
 
 // Create a json object of priviledges with its checked/unchecked value
@@ -308,6 +317,7 @@ function priviledgeCheckboxValidation() {
 
 //Update priviledges of a user attached to a database
 function editUserPriviledges(userName, permissionsJson) {
+console.log(userName);
      jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"editUserPermissions",
             applicationKey:'<%=applicationKey%>',
@@ -340,6 +350,45 @@ function deleteUser(userName) {
             }
         });
 }
+
+//When edit priviledges is clicked existing priviledges should be shown in the modal.
+function markExistingPriviledges(userName) {
+    //clear all checked boxes
+    $('#priviledges_modal input:checkbox').prop('checked', false);
+
+    var priviledgesString = $('#priviledges_' + userName).html();
+    var priviledgeArray = priviledgesString.split(", ");
+    for(var i in priviledgeArray) {
+        var privText = priviledgeArray[i];
+        $('#' + priviledgeEnum[privText]).prop('checked',true);
+    }
+}
+
+/**
+* Javascript enum for database priviledges
+*/
+var priviledgeEnum = Object.freeze({
+    "SELECT" :  "selectPriv",
+    "INSERT" : "insertPriv",
+    "UPDATE" : "updatePriv",
+    "DELETE" : "deletePriv",
+    "CREATE" : "createPriv",
+    "DROP" : "dropPriv",
+    "GRANT" : "grantPriv",
+    "REFERENCES" : "referencesPriv",
+    "INDEX" : "indexPriv",
+    "ALTER" : "alterPriv",
+    "CREATE TEMP TABLE" : "createTmpTablePriv",
+    "LOCK TABLES" : "lockTablesPriv",
+    "CREATE VIEW" : "createViewPriv",
+    "SHOW VIEW" : "showViewPriv",
+    "CREATE ROUTINE" : "createRoutinePriv",
+    "ALTER ROUTINE" : "alterRoutinePriv",
+    "EXECUTE" : "executePriv",
+    "EVENT" : "eventPriv",
+    "TRIGGER" : "triggerPriv"
+
+});
 </script>
 
 <%
