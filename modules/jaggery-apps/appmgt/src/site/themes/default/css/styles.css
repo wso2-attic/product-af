@@ -634,8 +634,8 @@ a.btn-action {
 .app-listing {
     position: relative;
     top: 11em;
-    padding: 18px;
-    min-height: 273px;
+    /*padding: 18px;
+    min-height: 273px;*/
 }
 #search-apps {
     border-radius: 0px;
@@ -1420,4 +1420,8 @@ a.btn-action {
 }
 .fw-1-5x{
     font-size: 1.5em;
+}
+.not-active{
+    pointer-events: none;
+    cursor: default;
 }
