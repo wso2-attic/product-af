@@ -1421,3 +1421,7 @@ a.btn-action {
 .fw-1-5x{
     font-size: 1.5em;
 }
+.not-active{
+    pointer-events: none;
+    cursor: default;
+}

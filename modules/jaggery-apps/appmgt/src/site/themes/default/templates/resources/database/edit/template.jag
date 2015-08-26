@@ -41,7 +41,7 @@ language=appInfo.language;
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
-                </span> Back to Database
+                </span> Back to Databases
         </a>
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&environment=<%=environment%>&dbName=<%=dbName%>"
         class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New User">
@@ -68,7 +68,7 @@ language=appInfo.language;
                             <th>User Name</th>
                             <th>Attach user to Database</th>
                             <th>Priviledges</th>
-                            <th>Edit</th>
+                            <th>Edit Priviledges</th>
                             <th>Delete</th>
                         </tr>
                         </thead>
@@ -94,7 +94,7 @@ language=appInfo.language;
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Select User Privilege</h4>
+                <h4 class="modal-title">Select User Privileges</h4>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
@@ -159,7 +159,7 @@ $('.datatable table').dataTable({
                 { "data": "username", "width": "10%"},
                 { "data": "attachuser" , "width": "5%","sClass" : "dt-body-center"},
                 { "data": "priviledges" , "width": "40%"},
-                { "data": "editpriviledges", "width": "3%","sClass" : "dt-body-center"  },
+                { "data": "editpriviledges", "orderable": false, "width": "3%","sClass" : "dt-body-center"  },
                 { "data": "trash", "orderable": false, "width": "3%", "sClass" : "dt-body-center" }
             ],
             "fnDrawCallback": function( oSettings ) {
