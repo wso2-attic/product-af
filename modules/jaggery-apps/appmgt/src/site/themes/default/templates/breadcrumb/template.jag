@@ -25,7 +25,7 @@ include("/jagg/constants.jag");
         <div class="row">
 
         <% if(inputs.noSidePane){%>
-            <div class="col-md-3 breadcrumb-secondary">
+            <div class="col-md-12 breadcrumb-secondary">
                 <i class="fa fa-cubes visible-xs"></i><span>
         <% } else {%>
             <div class="side-pane-trigger">
