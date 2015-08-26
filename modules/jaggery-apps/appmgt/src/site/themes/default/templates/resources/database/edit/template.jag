@@ -36,14 +36,15 @@ language=appInfo.language;
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
+         class="btn-action"  title="Back to Database">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to Database
         </a>
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&environment=<%=environment%>&dbName=<%=dbName%>"
-        class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New User">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
