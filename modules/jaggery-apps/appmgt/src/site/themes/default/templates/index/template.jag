@@ -557,7 +557,7 @@ function hideLoading() {
                 <div class="loader"></div>
             </div>
             <!-- BOF listing block -->
-            <ul class="" id="item_list"></ul>
+            <div class="" id="item_list"></div>
         </div>
     </div><!-- /.container -->
 </div>
