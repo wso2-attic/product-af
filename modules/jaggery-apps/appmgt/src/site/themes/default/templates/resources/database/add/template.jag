@@ -76,7 +76,7 @@ language=appInfo.language;
                             <div class="strength-meter"></div>
                     </div>
                     <div class="col-md-6">
-                        <button type="button" class="btn btn-default password-generator">Generate Password</button>
+                       <!-- <button type="button" class="btn btn-default password-generator">Generate Password</button> -->
                     </div>
 
                     <div class="clearfix"></div>

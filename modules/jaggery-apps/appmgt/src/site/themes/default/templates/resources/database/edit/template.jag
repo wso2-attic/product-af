@@ -166,6 +166,7 @@ $('.datatable table').dataTable({
                 $('.switch input[type=checkbox]').on("click",function(){
                     var isChecked = $(this).is(":checked");
                     var currentId = $(this).attr("id");
+                    var currentElement = $("#"+ currentId);
                     //getting the user name from checkbox id, removing 'chkbx_'
                     var userName = currentId.substr(7);
                     if(isChecked){
@@ -178,7 +179,7 @@ $('.datatable table').dataTable({
                             backdrop: 'static'
                         });
                         $('#privilege_edit_cancel').on('click', function (e) {
-                            $("#"+ currentId).removeAttr("checked");
+                            currentElement.removeAttr("checked");
                             userName = "";
                         });
                         $('#privilege_edit_save').on('click', function (e) {
@@ -191,7 +192,7 @@ $('.datatable table').dataTable({
                         });
                      }else {
                         detachUserAndDropTemplate(userName);
-                        $("#"+ currentId).removeAttr("checked");
+                        currentElement.removeAttr("checked");
                         $("#priviledges_"+ userName).html("");
                     }
                     
@@ -317,7 +318,6 @@ function priviledgeCheckboxValidation() {
 
 //Update priviledges of a user attached to a database
 function editUserPriviledges(userName, permissionsJson) {
-console.log(userName);
      jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"editUserPermissions",
             applicationKey:'<%=applicationKey%>',
