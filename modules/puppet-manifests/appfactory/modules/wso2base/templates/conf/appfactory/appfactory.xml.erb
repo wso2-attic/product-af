@@ -704,16 +704,6 @@
     <!-- Set the initial application context to be mapped when initializing a custom url -->
     <DefaultMappingContext><%= @domain_mapping_default_context %></DefaultMappingContext>
 
-    <!--DNS specific to Amazon, If the IAAS provider is EC2 enable this-->
-    <EnableAWSRoute53><%= @enable_route53 %></EnableAWSRoute53>
-    <!--false|true-->
-    <AWSRoute53AccessKeyId><%= @route53_access_key_id %></AWSRoute53AccessKeyId>
-    <!--If EnableAWSRoute is true set this value-->
-    <AWSRoute53SecretAccessKey><%= @route53_secret_access_key %></AWSRoute53SecretAccessKey>
-    <!--If EnableAWSRoute is true set this value-->
-    <AWSRoute53HostedZoneId><%= @route53_hosted_zone_id %></AWSRoute53HostedZoneId>
-    <!--If EnableAWSRoute is true set this value-->
-
     <!-- API-Token should be set according to the running instance of Jenkins-->
     <ContinuousIntegrationProvider name="jenkins" enabled="true">
         <Property name="Authenticate">true</Property>

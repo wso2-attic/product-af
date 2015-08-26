@@ -563,7 +563,7 @@ public class DomainMappingManagementService {
                 String cnameHost;
                 while (cnameRecordHosts.hasMore()) {
                     isCNAMEFound = true;
-                    cnameHost = (String) cnameRecordHosts.next();
+                    cnameHost = (String) cnameRecordHosts.next();DNS
                     if (cnameHost.endsWith(".")) {
                         // Since DNS records are end with "." we are removing it.
                         // For example real dns entry for www.google.com is www.google.com.
