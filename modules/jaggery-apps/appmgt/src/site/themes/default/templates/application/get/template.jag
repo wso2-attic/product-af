@@ -50,11 +50,11 @@
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action"  title="Go Back">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action"  title="Back to Application listing">
             <span class="fw-stack fw-lg btn-action-ico">
                 <i class="fw fw-ring fw-stack-2x"></i>
                 <i class="fw fw-left-arrow fw-stack-1x"></i>
-            </span> Go Back
+            </span> Back to Application listing
     </a>
 </div>
 <!-- EOF App factory menu actionbar-->
@@ -188,7 +188,7 @@
               </div>
               <div class="col-md-4">
                   <div class="block-issues">
-                      <h3>Open Issues</h3>
+                      <h3>Issues</h3>
                       <div class="block-icon pull-left">
                           <span class="fa-stack fa-lg fa-3x">
                               <i class="fa fa-circle-thin fa-stack-2x"></i>
