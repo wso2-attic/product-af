@@ -4,9 +4,14 @@ var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
 var timer = null;
+var currentMessage = null;
 
 // page initialization
 $(document).ready(function() {
+    // show the application creation status as a notification
+    if("created" == userAction) {
+        showTopMessage("Application creation started.");
+    }
     // set current version
     setCurrentVersion();
     // initialize page and handlers
@@ -210,6 +215,7 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
         if(result) {
             var resJSON = jQuery.parseJSON(result);
             if(resJSON) {
+
                 // display app url
                 var repoUrlHtml = "<b>URL : </b>" + appURL;
                 if("Success" == resJSON.status) {
@@ -226,6 +232,7 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
 
                     // clear the timer if exist
                     clearTimeout(timer);
+                    hideTopMessage();
                 } else {
                    // remove status message
                    var repoUrlHtml = "<b>URL : </b>deployment in progress...";
@@ -452,6 +459,19 @@ function updateAppVersionPromoteStatus(nextState, version, nextStage) {
     function (jqXHR, textStatus, errorThrown) {
         console.log("Error while updating application promote status!");
     });
+}
+
+function showTopMessage(msg) {
+    if(msg) {
+        currentMessage = jagg.message({content:msg, type:'success', id:'notification' });
+    }
+}
+
+function hideTopMessage() {
+    if (currentMessage && currentMessage.options) {
+        var id = currentMessage.options.id;
+        jagg.removeMessageById(id);
+    }
 }
 
 // Utility Functions Goes Here

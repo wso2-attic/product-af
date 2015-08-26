@@ -125,6 +125,13 @@ var messageTimer;
 
     //jagg.popMessage({content:'Message'});
 
+
+    jagg.removeMessageById = function(id) {
+        if(id) {
+            $.noty.close(id);
+        }
+    };
+
     jagg.popMessage = function(params){
         // Included noty plugin implementation
         var allowedType = ["alert", "success", "error", "warning", "information", "confirm"];
@@ -176,7 +183,7 @@ var messageTimer;
 			jagg.removeMessage();
 		}
 	});
-	
+
 	jagg.getConvertedVersion=function(version){
 	    return version.replace(/\./g,'_');
 	};
