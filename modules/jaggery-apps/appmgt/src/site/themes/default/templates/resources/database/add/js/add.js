@@ -69,14 +69,8 @@ function validateAddNewDatabaseFileds() {
     if(!$("#database-name").val().trim()) {
         jagg.message({content:'Database name field cannot be empty',type:'error'});
         return false;
-    } else if($("#database-name").val().length > 4) {
-        jagg.message({content:'Database name should be less than 5 characters' , type:'error'});
-        return false;
     } else if(!$("#user-name").val().trim()) {
         jagg.message({content:'Default user name field cannot be empty',type:'error'});
-        return false;
-    } else if($("#user-name").val().length > 4) {
-        jagg.message({content:'Default user name should be less than 5 characters' , type:'error'});
         return false;
     } else if(!$('#password').val().trim()) {
         jagg.message({content:'Password field cannot be empty' , type:'error'});
