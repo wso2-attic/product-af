@@ -61,7 +61,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
+	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Cancel">
 			<span class="fw-stack fw-lg btn-action-ico">
 				<i class="fw fw-ring fw-stack-2x"></i>
 				<i class="fw fw-left-arrow fw-stack-1x"></i>

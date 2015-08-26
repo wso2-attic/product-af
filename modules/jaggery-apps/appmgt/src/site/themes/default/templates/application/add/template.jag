@@ -676,13 +676,13 @@ function showLoader(show){
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action" title="Back to app type selection">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to app type selection
         </a>
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action" title="Cancel">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fa fa-mail-reply-all fa-stack-1x"></i>

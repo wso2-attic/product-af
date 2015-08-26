@@ -442,7 +442,8 @@ function hideLoading() {
         <div class="container-fliud">
             <div class="row">
                 <div class="col-md-3 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                    <i class="fa fa-cubes visible-xs visible-lg"></i>
+                    <span class="hidden-xs"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a></span>
                 </div>
             </div>
         </div>
@@ -454,14 +455,14 @@ function hideLoading() {
    <div class="action-bar">
 
 
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New Application">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
                 </span> <span class="hidden-xs">Add New Application</span>
         </a>
 
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action" title="Upload Existing">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
@@ -505,7 +506,8 @@ function hideLoading() {
         <div class="container-fliud">
             <div class="row">
                 <div class="col-md-3 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                    <i class="fa fa-cubes visible-xs visible-lg"></i>
+                    <span class="hidden-xs"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a></span>
                 </div>
             </div>
         </div>
@@ -515,13 +517,13 @@ function hideLoading() {
         <% if (outputs.hasAppCreationPermission) { %>
     <div class="action-bar">
 
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New Application">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
                 </span> <span class="hidden-xs">Add New Application</span>
         </a>
-         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action" title="Upload Existing">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
