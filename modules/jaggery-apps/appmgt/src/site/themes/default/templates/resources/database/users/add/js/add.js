@@ -130,6 +130,13 @@ function getValidationOptions(){
                 $("#add-user").prop("disabled", true);
             }
             this.defaultShowErrors();
+        },
+        errorPlacement: function (error, element) {
+            if ($(element).hasClass("eye-icon")) {
+                error.insertAfter($(element).parent().find('span.hide-pass'));
+            } else {
+                error.insertAfter(element);
+            }
         }
     };
 }
