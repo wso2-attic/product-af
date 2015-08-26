@@ -94,40 +94,24 @@ public class GITBlitBasedGITRepositoryProvider implements RepositoryProvider {
      * @throws AppFactoryException
      */
     public boolean isRepoExist() throws AppFactoryException {
+	    boolean repoExists = false;
+	    try {
+		    Map<String, RepositoryModel> repoMap = RpcUtils.getRepositories(baseUrl, adminUsername, adminPassword.toCharArray());
 
-//        try {
-//            Map<String, RepositoryModel> repoMap = RpcUtils.getRepositories(baseUrl, adminUsername, adminPassword.
-//                    toCharArray());
-//
-//            return repoMap.containsKey(getAppRepositoryURL());
-//
-//        } catch (IOException e) {
-//            String msg = "Error while getting repositories from url " + baseUrl;
-//            log.error(msg, e);
-//            throw new AppFactoryException(msg, e);
-//        }
-
-
-        {
-            boolean repoExists = false;
-            try {
-                Map<String, RepositoryModel> repoMap = RpcUtils.getRepositories(baseUrl, adminUsername, adminPassword.toCharArray());
-
-                for (Map.Entry<String, RepositoryModel> entry : repoMap.entrySet()) {
-                    String key = ((String)entry.getKey()).split("r/")[1];
-                    repoExists = repoName.equals(key.split(".git")[0]);
-                    if (repoExists) {
-                        return repoExists;
-                    }
-                }
-            }
-            catch (IOException e) {
-                String msg = "Error while getting repositories from url " + baseUrl;
-                log.error(msg, e);
-                throw new AppFactoryException(msg, e);
-            }
-            return repoExists;
-        }
+		    for (Map.Entry<String, RepositoryModel> entry : repoMap.entrySet()) {
+			    String key = ((String)entry.getKey()).split("r/")[1];
+			    repoExists = repoName.equals(key.split(".git")[0]);
+			    if (repoExists) {
+				    return repoExists;
+			    }
+		    }
+	    }
+	    catch (IOException e) {
+		    String msg = "Error while getting repositories from url " + baseUrl;
+		    log.error(msg, e);
+		    throw new AppFactoryException(msg, e);
+	    }
+	    return repoExists;
     }
 
     public String getAppRepositoryURL() {
