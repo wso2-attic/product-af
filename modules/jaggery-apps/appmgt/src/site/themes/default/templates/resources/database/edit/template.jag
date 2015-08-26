@@ -230,7 +230,9 @@ $('.datatable table').dataTable({
             }
 });
 
-// Detach a user and drop priviledge template of a user
+/**
+* Detach a user and drop priviledge template of a user
+*/
 function detachUserAndDropTemplate(userName){
     // detach user from database
     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
@@ -260,7 +262,10 @@ function detachUserAndDropTemplate(userName){
             jagg.message({content:'Error occured while detaching the user from database' , type:'error', id:'userdetach'});
     });
 }
-// Attach a user to a database with selected permissions
+
+/**
+* Attach a user to a database with selected permissions
+*/
 function attachUserWithPermissions(userName, permissionsJson) {
     if(userName && permissionsJson) {
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
@@ -281,8 +286,9 @@ function attachUserWithPermissions(userName, permissionsJson) {
         });
     }
 }
-
-// Create a json object of priviledges with its checked/unchecked value
+/*
+* Create a json object of priviledges with its checked/unchecked value
+*/
 function getCheckedPriviledgesAsJson() {
     var priviledgeCheckboxes = document.getElementsByName('chkbx_priviledge');
     if(priviledgeCheckboxes.length == 0) {
@@ -301,7 +307,9 @@ function getCheckedPriviledgesAsJson() {
     return allPriviledges;
 }
 
-// Check whether at least one priviledge is selected before attaching user
+/**
+* Check whether at least one priviledge is selected before attaching user
+*/
 function priviledgeCheckboxValidation() {
     var checkboxes=document.getElementsByName('chkbx_priviledge');
     var atLeastOneChecked=false;
@@ -316,7 +324,9 @@ function priviledgeCheckboxValidation() {
     return atLeastOneChecked;
 }
 
-//Update priviledges of a user attached to a database
+/**
+* Update priviledges of a user attached to a database
+*/
 function editUserPriviledges(userName, permissionsJson) {
      jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"editUserPermissions",
@@ -334,7 +344,9 @@ function editUserPriviledges(userName, permissionsJson) {
         });
 }
 
-// Delete database user
+/**
+ * Delete database user
+*/
 function deleteUser(userName) {
         jagg.post("../blocks/resources/database/users/list/ajax/list.jag", {
             action:"deleteUser",
@@ -345,13 +357,13 @@ function deleteUser(userName) {
             document.location.reload(true);
         },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
-                jagg.message({content:'Error occurred while deleting user: ' + userName +
-                    'User might be already attached to a database.',type:'error', id:'dbusercreation' });
+                jagg.message({content:'Error occurred while deleting user: ' + userName + 'User already attached to a database.',type:'error', id:'dbusercreation' });
             }
         });
 }
-
-//When edit priviledges is clicked existing priviledges should be shown in the modal.
+/**
+* When edit priviledges is clicked existing priviledges should be shown in the modal.
+*/
 function markExistingPriviledges(userName) {
     //clear all checked boxes
     $('#priviledges_modal input:checkbox').prop('checked', false);
@@ -389,6 +401,7 @@ var priviledgeEnum = Object.freeze({
     "TRIGGER" : "triggerPriv"
 
 });
+
 </script>
 
 <%
