@@ -41,7 +41,7 @@ function loadAppIcon(appKey) {
     function (result) {
         if(result == 101) {
             // Application icon is not available, set the default
-            $(".app-icon").attr('src', servicePath  + '/site/themes/default/assets/img/app_icon.png');
+            $(".app-icon").attr('src', servicePath  + '/site/themes/default/images/dark-app-iconx256.jpg');
             console.info("101");
         } else {
             $(".app-icon").attr('src', iconUrl);
@@ -207,36 +207,32 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
     }, function (result) {
         if(result) {
             var resJSON = jQuery.parseJSON(result);
-            if(resJSON && "Success" == resJSON.status) {
+            if(resJSON) {
                 var appURL = resJSON.url;
                 // display app url
                 var repoUrlHtml = "<b>URL : </b>" + appURL;
-                $("#app-version-url").html(repoUrlHtml);
-                $('#version-url-link').attr({href:appURL});
-                $('#btn-launchApp').attr({url:appURL});
-
-                // set url to launch button
-                $('#btn-launchApp').removeAttr('disabled');
-                $('#version-url-link').removeAttr('disabled');
-                // create accept and deploy section
-                showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
-
-                // clear the timer if exist
-                clearTimeout(timer);
-            } else {
-                // remove status message
-                var repoUrlHtml = "<b>URL : </b>deployment in progress...";
-                $("#app-version-url").html(repoUrlHtml);
-                // disable links and buttons
-                $('#btn-launchApp').attr('disabled','disabled');
-                $('#version-url-link').attr('disabled','disabled');
-                // remove previous urls
-                $('#version-url-link').removeAttr('href');
-                $('#btn-launchApp').removeAttr('url');
-                hideAcceptAndDeploy();
-
-                // set the timer until the app get deployed
-                poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
+                if("Success" == resJSON.status){
+                    $("#app-version-url").html(repoUrlHtml);
+                    $('#version-url-link').attr({href:appURL});
+                    $('#btn-launchApp').attr({url:appURL});
+                    hideAcceptAndDeploy();
+                    // set the timer until the app get deployed
+                    poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
+                } else {
+                    // remove status message
+                    var repoUrlHtml = "<b>URL : </b>deployment in progress...";
+                    $("#app-version-url").html(repoUrlHtml);
+                    // disable links and buttons
+                    $('#btn-launchApp').attr('disabled','disabled');
+                    $('#version-url-link').attr('disabled','disabled');
+                    // remove previous urls
+                    $('#version-url-link').removeAttr('href');
+                    $('#btn-launchApp').removeAttr('url');
+                    // create accept and deploy section
+                    showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
+                    // clear the timer if exist
+                    clearTimeout(timer);
+                }
             }
         }
     }, function (jqXHR, textStatus, errorThrown) {

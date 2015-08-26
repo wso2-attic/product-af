@@ -28,25 +28,24 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 
     //event completion timeout is set to 30 mins (=1800s)
     var stateCompletionTimeoutDuration = 1800;
-
     %>
+
     <!-- After moving all the pages to new UX styles, we need to remove below two resources. -->
     <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/jquery.qtip.min.css'))%>">
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
-
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
     <script type="text/javascript">
 
 
-
-    function pollNotifications(){
-    var userName = $("#userName").attr('value');
+    function pollNotifications() {
+        var userName = $("#userName").attr('value');
         jagg.post("../blocks/events/listen/ajax/listen.jag", {
             action: "listen",
             appId:'<%=applicationKey%>',
         pageName:'<%=pageName%>',
         userName: userName
     },
+
     function (result) {
         $("#notificationBar").empty();
         var obj = jQuery.parseJSON(result);
@@ -54,8 +53,8 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 	    obj = obj.list;
 
 	    if(obj) {
-	    var correlationKeyArray = [];
-            for(var i=obj.length-1;i>-1;i--){
+            var correlationKeyArray = [];
+            for(var i=obj.length-1;i>-1;i--) {
                 var event = jQuery.parseJSON(obj[i]);
                 var category = event.object.category;
 
@@ -67,114 +66,112 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
                     iClass = "fw fw-error ";
                 }
 
-		if(event.properties.state == "COMPLETE"){
+                if(event.properties.state == "COMPLETE"){
                     correlationKeyArray.push(event.properties.correlationKey);
                 }
-                
-                
+
                 if(event.properties.state == "START" && correlationKeyArray.indexOf(event.properties.correlationKey) == -1){
                     iClass = "fa fa-spinner fa-pulse fa-spin spin-overide";
                     if(eventStateCompletionTimeout(retrievedTime, event.published)){
                         iClass = "icon-remove-circle";
                     }
                 }
-                
 
-		if(event.properties.state == "DELETE"){
-                        break;
+                if(event.properties.state == "DELETE") {
+                    break;
                 }
-                    $("#notificationBar").append(
-                        $('<div class="' + notificationMsgClass + '">'+'<div class="msg "><i class="' + 
-                            iClass + '"></i><span>' +  event.object.title + getNotificationDetails(event.object.content) + 
-                            '</span></div>' + '<div class="notification-time">' + getTimeDetails(retrievedTime, event.published) + 
-                            '</div></div>'
-                        ));
+
+                $("#notificationBar").append(
+                    $('<div class="' + notificationMsgClass + '">'+'<div class="msg "><i class="' +
+                        iClass + '"></i><span>' +  event.object.title + getNotificationDetails(event.object.content) +
+                        '</span></div>' + '<div class="notification-time">' + getTimeDetails(retrievedTime, event.published) +
+                        '</div></div>'
+                ));
             }
         }
         setTimeout(pollNotifications,'<%=polling_period%>');
     },
-    function (jqXHR, textStatus, errorThrown) {
-
-    });
+    function (jqXHR, textStatus, errorThrown) {});
 }
 
-$(document).ready(function () {
-    pollNotifications();
-    $('.side-pane-trigger').click(function(){
-        var rightPane = $('.right-pane');
-        var leftPane = $('.left-pane');
-        if (rightPane.hasClass('visible')){
-            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-            leftPane.animate({"left":"-18em"}, "slow");
-            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-        } else {
-            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-            leftPane.animate({"left":"0em"}, "slow");
-            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-        }
-    });
-
-    $('.notification-pane-trigger').click(function(){
-        var notificationPane = $('.notification-pane');
-        if(notificationPane.hasClass('visible')){
-            notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
-        }else{
-            notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
-        }
-    });
-    var scrollHeight = $('.notification-pane').height() - 150;
-    $('.notifications').css('height', scrollHeight);
-    $(".nano").nanoScroller();
-});
-
-        //to get time details
-        function getTimeDetails(retrievedTime, publishedTime){
-            //time Difference in seconds
-	    var timeDiff = Math.round((retrievedTime - publishedTime)/1000);
-
-             if(timeDiff < 60) {
-                return timeDiff + " seconds ago";
-             } else if (timeDiff < (60*60)) {
-                return Math.round(timeDiff/60) + " minutes ago";
-             } else if(timeDiff < (60*60*24)) {
-                return Math.round(timeDiff/(60*60)) + " hours ago";
-             }  else {
-                return Math.round(timeDiff/(60*60*24)) + " days ago";
-             }
-        }
-
-	 //The continuous spinning icon goes away after the configured time interval
-        function eventStateCompletionTimeout(retrievedTime, publishedTime){
-                //time Difference in seconds
-                var timeDiff = Math.round((retrievedTime - publishedTime)/1000);
-
-                //if the timeDifference is greater than the event completion timeout
-                if (timeDiff > '<%=stateCompletionTimeoutDuration%>') {
-                    return true;
-                }
-             }
-
-
-        function getNotificationDetails(eventcontent){
-            var html = "";
-            if(eventcontent){
-               html = '<span class="info-left" data-tooltip="'+eventcontent+'"><i class="icon-info-sign"></i></span> ';
+    $(document).ready(function () {
+        pollNotifications();
+        $('.side-pane-trigger').click(function() {
+            var rightPane = $('.right-pane');
+            var leftPane = $('.left-pane');
+            if (rightPane.hasClass('visible')) {
+                rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
+                leftPane.animate({"left":"-18em"}, "slow");
+                $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
+            } else {
+                rightPane.animate({"left":"18em"}, "slow").addClass('visible');
+                leftPane.animate({"left":"0em"}, "slow");
+                $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
             }
-            return html;
+        });
+
+        $('.notification-pane-trigger').click(function() {
+            var notificationPane = $('.notification-pane');
+            var notiTrigger = $('.notification-pane-trigger');
+            if(notificationPane.hasClass('visible')) {
+                notiTrigger.find('i').removeClass('fw-notification').addClass('fw-right-arrow');
+                notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+            } else {
+                notiTrigger.find('i').removeClass('fw-right-arrow').addClass('fw-notification');
+                notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+            }
+        });
+        var scrollHeight = $('.notification-pane').height() - 150;
+        $('.notifications').css('height', scrollHeight);
+        $(".nano").nanoScroller();
+    });
+
+    //to get time details
+    function getTimeDetails(retrievedTime, publishedTime) {
+        //time Difference in seconds
+        var timeDiff = Math.round((retrievedTime - publishedTime)/1000);
+
+        if(timeDiff < 60) {
+        return timeDiff + " seconds ago";
+        } else if (timeDiff < (60*60)) {
+        return Math.round(timeDiff/60) + " minutes ago";
+        } else if(timeDiff < (60*60*24)) {
+        return Math.round(timeDiff/(60*60)) + " hours ago";
+        }  else {
+        return Math.round(timeDiff/(60*60*24)) + " days ago";
         }
+    }
+
+    //The continuous spinning icon goes away after the configured time interval
+    function eventStateCompletionTimeout(retrievedTime, publishedTime) {
+        //time Difference in seconds
+        var timeDiff = Math.round((retrievedTime - publishedTime)/1000);
+
+        //if the timeDifference is greater than the event completion timeout
+        if (timeDiff > '<%=stateCompletionTimeoutDuration%>') {
+            return true;
+        }
+    }
+
+
+    function getNotificationDetails(eventcontent) {
+        var html = "";
+        if(eventcontent) {
+           html = '<span class="info-left" data-tooltip="'+eventcontent+'"><i class="icon-info-sign"></i></span> ';
+        }
+        return html;
+    }
 
 </script>
+
 <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
 <div class="notification-pane nano" id="notificationWrapper">
     <div class="notification-pane-trigger">
-            <i class="fw fw-bell fw-1-5x"></i>
+        <i class="fw fw-right-arrow fw-1-5x"></i>
     </div>
-
-    <div id="notificationBar" class="notifications nano-content">
-    </div>
-
+    <div id="notificationBar" class="notifications nano-content"></div>
 </div>
-    <%
+<%
 });
 %>
 

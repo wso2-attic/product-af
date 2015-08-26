@@ -31,7 +31,7 @@ language=appInfo.language;
 
  <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="#" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
@@ -43,7 +43,8 @@ language=appInfo.language;
             <div class="col-md-5 col-lg-5 forms">
                     <div class="form-group col-md-12 ">
                         <label for="database-name">Database Name: </label>
-                        <input type="text" class="form-control" id="database-name" placeholder="Enter database name">
+                        <input type="text" class="form-control" id="database-name" placeholder="Enter the database
+                        name">
                     </div>
                     <div class="form-group col-md-12">
                         <label for="description">Description: </label>
@@ -52,7 +53,7 @@ language=appInfo.language;
 
                     <div class="form-group col-md-6">
                         <label for="stage">Stage: </label>
-                        <!--input type="text" class="form-control" id="user-name" placeholder="Enter user name"-->
+                        <!--this should be changed to get stages dynamically-->
                         <select id="stage" class="form-control select2">
                             <option value="Development">Development</option>
                             <option value="Testing">Testing</option>
@@ -64,15 +65,16 @@ language=appInfo.language;
                     
                     <div class="form-group col-md-6">
                         <label for="user-name">Default User Name: </label>
-                        <input type="text" class="form-control" id="user-name" placeholder="Enter user name">
+                        <input type="text" class="form-control" id="user-name" placeholder="Enter the user name">
                     </div>
 
                     <div class="clearfix"></div>
 
                     <div class="form-group col-md-6">
                             <label for="password">Default Password: </label>
-                            <input type="password" class="form-control" id="password" placeholder="add your password"
-                                   data-schemaformat="password" >
+                            <input type="password" class="form-control" id="password" placeholder="Add your password"
+                             data-schemaformat="password" >
+                            <div class="strength-meter"></div>
                     </div>
                     <div class="col-md-6">
                         <button type="button" class="btn btn-default password-generator">Generate Password</button>
@@ -82,7 +84,7 @@ language=appInfo.language;
                     <div class="form-group col-md-6">
                             <label for="password-confirm">Confirm Password: </label>
                             <input type="password" class="form-control" id="password-confirm"
-                                   placeholder="confirm your password" data-schemaformat="password">
+                                   placeholder="Confirm your password" data-schemaformat="password">
                     </div>
 
                     <div class="clearfix"></div>
@@ -125,6 +127,7 @@ language=appInfo.language;
     var appKey = "<%=applicationKey%>";
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/resources/database/add/js/add.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/pwstrength-1.2.7/pwstrength-bootstrap-1.2.7.min.js'))%>"></script>
 <% jagg.includeBlock("page/messages", null); %>
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"New Database"}); %>

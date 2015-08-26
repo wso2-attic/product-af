@@ -880,7 +880,7 @@ var generateDatabaseInfoForDataTable = function (applicationKey, applicationName
     var allDBInfo = [];
     for (var i = 0; i < allStages.length; i++) {
         var allDatabasesPerStage = rssFilter.getAllDatabasesInfo(applicationKey, allStages[i]);
-        for(var j in allDatabasesPerStage) { 
+        for(var j in allDatabasesPerStage) {
             var singleDatabaseInfo = allDatabasesPerStage[j];
             var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
             singleDatabaseInfo.database_url = dbUrl;
@@ -889,16 +889,15 @@ var generateDatabaseInfoForDataTable = function (applicationKey, applicationName
 												 + applicationName + "&applicationKey=" + applicationKey + "&dbName="
 												 + singleDatabaseInfo.name + "&environment=" + singleDatabaseInfo.stage
 												 + "'><i class='fa fa-edit'></i></a>";
-			singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
+			singleDatabaseInfo.trash = '<a class="delete_db" stage="' + singleDatabaseInfo.stage + '" id="delete_' + singleDatabaseInfo.name + '" href="#"><i class="fa  fa-trash"></i></a>';
 			// currently we dont record database type, support only MySQL.change this when multiple types are allowed
 			singleDatabaseInfo.type = "MySQL";
 
             allDBInfo.push(singleDatabaseInfo);
-        } 
+        }
     }
     return stringify(allDBInfo);
 };
-
 /**
 * Convert db priviledges json object to string
 * eg : [{"deletePriv": "Y", "dropPriv": "Y", "eventPriv": "Y"}] --> DELETE, DROP, EVENT
