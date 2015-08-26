@@ -67,8 +67,8 @@ language=appInfo.language;
                         <tr>
                             <th>User Name</th>
                             <th>Attach user to Database</th>
-                            <th>Priviledges</th>
-                            <th>Edit Priviledges</th>
+                            <th>Privileges</th>
+                            <th>Edit Privileges</th>
                             <th>Delete</th>
                         </tr>
                         </thead>
