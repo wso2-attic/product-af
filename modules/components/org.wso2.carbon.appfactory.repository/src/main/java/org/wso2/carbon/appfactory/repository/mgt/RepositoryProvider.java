@@ -122,6 +122,14 @@ public interface RepositoryProvider {
     public boolean deleteTenantRepo(String tenantId) throws RepositoryMgtException;
 
     /**
+     * Delete the given repository from stratos artifact repo
+     * @param repoName
+     * @return
+     * @throws RepositoryMgtException
+     */
+    public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException;
+
+    /**
      *
      * @param applicationKey
      * @throws RepositoryMgtException

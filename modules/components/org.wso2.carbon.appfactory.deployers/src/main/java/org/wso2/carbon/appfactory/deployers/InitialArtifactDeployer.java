@@ -71,6 +71,11 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 	}
 
 	@Override
+	protected String getStratosServerURL() throws AppFactoryException {
+		return null;
+	}
+
+	@Override
 	protected String getAdminUserName() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
 				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);

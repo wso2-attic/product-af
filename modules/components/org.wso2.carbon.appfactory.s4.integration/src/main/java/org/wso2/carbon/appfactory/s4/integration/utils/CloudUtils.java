@@ -43,6 +43,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
@@ -100,9 +101,9 @@ public class CloudUtils {
 	 */
 	public static boolean isAWSRoute53Enabled() {
 		return Boolean.parseBoolean(ServiceReferenceHolder.getInstance()
-		                                                  .getAppFactoryConfiguration()
-		                                                  .getFirstProperty("EnableAWSRoute53")
-		                                                  .trim());
+				                            .getAppFactoryConfiguration()
+				                            .getFirstProperty("EnableAWSRoute53")
+				                            .trim());
 	}
 
 	/**
@@ -256,5 +257,44 @@ public class CloudUtils {
 		String date = getMethod.getResponseHeader("Date").getValue();
 		return date;
 
+	}
+
+	/**
+	 * Generate a UniqueId for single tenant applications using the following format
+	 * {tenantId}-{applicationId}-{application-version}-{stage}
+	 *
+	 * @param tenantId
+	 * @param applicationId
+	 * @param version
+	 * @return
+	 */
+	public static String generateUniqueStratosApplicationId(int tenantId, String applicationId, String version,
+	                                                        String stage) {
+		return tenantId + AppFactoryConstants.HYPHEN + applicationId + AppFactoryConstants.HYPHEN
+		       + (version + "").replace(AppFactoryConstants.DOT, AppFactoryConstants.HYPHEN) + AppFactoryConstants.HYPHEN
+		       + stage;
+	}
+
+	/**
+	 * Generate the Stratos artifact repository name
+	 *
+	 * @param paasRepositoryURLPattern Ex : {@stage}/tomcat
+	 * @param stage
+	 * @param version
+	 * @param applicationId
+	 * @param tenantId
+	 * @return repository name
+	 */
+	public static String generateSingleTenantArtifactRepositoryName(String paasRepositoryURLPattern, String stage,
+	                                                                String version, String applicationId,
+	                                                                int tenantId) {
+		//needs to replace dot(.) with minus(-) cause git doesn't allow
+		version = version.replaceAll("\\.+", AppFactoryConstants.MINUS);
+		String gitRepoName = AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+		                     + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR
+		                     + applicationId + AppFactoryConstants.MINUS + version
+		                     + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
+		gitRepoName = gitRepoName.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
+		return gitRepoName;
 	}
 }

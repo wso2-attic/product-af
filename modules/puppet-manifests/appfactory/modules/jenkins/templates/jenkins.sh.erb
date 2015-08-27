@@ -30,7 +30,10 @@ PIDFILE=<%= @jenkins_home %>/${NAME}.pid
 JAVA_CMD="java -jar "
 OPTIONAL_JAVA_OPTS=""
 DEFAULT_JAVA_OPTS=" -Djavax.net.ssl.trustStore=<%= @clientTrustStore_location %>
-                    -Djavax.net.ssl.trustStorePassword=<%= @clientrustStore_password %> "
+                    -Djavax.net.ssl.trustStorePassword=<%= @clientrustStore_password %>
+                    -Djavax.net.ssl.trustStorePassword=<%= @clientrustStore_password %>
+                    -Djavax.net.ssl.keyStore=<%= @jenkins_keystore_name %>
+                    -Djavax.net.ssl.keyStorePassword=<%= @jenkins_keystore_password %>"
 DEFAULT_JENKINS_OPTS=" --httpPort=-1 --httpsPort=<%= @jenkins_port %>
                     --httpsKeyStore=<%= @jenkins_keystore_name %>
                     --httpsKeyStorePassword=<%= @jenkins_keystore_password %>
