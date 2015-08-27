@@ -1655,3 +1655,22 @@ a.btn-action {
     background: none repeat scroll 0 0 #27ae60;/* best */
     width: 100%;
 }
+
+
+/**
+ *
+ * Css fix classes added
+ *
+ **/
+
+.tmp-logo-responsive-fix{
+    padding: 0px 15px;
+    width: 175px;
+    float: left;
+}
+
+.tmp-anchor-fix{
+    color:#fff;
+}
+
+
