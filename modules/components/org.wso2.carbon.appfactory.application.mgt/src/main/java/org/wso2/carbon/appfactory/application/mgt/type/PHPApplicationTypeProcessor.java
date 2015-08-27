@@ -99,8 +99,9 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = AppFactoryCoreUtil.getCartridgeAlias(applicationId, tenantDomain);
 
-        StratosRestService restService = new StratosRestService(serverURL, userName, StringUtils.EMPTY);
-        String clusterId = restService.getSubscribedCartridgeClusterId(cartridgeAlias);
+        StratosRestService restService =StratosRestService.getInstance(serverURL, userName);
+        //TODO : implement this using new api
+        String clusterId = null;
 
         // get data from runtime db
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();

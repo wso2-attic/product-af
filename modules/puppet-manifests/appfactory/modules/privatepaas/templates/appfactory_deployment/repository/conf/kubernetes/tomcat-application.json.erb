@@ -1,0 +1,25 @@
+{
+    "applicationId": "single-cartridge-app",
+    "alias": "single-cartridge-app",
+    "multiTenant": false,
+    "components": {
+        "cartridges": [
+            {
+                "type": "tomcat",
+                "cartridgeMin": 1,
+                "cartridgeMax": 1,
+                "subscribableInfo": {
+                    "alias": "my-tomcat-1",
+                    "autoscalingPolicy": "autoscaling-policy-st",
+                    "deploymentPolicy": "deployment-policy-st",
+                    "artifactRepository": {
+                        "privateRepo": true,
+                        "repoUrl": "https://admin@s2git.appfactory.private.wso2.com:8444/r/Development/tomcat/1/tomeexrt-trunk.git",
+                        "repoUsername": "admin",
+                        "repoPassword": "admin"
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -16,11 +16,15 @@
     curl -X POST -H "Content-Type: application/json" -d @"wso2as_test.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
     curl -X POST -H "Content-Type: application/json" -d @"wso2as_prod.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
 
+    echo "Adding tomcat cartridge..."
+    curl -X POST -H "Content-Type: application/json" -d @"tomcat.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
+
     sleep 1
     echo "Adding application policy..."
     curl -X POST -H "Content-Type: application/json" -d @"application-policy_dev.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applicationPolicies
     curl -X POST -H "Content-Type: application/json" -d @"application-policy_test.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applicationPolicies
     curl -X POST -H "Content-Type: application/json" -d @"application-policy_prod.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applicationPolicies
+    curl -X POST -H "Content-Type: application/json" -d @"application-policy-st.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applicationPolicies
 
     sleep 1
     echo "Adding application..."

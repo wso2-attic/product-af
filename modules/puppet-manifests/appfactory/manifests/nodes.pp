@@ -365,6 +365,12 @@ node confignode inherits basenode  {
   $deployment_policy    = "af-deployment"
   $autoscale_policy     = "economy"
 
+#Single Tenant Applicatoin configs
+  $single_tenant_application_policy_id = "application-policy-st"
+
+  $autoscaling_policy_id = "autoscaling-policy"
+  $deployment_policy_id = "deployment-policy"
+
   $appserver_cartridge_alias_prefix      = "as"
   $appserver_cartridge_type_prefix       = "${dev_id}as"
 
@@ -1103,7 +1109,15 @@ node /ppaas/ inherits confignode {
   }
 }
 
+node /nginx/ inherits confignode {
+  $server_ip = $ipaddress
 
+  class { "nginx":
+    owner              => $owner,
+    group              => $group,
+    target             => "/mnt/${server_ip}/nginx",
+  }
+}
 #########################################
 ###### END of the production setup ######
 #########################################
