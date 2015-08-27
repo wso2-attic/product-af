@@ -141,9 +141,9 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
         String cartridgeAlias = getCartridgeAlias(applicationId, applicationVersion, tenantDomain,
                 subscribeOnDeployment);
 
-        StratosRestService restService =
-                new StratosRestService(serverURL, userName, StringUtils.EMPTY);
-        String clusterId = restService.getSubscribedCartridgeClusterId(cartridgeAlias);
+        StratosRestService restService =StratosRestService.getInstance(serverURL, userName);
+        //TODO : implement this using new api
+        String clusterId = null;
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
 
         try {

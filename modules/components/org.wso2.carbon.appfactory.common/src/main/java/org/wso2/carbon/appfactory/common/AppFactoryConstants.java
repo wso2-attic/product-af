@@ -109,6 +109,9 @@ public class AppFactoryConstants {
 	*  constants for cartridge subscription info
 	* */
 	public static final String APPEND_STAGE_TO_CARTRIDGE_INFO = "AppendStageToCartridgeInfo";
+	public static final String STRATOS_APP_ID ="StratosApplicationId";
+	public static final String STRATOS_APP_STATUS_DEPLOYED ="Deployed";
+	public static final String STRATOS_RUNTIME_STATUS_ACTIVE ="Active";
 
     /**
      * Defining archetype related constants
@@ -388,7 +391,11 @@ public class AppFactoryConstants {
     public static final String UNDER_SCORE = "_";
     public static final String DOT = ".";
     public static final String HYPHEN = "-";
+	public static final String STRATOS_SERVER_URL = "stratosServerUrl";
+	public static final String DEPLOYMENT_ENVIRONMENT = "ApplicationDeployment.DeploymentStage";
 
+	//Using Mutual SSL for authentication,hence use a dummy password
+	public static final String STRATOS_REST_SERVICE_PASSWORD = "nopassword";
 
 	public static final String APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR = "-";
 

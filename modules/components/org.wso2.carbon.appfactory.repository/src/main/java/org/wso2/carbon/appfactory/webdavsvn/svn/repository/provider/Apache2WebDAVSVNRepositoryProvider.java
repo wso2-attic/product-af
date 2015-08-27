@@ -142,6 +142,11 @@ public static final String REMOTE_HOST_SUPER_USER_PASSWORD="RemoteHostSuperUserP
 	}
 
     @Override
+    public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException {
+
+    }
+
+    @Override
     public String createForkRepo(String applicationKey, String userName) throws RepositoryMgtException {
         return null;
     }

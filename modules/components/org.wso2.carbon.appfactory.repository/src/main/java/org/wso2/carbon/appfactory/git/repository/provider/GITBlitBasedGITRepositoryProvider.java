@@ -318,6 +318,24 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 		}
 	}
 
+	@Override
+	public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException {
+		String repoUrl = config.getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_BASE_URL);
+		String adminUsername = config.getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_USER_NAME);
+		String adminPassword = config.getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
+
+		RepositoryModel model = new RepositoryModel();
+		model.name = repoName;
+
+		try {
+			RepositoryModel retrievedRepo = findRepository(model.name, repoUrl, adminUsername, adminPassword);
+			RpcUtils.deleteRepository(retrievedRepo, repoUrl, adminUsername, adminPassword.toCharArray());
+		} catch (IOException e) {
+			String msg = "Repository is not deleted for " + repoName + " due to " + e.getLocalizedMessage();
+			throw new RepositoryMgtException(msg, e);
+		}
+	}
+
 	/**
 	 * Creating a fork repository.
 	 * 

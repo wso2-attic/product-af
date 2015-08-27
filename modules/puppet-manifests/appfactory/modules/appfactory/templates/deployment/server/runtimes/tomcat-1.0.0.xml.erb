@@ -1,0 +1,10 @@
+<Runtime>
+    <Runtime>tomcat</Runtime>
+    <PAASArtifactStorageURLPattern>{@stage}/tomcat</PAASArtifactStorageURLPattern>
+    <AliasPrefix>asi</AliasPrefix>
+    <MultiTenant>false</MultiTenant>
+    <CartridgeTypePrefix><%= @dev_id =%></CartridgeTypePrefix>
+    <DeploymentPolicy><%=@deploymeny_policy_id =%></DeploymentPolicy>
+    <AutoscalePolicy><%= @autoscaling_policy_id =%></AutoscalePolicy>
+    <SubscribeOnDeployment>true</SubscribeOnDeployment>
+</Runtime>

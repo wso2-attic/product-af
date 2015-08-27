@@ -24,8 +24,10 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -43,17 +45,17 @@ public class MutualAuthHttpClient {
     /**
      * Send rest POST request to Stratos SM.
      *
-     * @param body                          message body
+     * @param body        message body
      * @param endPointUrl end point to send the message
      * @throws org.wso2.carbon.appfactory.common.AppFactoryException
      */
-    public static ServerResponse sendPostRequest(String body, String endPointUrl)
+    public static ServerResponse sendPostRequest(String body, String endPointUrl, String username)
             throws AppFactoryException {
         HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         PostMethod postMethod = new PostMethod(endPointUrl);
 
         // password as garbage value since we authenticate with mutual ssl
-        postMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue());
+        postMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue(username));
         StringRequestEntity requestEntity;
         try {
             requestEntity = new StringRequestEntity(body, "application/json", "UTF-8");
@@ -67,32 +69,16 @@ public class MutualAuthHttpClient {
     }
 
     /**
-     * Get auth header value
-     *
-     * @return auth header in basic encode
-     */
-    private static String getAuthHeaderValue() {
-        String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@"
-                          + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-        // password as garbage value since we authenticate with mutual ssl.
-        // We need to set the auth header for requests with the username.
-        byte[] getUserPasswordInBytes = (userName + ":nopassword").getBytes();
-        String encodedValue = new String(Base64.encodeBase64(getUserPasswordInBytes));
-        return "Basic " + encodedValue;
-    }
-
-    /**
      * Send REST DELETE request to stratos SM.
      *
      * @param endPointUrl end point to send the message
      * @throws org.wso2.carbon.appfactory.common.AppFactoryException
      */
-    public static ServerResponse sendDeleteRequest(String endPointUrl)
+    public static ServerResponse sendDeleteRequest(String endPointUrl, String username)
             throws AppFactoryException {
         HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         DeleteMethod deleteMethod = new DeleteMethod(endPointUrl);
-        deleteMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue());
+        deleteMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue(username));
         return send(httpClient, deleteMethod);
     }
 
@@ -102,11 +88,11 @@ public class MutualAuthHttpClient {
      * @param endPointUrl end point to send the message
      * @throws org.wso2.carbon.appfactory.common.AppFactoryException
      */
-    public static ServerResponse sendGetRequest(String endPointUrl)
+    public static ServerResponse sendGetRequest(String endPointUrl, String username)
             throws AppFactoryException {
         HttpClient httpClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         GetMethod getMethod = new GetMethod(endPointUrl);
-        getMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue());
+        getMethod.setRequestHeader(AUTHORIZATION_HEADER, getAuthHeaderValue(username));
         return send(httpClient, getMethod);
     }
 
@@ -141,5 +127,23 @@ public class MutualAuthHttpClient {
             log.debug("Response id: " + responseCode + " message:  " + responseString);
         }
         return new ServerResponse(responseString, responseCode);
+    }
+
+    /**
+     * Get auth header value
+     *
+     * @return auth header in basic encode
+     */
+    private static String getAuthHeaderValue(String username) {
+        //get user name from thread local if it's empty
+        if (StringUtils.isNotBlank(username)) {
+            username = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@"
+                       + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        }
+        // password as garbage value since we authenticate with mutual ssl.
+        // We need to set the auth header for requests with the username.
+        byte[] getUserPasswordInBytes = (username + ":" + AppFactoryConstants.STRATOS_REST_SERVICE_PASSWORD).getBytes();
+        String encodedValue = new String(Base64.encodeBase64(getUserPasswordInBytes));
+        return "Basic " + encodedValue;
     }
 }
