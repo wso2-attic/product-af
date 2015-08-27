@@ -120,32 +120,52 @@ if(parse(dbInfoForDataTable).length > 0){
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
 <script>
+$( document ).ready(function() {
+    populateDatatable();
+});
 
-    $('.datatable table').dataTable({
-            responsive: true,
-            "orderCellsTop": true,
-            data : <%=dbInfoForDataTable%>,
-            "columns": [
-                { "data": "name", "width": "5%"},
-                { "data": "stage", "width": "8%"},
-                { "data": "description" , "width": "30%"},
-                { "data": "database_url" , "width": "30%"},
-                { "data": "type", "width": "5%" },
-                { "data": "userpriviledges", "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
-                { "data": "trash", "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
-            ],
-            "fnDrawCallback": function( oSettings ) {
-                $('.delete_db').on("click",function(){
-                    var currentId = $(this).attr("id");
-                    var environment = $(this).attr("stage");
-                    //getting the database name from  id
-                    var dbName = currentId.substr(7);
-                    jagg.popMessage({type:'confirm',title:'Delete Database',content:'Are you sure you want to delete the database ' + dbName + ' ?', okCallback:function(){deleteDatabase(dbName, environment);}, cancelCallback:function(){}});
+function populateDatatable() {
+    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+            action:"getDatabaseInfoForDataTable",
+            applicationKey:'<%=applicationKey%>',
+            applicationName:'<%=applicationName%>'
+        }, function (result) {
+console.log(result);
+            if(result){
+                // draw datatable
+                 $('.datatable table').dataTable({
+                     responsive: true,
+                    "orderCellsTop": true,
+                    data : 'result',
+                    "columns": [
+                        { "data": "name", "width": "5%"},
+                        { "data": "stage", "width": "8%"},
+                        { "data": "description" , "width": "30%"},
+                        { "data": "database_url" , "width": "30%"},
+                        { "data": "type", "width": "5%" },
+                        { "data": "userpriviledges", "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
+                        { "data": "trash", "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
+                    ],
+                    "fnDrawCallback": function( oSettings ) {
+                        $('.delete_db').on("click",function(){
+                            var currentId = $(this).attr("id");
+                            var environment = $(this).attr("stage");
+                            //getting the database name from  id
+                            var dbName = currentId.substr(7);
+                            jagg.popMessage({type:'confirm',title:'Delete Database',content:'Are you sure you want to delete the database ' + dbName + ' ?', okCallback:function(){deleteDatabase(dbName, environment);}, cancelCallback:function(){}});
+                        });
+                    }
                 });
+                // end of draw data table
             }
-        });
+        }, function (jqXHR, textStatus, errorThrown) {
+            jagg.message({type:'error',content:'Database deletion failed for ' + dbName , id:'delete_db'});
+    }); 
+}
 
-//Delete database
+/**
+* Delete a database
+*/
 function deleteDatabase(dbName,environment) {
     jagg.post("../blocks/resources/database/drop/ajax/drop.jag", {
             action:"dropDatabase",
