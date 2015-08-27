@@ -694,8 +694,8 @@ function showLoader(show){
 
     <div class="container-fluid cloud-container">
         <div class="row">
-            <div class="col-md-1">
-                <div class="cloud-selected-app-type <%=request.getParameter("apptypeIconColor")%>">
+            <div class="tmp-logo-responsive-fix">
+                <div class="cloud-selected-app-type  <%=request.getParameter("apptypeIconColor")%>">
                     <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-5x"></i>
                 </div>
             </div>
