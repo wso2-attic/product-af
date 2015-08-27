@@ -1,3 +1,23 @@
+/*
+ *
+ *   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ * /
+ */
+
 $( document ).ready(function() {
 //select 2
 $('select').select2();
@@ -12,6 +32,7 @@ $('select').select2();
 
 //add show /hide option on user passsword field
     $('input[type=password]').after('<span class="hide-pass" title="Show/Hide Password"><i class="fa fa-eye"></i> </span>');
+    var highPass = $('.hide-pass');
     $('.hide-pass').click(function(){
         if($(this).find('i').hasClass("fa-eye-slash")){
             $(this).parent().find('input[data-schemaformat=password]').attr('type', 'password');
@@ -110,7 +131,7 @@ $('select').select2();
 
 // add new database
 function addNewDatabase(){
-    if(validateEmptyFileds()) {
+    if(validateFileds()) {
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action: "createDatabaseAndAttachUser",
             applicationKey: appKey,
@@ -137,7 +158,7 @@ function addNewDatabase(){
 }
 
 // validate user inputs in add new database fields
-function validateEmptyFileds() {
+function validateFileds() {
     if(!$("#database-name").val().trim()) {
         jagg.message({content:'Database name field cannot be empty',type:'error'});
         return false;
@@ -147,6 +168,9 @@ function validateEmptyFileds() {
     } else if(!$('#password').val().trim()) {
         jagg.message({content:'Password field cannot be empty' , type:'error'});
         return false;
+    } else if($('#password').val().trim()!= $('#password-confirm').val().trim()) {
+            jagg.message({content:'Password and confirm password fields does not match' , type:'error'});
+            return false;
     } else {
         return true;
     }
