@@ -1,0 +1,43 @@
+{
+    "type": "tomcat",
+    "provider": "apache",
+    "host": "<%= @domain %>",
+    "category": "framework",
+    "displayName": "Tomcat 7",
+    "description": "Tomcat 7 Cartridge",
+    "version": "7",
+    "multiTenant": "false",
+    "loadBalancingIPType": "public",
+    "portMapping": [
+        {
+            "name": "http-8080",
+            "protocol": "http",
+            "port": "8080",
+            "proxyPort": "80",
+            "kubernetesPortType":"NodePort"
+        }
+    ],
+    "deployment": {
+        "baseDir": "/opt/tomcat/webapps"
+    },
+    "iaasProvider": [
+        {
+            "type": "kubernetes",
+            "imageId": "stratos/tomcat:4.1.1",
+            "networkInterfaces": [
+            ],
+            "property": [
+            ]
+        }
+    ],
+    "property":[
+           {
+              "name": "payload_parameter.S2GIT_IP",
+              "value": "<%= @ipaddress %>"
+           },
+           {
+             "name": "payload_parameter.S2GIT_DOMAIN",
+             "value": "s2git.<%= @domain %>"
+           }
+    ]
+}
