@@ -268,6 +268,8 @@ function poolUntilAppDeploy(callback, appInfo, currentAppInfo) {
 
 // load code envy editor
 function createCodeEnvyUrl(gitURL) {
+    var codeEnvyUrl = null;
+    var newWindow = window.open('','_blank');
     jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
             action: "createCodeEnvyUrl",
             gitURL: gitURL,
@@ -275,11 +277,16 @@ function createCodeEnvyUrl(gitURL) {
             appType: applicationInfo.type,
             version:currentVersion
         }, function (result) {
-            if(result) {
-                var newWindow = window.open('','_blank');
-                newWindow.location = result;
-            } else {
-                jagg.message({content: "Failed creating the Codenvy workspace URL! ", type: 'error', id:'message_id'});
+            codeEnvyUrl = result;
+            if(codeEnvyUrl==="" || codeEnvyUrl==null){
+                jagg.message({
+                                 content: "Failed creating the Codenvy workspace URL!",
+                                 type: 'error',
+                                 id:'message_id'
+                             });
+
+            }else{
+                newWindow.location = codeEnvyUrl;
             }
         });
 }
