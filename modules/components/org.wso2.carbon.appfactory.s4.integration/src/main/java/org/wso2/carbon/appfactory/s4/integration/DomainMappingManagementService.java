@@ -103,7 +103,7 @@ public class DomainMappingManagementService {
                 // we could identify the error occurred due to unsuccessful verification
                 notifyAppWall(appKey, AF_APPWALL_CUSTOM_URL_INVALID_MSG, String.format(AF_APPWALL_URL, domain), Event.Category.ERROR);
                 log.warn("Requested custom domain :" + domain + " is not verified for application id :" + appKey +
-                           " for stage :" + stage);
+                         " for stage :" + stage);
                 throw new DomainMappingVerificationException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
             }
 
@@ -361,12 +361,12 @@ public class DomainMappingManagementService {
                 if (StringUtils.isNotBlank(customDomain)) {
                     removeSubscriptionDomain(stage, customDomain, appKey);
                     DomainMappingUtils.updateCustomUrlMetadata(appKey, DomainMappingUtils.UNDEFINED_URL_RXT_VALUE,
-                            DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
+                                                               DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
                     // NOTE: need not update the appversion rxt as removed since default prod url has not removed
                     log.info("Successfully removed custom domain : " + customDomain + " from application id : " +
-                            appKey + " of tenant domain : " + tenantDomain);
+                             appKey + " of tenant domain : " + tenantDomain);
                     notifyAppWall(appKey, AF_APPWALL_REMOVE_SUCCESS_MSG, String.format(AF_APPWALL_URL, customDomain),
-                            Event.Category.INFO);
+                                  Event.Category.INFO);
                 }
             } else {
                 String defaultDomain = DomainMappingUtils.getDefaultDomain(appKey);
@@ -379,14 +379,14 @@ public class DomainMappingManagementService {
                                 appKey, version, DomainMappingUtils.UNDEFINED_URL_RXT_VALUE);
                     }
                     log.info("Successfully removed default domain : " + defaultDomain + " from application id : " +
-                            appKey + " of tenant domain : " + tenantDomain);
+                             appKey + " of tenant domain : " + tenantDomain);
                     notifyAppWall(appKey, AF_APPWALL_REMOVE_SUCCESS_MSG, String.format(AF_APPWALL_URL, defaultDomain),
-                            Event.Category.INFO);
+                                  Event.Category.INFO);
                 }
             }
         } catch (AppFactoryException e) {
             log.error("Error occurred while removing domain mapping for application id: " +
-                    appKey + " in stage: " + stage + " for tenant domain : " + tenantDomain, e);
+                      appKey + " in stage: " + stage + " for tenant domain : " + tenantDomain, e);
             notifyAppWall(appKey, AF_APPWALL_ERROR_MSG, "", Event.Category.ERROR);
             throw new AppFactoryException(DomainMappingUtils.AF_ERROR_REMOVE_DOMAIN_MSG, e);
         }
@@ -409,7 +409,7 @@ public class DomainMappingManagementService {
             deleteResponse = DomainMappingUtils.sendDeleteRequest(stage,removeSubscriptionDomainEndPoint);
         } catch (AppFactoryException e) {
             log.error("Error occurred removing domain mapping : " + domain + " from tenant domain : " + tenantDomain +
-                    " in stage :" + stage, e);
+                      " in stage :" + stage, e);
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_ERROR_GENARIC_MSG, domain));
         }
 
@@ -418,12 +418,12 @@ public class DomainMappingManagementService {
             log.info("Successfully removed custom domain : " + domain + " from tenant domain : " + tenantDomain);
             if (log.isDebugEnabled()) {
                 log.debug("Stratos response status: " + deleteResponse.statusCode + " Stratos Response message: " +
-                        deleteResponse.getResponse());
+                          deleteResponse.getResponse());
             }
         } else {
             log.error("Error occurred while removing domain mapping : " + domain + " from tenant domain : " +
-                    tenantDomain + " in stage :" + stage + " [Stratos Response Status: " + deleteResponse.statusCode +
-                    " , Stratos Response Message: " + deleteResponse.getResponse() + "]");
+                      tenantDomain + " in stage :" + stage + " [Stratos Response Status: " + deleteResponse.statusCode +
+                      " , Stratos Response Message: " + deleteResponse.getResponse() + "]");
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_ERROR_GENARIC_MSG, domain));
         }
     }
@@ -501,7 +501,7 @@ public class DomainMappingManagementService {
             // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
             // time of adding the url), then url validation will fail but it is not an system error
             log.warn(pointedUrl + " cannot be reached from: " + customUrl + " via CNAME records. Provided custom" +
-                          " url: "+customUrl+" might not a valid url." ,e);
+                     " url: "+customUrl+" might not a valid url." ,e);
             success = false;
         }
         return success;
@@ -563,7 +563,7 @@ public class DomainMappingManagementService {
                 String cnameHost;
                 while (cnameRecordHosts.hasMore()) {
                     isCNAMEFound = true;
-                    cnameHost = (String) cnameRecordHosts.next();DNS
+                    cnameHost = (String) cnameRecordHosts.next();
                     if (cnameHost.endsWith(".")) {
                         // Since DNS records are end with "." we are removing it.
                         // For example real dns entry for www.google.com is www.google.com.
