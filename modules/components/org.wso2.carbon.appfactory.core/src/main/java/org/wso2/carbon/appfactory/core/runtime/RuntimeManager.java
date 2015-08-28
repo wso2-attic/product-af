@@ -100,6 +100,8 @@ public class RuntimeManager {
 					config.remove(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
 			applicationRuntimeBean.setAliasPrefix(
 					config.remove(AppFactoryConstants.RUNTIME_ALIAS_PREFIX));
+            applicationRuntimeBean.setStratosAppId(
+                    config.remove(AppFactoryConstants.RUNTIME_STRATOS_APP_ID_PREFIX));
 			applicationRuntimeBean.setCartridgeTypePrefix(
 					config.remove(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX));
 			applicationRuntimeBean.setDeploymentPolicy(

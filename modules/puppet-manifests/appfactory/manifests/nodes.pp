@@ -27,8 +27,8 @@ node basenode {
   $gitblit_offset   = 0
   $s2gitbit_offset  = 1
   $dev_paas_offset  = 20
-  $test_paas_offset = 21
-  $prod_paas_offset = 22
+  $test_paas_offset = 20
+  $prod_paas_offset = 20
   $dev_greg_offset  = 30
   $test_greg_offset = 31
   $prod_greg_offset = 32
