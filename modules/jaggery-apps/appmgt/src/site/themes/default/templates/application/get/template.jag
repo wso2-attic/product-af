@@ -25,6 +25,22 @@
     if (applicationInfo.isUploadable) {
         createVersionUrl = jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag");
     }
+
+    // get the previously selected version
+    var previousVersion = "trunk";
+    if (applicationInfo.appType && applicationInfo.appType.indexOf("Uploaded") >= 0) {
+        previousVersion = "1.0.0";
+    }
+    var selectedVersions = session.get("SELECTED_VERSIONS");
+    if(selectedVersions) {
+        for(var key in selectedVersions) {
+            var versionData = selectedVersions[key];
+            if(versionData && (versionData.applicationKey == applicationKey) && versionData.version) {
+                previousVersion = versionData.version;
+                break;
+            }
+        }
+    }
 %>
 
 <!-- start of setting global javascript variable values from jaggery side -->
@@ -40,8 +56,8 @@
 
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
-    var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>') ;
-
+    var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>');
+    var previousVersion = "<%=previousVersion%>";
 </script>
 
 <!-- end of setting global javascript variable -->
