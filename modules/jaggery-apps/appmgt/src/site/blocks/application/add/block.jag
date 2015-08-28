@@ -35,6 +35,9 @@ jagg.block("application/add", {
 		var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
 		var webContext = getProperty(WEB_CONTEXT_ROOT);
         var tempAppTypeArray = [];
+        var appType = request.getParameter("apptype");
+        var appTypeBean = modManager.getApplicationTypeBean(appType);
+
 
         if (!applicationTypes || applicationTypes.length === 0) {
 
@@ -113,7 +116,8 @@ jagg.block("application/add", {
 		    "uploadableAppExts":uploadableAppExts,
 		    "uploadableApplicationMaxSize":uploadableApplicationMaxSize,
 		    "appFacURL":appFacURL,
-		    "webContext":webContext
+		    "webContext":webContext,
+            "appTypeBean":appTypeBean
 		};
     }
 });

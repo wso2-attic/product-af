@@ -25,14 +25,12 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var helpTips = outputs.helpTips;
     var uploadableAppExts = outputs.uploadableAppExts;
     var mod = jagg.module("manager");
-    var uploadableApplicationMaxSize=outputs.uploadableApplicationMaxSize;
     var type = request.getParameter("type");
-    var appTypeDisplayName = request.getParameter("appTypeDisplayName");
-    var appType = request.getParameter("apptype");
-
-    var apptypeIconImageClass = request.getParameter("apptypeIconImageClass");
-    var iconColor = request.getParameter("apptypeIconColor");
-    var iconImage = request.getParameter("apptypeIconImage");
+    var uploadableApplicationMaxSize=outputs.uploadableApplicationMaxSize;
+    var appTypeBean = outputs.appTypeBean;
+    var appType = appTypeBean.getApplicationTypeName();
+    var appTypeDisplayName = appTypeBean.getDisplayName();
+    var apptypeIconImageClass = appTypeBean.getIconImageClass();
 
 
     var buttonCreateUpload = "Create";
@@ -294,25 +292,6 @@ function showTopErrorMessage(msg) {
          });
 }
 
-/**
-* Used to show success messages at the top
-*/
-function showTopSuccessMsg(msg) {
-    noty({
-             theme: 'wso2',
-             layout: 'top',
-             type: 'success',
-             timeout: '3500',
-             text: msg,
-             animation: {
-                 open: {height: 'toggle'}, // jQuery animate function property object
-                 close: {height: 'toggle'}, // jQuery animate function property object
-                 easing: 'swing', // easing
-                 speed: 500 // opening & closing animation speed
-             }
-         });
-}
-
  /**
  * **************************************************************************
  * Start of JQuery file upload callback functions
@@ -470,9 +449,9 @@ function showLoader(show){
     * For more info refer to http://jqueryvalidation.org/documentation/
     */
 
-    $.validator.addMethod("validateDuplicateApplicationName", 
+    $.validator.addMethod("validateDuplicateApplicationName",
             validateDuplicateApplicationName, getAppNameErrorMessage);
-    $.validator.addMethod("validateApplicationName", 
+    $.validator.addMethod("validateApplicationName",
             validateApplicationName, getAppNameErrorMessage);
     $.validator.addMethod("validateDuplicateApplicationKey",
             validateDuplicateApplicationKey, getAppKeyErrorMessage);
@@ -582,7 +561,7 @@ function showLoader(show){
                    isUploadable = true;
                 }
                  var redirectionPageParams = "application.jag?applicationName=" + appName + "&applicationKey=" +
-                    appKey + "&isUploadableAppType=" + isUploadable;
+                    appKey + "&isUploadableAppType=" + isUploadable + "&userAction=created";
                      window.location.replace(redirectionPageParams);
                  } else if (response.result == 0.0) {
                      //$("#appcreation").attr('disabled', false);
@@ -672,7 +651,7 @@ function showLoader(show){
              $("#action").val("uploadExistingApplication");
          }
          $("#createAppForm").submit();
-         showTopSuccessMsg("Application creation started.");
+         //showTopSuccessMsg("Application creation started.");
     } else {
         showLoader(false);
     }
@@ -697,13 +676,13 @@ function showLoader(show){
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action" title="Back to app type selection">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to app type selection
         </a>
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action" title="Cancel">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fa fa-mail-reply-all fa-stack-1x"></i>

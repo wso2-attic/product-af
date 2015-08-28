@@ -4,9 +4,14 @@ var isInit = true;
 var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
 var versionChangeEventAdded = false;
 var timer = null;
+var currentMessage = null;
 
 // page initialization
 $(document).ready(function() {
+    // show the application creation status as a notification
+    if("created" == userAction) {
+        showTopMessage("Application creation started.");
+    }
     // set current version
     setCurrentVersion();
     // initialize page and handlers
@@ -193,6 +198,8 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
         versionChangeEventAdded = true;
     }
 
+    // show hide accept and deploy handler
+    showAcceptAndDeploy(appInfo, currentAppInfo);
 }
 
 //// load application launch url
@@ -207,36 +214,39 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
     }, function (result) {
         if(result) {
             var resJSON = jQuery.parseJSON(result);
-            if(resJSON && "Success" == resJSON.status) {
-                var appURL = resJSON.url;
+            if(resJSON) {
+
                 // display app url
                 var repoUrlHtml = "<b>URL : </b>" + appURL;
-                $("#app-version-url").html(repoUrlHtml);
-                $('#version-url-link').attr({href:appURL});
-                $('#btn-launchApp').attr({url:appURL});
+                if("Success" == resJSON.status) {
+                    var appURL = resJSON.url;
+                    // display app url
+                    var repoUrlHtml = "<b>URL : </b>" + appURL;
+                    $("#app-version-url").html(repoUrlHtml);
+                    $('#version-url-link').attr({href:appURL});
+                    $('#btn-launchApp').attr({url:appURL});
 
-                // set url to launch button
-                $('#btn-launchApp').removeAttr('disabled');
-                $('#version-url-link').removeAttr('disabled');
-                // create accept and deploy section
-                showAcceptAndDeploy(appInfo, currentAppInfo, resJSON.url);
+                    // set url to launch button
+                    $('#btn-launchApp').removeAttr('disabled');
+                    $('#version-url-link').removeAttr('disabled');
 
-                // clear the timer if exist
-                clearTimeout(timer);
-            } else {
-                // remove status message
-                var repoUrlHtml = "<b>URL : </b>deployment in progress...";
-                $("#app-version-url").html(repoUrlHtml);
-                // disable links and buttons
-                $('#btn-launchApp').attr('disabled','disabled');
-                $('#version-url-link').attr('disabled','disabled');
-                // remove previous urls
-                $('#version-url-link').removeAttr('href');
-                $('#btn-launchApp').removeAttr('url');
-                hideAcceptAndDeploy();
+                    // clear the timer if exist
+                    clearTimeout(timer);
+                    hideTopMessage();
+                } else {
+                   // remove status message
+                   var repoUrlHtml = "<b>URL : </b>deployment in progress...";
+                   $("#app-version-url").html(repoUrlHtml);
+                   // disable links and buttons
+                   $('#btn-launchApp').attr('disabled','disabled');
+                   $('#version-url-link').attr('disabled','disabled');
+                   // remove previous urls
+                   $('#version-url-link').removeAttr('href');
+                   $('#btn-launchApp').removeAttr('url');
 
-                // set the timer until the app get deployed
-                poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
+                   // set the timer until the app get deployed
+                   poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
+                }
             }
         }
     }, function (jqXHR, textStatus, errorThrown) {
@@ -384,7 +394,7 @@ function hideAcceptAndDeploy() {
 }
 
 // accept and deploy show
-function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
+function showAcceptAndDeploy(appInfo, currentAppInfo) {
     var promoteStatus = currentAppInfo.promoteStatus;
     var pendingState = "pending";
     var deployAction = "deploy";
@@ -392,24 +402,15 @@ function showAcceptAndDeploy(appInfo, currentAppInfo, appUrl) {
     var stage = currentAppInfo.stage;
 
     // hide the button by default
+    hideAcceptAndDeploy();
 
-    if(appUrl) {
-        if(pendingState == promoteStatus && deploymentPermission[stage]) {
-            addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
-        }
-    } else {
-        if(deploymentPermission[stage]) {
-           if(pendingState == promoteStatus) {
-                addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
-           } else {
-                addDeployHandler(appInfo, currentAppInfo, deployAction, state);
-           }
-        }
+    if(pendingState == promoteStatus && deploymentPermission[stage]) {
+        addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
     }
 }
 
 function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
-    $("#accepndeploy-button").click(function(event) {
+    $("#accepndeploy-button").off('click').click(function(event) {
         deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, true);
     });
     $("#acceptDeployWrapper").show();
@@ -417,7 +418,7 @@ function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
 
 
 function addDeployHandler(appInfo, currentAppInfo, deployAction, state) {
-    $("#accepndeploy-button").click(function(event) {
+    $("#accepndeploy-button").off('click').click(function(event) {
         deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, false);
     });
     $("#acceptDeployWrapper").show();
@@ -438,7 +439,7 @@ function deployApp(version, stage, deployAction, state, type, isUpdateState) {
            if (isUpdateState) {
                 updateAppVersionPromoteStatus("", version, stage);
            }
-           $("#acceptDeployWrapper").hide();
+           hideAcceptAndDeploy();
        }, function (jqXHR, textStatus, errorThrown) {
             jagg.message({content: "Error occurred while deploying the artifact.", type: 'error', id:'notification'});
        });
@@ -458,6 +459,19 @@ function updateAppVersionPromoteStatus(nextState, version, nextStage) {
     function (jqXHR, textStatus, errorThrown) {
         console.log("Error while updating application promote status!");
     });
+}
+
+function showTopMessage(msg) {
+    if(msg) {
+        currentMessage = jagg.message({content:msg, type:'success', id:'notification' });
+    }
+}
+
+function hideTopMessage() {
+    if (currentMessage && currentMessage.options) {
+        var id = currentMessage.options.id;
+        jagg.removeMessageById(id);
+    }
 }
 
 // Utility Functions Goes Here

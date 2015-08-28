@@ -45,12 +45,11 @@ var site = require("/site/conf/site.json");
                                     "linkParams": [
                                         {
 
-                                            "displayName": "Create new app"
-                                            // uncomment following once APPFAC-3233 is fixed
-                                            //"basePath":"/site/pages/createapplication.jag",
-                                            //"params": {
-                                            //    "type":type
-                                            //}
+                                            "displayName": "Create new app",
+                                            "basePath":"/site/pages/createapplication.jag",
+                                            "params": {
+                                                "type":type
+                                            }
                                         }
                                     ]
                                 }
