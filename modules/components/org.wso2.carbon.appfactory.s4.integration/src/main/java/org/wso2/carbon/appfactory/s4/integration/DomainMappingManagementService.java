@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.MutualAuthHttpClient;
+import org.wso2.carbon.appfactory.common.util.ServerResponse;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -31,7 +33,6 @@ import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppInfoUpdateEventBuilderUtil;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingAction;
-import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingResponse;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -93,7 +94,8 @@ public class DomainMappingManagementService {
             boolean domainAvailable = isDomainAvailable(stage, domain, appType);
             if (!domainAvailable) {
                 // Throws an exception, if requested domain is not available.
-                log.error("Requested domain: " + domain + " does not available for application id :" + appKey + " for stage :" + stage);
+                log.error("Requested domain: " + domain + " does not available for application id :" + appKey +
+                          " for stage :" + stage);
                 throw new AppFactoryException(String.format(DomainMappingUtils.AF_DOMAIN_NOT_AVAILABLE_MSG, domain));
             }
 
@@ -101,40 +103,48 @@ public class DomainMappingManagementService {
             if (isCustomDomain && !verifyCustomUrlForApplication(domain, appKey)) {
                 // if custom utl is not verified, throw an exception. Here we are throwing DomainMappingVerificationException therefore
                 // we could identify the error occurred due to unsuccessful verification
-                notifyAppWall(appKey, AF_APPWALL_CUSTOM_URL_INVALID_MSG, String.format(AF_APPWALL_URL, domain), Event.Category.ERROR);
+                notifyAppWall(appKey, AF_APPWALL_CUSTOM_URL_INVALID_MSG, String.format(AF_APPWALL_URL, domain),
+                              Event.Category.ERROR);
                 log.warn("Requested custom domain :" + domain + " is not verified for application id :" + appKey +
                          " for stage :" + stage);
-                throw new DomainMappingVerificationException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
+                throw new DomainMappingVerificationException(
+                        String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
             }
 
-            DomainMappingResponse response;
+            ServerResponse response;
             try {
                 String body;
                 if (StringUtils.isNotBlank(version)) {      // if the domain is to be mapped to a version
-                    body = DomainMappingUtils.generateAddSubscriptionDomainJSON(domain, appKey, version, stage);
+                    body = DomainMappingUtils.generateAddSubscriptionDomainJSON(domain, appKey, version, stage, appType);
                 } else {                                    // map the domain to initial url
                     body = DomainMappingUtils.generateInitialSubscriptionDomainJSON(domain);
                 }
-                response = DomainMappingUtils.sendPostRequest(stage, body, addSubscriptionDomainEndPoint);
+                response = MutualAuthHttpClient.sendPostRequest(body, DomainMappingUtils.getSMUrl(stage) +
+                                                                      addSubscriptionDomainEndPoint);
             } catch (AppFactoryException e) {
-                log.error("Error occurred adding domain mappings to appkey " + appKey + " version " + version + " domain " + domain, e);
+                log.error("Error occurred adding domain mappings to appkey " + appKey + " version " + version +
+                          " domain " + domain, e);
                 //Notifying the domain mapping failure to app wall
                 notifyAppWall(appKey, AF_APPWALL_ERROR_MSG, "", Event.Category.ERROR);
                 throw new AppFactoryException(String.format(DomainMappingUtils.AF_ERROR_ADD_DOMAIN_MSG, domain));
             }
 
-            if (response.statusCode == HttpStatus.SC_OK) {
+            if (response.statusCode == HttpStatus.SC_CREATED) {
                 log.info("Successfully added domain mapping for application: " + appKey + " domain:" + domain +
                          (StringUtils.isNotBlank(version) ? (" to version: " + version) : ""));
                 if (log.isDebugEnabled()) {
-                    log.debug("Stratos response status: " + response.statusCode + " Stratos Response message: " + response.getResponse());
+                    log.debug("Stratos response status: " + response.statusCode + " Stratos Response message: " +
+                              response.getResponse());
                 }
                 DomainMappingUtils.publishToDomainMappingEventHandlers(domain, DomainMappingAction.ADD_DOMAIN_MAPPING);
                 //Notifying the domain mapping success to app wall
-                notifyAppWall(appKey, AF_APPWALL_SUCCESS_MSG, String.format(AF_APPWALL_URL, domain), Event.Category.INFO);
+                notifyAppWall(appKey, AF_APPWALL_SUCCESS_MSG, String.format(AF_APPWALL_URL, domain),
+                              Event.Category.INFO);
             } else {
                 notifyAppWall(appKey, AF_APPWALL_ERROR_MSG, "", Event.Category.ERROR);
-                log.error(String.format(DomainMappingUtils.AF_ERROR_ADD_DOMAIN_MSG, domain) + " Stratos response status: " + response.statusCode + " Stratos Response message: " + response.getResponse());
+                log.error(String.format(DomainMappingUtils.AF_ERROR_ADD_DOMAIN_MSG, domain) +
+                          " Stratos response status: " + response.statusCode + " Stratos Response message: " +
+                          response.getResponse());
                 throw new AppFactoryException(String.format(DomainMappingUtils.AF_ERROR_ADD_DOMAIN_MSG, domain));
             }
         } // end of synchronized
@@ -143,8 +153,8 @@ public class DomainMappingManagementService {
     /**
      * Add default production url, if its failed during app creation time
      *
-     * @param appKey    application key
-     * @param version   version of the application
+     * @param appKey  application key
+     * @param version version of the application
      * @throws AppFactoryException
      */
     public void addDefaultProdUrl(String appKey, String version) throws AppFactoryException {
@@ -176,7 +186,8 @@ public class DomainMappingManagementService {
      * @param version        version to be mapped
      * @param isCustomDomain whether {@code domain} is custom domain or not
      */
-    public void addNewSubscriptionDomain(String stage, String domain, String appKey, String version, boolean isCustomDomain)
+    public void addNewSubscriptionDomain(String stage, String domain, String appKey, String version,
+                                         boolean isCustomDomain)
             throws AppFactoryException {
         try {
             addSubscriptionDomain(stage, domain, appKey, version, isCustomDomain);
@@ -216,7 +227,8 @@ public class DomainMappingManagementService {
             throws AppFactoryException {
         // remove existing mapping
         removeSubscriptionDomain(stage, domain, appKey);
-        if (StringUtils.isNotBlank(previousVersion)) {   // if the domain is already mapped, remove the domain from previousVersion
+        if (StringUtils.isNotBlank(
+                previousVersion)) {   // if the domain is already mapped, remove the domain from previousVersion
             DomainMappingUtils.updateVersionMetadataWithMappedDomain(appKey, previousVersion, "");
         }
         try {
@@ -228,7 +240,8 @@ public class DomainMappingManagementService {
             log.warn(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain), e);
             // update the custom url values of the rxt.
             if (isCustomDomain) {
-                DomainMappingUtils.updateCustomUrlMetadata(appKey, domain, DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
+                DomainMappingUtils.updateCustomUrlMetadata(appKey, domain,
+                                                           DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
             }
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, domain));
         }
@@ -310,7 +323,8 @@ public class DomainMappingManagementService {
             // time of adding the url), then url validation will fail but it is not an system error
             log.warn(String.format(DomainMappingUtils.AF_CUSTOM_URL_NOT_VERIFIED, newDomain), e);
             // update the custom url values of the rxt with new values.
-            DomainMappingUtils.updateCustomUrlMetadata(appKey, newDomain, DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
+            DomainMappingUtils.updateCustomUrlMetadata(appKey, newDomain,
+                                                       DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
 
             // Since we are going to keep the new domain, as the custom url
             // remove existing domain mapping for previous domain
@@ -319,7 +333,8 @@ public class DomainMappingManagementService {
                     removeSubscriptionDomain(stage, previousDomain, appKey);
                 } catch (AppFactoryException e1) {
                     String msg = "Domain validation unsuccessful for domain : " + newDomain +
-                                 " and error occurred removing domain mapping for previous domain " + previousDomain + " for application id: " + appKey;
+                                 " and error occurred removing domain mapping for previous domain " + previousDomain +
+                                 " for application id: " + appKey;
                     // Removing previous domain should not interrupt the operation. therefore we are not going to throw an exception here
                     log.error(msg, e1);
                 }
@@ -337,7 +352,8 @@ public class DomainMappingManagementService {
                 // if mapping to newDomain is successful it should continue,
                 // therefore not throwing an exception here
                 String msg = "Successfully added domain mapping for domain : " + newDomain + " version : " + version +
-                             " Error occurred removing domain mapping for " + previousDomain + " when remapping" + " for application id: " + appKey;
+                             " Error occurred removing domain mapping for " + previousDomain + " when remapping" +
+                             " for application id: " + appKey;
                 log.error(msg, e);
             }
         }
@@ -404,9 +420,10 @@ public class DomainMappingManagementService {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String appType = ApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(stage, domain, appType);
-        DomainMappingResponse deleteResponse;
+        ServerResponse deleteResponse;
         try {
-            deleteResponse = DomainMappingUtils.sendDeleteRequest(stage,removeSubscriptionDomainEndPoint);
+            deleteResponse = MutualAuthHttpClient.sendDeleteRequest(
+                    DomainMappingUtils.getSMUrl(stage) + removeSubscriptionDomainEndPoint);
         } catch (AppFactoryException e) {
             log.error("Error occurred removing domain mapping : " + domain + " from tenant domain : " + tenantDomain +
                       " in stage :" + stage, e);
@@ -443,20 +460,22 @@ public class DomainMappingManagementService {
         boolean validation = false;
         try {
             String defaultProdUrl = DomainMappingUtils.getDefaultDomain(appKey);
-            if(StringUtils.isNotBlank(defaultProdUrl)) {
-                validation = verifyCustomUrlByCname(defaultProdUrl,customUrl);
-                if(validation){
+            if (StringUtils.isNotBlank(defaultProdUrl)) {
+                validation = verifyCustomUrlByCname(defaultProdUrl, customUrl);
+                if (validation) {
                     log.info("Successfully verified domain: " + customUrl + " for application " + appKey);
                 } else {
                     log.warn("Failed to verify domain: " + customUrl + " for application: " + appKey);
                 }
             } else {
-                log.error("Failed to verify custom domain: "+customUrl+" for application id: "+appKey+" since default production url is empty");
+                log.error("Failed to verify custom domain: " + customUrl + " for application id: " + appKey +
+                          " since default production url is empty");
                 validation = false;
             }
         } catch (AppFactoryException e) {
             // We are not throwing an error here, since we will return false if verification fails
-            log.error("Error occurred while checking domain validation for application: " + appKey + " domain:" + customUrl, e);
+            log.error("Error occurred while checking domain validation for application: " + appKey + " domain:" +
+                      customUrl, e);
         }
         return validation;
     }
@@ -483,12 +502,12 @@ public class DomainMappingManagementService {
             Multimap<String, String> resolvedHosts = resolveDNS(customUrl, env);
             Collection<String> resolvedCnames = resolvedHosts.get(DNS_CNAME_RECORD);
             if (!resolvedCnames.isEmpty() && resolvedCnames.contains(pointedUrl)) {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug(pointedUrl + " can be reached from: " + customUrl + " via CNAME records");
                 }
                 success = true;
             } else {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug(pointedUrl + " cannot be reached from: " + customUrl + " via CNAME records");
                 }
                 success = false;
@@ -501,7 +520,7 @@ public class DomainMappingManagementService {
             // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
             // time of adding the url), then url validation will fail but it is not an system error
             log.warn(pointedUrl + " cannot be reached from: " + customUrl + " via CNAME records. Provided custom" +
-                     " url: "+customUrl+" might not a valid url." ,e);
+                     " url: " + customUrl + " might not a valid url.", e);
             success = false;
         }
         return success;
@@ -534,7 +553,7 @@ public class DomainMappingManagementService {
             String[] dnsRecordsToCheck = new String[]{DNS_A_RECORD, DNS_CNAME_RECORD};
             dnsRecords = context.getAttributes(domain, dnsRecordsToCheck);
         } catch (NamingException e) {
-            String msg = "DNS validation: DNS query failed for: " + domain+". Error occurred while configuring " +
+            String msg = "DNS validation: DNS query failed for: " + domain + ". Error occurred while configuring " +
                          "directory context.";
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
@@ -582,7 +601,8 @@ public class DomainMappingManagementService {
             }
             return dnsRecordsResult;
         } catch (NamingException ne) {
-            String msg = "DNS validation: DNS query failed for: " + domain+". Provided domain: "+domain+" might be a " +
+            String msg = "DNS validation: DNS query failed for: " + domain + ". Provided domain: " + domain +
+                         " might be a " +
                          "non existing domain.";
             // we are logging this as warn messages since this is caused, due to an user error. For example if the
             // user entered a rubbish custom url(Or a url which is, CNAME record is not propagated at the
@@ -596,32 +616,34 @@ public class DomainMappingManagementService {
     /**
      * Check whether domain is available
      *
-     * @param stage  mapping stage
-     * @param domain e.g: some.organization1.org this doesn't require the protocol such as http/https
+     * @param stage   mapping stage
+     * @param domain  e.g: some.organization1.org this doesn't require the protocol such as http/https
      * @param appType application type
      * @return true if domain is available
      */
     private boolean isDomainAvailable(String stage, String domain, String appType) throws AppFactoryException {
-        boolean isAvailable;
+        boolean isAvailable = true;
         String validateSubscriptionDomainEndPoint =
                 DomainMappingUtils.getDomainAvailableEndPoint(stage, domain, appType);
 
-        DomainMappingResponse response;
+        ServerResponse response;
         try {
             // sending GET request for with domain.
             // if the requested domain is mapped it will send a response with 200 OK , else 404 Not found
-            response = DomainMappingUtils.sendGetRequest(stage, validateSubscriptionDomainEndPoint);
+            response = MutualAuthHttpClient.sendGetRequest(
+                    DomainMappingUtils.getSMUrl(stage) + validateSubscriptionDomainEndPoint);
         } catch (AppFactoryException e) {
             log.error("Error occurred while checking domain availability from Stratos side for domain:" + domain, e);
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_DOMAIN_AVAILABILITY_ERROR_MSG, domain));
         }
 
-        if (response.statusCode == HttpStatus.SC_NOT_FOUND) {       // there is no existing mapping found for requested domain
-            isAvailable = true;
-        } else if (response.statusCode == HttpStatus.SC_OK) {
-            isAvailable = false;
+        if (response.statusCode == HttpStatus.SC_OK) {
+            if (response.getResponse().contains(domain)) {
+                isAvailable = false;
+            }
         } else {
-            log.error("Error occurred while checking availability for domain:" + domain + " Stratos response status: " + response.statusCode + " Stratos Response message: " + response.getResponse());
+            log.error("Error occurred while checking availability for domain:" + domain + " Stratos response status: " +
+                      response.statusCode + " Stratos Response message: " + response.getResponse());
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_DOMAIN_AVAILABILITY_ERROR_MSG, domain));
         }
         return isAvailable;
@@ -639,7 +661,9 @@ public class DomainMappingManagementService {
     private void notifyAppWall(String appKey, String message, String description,
                                Event.Category msgType) {
         try {
-            EventNotifier.getInstance().notify(AppInfoUpdateEventBuilderUtil.createDomainMappingCompletedEvent(appKey, message, description, msgType));
+            EventNotifier.getInstance().notify(
+                    AppInfoUpdateEventBuilderUtil.createDomainMappingCompletedEvent(appKey, message, description,
+                                                                                    msgType));
         } catch (AppFactoryEventException e) {
             // need not to throw an exception since failure of appwall notification should not interrupt the current operation
             log.error("Failed notifying custom url update event", e);

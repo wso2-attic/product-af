@@ -65,6 +65,7 @@ public class AppFactoryConstants {
 	public static final String RUNTIME = "Runtime";
 	public static final String RUNTIME_REPOSITORY_URL_PATTERN = "PAASArtifactStorageURLPattern";
 	public static final String RUNTIME_ALIAS_PREFIX = "AliasPrefix";
+    public static final String RUNTIME_STRATOS_APP_PREFIX = "StratosAppIdPrefix";
 	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX = "CartridgeTypePrefix";
 	public static final String RUNTIME_DEPLOYMENT_POLICY = "DeploymentPolicy";
 	public static final String RUNTIME_AUTOSCALE_POLICY = "AutoscalePolicy";

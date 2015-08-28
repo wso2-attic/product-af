@@ -30,7 +30,9 @@ public class RuntimeBean {
 	private String runtimeName;
 	//Defining the artifact storage URL where the application artifacts is stored
 	private String paasRepositoryURLPattern;
-	//Prefix of the cartridge type
+    //Prefix of the stratos application id
+    private String stratosAppId;
+	//Prefix of the cartridge alias
 	private String aliasPrefix;
 	//Prefix of the cartridge type
 	private String cartridgeTypePrefix;
@@ -137,4 +139,12 @@ public class RuntimeBean {
 	public void setServerURL(String serverURL) {
 		this.serverURL = serverURL;
 	}
+
+    public String getStratosAppId() {
+        return stratosAppId;
+    }
+
+    public void setStratosAppId(String stratosAppId) {
+        this.stratosAppId = stratosAppId;
+    }
 }

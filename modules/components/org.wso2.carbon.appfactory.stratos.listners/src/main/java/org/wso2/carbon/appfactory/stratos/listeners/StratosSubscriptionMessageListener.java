@@ -221,12 +221,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
     private static boolean signUp(RepositoryBean repositoryBean, RuntimeBean runtimeBean, String stage)
             throws Exception {
 
-
-        String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
-                getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
-
-        //TODO
-        String stratosAppId = runtimeBean.getAliasPrefix() + stage.toLowerCase();
+        String stratosAppId = runtimeBean.getStratosAppId() + stage.toLowerCase();
         String alias = runtimeBean.getCartridgeTypePrefix() + stage.toLowerCase();
 
         ApplicationSignUpBean applicationSignUpBean = new ApplicationSignUpBean();
@@ -241,7 +236,6 @@ public class StratosSubscriptionMessageListener implements MessageListener {
         applicationSignUpBean.setArtifactRepositories(repo);
 
         int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-
         ApplicationSignUp applicationSignUp = StratosUtils.convertApplicationSignUpBeanToStubApplicationSignUp(
                 applicationSignUpBean);
         applicationSignUp.setApplicationId(stratosAppId);

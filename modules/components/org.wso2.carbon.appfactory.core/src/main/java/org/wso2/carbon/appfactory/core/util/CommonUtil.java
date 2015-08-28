@@ -213,6 +213,38 @@ public class CommonUtil {
     }
 
     /**
+     * Get stratos application id
+     *
+     * @param stage   the stage of the Stratos
+     * @param appType application type
+     * @return alias
+     */
+    public static String getStratosAppId(String stage, String appType) throws AppFactoryException {
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
+        try {
+            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
+            String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+                    getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+            String stratosAppId;
+            if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+                stratosAppId =
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getStratosAppId() + stage.toLowerCase() +
+                        tenantDomain;
+            } else {
+                stratosAppId =
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getStratosAppId() + tenantDomain;
+            }
+            return stratosAppId;
+        } catch (AppFactoryException e) {
+            String msg = "\"Error while getting stratos application id stage:\" + stage + \"application type:\" + appType";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+    }
+
+
+    /**
      * Get cartridge type
      *
      * @param stage the stage of the Stratos SM
@@ -238,6 +270,36 @@ public class CommonUtil {
             log.error("Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
             throw new AppFactoryException(
                     "Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
+        }
+    }
+
+    /**
+     * Get stratos application id
+     *
+     * @param stage   the stage of the Stratos
+     * @param appType application type
+     * @return stratos application id
+     */
+    public static String getStratosApplicationId(String stage, String appType) throws AppFactoryException {
+        try {
+            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
+
+            String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+                    getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+            String stratosAppId = null;
+            if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+                stratosAppId = RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix()
+                               + stage.toLowerCase();
+            } else {
+                stratosAppId = RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix();
+            }
+            return stratosAppId;
+        } catch (AppFactoryException e) {
+            String msg =
+                    "Error while getting stratos application id for stage:" + stage + "application type:" + appType;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
         }
     }
 
