@@ -57,6 +57,7 @@ jagg.block("tablinks", {
 
     	var applicationType = false;
     	var isUploadableAppType = false;
+        var isAllowDomainMapping = false;
 
     	var isOtherServicesTabAvailable = getProperty(SHOW_OTHER_SERVICES_TAB);
 
@@ -98,7 +99,7 @@ jagg.block("tablinks", {
 
                 applicationType = manager.getApplicationType(applicationKey);
     			isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
-
+                isAllowDomainMapping  = manager.getApplicationTypeBean(applicationType).isAllowDomainMapping();
     		}
     	}
         return {
@@ -118,7 +119,8 @@ jagg.block("tablinks", {
             "isResourcesAllowed":isResourcesAllowed,
             "isIssuesAllowed":isIssuesAllowed,
             "isLifecylceAllowed":isLifecylceAllowed,
-            "isLogsAllowed":isLogsAllowed
+            "isLogsAllowed":isLogsAllowed,
+            "isAllowDomainMapping":isAllowDomainMapping
         };
     }
 });

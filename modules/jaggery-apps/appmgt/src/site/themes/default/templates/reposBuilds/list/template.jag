@@ -42,6 +42,12 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
     var lastBuildId;
     var forkLastBuildId;
 
+    var isBuildableArtifact = false;
+    // Since there is only one application in the array, get the first app details object
+    if (appDetails && appDetails.length > 0) {
+        isBuildableArtifact = appDetails[0].isBuildable;
+    }
+
     %>
     <style>
     .popover_form input.branch-txt-width-fix {
@@ -57,13 +63,13 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
     }
 
     .old_build_logs_dropdown{
-    	border: 1px solid #69A6B5; 
-    	background-color: #555555; 
+    	border: 1px solid #69A6B5;
+    	background-color: #555555;
     	width: 80px;
     	-webkit-border-radius: 3px;
-    	-moz-border-radius: 3px; 
+    	-moz-border-radius: 3px;
     	border-radius: 3px;
-	margin-left: 45px;  
+	margin-left: 45px;
     }
     #d_clip_button.zeroclipboard-is-hover {
         background-color: #eee;
@@ -224,7 +230,7 @@ pre{
 
     $(document).ready(function(){
     	initializeUserActivity("reposBuild", '<%=applicationKey%>', null);
-        $("#master_old_build_logs_dropdown").select2();   
+        $("#master_old_build_logs_dropdown").select2();
  });
 
     var subDomain;
@@ -612,9 +618,9 @@ pre{
                          applicationKey : applicationKey,
                          applicationVersion : selectedAppVersion,
                          lastBuildId : lastBuildId,
-                         forkedRepository : false 
+                         forkedRepository : false
                     }, function (result) {
-                        $('#build_logs').html(result); 
+                        $('#build_logs').html(result);
                     },
                 function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status != 0){
@@ -918,7 +924,7 @@ $.cookie('selectedStage', selectedStage);
   //  }
 
     function loadVersionList(selectedVersions,currentVersion){
-	
+
     var versionString = "" ;
 	var v;
 	if(currentVersion==null && selectedVersions==null){ //no versions available
@@ -1019,7 +1025,7 @@ $.cookie('selectedStage', selectedStage);
         var statusStyle="";
         var version=versionInfo.version;
         selectedAppVersion = version;
-	    var isBuildableArtifact = '<%= appDetails[0].isBuildable%>';
+	    var isBuildableArtifact = '<%=isBuildableArtifact%>';
         var stage=versionInfo.stage;
         var versionForIds=version.replace(/\./g,'_');
         appVersionId=versionForIds;
@@ -1694,6 +1700,3 @@ forkLastBuildId = $('#forked_old_build_logs_dropdown').val();
 
     <%
 }); %>
-
-
-

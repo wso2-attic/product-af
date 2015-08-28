@@ -59,16 +59,20 @@ if (initialAppVersionInfo.versions.length > 0 ) {
     var initialAppVersionInfo =jQuery.parseJSON('<%=initialAppVersionInfo%>');
 </script><!-- end of setting global javascript variable -->
 
+<!-- BOF App factory menu actionbar -->
+<div class="action-bar">
+	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Cancel">
+			<span class="fw-stack fw-lg btn-action-ico">
+				<i class="fw fw-ring fw-stack-2x"></i>
+				<i class="fw fw-left-arrow fw-stack-1x"></i>
+			</span> Cancel
+	</a>
+</div><!-- EOF App factory menu actionbar-->
+
 <div class="container-fluid app-content-section">
     <div class="row">
          <div class="col-md-12 msg-issues">
-             Most domain registrars provide step-by-step instructions in their Web sites. For your convenience, we have listed the general steps below.<br>
-                <ul>
-                    <li>Sign in to the domain registrar’s site.</li>
-                    <li>Navigate to your Domain Name Server (DNS) management page. The location and name of this page vary by the host, but can generally be found under the 'Domain Management' or 'Advanced Settings' section.</li>
-                    <li>Find the CNAME settings. Under the 'CNAME value or alias,' enter the subdomain you'd like to map the URL to. The subdomain for bar.foo.com is bar.</li>
-                    <li>Set the CNAME destination to the production URL bar.foo.wso2apps.com and save the changes.</li>
-                </ul>
+             Create customized URLs for the applications with your domain name, instead of the default URLs.
          </div>
     </div>
  <div class="clearfix"></div>
@@ -108,7 +112,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
                          <button class="btn btn-info" type="button" id="verifyUrl" name="verifyUrl"
                          onclick="verifyCustomUrl()"
          <%=(initialAppVersionInfo.customUrl && initialAppVersionInfo.customUrlVerificationCode != null &&
-             initialAppVersionInfo.customUrlVerificationCode.length > 0)?'disabled':''%>>Verify URL</button>
+             initialAppVersionInfo.customUrlVerificationCode.length > 0)?'':'disabled'%>>Verify URL</button>
                      </span>
              </div>
 
@@ -116,7 +120,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
 
             <% if (initialAppVersionInfo.versions.length > 0 ) {%>
          <div class="form-group" for="productionVersion">
-             <label for="production-Version">Mapped version in production: </label>
+             <label for="production-Version">Mapped Version in Production: </label>
              <select id="productionVersion" name="productionVersion" class="form-control select2 mygroup"
              placeholder="Select a state" allowClear="true">
                 <%=versionString%>
@@ -124,9 +128,9 @@ if (initialAppVersionInfo.versions.length > 0 ) {
          </div>
             <% } else {%>
                  <div class="form-group">
-                        <label for="production-custom">Mapped version in production: </label>
-                        <div class="alert alert-warning" role="alert">No version in production stage. Promote your version
-                        to map URL. <a>Click here </a> to promote your app</div>
+                        <label for="production-custom">Mapped Version in Production: </label>
+                        <div class="alert alert-warning" role="alert">No version in the production stage. Promote your version
+                        to map URL. <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Click here </a> to promote your app</div>
                     </div>
             <% }%>
 
@@ -151,15 +155,15 @@ if (initialAppVersionInfo.versions.length > 0 ) {
 
             <% if (initialAppVersionInfo.versions.length > 0 ) { %>
             <div class="form-group">
-                <label for="production-custom">Mapped version in production: </label>
+                <label for="production-custom">Mapped Version in Production: </label>
                 <input type="text" class="form-control" id="productionVersionIn" name="productionVersionIn"
-                 placeholder="No version in production stage." disabled
+                 placeholder="No version in the production stage." disabled
                  value="<%=mappedVersion%>">
             </div>
             <% } else {%>
                  <div class="form-group">
-                        <label for="production-custom">Mapped version in production: </label>
-                        <div class="alert alert-warning" role="alert">No version in production stage</div>
+                        <label for="production-custom">Mapped Version in Production: </label>
+                        <div class="alert alert-warning" role="alert">No version in the production stage</div>
                     </div>
             <% }%>
      <% }%>
