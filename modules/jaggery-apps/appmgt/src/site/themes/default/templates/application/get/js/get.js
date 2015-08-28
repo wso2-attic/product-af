@@ -183,6 +183,13 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
                 createCodeEnvyUrl(currentAppInfo.repoURL);
             }
         });
+        $('#btnEditCode').click(function() {
+            if(!isCodeEditorSupported) {
+                jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
+            } else {
+                createCodeEnvyUrl(currentAppInfo.repoURL);
+            }
+        });
 
         // add listener for developer studio
         $('#localIde').click(function() {
