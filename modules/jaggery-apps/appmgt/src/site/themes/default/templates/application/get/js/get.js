@@ -1,7 +1,7 @@
 // global data store
 var currentVersion = null;
 var isInit = true;
-var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+var devStudioLink = "https://docs.wso2.com/display/AF210/Use+WSO2+Developer+Studio+to+Develop+an+Application";
 var versionChangeEventAdded = false;
 var timer = null;
 var currentMessage = null;
@@ -177,6 +177,13 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
 
         // add listener for cloud envy
         $('#createCodeEnvyUrl').click(function() {
+            if(!isCodeEditorSupported) {
+                jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
+            } else {
+                createCodeEnvyUrl(currentAppInfo.repoURL);
+            }
+        });
+        $('#btnEditCode').click(function() {
             if(!isCodeEditorSupported) {
                 jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
             } else {
