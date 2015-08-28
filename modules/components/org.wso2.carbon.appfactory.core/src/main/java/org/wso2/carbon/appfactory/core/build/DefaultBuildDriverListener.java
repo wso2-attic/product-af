@@ -123,8 +123,10 @@ public class DefaultBuildDriverListener implements BuildDriverListener {
             log.error("Unable to publish bam stats " + e.getMessage(), e);
         }
 
-    }	
+    }
 
-  
-
+	@Override
+	public int compareTo(BuildDriverListener o) {
+		return 0;
+	}
 }
