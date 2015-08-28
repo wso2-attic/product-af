@@ -24,27 +24,17 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.appfactory.integration.test.utils.AFConstants;
-import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
+import org.wso2.appfactory.integration.test.utils.*;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
-
-import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 public class ApplicationCreationTestCase extends AFIntegrationTest {
     private static final Log log = LogFactory.getLog(ApplicationCreationTestCase.class);
     public static final String APP_TYPE_WAR = "war";
     private static final String INITIAL_STAGE = "Development";
     private ApplicationClient appMgtRestClient;
-	private final String appName = "foo_" + APP_TYPE_WAR;
+	private final String appName = "foo_" + APP_TYPE_WAR + "_bar";
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
         appMgtRestClient = new ApplicationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
@@ -56,6 +46,8 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
 
         log.info("Creating application of type :" + APP_TYPE_WAR + " with name :" + appName);
         createApplication(appName, appName, appName, APP_TYPE_WAR);
+	    boolean isSuccess = checkApplicationComponentsCreationStatus();
+	    Assert.assertEquals(isSuccess, true, "Application Creation failed.");
         log.info("Application creation is completed.");
     }
 
@@ -67,29 +59,6 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
         if (resultArray.size()!=0){
             isAssert = true;
         }
-	    try {
-		    isAssert = AFIntegrationTestUtils.isGitRepoExist(appName, AFIntegrationTestUtils
-				                                                     .getPropertyValue(AFConstants.URLS_GIT),
-		                                                     AFIntegrationTestUtils.getPropertyValue(
-				                                                     AFConstants.CREDENTIAL_GIT_USERNAME),
-		                                                     AFIntegrationTestUtils.getPropertyValue(
-				                                                     AFConstants.CREDENTIAL_GIT_PASSWORD));
-	    } catch (Exception e){
-		    throw new AFIntegrationTestException("Check is repo exists failed " + e);
-	    }
-	    try {
-		    isAssert = AFIntegrationTestUtils.isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(
-				                                                         AFConstants.URLS_JENKINS),
-		                                                         AFIntegrationTestUtils.getJenkinsJobName(appName
-				                                                         , AFIntegrationTestUtils.getPropertyValue(
-				                                                         AFConstants.DEFAULT_VERSION_NAME)),
-		                                                         AFIntegrationTestUtils.getPropertyValue(
-				                                                         AFConstants.CREDENTIAL_JENKINS_USERNAME),
-				                                                 AFIntegrationTestUtils.getPropertyValue(
-						                                                 AFConstants.CREDENTIAL_JENKINS_PASSWORD));
-	    } catch (Exception e) {
-		    throw new AFIntegrationTestException("Check is jenkins job exists failed " + e);
-	    }
 	    Assert.assertEquals(isAssert, true, "Get applications of user failed.");
     }
 
@@ -108,6 +77,7 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
     @AfterClass(alwaysRun = true)
     public void destroy() throws Exception {
         super.cleanup();
+	    appMgtRestClient.deleteApplication(defaultAdmin, appName);
     }
 
     protected void createApplication(String applicationName, String applicationKey, String applicationDescription,
@@ -124,5 +94,43 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
         populator.waitUntilApplicationCreationCompletes(5000L, 5, defaultAdmin, defaultAdminPassword,
                                                         applicationKey, applicationName);
     }
+
+	protected boolean checkApplicationComponentsCreationStatus() throws AFIntegrationTestException {
+		boolean isSuccess;
+		try {
+			log.info("Checking the existance of repo");
+			isSuccess = AFIntegrationTestUtils.isGitRepoExist(appName, AFIntegrationTestUtils
+					                                                 .getPropertyValue(AFConstants.URLS_GIT),
+			                                                 AFIntegrationTestUtils.getPropertyValue(
+					                                                 AFConstants.CREDENTIAL_GIT_USERNAME),
+			                                                 AFIntegrationTestUtils.getPropertyValue(
+					                                                 AFConstants.CREDENTIAL_GIT_PASSWORD));
+		} catch (Exception e){
+			log.error("Check is repo exists failed ", e);
+			throw new AFIntegrationTestException("Check is repo exists failed " + e);
+		}
+		if(!isSuccess){
+			return false;
+		}
+		try {
+			log.info("Checking the existance of build job");
+			isSuccess = AFIntegrationTestUtils.isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(
+					                                                     AFConstants.URLS_JENKINS),
+			                                                     AFIntegrationTestUtils.getJenkinsJobName(appName
+					                                                     , AFIntegrationTestUtils.getPropertyValue(
+					                                                     AFConstants.DEFAULT_VERSION_NAME)),
+			                                                     AFIntegrationTestUtils.getPropertyValue(
+					                                                     AFConstants.CREDENTIAL_JENKINS_USERNAME),
+			                                                     AFIntegrationTestUtils.getPropertyValue(
+					                                                     AFConstants.CREDENTIAL_JENKINS_PASSWORD));
+		} catch (Exception e) {
+			log.error("Check is jenkins job exists failed ", e);
+			throw new AFIntegrationTestException("Check is jenkins job exists failed " + e);
+		}
+		if(!isSuccess){
+			return false;
+		}
+		return isSuccess;
+	}
 
 }
