@@ -478,6 +478,8 @@ function showLoader(show){
                 validateAppIcon: true
             }
         },
+        onsubmit: false,    // Since we are handling on submit validation on click event of the "Create" button,
+                            // here we disabled the form validation on submit
         highlight: function (element, errorClass, validClass) { // this is triggered when the "element" is invalid
             $(element).addClass(errorClass).removeClass(validClass);
             $(element.form).find("div[for=" + element.id + "]").addClass(errorFormGroupClasses)
@@ -694,8 +696,8 @@ function showLoader(show){
 
     <div class="container-fluid cloud-container">
         <div class="row">
-            <div class="col-md-1">
-                <div class="cloud-selected-app-type <%=request.getParameter("apptypeIconColor")%>">
+            <div class="tmp-logo-responsive-fix">
+                <div class="cloud-selected-app-type  <%=request.getParameter("apptypeIconColor")%>">
                     <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-5x"></i>
                 </div>
             </div>
