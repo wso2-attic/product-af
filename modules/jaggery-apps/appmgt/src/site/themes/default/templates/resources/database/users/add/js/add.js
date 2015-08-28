@@ -121,6 +121,8 @@ function getValidationOptions(){
                 equalTo: "The password and its confirm are not the same"
             }
         },
+        onsubmit: false,    // Since we are handling on submit validation on click event of the "Create" button,
+                            // here we disabled the form validation on submit
         onkeyup: function (event, validator) {
             return false;
         },

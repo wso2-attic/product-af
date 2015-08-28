@@ -95,6 +95,14 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 }
 
     $(document).ready(function () {
+
+        if($.cookie('closed') == 'false'){
+            $('.notification-pane-trigger').find('i').removeClass('fw-notification').addClass('fw-right-arrow');
+            $('.notification-pane').animate({"right":"0em"}, "slow").removeClass('visible');
+        }else{
+            $('.notification-pane-trigger').find('i').removeClass('fw-right-arrow').addClass('fw-notification');
+            $('.notification-pane').animate({"right":"-24em"}, "slow").addClass('visible');
+        }
         pollNotifications();
         $('.side-pane-trigger').click(function() {
             var rightPane = $('.right-pane');
@@ -113,10 +121,12 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
         $('.notification-pane-trigger').click(function() {
             var notificationPane = $('.notification-pane');
             var notiTrigger = $('.notification-pane-trigger');
-            if(notificationPane.hasClass('visible')) {
+            if(notificationPane.hasClass('visible')){
+                $.cookie('closed', false, { expires: 7 });
                 notiTrigger.find('i').removeClass('fw-notification').addClass('fw-right-arrow');
                 notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
-            } else {
+            }else{
+                $.cookie('closed', true, { expires: 7 });
                 notiTrigger.find('i').removeClass('fw-right-arrow').addClass('fw-notification');
                 notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
             }
