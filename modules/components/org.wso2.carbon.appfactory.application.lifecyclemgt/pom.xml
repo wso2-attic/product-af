@@ -38,12 +38,6 @@
       <version>${cxf.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>3.1</version>
@@ -55,21 +49,9 @@
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
-      <artifactId>org.wso2.carbon.registry.api</artifactId>
-      <version>${carbon.platform.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.user.api</artifactId>
       <version>${carbon.platform.version}</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>org.wso2.carbon.base</artifactId>
-          <groupId>org.wso2.carbon</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
@@ -92,10 +74,6 @@
         <exclusion>
           <artifactId>org.wso2.carbon.base</artifactId>
           <groupId>org.wso2.carbon</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>org.eclipse.osgi</artifactId>
-          <groupId>org.eclipse.osgi</groupId>
         </exclusion>
         <exclusion>
           <artifactId>axis2</artifactId>
@@ -154,10 +132,6 @@
           <groupId>org.eclipse.osgi</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>junit</artifactId>
-          <groupId>junit</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>h2-database-engine</artifactId>
           <groupId>com.h2database.wso2</groupId>
         </exclusion>
@@ -168,10 +142,6 @@
         <exclusion>
           <artifactId>XmlSchema</artifactId>
           <groupId>org.apache.ws.commons.schema.wso2</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>org.wso2.carbon.registry.api</artifactId>
-          <groupId>org.wso2.carbon</groupId>
         </exclusion>
         <exclusion>
           <artifactId>org.wso2.carbon.utils</artifactId>
@@ -311,61 +281,12 @@
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>
-      <artifactId>org.wso2.carbon.registry.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.governance.lcm</artifactId>
       <version>4.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.wso2.appfactory</groupId>
       <artifactId>org.wso2.appfactory.integration.test.utils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-server-standalone</artifactId>
-      <version>2.46.0</version>
-    </dependency>
-    <dependency>
-      <groupId>aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>1.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>1.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.wso2.carbon</groupId>
-      <artifactId>org.wso2.carbon.registry.core</artifactId>
-      <version>4.2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.wso2.carbon</groupId>
-      <artifactId>org.wso2.carbon.registry.core</artifactId>
-      <version>4.2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.wso2.carbon.appfactory</groupId>
-      <artifactId>org.wso2.carbon.appfactory.application.mgt</artifactId>
-      <version>2.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon.appfactory</groupId>

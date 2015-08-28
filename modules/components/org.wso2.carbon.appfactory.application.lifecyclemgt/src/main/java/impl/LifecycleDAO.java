@@ -157,7 +157,7 @@ public class LifecycleDAO {
      * @return life cycle name for the application
      */
     public String getLifeCycleName(String appKey, String appVersion, String tenantDomain)
-            throws AppFactoryException {
+            throws AppFactoryException, LifecycleManagementException {
         PrivilegedCarbonContext carbonContext;
         String lifecycleName = null;
         try {
@@ -168,6 +168,11 @@ public class LifecycleDAO {
             GenericArtifact artifact = getAppArtifact(appKey, appVersion, tenantDomain);
             if (artifact != null) {
                 lifecycleName = artifact.getAttribute(RXT_APPINFO_LIFECYCLE_NAME);
+            } else {
+                String msg = "Error while loading the application version details of the application id :" + appKey
+                        + " with the version :" + appVersion + " of the tenant :" + tenantDomain;
+                log.error(msg);
+                throw new LifecycleManagementException(msg);
             }
         } catch (GovernanceException e) {
             String errorMsg =
@@ -285,6 +290,7 @@ public class LifecycleDAO {
 
     /**
      * Method to check whether changing life cycle name for an application is valid or not
+     * (Lifecycle name can be changed only if no version is created by the user)
      *
      * @param appKey name of application key
      * @return true/false
@@ -300,11 +306,10 @@ public class LifecycleDAO {
             carbonContext.setTenantDomain(tenantDomain, true);
 
             versionNames = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(appKey);
-
+            //Assume that app versions can not be deleted from an application
             if (versionNames.size() == 1) {
-                if (versionNames.get(0).getVersion().equals(
-                        AppFactoryConstants.TRUNK) || versionNames.get(0).getVersion().equals(
-                        AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION)) {
+                if (AppFactoryConstants.TRUNK.equals(versionNames.get(0).getVersion()) ||
+                        AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION.equals(versionNames.get(0).getVersion())) {
                     status = true;
                 }
             } else {
@@ -342,11 +347,11 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.startTenantFlow();
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
-
-            GenericArtifact artifact =
+            //Get the appinfo artifact and attach lifecycle name
+            GenericArtifact appInfoArtifact =
                     getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain);
-            artifact.attachLifecycle(lifecycleName);
-
+            appInfoArtifact.attachLifecycle(lifecycleName);
+            //update each version of the application with the new lifecycle name
             ArrayList<Version> versionNames = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(appKey);
             if (versionNames != null) {
                 for (Version versionName : versionNames) {
@@ -357,7 +362,7 @@ public class LifecycleDAO {
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
                     AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
-            artifactManager.updateGenericArtifact(artifact);
+            artifactManager.updateGenericArtifact(appInfoArtifact);
             JDBCApplicationCacheManager.getApplicationArtifactCache().remove(appKey);
 
         } catch (RegistryException e) {
