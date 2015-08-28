@@ -478,6 +478,8 @@ function showLoader(show){
                 validateAppIcon: true
             }
         },
+        onsubmit: false,    // Since we are handling on submit validation on click event of the "Create" button,
+                            // here we disabled the form validation on submit
         highlight: function (element, errorClass, validClass) { // this is triggered when the "element" is invalid
             $(element).addClass(errorClass).removeClass(validClass);
             $(element.form).find("div[for=" + element.id + "]").addClass(errorFormGroupClasses)
