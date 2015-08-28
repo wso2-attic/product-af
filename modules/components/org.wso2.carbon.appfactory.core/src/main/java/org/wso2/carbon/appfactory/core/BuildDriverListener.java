@@ -21,7 +21,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 /**
  * Listens to the events of the BuildDriver
  */
-public interface BuildDriverListener {
+public interface BuildDriverListener extends Comparable<BuildDriverListener> {
 
 	/**
 	 * @param applicationId
