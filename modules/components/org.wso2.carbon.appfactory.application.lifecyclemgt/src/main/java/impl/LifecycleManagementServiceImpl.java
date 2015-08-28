@@ -243,7 +243,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param lifecycleName the name of lifecycle, that should be associated with the application
      * @return life cycle
      */
-    private LifecycleBean getLifeCycleByName(String lifecycleName) throws AppFactoryException {
+    private LifecycleBean getLifeCycleByName(String lifecycleName){
         return lifecycleMap.get(lifecycleName);
     }
 
