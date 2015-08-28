@@ -40,7 +40,6 @@ import org.wso2.carbon.appfactory.repository.mgt.service.RepositoryAuthenticatio
 import org.wso2.carbon.appfactory.repository.mgt.service.RepositoryManagementService;
 import org.wso2.carbon.appfactory.repository.mgt.svn.SVNBranchingStrategy;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
-import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.lang.reflect.Constructor;
@@ -56,10 +55,6 @@ import java.lang.reflect.Constructor;
  *                interface="org.wso2.carbon.user.core.service.RealmService"
  *                cardinality="1..1" policy="dynamic" bind="setRealmService"
  *                unbind="unsetRealmService"
- * @scr.reference name="appversion.executor"
- *                interface="org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor"
- *                cardinality="1..1" policy="dynamic" bind="setAppVersionStrategyExecutor"
- *                unbind="unsetAppVersionStrategyExecutor"
  * @scr.reference name="appfactory.tenant.mgt.service"
  *                interface="org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService"
  *                cardinality="0..1" policy="dynamic"
@@ -86,14 +81,6 @@ public class RepositoryMgtServiceComponent {
 
 	protected void unsetRealmService(RealmService realmService) {
 		Util.setRealmService(null);
-	}
-
-	protected void setAppVersionStrategyExecutor(AppVersionStrategyExecutor versionExecutor) {
-		Util.setVersionStrategyExecutor(versionExecutor);
-	}
-
-	protected void unsetAppVersionStrategyExecutor(AppVersionStrategyExecutor versionExecutor) {
-		Util.setVersionStrategyExecutor(null);
 	}
 	
 	public static void setTenantManagementService(TenantManagementService tenantManagementService) {

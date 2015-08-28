@@ -763,6 +763,18 @@ var loggedInUser = jagg.getUser();
             }
         }
         print(databasesByName);
+    } else if (action== "getDatabaseInfoForDataTable") {
+        var applicationKey = request.getParameter("applicationKey");
+        var applicationName = request.getParameter("applicationName");
+        try {
+            result  =  mod.generateDatabaseInfoForDataTable(applicationKey, applicationName);
+        } catch (e) {
+            var msg = "Error while getting info for datatable of databases for the application : " + applicationKey;
+            log.error(msg);
+            log.error(e);
+            throw e;
+        }
+        print(result); 
     } else {
 		throw new Error("No action specified");
 	}

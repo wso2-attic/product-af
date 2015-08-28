@@ -1,7 +1,7 @@
 // global data store
 var currentVersion = null;
 var isInit = true;
-var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+var devStudioLink = "https://docs.wso2.com/display/AF210/Use+WSO2+Developer+Studio+to+Develop+an+Application";
 var versionChangeEventAdded = false;
 var timer = null;
 var currentMessage = null;
@@ -181,6 +181,13 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
                 createCodeEnvyUrl(currentAppInfo.repoURL);
             }
         });
+        $('#btnEditCode').click(function() {
+            if(!isCodeEditorSupported) {
+                jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
+            } else {
+                createCodeEnvyUrl(currentAppInfo.repoURL);
+            }
+        });
 
         // add listener for developer studio
         $('#localIde').click(function() {
@@ -266,6 +273,8 @@ function poolUntilAppDeploy(callback, appInfo, currentAppInfo) {
 
 // load code envy editor
 function createCodeEnvyUrl(gitURL) {
+    var codeEnvyUrl = null;
+    var newWindow = window.open('','_blank');
     jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
             action: "createCodeEnvyUrl",
             gitURL: gitURL,
@@ -273,11 +282,16 @@ function createCodeEnvyUrl(gitURL) {
             appType: applicationInfo.type,
             version:currentVersion
         }, function (result) {
-            if(result) {
-                var newWindow = window.open('','_blank');
-                newWindow.location = result;
-            } else {
-                jagg.message({content: "Failed creating the Codenvy workspace URL! ", type: 'error', id:'message_id'});
+            codeEnvyUrl = result;
+            if(codeEnvyUrl==="" || codeEnvyUrl==null){
+                jagg.message({
+                                 content: "Failed creating the Codenvy workspace URL!",
+                                 type: 'error',
+                                 id:'message_id'
+                             });
+
+            }else{
+                newWindow.location = codeEnvyUrl;
             }
         });
 }
