@@ -56,7 +56,7 @@ public class LifecycleDAO {
      * @throws AppFactoryException
      */
     public GenericArtifact getAppArtifact(String appKey, String artifactName, String tenantDomain)
-            throws AppFactoryException {
+            throws AppFactoryException, LifecycleManagementException {
         PrivilegedCarbonContext carbonContext;
         GenericArtifact artifact = null;
         try {
@@ -68,7 +68,9 @@ public class LifecycleDAO {
             String resourcePath = getAppRegistryPath(appKey, artifactName);
 
             if (!userRegistry.resourceExists(resourcePath)) {
-                return null;
+                String msg = "Unable to load resources of application :"+appKey+" of the tenant :"+tenantDomain;
+                log.error(msg);
+                throw new LifecycleManagementException(msg);
             }
 
             Resource resource = userRegistry.get(resourcePath);

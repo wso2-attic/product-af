@@ -48,7 +48,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     private static final String LC_ITEM_ELEMENT = "item";
     private static final String LC_ATTRIBUTE_NAME = "name";
     private static final String LC_SCXML_ELEMENT = "scxml";
-    private static Map<String, LifecycleBean> lifecycleMap = new HashMap<String, LifecycleBean>();
+    private static Map<String, LifecycleBean> lifecycleMap;
     Log log = LogFactory.getLog(LifecycleManagementServiceImpl.class);
 
     public LifecycleManagementServiceImpl() throws AppFactoryException, LifecycleManagementException {
@@ -69,6 +69,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      */
     private void init() throws AppFactoryException {
         if (lifecycleMap == null) {
+            lifecycleMap = new HashMap<String, LifecycleBean>();
             LifecycleDAO lifecycleDAO = new LifecycleDAO();
             String[] lifecycleNameList = lifecycleDAO.getLifeCycleList();
             for (String LifecycleName : lifecycleNameList) {
@@ -137,7 +138,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
             log.error(msg);
             throw new LifecycleManagementException(msg);
         } else {
-            ListIterator<StageBean> stages = (ListIterator<StageBean>) lifecycle.getStages().iterator();
+            ListIterator<StageBean> stages = lifecycle.getStages().listIterator();
             while (stages.hasNext()) {
                 //if the currentStage equals to the stage name of the current stage object go to previous stage object
                 if (stages.next().getStageName().equals(currentStage)) {
@@ -187,8 +188,8 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param lifecycleName life cycle name
      * @return array of stage objects
      */
-    private Set<StageBean> getAllStages(String lifecycleName) throws AppFactoryException {
-        Set<StageBean> stages = new HashSet<StageBean>();
+    private List<StageBean> getAllStages(String lifecycleName) throws AppFactoryException {
+        List<StageBean> stages = new ArrayList<StageBean>();
 
         LifecycleDAO lifecycleDAO = new LifecycleDAO();
         //The lifecycle configuration file is retrieved from the registry. Therefore there's no need to
@@ -197,6 +198,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         OMElement configurationElement;
         try {
             configurationElement = AXIOMUtil.stringToOM(lifecycleXml);
+
         } catch (XMLStreamException e) {
             String msg = "Unable to load the lifecycle configuration from registry for lifecycle :" + lifecycleName;
             log.error(msg, e);
@@ -228,7 +230,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
 
                 Iterator dataModelElement = nextStage.getChildrenWithName(new QName(LC_DATA_MODEL_ELEMENT));
 
-                Set<CheckListItemBean> checkListItems = getCheckListItems(dataModelElement, stageName);
+                List<CheckListItemBean> checkListItems = getCheckListItems(dataModelElement, stageName);
                 stage.setCheckListItems(checkListItems);
 
             }
@@ -243,7 +245,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param lifecycleName the name of lifecycle, that should be associated with the application
      * @return life cycle
      */
-    private LifecycleBean getLifeCycleByName(String lifecycleName){
+    private LifecycleBean getLifeCycleByName(String lifecycleName) throws AppFactoryException {
         return lifecycleMap.get(lifecycleName);
     }
 
@@ -321,9 +323,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param dataModelElement xml element with check list items
      * @return array of stage objects
      */
-    private Set<CheckListItemBean> getCheckListItems(Iterator dataModelElement, String stageName) {
+    private List<CheckListItemBean> getCheckListItems(Iterator dataModelElement, String stageName) {
 
-        Set<CheckListItemBean> checkListItems = new HashSet<CheckListItemBean>();
+        List<CheckListItemBean> checkListItems = new ArrayList<CheckListItemBean>();
 
         OMElement nextDataModel = (OMElement) dataModelElement.next();
 
@@ -357,7 +359,8 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey application key
      * @return true/false
      */
-    public boolean isAppLCChanged(String appKey, String tenantDomain) throws AppFactoryException {
+    public boolean isAppLCChanged(String appKey, String tenantDomain)
+            throws AppFactoryException, LifecycleManagementException {
         boolean status = false;
         LifecycleDAO dao = new LifecycleDAO();
         PrivilegedCarbonContext carbonContext;

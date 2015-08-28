@@ -21,9 +21,7 @@ package bean;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Details about stages in lifecycle configuration
@@ -33,7 +31,7 @@ import java.util.Set;
 public class StageBean {
     private String stageName;
     //List of ChecklistItems objects from ChecklistItem class
-    private Set<CheckListItemBean> checkListItems;
+    private List<CheckListItemBean> checkListItems;
 
     public String getStageName() {
         return stageName;
@@ -43,16 +41,16 @@ public class StageBean {
         this.stageName = stageName;
     }
 
-    public Set<CheckListItemBean> getCheckListItems() {
-        if (checkListItems == null) {
-            return Collections.emptySet();
+    public List<CheckListItemBean> getCheckListItems() {
+        if(checkListItems == null) {
+            return Collections.emptyList();
         }
         return this.checkListItems;
     }
 
-    public void setCheckListItems(Set<CheckListItemBean> checkListItems) {
-        if (this.checkListItems == null) {
-            this.checkListItems = new HashSet<CheckListItemBean>();
+    public void setCheckListItems(List<CheckListItemBean> checkListItems) {
+        if(this.checkListItems == null) {
+            this.checkListItems = new ArrayList<CheckListItemBean>();
         }
         this.checkListItems.addAll(checkListItems);
     }

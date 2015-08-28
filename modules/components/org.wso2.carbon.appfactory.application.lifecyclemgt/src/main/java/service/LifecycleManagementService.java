@@ -116,6 +116,6 @@ public interface LifecycleManagementService {
     @GET
     @Path("/isAppLCChanged/{appKey}/{tenantDomain}/")
     public boolean isAppLCChanged(@PathParam("appKey") String appKey, @PathParam("tenantDomain") String tenantDomain)
-            throws AppFactoryException;
+            throws AppFactoryException, LifecycleManagementException;
 
 }

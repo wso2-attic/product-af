@@ -28,10 +28,6 @@
         <servlet-class>
             org.apache.cxf.transport.servlet.CXFServlet
         </servlet-class>
-        <init-param>
-            <param-name>service-list-stylesheet</param-name>
-            <param-value>servicelist.css</param-value>
-        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
@@ -43,7 +39,22 @@
     <session-config>
         <session-timeout>60</session-timeout>
     </session-config>
-    
+
+   <!-- <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>LifecycleManagementService</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>LifecycleManagementService</realm-name>
+    </login-config>-->
 
 </web-app>
 

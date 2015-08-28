@@ -21,9 +21,7 @@ package bean;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Details about life cycles in lifecycle configuration
@@ -33,7 +31,7 @@ import java.util.Set;
 public class LifecycleBean {
     private String lifecycleName;
     //List of Stage objects from Stage class
-    private Set<StageBean> stages;
+    private List<StageBean> stages;
 
     public String getLifecycleName() {
         return this.lifecycleName;
@@ -43,16 +41,16 @@ public class LifecycleBean {
         this.lifecycleName = lifecycleName;
     }
 
-    public Set<StageBean> getStages() {
+    public List<StageBean> getStages() {
         if (stages == null) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
         return this.stages;
     }
 
-    public void setStages(Set<StageBean> stages) {
+    public void setStages(List<StageBean> stages) {
         if (this.stages == null) {
-            this.stages = new HashSet<StageBean>();
+            this.stages = new ArrayList<StageBean>();
         }
         this.stages.addAll(stages);
     }
