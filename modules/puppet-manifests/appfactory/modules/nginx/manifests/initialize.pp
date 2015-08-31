@@ -1,11 +1,9 @@
 define nginx::initialize (
   $repo,
   $version,
-  $service,
   $local_dir,
-  $target,
-  $mode,
   $owner,
+  $target,
 ) {
 
   exec {

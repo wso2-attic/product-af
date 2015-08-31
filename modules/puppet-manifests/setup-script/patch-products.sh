@@ -5,9 +5,7 @@
 
 . ./config.properties
 
-sudo su $APPFACTORY_USER <<'EOF'
 
-. ./config.properties
 
 BASE_DIR=/mnt/$MACHINE_IP
 
@@ -29,6 +27,7 @@ cp org.wso2.carbon.appfactory.common/target/org.wso2.carbon.appfactory.common-$A
 cp org.wso2.carbon.appfactory.s4.integration/target/org.wso2.carbon.appfactory.s4.integration-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
 cp org.wso2.carbon.appfactory.application.mgt/target/org.wso2.carbon.appfactory.application.mgt-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
 cp org.wso2.carbon.appfactory.common/target/org.wso2.carbon.appfactory.common-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
+cp org.wso2.carbon.appfactory.deployers/target/org.wso2.carbon.appfactory.deployers-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
 
 ## patch jenkins
 JENKINS_PATCH_DIR=$jenkinspath/jenkins_home/plugins/appfactory-plugin-$APPFACTORY_VERSION/WEB-INF/lib/
@@ -39,5 +38,4 @@ cp org.wso2.carbon.appfactory.common/target/org.wso2.carbon.appfactory.common-$A
 cp org.wso2.carbon.appfactory.s4.integration/target/org.wso2.carbon.appfactory.s4.integration-$APPFACTORY_VERSION.jar $JENKINS_PATCH_DIR
 cp org.wso2.carbon.appfactory.application.mgt/target/org.wso2.carbon.appfactory.application.mgt-$APPFACTORY_VERSION.jar $JENKINS_PATCH_DIR
 cp org.wso2.carbon.appfactory.common/target/org.wso2.carbon.appfactory.common-$APPFACTORY_VERSION.jar $JENKINS_PATCH_DIR
-
-EOF
+cp org.wso2.carbon.appfactory.deployers/target/org.wso2.carbon.appfactory.deployers-$APPFACTORY_VERSION.jar $JENKINS_PATCH_DIR

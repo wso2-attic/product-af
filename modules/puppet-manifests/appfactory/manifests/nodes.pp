@@ -1116,6 +1116,7 @@ node /nginx/ inherits confignode {
     owner              => $owner,
     group              => $group,
     target             => "/mnt/${server_ip}/nginx",
+    ext_version        => "4.1.1"
   }
 }
 #########################################
