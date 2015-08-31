@@ -753,7 +753,10 @@ function showLoader(show){
                     <% } %>
 
                     <div class="form-group">
-                        <label for="application-icon">Icon: </label>
+                        <label for="application-icon">Icon:
+                            <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left"
+                        title="Recommended image size : 300 x 300 pixels, file size 70 k (maximum)"></i>
+                        </label>
                         <div class="input-group">
                             <input type="text" id="icon" name="icon" class="form-control" readonly>
                             <span class="input-group-btn">
