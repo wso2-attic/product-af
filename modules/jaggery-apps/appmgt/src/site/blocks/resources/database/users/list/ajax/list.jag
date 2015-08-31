@@ -182,10 +182,18 @@ var result = {};
             var msg = "Error while creating database user : " + username;
             log.error(msg);
             log.error(e);
+
+            var responseMsg = "Error while creating database user : " + username;
             response.status=400;
             // get the cause message from exception itself to make user friendly message
             var errorMsg = new String(e.javaException.cause);
-            response.content = getActualCause(errorMsg);
+            var actualCause = getActualCause(errorMsg);
+            // This is a hack to identify whether the error occurred due to an existing user
+            var alreadyExistsPattern = /already exists/ig;
+            if(alreadyExistsPattern.test(actualCause)){
+                responseMsg = "Database user '"+username+"' already exists"
+            }
+            response.content = responseMsg;
         }
 	}  else {
 		throw new Error("No action specified");
