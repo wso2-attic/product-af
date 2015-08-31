@@ -19,88 +19,8 @@
 
 
 $(document).ready(function() {
-
-    $('.datatable table').dataTable({
-            responsive: true,
-            "orderCellsTop": true,
-            data: usrInfo,
-            "columns": [
-                { "data": "username", "width": "10%"},
-                { "data": "attachuser" , "width": "5%","sClass" : "dt-body-center"},
-                { "data": "priviledges" , "width": "40%"},
-                { "data": "editpriviledges", "orderable": false, "width": "3%","sClass" : "dt-body-center"  },
-                { "data": "trash", "orderable": false, "width": "3%", "sClass" : "dt-body-center" }
-            ],
-            "fnDrawCallback": function( oSettings ) {
-                // onclick event of checkbox switch
-                $('.switch input[type=checkbox]').on("click",function(){
-                    var isChecked = $(this).is(":checked");
-                    var currentId = $(this).attr("id");
-                    var currentElement = $("#"+ currentId);
-                    //getting the user name from checkbox id, removing 'chkbx_'
-                    var userName = currentId.substr(7);
-                    if(isChecked){
-                        //clear all checked boxes
-                        $('#priviledges_modal input:checkbox').prop('checked', false);
- 
-                        $('#priviledges_modal').modal({
-                            show: true,
-                            keyboard: false,
-                            backdrop: 'static'
-                        });
-                        $('#privilege_edit_cancel').on('click', function (e) {
-                            currentElement.removeAttr("checked");
-                            userName = "";
-                        });
-                        $('#privilege_edit_save').on('click', function (e) {
-                            if(priviledgeCheckboxValidation()){
-                            var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
-                            attachUserWithPermissions(userName, permissions);
-                            } else {
-                                 jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
-                            }
-                        });
-                     }else {
-                        detachUserAndDropTemplate(userName);
-                        currentElement.removeAttr("checked");
-                        $("#priviledges_"+ userName).html("");
-                    }
-                    
-                });
-            // on click event of edit
-            $('.edit_priviledge').on("click",function(){
-                var currentId = $(this).attr("id");
-                //getting the user name from  id, removing 'edit_'
-                var userName = currentId.substr(5);
-                markExistingPriviledges(userName);
-                $('#priviledges_modal').modal({
-                            show: true,
-                            keyboard: false,
-                            backdrop: 'static'
-                }); 
-                $('#privilege_edit_save').on('click', function (e) {
-                    if(priviledgeCheckboxValidation()) {
-                        var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
-                        editUserPriviledges(userName, permissions);
-                    } else {
-                        jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
-                    }
-                });
-                $('#privilege_edit_cancel').on('click', function (e) {
-                    userName = "";
-                });
-            });
-            // on click event of delete 
-            $('.delete_user').on("click",function(){
-                var currentId = $(this).attr("id");
-                //getting the user name from  id, removing 'delete_'
-                var userName = currentId.substr(7);
-                jagg.popMessage({type:'confirm',title:'Delete User',content:'Are you sure you want to delete the user ' + userName + ' ?', okCallback:function(){deleteUser(userName);;}, cancelCallback:function(){}});
-
-            });
-        } // end of call back function
-}); // end of datatable
-
+var usersDatatable = {};
+populateDatatable();
 
 // select all check boxes for data and structure permission sections
 $('.data-select-all input[type="checkbox"]').on("click",function() {
@@ -130,6 +50,104 @@ $('.structurecbx').on("click",function() {
 });
 
 }); // end of document ready
+
+
+/**
+* Populate data table for databtase users
+*/
+function populateDatatable() {
+  usersDatatable = $('.datatable table').dataTable({
+            responsive: true,
+            "orderCellsTop": true,
+            'ajax': {
+                "type"   : "POST",
+                "url"    : '../blocks/resources/database/add/ajax/add.jag',
+                "data"   : function( d ) {
+                d.action = "getDatabaseUsersForDataTable";
+                d.applicationKey = applicationKey;
+                d.environment = environment;
+                d.dbName = dbName;
+                }
+            },
+            "columns": [
+                { "data": "username", "width": "10%"},
+                { "data": "attachuser" , "width": "5%","sClass" : "dt-body-center"},
+                { "data": "priviledges" , "width": "40%"},
+                { "data": "editpriviledges", "orderable": false, "width": "3%","sClass" : "dt-body-center"  },
+                { "data": "trash", "orderable": false, "width": "3%", "sClass" : "dt-body-center" }
+            ],
+            "fnDrawCallback": function( oSettings ) {
+                // onclick event of checkbox switch
+                $('.switch input[type=checkbox]').on("click",function(){
+                    var isChecked = $(this).is(":checked");
+                    var currentId = $(this).attr("id");
+                    var currentElement = $("#"+ currentId);
+                    //getting the user name from checkbox id, removing 'chkbx_'
+                    var userName = currentId.substr(7);
+                    if(isChecked){
+                        //clear all checked boxes
+                        $('#priviledges_modal input:checkbox').prop('checked', false);
+
+                        $('#priviledges_modal').modal({
+                            show: true,
+                            keyboard: false,
+                            backdrop: 'static'
+                        });
+                        $('#privilege_edit_cancel').on('click', function (e) {
+                            currentElement.removeAttr("checked");
+                            userName = "";
+                        });
+                        $('#privilege_edit_save').on('click', function (e) {
+                            if(priviledgeCheckboxValidation()){
+                            var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
+                            attachUserWithPermissions(userName, permissions);
+                            $('#priviledges_modal').modal('hide');
+                            } else {
+                                 jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
+                            }
+                        });
+                     }else {
+                        detachUserAndDropTemplate(userName);
+                        currentElement.removeAttr("checked");
+                        $("#priviledges_"+ userName).html("");
+                    }
+
+                });
+            // on click event of edit
+            $('.edit_priviledge').on("click",function(){
+                var currentId = $(this).attr("id");
+                //getting the user name from  id, removing 'edit_'
+                var userName = currentId.substr(5);
+                markExistingPriviledges(userName);
+                $('#priviledges_modal').modal({
+                            show: true,
+                            keyboard: false,
+                            backdrop: 'static'
+                });
+                $('#privilege_edit_save').on('click', function (e) {
+                    if(priviledgeCheckboxValidation()) {
+                        var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
+                        editUserPriviledges(userName, permissions);
+                        $('#priviledges_modal').modal('hide'); 
+                    } else {
+                        jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
+                    }
+                });
+                $('#privilege_edit_cancel').on('click', function (e) {
+                    userName = "";
+                });
+            });
+            // on click event of delete 
+            $('.delete_user').on("click",function(){
+                var currentId = $(this).attr("id");
+                //getting the user name from  id, removing 'delete_'
+                var userName = currentId.substr(7);
+                jagg.popMessage({type:'confirm',title:'Delete User',content:'Are you sure you want to delete the user ' + userName + ' ?', okCallback:function(){deleteUser(userName);;}, cancelCallback:function(){}});
+
+            });
+        } // end of call back function
+    }); // end of datatable
+}
 
 
 /**
@@ -179,7 +197,7 @@ function attachUserWithPermissions(userName, permissionsJson) {
             permissions:permissionsJson 
         },function (result) {
                 if(result){
-                    document.location.reload(true);
+                    usersDatatable.api().ajax.reload();
                 }
         },function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status != 0){
@@ -231,7 +249,7 @@ function priviledgeCheckboxValidation() {
 * Update priviledges of a user attached to a database
 */
 function editUserPriviledges(userName, permissionsJson) {
-     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"editUserPermissions",
             applicationKey:applicationKey,
             databaseName:dbName,
@@ -239,7 +257,7 @@ function editUserPriviledges(userName, permissionsJson) {
             userName:userName,
             permissions:permissionsJson 
         },function (result) {
-            document.location.reload(true);
+            usersDatatable.api().ajax.reload();
         },function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status != 0){
                     jagg.message({type:'error',content:'User ' + userName + ' attaching failed for database ' + dbName, id:'attach_user'});
@@ -257,7 +275,7 @@ function deleteUser(userName) {
             name:userName,
             rssInstanceName:environment
         },function (result) {
-            document.location.reload(true);
+            usersDatatable.api().ajax.reload();
         },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
                 jagg.message({content:'Error occurred while deleting user: ' + userName + 'User already attached to a database.',type:'error', id:'dbusercreation' });

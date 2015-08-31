@@ -775,6 +775,44 @@ var loggedInUser = jagg.getUser();
             throw e;
         }
         print(result); 
+    } else if(action == "getDatabaseUsersForDataTable") {
+        var applicationKey = request.getParameter("applicationKey");
+        var currentStage = request.getParameter("environment");
+        var dbName = request.getParameter("dbName");
+        var permissionModule = jagg.module("permission");
+        var resourceModule = jagg.module("resources");
+        var hasPermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + currentStage);
+        var userInfoArray = [];
+        if(hasPermission) {
+            var unAttachedUsers = resourceModule.getAvailableUsersToAttachToDatabase(applicationKey,dbName, currentStage);
+            var attachedUsers = resourceModule.getAttachedUsers(applicationKey, dbName, currentStage);
+            for(var i in attachedUsers) {
+                var user = {};
+                user.username = "<a>" + attachedUsers[i] + "</a>";
+                user.attachuser = '<label class="switch"> <input id="chkbox_' + attachedUsers[i] + '" type="checkbox" checked><span class="toggle-button"></span></label>';
+                var priviledgeJsonArray =  resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, attachedUsers[i]);
+                var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
+                user.priviledges = '<div id="priviledges_' + attachedUsers[i] + '" >' + priviledgeString + '</div>';
+                user.editpriviledges = '<a class="edit_priviledge" id="edit_' + attachedUsers[i] + '" href="#"><i class="fa fa-edit"></i></a>';
+                user.trash = "<a class='not-active' href=''><i class='fa  fa-trash'></i></a>";
+                userInfoArray.push(user);
+            }
+            for(var i in unAttachedUsers) {
+                var user = {};
+                user.username = "<a>" + unAttachedUsers[i] + "</a>";
+                user.attachuser = '<label class="switch"> <input id="chkbox_' + unAttachedUsers[i] + '" type="checkbox" ><span class="toggle-button"></span></label>';
+                var priviledgeJsonArray = resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, unAttachedUsers[i]);
+                var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
+                user.priviledges = priviledgeString;
+                user.editpriviledges = "<a class='not-active' href='#'><i class='fa fa-edit'></i></a>";
+                user.trash = '<a class="delete_user" id="delete_' + unAttachedUsers[i] + '" href="#"><i class="fa  fa-trash"></i></a>';
+                userInfoArray.push(user);
+            }
+        }
+        // Data table expects a object with the format {data : [{},{},{}.....]}
+        var userInfoArrayWithDataAtrribute = {};
+        userInfoArrayWithDataAtrribute.data = userInfoArray;
+        print(stringify(userInfoArrayWithDataAtrribute));
     } else {
 		throw new Error("No action specified");
 	}
