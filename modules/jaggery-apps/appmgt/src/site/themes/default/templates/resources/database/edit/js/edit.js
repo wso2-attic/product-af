@@ -102,6 +102,33 @@ $(document).ready(function() {
 }); // end of datatable
 
 
+// select all check boxes for data and structure permission sections
+$('.data-select-all input[type="checkbox"]').on("click",function() {
+    $(".datacbx").prop('checked', $(this).prop('checked'));
+});
+$('.structure-select-all input[type="checkbox"]').on("click",function() {
+    $(".structurecbx").prop('checked', $(this).prop('checked'));
+});
+
+$('.datacbx').on("click",function() {
+    var classL = $('.datacbx').length;
+    var checkedL = $('.datacbx:checked').length;
+    if(classL == checkedL) {
+        $('.data-select-all input[type="checkbox"]').prop('checked', true);
+    } else {
+        $('.data-select-all input[type="checkbox"]').prop('checked', false);
+    }
+});
+$('.structurecbx').on("click",function() {
+    var classL = $('.structurecbx').length;
+    var checkedL = $('.structurecbx:checked').length;
+    if(classL == checkedL) {
+        $('.structure-select-all input[type="checkbox"]').prop('checked', true);
+    } else {
+        $('.structure-select-all input[type="checkbox"]').prop('checked', false);
+    }
+});
+
 }); // end of document ready
 
 

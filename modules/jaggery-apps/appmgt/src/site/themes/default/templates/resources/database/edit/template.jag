@@ -99,33 +99,37 @@ language=appInfo.language;
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-xs-12 col-md-12 section-title">Data</div>
+                        <div class="col-xs-12 col-md-12 section-title">
+                            <label class="data-select-all"><input type='checkbox'> &nbsp;Data</label>
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='selectPriv' > &nbsp;SELECT</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='insertPriv' > &nbsp;INSERT</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='updatePriv' > &nbsp;UPDATE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='deletePriv' > &nbsp;DELETE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createPriv' > &nbsp;CREATE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='dropPriv' > &nbsp;DROP</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='grantPriv' > &nbsp;GRANT</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='referencesPriv' > &nbsp;REFERENCES</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='indexPriv' > &nbsp;INDEX</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='selectPriv' > &nbsp;SELECT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='insertPriv' > &nbsp;INSERT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='updatePriv' > &nbsp;UPDATE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='deletePriv' > &nbsp;DELETE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='createPriv' > &nbsp;CREATE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='dropPriv' > &nbsp;DROP</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='grantPriv' > &nbsp;GRANT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='referencesPriv' > &nbsp;REFERENCES</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx" name='chkbx_priviledge' type='checkbox' id='indexPriv' > &nbsp;INDEX</div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-12 col-md-12 section-title">Structure</div>
+                        <div class="col-xs-12 col-md-12 section-title">
+                            <label class="structure-select-all"><input type='checkbox'> &nbsp;Structure</label>
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='alterPriv' > &nbsp;ALTER</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createTmpTablePriv' > &nbsp;CREATE TEMP TABLE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='lockTablesPriv' > &nbsp;LOCK TABLES</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createViewPriv' > &nbsp;CREATE VIEW</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='showViewPriv' > &nbsp;SHOW VIEW</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='createRoutinePriv' > &nbsp;CREATE ROUTINE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='alterRoutinePriv' > &nbsp;ALTER ROUTINE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='executePriv' > &nbsp;EXECUTE</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='eventPriv' > &nbsp;EVENT</div>
-                        <div class="col-xs-6 col-md-3 "> <input name='chkbx_priviledge' type='checkbox' id='triggerPriv' > &nbsp;TRIGGER</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='alterPriv' > &nbsp;ALTER</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='createTmpTablePriv' > &nbsp;CREATE TEMP TABLE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='lockTablesPriv' > &nbsp;LOCK TABLES</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='createViewPriv' > &nbsp;CREATE VIEW</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='showViewPriv' > &nbsp;SHOW VIEW</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='createRoutinePriv' > &nbsp;CREATE ROUTINE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='alterRoutinePriv' > &nbsp;ALTER ROUTINE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='executePriv' > &nbsp;EXECUTE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='eventPriv' > &nbsp;EVENT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx" name='chkbx_priviledge' type='checkbox' id='triggerPriv' > &nbsp;TRIGGER</div>
                     </div>
                 </div>
 
