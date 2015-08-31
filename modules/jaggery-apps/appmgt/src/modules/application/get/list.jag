@@ -535,17 +535,32 @@
     var updateUserHomePendingApps = function(){
         var appKeys = getAppKeysFromUserHomeCache(APPLICATION_CREATION_STATUS.PENDING);
         var userHomeData = getUserHomeDataFromCache();
-        if(appKeys.length > 0){
+        if (appKeys.length > 0) {
             var updatedStatus = getAppCreationStatusByKeys(appKeys);
-            if(!isEmpty(updatedStatus)) {
-                for (var appKey in updatedStatus){
-                    if(APPLICATION_CREATION_STATUS.PENDING != updatedStatus[appKey]) {
-                        userHomeData = moveApplicationFromCreationStatus(userHomeData,APPLICATION_CREATION_STATUS.PENDING,
-                                                                         updatedStatus[appKey],appKey);
+            for (var index in appKeys) {
+                var appkey = appKeys[index];
+                if (!isEmpty(updatedStatus) && updatedStatus[appkey]) {
+                    if (APPLICATION_CREATION_STATUS.PENDING != updatedStatus[appkey]) {
+                        // if the application exist in faulty array remove it
+                        if (!isEmpty(userHomeData[APPLICATION_CREATION_STATUS.FAULTY]) && !isEmpty(userHomeData[APPLICATION_CREATION_STATUS.FAULTY][appkey])) {
+                            userHomeData = moveApplicationFromCreationStatus(userHomeData, APPLICATION_CREATION_STATUS.FAULTY,
+                                    updatedStatus[appkey], appkey);
+                        }
+
+                        // remove from pending array and put in correct array either faulty or completed
+                        userHomeData = moveApplicationFromCreationStatus(userHomeData, APPLICATION_CREATION_STATUS.PENDING,
+                                updatedStatus[appkey], appkey);
+                    }
+                } else {
+                    var applicationRXT = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                            .getApplication(appkey);
+                    if (!applicationRXT) {
+                        userHomeData = moveApplicationFromCreationStatus(userHomeData, APPLICATION_CREATION_STATUS.PENDING,
+                                APPLICATION_CREATION_STATUS.FAULTY, appkey);
                     }
                 }
-                session.put(USER_HOME_CAHCE,userHomeData);
             }
+            session.put(USER_HOME_CAHCE, userHomeData);
         }
     };
 
