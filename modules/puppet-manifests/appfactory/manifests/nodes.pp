@@ -361,6 +361,19 @@ node confignode inherits basenode  {
   $jenkins_admin_user         = "jenkinssystemadmin"
   $jenkins_admin_password     = "password"
 
+#AF stratos application information
+
+  $app_id_prefix      = "as"
+
+#Dev
+  $dev_app_id               = "${app_id_prefix}development"
+
+#Test
+  $test_app_id              = "${app_id_prefix}testing"
+
+#Prod
+  $prod_app_id              = "${app_id_prefix}production"
+
 #AF stratos cartridge information
   $deployment_policy    = "af-deployment"
   $autoscale_policy     = "economy"

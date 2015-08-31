@@ -189,7 +189,7 @@ public class CommonUtil {
      * @return alias
      */
     public static String getSubscriptionAlias(String stage, String appType) throws AppFactoryException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
+        //String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
         try {
             String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
             String  appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
@@ -198,11 +198,12 @@ public class CommonUtil {
             String subscriptionAlias;
             if(Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))){
                 subscriptionAlias =
-                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + stage.toLowerCase() +
-                        tenantDomain;
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + stage.toLowerCase();
+                       // + tenantDomain;
             }else{
                 subscriptionAlias =
-                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + tenantDomain;
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix();
+                       // + tenantDomain;
             }
             return subscriptionAlias;
         } catch (AppFactoryException e) {
