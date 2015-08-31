@@ -50,7 +50,7 @@ public class AFConstants {
 	                                                       "//appFactoryProperties/defaultTenant/usagePlan";
 
     //this is package private by design. do not change without design review
-	static final String DEFAULT_TENANT_TENANT_DOMAIN = "//appFactoryProperties/defaultTenant/tenantDomain";
+	public static final String DEFAULT_TENANT_TENANT_DOMAIN = "//appFactoryProperties/defaultTenant/tenantDomain";
 
 	public static final String DEFAULT_APP_APP_NAME =
 	                                                  "//appFactoryProperties/defaultApplication/applicationName";
