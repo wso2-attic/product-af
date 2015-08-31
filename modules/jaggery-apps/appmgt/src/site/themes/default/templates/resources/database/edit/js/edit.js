@@ -161,7 +161,8 @@ function attachUserWithPermissions(userName, permissionsJson) {
         });
     }
 }
-/*
+
+/**
 * Create a json object of priviledges with its checked/unchecked value
 */
 function getCheckedPriviledgesAsJson() {
