@@ -155,9 +155,7 @@ button[disabled]{
 .wr-edit-button {
     border-radius: 0;
 }
-.ctrl-edit-button {
-    margin-left: 10px;
-}
+
 .ctrl-edit-button .dropdown-menu {
     min-width: 160px;
     padding: 5px 0;
@@ -636,8 +634,6 @@ a.btn-action {
 .app-listing {
     position: relative;
     top: 11em;
-    /*padding: 18px;
-    min-height: 273px;*/
 }
 #search-apps {
     border-radius: 0px;
@@ -898,10 +894,6 @@ a.btn-action {
     background-color: #8b8b8b;
     border-color: transparent;
 }
-.version-url {
-    width: 48%;
-}
-
 .version-url>a>span{
     width: 300px;
     white-space: nowrap;
@@ -910,10 +902,7 @@ a.btn-action {
     display: block;
 }
 
-.sec .ctrl-edit-button {
-    margin-left: -3px;
-    margin-top: -5px;
-}
+
 .block-life-cycle,
 .block-repos,
 .block-issues,
@@ -1098,7 +1087,6 @@ a.btn-action {
 #noty_top_layout_container li{
     border-radius: 0px !important;
 }
-
 .alert-success{
     background-color: #40D47E;
     border-color: #40D47E;
@@ -1364,22 +1352,14 @@ a.btn-action {
     margin-top: -8px;
 }
 
-
 .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
     background-color: #CACACA ;
 }
-
-#app-version-url {
-    white-space: nowrap;
-}
-
 .form-control,.has-error .form-control:focus{
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
 }
-
-
 /* custom URL section */
 .form-section{
     margin-top: 3em;
@@ -1421,10 +1401,7 @@ a.btn-action {
     font-size: 17px;
     margin: 20px 0px 14px 0px;
     background-color: #3C3C3C;
-    padding: 3px;
-}
-.popover-content div,.popover-content .password-verdict{
-    color:#333;
+    padding: 3px 10px;
 }
 
 .log-container{
@@ -1479,12 +1456,6 @@ a.btn-action {
 .fw-1-5x{
     font-size: 1.5em;
 }
-.not-active{
-    pointer-events: none;
-    cursor: default;
-    opacity: 0.3;
-}
-
 @media (max-width: 1200px) {
     .version-url{
         width:44.4%;
@@ -1526,17 +1497,17 @@ a.btn-action {
         width:100%;
     }
     .version-number{
-        margin-bottom:1px;
+      margin-bottom:1px;
     }
-    .version-number,.version-number button,.version-number .dropdown-menu{
+     .version-number,.version-number button,.version-number .dropdown-menu{
         width:100%;
     }
     .btn-launch-app{
-        width:60%;
+       width:60%;
     }
     .btn-edit-code > a{
-        margin-top:0px;
-    }
+            margin-top:0px;
+        }
 }
 .btn-launch-app,.btn-edit-code{
     border:none;
@@ -1608,19 +1579,19 @@ a.btn-action {
     border-top-color:#464646;
 }
 #password_strength_wrap {
-    border: 1px solid #D5CEC8;
-    display: none;
-    float: left;
-    padding: 10px;
-    position: relative;
-    max-width: 320px;
+        border: 1px solid #D5CEC8;
+        display: none;
+        float: left;
+        padding: 10px;
+        position: relative;
+        max-width: 320px;
 }
 #password_strength_wrap:before, #password_strength_wrap:after {
-    content: ' ';
-    height: 0;
-    position: absolute;
-    width: 0;
-    border: 10px solid transparent; /* arrow size */
+        content: ' ';
+        height: 0;
+        position: absolute;
+        width: 0;
+        border: 10px solid transparent; /* arrow size */
 }
 #password_strength_wrap:before {
     border-bottom: 7px solid rgba(0, 0, 0, 0);
@@ -1643,15 +1614,15 @@ a.btn-action {
     top: 11px;
 }
 #pswd_info ul {
-    list-style-type: none;
-    margin: 5px 0 0;
-    padding: 0;
+        list-style-type: none;
+        margin: 5px 0 0;
+        padding: 0;
 }
 #pswd_info .status_icon{
     margin-right:5px;
 }
 #pswd_info ul li.valid {
-    color: #27ae60;
+        color: #27ae60;
 }
 #passwordStrength {
     display: block;
@@ -1681,21 +1652,70 @@ a.btn-action {
     width: 100%;
 }
 
-
-/**
- *
- * Css fix classes added
- *
- **/
-
-.tmp-logo-responsive-fix{
-    padding: 0px 15px;
-    width: 175px;
-    float: left;
+.role_type{
+    font-size: 11px;
+    display:inline-block;
+    margin-left:10px;
+}
+.org_type{
+    font-size: 11px;
+    background:#464646;
+    padding:4px 8px;
+}
+.role_type_tag{
+    display:inline-block;
+    border:1px solid #464646;
+    padding:2px 8px;
+    background:#555;
+}
+.role_type .triangle{
+    float:left;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 14px 21px 0;
+    border-color: transparent #464646 transparent transparent;
+    line-height: 2;
 }
 
-.tmp-anchor-fix{
-    color:#fff;
+/*App factory*/
+.org_af .triangle{
+    border-color: transparent #22A7F0 transparent transparent;
+}
+.org_af .org_type{
+    background:#22A7F0;
+}
+.org_af .role_type_tag{
+    border-color:#22A7F0;
+}
+/*Api manager*/
+.org_apim .triangle{
+    border-color: transparent #D64541 transparent transparent;
+}
+.org_apim .org_type{
+    background:#D64541;
+}
+.org_apim .role_type_tag{
+    border-color:#D64541;
+}
+/*other*/
+.org_other .triangle{
+    border-color: transparent #fb8c00 transparent transparent;
+}
+.org_other .org_type{
+    background:#fb8c00;
+}
+.org_other .role_type_tag{
+    border-color:#fb8c00;
 }
 
 
+.data-select-all,.structure-select-all{
+    margin-left:3px;
+}
+
+.not-active{
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.3;
+}
