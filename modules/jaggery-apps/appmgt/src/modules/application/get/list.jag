@@ -46,7 +46,7 @@
     {
     	return server.osgiService('org.wso2.carbon.base.api.ServerConfigurationService').getFirstProperty(configElem);
     };
-    
+
     // In index.jag page this method is called before rendering. via getAllAppsOfUser()
     // So untill we fix it from there dont remove start tenantflow here.
     var getAllApps = function(userName){
@@ -92,7 +92,7 @@
         if (auth) {
             jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
         }
-        
+
         var url;
         var tenantDomain=modManager.getTenantDomain() ;
         try{
@@ -152,7 +152,7 @@
              throw e;
          }
     };
-    
+
     var getAppInfo = function (applicationKey) {
 
         // ################################################################################################
@@ -165,7 +165,7 @@
         /*
 
             create constant
-            seesion get the value 
+            seesion get the value
             if it is null
             creat it and session put
         */
@@ -183,7 +183,7 @@
 
         var result;
         var tenantDomain=modManager.getTenantDomain();
-        
+
         try {
             result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
                     .getApplication(applicationKey);
@@ -202,12 +202,12 @@
 
             }
 
-            
+
 
             var application = convertAppInfo(result);
             //log.info("\n\n" + stringify(application)+ "\n\n");
             //log.info("Application type =>  " + application.type);
-            
+
             // add icon this to application here!!!!!
             return application;
 
@@ -225,7 +225,7 @@
         application["iconImageClass"] = applicationTypeBean.getIconImageClass();
 
         session.put("APP_INFO",application);
-        
+
         //log.info("\n\n User home cache --- \n" + stringify(session.get(USER_HOME_CAHCE)) + "\n");
         return application;
     }
@@ -259,7 +259,7 @@
         }
 
         application.typeDisplayName = modManager.getApplicationTypeBean(application.type).getDisplayName();
-        application.isUploadable = modManager.getApplicationTypeBean(application.type).isUploadableAppType();	
+        application.isUploadable = modManager.getApplicationTypeBean(application.type).isUploadableAppType();
 	    application.name = resourceContent.name;
         application.repoAccessability = resourceContent.repoAccessability;
         application.appTypeIcon = modManager.getApplicationTypeBean(application.type).getIconImageClass();
@@ -784,7 +784,7 @@
 
         return data;
     };
-   
+
 
     var listAppsWithDetails = function()
     {
@@ -905,7 +905,7 @@
 
     var getAppVersionInfoByVersion = function(applicationKey, version, userName)
     {
-      
+
         var artifacts;
         var tenantDomain=modManager.getTenantDomain() ;
         try {
@@ -927,12 +927,75 @@
 	            break;
 			}
 	    }
-        
+
         var versions = getVersionInfo(applicationKey, artifactsInStage);
         return versions;
-       
-    };   
-    
+
+    };
+
+    var getAppVersionAllInfoByVersion = function(applicationKey, version, userName) {
+        // set the current selected version
+        putSelectedVersionToSession(applicationKey, version);
+
+        // generate the app version information
+        var result = new Array();
+        try {
+            var artifacts = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService')
+                    .getAllVersionsOfApplication(modManager.getTenantDomain(), applicationKey);
+            if (artifacts && artifacts.length > 0) {
+                var applicationInfo = getAppInfo(applicationKey);
+                var versions = new Array();
+                if (applicationInfo) {
+                    var versionInfo= {};
+                    for (var key in artifacts) {
+                        var versionData = artifacts[key];
+                        versions.push(versionData['version']);
+                        if(versionData['version'] == version) {
+                            versionInfo = generateAppVersion(applicationKey, versionData);
+                        }
+                    }
+                    applicationInfo.versions = versions;
+                    applicationInfo.versionInfo = versionInfo;
+                    result = applicationInfo;
+                }
+            }
+        } catch (e) {
+            log.error("Error while getting application version all info by version for the applicatin : " + applicationKey
+                      + " with version : " + version + " of tenant domain : " + tenantDomain);
+            log.error(e);
+            throw e;
+        }
+        return result;
+    }
+
+    var putSelectedVersionToSession = function(applicationKey, currentVersion) {
+        var selectedVersions = session.get("SELECTED_VERSIONS");
+        if(!selectedVersions) {
+            selectedVersions = new Array;
+            session.put("SELECTED_VERSIONS", selectedVersions);
+        }
+
+        var previousVersionData;
+        for (var key in selectedVersions) {
+            var versionData = selectedVersions[key];
+            if (versionData) {
+                if(versionData.applicationKey == applicationKey) {
+                    previousVersionData = versionData;
+                    break;
+                }
+            }
+        }
+
+        if(previousVersionData) {
+            previousVersionData.version = currentVersion;
+        } else {
+            var selectedVersion = {};
+            selectedVersion.version = currentVersion;
+            selectedVersion.applicationKey = applicationKey;
+            selectedVersions.push(selectedVersion);
+        }
+    }
+
     var getAppVersionsInStages = function(applicationKey, userName, metaDataNeed, buildableforstage, isRoleBasedPermissionAllowed)
     {
         jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_APPLICATION_MEMBER);
@@ -1006,45 +1069,48 @@ var getStage = function(applicationKey, version) {
 };
 
 var getVersionInfo = function(applicationKey, artifacts) {
-        //send the call to the backend
-        if (artifacts != undefined && artifacts.length > 0) {
-            var appVersions = new Array();
-            var applicationInfo = getAppInfo(applicationKey);
-            if (applicationInfo != null && applicationInfo != undefined) {
-                var arrVersions = new Array();
-                var k = 0;
-                for (var i = 0; i < artifacts.length ; i++) {
-                    var versionInfo = {};
-                    var element =artifacts[i];
-                    versionInfo.version = element['version'];
-                    versionInfo.autoDeployment = "true";
-                    versionInfo.stage = element['stage'];
-                    versionInfo.isAutoBuild = element['autoBuild'] ? "true" : "false" ;
-                    versionInfo.isAutoDeploy = element['autoDeploy'] ? "true" : "false";
-                    versionInfo.repoURL = getRepoURL(applicationKey, versionInfo.version, true, false);
-                    versionInfo.lastBuildResult =element['lastBuildStatus']!=null ? element['lastBuildStatus'] : '';
-                    versionInfo.currentBuildStatus =element['currentBuildStatus'];
-                    versionInfo.promoteStatus =element['promoteStatus'];
-                    
-                    versionInfo.deployedBuildId = element['lastDeployedId'];
-                    versionInfo.productionMappedDomain = element['productionMappedDomain'];
-                    
-                    versionInfo.isInitialStage = modLifecycle.isInitialLifeCycleStage(versionInfo.stage);
-                    
-                    arrVersions[k] = versionInfo;
-                    k = k + 1;
-                }
-
-                arrVersions.sort(VersionComparator);
-
-                //////applicationInfo.stage = stageName + '';
-                applicationInfo.versions = arrVersions;
-                appVersions[0] = applicationInfo;
+    //send the call to the backend
+    if (artifacts != undefined && artifacts.length > 0) {
+        var appVersions = new Array();
+        var applicationInfo = getAppInfo(applicationKey);
+        if (applicationInfo != null && applicationInfo != undefined) {
+            var arrVersions = new Array();
+            var k = 0;
+            for (var i = 0; i < artifacts.length ; i++) {
+                var element = artifacts[i];
+                arrVersions[k] = generateAppVersion(applicationKey, element);
+                k = k + 1;
             }
-	        return appVersions;
+            arrVersions.sort(VersionComparator);
+
+            //////applicationInfo.stage = stageName + '';
+            applicationInfo.versions = arrVersions;
+            appVersions[0] = applicationInfo;
         }
-        return null;
+        return appVersions;
+    }
+return null;
 };
+
+var generateAppVersion = function(applicationKey, data) {
+    var versionInfo = {};
+    if(data) {
+        versionInfo.version = data['version'];
+        versionInfo.autoDeployment = "true";
+        versionInfo.stage = data['stage'];
+        versionInfo.isAutoBuild = data['autoBuild'] ? "true" : "false" ;
+        versionInfo.isAutoDeploy = data['autoDeploy'] ? "true" : "false";
+        versionInfo.repoURL = getRepoURL(applicationKey, versionInfo.version, true, false);
+        versionInfo.lastBuildResult = data['lastBuildStatus']!=null ? data['lastBuildStatus'] : '';
+        versionInfo.currentBuildStatus = data['currentBuildStatus'];
+        versionInfo.promoteStatus = data['promoteStatus'];
+        versionInfo.deployedBuildId = data['lastDeployedId'];
+        versionInfo.productionMappedDomain = data['productionMappedDomain'];
+        versionInfo.isInitialStage = modLifecycle.isInitialLifeCycleStage(versionInfo.stage);
+    }
+    return versionInfo;
+}
+
 
 var getRepoUserInfo = function(applicationKey, artifacts) {
         //send the call to the backend
@@ -1115,7 +1181,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
         }
         return versionArray;
     };
-    
+
   //application icon resource read from registry
     var loadAppIcon = function (applicationKey) {
         var tenantDomain = modManager.getTenantDomain();
@@ -1129,7 +1195,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
     	  	var path = "/_system/governance/repository/appicon/icon_"+ applicationKey ;
     	  	var res = registryOsgi.get(path);
     	  	return res;
-      	
+
     	  } catch (e) {
              log.error("Error  while loading the icon for application : " + applicationKey + " of tenant : "
                        + tenantDomain);
@@ -1178,14 +1244,14 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
               log.error(e);
               throw e;
       	  }
-          
+
       	  if(result !=null) {
       	      return stringify(result);
       	  } else {
       	      return null;
       	  }
-      	
-      
+
+
     };
 
     var isApplicationsOfUserChanged = function(){
