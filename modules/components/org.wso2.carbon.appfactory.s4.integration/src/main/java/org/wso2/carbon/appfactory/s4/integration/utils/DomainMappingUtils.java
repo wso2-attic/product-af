@@ -103,7 +103,7 @@ public class DomainMappingUtils {
 
             // since in the format of /t/foodotcom/webapps/bar-1.0.0/ we are removing last "/"
             domainsDataJSON.put(JSON_PAYLOAD_KEY_CONTEXT_PATH, StringUtils.removeEnd(url.getFile(), "/"));
-            domainsJSON.put(JSON_PAYLOAD_KEY_DOMAIN_MAPPINGS, CommonUtil.getSubscriptionAlias(stage, appType));
+            domainsJSON.put(JSON_PAYLOAD_KEY_DOMAIN_MAPPINGS, domainsDataJSON);
             if (log.isDebugEnabled()) {
                 log.debug("Add new subscription json payload: " + domainsJSON.toString());
             }
@@ -131,11 +131,12 @@ public class DomainMappingUtils {
      * @param domain domain to be mapped
      * @return JSON message
      */
-    public static String generateInitialSubscriptionDomainJSON(String domain) throws AppFactoryException {
+    public static String generateInitialSubscriptionDomainJSON(String domain, String stage, String appType) throws AppFactoryException {
         JSONObject domainsJSON = new JSONObject();
         JSONObject domainsDataJSON = new JSONObject();
         try {
             domainsDataJSON.put(JSON_PAYLOAD_KEY_DOMAIN_NAME, domain);
+            domainsDataJSON.put(JSON_PAYLOAD_CARTRIDGE_ALIAS, CommonUtil.getSubscriptionAlias(stage, appType));
             domainsDataJSON.put(JSON_PAYLOAD_KEY_CONTEXT_PATH, "/" + getDefaultMappingContext());
             domainsJSON.put(JSON_PAYLOAD_KEY_DOMAIN_MAPPINGS, domainsDataJSON);
             if (log.isDebugEnabled()) {

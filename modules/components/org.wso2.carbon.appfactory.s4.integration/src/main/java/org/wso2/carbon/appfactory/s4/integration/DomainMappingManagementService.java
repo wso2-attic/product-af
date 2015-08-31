@@ -117,7 +117,7 @@ public class DomainMappingManagementService {
                 if (StringUtils.isNotBlank(version)) {      // if the domain is to be mapped to a version
                     body = DomainMappingUtils.generateAddSubscriptionDomainJSON(domain, appKey, version, stage, appType);
                 } else {                                    // map the domain to initial url
-                    body = DomainMappingUtils.generateInitialSubscriptionDomainJSON(domain);
+                    body = DomainMappingUtils.generateInitialSubscriptionDomainJSON(domain, stage, appType);
                 }
                 response = MutualAuthHttpClient.sendPostRequest(body, DomainMappingUtils.getSMUrl(stage) +
                                                                       addSubscriptionDomainEndPoint);
@@ -622,7 +622,7 @@ public class DomainMappingManagementService {
      * @return true if domain is available
      */
     private boolean isDomainAvailable(String stage, String domain, String appType) throws AppFactoryException {
-        boolean isAvailable = true;
+        boolean isAvailable;
         String validateSubscriptionDomainEndPoint =
                 DomainMappingUtils.getDomainAvailableEndPoint(stage, domain, appType);
 
@@ -637,10 +637,13 @@ public class DomainMappingManagementService {
             throw new AppFactoryException(String.format(DomainMappingUtils.AF_DOMAIN_AVAILABILITY_ERROR_MSG, domain));
         }
 
-        if (response.statusCode == HttpStatus.SC_OK) {
-            if (response.getResponse().contains(domain)) {
+        if (response.statusCode == HttpStatus.SC_NOT_FOUND) { // there is no existing mapping found for requested domain
+            isAvailable = true;
+        } else if (response.statusCode == HttpStatus.SC_OK) {
+            isAvailable = false;
+            /*if (response.getResponse().contains(domain)) {
                 isAvailable = false;
-            }
+            }*/
         } else {
             log.error("Error occurred while checking availability for domain:" + domain + " Stratos response status: " +
                       response.statusCode + " Stratos Response message: " + response.getResponse());
