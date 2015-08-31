@@ -292,25 +292,6 @@ function showTopErrorMessage(msg) {
          });
 }
 
-/**
-* Used to show success messages at the top
-*/
-function showTopSuccessMsg(msg) {
-    noty({
-             theme: 'wso2',
-             layout: 'top',
-             type: 'success',
-             timeout: '3500',
-             text: msg,
-             animation: {
-                 open: {height: 'toggle'}, // jQuery animate function property object
-                 close: {height: 'toggle'}, // jQuery animate function property object
-                 easing: 'swing', // easing
-                 speed: 500 // opening & closing animation speed
-             }
-         });
-}
-
  /**
  * **************************************************************************
  * Start of JQuery file upload callback functions
@@ -468,9 +449,9 @@ function showLoader(show){
     * For more info refer to http://jqueryvalidation.org/documentation/
     */
 
-    $.validator.addMethod("validateDuplicateApplicationName", 
+    $.validator.addMethod("validateDuplicateApplicationName",
             validateDuplicateApplicationName, getAppNameErrorMessage);
-    $.validator.addMethod("validateApplicationName", 
+    $.validator.addMethod("validateApplicationName",
             validateApplicationName, getAppNameErrorMessage);
     $.validator.addMethod("validateDuplicateApplicationKey",
             validateDuplicateApplicationKey, getAppKeyErrorMessage);
@@ -497,6 +478,8 @@ function showLoader(show){
                 validateAppIcon: true
             }
         },
+        onsubmit: false,    // Since we are handling on submit validation on click event of the "Create" button,
+                            // here we disabled the form validation on submit
         highlight: function (element, errorClass, validClass) { // this is triggered when the "element" is invalid
             $(element).addClass(errorClass).removeClass(validClass);
             $(element.form).find("div[for=" + element.id + "]").addClass(errorFormGroupClasses)
@@ -580,7 +563,7 @@ function showLoader(show){
                    isUploadable = true;
                 }
                  var redirectionPageParams = "application.jag?applicationName=" + appName + "&applicationKey=" +
-                    appKey + "&isUploadableAppType=" + isUploadable;
+                    appKey + "&isUploadableAppType=" + isUploadable + "&userAction=created";
                      window.location.replace(redirectionPageParams);
                  } else if (response.result == 0.0) {
                      //$("#appcreation").attr('disabled', false);
@@ -670,7 +653,7 @@ function showLoader(show){
              $("#action").val("uploadExistingApplication");
          }
          $("#createAppForm").submit();
-         showTopSuccessMsg("Application creation started.");
+         //showTopSuccessMsg("Application creation started.");
     } else {
         showLoader(false);
     }
@@ -695,13 +678,13 @@ function showLoader(show){
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action" title="Back to app type selection">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to app type selection
         </a>
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action" title="Cancel">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fa fa-mail-reply-all fa-stack-1x"></i>
@@ -713,8 +696,8 @@ function showLoader(show){
 
     <div class="container-fluid cloud-container">
         <div class="row">
-            <div class="col-md-1">
-                <div class="cloud-selected-app-type <%=request.getParameter("apptypeIconColor")%>">
+            <div class="tmp-logo-responsive-fix">
+                <div class="cloud-selected-app-type  <%=request.getParameter("apptypeIconColor")%>">
                     <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-5x"></i>
                 </div>
             </div>
@@ -770,7 +753,10 @@ function showLoader(show){
                     <% } %>
 
                     <div class="form-group">
-                        <label for="application-icon">Icon: </label>
+                        <label for="application-icon">Icon:
+                            <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left"
+                        title="Recommended image size : 300 x 300 pixels, file size 70 k (maximum)"></i>
+                        </label>
                         <div class="input-group">
                             <input type="text" id="icon" name="icon" class="form-control" readonly>
                             <span class="input-group-btn">

@@ -54,6 +54,11 @@ import java.util.Hashtable;
  *                interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
  *                cardinality="1..1" policy="dynamic" bind="setRegistryLoader"
  *                unbind="unsetRegistryLoader"
+ * @scr.reference name="appfactory.builddriver.events.listener"
+ *                interface="org.wso2.carbon.appfactory.core.BuildDriverListener"
+ *                cardinality="0..n" policy="dynamic"
+ *                bind="setBuildDriverListener"
+ *                unbind="unsetBuildDriverListener"
  */
 public class JenkinsBuildServiceComponent {
 
@@ -99,6 +104,14 @@ public class JenkinsBuildServiceComponent {
 
 	protected void unsetRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
 		ServiceContainer.setTenantRegistryLoader(null);
+	}
+
+	protected void setBuildDriverListener(BuildDriverListener buildDriverListener) {
+		ServiceContainer.addBuildDriverListeners(buildDriverListener);
+	}
+
+	protected void unsetBuildDriverListener(BuildDriverListener buildDriverListener) {
+		ServiceContainer.removeBuildDriverListeners(buildDriverListener);
 	}
 
 	@SuppressWarnings("UnusedDeclaration")

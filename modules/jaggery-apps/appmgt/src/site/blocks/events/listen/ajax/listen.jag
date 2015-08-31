@@ -31,23 +31,20 @@ var log = new Log();
     }
     if (action == "listen") {
         mod = jagg.module("events");
-        var appMod = jagg.module("application");
 
         var pageName = request.getParameter("pageName");
         var userName = request.getParameter("userName");
         var appId = request.getParameter("appId");
         var response = {};
 
-        // for user home
-        if (pageName == PAGES.USER_HOME) {
+        if (appId && userName) {
+            var appEvents = mod.listen(appId);
+            var userEvents = mod.listen(userName);
+            var forkEvents = mod.listen(appId + '.fork.users.' + userName);
+            var allEvents = appEvents.concat(userEvents.concat(forkEvents));
+
             response.retrievedTime = new Date().getTime();
-            response.list = mod.listen(userName).sort();
-            print(response);
-        } else {
-            // app home
-		    var list = mod.listen(appId).concat(mod.listen(appId + ".fork.users." + userName)).sort();
-		    response.retrievedTime = new Date().getTime();
-            response.list = list;	
+            response.list = allEvents.sort();
             print(response);
         }
 

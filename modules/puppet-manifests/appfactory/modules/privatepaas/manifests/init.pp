@@ -1,5 +1,4 @@
 class privatepaas (
-  $iaas_provider = undef,
   $maintenance_mode=true,
   $owner=root,
   $group=root,
@@ -63,9 +62,11 @@ class privatepaas (
                   "repository/conf/kubernetes/wso2as_dev.json",
                   "repository/conf/kubernetes/wso2as_test.json",
                   "repository/conf/kubernetes/wso2as_prod.json",
+                  "repository/conf/kubernetes/tomcat-cartridge.json",
                   "repository/conf/kubernetes/application-policy_dev.json",
                   "repository/conf/kubernetes/application-policy_test.json",
                   "repository/conf/kubernetes/application-policy_prod.json",
+                  "repository/conf/kubernetes/application-policy_st.json",
                   "repository/conf/kubernetes/application_dev.json",
                   "repository/conf/kubernetes/application_test.json",
                   "repository/conf/kubernetes/application_prod.json",

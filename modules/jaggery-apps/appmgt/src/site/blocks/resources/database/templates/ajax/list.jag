@@ -91,7 +91,6 @@ var loggedInUser = jagg.getUser();
           var applicationKey = request.getParameter("applicationKey");
           var name= request.getParameter("templateName");
           var environment = request.getParameter("environment");
-
         var response = {};
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_CREATE_FOR_STAGE + environment);
@@ -103,17 +102,20 @@ var loggedInUser = jagg.getUser();
 	        return;
         }
         try{
-            var notificationTitle  = "Database template " + name + " delete started in " + databaseServerInstanceName;
+            var notificationTitle  = "Database template " + name + " delete started in " + environment;
             var correlationKey = applicationKey + "-" + environment + "-template-" + name;
             var eventBuilderInstance = EventBuilder.resourceDeletionStartedEvent(applicationKey, loggedInUser, notificationTitle, "", correlationKey, "INFO")
             var eventNotifier = EventNotifier.getInstance().notify(eventBuilderInstance);
         } catch (e) {
             log.error("Error while sending delete db template success notification \n" + e.message);
         }
-        name = name + '@' + environment;
         try {
-            mod.dropTemplate(applicationKey,environment,name);
-
+            var rssFilter = jagg.module("rss-filter");
+            var isTemplateExist = rssFilter.isTemplateExist(name, applicationKey, environment);
+            if(isTemplateExist) {
+                name = name + '@' + environment;
+                mod.dropTemplate(applicationKey,environment,name);
+            }
         } catch(e) {
             throw "Error while deleting template";
         }

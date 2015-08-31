@@ -52,7 +52,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 
               function (result) {
                    if(result == 101){
-                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dark-app-iconx256.jpg'))%>');
                    }else{
              <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
                var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey="+applicationKey;
@@ -66,7 +66,6 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 
             }
             $(document).ready(function () {
-        	  loadBaseAppIcon('<%=applicationKey%>');
         	    $('.cloud-menu-popover').popover({
                     html : true,
                     title: function() {
@@ -86,8 +85,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
         <meta name="viewport" content="width=device-width">
 
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2-extend.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.2/css/font-wso2.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/font-awesome-4.2.0/font-awesome.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/web-fonts/Roboto.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/nanoscroller-0.8.7/nanoscroller.css'))%>">
@@ -116,7 +114,8 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
                 <i class="fw fw-tiles"></i>
             </a>
-            <a class="navbar-brand" href="#"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/logo.png"))%>" alt="wso2-logo" > Cloud</a>
+            <a class="navbar-brand" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/index.jag")%>">
+            <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/logo.png"))%>" alt="wso2-logo" > Cloud</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav menu-right">
@@ -145,29 +144,17 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                 </div>
                 <div id="popover-content" class="hide">
                    <div class="cloud-apps">
-                       <a class="cloud-block">
+                       <a class="cloud-block" href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">
                            <i class="fa fa-3x fa-cubes"></i>
                            <div class="cloud-name">Application Cloud</div>
-                       </a>
-                       <a class="cloud-block">
-                           <i class="fw fw-api fa-3x"></i>
-                           <div class="cloud-name">API Cloud</div>
                        </a>
                        <div class="clearfix"></div> <!-- to make seperate -->
                    </div>
                    <div class="cloud-actions">
                        <h3>Manage your cloud</h3>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-institution"></i>
-                           <div class="cloud-name">Organizations</div>
-                       </a>
                        <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
                            <i class="fa fa-3x  fa-users"></i>
                            <div class="cloud-name">Members</div>
-                       </a>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-envelope"></i>
-                           <div class="cloud-name">Support</div>
                        </a>
                    </div>
                 </div>

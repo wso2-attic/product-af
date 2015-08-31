@@ -28,6 +28,7 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.*;
 import org.wso2.carbon.appfactory.core.build.ArtifactCreator;
 import org.wso2.carbon.appfactory.core.build.ContinuousIntegrationStatisticsService;
+import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
 import org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService;
 import org.wso2.carbon.appfactory.core.registry.AppFacRemoteRegistryAccessService;
 import org.wso2.carbon.appfactory.core.util.AppFactoryDBUtil;
@@ -51,11 +52,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  *                cardinality="1..1" policy="dynamic"
  *                bind="setAppFactoryConfiguration"
  *                unbind="unsetAppFactoryConfiguration"
- * @scr.reference name="appfactory.artifact"
- *                interface="org.wso2.carbon.appfactory.core.ArtifactStorage"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setArtifactStorage"
- *                unbind="unsetArtifactStorage"
  * @scr.reference name="appfactory.cidriver"
  *                interface="org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver"
  *                cardinality="0..1" policy="dynamic"
@@ -143,6 +139,8 @@ public class AppFactoryCoreServiceComponent {
 			                              new AppFacRemoteRegistryAccessService(), null);
 			bundleContext.registerService(AppFacRegistryResourceService.class.getName(),
 			                              new AppFacRegistryResourceService(), null);
+			bundleContext.registerService(BuildDriverListener.class.getName(),
+			                                           new DefaultBuildDriverListener(), null);
             AppFactoryDBUtil.initializeDatasource();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -165,16 +163,8 @@ public class AppFactoryCoreServiceComponent {
 		}
 	}
 
-	protected void unsetArtifactStorage(ArtifactStorage artifactStorage) {
-		ServiceHolder.setArtifactStorage(null);
-	}
-
-	protected void setArtifactStorage(ArtifactStorage artifactStorage) {
-		ServiceHolder.setArtifactStorage(artifactStorage);
-	}
-
 	protected void unsetStorage(Storage storage) {
-		ServiceHolder.setArtifactStorage(null);
+		ServiceHolder.removeStorage();
 	}
 
 	/**

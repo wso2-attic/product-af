@@ -4,6 +4,7 @@
     var log = new Log();
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
+    var userAction = request.getParameter("userAction");
     var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
@@ -24,6 +25,22 @@
     if (applicationInfo.isUploadable) {
         createVersionUrl = jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag");
     }
+
+    // get the previously selected version
+    var previousVersion = "trunk";
+    if (applicationInfo.appType && applicationInfo.appType.indexOf("Uploaded") >= 0) {
+        previousVersion = "1.0.0";
+    }
+    var selectedVersions = session.get("SELECTED_VERSIONS");
+    if(selectedVersions) {
+        for(var key in selectedVersions) {
+            var versionData = selectedVersions[key];
+            if(versionData && (versionData.applicationKey == applicationKey) && versionData.version) {
+                previousVersion = versionData.version;
+                break;
+            }
+        }
+    }
 %>
 
 <!-- start of setting global javascript variable values from jaggery side -->
@@ -35,11 +52,12 @@
     var appDomain = "<%=getProperty(DOMAIN_NAME) %>";
     var applicationInfo = <%=applicationInfo%>;
     var deploymentPermission  = JSON.parse('<%=stringify(outputs.stagesMap)%>') ;
+    var userAction = "<%=userAction%>";
 
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
-    var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>') ;
-
+    var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>');
+    var previousVersion = "<%=previousVersion%>";
 </script>
 
 <!-- end of setting global javascript variable -->
@@ -48,11 +66,11 @@
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action"  title="Back to Application listing">
             <span class="fw-stack fw-lg btn-action-ico">
                 <i class="fw fw-ring fw-stack-2x"></i>
                 <i class="fw fw-left-arrow fw-stack-1x"></i>
-            </span> Go Back
+            </span> Back to Application listing
     </a>
 </div>
 <!-- EOF App factory menu actionbar-->
@@ -108,12 +126,14 @@
                                 <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark">Launch App</button>
 
                                 <!-- edit code button -->
-                                <div class="btn-group ctrl-edit-button">
-                                  <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue">Edit Code</button>
-                                  <button type="button" class="btn cu-btn cu-btn-md cu-btn-blue cu-dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <div class="btn-group ctrl-edit-button btn-edit-code">
+                                  <a id="btnEditCode" type="button" class="btn cu-btn cu-btn-md cu-btn-blue"
+                                  href="#">Edit Code</a>
+                                  <a type="button" class="btn cu-btn cu-btn-md cu-btn-blue cu-dropdown-toggle"
+                                  data-toggle="dropdown" aria-expanded="false">
                                       <span class="caret"></span>
                                       <span class="sr-only">Toggle Dropdown</span>
-                                  </button>
+                                  </a>
                                   <ul class="dropdown-menu cu-btn-blue btn-edit" role="menu">
                                       <li><a id="createCodeEnvyUrl" href="#">Use Cloud Editor</a></li>
                                       <li><a id="localIde" href="#">Use Local IDE</a></li>
@@ -139,7 +159,7 @@
               <div class="col-md-4" >
                   <div class="block-life-cycle">
 
-                        <h3>Lifecycle Mgt</h3>
+                        <h3>Lifecycle Management</h3>
                         <div class="block-icon pull-left">
                           <i class="fw fw-lifecycle fw-5x"></i>
                         </div>
@@ -186,7 +206,7 @@
               </div>
               <div class="col-md-4">
                   <div class="block-issues">
-                      <h3>Open Issues</h3>
+                      <h3>Issues</h3>
                       <div class="block-icon pull-left">
                           <span class="fa-stack fa-lg fa-3x">
                               <i class="fa fa-circle-thin fa-stack-2x"></i>
@@ -265,6 +285,8 @@
 
 
 <!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>

@@ -50,9 +50,9 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.BuildDriverListener;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Statistic;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -654,7 +654,11 @@ public class RestBasedJenkinsCIConnector {
             }
         }
 
-        (new DefaultBuildDriverListener()).onBuildStart(applicationId, version, "", userName, repoFrom, tenantDomain);
+	    Iterator<BuildDriverListener> buildDriverListeners = ServiceContainer.getBuildDriverListeners().iterator();
+	    while (buildDriverListeners.hasNext()) {
+		    BuildDriverListener listener = buildDriverListeners.next();
+		    listener.onBuildStart(applicationId, version, "", userName, repoFrom, tenantDomain);
+	    }
     }
 
 
