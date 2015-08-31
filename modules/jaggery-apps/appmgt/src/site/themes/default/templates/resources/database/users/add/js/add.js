@@ -138,15 +138,8 @@ $(document).ready(function () {
         complete: function (result, status) { // on complete
             $("#add-user").prop("disabled", true);
             if (status == "error") {
-
-                // This is a hack to identify whether the error occurred due to an existing user
-                var alreadyExistsPattern = /already exists/ig;
-                var errMsg = "Error occurred while adding database user";
-                if(alreadyExistsPattern.test(result.responseText)){
-                    errMsg = "Database user '"+$('#username').val()+"' already exists"
-                }
                 jagg.message({
-                    content: errMsg,
+                    content: result.responseText,
                     type: 'error',
                     id: 'myuniqeid'
                 });
