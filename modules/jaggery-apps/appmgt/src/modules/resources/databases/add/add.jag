@@ -899,7 +899,9 @@ var generateDatabaseInfoForDataTable = function (applicationKey, applicationName
             }
         }
     }
-    return stringify(allDBInfo);
+    var jsonWithDataAttribute = {};
+    jsonWithDataAttribute.data = allDBInfo;
+    return stringify(jsonWithDataAttribute);
 };
 
 /**

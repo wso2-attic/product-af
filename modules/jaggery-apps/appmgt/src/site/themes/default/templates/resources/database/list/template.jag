@@ -21,19 +21,8 @@ jagg.template("resources/database/list", function (inputs, outputs, jagg) { %>
 <%
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
-var dbInfoForDataTable = outputs.dbInfoForDataTable;
-var hasDBs = false;
-
-if(parse(dbInfoForDataTable).length > 0){
-    hasDBs = true;
-}
+var hasDBs = outputs.hasDBs;
 %>
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        initializeUserActivity("databases",'<%=applicationKey%>', '<%=applicationName%>');
-    });
-</script>
 
 <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
 <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.min.css'))%>">
@@ -83,7 +72,7 @@ if(parse(dbInfoForDataTable).length > 0){
             <div class="col-md-12">
                 <div id="push"></div>
                 <div class="datatable">
-                    <table id="" class="display" cellspacing="0" width="100%">
+                    <table id="databases" class="display" cellspacing="0" width="100%">
                         <thead>
                         <tr>
                             <th>Name</th>
@@ -114,37 +103,40 @@ if(parse(dbInfoForDataTable).length > 0){
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 
-
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
 <script>
+var databaseDatatable = {};
 $( document ).ready(function() {
+    initializeUserActivity("databases",'<%=applicationKey%>', '<%=applicationName%>');
     populateDatatable();
 });
 
-function populateDatatable() {
-    jagg.post("../blocks/resources/database/add/ajax/add.jag", {
-            action:"getDatabaseInfoForDataTable",
-            applicationKey:'<%=applicationKey%>',
-            applicationName:'<%=applicationName%>'
-        }, function (result) {
-console.log(result);
-            if(result){
-                // draw datatable
-                 $('.datatable table').dataTable({
-                     responsive: true,
-                    "orderCellsTop": true,
-                    data : 'result',
-                    "columns": [
-                        { "data": "name", "width": "5%"},
-                        { "data": "stage", "width": "8%"},
-                        { "data": "description" , "width": "30%"},
-                        { "data": "database_url" , "width": "30%"},
-                        { "data": "type", "width": "5%" },
-                        { "data": "userpriviledges", "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
-                        { "data": "trash", "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
+function populateDatatable() { 
+                databaseDatatable = $('#databases').dataTable({
+                    responsive: true,
+                    orderCellsTop: true,
+                    'ajax': {
+                        "type"   : "POST",
+                        "url"    : '../blocks/resources/database/add/ajax/add.jag',
+                        "data"   : function( d ) {
+                        d.action = "getDatabaseInfoForDataTable";
+                        d.applicationKey = '<%=applicationKey%>';
+                        d.applicationName = '<%=applicationName%>';
+                            }
+
+                        },
+                    columns: [
+                        { data: 'name', "width": "5%"},
+                        { data: 'stage', "width": "8%"},
+                        { data: 'description' , "width": "30%"},
+                        { data: 'database_url' , "width": "30%"},
+                        { data: 'type', "width": "5%" },
+                        { data: 'userpriviledges', "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
+                        { data: 'trash', "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
                     ],
                     "fnDrawCallback": function( oSettings ) {
                         $('.delete_db').on("click",function(){
@@ -156,12 +148,8 @@ console.log(result);
                         });
                     }
                 });
-                // end of draw data table
-            }
-        }, function (jqXHR, textStatus, errorThrown) {
-            jagg.message({type:'error',content:'Database deletion failed for ' + dbName , id:'delete_db'});
-    }); 
-}
+               } // end of populate data table
+
 
 /**
 * Delete a database
@@ -175,7 +163,7 @@ function deleteDatabase(dbName,environment) {
             deleteDatasource:false
         }, function (result) {
             if(result){
-                document.location.reload(true);
+                databaseDatatable.api().ajax.reload();
             }
         }, function (jqXHR, textStatus, errorThrown) {
             jagg.message({type:'error',content:'Database deletion failed for ' + dbName , id:'delete_db'});
