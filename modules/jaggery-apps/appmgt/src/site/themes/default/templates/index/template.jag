@@ -112,10 +112,12 @@ function addTableRow(application) {
     var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
     var iconClass = " <i class="+ icon + "><\/i>"
 
-    var theLi = '<div class="col-md-3 col-lg-2 col-sm-6"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
+    var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
                         iconClass+
                         '<div class="app-icon">' +
-                         '<img id="' + application.key + '_icon"  src="/appmgt/site/themes/default/images/dark-app-iconx256.jpg"></div>' +
+                         '<img id="' + application.key + '_icon"  ' +
+                          'src="/appmgt/site/themes/default/images/dark-app-iconx256.jpg"' +
+                           ' class="square-element"></div>' +
                          '<div class="app-name tmp-anchor-fix" >' + application.name+ '</div>';
 
     // If any of the branches are in production add the green icon

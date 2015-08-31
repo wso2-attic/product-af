@@ -365,9 +365,8 @@ var log=new Log();
         var applicationKey = request.getParameter("applicationKey");
         var userName = request.getParameter("userName");
         var version=request.getParameter("version");
-        var response = {};
-        response = mod.getAppVersionAllInfoByVersion(applicationKey, version, userName);
-        print(response);
+        var result = mod.getAppVersionAllInfoByVersion(applicationKey, version, userName);
+        print(result);
     } else {
         throw new Error("No action specified");
     }
