@@ -27,7 +27,7 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
+import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 import org.wso2.carbon.context.CarbonContext;
 
 import java.io.File;
@@ -99,7 +99,7 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = AppFactoryCoreUtil.getCartridgeAlias(applicationId, tenantDomain);
 
-        StratosRestService restService =StratosRestService.getInstance(serverURL, userName);
+        StratosRestClient restService = StratosRestClient.getInstance(serverURL, userName);
         //TODO : implement this using new api
         String clusterId = null;
 

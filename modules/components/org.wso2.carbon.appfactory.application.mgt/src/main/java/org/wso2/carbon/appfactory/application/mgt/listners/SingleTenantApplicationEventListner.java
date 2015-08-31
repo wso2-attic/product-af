@@ -17,7 +17,7 @@ import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
+import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 import org.wso2.carbon.appfactory.s4.integration.utils.CloudUtils;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -44,11 +44,11 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
 
         String stratosServerURL = appfactoryConfiguration.getFirstProperty(
                 AppFactoryConstants.DEPLOYMENT_ENVIRONMENT + AppFactoryConstants.DOT_SEPERATOR +
-                AppFactoryConstants.ApplicationStage.DEVELOPMENT+ AppFactoryConstants.DOT_SEPERATOR +
+                "Development" +  AppFactoryConstants.DOT_SEPERATOR +
                 AppFactoryConstants.TENANT_MGT_URL);
 
         String  tenantUsername = application.getOwner();
-        StratosRestService restService = StratosRestService.getInstance(stratosServerURL, tenantUsername);
+        StratosRestClient restService = StratosRestClient.getInstance(stratosServerURL, tenantUsername);
 
         int tenantId = -1;
         try {
@@ -89,7 +89,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                log.error("Sleep thread got interrupted before deleting stratos application");
+                log.error("Sleep thread got interrupted before deleting stratos application", e);
             }
             restService.deleteApplication(stratosApplicationId);
 
@@ -98,7 +98,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
                         paasRepositoryUrlPattern, stage, version, stratosApplicationId,tenantId));
             } catch (RepositoryMgtException e) {
                log.error("Error while deleting stratos repository for application " + application.getId()
-                         + " version :" + version);
+                         + " version :" + version, e);
                 //No need to throw since this is an artifact repo
             }
         }
@@ -152,7 +152,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
     public boolean hasExecuted(org.wso2.carbon.appfactory.core.dto.Application application, String userName,
                                String tenantDomain)
             throws AppFactoryException {
-        return false;
+        return true;
     }
 
 }
