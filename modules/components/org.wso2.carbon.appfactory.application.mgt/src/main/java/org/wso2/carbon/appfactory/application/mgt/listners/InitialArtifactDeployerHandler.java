@@ -20,8 +20,10 @@ package org.wso2.carbon.appfactory.application.mgt.listners;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.WordUtils;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
+import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
@@ -66,7 +68,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
                                                                               AppFactoryConstants.ORIGINAL_REPOSITORY);
 
 		//TODO - Fix properly in 2.2.0-M1
-		params.add(new NameValuePair("tenantUserName", userName + "@" + tenantDomain));
+		params.add(new NameValuePair(AppFactoryConstants.TENANT_USER_NAME, userName ));
 		Map<String, String[]> deployInfoMap = new HashMap<String, String[]>();
 		for (Iterator<NameValuePair> ite = params.iterator() ; ite.hasNext() ;  ) {
 			NameValuePair pair = ite.next();
@@ -76,10 +78,20 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 		int tenantId = -1;
 		String initialDeployerClassName = null;
 		try {
+			AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+
+			String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
+					AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
+			String stratosServerURL = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DEPLOYMENT_STAGES
+			                          + AppFactoryConstants.DOT_SEPERATOR + stage + AppFactoryConstants.DOT_SEPERATOR
+			                          + AppFactoryConstants.TENANT_MGT_URL);
 			tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
+
 			deployInfoMap.put(AppFactoryConstants.TENANT_DOMAIN, new String[] { tenantDomain });
             deployInfoMap.put(AppFactoryConstants.APPLICATION_VERSION, new String[] { version });
 			deployInfoMap.put("tenantId", new String[] { Integer.toString(tenantId) });
+			deployInfoMap.put(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,new String[]{paasRepositoryProviderClassName});
+			deployInfoMap.put(AppFactoryConstants.STRATOS_SERVER_URL,new String[]{stratosServerURL});
 			initialDeployerClassName = ApplicationTypeManager.getInstance()
 			                                                        .getApplicationTypeBean(application.getType())
 			                                                        .getInitialDeployerClassName();

@@ -29,7 +29,7 @@ import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.git.JGitAgent;
 import org.wso2.carbon.appfactory.s4.integration.RepositoryProvider;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
+import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 import org.wso2.carbon.appfactory.s4.integration.utils.CloudUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -337,8 +337,8 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String cartridgeType = DeployerUtil.getParameter(metadata, AppFactoryConstants.APPLICATION_TYPE_CONFIG);
         String cartridgeTypePrefix = DeployerUtil.getParameter(metadata,
                                                                AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX);
-        String deploymentPolicy = DeployerUtil.getParameter(metadata, AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX);
-        String autoScalingPolicy = DeployerUtil.getParameter(metadata, AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY);
+        String deploymentPolicy = DeployerUtil.getParameter(metadata, AppFactoryConstants.RUNTIME_DEPLOYMENT_POLICY);
+        String autoScalingPolicy = DeployerUtil.getParameter(metadata, AppFactoryConstants.RUNTIME_AUTOSCALE_POLICY);
         String tenantUsername = DeployerUtil.getParameterValue(metadata, AppFactoryConstants.TENANT_USER_NAME);
         String paasRepoProviderClass = DeployerUtil.getParameter(
                                                    metadata, AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
@@ -350,14 +350,14 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
         String uniqueStratosAppId = CloudUtils.generateUniqueStratosApplicationId(tenantId, applicationId, version,
                                                                                   stageName);
-        StratosRestService stratosRestService = StratosRestService.getInstance(getStratosServerURL(), tenantUsername);
+        StratosRestClient stratosRestClient = StratosRestClient.getInstance(getStratosServerURL(), tenantUsername);
         // Create stratos application only if it not created for the uniqueStratosAppId
-        if (!stratosRestService.isApplicationCreated(uniqueStratosAppId)) {
+        if (!stratosRestClient.isApplicationCreated(uniqueStratosAppId)) {
             try {
-                stratosRestService.createApplication(uniqueStratosAppId, getBaseRepoUrl(), stratosRepoUsernmae,
+                stratosRestClient.createApplication(uniqueStratosAppId, getBaseRepoUrl(), stratosRepoUsernmae,
                                                      stratosRepoPassword, cartridgeType, cartridgeTypePrefix,
                                                      deploymentPolicy, autoScalingPolicy);
-                stratosRestService.deployApplication(uniqueStratosAppId);
+                stratosRestClient.deployApplication(uniqueStratosAppId);
             }catch(AppFactoryException e){
                 log.error("Subscribe on deployment was unsuccessful for applicationID : " + uniqueStratosAppId);
             }
@@ -396,8 +396,9 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         repoProvider.setAdminUsername(adminUsername);
         repoProvider.setAdminPassword(adminPassword);
         repoProvider.setRepoName(repoName);
-        if(!repoProvider.isRepoExist())
+        if(!repoProvider.isRepoExist()){
             repoProvider.createRepository();
+        }
     }
 
     @Override

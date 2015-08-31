@@ -272,7 +272,7 @@ public class CloudUtils {
 	                                                        String stage) {
 		return tenantId + AppFactoryConstants.HYPHEN + applicationId + AppFactoryConstants.HYPHEN
 		       + (version + "").replace(AppFactoryConstants.DOT, AppFactoryConstants.HYPHEN) + AppFactoryConstants.HYPHEN
-		       + stage;
+		       + stage.toLowerCase();
 	}
 
 	/**

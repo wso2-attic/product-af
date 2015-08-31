@@ -1,8 +1,7 @@
-class nginx($user,$password){
+class nginx($owner,$group,$target,$ext_version){
   $root_user = "root"
   $root_password = "root"
   $deployment_code = "nginx"
-
 
   $packages = [
     'nginx',
@@ -15,14 +14,14 @@ class nginx($user,$password){
 
   initialize { $deployment_code:
     repo      => $package_repo,
-    version   => $version,
+    version   => $ext_version,
     local_dir => $local_package_dir,
     owner     => $owner,
     target    => $target
   }
 
   service { 'nginx':
-    ensure    => stop,
+    ensure    => stopped,
     name      => 'nginx',
     hasstatus => true,
     pattern   => 'nginx',
@@ -54,9 +53,9 @@ class nginx($user,$password){
   exec { "strating_nginx":
     user    => $owner,
     environment => "JAVA_HOME=/opt/java",
+    cwd     => "${target}/apache-stratos-nginx-extension-${ext_version}/bin",
     path    => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin/',
-    command => "${target}/bin/nginx-extension.sh > extension.log  2>&1 &",
-    creates => "${target}/bin/extension.log",
+    command => "bash nginx-extension.sh > extension.log  2>&1 &",
     require => Initialize[$deployment_code]
   }
 }
