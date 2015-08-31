@@ -982,7 +982,7 @@ class {"apimanager":
   target             => "/mnt/${server_ip}/api-manager",
   stage              => "deploy",
   amtype             => "apimanager"
- }
+}
 }
 
 node /dev_greg/ inherits confignode {
