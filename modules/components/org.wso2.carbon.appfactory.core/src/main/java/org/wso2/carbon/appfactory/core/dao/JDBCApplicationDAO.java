@@ -138,7 +138,91 @@ public class JDBCApplicationDAO {
         return false;
     }
 
-    /**
+	/**
+	 * Add failed application to the AF_FAILED_APPLICATION table
+	 *
+	 * @param applicationKey application key
+	 * @return true if it successful
+	 * @throws AppFactoryException
+	 */
+	public boolean addFailedApplication(String applicationKey) throws AppFactoryException {
+		Connection databaseConnection = null;
+		PreparedStatement preparedStatement = null;
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+		try {
+			databaseConnection = AppFactoryDBUtil.getConnection();
+			preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_FAILED_APPLICATION_SQL);
+			preparedStatement.setString(1, applicationKey);
+			preparedStatement.setInt(2, tenantId);
+			preparedStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+			preparedStatement.execute();
+			int updatedRowCount = preparedStatement.getUpdateCount();
+			if (updatedRowCount > 0) {
+				//debug log
+				handleDebugLog((new StringBuilder()).append("successfully added failed_application. Updated ").append
+						(updatedRowCount).append(" rows").toString());
+				databaseConnection.commit();
+				return true;
+			}
+
+			String errorMessage = "Adding failed_application is failed for " + applicationKey;
+			handleException(errorMessage); // This is not caught within this method.
+		} catch (SQLException e) {
+			try {
+				if (databaseConnection != null) {
+					databaseConnection.rollback();
+				}
+			} catch (SQLException e1) {
+				// Only logging this exception since this is not the main issue. The original issue is thrown.
+				log.error("Error while rolling back the added failed_application", e1);
+			}
+
+			String errorMsg = "Error while adding the failed_application " + applicationKey;
+			handleException(errorMsg, e);
+		} finally {
+			AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+			AppFactoryDBUtil.closeConnection(databaseConnection);
+		}
+		return false;
+	}
+
+	/**
+	 * Check whether application is failed or not
+	 *
+	 * @param applicationKey application key
+	 * @return returns true if application is failed
+	 * @throws AppFactoryException
+	 */
+	public boolean isFailedApplication(String applicationKey) throws AppFactoryException {
+
+		int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+		Connection databaseConnection = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet application = null;
+		try {
+			databaseConnection = AppFactoryDBUtil.getConnection();
+			preparedStatement = databaseConnection.prepareStatement(SQLConstants.GET_FAILED_APPLICATION_SQL);
+			preparedStatement.setString(1, applicationKey);
+			preparedStatement.setInt(2, tenantId);
+			application = preparedStatement.executeQuery();
+			if (application.next()) {
+				String applicationId = application.getString(SQLParameterConstants.COLUMN_NAME_APPLICATION_KEY);
+				if (applicationKey.equals(applicationId)) {
+					return true;
+				}
+			}
+			handleDebugLog("Getting AF_FAILED_APPLICATION for application key : " + applicationKey);
+		} catch (SQLException e) {
+			handleException("Error while getting failed_application of application key" + applicationKey, e);
+		} finally {
+			AppFactoryDBUtil.closeResultSet(application);
+			AppFactoryDBUtil.closePreparedStatement(preparedStatement);
+		}
+		return false;
+
+	}
+
+	/**
      * Method to check the existence of the applicationKey
      *
      * @param applicationKey key of the application

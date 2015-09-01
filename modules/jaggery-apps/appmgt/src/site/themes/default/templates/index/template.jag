@@ -105,30 +105,33 @@ function addTableRow(application) {
         displayName = displayName.replace("^", "<b style=\"background-color:yellow;\">").replace("~", "</b>");
         application.highlightedName = "";
     }
-    var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key + "&isUploadableAppType=" + application.isUploadable;
-    if(application.isUploadable == true || application.isUploadable == "true"){
-        url += "&isUploadableAppType=" + application.isUploadable;
-    }
-    var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
-    var iconClass = " <i class="+ icon + "><\/i>"
 
-    var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
-                        iconClass+
-                        '<div class="app-icon">' +
-                         '<img id="' + application.key + '_icon"  ' +
-                          'src="/appmgt/site/themes/default/images/dark-app-iconx256.jpg"' +
-                           ' class="square-element"></div>' +
-                         '<div class="app-name tmp-anchor-fix" >' + application.name+ '</div>';
+    if (application.applicationCreationStatus != APPLICATION_CREATION_STATUS.FAULTY) {
 
-    // If any of the branches are in production add the green icon
-    if (application.inProduction == true) {
-        theLi += '<img alt="Green tag" class="green_tag" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("assets/img/green_tag.png"))%>">';
+        var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key + "&isUploadableAppType=" + application.isUploadable;
+        if(application.isUploadable == true || application.isUploadable == "true"){
+            url += "&isUploadableAppType=" + application.isUploadable;
+        }
+        var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
+        var iconClass = " <i class="+ icon + "><\/i>"
+        var spinIcon = application.applicationCreationStatus == APPLICATION_CREATION_STATUS.PENDING ? "<i class=\"fa fa-spinner fa-pulse fa-spin\"></i>" : "";
+
+        var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
+                            iconClass+
+                            '<div class="app-icon">' +
+                             '<img id="' + application.key + '_icon"  ' +
+                              'src="/appmgt/site/themes/default/images/dark-app-iconx256.jpg"' +
+                               ' class="square-element"></div>' +
+                             '<div class="app-name tmp-anchor-fix" >' + spinIcon + application.name+ '</div>';
+        theLi += '</a></div></div>';
+        theLi += '</li>';
     }
-    theLi += '</a></div></div>';
-    if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING){
+
+    if (application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING) {
+        isAllAppCreated = false;
         handlePendingApps(application.key);
     }
-    theLi += '</li>';
+
     $("#item_list").append(theLi);
 }
 
