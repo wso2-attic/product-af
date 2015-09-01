@@ -139,7 +139,7 @@ $(document).ready(function () {
             $("#add-user").prop("disabled", true);
             if (status == "error") {
                 jagg.message({
-                    content: "Error occurred while adding database user",
+                    content: result.responseText,
                     type: 'error',
                     id: 'myuniqeid'
                 });

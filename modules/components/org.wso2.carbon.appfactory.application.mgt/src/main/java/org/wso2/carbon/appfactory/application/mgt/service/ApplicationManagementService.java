@@ -216,34 +216,40 @@ public class ApplicationManagementService extends AbstractAdmin {
                         String errorMessage = "Error while creating the app " + applicationId;
                         if (error.contains("JenkinsApplicationEventsListener")) {
                             errorMessage = "Error occurred while creating the Jenkins space for the app " +
-                                    applicationId;
+                                    applicationId + " in tenant:" + domainName;
                         } else if (error.contains("AppFactoryApplicationEventListener")) {
                             errorMessage = "Error occurred while creating the Issue tracker provisioning for the app "
-                                    + applicationId;
+                                    + applicationId + " in tenant:" + domainName;
                         } else if (error.contains("ApplicationInfomationChangeListner")) {
                             errorMessage = "Error occurred while invoking the ApplicationInfomationChangeListner " +
-                                    "for the app " + applicationId;
+                                    "for the app " + applicationId + " in tenant:" + domainName;
                         } else if (error.contains("DSApplicationListener")) {
-                            errorMessage = "Error occurred while creating the data source for the app " + applicationId;
+                            errorMessage = "Error occurred while creating the data source for the app " + applicationId
+                                    + " in tenant:" + domainName;
                         } else if (error.contains("DomainMappingListener")) {
-                            errorMessage = "Error occurred while adding the domain mapping for the app " + applicationId;
+                            errorMessage = "Error occurred while adding the domain mapping for the app " + applicationId
+                                    + " in tenant:" + domainName;
                         } else if (error.contains("EnvironmentAuthorizationListener")) {
-                            errorMessage = "Error occurred while creating environments for the app  " + applicationId;
+                            errorMessage = "Error occurred while creating environments for the app  " + applicationId
+                                    + " in tenant:" + domainName;
                         } else if (error.contains("InitialArtifactDeployerHandler")) {
-                            errorMessage = "Error occurred while initial code committing for the app " + applicationId;
+                            errorMessage = "Error occurred while initial code committing for the app " + applicationId
+                                    + " in tenant:" + domainName;
                         } else if (error.contains("IssueTrackerListener")) {
                             errorMessage = "Error occurred while creating the issue tracker space for the app " +
-                                    applicationId;
+                                    applicationId + " in tenant:" + domainName;
                         } else if (error.contains("NonBuildableApplicationEventListner")) {
                             errorMessage = "Error occurred while invoking the NonBuildableApplicationEventListner " +
-                                    "for the app " + applicationId;
+                                    "for the app " + applicationId + " in tenant:" + domainName;
                         } else if (error.contains("RepositoryHandler")) {
                             errorMessage = "Error occurred while creating the source code repository for the " +
-                                    "app " + applicationId;
+                                    "app " + applicationId + " in tenant:" + domainName;
                         } else if (error.contains("StatPublishEventsListener")) {
-                            errorMessage = "Error occurred while publishing stats related to the app " + applicationId;
+                            errorMessage = "Error occurred while publishing stats related to the app " + applicationId
+                                    + " in tenant:" + domainName;
                         } else if (error.contains("UserProvisioningListener")) {
-                            errorMessage = "Error occurred while user provisioning for the app " + applicationId;
+                            errorMessage = "Error occurred while user provisioning for the app " + applicationId
+                                    + " in tenant:" + domainName;
                         }
 
                         EventNotifier.getInstance().notify(AppCreationEventBuilderUtil.buildApplicationCreationEvent(

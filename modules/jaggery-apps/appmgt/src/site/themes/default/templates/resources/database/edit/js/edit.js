@@ -19,11 +19,56 @@
 
 
 $(document).ready(function() {
+var usersDatatable = {};
+populateDatatable();
 
-    $('.datatable table').dataTable({
+// select all check boxes for data and structure permission sections
+$('.data-select-all input[type="checkbox"]').on("click",function() {
+    $(".datacbx").prop('checked', $(this).prop('checked'));
+});
+$('.structure-select-all input[type="checkbox"]').on("click",function() {
+    $(".structurecbx").prop('checked', $(this).prop('checked'));
+});
+
+$('.datacbx').on("click",function() {
+    var classL = $('.datacbx').length;
+    var checkedL = $('.datacbx:checked').length;
+    if(classL == checkedL) {
+        $('.data-select-all input[type="checkbox"]').prop('checked', true);
+    } else {
+        $('.data-select-all input[type="checkbox"]').prop('checked', false);
+    }
+});
+$('.structurecbx').on("click",function() {
+    var classL = $('.structurecbx').length;
+    var checkedL = $('.structurecbx:checked').length;
+    if(classL == checkedL) {
+        $('.structure-select-all input[type="checkbox"]').prop('checked', true);
+    } else {
+        $('.structure-select-all input[type="checkbox"]').prop('checked', false);
+    }
+});
+
+}); // end of document ready
+
+
+/**
+* Populate data table for databtase users
+*/
+function populateDatatable() {
+  usersDatatable = $('.datatable table').dataTable({
             responsive: true,
             "orderCellsTop": true,
-            data: usrInfo,
+            'ajax': {
+                "type"   : "POST",
+                "url"    : '../blocks/resources/database/add/ajax/add.jag',
+                "data"   : function( d ) {
+                d.action = "getDatabaseUsersForDataTable";
+                d.applicationKey = applicationKey;
+                d.environment = environment;
+                d.dbName = dbName;
+                }
+            },
             "columns": [
                 { "data": "username", "width": "10%"},
                 { "data": "attachuser" , "width": "5%","sClass" : "dt-body-center"},
@@ -42,7 +87,7 @@ $(document).ready(function() {
                     if(isChecked){
                         //clear all checked boxes
                         $('#priviledges_modal input:checkbox').prop('checked', false);
- 
+
                         $('#priviledges_modal').modal({
                             show: true,
                             keyboard: false,
@@ -56,6 +101,7 @@ $(document).ready(function() {
                             if(priviledgeCheckboxValidation()){
                             var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
                             attachUserWithPermissions(userName, permissions);
+                            $('#priviledges_modal').modal('hide');
                             } else {
                                  jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
                             }
@@ -65,7 +111,7 @@ $(document).ready(function() {
                         currentElement.removeAttr("checked");
                         $("#priviledges_"+ userName).html("");
                     }
-                    
+
                 });
             // on click event of edit
             $('.edit_priviledge').on("click",function(){
@@ -77,11 +123,12 @@ $(document).ready(function() {
                             show: true,
                             keyboard: false,
                             backdrop: 'static'
-                }); 
+                });
                 $('#privilege_edit_save').on('click', function (e) {
                     if(priviledgeCheckboxValidation()) {
                         var permissions = JSON.stringify(getCheckedPriviledgesAsJson());
                         editUserPriviledges(userName, permissions);
+                        $('#priviledges_modal').modal('hide'); 
                     } else {
                         jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
                     }
@@ -99,10 +146,8 @@ $(document).ready(function() {
 
             });
         } // end of call back function
-}); // end of datatable
-
-
-}); // end of document ready
+    }); // end of datatable
+}
 
 
 /**
@@ -152,7 +197,7 @@ function attachUserWithPermissions(userName, permissionsJson) {
             permissions:permissionsJson 
         },function (result) {
                 if(result){
-                    document.location.reload(true);
+                    usersDatatable.api().ajax.reload();
                 }
         },function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status != 0){
@@ -161,7 +206,8 @@ function attachUserWithPermissions(userName, permissionsJson) {
         });
     }
 }
-/*
+
+/**
 * Create a json object of priviledges with its checked/unchecked value
 */
 function getCheckedPriviledgesAsJson() {
@@ -203,7 +249,7 @@ function priviledgeCheckboxValidation() {
 * Update priviledges of a user attached to a database
 */
 function editUserPriviledges(userName, permissionsJson) {
-     jagg.post("../blocks/resources/database/add/ajax/add.jag", {
+        jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action:"editUserPermissions",
             applicationKey:applicationKey,
             databaseName:dbName,
@@ -211,7 +257,7 @@ function editUserPriviledges(userName, permissionsJson) {
             userName:userName,
             permissions:permissionsJson 
         },function (result) {
-            document.location.reload(true);
+            usersDatatable.api().ajax.reload();
         },function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status != 0){
                     jagg.message({type:'error',content:'User ' + userName + ' attaching failed for database ' + dbName, id:'attach_user'});
@@ -229,7 +275,7 @@ function deleteUser(userName) {
             name:userName,
             rssInstanceName:environment
         },function (result) {
-            document.location.reload(true);
+            usersDatatable.api().ajax.reload();
         },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
                 jagg.message({content:'Error occurred while deleting user: ' + userName + 'User already attached to a database.',type:'error', id:'dbusercreation' });

@@ -1,7 +1,7 @@
 // global data store
 var currentVersion = null;
 var isInit = true;
-var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
+var devStudioLink = "https://docs.wso2.com/display/AF210/Use+WSO2+Developer+Studio+to+Develop+an+Application";
 var versionChangeEventAdded = false;
 var timer = null;
 var currentMessage = null;
@@ -13,7 +13,7 @@ $(document).ready(function() {
         showTopMessage("Application creation started.");
     }
     // set current version
-    setCurrentVersion();
+    setDefaultVersion();
     // initialize page and handlers
     initPageView();
     // load initial data to the page
@@ -22,13 +22,15 @@ $(document).ready(function() {
 });
 
 // set default app version
-function setCurrentVersion() {
+function setDefaultVersion() {
     var appType = applicationInfo.type;
-    var version = "trunk";
+    currentVersion = "trunk";
     if (appType && appType.indexOf("Uploaded") >= 0) {
-        version = "1.0.0";
+        currentVersion = "1.0.0";
     }
-    currentVersion = version;
+    if(previousVersion && previousVersion != null) {
+        currentVersion = previousVersion;
+    }
 }
 
 // wrapping functions
@@ -87,18 +89,14 @@ function loadAppInfoFromServer(version) {
     $('.loading-cover').overlay('show');
 
     jagg.post("../blocks/application/get/ajax/list.jag", {
-          action:"getAppVersionsInStages",
+          action:"getAppVersionAllInfoByVersion",
           applicationKey: applicationInfo.key,
-          userName: $("#userName").attr('value')
+          userName: $("#userName").attr('value'),
+          version: version
     },function (result) {
-            var resultData = jQuery.parseJSON(result);
-            if (resultData.length > 0) {
-                // get the relevant application info object
-                // since this always gives only one element array, take the first element
-                var appInfo = resultData[0];
-
-                // filter the selected app version
-                var currentAppInfo = filterAppVersionInfo(appInfo, version);
+            var appInfo = jQuery.parseJSON(result);
+            if (appInfo) {
+                var currentAppInfo = appInfo.versionInfo;
 
                 // load application version specific data
                 // note : need to hide overlay in the final ajax call's callback function
@@ -157,9 +155,9 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
     var versionOptionListHtml = "";
 
     for (var i in appInfo.versions) {
-        var versionInfo = appInfo.versions[i];
+        var version = appInfo.versions[i];
         versionOptionListHtml += "<option>";
-        versionOptionListHtml += versionInfo.version;
+        versionOptionListHtml += version;
         versionOptionListHtml += "</option>";
     }
     $("#appVersionList").html(versionOptionListHtml);
@@ -177,6 +175,13 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
 
         // add listener for cloud envy
         $('#createCodeEnvyUrl').click(function() {
+            if(!isCodeEditorSupported) {
+                jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
+            } else {
+                createCodeEnvyUrl(currentAppInfo.repoURL);
+            }
+        });
+        $('#btnEditCode').click(function() {
             if(!isCodeEditorSupported) {
                 jagg.message({content: "Code editor not supported for the " + applicationInfo.type + " application type!", type: 'error', id:'message_id'});
             } else {
