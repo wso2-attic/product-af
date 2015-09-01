@@ -40,7 +40,6 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.util.*;
 
@@ -650,7 +649,7 @@ public class AFDefaultDataPopulator {
 			throw new AFIntegrationTestException(errorMsg);
 		}
 
-		InputStream stream = new ByteArrayInputStream(jobExistResponse.getData().getBytes(StandardCharsets.UTF_8));
+		InputStream stream = new ByteArrayInputStream(jobExistResponse.getData().getBytes(HTTP.UTF_8));
 		StAXOMBuilder builder = new StAXOMBuilder(stream);
 		Iterator elementIterator = builder.getDocumentElement().getChildElements();
 		while (elementIterator.hasNext()) {
