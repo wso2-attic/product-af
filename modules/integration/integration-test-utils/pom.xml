@@ -49,6 +49,14 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-io.wso2</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.appfactory</groupId>
+            <artifactId>org.wso2.carbon.appfactory.repository.mgt.service</artifactId>
+        </dependency>
         <!--dependency>
             <groupId>org.wso2.carbon.appmgt</groupId>
             <artifactId>org.wso2.carbon.appmgt.sample.deployer</artifactId>

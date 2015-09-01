@@ -549,6 +549,8 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="git"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="s2git"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="bam"
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="api"
@@ -569,6 +571,10 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="jenkinsuserpass"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="s2gituser"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="s2gituserpass"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -587,6 +593,8 @@
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="tenantDomain"
                                                     maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="tenantID"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="usagePlan"
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
@@ -604,6 +612,14 @@
                                         <xs:element type="xs:string" name="applicationDescription"
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element type="xs:string" name="defaultVersion"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="defaultArtifactVersion"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="runtimeAlias"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="defaultStage"
+                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="extension"
                                                     maxOccurs="unbounded" minOccurs="0"/>
                                         <xs:element name="versions">
                                             <xs:complexType>
