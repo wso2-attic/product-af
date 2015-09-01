@@ -17,62 +17,67 @@
  */
 package org.wso2.appfactory.tests.scenarios;
 
-import com.google.gson.JsonArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
-import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTestUtils;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
-public class ApplicationCreationTestCase extends AFIntegrationTest {
-    private static final Log log = LogFactory.getLog(ApplicationCreationTestCase.class);
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
+public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
+    private static final Log log = LogFactory.getLog(ApplicationCreationDeletionTestCase.class);
     public static final String APP_TYPE_WAR = "war";
     private static final String INITIAL_STAGE = "Development";
-    private ApplicationClient appMgtRestClient;
+	private static final String DEFAULT_APP_ARTIFACT_VERSION = "default-SNAPSHOT";
+	private static final String DEFAULT_APP_RUNTIME_ALIAS = "as";
+	private ApplicationClient appMgtRestClient;
+	private final String appName = "foo_" + APP_TYPE_WAR + "_bar";
+
+	static {
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		});
+	}
+
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
         appMgtRestClient = new ApplicationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Sample test method")
-    public void testWarAppType() throws Exception {
-        String appName = "foo_" + APP_TYPE_WAR;
+    @Test(description = "Create application using rest api")
+    public void testCreateApplication() throws Exception {
+
         log.info("Creating application of type :" + APP_TYPE_WAR + " with name :" + appName);
         createApplication(appName, appName, appName, APP_TYPE_WAR);
         log.info("Application creation is completed.");
     }
 
-    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Get applications of user  <used in Dev Studio>")
-    public void testGetApplicationsOfUser() throws AFIntegrationTestException{
-        JsonArray resultArray =  appMgtRestClient.getApplicationsOfUser(defaultAdmin);
-        boolean isAssert = false;
-        if (resultArray.size()!=0){
-            isAssert=true;
-        }
-        Assert.assertEquals(isAssert,true,"Get applications of user failed.");
-    }
-
-    @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Get application versions in stage  <used in Dev Studio>")
-    public void testGetAppVersionsInStage() throws AFIntegrationTestException{
-        JsonArray resultArray =  appMgtRestClient.getAppVersionsInStage(defaultAdmin,INITIAL_STAGE , defaultAppKey);
-        boolean isAssert = false;
-        if (resultArray.size()!=0){
-            isAssert=true;
-        }
-        Assert.assertEquals(isAssert,true,"Get application versions in stage failed.");
-    }
+	@SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
+	@Test(description = "Delete the created application", dependsOnMethods = {"testCreateApplication"})
+	public void testDeleteApplication() throws Exception{
+		appMgtRestClient.deleteApplication(defaultAdmin, appName);
+		// Wait till Create Application completion
+		AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
+		populator.waitUntilApplicationDeletionCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
+		                                                appName, appName, "war",
+		                                                DEFAULT_APP_ARTIFACT_VERSION, INITIAL_STAGE,
+		                                                DEFAULT_APP_RUNTIME_ALIAS,
+		                                                AFIntegrationTestUtils.getPropertyValue(
+				                                                AFConstants.DEFAULT_TENANT_TENANT_ID));
+	}
 
 
     @AfterClass(alwaysRun = true)
@@ -91,7 +96,14 @@ public class ApplicationCreationTestCase extends AFIntegrationTest {
 
         // Wait till Create Application completion
         AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-        populator.waitUntilApplicationCreationCompletes(5000L, 5, defaultAdmin, defaultAdminPassword,
-                                                        applicationKey, applicationName);
+        populator.waitUntilApplicationCreationCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
+                                                        applicationKey, applicationName, "war",
+                                                        DEFAULT_APP_ARTIFACT_VERSION, INITIAL_STAGE,
+                                                        DEFAULT_APP_RUNTIME_ALIAS,
+                                                        AFIntegrationTestUtils.getPropertyValue(
+		                                                        AFConstants.DEFAULT_TENANT_TENANT_ID));
     }
+
+
+
 }

@@ -290,9 +290,20 @@
             <prodStratosController>https://sc.prod.appfactory.private.wso2.com:9465/</prodStratosController>
             <bps>https://process.appfactory.private.wso2.com:9543/</bps>
             <git>https://git.appfactory.private.wso2.com:8443/</git>
+            <s2git>https://s2git.appfactory.private.wso2.com:8444/</s2git>
             <bam>https://bam.appfactory.private.wso2.com:9446/</bam>
             <api>http://apimanager.appfactory.private.wso2.com:9769/</api>
+            <jenkins>https://jenkins.appfactory.private.wso2.com:9500/</jenkins>
         </urls>
+
+        <credentials>
+            <gituser>gitblitsystemadmin</gituser>
+            <gituserpass>admin</gituserpass>
+            <jenkinsuser>jenkinssystemadmin</jenkinsuser>
+            <jenkinsuserpass>password</jenkinsuserpass>
+            <s2gituser>admin</s2gituser>
+            <s2gituserpass>admin</s2gituserpass>
+        </credentials>
 
         <defaultTenant>
             <firstName>firstName</firstName>
@@ -301,6 +312,7 @@
             <admin>admin</admin>
             <adminPassword>admin123</adminPassword>
             <tenantDomain>rama.com</tenantDomain>
+            <tenantID>2</tenantID>
             <usagePlan>Demo</usagePlan>
         </defaultTenant>
 
@@ -309,6 +321,11 @@
             <applicationKey>apptest</applicationKey>
             <applicationType>war</applicationType>
             <applicationDescription>applicationDescription</applicationDescription>
+            <defaultVersion>trunk</defaultVersion>
+            <defaultArtifactVersion>default-SNAPSHOT</defaultArtifactVersion>
+            <runtimeAlias>as</runtimeAlias>
+            <defaultStage>Development</defaultStage>
+            <extension>war</extension>
             <versions>
                 <version key="v1">
                     <sourceVersion>trunk</sourceVersion>

@@ -28,7 +28,6 @@ import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,13 +59,15 @@ public class ApplicationClient extends BaseClient {
 	 * @return HTTP response
 	 * @throws Exception
 	 */
-	public HttpResponse getAppInfo(String applicationKey) throws Exception {
+	public HttpResponse getAppInfo(String applicationKey, boolean checkErrors) throws Exception {
 		HttpResponse response = HttpRequestUtil
 			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_GET),
 					"action=getAppInfo&applicationKey=" + applicationKey, getRequestHeaders());
 
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
-			checkErrors(response);
+			if(checkErrors) {
+				checkErrors(response);
+			}
 			return response;
 		} else {
 			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
