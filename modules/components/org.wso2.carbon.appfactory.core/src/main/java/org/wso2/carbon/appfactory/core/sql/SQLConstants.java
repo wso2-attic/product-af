@@ -36,6 +36,8 @@ public class SQLConstants {
                                                   "VALUES(?,?,?,?,?,?)";
     public static final String ADD_CARTRIDGE_CLUSTER_SQL = "INSERT INTO AF_CARTRIDGE_CLUSTER (CLUSTER_ID, " +
                                                            "LB_CLUSTER_ID, ACTIVE_IP, TENANT_ID) VALUES(?,?,?,?)";
+	public static final String ADD_FAILED_APPLICATION_SQL =
+			"REPLACE INTO AF_FAILED_APPLICATION (APPLICATION_KEY, TENANT_ID, CREATE_START_TIME) VALUES(?,?,?)";
 
 
     //**************************************************Select Queries
@@ -122,6 +124,8 @@ public class SQLConstants {
 
     public static final String GET_ALL_VERSION_NAMES_OF_APPLICATION = "SELECT VERSION_NAME FROM AF_VERSION JOIN " +
             "(SELECT ID FROM AF_APPLICATION WHERE APPLICATION_KEY = ? AND TENANT_ID = ? ) AS AF_APP ON AF_APP.ID=AF_VERSION.APPLICATION_ID";
+	public static final String GET_FAILED_APPLICATION_SQL =
+			"SELECT APPLICATION_KEY FROM AF_FAILED_APPLICATION where APPLICATION_KEY = ? AND TENANT_ID = ?";
 
 
     //**************************************************Delete Queries

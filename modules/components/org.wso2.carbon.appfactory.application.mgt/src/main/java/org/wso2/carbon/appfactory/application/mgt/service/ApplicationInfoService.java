@@ -107,6 +107,26 @@ public class ApplicationInfoService {
         return applicationCreationStatus;
     }
 
+	/**
+	 * Check whether application if failed or not
+	 *
+	 * @param applicationKey application key
+	 * @return true if application is failed
+	 * @throws AppFactoryException
+	 */
+	public boolean isFailedApplication(String applicationKey) throws AppFactoryException {
+		try {
+			if (!StringUtils.isEmpty(applicationKey)) {
+				return JDBCApplicationDAO.getInstance().isFailedApplication(applicationKey);
+			}
+		} catch (AppFactoryException e) {
+			String errMsg = "Error while getting failed application of application key " + applicationKey;
+			log.error(errMsg, e);
+			throw new AppFactoryException(errMsg, e);
+		}
+		return false;
+	}
+
     /**
      * Get the type of the application, given the application Id and the tenant name
      *
