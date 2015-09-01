@@ -1,5 +1,4 @@
 class privatepaas (
-  $iaas_provider = undef,
   $maintenance_mode=true,
   $owner=root,
   $group=root,
