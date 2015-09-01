@@ -76,7 +76,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
 
 
     public StratosSubscriptionMessageListener(TopicConnection topicConnection, TopicSession topicSession,
-                                                    TopicSubscriber topicSubscriber) {
+                                              TopicSubscriber topicSubscriber) {
         this.topicConnection = topicConnection;
         this.topicSession = topicSession;
         this.topicSubscriber = topicSubscriber;
@@ -125,15 +125,15 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             try {
                 currentMsgCount++;
                 String stage = mapMessage.getString(AppFactoryConstants.STAGE);
-               if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
-                   addTenant(tenantInfoBean);
-               } else {
-                   if (log.isDebugEnabled()) {
-                       log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
-                                 "with subscription to cartridges. Tenant domain : " +
-                                 tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
-                   }
-               }
+                if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
+                    addTenant(tenantInfoBean);
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
+                                  "with subscription to cartridges. Tenant domain : " +
+                                  tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
+                    }
+                }
                 for (RuntimeBean runtimeBean : runtimeBeans) {
                     RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
                     try {
