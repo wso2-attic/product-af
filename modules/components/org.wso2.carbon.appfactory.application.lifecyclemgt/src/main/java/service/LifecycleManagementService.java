@@ -19,10 +19,9 @@
 package service;
 
 import bean.LifecycleBean;
-import impl.LifecycleManagementException;
-import org.wso2.carbon.appfactory.common.AppFactoryException;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 import java.util.Collection;
 
 /**
@@ -40,11 +39,11 @@ public interface LifecycleManagementService {
      * @return life cycle object with stages and checklist items
      */
     @GET
-    @Path("/getCurrentLifeCycle/{appKey}/{appVersion}/{tenantDomain}/")
+    @Path("/getCurrentAppVersionLifeCycle/{appKey}/{appVersion}/{tenantDomain}/")
     @Produces({ "application/json" })
-    public LifecycleBean getCurrentLifeCycle(@PathParam("appKey") String appKey,
-            @PathParam("appVersion") String appVersion,
-            @PathParam("tenantDomain") String tenantDomain) throws AppFactoryException, LifecycleManagementException;
+    @Consumes({ "application/json" , "application/xml" })
+    public Response getCurrentAppVersionLifeCycle(@PathParam("appKey") String appKey,
+            @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain);
 
     /**
      * Method to get next stage name for a given stage in a given lifecycle
@@ -54,9 +53,11 @@ public interface LifecycleManagementService {
      * @return next stage name
      */
     @GET
-    @Path("/getNextStage/{lifecycleName}/{currentStage}/")
-    public String getNextStage(@PathParam("lifecycleName") String lifecycleName,
-            @PathParam("currentStage") String currentStage) throws LifecycleManagementException, AppFactoryException;
+    @Path("/getNextStageName/{lifecycleName}/{currentStage}/")
+    @Produces({ "application/json" })
+    @Consumes({ "application/json" , "application/xml" })
+    public Response getNextStageName(@PathParam("lifecycleName") String lifecycleName,
+            @PathParam("currentStage") String currentStage);
 
     /**
      * Method to get previous stage name for a given stage in a given lifecycle
@@ -66,9 +67,11 @@ public interface LifecycleManagementService {
      * @return previous stage name
      */
     @GET
-    @Path("/getPreviousStage/{lifecycleName}/{currentStage}/")
-    public String getPreviousStage(@PathParam("lifecycleName") String lifecycleName,
-            @PathParam("currentStage") String currentStage) throws LifecycleManagementException, AppFactoryException;
+    @Path("/getPreviousStageName/{lifecycleName}/{currentStage}/")
+    @Produces({ "application/json" })
+    @Consumes({ "application/json" , "application/xml" })
+    public Response getPreviousStageName(@PathParam("lifecycleName") String lifecycleName,
+            @PathParam("currentStage") String currentStage);
 
     /**
      * Method to retrieve life cycles and their details from the registry
@@ -78,7 +81,7 @@ public interface LifecycleManagementService {
     @GET
     @Path("/getAllLifeCycles/")
     @Produces({ "application/json" })
-    public Collection<LifecycleBean> getAllLifeCycles() throws LifecycleManagementException, AppFactoryException;
+    public Collection<LifecycleBean> getAllLifeCycles();
 
     /**
      * Method to set lifecycle name of an appInfo artifact of a given application
@@ -89,8 +92,10 @@ public interface LifecycleManagementService {
      */
     @POST
     @Path("/setAppLifecycle/{appKey}/{lifecycleName}/{tenantDomain}/")
-    public void setAppLifecycle(@PathParam("appKey") String appKey, @PathParam("lifecycleName") String lifecycleName,
-            @PathParam("tenantDomain") String tenantDomain) throws LifecycleManagementException, AppFactoryException;
+    @Produces({ "application/json" })
+    @Consumes({ "application/json" , "application/xml" })
+    public Response setAppLifecycle(@PathParam("appKey") String appKey,
+            @PathParam("lifecycleName") String lifecycleName, @PathParam("tenantDomain") String tenantDomain);
 
     /**
      * Method to attach lifecycle to an application of a given app version
@@ -99,23 +104,13 @@ public interface LifecycleManagementService {
      * @param appKey       application key
      * @param appVersion   application version
      * @param tenantDomain tenant domain
+     * @return response
      */
     @POST
-    @Path("/setAppVersionLifecycle/{appKey}/{appVersion}/{tenantDomain}/")
-    public void setAppVersionLifecycle(@PathParam("appKey") String appKey,
-            @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain)
-            throws LifecycleManagementException, AppFactoryException;
-
-    /**
-     * Method to check whether application life cycle is changed by the user or not.
-     * (This is used to check whether the user has changed the lifecycle before creating a new branch for an app)
-     *
-     * @param appKey application key
-     * @return true/false
-     */
-    @GET
-    @Path("/isAppLCChanged/{appKey}/{tenantDomain}/")
-    public boolean isAppLCChanged(@PathParam("appKey") String appKey, @PathParam("tenantDomain") String tenantDomain)
-            throws AppFactoryException, LifecycleManagementException;
+    @Path("/updateAppVersionLifecycle/{appKey}/{appVersion}/{tenantDomain}/")
+    @Produces({ "application/json" })
+    @Consumes({ "application/json" , "application/xml" })
+    public Response updateAppVersionLifecycle(@PathParam("appKey") String appKey,
+            @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain);
 
 }

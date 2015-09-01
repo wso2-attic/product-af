@@ -26,12 +26,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.governance.api.exception.GovernanceException;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import service.LifecycleManagementService;
 
-import javax.jws.WebService;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.util.*;
@@ -39,7 +38,7 @@ import java.util.*;
 /**
  * Contains the implementation of the LifecycleManagementService
  */
-@WebService
+
 public class LifecycleManagementServiceImpl implements LifecycleManagementService {
     public static final String LC_STATE_ELEMENT = "state";
     public static final String LC_DATA_MODEL_ELEMENT = "datamodel";
@@ -60,7 +59,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @return collection of lifecycle objects
      */
-    public Collection<LifecycleBean> getAllLifeCycles() throws AppFactoryException {
+    public Collection<LifecycleBean> getAllLifeCycles() {
         return lifecycleMap.values();
     }
 
@@ -86,10 +85,26 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @param lifecycleName name of the lifecycle
      * @param currentStage  current stage of the application
+     * @return next stage name as an response
+     */
+    public Response getNextStageName(String lifecycleName, String currentStage) {
+        Response response;
+        try {
+            response = Response.status(Response.Status.OK).entity(getNextStage(lifecycleName, currentStage)).build();
+        } catch (LifecycleManagementException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        return response;
+    }
+
+    /**
+     * Method to get next stage name
+     *
+     * @param lifecycleName name of the lifecycle
+     * @param currentStage  current stage of the application
      * @return next stage name
      */
-    public String getNextStage(String lifecycleName, String currentStage)
-            throws LifecycleManagementException, AppFactoryException {
+    private String getNextStage(String lifecycleName, String currentStage) throws LifecycleManagementException {
         String nextStage = null;
         LifecycleBean lifecycle = lifecycleMap.get(lifecycleName);
         if (lifecycle == null) {
@@ -127,10 +142,27 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @param lifecycleName name of the lifecycle
      * @param currentStage  current stage of the application
+     * @return previous stage name as an response
+     */
+    public Response getPreviousStageName(String lifecycleName, String currentStage) {
+        Response response;
+        try {
+            response = Response.status(Response.Status.OK).entity(getPreviousStage(lifecycleName, currentStage)).build();
+        } catch (LifecycleManagementException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        return response;
+    }
+
+    /**
+     * Method to get previous stage name
+     *
+     * @param lifecycleName name of the lifecycle
+     * @param currentStage  current stage of the application
      * @return previous stage name
      */
-    public String getPreviousStage(String lifecycleName, String currentStage)
-            throws LifecycleManagementException, AppFactoryException {
+    private String getPreviousStage(String lifecycleName, String currentStage)
+            throws LifecycleManagementException {
         String previousStage = null;
         LifecycleBean lifecycle = lifecycleMap.get(lifecycleName);
         if (lifecycle == null) {
@@ -171,15 +203,26 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey       application key
      * @param appVersion   application version
      * @param tenantDomain tenant domain
+     * @return response
      */
-    public void setAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
-            throws LifecycleManagementException, AppFactoryException {
+    public Response updateAppVersionLifecycle(String appKey, String appVersion, String tenantDomain) {
+        Response response = null;
         LifecycleDAO dao = new LifecycleDAO();
-        dao.updateAppVersionLifeCycle(appKey, tenantDomain, appVersion);
-        if (log.isDebugEnabled()) {
-            log.debug("Life cycle name of application :" + appKey + " with the app version" + appVersion
-                    + " of the tenant :" + tenantDomain + "is successfully updated.");
+        try {
+            if (dao.isAppLifecycleChanged(appKey, tenantDomain)) {
+                dao.updateAppVersionLifeCycle(appKey, tenantDomain, appVersion);
+                response = Response.status(Response.Status.NO_CONTENT).build();
+                if (log.isDebugEnabled()) {
+                    log.debug("Life cycle name of application :" + appKey + " with the app version" + appVersion
+                            + " of the tenant :" + tenantDomain + "is successfully updated.");
+                }
+            }
+        } catch (AppFactoryException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (LifecycleManagementException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
+        return response;
     }
 
     /**
@@ -249,13 +292,25 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         return lifecycleMap.get(lifecycleName);
     }
 
+    public Response getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain){
+        Response response;
+        try {
+            response = Response.status(Response.Status.OK).entity(getCurrentLifeCycle(appKey,appVersion,tenantDomain)).build();
+        } catch (AppFactoryException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (LifecycleManagementException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        return response;
+    }
+
     /**
      * Method to retrieve lifecycle details of a given appVersion artifact
      *
      * @param appKey application key
      * @return lifecycle object
      */
-    public LifecycleBean getCurrentLifeCycle(String appKey, String appVersion, String tenantDomain)
+    private LifecycleBean getCurrentLifeCycle(String appKey, String appVersion, String tenantDomain)
             throws AppFactoryException, LifecycleManagementException {
         LifecycleBean lifecycle;
         LifecycleDAO dao = new LifecycleDAO();
@@ -265,7 +320,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     "Unable to load the lifecycle of the application :" + appKey + " with application version :"
                             + appVersion + "of the tenant :" + tenantDomain;
             log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
+            throw new LifecycleManagementException(errorMsg);
         } else {
             lifecycle = getLifeCycleByName(lifecycleName);
         }
@@ -278,8 +333,29 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey        application key
      * @param lifecycleName life cycle name
      * @param tenantDomain  tenant domain
+     * @return response
      */
-    public void setAppLifecycle(String appKey, String lifecycleName, String tenantDomain)
+    public Response setAppLifecycle(String appKey, String lifecycleName, String tenantDomain) {
+        Response response;
+        try {
+            setAppInfoLifecycle(appKey, lifecycleName, tenantDomain);
+            response = Response.status(Response.Status.NO_CONTENT).build();
+        } catch (LifecycleManagementException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (AppFactoryException e) {
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        return response;
+    }
+
+    /**
+     * Method to set lifecycle name of an appInfo artifact
+     *
+     * @param appKey        application key
+     * @param lifecycleName life cycle name
+     * @param tenantDomain  tenant domain
+     */
+    private void setAppInfoLifecycle(String appKey, String lifecycleName, String tenantDomain)
             throws LifecycleManagementException, AppFactoryException {
         LifecycleDAO dao = new LifecycleDAO();
         try {
@@ -351,44 +427,6 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
 
         }
         return checkListItems;
-    }
-
-    /**
-     * Method to check whether application life cycle is changed by the user or not
-     *
-     * @param appKey application key
-     * @return true/false
-     */
-    public boolean isAppLCChanged(String appKey, String tenantDomain)
-            throws AppFactoryException, LifecycleManagementException {
-        boolean status = false;
-        LifecycleDAO dao = new LifecycleDAO();
-        PrivilegedCarbonContext carbonContext;
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            carbonContext.setTenantDomain(tenantDomain, true);
-
-            if (dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain)
-                    .getLifecycleName() != null) {
-                status = true;
-            }
-
-        } catch (AppFactoryException e) {
-            String errorMsg =
-                    "Error while loading lifecycle artifact details of the application :" + appKey + " of the tenant :"
-                            + tenantDomain;
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        } catch (GovernanceException e) {
-            String errorMsg =
-                    "Error while checking lifecycle of the application :" + appKey + " of the tenant :" + tenantDomain;
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg, e);
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-        return status;
     }
 
 }

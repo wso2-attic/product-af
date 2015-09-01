@@ -68,7 +68,7 @@ public class LifecycleDAO {
             String resourcePath = getAppRegistryPath(appKey, artifactName);
 
             if (!userRegistry.resourceExists(resourcePath)) {
-                String msg = "Unable to load resources of application :"+appKey+" of the tenant :"+tenantDomain;
+                String msg = "Unable to load resources of application :" + appKey + " of the tenant :" + tenantDomain;
                 log.error(msg);
                 throw new LifecycleManagementException(msg);
             }
@@ -376,6 +376,45 @@ public class LifecycleDAO {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * Method to check whether application life cycle is changed by the user or not.
+     * (This is used to check whether the user has changed the lifecycle before creating a new branch for an app)
+     *
+     * @param appKey application key
+     * @return true/false
+     */
+    public boolean isAppLifecycleChanged(String appKey, String tenantDomain)
+            throws AppFactoryException, LifecycleManagementException {
+        boolean status = false;
+        LifecycleDAO dao = new LifecycleDAO();
+        PrivilegedCarbonContext carbonContext;
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain, true);
+
+            if (dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain)
+                    .getLifecycleName() != null) {
+                status = true;
+            }
+
+        } catch (AppFactoryException e) {
+            String errorMsg =
+                    "Error while loading lifecycle artifact details of the application :" + appKey + " of the tenant :"
+                            + tenantDomain;
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg, e);
+        } catch (GovernanceException e) {
+            String errorMsg =
+                    "Error while checking lifecycle of the application :" + appKey + " of the tenant :" + tenantDomain;
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+        return status;
     }
 
 }
