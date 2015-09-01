@@ -71,10 +71,6 @@
                     <artifactId>axis2-kernel</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.wso2.carbon.appfactory</groupId>
-                    <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-nop</artifactId>
                 </exclusion>

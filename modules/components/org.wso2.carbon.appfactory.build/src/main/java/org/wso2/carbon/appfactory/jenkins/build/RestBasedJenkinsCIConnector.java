@@ -46,6 +46,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jaxen.JaxenException;
+import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
@@ -963,6 +964,11 @@ public class RestBasedJenkinsCIConnector {
                         jobName + ", stage : " + stage + " for username: " + userName);
             }
 
+            AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+
+            String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
+                    AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
+
             parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
@@ -970,6 +976,9 @@ public class RestBasedJenkinsCIConnector {
             parameters.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME, jobName));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_ACTION, deployAction));
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,
+                                                  paasRepositoryProviderClassName));
+
 	        addAppTypeParameters(parameters, applicationTypeBean);
             addRunTimeParameters(stage, parameters, runtimeBean);
 	        parameters.add(new BasicNameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
