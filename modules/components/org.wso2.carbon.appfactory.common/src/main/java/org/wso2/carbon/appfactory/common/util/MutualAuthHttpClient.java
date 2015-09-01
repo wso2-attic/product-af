@@ -136,7 +136,7 @@ public class MutualAuthHttpClient {
      */
     private static String getAuthHeaderValue(String username) {
         //get user name from thread local if it's empty
-        if (StringUtils.isNotBlank(username)) {
+        if (StringUtils.isEmpty(username)) {
             username = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@"
                        + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         }

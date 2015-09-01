@@ -28,6 +28,7 @@ cp org.wso2.carbon.appfactory.s4.integration/target/org.wso2.carbon.appfactory.s
 cp org.wso2.carbon.appfactory.application.mgt/target/org.wso2.carbon.appfactory.application.mgt-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
 cp org.wso2.carbon.appfactory.common/target/org.wso2.carbon.appfactory.common-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
 cp org.wso2.carbon.appfactory.deployers/target/org.wso2.carbon.appfactory.deployers-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
+cp org.wso2.carbon.appfactory.build/target/org.wso2.carbon.appfactory.build-$APPFACTORY_VERSION.jar $AF_PATCH_DIR
 
 ## patch jenkins
 JENKINS_PATCH_DIR=$jenkinspath/jenkins_home/plugins/appfactory-plugin-$APPFACTORY_VERSION/WEB-INF/lib/
