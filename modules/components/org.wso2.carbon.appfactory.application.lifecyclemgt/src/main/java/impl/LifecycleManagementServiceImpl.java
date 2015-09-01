@@ -85,7 +85,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @param lifecycleName name of the lifecycle
      * @param currentStage  current stage of the application
-     * @return next stage name as an response
+     * @return response
      */
     public Response getNextStageName(String lifecycleName, String currentStage) {
         Response response;
@@ -142,7 +142,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @param lifecycleName name of the lifecycle
      * @param currentStage  current stage of the application
-     * @return previous stage name as an response
+     * @return response
      */
     public Response getPreviousStageName(String lifecycleName, String currentStage) {
         Response response;
