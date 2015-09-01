@@ -410,7 +410,7 @@ public class AppFactoryUtil {
             String[] stages = appFactoryConfiguration.getProperties("ApplicationDeployment.DeploymentStage");
             if (stages != null) {
                 for (String stage : stages) {
-                    String baseAccessURL = appFactoryConfiguration.getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".TenantMgtUrl");
+                    String baseAccessURL = appFactoryConfiguration.getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
                     environmentDetails.put(stage, baseAccessURL);
                 }
             }

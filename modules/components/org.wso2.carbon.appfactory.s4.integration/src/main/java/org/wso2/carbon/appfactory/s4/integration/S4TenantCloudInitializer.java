@@ -44,11 +44,11 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 	public void onTenantCreation(Map<String, String> properties) {
 
 		try {
-			String stage = properties.get(AppFactoryConstants.STAGE);
+			String stageJson = properties.get(AppFactoryConstants.STAGE);
 			String runtimesJson = properties.get(AppFactoryConstants.RUNTIMES);
 			String tenantInfoJson = properties.get(AppFactoryConstants.TENANT_INFO);
-			publishToQueue(runtimesJson, tenantInfoJson, properties, stage);
-			log.info("successfully created tenant in " + stage);
+			publishToQueue(runtimesJson, tenantInfoJson, properties, stageJson);
+			log.info("successfully created tenant in " + stageJson);
 		} catch (AppFactoryException e) {
 			String msg = "Can not continue tenant creation due to "
 					+ e.getLocalizedMessage();
@@ -62,15 +62,15 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 	 * @param runtimeJson runtime beans as a json
 	 * @param tenantInfoJson tenant info bean as a json
 	 * @param properties
-	 *@param stage current stage  @throws AppFactoryException
+	 *@param stageJson stages  @throws AppFactoryException
 	 */
-	private void publishToQueue(String runtimeJson, String tenantInfoJson, Map<String, String> properties, String stage)
+	private void publishToQueue(String runtimeJson, String tenantInfoJson, Map<String, String> properties, String stageJson)
 			throws AppFactoryException {
 
 		TenantStratosSubscriptionMessagePublisher stratosSubscriptionMessagePublisher =
-				new TenantStratosSubscriptionMessagePublisher(stage + TENANT_SUBSCRIPTION_TOPIC);
+				new TenantStratosSubscriptionMessagePublisher(TENANT_SUBSCRIPTION_TOPIC);
 		try {
-			stratosSubscriptionMessagePublisher.publishMessage(runtimeJson, tenantInfoJson, properties, stage);
+			stratosSubscriptionMessagePublisher.publishMessage(runtimeJson, tenantInfoJson, properties, stageJson);
 		} catch (AppFactoryEventException e) {
 			String msg = "Failed to subscribe tenant, tenantInfoJSON: " + tenantInfoJson + " due to " + e.getMessage();
 			throw new AppFactoryException(msg, e);

@@ -42,8 +42,6 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
 
     private static final Log log = LogFactory.getLog(NodejsApplicationTypeProcessor.class);
     private static final String PARAM_CARTRIDGE_IP = "{cartridgeIP}";
-    private static final String ENVIRONMENT = "ApplicationDeployment.DeploymentStage";
-    private static final String TENANT_MANAGEMENT_URL = "TenantMgtUrl";
     private static final String SYMBOL_AT = "@";
 
     @Override
@@ -134,8 +132,7 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
 
         AppFactoryConfiguration configuration = AppFactoryUtil.getAppfactoryConfiguration();
         String serverURL = configuration
-                .getFirstProperty(ENVIRONMENT + XPATH_SEPERATOR + stage + XPATH_SEPERATOR +
-                        TENANT_MANAGEMENT_URL);
+                .getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + SYMBOL_AT +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = getCartridgeAlias(applicationId, applicationVersion, tenantDomain,

@@ -92,19 +92,23 @@ public class StratosSubscriptionMessageListener implements MessageListener {
 
         RuntimeBean[] runtimeBeans = null;
         TenantInfoBean tenantInfoBean = null;
+        String[] stages = null;
 
         if (message instanceof MapMessage) {
+            MapMessage mapMessage = ((MapMessage) message);
             try {
-                String runtimesJson = ((MapMessage) message).getString(AppFactoryConstants.RUNTIMES_INFO);
-                String tenantInfoJson = ((MapMessage) message).getString(AppFactoryConstants.TENANT_INFO);
-
+                String runtimesJson = mapMessage.getString(AppFactoryConstants.RUNTIMES_INFO);
+                String tenantInfoJson = mapMessage.getString(AppFactoryConstants.TENANT_INFO);
+                String stageJson = mapMessage.getString(AppFactoryConstants.STAGE);
 
                 ObjectMapper mapper = new ObjectMapper();
                 runtimeBeans = mapper.readValue(runtimesJson, RuntimeBean[].class);
                 tenantInfoBean = mapper.readValue(tenantInfoJson, TenantInfoBean.class);
+                stages = mapper.readValue(stageJson, String[].class);
                 if (log.isDebugEnabled()) {
                     log.debug("Received a message for tenant domain " + tenantInfoBean.getTenantDomain());
                 }
+                mapMessage.acknowledge();
             } catch (JMSException e) {
                 log.error("Error while getting message content.", e);
                 throw new RuntimeException(e);
@@ -119,21 +123,19 @@ public class StratosSubscriptionMessageListener implements MessageListener {
                 throw new RuntimeException(e);
             }
         }
-        MapMessage mapMessage;
-        if (message instanceof MapMessage) {
-            mapMessage = (MapMessage) message;
+
+        for (String stage : stages) {
             try {
                 currentMsgCount++;
-                String stage = mapMessage.getString(AppFactoryConstants.STAGE);
-               if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
-                   addTenant(tenantInfoBean);
-               } else {
-                   if (log.isDebugEnabled()) {
-                       log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
-                                 "with subscription to cartridges. Tenant domain : " +
-                                 tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
-                   }
-               }
+                if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
+                    addTenant(tenantInfoBean);
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
+                                  "with subscription to cartridges. Tenant domain : " +
+                                  tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
+                    }
+                }
                 for (RuntimeBean runtimeBean : runtimeBeans) {
                     RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
                     try {
@@ -148,9 +150,9 @@ public class StratosSubscriptionMessageListener implements MessageListener {
                 }
 
                 //TODO remove this logsendPostRequest
-                log.info("subscription done in environment : " + mapMessage.getString(AppFactoryConstants.STAGE)
+                log.info("subscription done in environment : " + stage
                          + "of tenant :" + tenantInfoBean.getTenantDomain());
-                mapMessage.acknowledge();
+
             } catch (JMSException e) {
                 String msg = "Can not read received map massage at count " + currentMsgCount;
                 log.error(msg, e);

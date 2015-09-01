@@ -202,7 +202,6 @@ var BAM_ADMIN_PASSWORD = "BAM.AdminPassword"
 var ISSUETRACKER_URL = "IssueTrackerConnector.issueTracker.Property.FrontUrl";
 var ISSUE_TRACKER_SERVER_URL = "IssueTrackerConnector.issueTracker.Property.Url";
 
-var DEPLOYER_APPTYPE_EP= ".PAASServicesURL";
 var SC_URL=".TenantMgtUrl";
 var GREG_URL= ".GregServerURL";
 

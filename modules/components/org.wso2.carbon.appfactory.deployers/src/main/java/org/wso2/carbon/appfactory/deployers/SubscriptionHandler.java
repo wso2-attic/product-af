@@ -41,7 +41,7 @@ public class SubscriptionHandler {
 
     private static final SubscriptionHandler subscriptionHandler = new SubscriptionHandler();
 
-    private final String ENVIRONMENT = "ApplicationDeployment.DeploymentStage";
+    private final String ENVIRONMENT = "ApplicationDeployment.Stratos";
 
     /**
      * Constructor
@@ -76,8 +76,7 @@ public class SubscriptionHandler {
         AppFactoryConfiguration configuration = appfactoryConfiguration;
         //get the stratos server url for each stage
         String serverURL = configuration.getFirstProperty(
-                ENVIRONMENT + AppFactoryConstants.DOT_SEPERATOR + stage + AppFactoryConstants.DOT_SEPERATOR +
-                AppFactoryConstants.TENANT_MGT_URL);
+                ENVIRONMENT + AppFactoryConstants.DOT_SEPERATOR + AppFactoryConstants.TENANT_MGT_URL);
 
         StratosRestService restService = new StratosRestService(serverURL,username, "");
         deployerInfo.put(AppFactoryConstants.RUNTIME_ALIAS_PREFIX, applicationID + tenantDomain

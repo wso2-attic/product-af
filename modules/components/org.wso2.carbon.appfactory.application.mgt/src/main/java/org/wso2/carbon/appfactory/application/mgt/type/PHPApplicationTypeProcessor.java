@@ -38,8 +38,6 @@ import java.io.File;
 public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTypeProcessor {
     private static final Log log = LogFactory.getLog(PHPApplicationTypeProcessor.class);
     private static final String PARAM_CARTRIDGE_IP = "{cartridgeIP}";
-    private static final String ENVIRONMENT = "ApplicationDeployment.DeploymentStage";
-    private static final String TENANT_MANAGEMENT_URL = "TenantMgtUrl";
     private static final String SYMBOL_AT = "@";
 
 
@@ -93,8 +91,7 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
     private String getCartridgeActiveIP(String applicationId, String tenantDomain, String stage)
             throws AppFactoryException {
         AppFactoryConfiguration configuration = AppFactoryUtil.getAppfactoryConfiguration();
-        String serverURL = configuration.getFirstProperty(ENVIRONMENT + XPATH_SEPERATOR + stage + XPATH_SEPERATOR +
-                TENANT_MANAGEMENT_URL);
+        String serverURL = configuration.getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + SYMBOL_AT +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = AppFactoryCoreUtil.getCartridgeAlias(applicationId, tenantDomain);
