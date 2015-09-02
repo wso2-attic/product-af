@@ -71,8 +71,8 @@
         <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLRequest" messageType="ns0:initializeRepositoryManagerRequest"></bpel:variable>
         <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLResponse1" messageType="ns0:initializeBuildManagerResponse"></bpel:variable>
         <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLRequest1" messageType="ns0:initializeBuildManagerRequest"></bpel:variable>
-        <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLResponse" messageType="ns0:initializeCloudManagerResponse"></bpel:variable>
-        <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLRequest" messageType="ns0:initializeCloudManagerRequest"></bpel:variable>
+        <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLResponse3" messageType="ns0:initializeCloudManagerResponse"></bpel:variable>
+        <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLRequest3" messageType="ns0:initializeCloudManagerRequest"></bpel:variable>
         <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLResponse2" messageType="ns0:notifyTenantCreationListnersResponse"></bpel:variable>
         <bpel:variable name="AppFactoryTenantInfraStructureInitializerServicePLRequest2" messageType="ns0:notifyTenantCreationListnersRequest"></bpel:variable>
     </bpel:variables>
@@ -309,7 +309,7 @@
                             </bpel:to>
                         </bpel:copy>
                     </bpel:assign>
-                    <bpel:invoke name="Invoke-initializeCloudManager" partnerLink="AppFactoryTenantInfraStructureInitializerServicePL" operation="initializeCloudManager" portType="ns0:AppFactoryTenantInfraStructureInitializerServicePortType" inputVariable="AppFactoryTenantInfraStructureInitializerServicePLRequest" outputVariable="AppFactoryTenantInfraStructureInitializerServicePLResponse"></bpel:invoke>
+                    <bpel:invoke name="Invoke-initializeCloudManager" partnerLink="AppFactoryTenantInfraStructureInitializerServicePL" operation="initializeCloudManager" portType="ns0:AppFactoryTenantInfraStructureInitializerServicePortType" inputVariable="AppFactoryTenantInfraStructureInitializerServicePLRequest3" outputVariable="AppFactoryTenantInfraStructureInitializerServicePLResponse3"></bpel:invoke>
                 </bpel:sequence>
  </bpel:flow>
             <bpel:assign validate="no" name="Assign-notifyTenantCreationListners">
