@@ -1083,7 +1083,7 @@ node /ppaas/ inherits confignode {
     group              => $group,
     target             => "/mnt/${server_ip}/ppaas",
     ppaas_mysql_host   => $ppaas_mysql_host,
-    offset             => $dev_paas_offset,
+    offset             => $stratos_offset,
     registry_db_schema => $ppaas_registry_db_schema,
     user_store         => $ppaas_userstore,
     config_db_schema   => $ppaas_config_db_schema
