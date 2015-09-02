@@ -19,6 +19,7 @@
 package service;
 
 import bean.LifecycleBean;
+import impl.LifecycleManagementException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -41,9 +42,10 @@ public interface LifecycleManagementService {
     @GET
     @Path("/getCurrentAppVersionLifeCycle/{appKey}/{appVersion}/{tenantDomain}/")
     @Produces({ "application/json" })
-    @Consumes({ "application/json" , "application/xml" })
+    @Consumes({ "application/json", "application/xml" })
     public Response getCurrentAppVersionLifeCycle(@PathParam("appKey") String appKey,
-            @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain);
+            @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain)
+            throws LifecycleManagementException;
 
     /**
      * Method to get next stage name for a given stage in a given lifecycle
@@ -55,8 +57,8 @@ public interface LifecycleManagementService {
     @GET
     @Path("/getNextStageName/{lifecycleName}/{currentStage}/")
     @Produces({ "application/json" })
-    @Consumes({ "application/json" , "application/xml" })
-    public Response getNextStageName(@PathParam("lifecycleName") String lifecycleName,
+    @Consumes({ "application/json", "application/xml" })
+    public Response getNextStage(@PathParam("lifecycleName") String lifecycleName,
             @PathParam("currentStage") String currentStage);
 
     /**
@@ -69,8 +71,8 @@ public interface LifecycleManagementService {
     @GET
     @Path("/getPreviousStageName/{lifecycleName}/{currentStage}/")
     @Produces({ "application/json" })
-    @Consumes({ "application/json" , "application/xml" })
-    public Response getPreviousStageName(@PathParam("lifecycleName") String lifecycleName,
+    @Consumes({ "application/json", "application/xml" })
+    public Response getPreviousStage(@PathParam("lifecycleName") String lifecycleName,
             @PathParam("currentStage") String currentStage);
 
     /**
@@ -93,9 +95,10 @@ public interface LifecycleManagementService {
     @POST
     @Path("/setAppLifecycle/{appKey}/{lifecycleName}/{tenantDomain}/")
     @Produces({ "application/json" })
-    @Consumes({ "application/json" , "application/xml" })
+    @Consumes({ "application/json", "application/xml" })
     public Response setAppLifecycle(@PathParam("appKey") String appKey,
-            @PathParam("lifecycleName") String lifecycleName, @PathParam("tenantDomain") String tenantDomain);
+            @PathParam("lifecycleName") String lifecycleName, @PathParam("tenantDomain") String tenantDomain)
+            throws LifecycleManagementException;
 
     /**
      * Method to attach lifecycle to an application of a given app version
@@ -109,7 +112,7 @@ public interface LifecycleManagementService {
     @POST
     @Path("/updateAppVersionLifecycle/{appKey}/{appVersion}/{tenantDomain}/")
     @Produces({ "application/json" })
-    @Consumes({ "application/json" , "application/xml" })
+    @Consumes({ "application/json", "application/xml" })
     public Response updateAppVersionLifecycle(@PathParam("appKey") String appKey,
             @PathParam("appVersion") String appVersion, @PathParam("tenantDomain") String tenantDomain);
 

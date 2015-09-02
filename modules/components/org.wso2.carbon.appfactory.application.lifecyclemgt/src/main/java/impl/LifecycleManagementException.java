@@ -17,10 +17,17 @@
  */
 package impl;
 
-public class LifecycleManagementException extends Exception {
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
-    public LifecycleManagementException(String s) {
-        super(s);
+public class LifecycleManagementException extends WebApplicationException {
+
+    public LifecycleManagementException(String message, Response.Status errorCode) {
+        super(Response.status(errorCode).entity(message).type("application/json").build());
+    }
+
+    public LifecycleManagementException(Throwable cause, Response.Status errorCode) {
+        super(cause, Response.status(errorCode).entity(cause.getMessage()).type("application/json").build());
     }
 
 }
