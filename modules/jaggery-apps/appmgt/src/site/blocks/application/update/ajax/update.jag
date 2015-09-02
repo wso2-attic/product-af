@@ -20,9 +20,11 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
-
+var log=new Log();
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.AppInfoUpdateEventBuilderUtil;
 var loggedInUser = jagg.getUser();
+var modManager = jagg.module("manager");
+var modApplication = jagg.module("application");
 (function () {
     var mod, obj, result,
             action = request.getParameter("action"),
@@ -39,42 +41,20 @@ var loggedInUser = jagg.getUser();
         var applicationKey = request.getParameter("applicationKey");
         var newDescription = request.getParameter("newDescription");
 
-        //todo get the rest of info and pass
         if(permission.checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER)){
-            var appInfo = mod.getAppInfo(applicationKey);
             try{
-                var result = mod.editAppInfo(appInfo.name, applicationKey, newDescription, appInfo.type, appInfo.repositoryType,
-                        appInfo.mappedSubDomain, appInfo.repoAccessability, appInfo.branchCount, appInfo.owner);
-                //Notifiying to app wall
-                try {
-                    var updatedUser = jagg.getUser();
-                    var message = "Description updated successfully";
-                    var msgDescription = "Description: " + newDescription;
-                    var eventBuilderInstance = EventBuilder.createDescriptionUpdateCompletedEvent(applicationKey, updatedUser, message, msgDescription, "INFO");
-                } catch (e) {
-                    log.error("Error while sending notification \n" + e.message);
-                }
+                updateAppDescription(applicationKey, newDescription);
             } catch (e1) {
-                //Notifiying to app wall
-                try {
-                    var message = "Failed to update the description. ";
-                    var eventBuilderInstance = EventBuilder.createDescriptionUpdateCompletedEvent(applicationKey, loggedInUser, message, "", "ERROR");
-                } catch (e) {
-                    log.error("Error while sending notification \n" + e.message);
-                }
-
-                var err = "Error while updating description of  " + applicationKey;
-                log.error(err + e1.message);
-                throw ( err + e1.message );
+                // We are just logging the error message here since "updateAppDescription" method logs the errors with
+                // more descriptive manner
+                log.error(e1);
+                response.status = 400;
+                response.content = "Error occurred while updating application description";
             }
-
         } else {
-            response.result = 0;
-            response.message = "You don't have permission to edit the application description";
-            print(response);
+            response.status = 401;
+            response.content = "You don't have permission to edit the application description";
         }
-
-
     }else if(action == "removeFailedPendingApps"){
         mod = jagg.module("application");
         var pendingAppKeys = mod.getAppKeysFromUserHomeCache(APPLICATION_CREATION_STATUS.PENDING);
@@ -88,7 +68,6 @@ var loggedInUser = jagg.getUser();
         var state = request.getParameter("state");
 
         mod = jagg.module("application");
-        var response={};
          try{
               mod.updatePromoteStatus(applicationKey, nextStage, version, state);
          }catch(e){
@@ -97,32 +76,127 @@ var loggedInUser = jagg.getUser();
  			throw ( err + e.message )
  	    }
 	}else if(action == "changeAppIcon"){
-	var registryMod = jagg.module("registry");
 	var applicationKey = request.getParameter("applicationKey");
 	var applicationName = request.getParameter("applicationName");
         try{
             var appIcon = request.getFile("changeIcon");
-            if(appIcon){
-                    var regPath = "/_system/governance/repository/applications/"+applicationKey+"/icon";
-                    var type = 'image/jpg';
-	                registryMod.deleteResourceInTenantSpace(regPath);
-                    registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
-            }
-	    var noIconList = session.get("iconsNotAvailableApps");
-            if(noIconList[applicationKey] != null){
-                noIconList[applicationKey]=null;
-                session.put("iconsNotAvailableApps", noIconList);
-	    }
+            changeApplicationIcon(applicationKey, appIcon);
 	print("<html><script>window.location.replace('/appmgt/site/pages/application.jag?applicationName=" + applicationName + "&applicationKey=" + applicationKey + "');</script><body></body></html>");
         }catch(e){
             log.warn("No Application Icon found to upload.  " + e);
             // Just skip when error occured becauyse there
             // is no file to upload.
         }
-	
+
+    } else if(action == "changeGeneralInfo"){
+        var applicationKey = request.getParameter("applicationKey");
+        var newDescription = request.getParameter("description");
+        var errorOccurred = {
+            status: false,
+            msg:""
+        };
+
+        if(permission.checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER)){
+            // update app icon
+            if(log.isDebugEnabled()){
+                log.debug("Updating app icon for application: "+applicationKey+" tenantDomain: "+ modManager
+                        .getTenantDomain());
+            }
+            try{
+                var appIcon = request.getFile("appIcon");
+                changeApplicationIcon(applicationKey, appIcon);
+            } catch(e){
+                var tenantDomain = modManager.getTenantDomain();
+                log.error("Error while uploading appIcon or no appIcon found to upload for application: "+
+                          applicationKey+" tenant: "+tenantDomain);
+                log.error(e);
+                errorOccurred.status = true;
+                errorOccurred.msg = "Error occurred while updating application icon";
+            } // end of update app icon
+
+            // update app description
+            if(log.isDebugEnabled()){
+                log.debug("Updating app description for application: "+applicationKey+", tenantDomain: "
+                          + modManager.getTenantDomain());
+            }
+            try {
+                updateAppDescription(applicationKey, newDescription);
+            } catch(e){
+                // We are just logging the error message here since "updateAppDescription" method logs the errors with
+                // more descriptive manner
+                log.error(e);
+                errorOccurred.status = true;
+                errorOccurred.msg = "Error occurred while updating application description"
+            } // end of update app description
+
+            if(errorOccurred.status) {
+                response.status = 400;
+                response.content = errorOccurred.msg;
+            }
+        } else {
+            response.status = 401;
+            response.content = "You don't have permission to edit the application description";
+        }
     }else {
 	    throw new Error("Invalid action");
     }
 
 }());
+
+/**
+ * Update application icon
+ *
+ * @param applicationKey application key
+ * @param appIcon file object of the appIcon
+ */
+function changeApplicationIcon(applicationKey, appIcon){
+    var registryMod = jagg.module("registry");
+    if(appIcon){
+        var regPath = "/_system/governance/repository/applications/"+applicationKey+"/icon";
+        var type = 'image/jpg';
+        registryMod.deleteResourceInTenantSpace(regPath);
+        registryMod.createResourceInTenantSpace(regPath,appIcon.getStream(),type);
+        var noIconList = session.get("iconsNotAvailableApps");
+        if(noIconList[applicationKey] != null){
+            noIconList[applicationKey]=null;
+            session.put("iconsNotAvailableApps", noIconList);
+        }
+    }
+}
+
+function updateAppDescription(applicationKey, newDescription){
+    try{
+        var appInfo = modApplication.getAppInfo(applicationKey);
+        modApplication.editAppInfo(appInfo.name, applicationKey, newDescription, appInfo.type, appInfo.repositoryType,
+                                     appInfo.mappedSubDomain, appInfo.repoAccessability, appInfo.branchCount, appInfo.owner);
+        //Notifiying to app wall
+        var message = "Description updated successfully";
+        try {
+            var updatedUser = jagg.getUser();
+            var msgDescription = "Description: " + newDescription;
+            EventBuilder.createDescriptionUpdateCompletedEvent(applicationKey, updatedUser, message, msgDescription, "INFO");
+        } catch (e) {
+            log.error("Error while sending notification for app description update event, " +
+                      "for application key: "+applicationKey+ ", tenantDomain: "+modManager.getTenantDomain());
+            log.error(e);
+        }
+    } catch (e1) {
+        var tenantDomain = modManager.getTenantDomain();
+        //Notifiying to app wall
+        try {
+            message = "Failed to update the description. ";
+            EventBuilder.createDescriptionUpdateCompletedEvent(applicationKey, loggedInUser, message, "", "ERROR");
+        } catch (e) {
+            log.error("Error while sending notification for Failed app description update event, " +
+                      "for application key: "+applicationKey+ ", tenantDomain: "+tenantDomain);
+            log.error(e);
+        }
+
+        var err = "Error while updating description of applicationKey " + applicationKey
+                + ", tenantDomain: " + tenantDomain;
+        log.error(err);
+        log.error(e1);
+        throw (err);
+    }
+}
 %>
