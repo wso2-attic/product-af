@@ -28,11 +28,7 @@ import java.util.Map;
  * This creates tenant in particular environment in S2 based cloud
  */
 public class S4TenantCloudInitializer implements TenantCloudInitializer {
-	private static final Log log = LogFactory
-			.getLog(S4TenantCloudInitializer.class);
-//	private StratosRestService restService;
-//	private TenantMgtAdminServiceStub stub;
-	private static final String TENANT_SUBSCRIPTION_TOPIC = "tenant_subscription_topic";
+    private static final Log log = LogFactory.getLog(S4TenantCloudInitializer.class);
 
 	/**
 	 * This method will be called for creating tenant in a stage
@@ -68,7 +64,7 @@ public class S4TenantCloudInitializer implements TenantCloudInitializer {
 			throws AppFactoryException {
 
 		TenantStratosSubscriptionMessagePublisher stratosSubscriptionMessagePublisher =
-				new TenantStratosSubscriptionMessagePublisher(TENANT_SUBSCRIPTION_TOPIC);
+				new TenantStratosSubscriptionMessagePublisher(AppFactoryConstants.TENANT_SUBSCRIPTION_TOPIC);
 		try {
 			stratosSubscriptionMessagePublisher.publishMessage(runtimeJson, tenantInfoJson, properties, stageJson);
 		} catch (AppFactoryEventException e) {

@@ -76,7 +76,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
 
 
     public StratosSubscriptionMessageListener(TopicConnection topicConnection, TopicSession topicSession,
-                                                    TopicSubscriber topicSubscriber) {
+                                              TopicSubscriber topicSubscriber) {
         this.topicConnection = topicConnection;
         this.topicSession = topicSession;
         this.topicSubscriber = topicSubscriber;
@@ -124,49 +124,50 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             }
         }
 
-        for (String stage : stages) {
-            try {
-                currentMsgCount++;
-                if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
-                    addTenant(tenantInfoBean);
-                } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
-                                  "with subscription to cartridges. Tenant domain : " +
-                                  tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
-                    }
+
+        try {
+            if (!TenantManager.getInstance().tenantExists(tenantInfoBean.getTenantId())) {
+                addTenant(tenantInfoBean);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Tenant Already added in stratos, skipping the tenant addition and continuing " +
+                              "with subscription to cartridges. Tenant domain : " +
+                              tenantInfoBean.getTenantDomain() + "and tenant Id : " + tenantInfoBean.getTenantId());
                 }
+            }
+            for (String stage : stages) {
+                currentMsgCount++;
                 for (RuntimeBean runtimeBean : runtimeBeans) {
                     RepositoryBean repositoryBean = createGitRepository(runtimeBean, tenantInfoBean, stage);
                     try {
                         PrivilegedCarbonContext.startTenantFlow();
                         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
                                 tenantInfoBean.getTenantDomain(), true);
-                        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(tenantInfoBean.getAdmin());
+                        PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(
+                                tenantInfoBean.getAdmin());
                         signUp(repositoryBean, runtimeBean, stage);
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
                     }
                 }
-
                 //TODO remove this logsendPostRequest
                 log.info("subscription done in environment : " + stage
                          + "of tenant :" + tenantInfoBean.getTenantDomain());
-
-            } catch (JMSException e) {
-                String msg = "Can not read received map massage at count " + currentMsgCount;
-                log.error(msg, e);
-                throw new RuntimeException(e);
-            } catch (AppFactoryException e) {
-                String msg = "Can not subscribe to stratos cartridge";
-                log.error(msg, e);
-                throw new RuntimeException(e);
-            } catch (Exception e) {
-                String msg = "Can not subscribe to stratos cartridge";
-                log.error(msg, e);
-                throw new RuntimeException(e);
             }
+        } catch (JMSException e) {
+            String msg = "Can not read received map massage at count " + currentMsgCount;
+            log.error(msg, e);
+            throw new RuntimeException(e);
+        } catch (AppFactoryException e) {
+            String msg = "Can not subscribe to stratos cartridge";
+            log.error(msg, e);
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            String msg = "Can not subscribe to stratos cartridge";
+            log.error(msg, e);
+            throw new RuntimeException(e);
         }
+
     }
 
     private RepositoryBean createGitRepository(RuntimeBean runtimeBean, TenantInfoBean tenantInfoBean, String stage)
@@ -326,7 +327,6 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
-
 
 
 }

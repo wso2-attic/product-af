@@ -460,6 +460,8 @@ public class AppFactoryConstants {
 
 
 	public static final String AF_CONFIGURATION_INITIAL_STAGE_TAG_NAME = "StartStage";
+    //private static final String SUBSCRIBER_ID = "subscriber_id";
+    public static final String TENANT_SUBSCRIPTION_TOPIC = "tenant_subscription_topic";
 
 
     /**
