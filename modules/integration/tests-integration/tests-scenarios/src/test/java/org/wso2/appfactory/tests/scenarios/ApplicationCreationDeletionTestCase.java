@@ -67,7 +67,7 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 
 	@SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
 	@Test(description = "Delete the created application", dependsOnMethods = {"testCreateApplication"})
-	public void testDeleteApplication() throws Exception{
+	public void testDeleteApplication() throws Exception {
 		appMgtRestClient.deleteApplication(defaultAdmin, appName);
 		// Wait till Create Application completion
 		AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
