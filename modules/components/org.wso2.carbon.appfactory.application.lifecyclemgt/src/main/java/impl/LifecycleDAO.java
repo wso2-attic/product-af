@@ -92,7 +92,7 @@ public class LifecycleDAO {
                     "Unable to load application information of the application :" + appKey + " of the tenant :"
                             + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -125,7 +125,7 @@ public class LifecycleDAO {
             if (lifecycleList == null) {
                 String errorMsg = "Unable to load list of life cycles from LifeCycleManagementService";
                 log.error(errorMsg);
-                throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+                throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
             }
         } catch (Exception e) {
             String errorMsg = "Error occurred while getting the list of lifecycle from LifeCycleManagementService";
@@ -187,7 +187,7 @@ public class LifecycleDAO {
                     "Error while loading life cycle name of the application " + appKey + " with the version"
                             + appVersion + "of the tenant :" + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -242,7 +242,7 @@ public class LifecycleDAO {
                         "Error while updating the artifact :" + appKey + " with the application version :" + appVersion
                                 + " of the tenant :" + tenantDomain;
                 log.error(errorMsg, e);
-                throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+                throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }
@@ -279,7 +279,7 @@ public class LifecycleDAO {
             String errorMsg = "Error while loading life cycle name of the application :" + appKey + " of the tenant :"
                     + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
 
@@ -324,13 +324,13 @@ public class LifecycleDAO {
                     "Error while loading application versions of the application :" + appKey + " of the tenant :"
                             + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } catch (GovernanceException e) {
             String errorMsg =
                     "Error while loading application version details of the application :" + appKey + " of the tenant :"
                             + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
 
@@ -371,7 +371,7 @@ public class LifecycleDAO {
                     "Error while updating the application artifact " + appKey + " with the lifecycle name :"
                             + lifecycleName + " of the tenant :" + tenantDomain;
             log.error(errorMsg);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -404,7 +404,7 @@ public class LifecycleDAO {
             String errorMsg =
                     "Error while checking lifecycle of the application :" + appKey + " of the tenant :" + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
@@ -436,7 +436,7 @@ public class LifecycleDAO {
                     "Error while loading application versions of the application :" + appKey + " of the tenant :"
                             + tenantDomain;
             log.error(errorMsg, e);
-            throw new LifecycleManagementException(errorMsg, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new LifecycleManagementException(errorMsg, Response.Status.NOT_FOUND);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

@@ -106,7 +106,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                         String msg =
                                 "There is no stage after " + currentStage + " stage in the lifecycle :" + lifecycleName;
                         log.error(msg);
-                        throw new LifecycleManagementException(msg, Response.Status.BAD_REQUEST);
+                        throw new LifecycleManagementException(msg, Response.Status.NOT_FOUND);
                     }
                     break;
                 }
@@ -152,7 +152,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                                 "There is no stage before " + currentStage + " stage in the lifecycle :"
                                         + lifecycleName;
                         log.error(msg);
-                        throw new LifecycleManagementException(msg, Response.Status.BAD_REQUEST);
+                        throw new LifecycleManagementException(msg, Response.Status.NOT_FOUND);
                     }
                     break;
                 }
@@ -209,7 +209,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
             configurationElement = AXIOMUtil.stringToOM(lifecycleXml);
 
         } catch (XMLStreamException e) {
-            String msg = "Unable to load the lifecycle configuration from registry for lifecycle :" + lifecycleName;
+            String msg = "Unable to read the lifecycle configuration from registry for lifecycle :" + lifecycleName;
             log.error(msg, e);
             throw new LifecycleManagementException(e, Response.Status.NOT_FOUND);
         }
@@ -291,7 +291,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     public Response setAppLifecycle(String appKey, String lifecycleName, String tenantDomain)
             throws LifecycleManagementException {
         LifecycleDAO dao = new LifecycleDAO();
-        Response response = null;
+        Response response;
         try {
             GenericArtifact appInfoArtifact =
                     dao.getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain);
