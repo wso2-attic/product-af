@@ -33,7 +33,7 @@ var setUserRealmSupport = function (appId, isSet) {
     try {
         for (var i = 0; i < stages.length; i++) {
             var stage = stages[i];
-            var serverUrl = getProperty("ApplicationDeployment.Stratos.TenantMgtUrl") + '/services/';
+            var serverUrl = getProperty("Stratos.PAASServicesURL");
             var cookie = modManager.getBackendCookie(serverUrl);
             if (isSet === 'true') {
                 permissionModule.authorizeRole(stage, uniqueAppRoleName, resource, action);

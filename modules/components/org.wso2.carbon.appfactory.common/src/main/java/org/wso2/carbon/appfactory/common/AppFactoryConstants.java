@@ -395,7 +395,8 @@ public class AppFactoryConstants {
 	public static final String APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR = "-";
 
 
-    public static final String TENANT_MGT_URL = "ApplicationDeployment.Stratos.TenantMgtUrl";
+    public static final String TENANT_MGT_URL = "Stratos.TenantMgtUrl";
+    public static final String PPAAS_SERVICE_URL = "Stratos.PAASServicesURL";
 	public static final String STAGE_PLACE_HOLDER = "{@stage}";
 	public static final String APP_NAME_PLACE_HOLDER = "{@appName}";
 

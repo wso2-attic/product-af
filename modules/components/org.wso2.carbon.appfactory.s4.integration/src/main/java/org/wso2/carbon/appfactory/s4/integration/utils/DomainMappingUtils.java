@@ -166,7 +166,7 @@ public class DomainMappingUtils {
      * @return base url of the Stratos SM which corresponding to the {@code stage}
      */
     public static String getSMUrl(String stage) {
-        return ServiceHolder.getAppFactoryConfiguration().getFirstProperty("ApplicationDeployment.Stratos.TenantMgtUrl");
+        return ServiceHolder.getAppFactoryConfiguration().getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
     }
 
     /**
