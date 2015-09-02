@@ -95,6 +95,23 @@ function submitGeneralForm() {
     }
 }
 
+function deleteConfirmation() {
+    if(isDeleteAllowed){
+        $("#deleteApplication").prop("disabled", true);
+        jagg.popMessage({
+            content:'Are you sure you want to delete the application?',
+            okCallback:deleteApplication,
+            cancelCallback:function(){
+                $("#deleteApplication").prop("disabled", false);
+            }}
+        );
+    } else {
+        jagg.message({
+            content:"You don't have permissions to delete the application",
+            type:'error'
+        });
+    }
+}
 function deleteApplication(){
     if(isDeleteAllowed){
         jagg.message({
