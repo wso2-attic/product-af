@@ -87,7 +87,56 @@ var modApplication = jagg.module("application");
             // Just skip when error occured becauyse there
             // is no file to upload.
         }
-	
+
+    } else if(action == "changeGeneralInfo"){
+        var applicationKey = request.getParameter("applicationKey");
+        var newDescription = request.getParameter("description");
+        var errorOccurred = {
+            status: false,
+            msg:""
+        };
+
+        if(permission.checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER)){
+            // update app icon
+            if(log.isDebugEnabled()){
+                log.debug("Updating app icon for application: "+applicationKey+" tenantDomain: "+ modManager
+                        .getTenantDomain());
+            }
+            try{
+                var appIcon = request.getFile("appIcon");
+                changeApplicationIcon(applicationKey, appIcon);
+            } catch(e){
+                var tenantDomain = modManager.getTenantDomain();
+                log.error("Error while uploading appIcon or no appIcon found to upload for application: "+
+                          applicationKey+" tenant: "+tenantDomain);
+                log.error(e);
+                errorOccurred.status = true;
+                errorOccurred.msg = "Error occurred while updating application icon";
+            } // end of update app icon
+
+            // update app description
+            if(log.isDebugEnabled()){
+                log.debug("Updating app description for application: "+applicationKey+", tenantDomain: "
+                          + modManager.getTenantDomain());
+            }
+            try {
+                updateAppDescription(applicationKey, newDescription);
+            } catch(e){
+                // We are just logging the error message here since "updateAppDescription" method logs the errors with
+                // more descriptive manner
+                log.error(e);
+                errorOccurred.status = true;
+                errorOccurred.msg = "Error occurred while updating application description"
+            } // end of update app description
+
+            if(errorOccurred.status) {
+                response.status = 400;
+                response.content = errorOccurred.msg;
+            }
+        } else {
+            response.status = 401;
+            response.content = "You don't have permission to edit the application description";
+        }
     }else {
 	    throw new Error("Invalid action");
     }

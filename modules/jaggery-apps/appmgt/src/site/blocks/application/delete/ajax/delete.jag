@@ -22,15 +22,14 @@ include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 var log=new Log();
 (function () {
-	var response = {};
 	var message;
-    if (!jagg.getUser()) {
+	var userName = jagg.getUser();
+    if (!userName) {
         print(UNAUTHORIZED_ERROR_RESPONSE);
         return;
     }
 	if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 		var appKey = request.getParameter("appKey");
-		var userName = request.getParameter("userName");
 		var mod = jagg.module("application");
         var resourcesMod = jagg.module("resources");
         var modManager = jagg.module("manager");
@@ -41,19 +40,15 @@ var log=new Log();
             mod.deleteApplication(appKey,userName);
             mod.removeAppsFromUserHomeCache(APPLICATION_CREATION_STATUS.COMPLETED ,[appKey]);
             log.info("Successfully deleted the application: "+appKey+" tenant: "+tenantDomain);
-			message = "Application was deleted";
-			response.message = message;
-			response.result = 1;
-			print(response);
 		}catch(e){
-            log.error("Unexpected error while deleting application: "+appKey+" tenant: "+tenantDomain+"\n"+e.message);
-			response.result =0;
-			response.message = "Unexpected error at deleting application";
+            log.error("Unexpected error while deleting application: "+appKey+" tenant: "+tenantDomain);
+			log.error(e);
+			response.status =400;
+			response.content = "Unexpected error while deleting the application";
 		}
 	}else{
-		response.result = 0;
-		response.message = "You don't have permission to delete application";
-		print(response);
+		response.status = 401;
+		response.content = "You don't have permission to delete application";
 	}
 }());
 %>
