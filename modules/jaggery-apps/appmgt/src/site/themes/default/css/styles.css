@@ -816,7 +816,14 @@ a.btn-action {
     float: left;
     margin-top: 4px;
 }
-
+.new-notifications{
+    background-color: red;
+    height: 8px;
+    width: 8px;
+    margin: -4px 20px;
+    border-radius: 50px;
+    display: none;
+}
 .spin-overide{
     color: rgb(182, 182, 182) !important;
 }
@@ -1718,4 +1725,44 @@ a.btn-action {
     pointer-events: none;
     cursor: default;
     opacity: 0.3;
+}
+
+.cloud-tab .tab-content{
+    background: #464646;
+    padding: 20px;
+}
+
+.cloud-tab .nav-tabs{
+    font-size:1.2em;
+    border-color:#222;
+}
+.cloud-tab .nav-tabs>li>a{
+    color:#666;
+    border:none;
+    border-top:2px solid transparent;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+
+}
+.cloud-tab .nav>li>a:hover, .nav>li>a:focus{
+    color:#c5c5c5;
+    border:none;
+    border-top:2px solid transparent;
+    background:none;
+}
+.cloud-tab .nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus{
+    border:none;
+    border-top:2px solid #c5c5c5;
+    color:#c5c5c5;
+    background:#464646;
+}
+.notification-glow {
+    -webkit-animation: glow .5s infinite alternate;
+}
+
+@-webkit-keyframes glow {
+    to {
+        text-shadow: 0 0 10px red;
+    }
 }
