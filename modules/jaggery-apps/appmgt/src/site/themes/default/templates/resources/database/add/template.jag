@@ -22,7 +22,7 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var isDefaultMode = request.getParameter("isDefaultMode");
-AllowedAllStages=outputs.hasAccessForAllstages;
+var dbCreationAllowedStages = outputs.dbCreationAllowedStages;
 isEdit = request.getParameter("isEdit");
 appInfo=session.get("APP_INFO");
 language=appInfo.language;
@@ -54,9 +54,9 @@ language=appInfo.language;
                         <label for="stage">Stage: </label>
                         <!--this should be changed to get stages dynamically-->
                         <select id="stage" class="form-control select2">
-                            <option value="Development">Development</option>
-                            <option value="Testing">Testing</option>
-                            <option value="Production">Production</option>
+                            <% for(var i in dbCreationAllowedStages) { %>
+                                  <option value="<%=dbCreationAllowedStages[i]%>"><%=dbCreationAllowedStages[i]%></option>
+                            <% } %>
                         </select>
                     </div>
 
