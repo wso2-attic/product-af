@@ -436,6 +436,9 @@ public class ApplicationManagementService extends AbstractAdmin {
             log.error("Failed to notify application deletion event", e);
         }
 
+	    // insert application to the failed_application table
+	    JDBCApplicationDAO.getInstance().addFailedApplication(applicationId);
+
         return completedSuccessfully;
 
     }
