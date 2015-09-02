@@ -134,16 +134,11 @@ var messageTimer;
     };
 
     jagg.popMessage = function(params){
-        // Included noty plugin implementation
-        var allowedType = ["alert", "success", "error", "warning", "information", "confirm"];
-        if(allowedType.indexOf(params.type) < 0){
-            params.type = "confirm"
-        }
         return noty({
                         theme: 'wso2',
                         layout: 'center',
                         type: confirm,
-                        text: params.content,
+                        text: params.content ? params.content : 'Do you want to continue?',
                         animation: {
                             open: {height: 'toggle'}, // jQuery animate function property object
                             close: {height: 'toggle'}, // jQuery animate function property object
@@ -152,20 +147,20 @@ var messageTimer;
                         },
                         buttons: [
                             {
-                                addClass: 'btn btn-primary', text: 'Ok', onClick: function($noty) {
-                                // this = button element
-                                // $noty = $noty element
-                                $noty.close();
-                                noty({text: 'Operation Successfull.', type: 'success'});
-                                params.okCallback();
-                            }
+                                addClass: 'btn btn-primary',
+                                text: (params.okText ? params.okText : 'Ok'),
+                                onClick: function($noty) {
+                                    $noty.close();
+                                    params.okCallback();
+                                }
                             },
                             {
-                                addClass: 'btn btn-danger', text: 'Cancel', onClick: function($noty) {
-                                $noty.close();
-                                params.cancelCallback();
-                                //noty({text: 'You clicked "Cancel" button', type: 'error'});
-                            }
+                                addClass: 'btn btn-danger',
+                                text: 'Cancel',
+                                onClick: function($noty) {
+                                    $noty.close();
+                                    params.cancelCallback();
+                                }
                             }
                         ]
                     });
