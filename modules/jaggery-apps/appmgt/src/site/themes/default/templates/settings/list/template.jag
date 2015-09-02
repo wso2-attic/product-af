@@ -144,7 +144,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         </div>
                         <div class="form-group">
                             <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="deleteApplication"
-                            onclick="deleteApplication()">
+                            onclick="deleteConfirmation()">
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-delete fw-stack-1x"></i>
