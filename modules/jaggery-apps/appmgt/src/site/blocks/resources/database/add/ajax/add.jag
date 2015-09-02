@@ -781,9 +781,9 @@ var loggedInUser = jagg.getUser();
         var dbName = request.getParameter("dbName");
         var permissionModule = jagg.module("permission");
         var resourceModule = jagg.module("resources");
-        var hasPermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + currentStage);
+        var hasReadPermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + currentStage);
         var userInfoArray = [];
-        if(hasPermission) {
+        if(hasReadPermission) {
             var unAttachedUsers = resourceModule.getAvailableUsersToAttachToDatabase(applicationKey,dbName, currentStage);
             var attachedUsers = resourceModule.getAttachedUsers(applicationKey, dbName, currentStage);
             for(var i in attachedUsers) {
