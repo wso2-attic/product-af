@@ -100,6 +100,14 @@ jagg.block("tablinks", {
                 applicationType = manager.getApplicationType(applicationKey);
     			isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
                 isAllowDomainMapping  = manager.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+
+                var hasAppCreationPermission = permissionModule.hasAppCreationPermission();
+                var memberOfApplication = permissionModule.isUserAccessGranted(applicationKey,
+                                                                               PERMISSION_APPLICATION_MEMBER);
+
+                // Currently settings page only supports for application deletion, we have restrict settings tab only
+                // for app owner. Once other tabs are completed, set this value accordingly
+                var isSettingsAllowed = hasAppCreationPermission && memberOfApplication;
     		}
     	}
         return {
@@ -120,7 +128,8 @@ jagg.block("tablinks", {
             "isIssuesAllowed":isIssuesAllowed,
             "isLifecylceAllowed":isLifecylceAllowed,
             "isLogsAllowed":isLogsAllowed,
-            "isAllowDomainMapping":isAllowDomainMapping
+            "isAllowDomainMapping":isAllowDomainMapping,
+            "isSettingsAllowed":isSettingsAllowed
         };
     }
 });
