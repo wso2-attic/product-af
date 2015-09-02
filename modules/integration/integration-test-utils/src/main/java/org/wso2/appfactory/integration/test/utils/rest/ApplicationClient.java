@@ -20,7 +20,6 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONObject;
@@ -172,15 +171,11 @@ public class ApplicationClient extends BaseClient {
      * @param applicationKey application key
      * @throws Exception
      */
-    public JsonObject deleteApplication(String userName, String applicationKey) throws Exception {
+    public void deleteApplication(String userName, String applicationKey) throws Exception {
         HttpResponse response = HttpRequestUtil
                 .doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX +APPMGT_APPLICATION_DELETE),
                         "userName="+userName+"&appKey="+applicationKey, getRequestHeaders());
-        if (response.getResponseCode() == HttpStatus.SC_OK) {
-            JsonParser jsonParser = new JsonParser();
-            JsonElement jsonElement = jsonParser.parse(response.getData());
-            return jsonElement.getAsJsonObject();
-        } else {
+	    if (response.getResponseCode() != HttpStatus.SC_OK) {
             throw new AFIntegrationTestException("Delete application failed " +response.getResponseCode()+" "
                     + response.getData());
         }
