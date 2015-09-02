@@ -19,7 +19,14 @@
 
 jagg.block("header", {
     initialize:function (data) {
-
+        var applicationKey = request.getParameter("applicationKey");
+        var user = jagg.getUser();
+        if(user && applicationKey) {
+            var modPermission = jagg.module("permission");
+            if(!modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)) {
+                response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
+            }   
+        }   
     }
 
 });
