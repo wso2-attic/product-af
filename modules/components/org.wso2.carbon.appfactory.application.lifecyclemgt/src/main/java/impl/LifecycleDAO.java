@@ -354,7 +354,7 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.startTenantFlow();
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
-            //Get the appinfo artifact and attach lifecycle name
+            //Get the appInfo artifact and attach lifecycle name
             GenericArtifact appInfoArtifact =
                     getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain);
             appInfoArtifact.attachLifecycle(lifecycleName);
