@@ -136,8 +136,8 @@ var messageTimer;
     jagg.popMessage = function(params){
         return noty({
                         theme: 'wso2',
-                        layout: 'center',
-                        type: confirm,
+                        layout: 'top',
+                        type: 'confirm',
                         text: params.content ? params.content : 'Do you want to continue?',
                         animation: {
                             open: {height: 'toggle'}, // jQuery animate function property object
@@ -155,7 +155,7 @@ var messageTimer;
                                 }
                             },
                             {
-                                addClass: 'btn btn-danger',
+                                addClass: 'btn btn-default',
                                 text: 'Cancel',
                                 onClick: function($noty) {
                                     $noty.close();
