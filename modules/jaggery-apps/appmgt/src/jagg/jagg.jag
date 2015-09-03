@@ -17,6 +17,7 @@
  *   under the License.
  */
 include('/jagg/constants.jag');
+var site = require("/site/conf/site.json");
 
 //TODO : remove this when log configs are implemented
 Log.prototype.isDebugEnabled = function () {
@@ -342,7 +343,7 @@ return getThemePath() + path;
     };
 
     var getCloudMgtAbsoluteUrl = function (path) {
-        return CLOUD_MGT_CONTEXT + path + "?cloudType=" +  CLOUD_TYPE;
+        return site.cloudMgtContext + path + "?cloudType=" +  CLOUD_TYPE;
     };
 
     var module = function (name, module) {
