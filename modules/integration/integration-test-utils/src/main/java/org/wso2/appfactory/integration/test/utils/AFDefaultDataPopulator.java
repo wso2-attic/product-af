@@ -5,6 +5,7 @@ import com.gitblit.utils.RpcUtils;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -694,7 +695,10 @@ public class AFDefaultDataPopulator {
 		String repoURL = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_S2GIT) + "r/" + stage + "/"
 		                 + runtime + "/" + tenantID + ".git";
 		client.retireveMetadata(repoURL, false, workDir);
-		String artifactName = applicationKey + "-" + version + "." + extension;
+		String artifactName = applicationKey + "-" + version;
+		if(!StringUtils.isEmpty(extension)){
+			artifactName += "." + extension;
+		}
 		File artifact = searchFile(workDir, artifactName);
 		FileUtils.forceDelete(workDir);
 		if(artifact != null) {

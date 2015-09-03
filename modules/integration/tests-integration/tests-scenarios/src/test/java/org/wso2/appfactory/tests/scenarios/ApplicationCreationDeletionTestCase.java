@@ -19,9 +19,7 @@ package org.wso2.appfactory.tests.scenarios;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
 import org.wso2.appfactory.integration.test.utils.AFDefaultDataPopulator;
 import org.wso2.appfactory.integration.test.utils.AFIntegrationTest;
@@ -36,12 +34,13 @@ import javax.net.ssl.SSLSession;
 
 public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
     private static final Log log = LogFactory.getLog(ApplicationCreationDeletionTestCase.class);
-    public static final String APP_TYPE_WAR = "war";
-    private static final String INITIAL_STAGE = "Development";
-	private static final String DEFAULT_APP_ARTIFACT_VERSION = "default-SNAPSHOT";
-	private static final String DEFAULT_APP_RUNTIME_ALIAS = "as";
 	private ApplicationClient appMgtRestClient;
-	private final String appName = "foo_" + APP_TYPE_WAR + "_bar";
+	private String appName;
+	private String apptype;
+	private String initialStage;
+	private String defaultArtifactVersion;
+	private String runtimeAlias;
+	private String extension;
 
 	static {
 		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
@@ -51,17 +50,52 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		});
 	}
 
+	@Factory(dataProvider = "userModeDataProvider")
+	public ApplicationCreationDeletionTestCase(String apptype, String initialStage, String defaultArtifactVersion,
+	                                           String runtimeAlias, String extension) {
+		this.apptype = apptype;
+		this.initialStage = initialStage;
+		this.defaultArtifactVersion = defaultArtifactVersion;
+		this.runtimeAlias = runtimeAlias;
+		this.extension = extension;
+	}
+
+	@DataProvider
+	public static Object[][] userModeDataProvider() {
+		return new Object[][]{
+				new Object[]{"war", "Development", "default-SNAPSHOT" , "as", "war"},
+				new Object[]{"jaxrs", "Development", "default-SNAPSHOT" , "as", "war"},
+				new Object[]{"jaxws", "Development", "default-SNAPSHOT" , "as", "war"},
+				new Object[]{"jaggery", "Development", "default-SNAPSHOT" , "as", ""},
+				new Object[]{"dbs", "Development", "default-SNAPSHOT" , "as", "dbs"},
+				/*new Object[]{"esb", "Development", "default-SNAPSHOT" , "esb", "car"},*/
+		};
+	}
+
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
         appMgtRestClient = new ApplicationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
+	    appName = "foo_" + this.apptype + "_bar";
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Create application using rest api")
     public void testCreateApplication() throws Exception {
 
-        log.info("Creating application of type :" + APP_TYPE_WAR + " with name :" + appName);
-        createApplication(appName, appName, appName, APP_TYPE_WAR);
+	    log.info("Creating application of type :" + this.apptype + " with name :" + appName);
+	    if (appMgtRestClient.isAppNameAlreadyAvailable(appName) &&
+	        appMgtRestClient.isApplicationKeyAvailable(appName)) {
+		    appMgtRestClient.createNewApplication(appName, appName, this.apptype,
+		                                          defaultAdmin, appName);
+		    // Wait till Create Application completion
+		    AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
+		    populator.waitUntilApplicationCreationCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
+		                                                    appName, appName, this.extension,
+		                                                    this.defaultArtifactVersion, this.initialStage,
+		                                                    this.runtimeAlias,
+		                                                    AFIntegrationTestUtils.getPropertyValue(
+				                                                    AFConstants.DEFAULT_TENANT_TENANT_ID));
+	    }
         log.info("Application creation is completed.");
     }
 
@@ -72,9 +106,9 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		// Wait till Create Application completion
 		AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
 		populator.waitUntilApplicationDeletionCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
-		                                                appName, appName, "war",
-		                                                DEFAULT_APP_ARTIFACT_VERSION, INITIAL_STAGE,
-		                                                DEFAULT_APP_RUNTIME_ALIAS,
+		                                                appName, appName, this.extension,
+		                                                this.defaultArtifactVersion, this.initialStage,
+		                                                this.runtimeAlias,
 		                                                AFIntegrationTestUtils.getPropertyValue(
 				                                                AFConstants.DEFAULT_TENANT_TENANT_ID));
 	}
@@ -84,26 +118,5 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
     public void destroy() throws Exception {
         super.cleanup();
     }
-
-    protected void createApplication(String applicationName, String applicationKey, String applicationDescription,
-                                     String applicationType) throws Exception {
-
-        if (appMgtRestClient.isAppNameAlreadyAvailable(applicationName) &&
-            appMgtRestClient.isApplicationKeyAvailable(applicationKey)) {
-            appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
-                                                  defaultAdmin, applicationDescription);
-        }
-
-        // Wait till Create Application completion
-        AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-        populator.waitUntilApplicationCreationCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
-                                                        applicationKey, applicationName, "war",
-                                                        DEFAULT_APP_ARTIFACT_VERSION, INITIAL_STAGE,
-                                                        DEFAULT_APP_RUNTIME_ALIAS,
-                                                        AFIntegrationTestUtils.getPropertyValue(
-		                                                        AFConstants.DEFAULT_TENANT_TENANT_ID));
-    }
-
-
 
 }
