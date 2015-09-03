@@ -26,7 +26,6 @@ import org.wso2.carbon.appfactory.s4.integration.DomainMapperEventHandler;
 import org.wso2.carbon.appfactory.s4.integration.DomainMappingListener;
 import org.wso2.carbon.appfactory.s4.integration.DomainMappingManagementService;
 import org.wso2.carbon.appfactory.s4.integration.S4TenantCloudInitializer;
-import org.wso2.carbon.appfactory.s4.integration.cloud.AWSRoute53DomainNameService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
@@ -62,9 +61,6 @@ public class S4IntegrationServiceComponent {
 			context.getBundleContext()
 			       .registerService(DomainMappingManagementService.class.getName(),
                                     domainMappingManagementService, null);
-			context.getBundleContext().registerService(DomainMapperEventHandler.class.getName(),
-			                                           new AWSRoute53DomainNameService(), null);
-
             ServiceReferenceHolder.getInstance().setDomainMappingManagementService(domainMappingManagementService);
             AppFactoryConfiguration appFactoryConfiguration = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration();
             int listenerPriority = Integer.parseInt(appFactoryConfiguration.getFirstProperty("EventHandlers.DomainMappingListener.priority"));

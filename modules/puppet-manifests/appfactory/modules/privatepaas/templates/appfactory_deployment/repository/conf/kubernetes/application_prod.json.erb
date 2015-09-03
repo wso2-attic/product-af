@@ -1,5 +1,5 @@
 {
-    "applicationId": "<%=@prod_cartridge_alias %>",
+    "applicationId": "<%=@prod_app_id %>",
     "alias": "<%=@prod_cartridge_alias %>",
     "multiTenant": true,
     "components": {
@@ -9,7 +9,7 @@
             "cartridgeMin": 1,
             "cartridgeMax": 1,
                 "subscribableInfo": {
-                "alias": "<%=@prod_cartridge_type %>",
+                "alias": "<%=@prod_cartridge_alias %>",
                 "autoscalingPolicy": "autoscaling-policy",
                 "deploymentPolicy": "deployment-policy"
                 }

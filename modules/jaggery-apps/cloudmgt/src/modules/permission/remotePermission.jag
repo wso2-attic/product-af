@@ -165,7 +165,7 @@ if (typeof String.prototype.endsWith != 'function') {
  * @return {*} remote server service url.
  */
 var getRemoteServerServiceURL = function (stage) {
-    var remoteServerBaseURL = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.TenantMgtUrl');
+    var remoteServerBaseURL = getProperty('Stratos.TenantMgtUrl');
     if (!(remoteServerBaseURL)) {
         throw 'remote server url was not found for stage:' + stage;
     }
