@@ -67,8 +67,8 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 				new Object[]{"jaxrs", "Development", "default-SNAPSHOT" , "as", "war"},
 				new Object[]{"jaxws", "Development", "default-SNAPSHOT" , "as", "war"},
 				new Object[]{"jaggery", "Development", "default-SNAPSHOT" , "as", ""},
-				new Object[]{"dbs", "Development", "default-SNAPSHOT" , "as", "dbs"},
-				/*new Object[]{"esb", "Development", "default-SNAPSHOT" , "esb", "car"},*/
+				/*new Object[]{"dbs", "Development", "default-SNAPSHOT" , "as", "dbs"},
+				new Object[]{"esb", "Development", "default-SNAPSHOT" , "esb", "car"},*/
 		};
 	}
 

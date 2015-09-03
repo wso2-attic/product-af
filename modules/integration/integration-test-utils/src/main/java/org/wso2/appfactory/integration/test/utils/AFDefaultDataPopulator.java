@@ -718,11 +718,15 @@ public class AFDefaultDataPopulator {
 	 * @param fileName name of the file to search
 	 */
 	private File searchFile(File baseDir, String fileName){
+		File resultFile = null;
 		for (File file : baseDir.listFiles()) {
 			if (file.isDirectory()) {
-				return searchFile(file, fileName);
+				resultFile = searchFile(file, fileName);
 			}
 			if (fileName.equals(file.getName())) {
+				resultFile = file;
+			}
+			if (resultFile != null){
 				return file;
 			}
 		}
