@@ -28,7 +28,7 @@
 
     // get the previously selected version
     var previousVersion = "trunk";
-    if (applicationInfo.appType && applicationInfo.appType.indexOf("Uploaded") >= 0) {
+    if (applicationInfo.type && applicationInfo.type.indexOf("Uploaded") >= 0) {
         previousVersion = "1.0.0";
     }
     var selectedVersions = session.get("SELECTED_VERSIONS");
