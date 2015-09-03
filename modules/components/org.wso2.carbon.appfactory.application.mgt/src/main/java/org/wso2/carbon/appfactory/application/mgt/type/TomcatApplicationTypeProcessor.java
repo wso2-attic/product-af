@@ -25,10 +25,14 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
+import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 import org.wso2.carbon.appfactory.s4.integration.utils.CloudUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.UserStoreException;
+
+import java.util.Date;
 
 public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypeProcessor {
 
@@ -37,15 +41,9 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
     /**
      * Construct the URL pattern : http://{hostname}/{applicationID}-{version}
      * Hostname is obtained from  the stratos application runtime
-     *
-     * @param tenantDomain
-     * @param applicationID
-     * @param applicationVersion
-     * @param stage
-     * @return launchURLPattern
-     * @throws AppFactoryException
      */
-    public String getDeployedURL(String tenantDomain, String applicationID, String applicationVersion, String stage)
+    @Override
+    public String getDeployedURL(String tenantDomain, String applicationId, String applicationVersion, String stage)
             throws AppFactoryException {
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
         String stratosServerURL = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DEPLOYMENT_STAGES
@@ -66,15 +64,29 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
         StratosRestClient stratosRestClient = StratosRestClient.getInstance(stratosServerURL, tenantUsername);
 
         String applicationInstanceJson = stratosRestClient.getApplicationRuntime(
-                CloudUtils.generateUniqueStratosApplicationId(tenantId, applicationID, applicationVersion, stage));
+                CloudUtils.generateUniqueStratosApplicationId(tenantId, applicationId, applicationVersion, stage));
 
         JsonParser jsonParser = new JsonParser();
         JsonObject applicationInstanceObject = (JsonObject) jsonParser.parse(applicationInstanceJson);
 
+        JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
         String serviceHostname;
         String launchURLPattern = properties.getProperty(LAUNCH_URL_PATTERN);
-        if (applicationInstanceJson != null && AppFactoryConstants.STRATOS_RUNTIME_STATUS_ACTIVE.
+
+        DeployStatus currentStatus = jdbcApplicationDAO.getDeployStatus(applicationId, applicationVersion,
+                                                                        stage, false, tenantUsername);
+
+
+        if (AppFactoryConstants.STRATOS_RUNTIME_STATUS_ACTIVE.
                 equalsIgnoreCase(applicationInstanceObject.get("status").getAsString())) {
+
+            if (currentStatus.getLastDeployedStatus() == null) {
+                currentStatus.setLastDeployedStatus(AppFactoryConstants.DEPLOY_SUCCESS);
+                currentStatus.setLastDeployedTime(new Date().getTime());
+                jdbcApplicationDAO
+                        .updateLastDeployStatus(applicationId, applicationVersion, stage, false, null, currentStatus);
+            }
+
             // getting the application service hostname from the application runtime JSON
             serviceHostname = applicationInstanceObject.get("applicationInstances").getAsJsonArray().get(0)
                     .getAsJsonObject().get("clusterInstances").getAsJsonArray().get(0)
@@ -88,11 +100,11 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
             if (applicationVersion.equalsIgnoreCase(sourceTrunkVersionName)) {
                 applicationVersion = artifactTrunkVersionName;
             }
-            launchURLPattern = launchURLPattern.replace(PARAM_APP_ID, applicationID).replace(PARAM_HOSTNAME, serviceHostname)
+            launchURLPattern = launchURLPattern.replace(PARAM_APP_ID, applicationId).replace(PARAM_HOSTNAME, serviceHostname)
                     .replace(PARAM_APP_VERSION, applicationVersion);
 
             if (log.isDebugEnabled()) {
-                log.debug("Generated URL pattern for applicationID :" + applicationID + " version :" + applicationVersion
+                log.debug("Generated URL pattern for applicationID :" + applicationId + " version :" + applicationVersion
                           + " stage : " + stage + " pattern : " + launchURLPattern);
             }
         }
