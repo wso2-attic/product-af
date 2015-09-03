@@ -290,10 +290,9 @@ public class CloudUtils {
 	                                                                int tenantId) {
 		//needs to replace dot(.) with minus(-) cause git doesn't allow
 		version = version.replaceAll("\\.+", AppFactoryConstants.MINUS);
-		String gitRepoName = AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
+		String gitRepoName = paasRepositoryURLPattern
 		                     + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR
-		                     + applicationId + AppFactoryConstants.MINUS + version
-		                     + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
+		                     + applicationId + AppFactoryConstants.MINUS + version;
 		gitRepoName = gitRepoName.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
 		return gitRepoName;
 	}
