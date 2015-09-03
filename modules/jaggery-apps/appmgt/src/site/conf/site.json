@@ -3,6 +3,7 @@
         "base" : "default"
     },
     "context" : "/appmgt",
+    "cloudMgtContext" : "/cloudmgt",
     "recentAPIsCount" : 5,
     "topRatedCount" : 5,
     "defaultUser" : {
