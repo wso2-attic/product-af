@@ -93,15 +93,14 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
     private String getCartridgeActiveIP(String applicationId, String tenantDomain, String stage)
             throws AppFactoryException {
         AppFactoryConfiguration configuration = AppFactoryUtil.getAppfactoryConfiguration();
-        String serverURL = configuration.getFirstProperty(ENVIRONMENT + XPATH_SEPERATOR + stage + XPATH_SEPERATOR +
-                TENANT_MANAGEMENT_URL);
+        String serverURL = configuration.getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + SYMBOL_AT +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = AppFactoryCoreUtil.getCartridgeAlias(applicationId, tenantDomain);
 
         StratosRestClient restService = StratosRestClient.getInstance(serverURL, userName);
         //TODO : implement this using new api
-        String clusterId = null;
+        String clusterId = "" ;//restService.getSubscribedCartridgeClusterId(cartridgeAlias);
 
         // get data from runtime db
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();

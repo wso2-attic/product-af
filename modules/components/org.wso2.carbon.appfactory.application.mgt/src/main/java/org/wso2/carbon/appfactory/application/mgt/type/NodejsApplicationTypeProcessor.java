@@ -134,8 +134,7 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
 
         AppFactoryConfiguration configuration = AppFactoryUtil.getAppfactoryConfiguration();
         String serverURL = configuration
-                .getFirstProperty(ENVIRONMENT + XPATH_SEPERATOR + stage + XPATH_SEPERATOR +
-                        TENANT_MANAGEMENT_URL);
+                .getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + SYMBOL_AT +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = getCartridgeAlias(applicationId, applicationVersion, tenantDomain,
@@ -143,7 +142,7 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
 
         StratosRestClient restService = StratosRestClient.getInstance(serverURL, userName);
         //TODO : implement this using new api
-        String clusterId = null;
+        String clusterId = "";//restService.getSubscribedCartridgeClusterId(cartridgeAlias);
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
 
         try {

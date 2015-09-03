@@ -287,7 +287,7 @@
     <appFactoryProperties>
         <urls>
             <appFactory>https://apps.appfactory.private.wso2.com:9443/</appFactory>
-            <prodStratosController>https://sc.prod.appfactory.private.wso2.com:9465/</prodStratosController>
+            <prodStratosController>https://sc.appfactory.private.wso2.com:9463/</prodStratosController>
             <bps>https://process.appfactory.private.wso2.com:9543/</bps>
             <git>https://git.appfactory.private.wso2.com:8443/</git>
             <s2git>https://s2git.appfactory.private.wso2.com:8444/</s2git>

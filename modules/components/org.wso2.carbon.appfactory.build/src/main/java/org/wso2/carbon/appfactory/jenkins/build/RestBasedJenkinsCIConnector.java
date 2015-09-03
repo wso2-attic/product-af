@@ -1782,8 +1782,8 @@ public class RestBasedJenkinsCIConnector {
      * @param runtimeBean runtime bean that we need to add parameters from
      */
     private void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
-                                              runtimeBean.getAliasPrefix() + stage));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX,
+                                              runtimeBean.getCartridgeAliasPrefix() + stage));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
                                               runtimeBean.getCartridgeTypePrefix() + stage));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN,

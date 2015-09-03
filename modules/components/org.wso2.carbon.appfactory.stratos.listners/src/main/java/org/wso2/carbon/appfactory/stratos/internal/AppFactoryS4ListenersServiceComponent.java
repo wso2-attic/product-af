@@ -63,8 +63,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class AppFactoryS4ListenersServiceComponent {
     private static Log log = LogFactory.getLog(AppFactoryS4ListenersServiceComponent.class);
-    //private static final String SUBSCRIBER_ID = "subscriber_id";
-    private static final String TENANT_SUBSCRIPTION_TOPIC = "tenant_subscription_topic";
     private static String stage = System.getProperty(AppFactoryConstants.CLOUD_STAGE);
 
     protected void activate(ComponentContext context) {
@@ -75,7 +73,7 @@ public class AppFactoryS4ListenersServiceComponent {
                     new CloudEnvironmentPermissionListener(), null);
             context.getBundleContext().registerService(StratosSubscriptionDurableSubscriber.class.getName(),
                                                        new StratosSubscriptionDurableSubscriber
-                                                               (stage + TENANT_SUBSCRIPTION_TOPIC, stage), null);
+                                                               (AppFactoryConstants.TENANT_SUBSCRIPTION_TOPIC), null);
 
             if (log.isDebugEnabled()) {
                 log.debug("DefaultRolesCreatorServiceComponent Service  bundle is activated");

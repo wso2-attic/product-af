@@ -42,10 +42,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
                            String tenantDomain) throws AppFactoryException {
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
 
-        String stratosServerURL = appfactoryConfiguration.getFirstProperty(
-                AppFactoryConstants.DEPLOYMENT_ENVIRONMENT + AppFactoryConstants.DOT_SEPERATOR +
-                "Development" +  AppFactoryConstants.DOT_SEPERATOR +
-                AppFactoryConstants.TENANT_MGT_URL);
+        String stratosServerURL = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
 
         String  tenantUsername = application.getOwner();
         StratosRestClient restService = StratosRestClient.getInstance(stratosServerURL, tenantUsername);
