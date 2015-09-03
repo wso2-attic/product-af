@@ -48,10 +48,10 @@ function loadAppIcon(appKey) {
     function (result) {
         if(result == 101) {
             // Application icon is not available, set the default
-            $(".app-icon").attr('src', servicePath  + '/site/themes/default/images/dark-app-iconx256.jpg');
+            $("#app-icon").attr('src', servicePath  + '/site/themes/default/images/dark-app-iconx256.jpg');
             console.info("101");
         } else {
-            $(".app-icon").attr('src', iconUrl);
+            $("#app-icon").attr('src', iconUrl);
         }
     }, function (jqXHR, textStatus, errorThrown) {
         console.log("Could not load the application icon!");
@@ -151,17 +151,17 @@ function loadDatabaseInfo(appVersionInfo) {
 
 // load launch url information
 function loadLaunchInfo(appInfo, currentAppInfo) {
-
     var versionOptionListHtml = "";
-
     for (var i in appInfo.versions) {
         var version = appInfo.versions[i];
-        versionOptionListHtml += "<option>";
+        versionOptionListHtml += "<li><a href='#'>";
         versionOptionListHtml += version;
-        versionOptionListHtml += "</option>";
+        versionOptionListHtml += "</a></li>";
     }
+
     $("#appVersionList").html(versionOptionListHtml);
-    $('#appVersionList').val(currentAppInfo.version);
+    $('#selected-version').html(currentAppInfo.version);
+
 
     // set launch app url
     loadLaunchUrl(appInfo, currentAppInfo);
@@ -195,13 +195,14 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
             newWindow.location = devStudioLink;
         });
 
-        $("#appVersionList").change(function() {
-            // reload page info for the selected version
-            currentVersion = this.value;
-            loadAppInfoFromServer(currentVersion);
-        });
         versionChangeEventAdded = true;
     }
+
+    $('#appVersionList li').click(function() {
+        // reload page info for the selected version
+        currentVersion = this.textContent;
+        loadAppInfoFromServer(currentVersion);
+    });
 
     // show hide accept and deploy handler
     showAcceptAndDeploy(appInfo, currentAppInfo);
@@ -323,9 +324,20 @@ function loadRepoAndBuildsInfo(appVersionInfo) {
         }
 
         // show data in the UI
-        $("#lifecycle-mgt-main").html("Application <strong>" + applicationInfo.name + "</strong> is in <br> <strong>" +
-            versionStage + "</strong> Stage");
-        $("#success-and-fail-ids").html("Build " + buildNumber + " " + buildStatus);
+        $("#lifecycle-mgt-main").html("Application <strong>" + applicationInfo.name + "</strong> is in <br> <strong>" + versionStage + "</strong> Stage");
+
+        var buildStatusTag = "";
+        if("successful" == buildStatus)  {
+            buildStatusTag += "<i class='fa fa-smile-o'></li>";
+        } else {
+            buildStatusTag += "<i class='fa fa-frown-o'></li>";
+        }
+        buildStatusTag += " Build ";
+        buildStatusTag += buildNumber;
+        buildStatusTag += " ";
+        buildStatusTag += buildStatus
+
+        $("#success-and-fail-ids").html(buildStatusTag);
     }
 }
 
@@ -345,12 +357,16 @@ function loadIssuesInfo() {
         }
 
         // render issue data
-        var issueSegment = formatCount(issueData.BUG);
+        var issueSegment = "<i class='fa fa-bug'></i> ";
+        issueSegment += formatCount(issueData.BUG);
         issueSegment += " Bugs<br>";
+        issueSegment += "<i class='fa fa-leaf'></i> ";
         issueSegment +=  formatCount(issueData.NEW_FEATURE);
         issueSegment += " Features<br>";
+        issueSegment += "<i class='fa fa-line-chart'></i> ";
         issueSegment += formatCount(issueData.IMPROVEMENT);
         issueSegment += " Improvements<br>";
+        issueSegment += "<i class='fa fa-paw'></i> ";
         issueSegment += formatCount(issueData.TASK);
         issueSegment += " Tasks";
         $("#issueCount").html(issueSegment);
