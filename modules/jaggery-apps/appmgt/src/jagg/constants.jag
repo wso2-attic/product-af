@@ -231,7 +231,6 @@ var MAX_NO_OF_TRY_FOR_ADD_DEFAULT_DOMAIN = 1;
 
 var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";
 
-var CLOUD_MGT_CONTEXT="/cloudmgt";
 var CLOUD_TYPE="AppCloud";
 var WALL_POLLING_PERIOD="NotificationConfig.Social.PollingPeriod";
 var ERROR_NOTIFICATION_POLLING_PERIOD="NotificationConfig.MessageBroker.PollingPeriod";
