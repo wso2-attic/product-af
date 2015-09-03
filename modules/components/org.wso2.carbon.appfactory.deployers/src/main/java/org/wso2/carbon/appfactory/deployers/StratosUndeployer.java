@@ -30,35 +30,36 @@ public class StratosUndeployer extends AbstractStratosUndeployer {
     public void undeployArtifact(String applicationId, String applicationType, String version, String lifecycleStage,
                                  ApplicationTypeBean applicationTypeBean, RuntimeBean runtimeBean)
                                  throws AppFactoryException {
+        if(!runtimeBean.getSubscribeOnDeployment()) {
+            String serverDeploymentPath = applicationTypeBean.getServerDeploymentPath();
+            String fileExtension = applicationTypeBean.getExtension();
 
-        String serverDeploymentPath = applicationTypeBean.getServerDeploymentPath();
-        String fileExtension = applicationTypeBean.getExtension();
-
-        File applicationTempLocation = Files.createTempDir();
-        if (log.isDebugEnabled()) {
-            log.debug("Deleting application of application id : " + applicationId + " version : " + version +
-                    " stage :  " + lifecycleStage + " application type : " + applicationType +
-                    " server deployment path : " + serverDeploymentPath);
-        }
-        try {
-            undeployArtifactFromDepSyncGitRepo(
-                    applicationId, lifecycleStage, version, serverDeploymentPath, fileExtension,
-                    applicationTempLocation, generateRepoUrl(runtimeBean, applicationId, lifecycleStage));
-            log.info("Successfully undeployed the artifact application id : " + applicationId + " stage : " + lifecycleStage +
-                    " version : " + version + " from server deployment path : " + serverDeploymentPath);
-        } catch (RepositoryMgtException e) {
-            String msg = "Undeploying application failed for application id : " + applicationId + " stage : " + lifecycleStage +
-                    " version : " + version + " server deployment path : " + serverDeploymentPath;
-            throw new AppFactoryException(msg, e);
-        } finally {
-            try {
-                // cleaning up temp directory
-                FileUtils.deleteDirectory(applicationTempLocation);
-            } catch (IOException e) {
-                log.error("Failed to delete temp application directory : "
-                        + applicationTempLocation.getAbsolutePath(), e);
+            File applicationTempLocation = Files.createTempDir();
+            if (log.isDebugEnabled()) {
+                log.debug("Deleting application of application id : " + applicationId + " version : " + version +
+                          " stage :  " + lifecycleStage + " application type : " + applicationType +
+                          " server deployment path : " + serverDeploymentPath);
             }
+            try {
+                undeployArtifactFromDepSyncGitRepo(
+                        applicationId, lifecycleStage, version, serverDeploymentPath, fileExtension,
+                        applicationTempLocation, generateRepoUrl(runtimeBean, applicationId, lifecycleStage));
+                log.info("Successfully undeployed the artifact application id : " + applicationId + " stage : " + lifecycleStage +
+                         " version : " + version + " from server deployment path : " + serverDeploymentPath);
+            } catch (RepositoryMgtException e) {
+                String msg = "Undeploying application failed for application id : " + applicationId + " stage : " + lifecycleStage +
+                             " version : " + version + " server deployment path : " + serverDeploymentPath;
+                throw new AppFactoryException(msg, e);
+            } finally {
+                try {
+                    // cleaning up temp directory
+                    FileUtils.deleteDirectory(applicationTempLocation);
+                } catch (IOException e) {
+                    log.error("Failed to delete temp application directory : "
+                              + applicationTempLocation.getAbsolutePath(), e);
+                }
 
+            }
         }
     }
 

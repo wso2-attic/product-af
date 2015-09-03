@@ -23,7 +23,7 @@
         "iaasProvider": [
             {
                 "type": "kubernetes",
-                "imageId": "stratos/tomcat:4.1.1",
+                "imageId": "wso2/tomcat:1.0.0",
                 "networkInterfaces": [
                 ],
                 "property": [
@@ -39,9 +39,13 @@
                  "name": "payload_parameter.S2GIT_DOMAIN",
                  "value": "s2git.<%= @domain %>"
                },
+               {
+                   "name": "payload_parameter.START_CMD",
+                   "value": "PCA"
+               },
                 {
-                    "name": "payload_parameter.START_CMD",
-                    "value": "PCA"
+                    "name": "payload_parameter.APPLICATION_PATH",
+                    "value": "/opt/tomcat/webapps"
                 }
         ]
     }

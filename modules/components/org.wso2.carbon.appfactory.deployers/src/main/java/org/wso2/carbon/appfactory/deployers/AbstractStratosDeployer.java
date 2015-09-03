@@ -97,7 +97,8 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         version = version.replaceAll("\\.+",AppFactoryConstants.MINUS);
         String baseRepoUrl = getBaseRepoUrl();
         String generatedRepoName = generateRepoName(applicationId, version, metadata, tenantId, subscribeOnDeployment);
-        String gitRepoUrl = baseRepoUrl +  AppFactoryConstants.GIT_REPOSITORY_CONTEXT + generatedRepoName;
+        String gitRepoUrl = baseRepoUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT
+                            + AppFactoryConstants.URL_SEPERATOR + generatedRepoName;
         String stageName = DeployerUtil.getParameterValue(metadata, AppFactoryConstants.DEPLOY_STAGE);
 
         String applicationAdmin = getAdminUserName();
@@ -323,9 +324,8 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
                 preDevRepoNameAppender = "_" + MultitenantUtils.getTenantAwareUsername(
                         DeployerUtil.getParameterValue(metadata,AppFactoryConstants.TENANT_USER_NAME));
 
-            gitRepoName =  AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
-                         + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
-                         + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
+            gitRepoName = paasRepositoryURLPattern
+                         + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender;
             gitRepoName = gitRepoName.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
         }
         return gitRepoName;
@@ -345,7 +345,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
         String stratosRepoPassword = getAdminPassword();
         String stratosRepoUsernmae = getAdminUsername();
-        createStratosArticatRepository(paasRepoProviderClass, getAdminUsername(), stratosRepoPassword,
+        String repoUrl = createStratosArticatRepository(paasRepoProviderClass, getAdminUsername(), stratosRepoPassword,
                                        generatedRepoName);
 
         String uniqueStratosAppId = CloudUtils.generateUniqueStratosApplicationId(tenantId, applicationId, version,
@@ -354,7 +354,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         // Create stratos application only if it not created for the uniqueStratosAppId
         if (!stratosRestClient.isApplicationCreated(uniqueStratosAppId)) {
             try {
-                stratosRestClient.createApplication(uniqueStratosAppId, getBaseRepoUrl(), stratosRepoUsernmae,
+                stratosRestClient.createApplication(uniqueStratosAppId, repoUrl , stratosRepoUsernmae,
                                                      stratosRepoPassword, cartridgeType, cartridgeTypePrefix,
                                                      deploymentPolicy, autoScalingPolicy);
                 stratosRestClient.deployApplication(uniqueStratosAppId);
@@ -364,7 +364,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         }
     }
 
-    private void createStratosArticatRepository(String repoProviderClassName, String adminUsername,
+    private String createStratosArticatRepository(String repoProviderClassName, String adminUsername,
                                                   String adminPassword, String repoName) throws AppFactoryException {
 
         ClassLoader loader = getClass().getClassLoader();
@@ -396,9 +396,12 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         repoProvider.setAdminUsername(adminUsername);
         repoProvider.setAdminPassword(adminPassword);
         repoProvider.setRepoName(repoName);
-        if(!repoProvider.isRepoExist()){
-            repoProvider.createRepository();
+
+        String repoUrl = null;
+        if(!repoProvider.isRepoExist()) {
+            repoUrl = repoProvider.createRepository();
         }
+        return repoUrl;
     }
 
     @Override

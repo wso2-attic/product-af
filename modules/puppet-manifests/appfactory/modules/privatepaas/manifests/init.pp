@@ -66,7 +66,7 @@ class privatepaas (
                   "repository/conf/kubernetes/application-policy_dev.json",
                   "repository/conf/kubernetes/application-policy_test.json",
                   "repository/conf/kubernetes/application-policy_prod.json",
-                  "repository/conf/kubernetes/application-policy_st.json",
+                  "repository/conf/kubernetes/application-policy-st.json",
                   "repository/conf/kubernetes/application_dev.json",
                   "repository/conf/kubernetes/application_test.json",
                   "repository/conf/kubernetes/application_prod.json",

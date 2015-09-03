@@ -81,25 +81,29 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
             String stage = appVersionDAO.getAppVersionStage(application.getId(),version);
             stratosApplicationId = CloudUtils.generateUniqueStratosApplicationId(tenantId, application.getId(), version,
                                                                                  stage);
-            restService.undeployApplication(stratosApplicationId);
-            //TODO :
-            // Have to wait till application get undeployed
-            // Stratos is going to make undeploy a synchronous call or will provide a certial wait time
-            // Before deletion
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                log.error("Sleep thread got interrupted before deleting stratos application", e);
-            }
-            restService.deleteApplication(stratosApplicationId);
-
-            try {
-                repositoryProvider.deleteStratosArtifactRepository(CloudUtils.generateSingleTenantArtifactRepositoryName(
-                        paasRepositoryUrlPattern, stage, version, stratosApplicationId,tenantId));
-            } catch (RepositoryMgtException e) {
-               log.error("Error while deleting stratos repository for application " + application.getId()
-                         + " version :" + version, e);
-                //No need to throw since this is an artifact repo
+                restService.undeployApplication(stratosApplicationId);
+                //TODO :
+                // Have to wait till application get undeployed
+                // Stratos is going to make undeploy a synchronous call or will provide a certial wait time
+                // Before deletion
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    log.error("Sleep thread got interrupted before deleting stratos application", e);
+                }
+                restService.deleteApplication(stratosApplicationId);
+            } catch (Exception e) {
+                log.error("Error while deleting stratos application for id : " + stratosApplicationId, e);
+            } finally {
+                try {
+                    repositoryProvider.deleteStratosArtifactRepository(CloudUtils.generateSingleTenantArtifactRepositoryName(
+                            paasRepositoryUrlPattern, stage, version, stratosApplicationId, tenantId));
+                } catch (RepositoryMgtException e) {
+                    log.error("Error while deleting stratos repository for application " + application.getId()
+                              + " version :" + version, e);
+                    //No need to throw since this is an artifact repo
+                }
             }
         }
     }

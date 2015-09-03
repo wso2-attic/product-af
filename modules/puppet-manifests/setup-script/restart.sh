@@ -3,6 +3,8 @@
 
 . ./config.properties
 
+sudo service dnsmasq restart
+
 sudo su $APPFACTORY_USER <<'EOF'
 
 . ./config.properties
@@ -63,38 +65,10 @@ echo "starting APIM"
 echo "starting stogare server"
 ./$storagepath/bin/wso2server.sh start
 
-echo "starting dev greg server"
-./dev_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
-
-echo "starting test greg server"
-./test_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
-
-echo "starting prod greg server"
-./prod_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
-
-echo "Starting Active MQs"
-./dev_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
-./prod_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
-./test_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
-
 sleep 5s
 
-source "$CURRENT_DIR/dev_pass/privatepaas/conf.sh"
-export LOG=$log_path/stratos-setup.log
-setup_path="$CURRENT_DIR/dev_pass/privatepaas/stratos-installer"
-source $setup_path/conf/setup.conf;$setup_path/start-servers.sh -p default >> $LOG
-sleep 10s
-
-source "$CURRENT_DIR/test_pass/privatepaas/conf.sh"
-export LOG=$log_path/stratos-setup.log
-setup_path="$CURRENT_DIR/test_pass/privatepaas/stratos-installer"
-source $setup_path/conf/setup.conf;$setup_path/start-servers.sh -p default >> $LOG
-sleep 10s
-
-source "$CURRENT_DIR/prod_pass/privatepaas/conf.sh"
-export LOG=$log_path/stratos-setup.log
-setup_path="$CURRENT_DIR/prod_pass/privatepaas/stratos-installer"
-source $setup_path/conf/setup.conf;$setup_path/start-servers.sh -p default >> $LOG
+setup_path="$CURRENT_DIR/ppaas/privatepaas/stratos-installer"
+$setup_path/start-servers.sh -p default restart
 sleep 10s
 
 
