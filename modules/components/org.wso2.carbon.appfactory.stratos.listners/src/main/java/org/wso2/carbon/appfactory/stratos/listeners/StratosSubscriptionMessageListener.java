@@ -225,7 +225,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             throws Exception {
 
         String stratosAppId = runtimeBean.getStratosAppId() + stage.toLowerCase();
-        String alias = runtimeBean.getCartridgeTypePrefix() + stage.toLowerCase();
+        String alias = runtimeBean.getDataCartridgeAlias() + stage.toLowerCase();
 
         ApplicationSignUpBean applicationSignUpBean = new ApplicationSignUpBean();
         List<ArtifactRepositoryBean> repo = new ArrayList<ArtifactRepositoryBean>();
