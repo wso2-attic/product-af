@@ -70,11 +70,6 @@ body {
     text-decoration: none;
 }
 
-.alert{
-    border-radius: 0px;
-    margin: 15px;
-}
-
 .action-bar {
     background-color: #303030;
     min-height: 45px;
@@ -559,10 +554,10 @@ a.btn-action {
     cursor: inherit;
     display: block;
 }
-#add-application {
+/*.cu-btn-position{
     margin-top: 2em;
-}
-#add-application span {
+}*/
+.cu-btn-position span {
     margin-top: 5px;
     margin-bottom: 5px;
 }
@@ -664,6 +659,7 @@ a.btn-action {
     padding: 6px;
     background-color: #383d44;
     top: 0;
+    color:#fff;
 }
 .app-thumb span {
     padding: 7px;
@@ -685,6 +681,7 @@ a.btn-action {
     color: #fff;
     text-align: center;
     position: relative;
+    overflow: hidden;
 }
 .app-icon:before {
     display: block;
@@ -714,7 +711,7 @@ a.btn-action {
 }
 .app-name {
     position: absolute;
-    background-color: red;
+    color:#fff;
     bottom: 0;
     padding: 9px 5px 2px;
     width: 100%;
@@ -829,7 +826,7 @@ a.btn-action {
 }
 
 .app-content-section {
-    margin-top: 7em;
+    margin-top: 105px;
 }
 .left-pane ul {
     margin-top: 70px;
@@ -865,8 +862,9 @@ a.btn-action {
 .block-general {
     margin-top: 1em;
     background-color: #34495e;
-    padding: 18px;
-    min-height: 26em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    min-height: 33em;
 }
 
 .block-general a, .block-team a, .block-database a{
@@ -878,15 +876,17 @@ a.btn-action {
     font-weight: 300;
     margin-top: 8px;
 }
+.block-team h3, .block-database h3{
+    margin-top:3px;
+}
 .block-general h3 {
     margin-bottom: 30px;
 }
 .version-number button{
     color:#fff;
-    background-color:#8b8b8b;
+    background-color:#757575;
     border:none;
     padding:10px 22px;
-    margin-right:1px;
 }
 .version-number .dropdown-menu{
     margin:0px;
@@ -916,7 +916,7 @@ a.btn-action {
 .block-team,
 .block-database {
     margin-top: 1em;
-    padding: 18px 18px 4px;
+    padding: 18px;
 }
 .block-team {
     background-color: #95a5a6;
@@ -926,18 +926,19 @@ a.btn-action {
 }
 .block-life-cycle {
     background-color: #0090d9;
-    min-height: 23em;
+    min-height: 24em;
 }
 .block-repos {
     background-color: #735f87;
-    min-height: 23em;
+    min-height: 24em;
 }
 .block-issues {
     background-color: #0aa699;
-    min-height: 23em;
+    min-height: 24em;
 }
 .block-action-button {
-    width: 40%;
+    width: 100%;
+    margin-top:10px;
     text-align: right;
     float: right;
     padding: 8px;
@@ -971,7 +972,7 @@ a.btn-action {
     background-color: rgb(29, 42, 56);
 }
 .block-life-cycle .block-action-button {
-    width: 45%;
+    width: 100%;
 }
 .block-life-cycle .block-action-button:hover {
     background-color: rgb(0, 95, 143);
@@ -990,6 +991,7 @@ a.btn-action {
     padding: 10px 20px;
 }
 .block-description {
+    width:67%;
     font-size: 1.3em;
     font-weight: 300;
 }
@@ -1004,6 +1006,7 @@ a.btn-action {
 .permission-change-block .block-action-button{
     width: 100%;
     text-align: center;
+    margin-top:0px;
 }
 
 .btn-edit li {
@@ -1094,6 +1097,12 @@ a.btn-action {
 #noty_top_layout_container li{
     border-radius: 0px !important;
 }
+.alert{
+    border-radius: 0px;
+    margin: 15px;
+    padding:0px;
+    min-height:50px;
+}
 .alert-success{
     background-color: #40D47E;
     border-color: #40D47E;
@@ -1103,6 +1112,17 @@ a.btn-action {
 }
 .alert-info .close{
     color:#666;
+}
+.alert .close{
+    background-color:#333;
+    color:#fff;
+    text-shadow:none;
+    opacity:1;
+    padding:5px 10px;
+}
+.alert .alert-content{
+    display:block;
+    padding:15px;
 }
 
 /* ========================================================================
@@ -1212,6 +1232,58 @@ a.btn-action {
     font-size: 11px;
     margin-top: 4px;
 }
+
+
+/* button loading */
+.loading-logo {
+    position: relative;
+    display: inline-block;
+    width: 3em;
+    height: 3.35em;
+    line-height: 3em;
+    vertical-align: middle;
+}
+
+.loading-logo .pulse-line,
+.loading-logo .circle {
+    fill: none;
+    stroke: #fff;
+}
+
+.loading-logo .circle {
+    stroke-dasharray: 100;
+    opacity: 0.5;
+}
+
+.loading-logo .pulse-line {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: dash 4s linear  infinite;
+    opacity: 0;
+}
+
+.loading-logo  svg{
+    margin-top: 3px;
+}
+
+.loading-logo .signal {
+    border: 5px solid #fff;
+    border-radius: 50px;
+    height: 3em;
+    width: 3em;
+    opacity: 0;
+    position:absolute;
+    top: 3px;
+    animation: pulsate 4s ease-out infinite;
+    animation-delay: 1.5s;
+
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
 
 
 .datatable td a{
@@ -1373,10 +1445,10 @@ a.btn-action {
 }
 
 @media screen and (min-width: 768px) {
-	.modal-dialog  {
-	    /* margin-top:20%; */
-	    width:800px;
-	}
+    .modal-dialog  {
+        /* margin-top:20%; */
+        width:800px;
+    }
 }
 .modal-content{
     background-color:#464646;
@@ -1390,10 +1462,6 @@ a.btn-action {
 .modal-title{
     color:#fff;
 }
-.close{
-    color:#fff;
-    text-shadow:none;
-}
 .no-pad-right{
     padding-right:0px;
 }
@@ -1402,6 +1470,9 @@ a.btn-action {
 }
 .padding-bottom-lg{
     padding-bottom:30px;
+}
+.padding-bottom-xlg{
+    padding-bottom:4em;
 }
 
 .section-title {
@@ -1413,6 +1484,7 @@ a.btn-action {
 
 .log-container{
     margin-top: 2em;
+    display: none;
 }
 .log-container > pre {
     display: block;
@@ -1426,12 +1498,6 @@ a.btn-action {
     border: 1px solid #444;    
     background-color:#333;
     border-radius:0;
-}
-.button-container .fa-spinner{
-    margin: 0px 10px;
-}
-.button-container button{
-    margin: 0px !important;
 }
 .note{
     padding: 10px;
@@ -1463,6 +1529,9 @@ a.btn-action {
 .fw-1-5x{
     font-size: 1.5em;
 }
+.app-desc h2{
+    margin-top:0px;
+}
 @media (max-width: 1200px) {
     .version-url{
         width:44.4%;
@@ -1470,22 +1539,52 @@ a.btn-action {
     .btn-edit-code > a{
         margin-top:-3px;
     }
-    .block-description-multiline{
-        margin-left:0em;
-    }
     .block-action-button,.block-life-cycle .block-action-button{
         width:100%;
     }
     .block-description-multiline{
         font-size:1em;
+        margin-left:1em;
+        padding:10px 16px;
     }
     .block-description{
+        font-size:1em;
         margin-top:1em;
+    }
+    .fw-5x{
+        font-size:4em;
+    }
+
+}
+@media (max-width: 992px) {
+ .version-url{
+        width:45.1%;
+    }
+    .block-general h3, .block-team h3, .block-database h3{
+        font-size:20px;
+    }
+    .block-action-button{
+        margin-top:10px;
+        text-align:center;
+    }
+    .permission-change-block{
+        margin-top:1em;
+    }
+    .permission-change-block .block-action-button{
+        margin-top:0px;
+    }
+    .block-description{
+        width:100%;
+        font-size:1.3em;
+        margin-top:1em;
+    }
+    .fw-5x{
+        font-size:3em;
     }
 }
 @media (max-width: 768px) {
     .version-url{
-        width:45.8%;
+        width:46.8%;
     }
     .btn-edit-code > a{
         margin-top:-3px;
@@ -1494,10 +1593,12 @@ a.btn-action {
         margin-left:5em;
         font-size:1.3em;
     }
-    .block-description{
-        margin-top:0em;
+    .fw-5x{
+        font-size:5em;
     }
-
+    .block-description{
+        width:62%;
+    }
 }
 @media (max-width: 480px) {
     .version-url{
@@ -1513,14 +1614,19 @@ a.btn-action {
        width:60%;
     }
     .btn-edit-code > a{
-            margin-top:0px;
-        }
+        margin-top:0px;
+    }
+    .app-desc h2{
+        margin-top:20px;
+    }
 }
 .btn-launch-app,.btn-edit-code{
     border:none;
 }
+
 .btn-edit-code{
     margin:0px;
+    margin-left:-4px;
 }
 .btn-edit-code > a{
     border:none;
@@ -1531,6 +1637,7 @@ a.btn-action {
     list-style:none;
     margin-left:0px;
     margin-top:10px;
+    margin-bottom:10px!important;
     padding-left:15px;
 }
 .invitaiton_list li span{
@@ -1686,33 +1793,33 @@ a.btn-action {
 }
 
 /*App factory*/
-.org_af .triangle{
+.AF .triangle{
     border-color: transparent #22A7F0 transparent transparent;
 }
-.org_af .org_type{
+.AF .org_type{
     background:#22A7F0;
 }
-.org_af .role_type_tag{
+.AF .role_type_tag{
     border-color:#22A7F0;
 }
 /*Api manager*/
-.org_apim .triangle{
+.APIM .triangle{
     border-color: transparent #D64541 transparent transparent;
 }
-.org_apim .org_type{
+.APIM .org_type{
     background:#D64541;
 }
-.org_apim .role_type_tag{
+.APIM .role_type_tag{
     border-color:#D64541;
 }
 /*other*/
-.org_other .triangle{
+.OTHER .triangle{
     border-color: transparent #fb8c00 transparent transparent;
 }
-.org_other .org_type{
+.OTHER .org_type{
     background:#fb8c00;
 }
-.org_other .role_type_tag{
+.OTHER .role_type_tag{
     border-color:#fb8c00;
 }
 
@@ -1765,4 +1872,46 @@ a.btn-action {
     to {
         text-shadow: 0 0 10px red;
     }
+}
+
+
+.new-tag{
+    position:absolute;
+    height:auto;
+    background-color:#fff;
+    border:1px solid #333;
+}
+.new-tag-desc{
+    border-bottom:1px solid #ccc;
+}
+.new-tag-desc p{
+    padding:10px;
+    color:#333;
+}
+.add-tag{
+    margin-top:20px;
+}
+.new-tag-container{
+    padding:10px;
+    color: #333;
+}
+
+/* noty overide */
+.noty_buttons {
+    background-color: #404040 !important;
+    border-top: 1px solid #474747 !important;
+}
+
+.datepicker-container{
+    position: relative;
+}
+.datepicker-container i{
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    color: #282828;
+}
+
+th.hide-column-data, td.hide-column-data {
+    display: none;
 }
