@@ -266,8 +266,8 @@ public class AppFactoryCoreUtil {
 	 * @param runtimeBean runtime bean that we need to add parameters from
 	 */
 	private static void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
-		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
-		                                 runtimeBean.getAliasPrefix() + stage));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX,
+		                                 runtimeBean.getCartridgeAliasPrefix() + stage));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
 		                                 runtimeBean.getCartridgeTypePrefix() + stage));
 		parameters.add(new NameValuePair(AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN,

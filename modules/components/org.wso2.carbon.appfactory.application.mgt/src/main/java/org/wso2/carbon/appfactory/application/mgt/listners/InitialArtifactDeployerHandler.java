@@ -91,7 +91,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
             deployInfoMap.put(AppFactoryConstants.APPLICATION_VERSION, new String[] { version });
 			deployInfoMap.put("tenantId", new String[] { Integer.toString(tenantId) });
 			deployInfoMap.put(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,new String[]{paasRepositoryProviderClassName});
-			deployInfoMap.put(AppFactoryConstants.STRATOS_SERVER_URL,new String[]{stratosServerURL});
+			deployInfoMap.put(AppFactoryConstants.TENANT_MGT_URL,new String[]{stratosServerURL});
 			initialDeployerClassName = ApplicationTypeManager.getInstance()
 			                                                        .getApplicationTypeBean(application.getType())
 			                                                        .getInitialDeployerClassName();

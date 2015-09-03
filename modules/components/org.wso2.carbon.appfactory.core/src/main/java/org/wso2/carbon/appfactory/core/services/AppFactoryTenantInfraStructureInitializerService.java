@@ -177,17 +177,16 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
     /**
      * Used to initialize cloud in different stages
      *
-     * @param bean  with tenant details
-     * @param stage Environment
+     * @param bean with tenant details
      * @return true if the operation is success
      * @throws AppFactoryException
      */
-    public boolean initializeCloudManager(TenantInfoBean bean, String stage) throws AppFactoryException {
+    public boolean initializeCloudManager(TenantInfoBean bean) throws AppFactoryException {
         AppFactoryConfiguration configuration = ServiceHolder.getAppFactoryConfiguration();
-        String serverURL = configuration.getFirstProperty(ENVIRONMENT + "." + stage + "." + "TenantMgtUrl");
+        String stages[] = configuration.getProperties(AppFactoryConstants.DEPLOYMENT_STAGES);
 
         TaskInfo.TriggerInfo triggerInfo = getTriggerWithDalay();
-        String taskName = "cloud-init-" + stage + "-" + bean.getTenantDomain();
+        String taskName = "cloud-init-" + bean.getTenantDomain();
         Map<String, String> properties = new HashMap<String, String>();
 
         Map<String, RuntimeBean> runtimeBeanMap = RuntimeManager.getInstance().getRuntimeBeanMap();
@@ -195,14 +194,15 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
 
         for (Map.Entry<String, RuntimeBean> runtimeName : runtimeBeanMap.entrySet()) {
             RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtimeName.getKey());
-            if(!runtimeBean.getSubscribeOnDeployment()){
+            if (!runtimeBean.getSubscribeOnDeployment()) {
                 runtimeBeansArrayList.add(runtimeBean);
             }
         }
 
         String runtimeJson;
-	    String tenantInfoJson;
-	    ObjectMapper mapper = new ObjectMapper();
+        String tenantInfoJson;
+        String stagesJson;
+        ObjectMapper mapper = new ObjectMapper();
         try {
             runtimeJson = mapper.writeValueAsString(runtimeBeansArrayList.toArray());
         } catch (IOException e) {
@@ -210,19 +210,27 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
-	    try {
-		    tenantInfoJson = mapper.writeValueAsString(bean);
-	    } catch (IOException e) {
-		    String msg = "Error while converting the tenant info bean to a json string";
-		    log.error(msg, e);
-		    throw new AppFactoryException(msg, e);
-	    }
+        try {
+            tenantInfoJson = mapper.writeValueAsString(bean);
+        } catch (IOException e) {
+            String msg = "Error while converting the tenant info bean to a json string";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+        try {
+            stagesJson = mapper.writeValueAsString(stages);
+        } catch (IOException e) {
+            String msg = "Error while converting the stages array to a json string";
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
 
         properties.put(AppFactoryConstants.RUNTIMES, runtimeJson);
         properties.put(AppFactoryConstants.TENANT_INFO, tenantInfoJson);
-        properties.put(AppFactoryConstants.STAGE,stage);
-        TaskInfo taskInfo = new TaskInfo(taskName, AppFactoryTenantInfraStructureInitializerService.CLOUD_INITIALIZER_TASK,
-                properties, triggerInfo);
+        properties.put(AppFactoryConstants.STAGE, stagesJson);
+        TaskInfo taskInfo = new TaskInfo(taskName,
+                                         AppFactoryTenantInfraStructureInitializerService.CLOUD_INITIALIZER_TASK,
+                                         properties, triggerInfo);
         try {
             taskManager.registerTask(taskInfo);
         } catch (TaskException e) {
@@ -237,6 +245,7 @@ public class AppFactoryTenantInfraStructureInitializerService extends AbstractAd
             log.error(msg, e);
             throw new AppFactoryException(msg, e);
         }
+
         return true;
     }
 
