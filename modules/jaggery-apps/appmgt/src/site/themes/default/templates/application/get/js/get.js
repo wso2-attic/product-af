@@ -298,7 +298,7 @@ function createCodeEnvyUrl(gitURL) {
 
 // load life cycle management information
 function loadLifeCycleManagementInfo(appVersionInfo) {
-    if(appVersionInfo) {
+    if(appVersionInfo && !isEmpty(appVersionInfo)) {
         var stage = appVersionInfo.appStage;
         $("#appStage").html(stage);
     }
@@ -306,7 +306,7 @@ function loadLifeCycleManagementInfo(appVersionInfo) {
 
 // load repository and build information
 function loadRepoAndBuildsInfo(appVersionInfo) {
-    if (appVersionInfo) {
+    if (appVersionInfo && !isEmpty(appVersionInfo)) {
         var versionStage = appVersionInfo.stage;
         var lastBuildInfo = appVersionInfo.lastBuildResult;
         var buildSplitted = lastBuildInfo.split(' ');
@@ -499,4 +499,14 @@ function formatCount(count) {
        return count;
    }
    return 0;
+}
+
+function isEmpty(object) {
+    if (!object) {
+        return true;
+    }
+    if(Object.keys(object).length === 0) {
+        return true;
+    }
+    return false;
 }
