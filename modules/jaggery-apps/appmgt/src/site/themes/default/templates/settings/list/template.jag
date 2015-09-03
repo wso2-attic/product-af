@@ -1,0 +1,170 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+include("/jagg/constants.jag");
+jagg.template("settings/list", function (inputs, outputs, jagg) { %>
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var hasAppCreationPermission = outputs.hasAppCreationPermission;
+    var memberOfApplication = outputs.memberOfApplication;
+
+    // disabled until UX is finalized
+    var isUpdateInfoAllowed = false; //(hasAppCreationPermission && memberOfApplication);
+    // disabled until UX is finalized
+    var isBuildInfoAllowed = false;
+    var isDeleteAllowed = (hasAppCreationPermission && memberOfApplication);
+%>
+
+<!-- start of setting global javascript variable values from jaggery side -->
+<script type="text/javascript" charset="utf-8">
+    var applicationName = "<%=applicationName%>";
+    var applicationKey = "<%=applicationKey%>";
+    var hasAppCreationPermission = "<%=hasAppCreationPermission%>";
+    var memberOfApplication = "<%=memberOfApplication%>";
+
+    // disabled until UX is finalized
+    var isUpdateInfoAllowed = "<%=isUpdateInfoAllowed%>";
+    var isBuildInfoAllowed = "<%=isBuildInfoAllowed%>";
+    var isDeleteAllowed = "<%=isDeleteAllowed%>";
+</script><!-- end of setting global javascript variable -->
+
+<!-- BOF App factory menu actionbar -->
+<div class="action-bar">
+	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Back to Overview">
+			<span class="fw-stack fw-lg btn-action-ico">
+				<i class="fw fw-ring fw-stack-2x"></i>
+				<i class="fw fw-left-arrow fw-stack-1x"></i>
+			</span> Back to Overview
+	</a>
+</div><!-- EOF App factory menu actionbar-->
+
+<div class="container-fluid app-content-section">
+    <div class="row">
+        <div class="col-md-12 msg-issues">
+            Update the settings of your application based on your preferences.
+        </div>
+    </div>
+    <div class="row">
+        <div id="push"></div>
+        <div class="col-md-5 forms cloud-tab">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <% if (isUpdateInfoAllowed) {%>
+                    <li role="presentation" class="active"><a href="#general" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                <% }%>
+
+                <% if (isBuildInfoAllowed) {%>
+                    <li role="presentation" class="<%=(!isUpdateInfoAllowed)?'active':''%>">
+                        <a href="#builddeploy" aria-controls="builddeploy" role="tab" data-toggle="tab">Build & Deploy</a>
+                    </li>
+                <% }%>
+
+                <% if (isDeleteAllowed) {%>
+                    <li role="presentation" class="<%=(!isUpdateInfoAllowed)?'active':(!isBuildInfoAllowed)?'active':'active'%>">
+                        <a href="#deleteapp" aria-controls="deleteapp" role="tab" data-toggle="tab">Delete Application</a>
+                    </li>
+                <% }%>
+
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <% if (isUpdateInfoAllowed) {%>
+                    <!-- General Tab pane -->
+                    <form enctype="multipart/form-data" method='post'
+                    action='<%=jagg.getAbsoluteUrl("/site/blocks/application/update/ajax/update.jag")%>'
+                    name="generalForm" id="generalForm">
+                        <input type="hidden" name="action" id="action" value="changeGeneralInfo" />
+                        <input type="hidden" name="applicationKey"  id="applicationKey" value="<%=applicationKey%>"/>
+                        <div role="tabpanel" class="tab-pane active" id="general">
+                            <div id="push"></div>
+                            <div class="form-group">
+                                <label for="appIcon">Application Icon: </label>
+                                <div class="input-group">
+                                    <input type="text" id="icon" name="icon" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <span class="btn btn-primary btn-file">
+                                    Upload&hellip; <input type="file" id="appIcon" name="appIcon"/>
+                                </span>
+                                <span class="btn btn-primary btn-file" onclick="clearUploadIconField()" id="clear">
+                                    Clear
+                                </span>
+                            </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Application Description: </label>
+                                <textarea class="form-control  general-group" rows="3" id="description"
+                                name="description" ></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="updateGeneralInfo"
+                                 onclick="submitGeneralForm(); return false;" disabled>
+                                <span class="fw-stack fw-lg btn-action-ico">
+                                    <i class="fw fw-ring fw-stack-2x"></i>
+                                    <i class="fw fw-add fw-stack-1x"></i>
+                                </span>
+                                    Update
+                                </button>
+                            </div>
+                        </div> <!-- END OF General Tab panes -->
+                    </form>
+                <% }%>
+
+                <% if (isBuildInfoAllowed) {%>
+                    <!-- Build & Deploy Tab pane -->
+                    <div role="tabpanel" class="tab-pane <%=(!isUpdateInfoAllowed)?'active':''%>" id="builddeploy">
+                        <div id="push"></div>
+                        <div>content...</div>
+                    </div><!-- END OF builddeploy Tab pane -->
+                <% }%>
+
+                <% if (isDeleteAllowed) {%>
+                    <!-- deleteapp Tab pane -->
+                    <div role="tabpanel" class="tab-pane <%=(!isUpdateInfoAllowed)?'active':(!isBuildInfoAllowed)?'active':'active'%>" id="deleteapp">
+                        <div id="push"></div>
+                        <div class="msg-issues">
+                            Once you delete an application, there is no going back. Please be certain.
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="deleteApplication"
+                            onclick="deleteConfirmation()">
+                            <span class="fw-stack fw-lg btn-action-ico">
+                                <i class="fw fw-ring fw-stack-2x"></i>
+                                <i class="fw fw-delete fw-stack-1x"></i>
+                            </span>
+                                Delete this Application
+                            </button>
+                        </div>
+                    </div><!-- END OF deleteapp Tab pane -->
+                <% }%>
+            </div>
+        </div><!-- END OF cloud-tab -->
+    </div><!-- END OF row -->
+</div><!-- /.container -->
+<div class="clearfix"></div>
+<div id="push"></div>
+<% jagg.includeBlock("page/notification-wall", {"wall_name" : applicationKey + " - App Wall","applicationKey" : applicationKey, "pageName":"App Home"});%>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/settings/list/js/settings.js'))%>"></script>
+   <%
+}); %>

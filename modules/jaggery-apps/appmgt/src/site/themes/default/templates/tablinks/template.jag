@@ -104,6 +104,14 @@ include("/jagg/constants.jag");
                 </a>
             </li>
             <% } %>
+
+            <% if (outputs.isSettingsAllowed) { %>
+            <li class="<% if (pageName == "Settings") { %>selected<%}%>">
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/settings.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Settings">
+                    <i class="fw fw-settings"></i> Settings
+                </a>
+            </li>
+            <% } %>
         </ul>
     </div>
 
