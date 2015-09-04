@@ -180,12 +180,12 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 		<!-- jquery.cookie.js should be removed or updated with the main.js-->
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/main.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/nanoscroller-0.8.7/jquery.nanoscroller.min.js'))%>"></script>
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
     </body>
 </html>
 <% }); %>

@@ -231,9 +231,11 @@
     }
 
     /*This is a light weight method and it is used only in getUserHomeInfo*/
-    var convertAppInfoLightWeight =  function(resourceContent){
-        var application = extractAppInfo(resourceContent,true);
-        return application;
+    var convertAppInfoLightWeight = function(resourceContent) {
+        if(resourceContent) {
+            return extractAppInfo(resourceContent,true);
+        }
+        return null;
     }
 
     var extractAppInfo=function(resourceContent,forUserHome){

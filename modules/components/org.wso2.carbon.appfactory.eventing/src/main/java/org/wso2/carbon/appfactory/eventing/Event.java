@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.appfactory.eventing;
 
+import java.util.Arrays;
+
 public class Event {
     public static enum EventDispatchType {
         EMAIL, SOCIAL_ACTIVITY, GUARANTEED_DELIVERY
@@ -116,5 +118,19 @@ public class Event {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder eventStr = new StringBuilder();
+        eventStr.append("{ target :").append(target).append(", ")
+                .append("sender :").append(sender).append(", ")
+                .append("messageTitle :").append(messageTitle).append(", ")
+                .append("messageBody :").append(messageBody).append(", ")
+                .append("category :").append(category).append(", ")
+                .append("type :").append(type).append(", ")
+                .append("state :").append(state).append(", ")
+                .append("eventDispatcherType :").append(Arrays.toString(eventDispatchTypes)).append(" }");
+        return eventStr.toString();
     }
 }

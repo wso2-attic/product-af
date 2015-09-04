@@ -427,13 +427,15 @@ function hideNotification() {
 function showLoading() {
     // show loading image
     $('.loader').loading('show');
-    $('.loading-cover').overlay('show');
+    $('.app-listing-loader').show();
+    $('.loading-bg').hide();
 }
 
 function hideLoading() {
     // hide loading image after loading all the version specific data
     $('.loader').loading('hide');
-    $('.loading-cover').overlay('hide');
+    $('.app-listing-loader').hide();
+    $('.loading-bg').hide();
 }
 
 </script>
@@ -558,7 +560,7 @@ function hideLoading() {
         </div>
         <div class="row row-centered app-listing">
             <!-- loading image -->
-            <div class="loading-cover loading-overlay">
+            <div class="app-listing-loader loading-overlay">
                 <div class="loader"></div>
             </div>
             <!-- BOF listing block -->

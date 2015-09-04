@@ -25,344 +25,257 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
     var stages = getProperties('ApplicationDeployment.DeploymentStage');
     var helpTips = outputs.helpTips;
     var appVersionsInStages= outputs.appVersionsInStages;
+    var appVersionsInfoArray = appVersionsInStages.allAppVersions;
     %>
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
-    <link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.bootpag.min.js')) %>"></script>
     
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-    <script type="text/javascript">
-        var allVersions;
-        var pagerPage = 0;
-        var MaxPages = 0;
-
-        $(document).ready(function(){
-
-        	initializeUserActivity("logs", '<%=applicationKey%>', '<%=applicationName%>');
-        	
-            $('.datepicker').each(function() {
-                $(this).datepick({dateFormat: 'yyyy_mm_dd'});
-            });
-
-            var logDownloadForm = $("#logDownloadForm");
-            $(logDownloadForm).ajaxForm({
-               success: function (data) {
-                    jagg.message({
-                        content:'Error while displaying logs',
-                        type:'error'
-                    });
-                }
-            });
-            getAllVersionsInStage();
-            setHelpTips(<%= helpTips %>);
-
-        });
-
-        function setHelpTips(helpTips){
-                $("#downloadHelpTip").html(helpTips.downloadHelpTip);
-        }
-
-        function VersionComparator(a,b) {
-            return b.version.localeCompare(a.version);
-        }
-
-        function getAllVersionsInStage(){
-                var parsedObj = jQuery.parseJSON('<%=appVersionsInStages%>');
-		allVersions = parsedObj.allAppVersions;
-                var selectedStage = prepareLogDownloadUIStages();
-                prepareLogDownloadUIVersions(selectedStage);
-    	}
-
-    function localComparator(a,b) {
-        return a.localeCompare(b);
-    }
-
-    function prepareLogDownloadUIStages(){ //set the stages to the select input
-        var allStages = Array();
-        var retString = "";
-        var selectedStage;
-
-	    //console.log(allStages);
-        allStages.sort(localComparator);
-
-        for (var i = 0; i < allVersions.length; i++) {
-            stage = allVersions[i].stage;
-            if (i == 0) {
-                retString = retString + '<option selected value="' + stage + '">' + stage + '</option>';
-                selectedStage = stage;
-            } else {
-                retString = retString + '<option value="' + stage + '">' + stage + '</option>';
-            }
-        }
-
-        $('#download_logs_list_stages').append(
-            $('<select id="download_logs_stage" onchange="valueChanged()" style="width:150px;" class="select_list">' +
-                    retString +
-                '</select>'
-              ));
-        $('#download_logs_stage').select2({minimumResultsForSearch: -1});
-        return selectedStage;
-
-    }
-
-    function prepareLogDownloadUIVersions(selectedStage){ //set the versions to the select input
-        var retString = "";
-
-        var versions = getVersionsOfSelectedStage(selectedStage);
-        if(versions instanceof Array){
-            versions.sort(localComparator);
-            for (var i = 0; i < versions.length; i++) {
-                var version = versions[i];
-                if (version == "trunk") {
-                    retString = retString + '<option selected value="' + version + '">' + version + '</option>';
-                } else {
-                    retString = retString + '<option value="' + version + '">' + version + '</option>';
-                }
-            }
-        }else{
-            retString = retString + '<option value="' + versions[0] +'">' + versions[0] + '</option>';
-        }
-        $('#download_logs_list_versions').empty().append(    //when chaging the stage, change the version
-            $('<select id="app_version_of_stage" style="width:150px;" class="select_list">' +
-                    retString +
-                '</select>'));
-        $('#app_version_of_stage').select2({minimumResultsForSearch: -1});
-    }
-
-    function getVersionsOfSelectedStage(stageName){
-        if(allVersions instanceof Array){
-            for (var i = 0; i < allVersions.length; i++) {
-                var versionInfo = allVersions[i];
-                if(versionInfo.stage == stageName){
-                    return versionInfo.versions;
-                }
-            }
-        }else{
-            if(allVersions.stage == stageName){
-                return allVersions.versions;
-            }
-        }
-        return null;
-    }
-
-    function valueChanged(){
-        var selectedStage = document.getElementById("download_logs_stage").value;
-        prepareLogDownloadUIVersions(selectedStage);
-    }
-
-    function viewLogsSubmitAction(pageNumber){
-        $('#btn_view_logs').prop('disabled',true);
-        $('#spinner_container_view_logs').html('<span class="icon-spinner icon-spin" style="font-size: 40px; margin-top: 2px; margin-left: 13px"></span>').show();
-    //number starts from one
-    //TODO:fix using jquery.
-        var applicationStage = $('#download_logs_stage').select2('data').text;
-        var applicationVersion = $('#app_version_of_stage').select2('data').text;
-        var selectedDate = $("#date_of_stage").val();
-
-        jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
-            action:"downloadLogFile",
-            applicationKey:'<%=applicationKey%>',
-            applicationStage:applicationStage,
-            applicationVersion:applicationVersion,
-            date:selectedDate,
-            downloadFile:"false",
-            pageNumber : pageNumber
-        },function (result) {
-
-            try {
-                var resultJson = jQuery.parseJSON(result);
-                var numPages = resultJson.numberOfPages;
-            } catch (e) {
-                displayErrorMessage("Error while downloading logs");
-            }
-            if(resultJson.error == true){
-                displayErrorMessage(resultJson.message);
-            }
-            $("#download_logs_content").empty();
-            $('#page-selection').empty();
-            $('#page-selection').off();
-
-            $("#download_logs_content").append(resultJson.logEvents);
-            if(numPages > 1){
-                $('#page-selection').bootpag({
-                    total: numPages,
-                    page: pageNumber,
-                    maxVisible: 10
-                }).on("page", function(event, num){
-                    viewLogsSubmitAction(num)
-                });
-            }
-
-            $('#btn_view_logs').attr('disabled',false);
-        },function (jqXHR, textStatus, errorThrown) {
-
-            if (jqXHR.status != 0){
-                jagg.message({
-                    content: "Error occurred while loading the logs.",
-                    type: 'error',
-                    id:'message_id'
-                });
-            }
-
-
-            $('#btn_view_logs').attr('disabled',false);
-            $('#spinner_container_view_logs').hide();
-        });
-    }
-
-            function displayErrorMessage(message){
-                jagg.message({
-                    content:message,
-                    type:'error'
-                });
-            }
-
-            function downloadLogs(){
-                $('#btn_download_logs').prop('disabled',true);
-                $('#spinner_container_download_logs').html('<span class="icon-spinner icon-spin" style="font-size: 40px; margin-top: 2px; margin-left: 13px"></span>').show();
-                var applicationStage = document.getElementById("download_logs_stage").value;
-                var applicationVersion = document.getElementById("app_version_of_stage").value;
-                var selectedDate = document.getElementById("date_of_stage").value;
-
-                document.getElementById("download_application_stage").value = applicationStage;
-                document.getElementById("download_application_version").value = applicationVersion;
-                document.getElementById("download_date").value = selectedDate ;
-
-                document.getElementById("logDownloadForm").submit();
-                $('#btn_download_logs').prop('disabled',false);
-                $('#spinner_container_download_logs').hide();
-            }
-
-             </script>
-
-            <input type="hidden" name="userName"  id="userName" value='<%=
-    jagg.getUser()
-    %>'/>
-
-    <!-- Start container -->
-    <div>
-       <article class="main" id="server_logs">
-       <%
-    jagg.includeBlock("page/messages", null);
-    %>
-     <%
-    jagg.includeBlock("page/notification-wall", {"wall_name": applicationKey + " - App Wall", "applicationKey": applicationKey, "pageName": "App Home"});
-    %>
-        <!-- following div can be removed after new ux-->
-        <div style="height: 80px; "></div>
-        <!-- -->
-           <header class="separator">
-               <div class="content">
-                   <h1>Logs</h1>
-               </div>
-           </header>
-   <%
-    jagg.includeBlock("page/help", {"section": "server"});
-    %>
-        <section class="separator">
-            <div class="page-content-area-top">
-                <div class="af_container">
-                    <div class="af_row push_top_20">
-                        <div class="col-4">
-                            <div class="af_container">
-                                <div class="af_row">
-                                    <div class="col-1">
-                                        <h2 class="topic_heading">Stage</h2>
-                                    </div>
-                                    <div class="col-3">
-                                        <div id="download_logs_list_stages"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="af_container">
-                                <div class="af_row">
-                                    <div class="col-1">
-                                        <h2 class="topic_heading">Version</h2>
-                                    </div>
-                                    <div class="col-3">
-                                        <div id="download_logs_list_versions"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="af_row push_top_20">
-                        <div class="col-12">
-                            <div class="help-block">
-                                <span class="help-icon" style="float: left">?</span>
-                                <div id="downloadHelpTip" style="float: left;padding-left: 3px"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="af_row push_top_10">
-                        <div class="col-4">
-                        <div class="af_container">
-                            <div class="af_row">
-                                <div class="col-12">
-                                    <h4 class="h4-size-fix">View Recent Logs</h4>
-                                </div>
-                            </div>
-                            <div class="af_row push_top_10">
-                                <div class="col-2">
-                                    <button id="btn_view_logs" class="btn main small"  name="download_file" onclick="viewLogsSubmitAction(1)" type="button">View</button>
-                                    <div id="spinner_container_view_logs"></div>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                        <div class="af_container">
-                            <div class="af_row">
-                                <div class="col-12">
-                                    <h4 class="h4-size-fix">Download Archived Logs</h4>
-                                </div>
-                            </div>
-                            <div class="af_row push_top_10">
-                                <div class="col-4">
-                                    <input id="date_of_stage" type="text" class="datepicker" placeholder="Date" style="color:black;"/>
-                                </div>
-                                <div class="col-4">
-                                    <button id="btn_download_logs" class="btn main small"  name="download_file" onclick="downloadLogs()" type="button">Download</button>
-                                    <div id="spinner_container_download_logs"></div>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-               </div>
-           </div>
-           <div class="clearfix"></div>
-        </section>
-        <section class="separator">
-            <div class="page-content-area">
-                <div class="af_container">
-                    <div class="af_row push_top_20">
-                        <div class="col-12">
-                            <pre id="download_logs_content"  style="overflow-y: auto;color:black;">
-                            </pre>
-                            <div id="page-selection"></div>
-                        </div>
-                    </div>
-                </div>
+    <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/daterangepicker/daterangepicker.css'))%>">
+    
+   <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="009_cloud_app_details_initial.html" class="btn-action">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Overview
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+    <div class="container-fluid app-content-section">
+        <div class="row">
+            <div class="col-md-12 msg-issues">
+                Using this page, you can download server logs. Logs of deployed applications are archived daily. Specify a date to download archived logs. To view logs that are not archived yet, click the <strong>View</strong> button.
             </div>
-            <div class="clearfix"></div>
-        </section>
+        </div>
+        <div class='row'>
+            <div id="push"></div>
+            <div class="col-md-6 forms cloud-tab">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#recent" aria-controls="general" role="tab" data-toggle="tab">Recent Logs</a></li>
+                    <li role="presentation"><a href="#archived" aria-controls="builddeploy" role="tab" data-toggle="tab">Archived Logs</a></li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="recent">
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="stage-view">Stage: </label>
+                                    <select id="stage-view" class="form-control select2 stage">
+                                        <% for(var i in appVersionsInfoArray) { 
+                                            var appInfoObject = appVersionsInfoArray[i];
+                                            var stage = appInfoObject.stage;
+                                        %>
+                                            <option selected="" value="<%=stage%>"><%=stage%></option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="version-view">Version: </label>
+                                    <select id="version-view" class="form-control select2 version">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row button-container'>
+                            <div class="col-md-12">
+                                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue cu-btn-position" id="view-log">
+                                    <span class="fw-stack fw-lg btn-action-ico">
+                                        <i class="fw fw-ring fw-stack-2x"></i>
+                                        <i class="fw fw-down-arrow fw-stack-1x"></i>
+                                    </span>
+                                    View Recent Logs
+                                </button>
+                            </div>
+                        </div>
+                        <div id="push"></div>
+                        <div class='row'>
+                            <div class='col-md-12 log-container'>
+                                <pre id="view-logs-content"></pre>
+                            </div>
+                        </div>
+                        
+                        <div class='clearfix'></div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="archived">
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="stage-download">Stage: </label>
+                                    <select id="stage-download" class="form-control select2 stage">
+                                        <% for(var i in appVersionsInfoArray) {
+                                            var appInfoObject = appVersionsInfoArray[i];
+                                            var stage = appInfoObject.stage;
+                                        %>
+                                            <option selected="" value="<%=stage%>"><%=stage%></option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="version-download">Version: </label>
+                                    <select id="version-download" class="form-control select2 version">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row'>
+                            <div class='col-md-6'>
+                                <div class='form-group'>
+                                    <label for="">Select Date: </label>
+                                    <div class='datepicker-container'>
+                                        <input type="text" id='date' name="daterange" class="form-control"/><i class="fw fw-calendar fw-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='row button-container'>
+                            <div class="col-md-12">
+                                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue cu-btn-position" id="download-log">
+                                    <span class="fw-stack fw-lg btn-action-ico">
+                                        <i class="fw fw-ring fw-stack-2x"></i>
+                                        <i class="fw fw-down-arrow fw-stack-1x"></i>
+                                    </span>
+                                    Download Archived Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </tab>
+            </div>
+        </div>
+    </div><!-- /.container -->
 
-                <form action="../blocks/logdownload/ajax/logdownload.jag" id="logDownloadForm" name="logDownloadForm" style="display: none">
-                    <input type="hidden" name="action" value="downloadLogFile">
-                    <input type="hidden" name="applicationKey" value="<%=applicationKey%>">
-                    <input type="hidden" id="download_application_stage" name="applicationStage" value="">
-                    <input type="hidden" id="download_application_version" name="applicationVersion" value="">
-                    <input type="hidden" id="download_date" name="date" value="">
-                    <input type="hidden" name="downloadFile" value="true">
-                </form>
+
+    </div>
     <div class="clearfix"></div>
-    </article>
-    </div><!-- End of container -->
+    <div id="push"></div> 
+<% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 
-<!-- BOF Notification pane -->
+<script>
+$(document).ready(function () {
+    
+    initializeUserActivity("logs", '<%=applicationKey%>', '<%=applicationName%>');
+    
+    // Loading version values according to the selected stage
+    $(".stage").on("change", function() {
+        var selectedStage = $(this).val();
+        var appVersionsInfo = '<%=appVersionsInfoArray%>';
+        var appVersionsInfoArray = JSON.parse(appVersionsInfo);
+        var versionsData = [];
+        for(var i in appVersionsInfoArray) {
+            if(selectedStage == appVersionsInfoArray[i].stage) {
+                var versionsInStage = appVersionsInfoArray[i].versions;
+                for(var j in versionsInStage) {
+                    var select2DataObject = {};
+                    select2DataObject.id = versionsInStage[j];
+                    select2DataObject.text = versionsInStage[j];
+                    versionsData.push(select2DataObject);
+                }
+            }
+        }
+        var currentVersionElement = $(this).parents('.tab-pane').find('.version');
+        currentVersionElement.empty();
+        currentVersionElement.trigger('change');
+        currentVersionElement.select2({data: versionsData});
+    });    
+
+    // Initialzing select2 drop downs
+    $('#recent .select2').select2({
+        templateResult: formatState,
+        templateSelection :formatState,
+        width: '100%'
+    });
+
+    $('#archived .select2').select2({
+        templateResult: formatState,
+        templateSelection :formatState,
+        width: '100%'
+    });
+
+    function formatState (state) {
+        if (!state.id) { return state.text; }
+        var $state;
+        if(state.element.attributes['data-icon']){
+            var $state = $(
+                    '<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }else{
+            var $state = $(
+                    '<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'
+                    + state.text + '</span>'
+            );
+        }
+        return $state;
+    };
+    
+    $('#view-log').click(function(){
+        $('#view-log').loadingButton('show');
+        var selectedStage = $('#stage-view').val();
+        var selectedVersion = $('#version-view').val();
+        if(selectedStage && selectedVersion) {
+            jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
+                action:"downloadLogFile",
+                applicationKey:'<%=applicationKey%>',
+                applicationStage:selectedStage,
+                applicationVersion:selectedVersion,
+                downloadFile:"false",
+                pageNumber : 1
+            },function (result) {
+                var resultJson = JSON.parse(result);
+                var logData = resultJson.logEvents;
+                $('#view-logs-content').html(logData);
+                $('.log-container').show();
+            },function (jqXHR, textStatus, errorThrown) {
+                jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
+            });        
+        }
+        $('#view-log').loadingButton('hide');
+    });
+    
+    $('#download-log').click(function(){
+        $('#download-log').loadingButton('show');
+        var selectedDate = $('#date').val();
+        var selectedStage = $('#stage-download').val();
+        var selectedVersion = $('#version-download').val();
+        if(selectedDate) {
+            jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
+                action:"downloadLogFile",
+                applicationKey:'<%=applicationKey%>',
+                applicationStage:selectedStage,
+                applicationVersion:selectedVersion,
+                date:selectedDate,
+                downloadFile:"true"
+            },function (result) {
+                 var resultJson = JSON.parse(result);
+                if(resultJson.error == true) {
+                    jagg.message({content: "No archived logs available to download on " + selectedDate + " .", type: 'warning', id:'download_log'});
+                }
+            },function (jqXHR, textStatus, errorThrown) {
+                jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
+            }); 
+        }
+         $('#download-log').loadingButton('hide');
+        
+    });
+    
+    $('#date').daterangepicker({
+        "singleDatePicker": true,
+        "startDate": "08/19/2015",
+        "endDate": "08/21/2015"
+    }, function(start, end, label) {
+    });
+    
+    
+});
+</script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/daterangepicker.js'))%>"></script>
+
 <% }); %>
