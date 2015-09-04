@@ -5,6 +5,7 @@ import com.gitblit.utils.RpcUtils;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -359,98 +360,98 @@ public class AFDefaultDataPopulator {
 	    Assert.assertEquals(applicationName, jsonObject.getString("name"),
 	                        "Application Name not found");
 
-	    round = 1;
-	    while (round <= retryCount) {
-		    try {
-			    log.info("Checking the existance of repo");
-			    isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
-			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
-			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
-			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_PASSWORD));
-			    if(!isGitRepoCreated){
-				    String msg = "Attempt " + round + " : Repo does not exists , retry after " +
-				                 waitInterval + " millis";
-				    log.info(msg);
-				    Thread.sleep(waitInterval);
-				    round++;
-				    continue;
-			    }
-			    break;
-		    } catch (Exception e){
-			    String msg = "Attempt " + round + " : Check is repo exists failed , retry after " +
-			                 waitInterval + " millis, exception is: " + e.getMessage();
-			    log.info(msg);
-			    if (log.isDebugEnabled()) {
-				    log.debug(msg, e);
-			    }
-			    Thread.sleep(waitInterval);
-			    round++;
-		    }
-	    }
-	    Assert.assertEquals(isGitRepoCreated, true, "Git repo creation failed.");
-
-	    round = 1;
-	    while (round <= retryCount) {
-		    try {
-			    log.info("Checking the existance of build job");
-			    isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
-			                                   AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
-			                                                                            AFIntegrationTestUtils
-					                                                                            .getPropertyValue(
-							                                                                            AFConstants.DEFAULT_APP_VERSION_NAME)),
-			                                   AFIntegrationTestUtils.getPropertyValue(
-					                                   AFConstants.CREDENTIAL_JENKINS_USERNAME),
-			                                   AFIntegrationTestUtils.getPropertyValue(
-					                                   AFConstants.CREDENTIAL_JENKINS_PASSWORD));
-			    if(!isJenkinsJobCreated){
-				    String msg = "Attempt " + round + " : Job does not exists , retry after " +
-				                 waitInterval + " millis";
-				    log.info(msg);
-				    Thread.sleep(waitInterval);
-				    round++;
-				    continue;
-			    }
-			    break;
-		    } catch (Exception e) {
-			    String msg = "Attempt " + round + " : Check is jenkins job exists failed, retry after " +
-			                 waitInterval + " millis, exception is: " + e.getMessage();
-			    log.info(msg);
-			    if (log.isDebugEnabled()) {
-				    log.debug(msg, e);
-			    }
-			    Thread.sleep(waitInterval);
-			    round++;
-		    }
-	    }
-	    Assert.assertEquals(isJenkinsJobCreated, true, "Jenkins job creation failed.");
-
-	    round = 1;
-	    while (round <= retryCount) {
-		    try {
-			    log.info("Checking the existance of deployed artifact");
-			    isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
-			                                                              runtimeAlias, applicationExtension, tenantID);
-			    if(!isDeployedArtifactAvailable){
-				    String msg = "Attempt " + round + " : Artifact does not exists , retry after " +
-				                 waitInterval + " millis";
-				    log.info(msg);
-				    Thread.sleep(waitInterval);
-				    round++;
-				    continue;
-			    }
-			    break;
-		    } catch (Exception e) {
-			    String msg = "Attempt " + round + " : Check is artifact exists failed, retry after " +
-			                 waitInterval + " millis, exception is: " + e.getMessage();
-			    log.info(msg);
-			    if (log.isDebugEnabled()) {
-				    log.debug(msg, e);
-			    }
-			    Thread.sleep(waitInterval);
-			    round++;
-		    }
-	    }
-	    Assert.assertEquals(isDeployedArtifactAvailable, true, "Deployment failed.");
+//	    round = 1;
+//	    while (round <= retryCount) {
+//		    try {
+//			    log.info("Checking the existance of repo");
+//			    isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
+//			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+//			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
+//			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_PASSWORD));
+//			    if(!isGitRepoCreated){
+//				    String msg = "Attempt " + round + " : Repo does not exists , retry after " +
+//				                 waitInterval + " millis";
+//				    log.info(msg);
+//				    Thread.sleep(waitInterval);
+//				    round++;
+//				    continue;
+//			    }
+//			    break;
+//		    } catch (Exception e){
+//			    String msg = "Attempt " + round + " : Check is repo exists failed , retry after " +
+//			                 waitInterval + " millis, exception is: " + e.getMessage();
+//			    log.info(msg);
+//			    if (log.isDebugEnabled()) {
+//				    log.debug(msg, e);
+//			    }
+//			    Thread.sleep(waitInterval);
+//			    round++;
+//		    }
+//	    }
+//	    Assert.assertEquals(isGitRepoCreated, true, "Git repo creation failed.");
+//
+//	    round = 1;
+//	    while (round <= retryCount) {
+//		    try {
+//			    log.info("Checking the existance of build job");
+//			    isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
+//			                                   AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
+//			                                                                            AFIntegrationTestUtils
+//					                                                                            .getPropertyValue(
+//							                                                                            AFConstants.DEFAULT_APP_VERSION_NAME)),
+//			                                   AFIntegrationTestUtils.getPropertyValue(
+//					                                   AFConstants.CREDENTIAL_JENKINS_USERNAME),
+//			                                   AFIntegrationTestUtils.getPropertyValue(
+//					                                   AFConstants.CREDENTIAL_JENKINS_PASSWORD));
+//			    if(!isJenkinsJobCreated){
+//				    String msg = "Attempt " + round + " : Job does not exists , retry after " +
+//				                 waitInterval + " millis";
+//				    log.info(msg);
+//				    Thread.sleep(waitInterval);
+//				    round++;
+//				    continue;
+//			    }
+//			    break;
+//		    } catch (Exception e) {
+//			    String msg = "Attempt " + round + " : Check is jenkins job exists failed, retry after " +
+//			                 waitInterval + " millis, exception is: " + e.getMessage();
+//			    log.info(msg);
+//			    if (log.isDebugEnabled()) {
+//				    log.debug(msg, e);
+//			    }
+//			    Thread.sleep(waitInterval);
+//			    round++;
+//		    }
+//	    }
+//	    Assert.assertEquals(isJenkinsJobCreated, true, "Jenkins job creation failed.");
+//
+//	    round = 1;
+//	    while (round <= retryCount) {
+//		    try {
+//			    log.info("Checking the existance of deployed artifact");
+//			    isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
+//			                                                              runtimeAlias, applicationExtension, tenantID);
+//			    if(!isDeployedArtifactAvailable){
+//				    String msg = "Attempt " + round + " : Artifact does not exists , retry after " +
+//				                 waitInterval + " millis";
+//				    log.info(msg);
+//				    Thread.sleep(waitInterval);
+//				    round++;
+//				    continue;
+//			    }
+//			    break;
+//		    } catch (Exception e) {
+//			    String msg = "Attempt " + round + " : Check is artifact exists failed, retry after " +
+//			                 waitInterval + " millis, exception is: " + e.getMessage();
+//			    log.info(msg);
+//			    if (log.isDebugEnabled()) {
+//				    log.debug(msg, e);
+//			    }
+//			    Thread.sleep(waitInterval);
+//			    round++;
+//		    }
+//	    }
+//	    Assert.assertEquals(isDeployedArtifactAvailable, true, "Deployment failed.");
     }
 
 	/**
@@ -500,98 +501,98 @@ public class AFDefaultDataPopulator {
 		Assert.assertNotNull(httpResponse, "httpResponse is null");
 		Assert.assertEquals(httpResponse.getData().equals("null"), true, "Application not deleted");
 
-		round = 1;
-		while (round <= retryCount) {
-			try {
-				log.info("Checking the existance of repo");
-				isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
-				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
-				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
-				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_PASSWORD));
-				if(isGitRepoCreated){
-					String msg = "Attempt " + round + " : Repo does exists , retry after " +
-					             waitInterval + " millis";
-					log.info(msg);
-					Thread.sleep(waitInterval);
-					round++;
-					continue;
-				}
-				break;
-			} catch (Exception e){
-				String msg = "Attempt " + round + " : Check is repo exists failed , retry after " +
-				             waitInterval + " millis, exception is: " + e.getMessage();
-				log.info(msg);
-				if (log.isDebugEnabled()) {
-					log.debug(msg, e);
-				}
-				Thread.sleep(waitInterval);
-				round++;
-			}
-		}
-		Assert.assertEquals(isGitRepoCreated, false, "Git repo deletion failed.");
-
-		round = 1;
-		while (round <= retryCount) {
-			try {
-				log.info("Checking the existance of build job");
-				isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
-				                                         AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
-				                                                                                  AFIntegrationTestUtils
-						                                                                                  .getPropertyValue(
-								                                                                                  AFConstants.DEFAULT_APP_VERSION_NAME)),
-				                                         AFIntegrationTestUtils.getPropertyValue(
-						                                         AFConstants.CREDENTIAL_JENKINS_USERNAME),
-				                                         AFIntegrationTestUtils.getPropertyValue(
-						                                         AFConstants.CREDENTIAL_JENKINS_PASSWORD));
-				if(isJenkinsJobCreated){
-					String msg = "Attempt " + round + " : Job does exists , retry after " +
-					             waitInterval + " millis";
-					log.info(msg);
-					Thread.sleep(waitInterval);
-					round++;
-					continue;
-				}
-				break;
-			} catch (Exception e) {
-				String msg = "Attempt " + round + " : Check is jenkins job exists failed, retry after " +
-				             waitInterval + " millis, exception is: " + e.getMessage();
-				log.info(msg);
-				if (log.isDebugEnabled()) {
-					log.debug(msg, e);
-				}
-				Thread.sleep(waitInterval);
-				round++;
-			}
-		}
-		Assert.assertEquals(isJenkinsJobCreated, false, "Jenkins job deletion failed.");
-
-		round = 1;
-		while (round <= retryCount) {
-			try {
-				log.info("Checking the existance of deployed artifact");
-				isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
-				                                                          runtimeAlias, applicationExtension, tenantID);
-				if(isDeployedArtifactAvailable){
-					String msg = "Attempt " + round + " : Artifact does exists , retry after " +
-					             waitInterval + " millis";
-					log.info(msg);
-					Thread.sleep(waitInterval);
-					round++;
-					continue;
-				}
-				break;
-			} catch (Exception e) {
-				String msg = "Attempt " + round + " : Check is artifact exists failed, retry after " +
-				             waitInterval + " millis, exception is: " + e.getMessage();
-				log.info(msg);
-				if (log.isDebugEnabled()) {
-					log.debug(msg, e);
-				}
-				Thread.sleep(waitInterval);
-				round++;
-			}
-		}
-		Assert.assertEquals(isDeployedArtifactAvailable, false, "Undeployment failed.");
+//		round = 1;
+//		while (round <= retryCount) {
+//			try {
+//				log.info("Checking the existance of repo");
+//				isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
+//				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+//				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
+//				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_PASSWORD));
+//				if(isGitRepoCreated){
+//					String msg = "Attempt " + round + " : Repo does exists , retry after " +
+//					             waitInterval + " millis";
+//					log.info(msg);
+//					Thread.sleep(waitInterval);
+//					round++;
+//					continue;
+//				}
+//				break;
+//			} catch (Exception e){
+//				String msg = "Attempt " + round + " : Check is repo exists failed , retry after " +
+//				             waitInterval + " millis, exception is: " + e.getMessage();
+//				log.info(msg);
+//				if (log.isDebugEnabled()) {
+//					log.debug(msg, e);
+//				}
+//				Thread.sleep(waitInterval);
+//				round++;
+//			}
+//		}
+//		Assert.assertEquals(isGitRepoCreated, false, "Git repo deletion failed.");
+//
+//		round = 1;
+//		while (round <= retryCount) {
+//			try {
+//				log.info("Checking the existance of build job");
+//				isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
+//				                                         AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
+//				                                                                                  AFIntegrationTestUtils
+//						                                                                                  .getPropertyValue(
+//								                                                                                  AFConstants.DEFAULT_APP_VERSION_NAME)),
+//				                                         AFIntegrationTestUtils.getPropertyValue(
+//						                                         AFConstants.CREDENTIAL_JENKINS_USERNAME),
+//				                                         AFIntegrationTestUtils.getPropertyValue(
+//						                                         AFConstants.CREDENTIAL_JENKINS_PASSWORD));
+//				if(isJenkinsJobCreated){
+//					String msg = "Attempt " + round + " : Job does exists , retry after " +
+//					             waitInterval + " millis";
+//					log.info(msg);
+//					Thread.sleep(waitInterval);
+//					round++;
+//					continue;
+//				}
+//				break;
+//			} catch (Exception e) {
+//				String msg = "Attempt " + round + " : Check is jenkins job exists failed, retry after " +
+//				             waitInterval + " millis, exception is: " + e.getMessage();
+//				log.info(msg);
+//				if (log.isDebugEnabled()) {
+//					log.debug(msg, e);
+//				}
+//				Thread.sleep(waitInterval);
+//				round++;
+//			}
+//		}
+//		Assert.assertEquals(isJenkinsJobCreated, false, "Jenkins job deletion failed.");
+//
+//		round = 1;
+//		while (round <= retryCount) {
+//			try {
+//				log.info("Checking the existance of deployed artifact");
+//				isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
+//				                                                          runtimeAlias, applicationExtension, tenantID);
+//				if(isDeployedArtifactAvailable){
+//					String msg = "Attempt " + round + " : Artifact does exists , retry after " +
+//					             waitInterval + " millis";
+//					log.info(msg);
+//					Thread.sleep(waitInterval);
+//					round++;
+//					continue;
+//				}
+//				break;
+//			} catch (Exception e) {
+//				String msg = "Attempt " + round + " : Check is artifact exists failed, retry after " +
+//				             waitInterval + " millis, exception is: " + e.getMessage();
+//				log.info(msg);
+//				if (log.isDebugEnabled()) {
+//					log.debug(msg, e);
+//				}
+//				Thread.sleep(waitInterval);
+//				round++;
+//			}
+//		}
+//		Assert.assertEquals(isDeployedArtifactAvailable, false, "Undeployment failed.");
 	}
 
 	/**
@@ -694,7 +695,10 @@ public class AFDefaultDataPopulator {
 		String repoURL = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_S2GIT) + "r/" + stage + "/"
 		                 + runtime + "/" + tenantID + ".git";
 		client.retireveMetadata(repoURL, false, workDir);
-		String artifactName = applicationKey + "-" + version + "." + extension;
+		String artifactName = applicationKey + "-" + version;
+		if(!StringUtils.isEmpty(extension)){
+			artifactName += "." + extension;
+		}
 		File artifact = searchFile(workDir, artifactName);
 		FileUtils.forceDelete(workDir);
 		if(artifact != null) {
@@ -714,11 +718,15 @@ public class AFDefaultDataPopulator {
 	 * @param fileName name of the file to search
 	 */
 	private File searchFile(File baseDir, String fileName){
+		File resultFile = null;
 		for (File file : baseDir.listFiles()) {
 			if (file.isDirectory()) {
-				return searchFile(file, fileName);
+				resultFile = searchFile(file, fileName);
 			}
 			if (fileName.equals(file.getName())) {
+				resultFile = file;
+			}
+			if (resultFile != null){
 				return file;
 			}
 		}
