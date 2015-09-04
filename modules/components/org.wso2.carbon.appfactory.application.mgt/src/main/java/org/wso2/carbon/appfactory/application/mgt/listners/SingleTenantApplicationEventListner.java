@@ -85,7 +85,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
                 // Stratos is going to make undeploy a synchronous call or will provide a certial wait time
                 // Before deletion
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(4000);
                 } catch (InterruptedException e) {
                     log.error("Sleep thread got interrupted before deleting stratos application", e);
                 }
@@ -96,6 +96,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
                 try {
                     repositoryProvider.deleteStratosArtifactRepository(CloudUtils.generateSingleTenantArtifactRepositoryName(
                             paasRepositoryUrlPattern, stage, version, stratosApplicationId, tenantId));
+                    log.info("Successfully deleted repository for application " + application.getId() + " version : " + version);
                 } catch (RepositoryMgtException e) {
                     log.error("Error while deleting stratos repository for application " + application.getId()
                               + " version :" + version, e);

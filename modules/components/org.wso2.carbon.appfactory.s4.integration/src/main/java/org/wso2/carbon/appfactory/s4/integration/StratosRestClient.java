@@ -124,7 +124,7 @@ public class StratosRestClient {
         }
     }
 
-    public String getApplicationRuntime(String applicationId) throws AppFactoryException {
+        public String getApplicationRuntime(String applicationId) throws AppFactoryException {
         ServerResponse response = MutualAuthHttpClient.sendGetRequest(this.stratosManagerURL
                                                                       + this.APPLICATIONS_REST_END_POINT + "/"
                                                                       + applicationId + "/runtime", username);
@@ -156,7 +156,7 @@ public class StratosRestClient {
         } else if (response.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
             return false;
         } else {
-            String errorMsg = "Error occured while getting application runtime for ID : " + applicationId
+            String errorMsg = "Error occured while getting while checking isApplicationCreated for ID : " + applicationId
                               + "HTTP Status code : " + response.getStatusCode() + " server response : "
                               + response.getResponse();
             log.error(errorMsg);

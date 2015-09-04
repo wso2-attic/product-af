@@ -46,10 +46,7 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
     public String getDeployedURL(String tenantDomain, String applicationId, String applicationVersion, String stage)
             throws AppFactoryException {
         AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
-        String stratosServerURL = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.DEPLOYMENT_STAGES
-                                                                           + AppFactoryConstants.DOT_SEPERATOR
-                                                                           + stage + AppFactoryConstants.DOT_SEPERATOR
-                                                                           + AppFactoryConstants.TENANT_MGT_URL);
+        String stratosServerURL = appfactoryConfiguration.getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         int tenantId;
         try {
             tenantId = Util.getRealmService().getTenantManager().getTenantId(tenantDomain);
@@ -74,7 +71,7 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
         String launchURLPattern = properties.getProperty(LAUNCH_URL_PATTERN);
 
         DeployStatus currentStatus = jdbcApplicationDAO.getDeployStatus(applicationId, applicationVersion,
-                                                                        stage, false, tenantUsername);
+                                                                        stage, false, null);
 
 
         if (AppFactoryConstants.STRATOS_RUNTIME_STATUS_ACTIVE.
