@@ -267,7 +267,7 @@ pre{
 
         var codeEnvyUrl = null;
         var newWindow = window.open('','_blank');
-        jagg.post("../blocks/reposBuild/list/ajax/list.jag", {
+        jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
                 action: "createCodeEnvyUrl",
                 gitURL: gitURL,
                 applicationKey: applicationKey,
