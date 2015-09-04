@@ -33,7 +33,7 @@ public class RuntimeBean {
     //Prefix of the stratos application id
     private String stratosAppId;
 	//Prefix of the cartridge alias
-	private String aliasPrefix;
+	private String cartridgeAliasPrefix;
 	//Prefix of the cartridge type
 	private String cartridgeTypePrefix;
 	//Deployment policy is used for subscription
@@ -68,12 +68,12 @@ public class RuntimeBean {
 		this.paasRepositoryURLPattern = paasRepositoryURLPattern;
 	}
 
-	public String getAliasPrefix() {
-		return aliasPrefix;
+	public String getCartridgeAliasPrefix() {
+		return cartridgeAliasPrefix;
 	}
 
-	public void setAliasPrefix(String aliasPrefix) {
-		this.aliasPrefix = aliasPrefix;
+	public void setCartridgeAliasPrefix(String aliasPrefix) {
+		this.cartridgeAliasPrefix = aliasPrefix;
 	}
 
 	public String getCartridgeTypePrefix() {

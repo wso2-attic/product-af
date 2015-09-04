@@ -299,7 +299,10 @@ public class AppFactoryResourceManagementService {
 	 * </ul>
 	 * 
 	 * @return true of the above criteria is met, false otherwise.
-	 * @throws AppFactoryException
+	 * @throws AppFactoryExceptionp
+
+T
+e
 	 *             an error
 	 */
 	private boolean isAccessAllowed() throws AppFactoryException {

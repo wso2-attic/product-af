@@ -63,7 +63,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class AppFactoryS4ListenersServiceComponent {
     private static Log log = LogFactory.getLog(AppFactoryS4ListenersServiceComponent.class);
-    private static String stage = System.getProperty(AppFactoryConstants.CLOUD_STAGE);
 
     protected void activate(ComponentContext context) {
 

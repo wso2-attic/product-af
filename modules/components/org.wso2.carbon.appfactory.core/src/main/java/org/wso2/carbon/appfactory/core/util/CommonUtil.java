@@ -198,11 +198,11 @@ public class CommonUtil {
             String subscriptionAlias;
             if(Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))){
                 subscriptionAlias =
-                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + stage.toLowerCase();
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeAliasPrefix() + stage.toLowerCase();
                        // + tenantDomain;
             }else{
                 subscriptionAlias =
-                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix();
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeAliasPrefix();
                        // + tenantDomain;
             }
             return subscriptionAlias;
@@ -258,10 +258,10 @@ public class CommonUtil {
 
             String stratosAppId = null;
             if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
-                stratosAppId = RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix()
+                stratosAppId = RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeAliasPrefix()
                                + stage.toLowerCase();
             } else {
-                stratosAppId = RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix();
+                stratosAppId = RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeAliasPrefix();
             }
             return stratosAppId;
         } catch (AppFactoryException e) {

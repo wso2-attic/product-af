@@ -79,7 +79,7 @@ public class SubscriptionHandler {
                 ENVIRONMENT + AppFactoryConstants.DOT_SEPERATOR + AppFactoryConstants.TENANT_MGT_URL);
 
         StratosRestService restService = new StratosRestService(serverURL,username, "");
-        deployerInfo.put(AppFactoryConstants.RUNTIME_ALIAS_PREFIX, applicationID + tenantDomain
+        deployerInfo.put(AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX, applicationID + tenantDomain
                 .replace(AppFactoryConstants.DOT_SEPERATOR, AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT));
         String repoUrl = null;
         String className = appfactoryConfiguration.getFirstProperty(
@@ -105,7 +105,7 @@ public class SubscriptionHandler {
                 String repoURLforDeployer = DeployerUtil.getParameterValue(
                         deployerInfo, AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN);
                 String aliasPrefix = DeployerUtil.getParameterValue(
-                        deployerInfo, AppFactoryConstants.RUNTIME_ALIAS_PREFIX);
+                        deployerInfo, AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX);
                 repoProvider.setRepoName(generateRepoUrlFromTemplate(repoURLforDeployer,aliasPrefix,
                         tenantID, stage, applicationID));
                 repoUrl = repoProvider.createRepository();

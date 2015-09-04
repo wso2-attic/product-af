@@ -65,12 +65,10 @@ public class AppFactoryConstants {
 	public static final String RUNTIME = "Runtime";
 	public static final String RUNTIME_REPOSITORY_URL_PATTERN = "PAASArtifactStorageURLPattern";
     public static final String RUNTIME_STRATOS_APP_ID_PREFIX = "StratosAppIdPrefix";
-	public static final String RUNTIME_ALIAS_PREFIX = "AliasPrefix";
-    public static final String RUNTIME_STRATOS_APP_PREFIX = "StratosAppIdPrefix";
+	public static final String RUNTIME_CARTRIDGE_ALIAS_PREFIX = "CartridgeAliasPrefix";
 	public static final String RUNTIME_CARTRIDGE_TYPE_PREFIX = "CartridgeTypePrefix";
 	public static final String RUNTIME_DEPLOYMENT_POLICY = "DeploymentPolicy";
 	public static final String RUNTIME_AUTOSCALE_POLICY = "AutoscalePolicy";
-	public static final String RUNTIME_REPO_URL = "RepoURL";
 	public static final String RUNTIME_DATA_CARTRIDGE_TYPE = "DataCartridgeType";
 	public static final String RUNTIME_DATA_CARTRIDGE_ALIAS = "DataCartridgeAlias";
 	public static final String RUNTIME_SUBSCRIBE_ON_DEPLOYMENT = "SubscribeOnDeployment";
@@ -78,12 +76,6 @@ public class AppFactoryConstants {
 	public static final String RUNTIME_REPO_PROVIDER_URL = "repoProviderUrl";
 	public static final String RUNTIME_NAME_FOR_APPTYPE ="runtimesNameForApptype";
 
-	public static final String ROLE_NAME = "name";
-	public static final String ROLE_PATTERN = "pattern";
-	public static final String ROLE_PERMISSION = "permission";
-	public static final String ASSIGN_USER_ID = "sid";
-	public static final String PROJECT_ROLE = "projectRole";
-	public static final String GLOBAL_ROLE = "globalRole";
 	public static final String WRAPPER_TAG_KEY = "wrapper";
 	public static final String XPATH_EXPRESSION_KEY = "xpath";
 	public static final String IS_AUTOMATIC = "isAutomatic";
@@ -97,14 +89,6 @@ public class AppFactoryConstants {
 	public static final String FORKED_REPO = "forked repo";
 	public static final String BUILD_STATUS_UNKNOWN = "Unknown";
 	public static final String BUILD_STATUS_BUILDING = "Building";
-	public static final String ALL_JOB_NAME = "all";
-	public static final String JSON_TREE_STRUCTURE = "tree";
-	public static final String STRING_URL = "url";
-	public static final String SVN_KIND_KEY = "kind";
-	public static final String PASSWORD_STRING = "password";
-	public static final String SVN_USERNAME = "username1";
-	public static final String SVN_PASSWORD = "password1";
-	public static final String LOCATION_HEADER_PARAM = "Location";
 	public static final String JOB_NAME_KEY = "name";
 
 	/*

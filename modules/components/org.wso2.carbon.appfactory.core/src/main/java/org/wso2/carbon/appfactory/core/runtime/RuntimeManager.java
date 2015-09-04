@@ -98,8 +98,8 @@ public class RuntimeManager {
 
 			applicationRuntimeBean.setPaasRepositoryURLPattern(
 					config.remove(AppFactoryConstants.RUNTIME_REPOSITORY_URL_PATTERN));
-			applicationRuntimeBean.setAliasPrefix(
-					config.remove(AppFactoryConstants.RUNTIME_ALIAS_PREFIX));
+			applicationRuntimeBean.setCartridgeAliasPrefix(
+                    config.remove(AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX));
             applicationRuntimeBean.setStratosAppId(
                     config.remove(AppFactoryConstants.RUNTIME_STRATOS_APP_ID_PREFIX));
 			applicationRuntimeBean.setCartridgeTypePrefix(
