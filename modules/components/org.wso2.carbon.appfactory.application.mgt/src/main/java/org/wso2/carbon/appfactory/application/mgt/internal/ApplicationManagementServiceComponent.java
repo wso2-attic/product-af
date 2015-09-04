@@ -160,7 +160,7 @@ public class ApplicationManagementServiceComponent {
 
 			bundleContext.registerService(ApplicationEventsHandler.class.getName(),
 			                              new SingleTenantApplicationEventListner(
-					                              "InitialArtifactDeployerHandler", priority), null);
+					                              "SingleTenantApplicationEventListner", priority), null);
 		} catch (NumberFormatException nfe) {
 			log.error("Invalid priority provided for SingleTenantApplicationEventListner", nfe);
 		}

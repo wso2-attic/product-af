@@ -1100,7 +1100,7 @@ node /nginx/ inherits confignode {
   $server_ip = $ipaddress
 
   class { "nginx":
-    owner              => $owner,
+    owner              => "root",
     group              => $group,
     target             => "/mnt/${server_ip}/nginx",
     ext_version        => "4.1.1"
