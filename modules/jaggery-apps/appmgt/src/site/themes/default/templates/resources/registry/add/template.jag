@@ -149,6 +149,7 @@ function deleteResource() {
                 applicationKey: '<%=applicationKey%>',
                 resourceName: $("#property_name").val(),
                 stage: '<%=currentStage%>',
+                resourceMediaType: mediaType
             },
             function (result) {
                 window.location.replace("<%=redirectURL%>");

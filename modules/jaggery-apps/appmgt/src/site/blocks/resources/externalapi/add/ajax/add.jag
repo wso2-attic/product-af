@@ -181,11 +181,12 @@ var loggedInUser = jagg.getUser();
         var applicationKey = request.getParameter("applicationKey");
         var resourceName = request.getParameter("resourceName");
         var stage = request.getParameter("stage");
+        var resourceMediaType = request.getParameter("resourceMediaType");
 
         var response = {};
         if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + stage)){
             try {
-            	mod.deletePropertyFromStages(resourceName, null, null, null, applicationKey, [stage]);
+            	mod.deletePropertyFromStages(resourceName, resourceMediaType, null, null, applicationKey, [stage]);
             } catch (e) {
                 throw "Error while deleting the external API " + resourceName + " from stage " + stage;
             }
