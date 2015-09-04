@@ -56,6 +56,7 @@ var helpTips = outputs.helpTips;
 //[cdata[
 
 var editApiData = [];
+var mediaType='External API';
 
 function createAuthUI(value, emptyOnly){
 
@@ -263,7 +264,8 @@ function deleteResource() {
 	    action: "deleteExternalApi",
 	    applicationKey: '<%=applicationKey%>',
 	    resourceName: $("#api_name").val(),
-	    stage: '<%=env%>'
+	    stage: '<%=env%>',
+	    resourceMediaType:mediaType
     },
     function (result) {
         window.location.replace("<%=redirectURL%>");

@@ -77,8 +77,8 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
                             vel, aliquet nec, vulputate eget, arcu.
                         </div>
                         <div class="button-bar">
-                            <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-book"></i> Documentation</a>
-                            <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a>
+                            <!--a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-book"></i> Documentation</a-->
+                            <!--a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a-->
                         </div>
                     </div>
                     <div class="col-sm-4 col-md-4 col-lg-5 description-action">
