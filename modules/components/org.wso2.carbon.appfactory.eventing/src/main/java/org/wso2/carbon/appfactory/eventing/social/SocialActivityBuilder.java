@@ -18,11 +18,14 @@
 
 package org.wso2.carbon.appfactory.eventing.social;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mozilla.javascript.NativeObject;
 import org.wso2.carbon.appfactory.eventing.Event;
 
 
 public class SocialActivityBuilder {
+    Log log = LogFactory.getLog(SocialActivityBuilder.class);
     private Event event;
 
     public SocialActivityBuilder(Event event) {
@@ -69,6 +72,9 @@ public class SocialActivityBuilder {
         properties.put("correlationKey", properties, this.event.getCorrelationKey());
         nativeObject.put("properties", nativeObject, properties);
 
+        if(log.isDebugEnabled()){
+            log.debug("Event to be published to social wall: "+event.toString());
+        }
         return nativeObject;
     }
 
