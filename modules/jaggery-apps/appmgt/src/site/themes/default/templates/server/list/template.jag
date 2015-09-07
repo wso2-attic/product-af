@@ -157,125 +157,12 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 
 <script>
-$(document).ready(function () {
-    
-    initializeUserActivity("logs", '<%=applicationKey%>', '<%=applicationName%>');
-    
-    // Loading version values according to the selected stage
-    $(".stage").on("change", function() {
-        var selectedStage = $(this).val();
-        var appVersionsInfo = '<%=appVersionsInfoArray%>';
-        var appVersionsInfoArray = JSON.parse(appVersionsInfo);
-        var versionsData = [];
-        for(var i in appVersionsInfoArray) {
-            if(selectedStage == appVersionsInfoArray[i].stage) {
-                var versionsInStage = appVersionsInfoArray[i].versions;
-                for(var j in versionsInStage) {
-                    var select2DataObject = {};
-                    select2DataObject.id = versionsInStage[j];
-                    select2DataObject.text = versionsInStage[j];
-                    versionsData.push(select2DataObject);
-                }
-            }
-        }
-        var currentVersionElement = $(this).parents('.tab-pane').find('.version');
-        currentVersionElement.empty();
-        currentVersionElement.trigger('change');
-        currentVersionElement.select2({data: versionsData});
-    });    
-
-    // Initialzing select2 drop downs
-    $('#recent .select2').select2({
-        templateResult: formatState,
-        templateSelection :formatState,
-        width: '100%'
-    });
-
-    $('#archived .select2').select2({
-        templateResult: formatState,
-        templateSelection :formatState,
-        width: '100%'
-    });
-
-    function formatState (state) {
-        if (!state.id) { return state.text; }
-        var $state;
-        if(state.element.attributes['data-icon']){
-            var $state = $(
-                    '<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase() +'"></i>&nbsp;&nbsp;'
-                    + state.text + '</span>'
-            );
-        }else{
-            var $state = $(
-                    '<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'
-                    + state.text + '</span>'
-            );
-        }
-        return $state;
-    };
-    
-    $('#view-log').click(function(){
-        $('#view-log').loadingButton('show');
-        var selectedStage = $('#stage-view').val();
-        var selectedVersion = $('#version-view').val();
-        if(selectedStage && selectedVersion) {
-            jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
-                action:"downloadLogFile",
-                applicationKey:'<%=applicationKey%>',
-                applicationStage:selectedStage,
-                applicationVersion:selectedVersion,
-                downloadFile:"false",
-                pageNumber : 1
-            },function (result) {
-                var resultJson = JSON.parse(result);
-                var logData = resultJson.logEvents;
-                $('#view-logs-content').html(logData);
-                $('.log-container').show();
-            },function (jqXHR, textStatus, errorThrown) {
-                jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
-            });        
-        }
-        $('#view-log').loadingButton('hide');
-    });
-    
-    $('#download-log').click(function(){
-        $('#download-log').loadingButton('show');
-        var selectedDate = $('#date').val();
-        var selectedStage = $('#stage-download').val();
-        var selectedVersion = $('#version-download').val();
-        if(selectedDate) {
-            jagg.post("../blocks/logdownload/ajax/logdownload.jag", {
-                action:"downloadLogFile",
-                applicationKey:'<%=applicationKey%>',
-                applicationStage:selectedStage,
-                applicationVersion:selectedVersion,
-                date:selectedDate,
-                downloadFile:"true"
-            },function (result) {
-                 var resultJson = JSON.parse(result);
-                if(resultJson.error == true) {
-                    jagg.message({content: "No archived logs available to download on " + selectedDate + " .", type: 'warning', id:'download_log'});
-                }
-            },function (jqXHR, textStatus, errorThrown) {
-                jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
-            }); 
-        }
-         $('#download-log').loadingButton('hide');
-        
-    });
-    
-    $('#date').daterangepicker({
-        "singleDatePicker": true,
-        "startDate": "08/19/2015",
-        "endDate": "08/21/2015"
-    }, function(start, end, label) {
-    });
-    
-    
-});
+    var applicationName = '<%=applicationName%>';
+    var applicationKey = '<%=applicationKey%>';
+    var appVersionsInfo = '<%=appVersionsInfoArray%>';
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/daterangepicker.js'))%>"></script>
-
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/server/list/js/list.js'))%>"></script>
 <% }); %>
