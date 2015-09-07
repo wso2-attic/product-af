@@ -149,6 +149,10 @@ $(document).ready(function () {
         "endDate": "08/21/2015"
     }, function(start, end, label) {
     });
+
+    $('.datepicker-container .fw-calendar').click(function(){
+        $('#date').data('daterangepicker').toggle();
+    })
     
     
 });
