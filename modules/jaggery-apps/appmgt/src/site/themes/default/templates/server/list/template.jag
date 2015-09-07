@@ -32,7 +32,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
     
    <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="009_cloud_app_details_initial.html" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
