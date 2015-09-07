@@ -258,42 +258,4 @@ public class CloudUtils {
 		return date;
 
 	}
-
-	/**
-	 * Generate a UniqueId for single tenant applications using the following format
-	 * {tenantId}-{applicationId}-{application-version}-{stage}
-	 *
-	 * @param tenantId
-	 * @param applicationId
-	 * @param version
-	 * @return
-	 */
-	public static String generateUniqueStratosApplicationId(int tenantId, String applicationId, String version,
-	                                                        String stage) {
-		return tenantId + AppFactoryConstants.HYPHEN + applicationId + AppFactoryConstants.HYPHEN
-		       + (version + "").replace(AppFactoryConstants.DOT, AppFactoryConstants.HYPHEN) + AppFactoryConstants.HYPHEN
-		       + stage.toLowerCase();
-	}
-
-	/**
-	 * Generate the Stratos artifact repository name
-	 *
-	 * @param paasRepositoryURLPattern Ex : {@stage}/tomcat
-	 * @param stage
-	 * @param version
-	 * @param applicationId
-	 * @param tenantId
-	 * @return repository name
-	 */
-	public static String generateSingleTenantArtifactRepositoryName(String paasRepositoryURLPattern, String stage,
-	                                                                String version, String applicationId,
-	                                                                int tenantId) {
-		//needs to replace dot(.) with minus(-) cause git doesn't allow
-		version = version.replaceAll("\\.+", AppFactoryConstants.MINUS);
-		String gitRepoName = paasRepositoryURLPattern
-		                     + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR
-		                     + applicationId + AppFactoryConstants.MINUS + version;
-		gitRepoName = gitRepoName.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
-		return gitRepoName;
-	}
 }

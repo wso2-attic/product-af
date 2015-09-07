@@ -15,10 +15,10 @@ import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
+import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
-import org.wso2.carbon.appfactory.s4.integration.utils.CloudUtils;
 import org.wso2.carbon.user.api.UserStoreException;
 
 
@@ -53,13 +53,13 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
         } catch (UserStoreException e) {
             throw new AppFactoryException("Error while getting tenantId for domain " + tenantDomain  , e);
         }
-
+        String appfactoryApplicationId = application.getId();
         ApplicationTypeBean applicationTypeBean = ApplicationTypeManager.getInstance()
                 .getApplicationTypeBean(application.getType());
         if (applicationTypeBean == null) {
             throw new AppFactoryException(
                     "Application Type details cannot be found for Artifact Type : " + application.getType()
-                    + ", application id" + application.getId() + " for tenant domain: " + tenantDomain);
+                    + ", application id" + appfactoryApplicationId + " for tenant domain: " + tenantDomain);
         }
 
         String runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
@@ -70,14 +70,14 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
         String paasRepositoryUrlPattern = runtimeBean.getPaasRepositoryURLPattern();
 
         JDBCAppVersionDAO appVersionDAO = JDBCAppVersionDAO.getInstance();
-        String[] versions = appVersionDAO.getAllVersionNamesOfApplication(application.getId());
+        String[] versions = appVersionDAO.getAllVersionNamesOfApplication(appfactoryApplicationId);
 
         String stratosApplicationId;
         //Iterating through app versions and deleting stratos resources
         for (String version : versions) {
             String stage = appVersionDAO.getAppVersionStage(application.getId(),version);
-            stratosApplicationId = CloudUtils.generateUniqueStratosApplicationId(tenantId, application.getId(), version,
-                                                                                 stage);
+            stratosApplicationId = CommonUtil.generateUniqueStratosApplicationId(tenantId, appfactoryApplicationId,
+                                                                                 version, stage);
             try {
                 restService.undeployApplication(stratosApplicationId);
                 //TODO :
@@ -94,11 +94,12 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
                 log.error("Error while deleting stratos application for id : " + stratosApplicationId, e);
             } finally {
                 try {
-                    repositoryProvider.deleteStratosArtifactRepository(CloudUtils.generateSingleTenantArtifactRepositoryName(
-                            paasRepositoryUrlPattern, stage, version, stratosApplicationId, tenantId));
+                    repositoryProvider.deleteStratosArtifactRepository(CommonUtil.generateSingleTenantArtifactRepositoryName(
+                            paasRepositoryUrlPattern, stage, version, appfactoryApplicationId, tenantId)+ AppFactoryConstants.DOT
+                                                                       + AppFactoryConstants.GIT_REPOSITORY_CONTEXT);
                     log.info("Successfully deleted repository for application " + application.getId() + " version : " + version);
                 } catch (RepositoryMgtException e) {
-                    log.error("Error while deleting stratos repository for application " + application.getId()
+                    log.error("Error while deleting stratos repository for application " + appfactoryApplicationId
                               + " version :" + version, e);
                     //No need to throw since this is an artifact repo
                 }

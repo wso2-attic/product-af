@@ -27,8 +27,8 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
+import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
-import org.wso2.carbon.appfactory.s4.integration.utils.CloudUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -61,19 +61,16 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
         StratosRestClient stratosRestClient = StratosRestClient.getInstance(stratosServerURL, tenantUsername);
 
         String applicationInstanceJson = stratosRestClient.getApplicationRuntime(
-                CloudUtils.generateUniqueStratosApplicationId(tenantId, applicationId, applicationVersion, stage));
+                CommonUtil.generateUniqueStratosApplicationId(tenantId, applicationId, applicationVersion, stage));
 
         JsonParser jsonParser = new JsonParser();
         JsonObject applicationInstanceObject = (JsonObject) jsonParser.parse(applicationInstanceJson);
 
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
-        String serviceHostname;
+        String serviceHostname = null;
         String launchURLPattern = properties.getProperty(LAUNCH_URL_PATTERN);
-
-        DeployStatus currentStatus = jdbcApplicationDAO.getDeployStatus(applicationId, applicationVersion,
-                                                                        stage, false, null);
-
-
+        DeployStatus currentStatus = jdbcApplicationDAO.getDeployStatus(applicationId, applicationVersion, stage, false,
+                                                                        null);
         if (AppFactoryConstants.STRATOS_RUNTIME_STATUS_ACTIVE.
                 equalsIgnoreCase(applicationInstanceObject.get("status").getAsString())) {
 
@@ -97,13 +94,13 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
             if (applicationVersion.equalsIgnoreCase(sourceTrunkVersionName)) {
                 applicationVersion = artifactTrunkVersionName;
             }
-            launchURLPattern = launchURLPattern.replace(PARAM_APP_ID, applicationId).replace(PARAM_HOSTNAME, serviceHostname)
-                    .replace(PARAM_APP_VERSION, applicationVersion);
+        }
+        launchURLPattern = launchURLPattern.replace(PARAM_APP_ID, applicationId).replace(PARAM_HOSTNAME, serviceHostname)
+                .replace(PARAM_APP_VERSION, applicationVersion);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Generated URL pattern for applicationID :" + applicationId + " version :" + applicationVersion
-                          + " stage : " + stage + " pattern : " + launchURLPattern);
-            }
+        if (log.isDebugEnabled()) {
+            log.debug("Generated URL pattern for applicationID :" + applicationId + " version :" + applicationVersion
+                      + " stage : " + stage + " pattern : " + launchURLPattern);
         }
         return launchURLPattern;
     }

@@ -24,13 +24,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.deployers.util.DeployerUtil;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.git.JGitAgent;
 import org.wso2.carbon.appfactory.s4.integration.RepositoryProvider;
 import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
-import org.wso2.carbon.appfactory.s4.integration.utils.CloudUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.File;
@@ -314,7 +314,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
 
         String gitRepoName = "";
         if (subscribeOnDeployment) {
-            gitRepoName = CloudUtils.generateSingleTenantArtifactRepositoryName(paasRepositoryURLPattern,stage,version,
+            gitRepoName = CommonUtil.generateSingleTenantArtifactRepositoryName(paasRepositoryURLPattern,stage,version,
                                                                                 applicationId,tenantId);
         } else {
             String repoFrom = DeployerUtil.getParameterValue(metadata,AppFactoryConstants.REPOSITORY_FROM);
@@ -348,7 +348,7 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String repoUrl = createStratosArticatRepository(paasRepoProviderClass, getAdminUsername(), stratosRepoPassword,
                                        generatedRepoName);
 
-        String uniqueStratosAppId = CloudUtils.generateUniqueStratosApplicationId(tenantId, applicationId, version,
+        String uniqueStratosAppId = CommonUtil.generateUniqueStratosApplicationId(tenantId, applicationId, version,
                                                                                   stageName);
         StratosRestClient stratosRestClient = StratosRestClient.getInstance(getStratosServerURL(), tenantUsername);
         // Create stratos application only if it not created for the uniqueStratosAppId
