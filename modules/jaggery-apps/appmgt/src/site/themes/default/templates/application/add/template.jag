@@ -408,7 +408,6 @@ function showLoader(show){
  $(document).ready(function($) {
 
     $('#progress').hide();
-    showLoader(false);
      $("#appIcon").change(function() {
          $("#icon").val($("#appIcon").val());
 
@@ -546,7 +545,7 @@ function showLoader(show){
          complete: function(result,status) { // on complete
              if(status.toLowerCase() != 'success') {
                 showTopErrorMessage("Error occurred while creating the application");
-                showLoader(false);
+                $('#add-application').loadingButton('hide');
                 return false;
              }
              var resp = result.responseText;
@@ -643,9 +642,10 @@ function showLoader(show){
 
  //New Function to submit upload apps and create new apps
  function submitAppForm(type) {
-    showLoader(true);
+    $('#add-application').loadingButton('show');
     var validator = $( "#createAppForm" ).validate();
     var formValidated = validator.form();
+    $('#add-application').loadingButton('show');
     if(formValidated) {
          if (type == "new") {
              $("#action").val("createNewApplication");
@@ -653,9 +653,8 @@ function showLoader(show){
              $("#action").val("uploadExistingApplication");
          }
          $("#createAppForm").submit();
-         //showTopSuccessMsg("Application creation started.");
     } else {
-        showLoader(false);
+        $('#add-application').loadingButton('hide');
     }
  }
 
@@ -696,9 +695,9 @@ function showLoader(show){
 
     <div class="container-fluid cloud-container">
         <div class="row">
-            <div class="tmp-logo-responsive-fix">
+            <div class="col-fixed-left col-fixed-1x">
                 <div class="cloud-selected-app-type  <%=request.getParameter("apptypeIconColor")%>">
-                    <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-5x"></i>
+                    <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-4x"></i>
                 </div>
             </div>
             <div class="col-md-6">
@@ -711,9 +710,6 @@ function showLoader(show){
             <form enctype="multipart/form-data" method='post' action='<%=jagg.getAbsoluteUrl("/site/blocks/application/add/ajax/add.jag")%>'  name="createAppForm" id="createAppForm">
                 <input type="hidden" name="action" id="action" value="createNewApplication" />
                 <div class="col-md-5 forms">
-                    <div class="loading-cover loading-overlay">
-                      <div class="loader"></div>
-                    </div>
                     <div class="form-group" for="applicationName">
                         <label for="application-name">Application Name: </label>
                         <input type="appname" class="form-control" name="applicationName" id="applicationName" placeholder="Enter Application name">
@@ -774,8 +770,8 @@ function showLoader(show){
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="cu-btn cu-btn-sm cu-btn-blue" id="add-application"
-                            onclick="submitAppForm('<%=type%>')" disabled>
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue cu-btn-position" id="add-application"
+                            onclick="submitAppForm('<%=type%>'); return false;" disabled>
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-add fw-stack-1x"></i>
@@ -789,9 +785,5 @@ function showLoader(show){
         </div>
     </div><!-- /.container -->
 
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
-<!-- include custom js functions -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
 <!--####################################################################### end-->
 <% }); %>
