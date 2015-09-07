@@ -20,10 +20,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
@@ -51,7 +55,12 @@ public class DomainMappingListener extends ApplicationEventsHandler {
     public void onCreation(final Application application, final String userName, final String tenantDomain,
                            final boolean isUploadableAppType)
             throws AppFactoryException {
+        String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType()).getRuntimes()[0];
 
+//        RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtime);
+//        if(!runtimeBean.getSubscribeOnDeployment()){
+//
+//        }
         Runnable runnable = new Runnable() {
             @Override
             public void run() {

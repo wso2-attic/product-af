@@ -406,47 +406,55 @@ public class DomainMappingUtils {
     /**
      * Get domain available end point suffix.
      *
-     * @param stage   the stage of the Stratos
+     *
+     * @param appKey
+     * @param version
+     *@param stage   the stage of the Stratos
      * @param domain  domain to be checked for availability
-     * @param appType application type
-     * @return domain availability end point in the format of
+     * @param appType application type    @return domain availability end point in the format of
      * "/applications/{applicationId}/domainMappings{@code domain}"
      * <p/>
      * e.g: /applications/{applicationId}/domainMappings
      */
-    public static String getDomainAvailableEndPoint(String stage, String domain, String appType)
+    public static String getDomainAvailableEndPoint(String appKey, String version, String stage, String domain,
+                                                    String appType)
             throws AppFactoryException {
-        return String.format(DOMAIN_AVAILABLE_END_POINT, CommonUtil.getStratosApplicationId(stage, appType));
+        return String.format(DOMAIN_AVAILABLE_END_POINT, CommonUtil.getStratosApplicationId(appKey, version, stage, appType));
     }
 
     /**
      * Get add domain end point suffix.
      *
-     * @param stage   the stage of the Stratos SM
-     * @param appType application type
-     * @return add domain end point in the format of
+     *
+     * @param appKey
+     * @param version
+     *@param stage   the stage of the Stratos SM
+     * @param appType application type   @return add domain end point in the format of
      * "/applications/{applicationId}/domainMappings"
      * <p/>
      * e.g: /applications/{applicationId}/domainMappings
      */
-    public static String getAddDomainEndPoint(String stage, String appType) throws AppFactoryException {
-        return String.format(ADD_DOMAIN_END_POINT, CommonUtil.getStratosApplicationId(stage, appType));
+    public static String getAddDomainEndPoint(String appKey, String version, String stage, String appType) throws AppFactoryException {
+        return String.format(ADD_DOMAIN_END_POINT, CommonUtil.getStratosApplicationId(appKey, version, stage, appType));
     }
 
     /**
      * Get remove domain end point suffix
      *
-     * @param stage   the stage of the Stratos SM
+     *
+     * @param appKey
+     * @param version
+     *@param stage   the stage of the Stratos SM
      * @param domain  domain to be removed
-     * @param appType application type
-     * @return remove domain end point in the format of
+     * @param appType application type    @return remove domain end point in the format of
      * "/applications/{applicationId}/domainMappings/{domainName} {@code domain}"
      * <p/>
      * e.g /applications/asdevelopment/domainMappings/abcd.com
      */
-    public static String getRemoveDomainEndPoint(String stage, String domain, String appType)
+    public static String getRemoveDomainEndPoint(String appKey, String version, String stage, String domain,
+                                                 String appType)
             throws AppFactoryException {
-        return String.format(REMOVE_DOMAIN_END_POINT, CommonUtil.getStratosApplicationId(stage, appType), domain);
+        return String.format(REMOVE_DOMAIN_END_POINT, CommonUtil.getStratosApplicationId(appKey, version, stage, appType), domain);
     }
 
     /**
