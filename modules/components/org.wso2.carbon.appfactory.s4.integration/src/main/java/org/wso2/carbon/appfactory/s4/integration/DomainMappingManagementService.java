@@ -624,7 +624,7 @@ public class DomainMappingManagementService {
      * @return true if domain is available
      */
     private boolean isDomainAvailable(String stage, String domain, String appType) throws AppFactoryException {
-        boolean isAvailable;
+        boolean isAvailable = true;
         String validateSubscriptionDomainEndPoint =
                 DomainMappingUtils.getDomainAvailableEndPoint(stage, domain, appType);
 
@@ -643,10 +643,9 @@ public class DomainMappingManagementService {
         if (response.statusCode == HttpStatus.SC_NOT_FOUND) { // there is no existing mapping found for requested domain
             isAvailable = true;
         } else if (response.statusCode == HttpStatus.SC_OK) {
-            isAvailable = false;
-            /*if (response.getResponse().contains(domain)) {
+            if (response.getResponse().contains(domain)) {
                 isAvailable = false;
-            }*/
+            }
         } else {
             log.error("Error occurred while checking availability for domain:" + domain + " Stratos response status: " +
                       response.statusCode + " Stratos Response message: " + response.getResponse());
