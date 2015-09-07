@@ -1,0 +1,138 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+jagg.template("repository/list", function (inputs, outputs, jagg) { %>
+
+<%
+var applicationName = request.getParameter("applicationName");
+var applicationKey = request.getParameter("applicationKey");
+var stages = getProperties('ApplicationDeployment.DeploymentStage');
+var userName = jagg.getUser();
+var fokedRepoData;
+
+%>
+
+
+<!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" data-toggle="tooltip" data-placement="top"
+           title="Back to Overview">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Overview
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+
+    <div class="container-fluid app-content-section">
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg-issues">
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-7  forms">
+                <div id="push"></div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="master-repo">Master Repository: </label>
+                        <div class="input-group input-wrap">
+                            <input id="masterRepo" type="text" class="form-control" placeholder="" value="https://github.com/wso2-dev-ux/product-cloud.git">
+                            <div class="input-group-btn btn-input-right">
+                                <button id="copytoClipboard" class="btn btn-default" type="button" title="Copy to clipboard">
+                                    <i class="fw fw-copy" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default btn-gray" type="button" title="Check your code @GitBit">
+                                    <span class="hidden-xs">Check your code @GitBit</span>
+                                    <span class="visible-xs"><i class="fw fw-globe"></i> </span>
+                                </button>
+                            </div>
+                            <div class="input-group-btn">
+                                <button class="btn btn-lightgray" id="fork"  type="button" title="Fork your code">
+                                    <i class="fa fa-code-fork" aria-hidden="true"></i>
+                                    <span class="hidden-xs">Fork</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /.container -->
+
+
+    </div>
+    <div class="clearfix"></div>
+    <div id="push"></div>
+<% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+<script>
+    $(document).ready(function() {
+            getForkedRepoData();
+    });    
+
+
+    $("#copytoClipboard").on("click",function(){
+        $(this).copyToClipboard("#masterRepo");
+    });
+
+    $("#copytoClipboard").on("click",function(){
+        jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
+            action:"createFork",
+            applicationKey:'<%=applicationKey%>',
+            userNameArray:'<%=userName%>',
+            type:"git",
+            version:"trunk"
+        }, function (result) {
+            //do something
+        }, function (jqXHR, textStatus, errorThrown) {
+            if (jqXHR.status != 0) {
+                jagg.message({
+                    content:"Error while forking repository.",
+                    type:'error'
+                });
+            }
+        });
+    });
+    
+    function getForkedRepoData() {
+        jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
+            action: "getbuildandrepodataforkedrepo",
+            buildableforstage:"true",
+            metaDataNeed:"false",
+            applicationKey: '<%=applicationKey%>',
+            userName:'<%=userName%>',
+            isRoleBasedPermissionAllowed:"false"
+        }, function (result) {
+            var resultJson = JSON.parse(result);
+            if(!jQuery.isEmptyObject(resultJson)){
+                console.log(result);
+            }
+        }, function (jqXHR, textStatus, errorThrown) {
+
+        }); 
+    }
+
+
+</script>
+<% }); %>
+
