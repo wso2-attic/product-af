@@ -192,3 +192,30 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
     }
     
 }(jQuery));
+
+
+
+    /* ========================================================================
+     * copy to clipboard function
+     * ======================================================================== */
+(function ( $ ) {
+
+    $.fn.copyToClipboard = function( element ) {
+
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(element).val()).select();
+        document.execCommand("copy");
+        var t = $temp.val();
+        copiedText = t +'   : copied to clipboard';
+        $(element).attr('data-original-title', copiedText).tooltip('show',{ placement: 'top',trigger:'manual'});
+        setTimeout(function(){
+            $(element).tooltip('destroy');
+        }, 1000);
+        $temp.remove();
+
+        return this;
+
+    };
+
+}( jQuery ));
