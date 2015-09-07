@@ -151,7 +151,9 @@ var messageTimer;
                                 text: (params.okText ? params.okText : 'Ok'),
                                 onClick: function($noty) {
                                     $noty.close();
-                                    params.okCallback();
+                                    if (isFunction(params.okCallback)) {
+                                        params.okCallback();
+                                    }
                                 }
                             },
                             {
@@ -159,7 +161,10 @@ var messageTimer;
                                 text: 'Cancel',
                                 onClick: function($noty) {
                                     $noty.close();
-                                    params.cancelCallback();
+                                    if (isFunction(params.cancelCallback)) {
+                                        params.cancelCallback();
+                                    }
+
                                 }
                             }
                         ]
@@ -185,3 +190,13 @@ var messageTimer;
 	};
 
 }());
+
+/**
+ * Check whether the {@code functionToCheck} is a function or not
+ * @param functionToCheck
+ * @returns {*|boolean}
+ */
+function isFunction(functionToCheck) {
+    var getType = {};
+    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+}
