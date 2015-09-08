@@ -44,6 +44,8 @@ var tenantDomain = outputs.tenantDomain;
     <div class="container-fluid app-content-section">
         <div class="row">
           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg-issues">
+            This page shows repository URLs of master repository and forked repository (if available).
+            You can fork your own repository from master repository.
           </div>
         </div>
         <div class="row">
