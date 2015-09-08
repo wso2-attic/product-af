@@ -17,9 +17,9 @@
 <div class="container-fluid app-content-section">
         <div class="row">
           <div class="col-md-12 msg-issues">
-                  You get a birds eye view of all the issues that have been created in applications where you are a member.
+                OOO  You get a birds eye view of all the issues that have been created in applications where you are a member.
               Issue tracking for a application version provides you the ability to create new issues per application
-              version, edit existing issues and search for issues based on a search criteria.
+              version, edit existing issues and search for issues based on a search criteria.sdfd
           </div>
         </div>
         <div class="row">
@@ -35,6 +35,7 @@
                             <th>Version</th>
                             <th>Type</th>
                             <th>Priority</th>
+                            <th>Severity</th>
                             <th>Status</th>
                             <th>Reporter</th>
                             <th>Assignee</th>
@@ -47,6 +48,7 @@
                             <td>Version</td>
                             <td>Type</td>
                             <td>Priority</td>
+                            <td>Severity</td>
                             <td>Status</td>
                             <td></td>
                             <td></td>
@@ -109,6 +111,7 @@
                 { "data": "version" , "width": "8%"},
                 { "data": "issueTypeText", "width": "8%" },
                 { "data": "issuePriorityText", "width": "8%" },
+                { "data": "issueSeverityText", "width": "8%" },
                 { "data": "issueStatusText" , "width": "8%"},
                 { "data": "owner" , "width": "13%", "sClass" : "dt-body-right"},
                 { "data": "assignee" , "width": "13%", "sClass" : "dt-body-right"},
@@ -123,6 +126,7 @@
                 { type: "select", values: {{{versions}}} },
                 { type: "select", values: [ 'Bug', 'Task', 'New Feature', 'Improvement'] },
                 { type: "select", values: [ 'Highest', 'High', 'Low', 'Lowest'] },
+                { type: "select", values: [ 'Blocker', 'Critical', 'Non Critical'] },
                 { type: "select", values: [ 'Open', 'Resolved', 'In Progress', 'Closed'] },
                 { "bSortable": false },
                 { "bSortable": false },
