@@ -56,7 +56,7 @@ var tenantDomain = outputs.tenantDomain;
                         <div class="input-group input-wrap">
                             <input id="masterRepo" type="text" class="form-control" placeholder="" value="<%=masterRepoURL%>">
                             <div class="input-group-btn btn-input-right">
-                                <button id="copytoClipboard" class="btn btn-default" type="button" title="Copy to clipboard">
+                                <button id="copytoClipboardMaster" class="btn btn-default" type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -110,63 +110,9 @@ var tenantDomain = outputs.tenantDomain;
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 <script>
-    $(document).ready(function() {
-        getForkedRepoData();
-    });    
-
-
-    $("#copytoClipboard").on("click",function(){
-        $(this).copyToClipboard("#masterRepo");
-    });
-
-    $("#fork").on("click",function(){
-        jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
-            action:"createFork",
-            applicationKey:'<%=applicationKey%>',
-            userNameArray:'<%=userName%>',
-            type:"git",
-            version:"trunk"
-        }, function (result) {
-            jagg.message({content: "Application forked successfully.", type: 'success', id:'notification'});
-            getForkedRepoData();
-        }, function (jqXHR, textStatus, errorThrown) {
-            if (jqXHR.status != 0) {
-                jagg.message({
-                    content:"Error while forking repository.",
-                    type:'error'
-                });
-            }
-        });
-    });
-    
-    function drawForkedRepo(data) {
-        var dataJson = JSON.parse(data);
-        if(!jQuery.isEmptyObject(dataJson)) {
-            $('#fork').hide();
-            $('#forkedRepoDiv').show();
-            $('#forkedRepo').val(dataJson.trunk.version.repoURL);
-        }else {
-            $('#forkedRepoDiv').hide();
-        }
-    
-    }    
-
-    function getForkedRepoData() {
-        jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
-            action: "getbuildandrepodataforkedrepo",
-            buildableforstage:"true",
-            metaDataNeed:"false",
-            applicationKey: '<%=applicationKey%>',
-            userName:'<%=userName%>',
-            isRoleBasedPermissionAllowed:"false"
-        }, function (result) {
-            drawForkedRepo(result);
-        }, function (jqXHR, textStatus, errorThrown) {
-              jagg.message({content: "Error occurred while getting forked repo data.", type: 'error', id:'notification'});
-        });
-    }
-
-
+var applicationKey = '<%=applicationKey%>';
+var userName = '<%=userName%>';
 </script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/repository/list/js/list.js'))%>"></script>
 <% }); %>
 
