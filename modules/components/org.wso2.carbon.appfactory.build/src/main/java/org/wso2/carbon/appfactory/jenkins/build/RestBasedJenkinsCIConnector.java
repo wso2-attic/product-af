@@ -1079,7 +1079,13 @@ public class RestBasedJenkinsCIConnector {
             throw new AppFactoryException("Runtime details cannot be found");
         }
 
+        AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+
         List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+        String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
+                AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,
+                                              paasRepositoryProviderClassName));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
