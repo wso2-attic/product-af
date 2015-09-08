@@ -31,8 +31,15 @@ jagg.block("repository/list", {
 
     getOutputs: function (inputs) {
         var applicationKey = request.getParameter("applicationKey");
+        var modApp = jagg.module("application");
+        var userName = jagg.getUser();
+        var appVersionInfo = modApp.getAppVersionInfoByVersion(applicationKey,"trunk",userName);
+        var masterRepoURL = appVersionInfo[0].versions[0].repoURL;
+        var modManager = jagg.module("manager");
+        var tenantDomain = modManager.getTenantDomain();
         return {
-
+            "masterRepoURL": masterRepoURL,
+            "tenantDomain": tenantDomain    
         };
     }
 

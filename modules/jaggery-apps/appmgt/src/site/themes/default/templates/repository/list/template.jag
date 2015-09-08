@@ -22,10 +22,10 @@ jagg.template("repository/list", function (inputs, outputs, jagg) { %>
 <%
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
-var stages = getProperties('ApplicationDeployment.DeploymentStage');
+var masterRepoURL = outputs.masterRepoURL;
+var gitBaseUrl = getProperty(GIT_BASE_URL);
 var userName = jagg.getUser();
-var fokedRepoData;
-
+var tenantDomain = outputs.tenantDomain;
 %>
 
 
@@ -49,21 +49,22 @@ var fokedRepoData;
         <div class="row">
             <div class="col-xs-10 col-sm-10 col-md-10 col-lg-7  forms">
                 <div id="push"></div>
-                <div class="col-md-12">
+
+                <div class="col-md-12"><!-- master repo-->
                     <div class="form-group">
                         <label for="master-repo">Master Repository: </label>
                         <div class="input-group input-wrap">
-                            <input id="masterRepo" type="text" class="form-control" placeholder="" value="https://github.com/wso2-dev-ux/product-cloud.git">
+                            <input id="masterRepo" type="text" class="form-control" placeholder="" value="<%=masterRepoURL%>">
                             <div class="input-group-btn btn-input-right">
                                 <button id="copytoClipboard" class="btn btn-default" type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
                                 </button>
                             </div>
                             <div class="input-group-btn">
-                                <button class="btn btn-default btn-gray" type="button" title="Check your code @GitBit">
+                                <a href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" target="_blank" class="btn btn-default btn-gray" type="button" title="Check your code @GitBit">
                                     <span class="hidden-xs">Check your code @GitBit</span>
                                     <span class="visible-xs"><i class="fw fw-globe"></i> </span>
-                                </button>
+                                </a>
                             </div>
                             <div class="input-group-btn">
                                 <button class="btn btn-lightgray" id="fork"  type="button" title="Fork your code">
@@ -71,11 +72,34 @@ var fokedRepoData;
                                     <span class="hidden-xs">Fork</span>
                                 </button>
                             </div>
+                        </div><!-- EOF input wrap-->
+                    </div><!-- EOF form group -->
+                    <hr class="gray-hr"/>
+                </div><!-- EOF master repo -->
+                
+                <div class="col-md-12" id="forkedRepoDiv"><!-- forked repo div-->
+                    <div id="push"></div>
+                    <div class="form-group">
+                        <label for="master-repo">Forked Repository: </label>
+                        <div class="input-group input-wrap">
+                            <input id="forkedRepo" type="text" class="form-control" placeholder="" value="">
+                            <div class="input-group-btn btn-input-right">
+                                <button id="copytoClipboardForked" class="btn btn-default " type="button" title="Copy to clipboard">
+                                    <i class="fw fw-copy" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="input-group-btn">
+                                <a href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" target="_blank" class="btn btn-default btn-gray" type="button" title="Check your code @GitBit">
+                                    <span class="hidden-xs">Check your code @GitBit</span>
+                                    <span class="visible-xs"><i class="fw fw-globe"></i> </span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </div> <!-- EOF forked repo div-->
+
             </div>
-        </div>
+        </div><!-- EOF row-->
     </div><!-- /.container -->
 
 
@@ -87,7 +111,7 @@ var fokedRepoData;
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 <script>
     $(document).ready(function() {
-            getForkedRepoData();
+        getForkedRepoData();
     });    
 
 
@@ -95,7 +119,7 @@ var fokedRepoData;
         $(this).copyToClipboard("#masterRepo");
     });
 
-    $("#copytoClipboard").on("click",function(){
+    $("#fork").on("click",function(){
         jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
             action:"createFork",
             applicationKey:'<%=applicationKey%>',
@@ -103,7 +127,8 @@ var fokedRepoData;
             type:"git",
             version:"trunk"
         }, function (result) {
-            //do something
+            jagg.message({content: "Application forked successfully.", type: 'success', id:'notification'});
+            getForkedRepoData();
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
                 jagg.message({
@@ -114,6 +139,18 @@ var fokedRepoData;
         });
     });
     
+    function drawForkedRepo(data) {
+        var dataJson = JSON.parse(data);
+        if(!jQuery.isEmptyObject(dataJson)) {
+            $('#fork').hide();
+            $('#forkedRepoDiv').show();
+            $('#forkedRepo').val(dataJson.trunk.version.repoURL);
+        }else {
+            $('#forkedRepoDiv').hide();
+        }
+    
+    }    
+
     function getForkedRepoData() {
         jagg.post("../blocks/reposBuilds/list/ajax/list.jag", {
             action: "getbuildandrepodataforkedrepo",
@@ -123,13 +160,10 @@ var fokedRepoData;
             userName:'<%=userName%>',
             isRoleBasedPermissionAllowed:"false"
         }, function (result) {
-            var resultJson = JSON.parse(result);
-            if(!jQuery.isEmptyObject(resultJson)){
-                console.log(result);
-            }
+            drawForkedRepo(result);
         }, function (jqXHR, textStatus, errorThrown) {
-
-        }); 
+              jagg.message({content: "Error occurred while getting forked repo data.", type: 'error', id:'notification'});
+        });
     }
 
 
