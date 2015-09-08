@@ -1,0 +1,98 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+(function() {
+    var mod;
+    var action = request.getParameter("action");
+    var site = require("/site/conf/site.json");
+    var log = new Log("blocks/buildDeploy/list/ajax/list.jag");
+    var modPermission = jagg.module("permission");
+
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+
+    if (action == "printBuildLogs") {
+        mod = jagg.module("build");
+        var applicationKey = request.getParameter("applicationKey");
+        var applicationVersion = request.getParameter("applicationVersion");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var buildId = request.getParameter("lastBuildId");
+        var forkedRepository = request.getParameter("forkedRepository");
+        var jenkinsUrl = mod.getJenkinsBaseUrl(tenantDomain);
+        var userName = jagg.getUser();
+        var tenantAwareUserName = userName.split("@")[0];
+        var buildLogUrl;
+        if (forkedRepository == "true") {
+            buildLogUrl = jenkinsUrl + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                          + applicationVersion + "-default-" + tenantAwareUserName + "/" + buildId + "/consoleText/";
+        } else {
+            buildLogUrl = jenkinsUrl + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                          + applicationVersion + "-default/" + buildId + "/consoleText/";
+        }
+        var AuthHeaderVal = " Basic " + mod.getBasicAuthHeaderValue();
+        var headers = {"Authorization": AuthHeaderVal};
+        var test = get(buildLogUrl, {}, headers, "text/html");
+        if (test.xhr.status == "200") {
+            print(test.data);
+        } else {
+            print("No Build logs available.");
+        }
+    } else if (action == "getBuildHistory") {
+        mod = jagg.module("build");
+        var applicationKey = request.getParameter("applicationKey");
+        var applicationVersion = request.getParameter("applicationVersion");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var forkedRepository = request.getParameter("forkedRepository");
+        var jenkinsUrl = mod.getJenkinsBaseUrl(tenantDomain);
+        var userName = jagg.getUser();
+        var tenantAwareUserName = userName.split("@")[0];
+        var buildLogUrl;
+        if (forkedRepository == "true") {
+            buildLogUrl = jenkinsUrl + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                          + applicationVersion + "-default-" + tenantAwareUserName + "/" + "api/json?tree=builds[id,status,timestamp,result,url]";
+        } else {
+            buildLogUrl = jenkinsUrl + "/job/" + tenantDomain + "/job/" + applicationKey + "-"
+                          + applicationVersion + "-default/" + "api/json?tree=builds[id,status,timestamp,result,url]";
+        }
+        buildLogUrl = encodeURI(buildLogUrl);
+        var AuthHeaderVal = " Basic " + mod.getBasicAuthHeaderValue();
+        var headers = {"Authorization": AuthHeaderVal};
+        var test = get(buildLogUrl, {}, headers, "text/html");
+        if (test.xhr.status == "200") {
+            print(test.data);
+        } else {
+            print("No Build logs available.");
+        }
+    } else if(action=="getBuildAndRepoDataForVersion") {
+        appKey = request.getParameter("applicationKey");
+        version = request.getParameter("version");
+        modApp = jagg.module("application");
+        userName = jagg.getUser();
+        var response = modApp.getAppVersionInfoByVersion(appKey, version, userName);
+        print(response);
+    } else {
+        throw new Error("Invalid action specified");
+    }
+}());
+%>

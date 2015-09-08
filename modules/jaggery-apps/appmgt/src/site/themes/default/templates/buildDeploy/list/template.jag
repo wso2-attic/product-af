@@ -1,0 +1,122 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/util.jag");
+jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
+
+<%
+    var applicationName = request.getParameter("applicationName");
+    var applicationKey = request.getParameter("applicationKey");
+    var currentVersion = getSelectedVersionFromSession(applicationKey);
+    var tenantDomain = outputs.tenantDomain;
+    var userName = jagg.getUser();
+%>
+
+<script type="text/javascript" charset="utf-8">
+    var applicationKey = "<%=applicationKey%>";
+    var currentVersion = "<%=currentVersion%>";
+    var tenantDomain = "<%=tenantDomain%>";
+    var userName = "<%=userName%>";
+</script>
+
+<!-- BOF App factory menu actionbar -->
+<div class="action-bar">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Back to Overview">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Back to Overview
+    </a>
+    <a id="buildBtn" href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Build">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-hour-glass fw-stack-1x"></i>
+        </span> Build
+    </a>
+    <a id="deployBtn" href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Deploy">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-deploy fw-stack-1x"></i>
+        </span> Deploy
+    </a>
+</div>
+<!-- EOF App factory menu actionbar-->
+
+<div class="container-fluid app-content-section">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg-issues">
+          This page shows the last build status and build history of the selected application version. You can view the build logs of each build. By using the button panel above you can trigger
+          build and deploy the application in the current stage.
+        </div>
+    </div>
+    <div class="row padding-bottom-xlg">
+        <div class="col-xs-10 col-sm-10 col-md-10 col-lg-7  forms">
+            <div id="push"></div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                    <label for=""><strong>Version: </strong></label>
+                    <div class="input-group">
+                        <label><%=currentVersion%></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for=""><strong>Status: </strong></label>
+                    <div class="input-group">
+                        <label id="buildStatus"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <h4>Build log history</h4>
+                <table id="buildHistoryTbl" class="table table-condensed table-borderless table-buildlogs"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey, "pageName":"Build & Deploy"}); %>
+<div class="clearfix"></div>
+<div id="push"></div>
+
+<div class="modal fade" id="modal-one" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+          <h2>Jenkins Build Log</h2>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <pre id="build_logs">Retrieving logs.... </pre>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/buildDeploy/list/js/list.js'))%>"></script>
+<!-- end of loading javascript files -->
+
+<% }); %>
+
