@@ -23,6 +23,8 @@ include("/jagg/config_reader.jag");
 
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.GovernanceEventBuilderUtil;
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
+var stratosRestClient = Packages.org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
+var commonUtil = Packages.org.wso2.carbon.appfactory.core.util.CommonUtil;
 var log = new Log();
 (function () {
     var mod, obj, result,
@@ -84,6 +86,26 @@ var log = new Log();
                 // check whether current stage and the stage user saw is the same.
                 throw new Error("Unable to complete the governance operation. Application stage is already changed to : " +
                         currentStage);
+            }
+
+            var stratosServerUrl = getProperty("Stratos" + "." + "TenantMgtUrl");
+            var tenantId = manager.getTenantId();
+            var stratosApplicationId;
+            if(action == "Demote"){
+                //delete current stage stratos app
+                var buildModule = jagg.module("build");
+                buildModule.deployArtifact(applicationKey, previousStage, version, tagName, PROMOTE);
+            }
+            stratosApplicationId = commonUtil.generateUniqueStratosApplicationId(tenantId, applicationKey, version,
+                                                                                 currentStage)
+            try{
+                stratosRestClient.getInstance(stratosServerUrl,userName).undeployAndDeleteApplication(stratosApplicationId)
+            }catch (e) {
+                var errorMsg = "Failed to delete stratos application for action : " + action;
+                log.error(errorMsg);
+                log.error(e);
+                response.status = 500;
+                response.content = errorMsg;
             }
 
             var revision = '0';

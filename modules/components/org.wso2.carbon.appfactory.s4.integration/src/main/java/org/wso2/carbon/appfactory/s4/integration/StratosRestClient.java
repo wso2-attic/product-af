@@ -124,23 +124,37 @@ public class StratosRestClient {
         }
     }
 
-        public String getApplicationRuntime(String applicationId) throws AppFactoryException {
-        ServerResponse response = MutualAuthHttpClient.sendGetRequest(this.stratosManagerURL
-                                                                      + this.APPLICATIONS_REST_END_POINT + "/"
-                                                                      + applicationId + "/runtime", username);
-        if (response.getStatusCode() == HttpStatus.SC_OK) {
-            String applicationInstanceJson = response.getResponse();
-            if (log.isDebugEnabled()) {
-                log.debug("Stratos application runtime json : " + applicationInstanceJson);
-            }
-            return applicationInstanceJson;
-        } else {
-            String errorMsg = "Error occured while getting application runtime for ID : " + applicationId
-                              + "HTTP Status code : " + response.getStatusCode() + " server response : "
-                              + response.getResponse();
-            handleException(errorMsg);
+    public void undeployAndDeleteApplication(String applicationId) throws AppFactoryException {
+        undeployApplication(applicationId);
+        //TODO :
+        // Have to wait till application get undeployed
+        // Stratos is going to make undeploy a synchronous call or will provide a certial wait time
+        // Before deletion
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            log.error("Sleep thread got interrupted before deleting stratos application", e);
         }
-        return null;
+        deleteApplication(applicationId);
+    }
+
+    public String getApplicationRuntime(String applicationId) throws AppFactoryException {
+    ServerResponse response = MutualAuthHttpClient.sendGetRequest(this.stratosManagerURL
+                                                                  + this.APPLICATIONS_REST_END_POINT + "/"
+                                                                  + applicationId + "/runtime", username);
+    if (response.getStatusCode() == HttpStatus.SC_OK) {
+        String applicationInstanceJson = response.getResponse();
+        if (log.isDebugEnabled()) {
+            log.debug("Stratos application runtime json : " + applicationInstanceJson);
+        }
+        return applicationInstanceJson;
+    } else {
+        String errorMsg = "Error occured while getting application runtime for ID : " + applicationId
+                          + "HTTP Status code : " + response.getStatusCode() + " server response : "
+                          + response.getResponse();
+        handleException(errorMsg);
+    }
+    return null;
     }
 
     public boolean isApplicationCreated(String applicationId) throws AppFactoryException {
