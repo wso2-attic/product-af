@@ -7,6 +7,7 @@
         <fileSet filtered="true" encoding="UTF-8">
             <directory />
             <includes>
+		 <include>.project</include>
                 <include>bin.xml</include>
 		<include>assembly.xml</include>
             </includes>
