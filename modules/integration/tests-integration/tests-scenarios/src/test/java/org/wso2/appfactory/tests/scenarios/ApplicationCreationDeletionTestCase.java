@@ -50,7 +50,7 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		});
 	}
 
-	@Factory(dataProvider = "userModeDataProvider")
+	@Factory(dataProvider = "applicationTypeDataProvider")
 	public ApplicationCreationDeletionTestCase(String apptype, String initialStage, String defaultArtifactVersion,
 	                                           String runtimeAlias, String extension) {
 		this.apptype = apptype;
@@ -61,7 +61,7 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 	}
 
 	@DataProvider
-	public static Object[][] userModeDataProvider() {
+	public static Object[][] applicationTypeDataProvider() {
 		return new Object[][]{
 				new Object[]{"war", "Development", "default-SNAPSHOT" , "as", "war"},
 				new Object[]{"jaxrs", "Development", "default-SNAPSHOT" , "as", "war"},
