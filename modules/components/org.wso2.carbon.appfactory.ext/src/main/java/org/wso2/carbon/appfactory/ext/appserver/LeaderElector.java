@@ -93,8 +93,8 @@ public class LeaderElector {
                             for (Member member : cluster.getMembers()) {
                                 MemberStatus memStatus = member.getStatus();
                                 if (MemberStatus.Active.equals(memStatus)) {
-                                    memberIpMap.put(member.getDefaultPublicIP(),
-                                                    InetAddress.getByName(member.getDefaultPublicIP()));
+                                    memberIpMap.put(member.getDefaultPrivateIP(),
+                                                    InetAddress.getByName(member.getDefaultPrivateIP()));
                                 }
                             }
                         }
