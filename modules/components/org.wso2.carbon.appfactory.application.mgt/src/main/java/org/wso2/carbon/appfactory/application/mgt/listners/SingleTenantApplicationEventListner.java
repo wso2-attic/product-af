@@ -79,17 +79,7 @@ public class SingleTenantApplicationEventListner extends ApplicationEventsHandle
             stratosApplicationId = CommonUtil.generateUniqueStratosApplicationId(tenantId, appfactoryApplicationId,
                                                                                  version, stage);
             try {
-                restService.undeployApplication(stratosApplicationId);
-                //TODO :
-                // Have to wait till application get undeployed
-                // Stratos is going to make undeploy a synchronous call or will provide a certial wait time
-                // Before deletion
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    log.error("Sleep thread got interrupted before deleting stratos application", e);
-                }
-                restService.deleteApplication(stratosApplicationId);
+                restService.undeployAndDeleteApplication(stratosApplicationId);
             } catch (Exception e) {
                 log.error("Error while deleting stratos application for id : " + stratosApplicationId, e);
             } finally {
