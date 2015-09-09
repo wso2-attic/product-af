@@ -57,18 +57,14 @@ var tenantDomain = outputs.tenantDomain;
                         <label for="master-repo">Master Repository: </label>
                         <div class="input-group input-wrap">
                             <input id="masterRepo" type="text" class="form-control" placeholder="" value="<%=masterRepoURL%>">
-                            <div class="input-group-btn btn-input-right">
+                            <div class="input-group-btn">
                                 <button id="copytoClipboardMaster" class="btn btn-default" type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
                                 </button>
-                            </div>
-                            <div class="input-group-btn">
                                 <a href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" target="_blank" class="btn btn-default btn-gray" type="button" title="Check your code @GitBit">
                                     <span class="hidden-xs">Check your code @GitBit</span>
                                     <span class="visible-xs"><i class="fw fw-globe"></i> </span>
                                 </a>
-                            </div>
-                            <div class="input-group-btn">
                                 <button class="btn btn-lightgray" id="fork"  type="button" title="Fork your code">
                                     <i class="fa fa-code-fork" aria-hidden="true"></i>
                                     <span class="hidden-xs">Fork</span>
@@ -85,12 +81,10 @@ var tenantDomain = outputs.tenantDomain;
                         <label for="master-repo">Forked Repository: </label>
                         <div class="input-group input-wrap">
                             <input id="forkedRepo" type="text" class="form-control" placeholder="" value="">
-                            <div class="input-group-btn btn-input-right">
+                            <div class="input-group-btn">
                                 <button id="copytoClipboardForked" class="btn btn-default " type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
                                 </button>
-                            </div>
-                            <div class="input-group-btn">
                                 <a href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" target="_blank" class="btn btn-default btn-gray" type="button" title="Check your code @GitBit">
                                     <span class="hidden-xs">Check your code @GitBit</span>
                                     <span class="visible-xs"><i class="fw fw-globe"></i> </span>

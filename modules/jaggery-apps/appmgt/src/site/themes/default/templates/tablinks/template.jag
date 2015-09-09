@@ -60,12 +60,20 @@ include("/jagg/constants.jag");
              <% if (outputs.isReposAndBuildsAllowed) { %>
             <li class="<% if (pageName == "repos") { %>selected<%}%>">
                  <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
-                        <i class="fa fa-cogs"></i> Deployed Versions
-                    </a>
                 <% } else { %>
                     <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/repository.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Repository">
                         <i class="fa fa-cogs"></i> Repository
+                    </a>
+                <% } %>
+            </li>
+            <% } %>
+
+            <% if (outputs.isReposAndBuildsAllowed) { %>
+            <li class="<% if (pageName == "buildDeploy") { %>selected<%}%>">
+                 <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
+                <% } else { %>
+                    <a id="menu_buildDeploy" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Build & Deploy">
+                        <i class="fw fw-deploy"></i> Build & Deploy
                     </a>
                 <% } %>
             </li>
