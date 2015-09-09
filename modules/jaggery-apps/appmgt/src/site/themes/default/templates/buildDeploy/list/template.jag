@@ -23,6 +23,11 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
+    var forkFlag = request.getParameter("isForkInfo");
+    var isForkInfo = false;
+    if(forkFlag) {
+       isForkInfo = true;
+    }
     var currentVersion = getSelectedVersionFromSession(applicationKey);
     var tenantDomain = outputs.tenantDomain;
     var userName = jagg.getUser();
@@ -33,6 +38,7 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
     var currentVersion = "<%=currentVersion%>";
     var tenantDomain = "<%=tenantDomain%>";
     var userName = "<%=userName%>";
+    var isForkInfo = <%=isForkInfo%>;
 </script>
 
 <!-- BOF App factory menu actionbar -->
@@ -49,12 +55,15 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
             <i class="fw fw-hour-glass fw-stack-1x"></i>
         </span> Build
     </a>
-    <a id="deployBtn" href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Deploy">
-        <span class="fw-stack fw-lg btn-action-ico">
-            <i class="fw fw-ring fw-stack-2x"></i>
-            <i class="fw fw-deploy fw-stack-1x"></i>
-        </span> Deploy
-    </a>
+
+    <% if(!isForkInfo) { %>
+        <a id="deployBtn" href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Deploy">
+            <span class="fw-stack fw-lg btn-action-ico">
+                <i class="fw fw-ring fw-stack-2x"></i>
+                <i class="fw fw-deploy fw-stack-1x"></i>
+            </span> Deploy
+        </a>
+    <% } %>
 </div>
 <!-- EOF App factory menu actionbar-->
 
@@ -75,12 +84,14 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
                         <label><%=currentVersion%></label>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for=""><strong>Status: </strong></label>
-                    <div class="input-group">
-                        <label id="buildStatus"></label>
+                <% if(!isForkInfo) { %>
+                    <div class="form-group">
+                        <label for=""><strong>Status: </strong></label>
+                        <div class="input-group">
+                            <label id="buildStatus"></label>
+                        </div>
                     </div>
-                </div>
+                <% } %>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
                 <h4>Build log history</h4>
@@ -119,4 +130,3 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
 <!-- end of loading javascript files -->
 
 <% }); %>
-

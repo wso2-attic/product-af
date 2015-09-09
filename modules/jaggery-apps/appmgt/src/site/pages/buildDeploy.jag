@@ -24,8 +24,14 @@ var site = require("/site/conf/site.json");
 (function () {
    var applicationKey = request.getParameter('applicationKey');
    var applicationName = request.getParameter('applicationName');
+   var isForkInfo = request.getParameter('isForkInfo');
+   var displayName = "Build and Deploy";
+   if(isForkInfo) {
+        displayName = "Build and Deploy/My Fork";
+   }
    var buildDeployPage = 'buildDeploy/list';
-    jagg.render({
+
+   jagg.render({
         "name":"page/master",
         "inputs":{
             "title":"WSO2 App Factory",
@@ -59,7 +65,7 @@ var site = require("/site/conf/site.json");
                                         },
                                         {
                                             "basePath":"/site/pages/buildDeploy.jag",
-                                            "displayName": "Build & Deploy",
+                                            "displayName": displayName,
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName
@@ -85,5 +91,4 @@ var site = require("/site/conf/site.json");
         }
     });
 }());
-
 %>
