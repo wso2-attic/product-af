@@ -94,7 +94,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         if(isUploadableAppType){
         	initialVersion = AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION;
         }
-        jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, userName,
+        jenkinsCISystemDriver.createJob(application.getId(), initialVersion, "", tenantDomain, "",
                                         repoURL, AppFactoryConstants.ORIGINAL_REPOSITORY);
         try {
             String infoMsg = "Jenkins space created for application id: " + application.getId() + ".";
