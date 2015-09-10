@@ -227,7 +227,7 @@ public class DomainMappingManagementService {
                                      String newVersion, String previousVersion, boolean isCustomDomain)
             throws AppFactoryException {
         // remove existing mapping
-        removeSubscriptionDomain(appKey, previousVersion, stage, domain, appKey);
+        removeSubscriptionDomain(previousVersion, stage, domain, appKey);
         if (StringUtils.isNotBlank(
                 previousVersion)) {   // if the domain is already mapped, remove the domain from previousVersion
             DomainMappingUtils.updateVersionMetadataWithMappedDomain(appKey, previousVersion, "");
@@ -331,7 +331,7 @@ public class DomainMappingManagementService {
             // remove existing domain mapping for previous domain
             if (StringUtils.isNotBlank(previousDomain)) {
                 try {
-                    removeSubscriptionDomain(appKey, version, stage, previousDomain, appKey);
+                    removeSubscriptionDomain(version, stage, previousDomain, appKey);
                 } catch (AppFactoryException e1) {
                     String msg = "Domain validation unsuccessful for domain : " + newDomain +
                                  " and error occurred removing domain mapping for previous domain " + previousDomain +
@@ -348,7 +348,7 @@ public class DomainMappingManagementService {
         // Since we are going to keep the new domain details, remove previous domain mapping
         if (StringUtils.isNotBlank(previousDomain) && !previousDomain.equalsIgnoreCase(newDomain)) {
             try {
-                removeSubscriptionDomain(appKey, version, stage, previousDomain, appKey);
+                removeSubscriptionDomain(version, stage, previousDomain, appKey);
             } catch (AppFactoryException e) {
                 // if mapping to newDomain is successful it should continue,
                 // therefore not throwing an exception here
@@ -376,7 +376,7 @@ public class DomainMappingManagementService {
             if (isCustomDomain) {
                 String customDomain = DomainMappingUtils.getCustomDomain(appKey);
                 if (StringUtils.isNotBlank(customDomain)) {
-                    removeSubscriptionDomain(appKey, version, stage, customDomain, appKey);
+                    removeSubscriptionDomain(version, stage, customDomain, appKey);
                     DomainMappingUtils.updateCustomUrlMetadata(appKey, DomainMappingUtils.UNDEFINED_URL_RXT_VALUE,
                                                                DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
                     // NOTE: need not update the appversion rxt as removed since default prod url has not removed
@@ -388,7 +388,7 @@ public class DomainMappingManagementService {
             } else {
                 String defaultDomain = DomainMappingUtils.getDefaultDomain(appKey);
                 if (StringUtils.isNotBlank(defaultDomain)) {
-                    removeSubscriptionDomain(appKey, version, stage, defaultDomain, appKey);
+                    removeSubscriptionDomain(version, stage, defaultDomain, appKey);
                     DomainMappingUtils.updateApplicationMetaDataMappedDomain(
                             appKey, DomainMappingUtils.UNDEFINED_URL_RXT_VALUE);
                     if (StringUtils.isNotBlank(version)) {   // update the appversion rxt as removed
@@ -411,15 +411,12 @@ public class DomainMappingManagementService {
 
     /**
      * Remove existing domain mapping entries from Stratos
-     *
-     *
-     * @param key
      * @param version
-     *@param stage  mapping stage
+     * @param stage  mapping stage
      * @param domain e.g: some.organization.org this doesn't require the protocol such as http/https
      * @param appKey application key    @throws AppFactoryException
      */
-    public void removeSubscriptionDomain(String key, String version, String stage, String domain, String appKey) throws AppFactoryException {
+    public void removeSubscriptionDomain(String version, String stage, String domain, String appKey) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String appType = ApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(appKey, version, stage, domain, appType);
