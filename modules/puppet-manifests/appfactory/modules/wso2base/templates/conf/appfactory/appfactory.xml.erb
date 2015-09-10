@@ -507,10 +507,10 @@
                 <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
             </Promote>
             <CreateArtifact>Always</CreateArtifact>
-            <DeploymentServerURL>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %>/services/</DeploymentServerURL>
-            <LogServerURL>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %>/services/</LogServerURL>
+            <DeploymentServerURL>https://<%= dev_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= dev_app_id %>.<%= @wso2_env_domain %>/services/</LogServerURL>
             <MountPoint>dev</MountPoint>
-            <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %></BaseAccessUrl>
+            <BaseAccessUrl>https://<%= dev_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= @dev_greg_port %>/services/</GregServerURL>
             <Buildable>true</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
@@ -600,10 +600,10 @@
                 <TargetStage>Development</TargetStage>
             </Demote>
             <CreateArtifact>UserInput</CreateArtifact>
-            <DeploymentServerURL>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %>/services/</DeploymentServerURL>
-            <LogServerURL>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %>/services/</LogServerURL>
+            <DeploymentServerURL>https://<%= test_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= test_app_id %>.<%= @wso2_env_domain %>/services/</LogServerURL>
             <MountPoint>test</MountPoint>
-            <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %></BaseAccessUrl>
+            <BaseAccessUrl>https://<%= test_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= @test_greg_port %>/services/</GregServerURL>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
@@ -667,10 +667,10 @@
                 <TargetStage>Testing</TargetStage>
             </Demote>
             <CreateArtifact>Never</CreateArtifact>
-            <DeploymentServerURL>https://<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %>/services/</DeploymentServerURL>
-            <LogServerURL>https://<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %>/services/</LogServerURL>
+            <DeploymentServerURL>https://<%= prod_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= prod_app_id %>.<%= @wso2_env_domain %>/services/</LogServerURL>
             <MountPoint>prod</MountPoint>
-            <BaseAccessUrl>https:/<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %></BaseAccessUrl>
+            <BaseAccessUrl>https://<%= prod_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_prod_subdomain %>.<%= @wso2_env_domain %>:<%= @prod_greg_port %>/services/</GregServerURL>
             <Semantic>Production</Semantic>
             <Buildable>false</Buildable>
