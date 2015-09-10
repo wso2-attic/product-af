@@ -53,6 +53,7 @@
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
     var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>');
     var previousVersion = "<%=previousVersion%>";
+    var lifeCycleName = "<%=LIFE_CYCLE_NAME%>";
 </script>
 
 <!-- end of setting global javascript variable -->
@@ -143,7 +144,7 @@
 
             <div class="col-xs-12 col-md-12 col-lg-3">
               <div class="btn-create-version">
-                <a href="<%=createVersionUrl%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                <a id="createVersionBtn" href="#">
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-add fw-stack-1x"></i>
@@ -270,6 +271,18 @@
 <% jagg.includeBlock("page/notification-wall", {"wall_name" : applicationKey + " - App Wall","applicationKey" : applicationKey, "pageName":"App Home"});%>
 <div class="clearfix"></div><div id="push"></div></div>
 
+<div class="create-version-form-wrap">
+    <div class="form-inline">
+        <div class="form-group">
+            <label for="new-version" class="control-label">Specify new version :
+                <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left"
+                   title="Version..."></i>
+            </label>
+            <input type="text" class="form-control" id="new-version">
+        </div>
+        <button type="submit" id="versionCreationBtn" class="btn btn-primary">Create</button>
+    </div>
+</div>
 
 <!-- loading javascript files to the page after page is rendering -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>

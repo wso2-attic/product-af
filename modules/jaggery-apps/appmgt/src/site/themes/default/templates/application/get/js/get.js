@@ -5,6 +5,7 @@ var devStudioLink = "https://docs.wso2.com/display/AF210/Use+WSO2+Developer+Stud
 var versionChangeEventAdded = false;
 var timer = null;
 var currentMessage = null;
+var popoverAdded = false;
 
 // page initialization
 $(document).ready(function() {
@@ -108,6 +109,7 @@ function loadAppInfoFromServer(version) {
                     loadLaunchInfo(appInfo, currentAppInfo);
                     loadIssuesInfo(version);
                     loadDatabaseInfo(currentAppInfo);
+                    addVersionCreationHandler();
                 }
             }
       },function (jqXHR, textStatus, errorThrown) {
@@ -500,6 +502,89 @@ function hideTopMessage() {
         var id = currentMessage.options.id;
         jagg.removeMessageById(id);
     }
+}
+
+function addVersionCreationHandler() {
+    // create the message
+    var version = "";
+    if("trunk" == currentVersion) {
+        version = currentVersion;
+    } else {
+        version = "v ";
+        version += currentVersion;
+    }
+    var message = "You are creating a new version from ";
+    message += "<b>" + version + "</b>";
+    message += " of your application";
+
+    // create a popover
+    $(".btn-create-version").popover("destroy");
+    $(".btn-create-version").popover({
+        title: message,
+        html:true,
+        content: $(".create-version-form-wrap").html(),
+        placement: 'bottom'
+    });
+
+    // add button click handler
+    $(".btn-create-version").on('shown.bs.popover', function() {
+        $("#versionCreationBtn").click(function() {
+            var newVersion = $("#new-version").val();
+            createVersion(currentVersion, newVersion);
+        });
+    });
+}
+
+function createVersion(srcVersion, targetVersion) {
+    if(validateVersion(targetVersion)) {
+        // show message
+        showVersionCreationMessage(srcVersion, targetVersion);
+        $(".btn-create-version").popover("destroy");
+
+        // create verion
+        jagg.post("../blocks/reposBuilds/add/ajax/add.jag", {
+            action: "invokeDoVersion",
+            applicationKey: applicationInfo.key,
+            srcVersion:srcVersion,
+            targetVersion:targetVersion,
+            lifecycleName:lifeCycleName
+        }, function (result) {
+            result = JSON.parse(result);
+            if(result === true) {
+                // load new data
+                loadAppInfoFromServer(targetVersion);
+            }
+        }, function (jqXHR, textStatus, errorThrown) {
+            jagg.message({
+                content: "Error while creating version. Check the given version value and try again.",
+                type: 'error'
+            });
+        });
+    } else {
+        jagg.removeMessage();
+        jagg.message({
+            content: "Invalid version number - Provide version number in format major.minor.patch",
+            type: 'error',
+            id:'reposBuild'
+        });
+    }
+}
+
+function showVersionCreationMessage(srcVersion, targetVersion) {
+    // put a message to the user
+    var message = "";
+    message += "New version ";
+    message == targetVersion;
+    message += " has been created from ";
+    message += srcVersion;
+    message += " and the version has been set to ";
+    message += targetVersion;
+    jagg.message({content: message, type: 'success', id:'notification'});
+}
+
+function validateVersion(version) {
+    var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;
+    return pattern.test(version);
 }
 
 // Utility Functions Goes Here
