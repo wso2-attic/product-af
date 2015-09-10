@@ -87,11 +87,11 @@ public class DomainMappingManagementService {
             throws AppFactoryException, DomainMappingVerificationException {
         String appType = ApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
         String addSubscriptionDomainEndPoint =
-                DomainMappingUtils.getAddDomainEndPoint(stage, appType);
+                DomainMappingUtils.getAddDomainEndPoint(appKey,version, stage, appType);
         synchronized (domain.intern()) {
 
             // Check domain availability
-            boolean domainAvailable = isDomainAvailable(stage, domain, appType);
+            boolean domainAvailable = isDomainAvailable(appKey, version, stage, domain, appType);
             if (!domainAvailable) {
                 // Throws an exception, if requested domain is not available.
                 log.error("Requested domain: " + domain + " does not available for application id :" + appKey +
@@ -227,7 +227,7 @@ public class DomainMappingManagementService {
                                      String newVersion, String previousVersion, boolean isCustomDomain)
             throws AppFactoryException {
         // remove existing mapping
-        removeSubscriptionDomain(stage, domain, appKey);
+        removeSubscriptionDomain(appKey, previousVersion, stage, domain, appKey);
         if (StringUtils.isNotBlank(
                 previousVersion)) {   // if the domain is already mapped, remove the domain from previousVersion
             DomainMappingUtils.updateVersionMetadataWithMappedDomain(appKey, previousVersion, "");
@@ -331,7 +331,7 @@ public class DomainMappingManagementService {
             // remove existing domain mapping for previous domain
             if (StringUtils.isNotBlank(previousDomain)) {
                 try {
-                    removeSubscriptionDomain(stage, previousDomain, appKey);
+                    removeSubscriptionDomain(appKey, version, stage, previousDomain, appKey);
                 } catch (AppFactoryException e1) {
                     String msg = "Domain validation unsuccessful for domain : " + newDomain +
                                  " and error occurred removing domain mapping for previous domain " + previousDomain +
@@ -348,7 +348,7 @@ public class DomainMappingManagementService {
         // Since we are going to keep the new domain details, remove previous domain mapping
         if (StringUtils.isNotBlank(previousDomain) && !previousDomain.equalsIgnoreCase(newDomain)) {
             try {
-                removeSubscriptionDomain(stage, previousDomain, appKey);
+                removeSubscriptionDomain(appKey, version, stage, previousDomain, appKey);
             } catch (AppFactoryException e) {
                 // if mapping to newDomain is successful it should continue,
                 // therefore not throwing an exception here
@@ -376,7 +376,7 @@ public class DomainMappingManagementService {
             if (isCustomDomain) {
                 String customDomain = DomainMappingUtils.getCustomDomain(appKey);
                 if (StringUtils.isNotBlank(customDomain)) {
-                    removeSubscriptionDomain(stage, customDomain, appKey);
+                    removeSubscriptionDomain(appKey, version, stage, customDomain, appKey);
                     DomainMappingUtils.updateCustomUrlMetadata(appKey, DomainMappingUtils.UNDEFINED_URL_RXT_VALUE,
                                                                DomainMappingUtils.UNVERIFIED_VERIFICATION_CODE);
                     // NOTE: need not update the appversion rxt as removed since default prod url has not removed
@@ -388,7 +388,7 @@ public class DomainMappingManagementService {
             } else {
                 String defaultDomain = DomainMappingUtils.getDefaultDomain(appKey);
                 if (StringUtils.isNotBlank(defaultDomain)) {
-                    removeSubscriptionDomain(stage, defaultDomain, appKey);
+                    removeSubscriptionDomain(appKey, version, stage, defaultDomain, appKey);
                     DomainMappingUtils.updateApplicationMetaDataMappedDomain(
                             appKey, DomainMappingUtils.UNDEFINED_URL_RXT_VALUE);
                     if (StringUtils.isNotBlank(version)) {   // update the appversion rxt as removed
@@ -412,15 +412,17 @@ public class DomainMappingManagementService {
     /**
      * Remove existing domain mapping entries from Stratos
      *
-     * @param stage  mapping stage
+     *
+     * @param key
+     * @param version
+     *@param stage  mapping stage
      * @param domain e.g: some.organization.org this doesn't require the protocol such as http/https
-     * @param appKey application key
-     * @throws AppFactoryException
+     * @param appKey application key    @throws AppFactoryException
      */
-    public void removeSubscriptionDomain(String stage, String domain, String appKey) throws AppFactoryException {
+    public void removeSubscriptionDomain(String key, String version, String stage, String domain, String appKey) throws AppFactoryException {
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String appType = ApplicationDAO.getInstance().getApplicationInfo(appKey).getType();
-        String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(stage, domain, appType);
+        String removeSubscriptionDomainEndPoint = DomainMappingUtils.getRemoveDomainEndPoint(appKey, version, stage, domain, appType);
         ServerResponse deleteResponse;
         try {
             deleteResponse = MutualAuthHttpClient.sendDeleteRequest(
@@ -618,15 +620,17 @@ public class DomainMappingManagementService {
     /**
      * Check whether domain is available
      *
-     * @param stage   mapping stage
+     *
+     * @param appKey
+     * @param version
+     *@param stage   mapping stage
      * @param domain  e.g: some.organization1.org this doesn't require the protocol such as http/https
-     * @param appType application type
-     * @return true if domain is available
+     * @param appType application type    @return true if domain is available
      */
-    private boolean isDomainAvailable(String stage, String domain, String appType) throws AppFactoryException {
+    private boolean isDomainAvailable(String appKey, String version, String stage, String domain, String appType) throws AppFactoryException {
         boolean isAvailable = true;
         String validateSubscriptionDomainEndPoint =
-                DomainMappingUtils.getDomainAvailableEndPoint(stage, domain, appType);
+                DomainMappingUtils.getDomainAvailableEndPoint(appKey, version, stage, domain, appType);
 
         ServerResponse response;
         try {
