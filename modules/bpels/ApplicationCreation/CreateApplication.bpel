@@ -10,7 +10,6 @@
 	xmlns:xsd1="http://service.notification.events.appfactory.carbon.wso2.org/xsd" xmlns:ns4="http://service.build.jenkins.appfactory.carbon.wso2.org">
 
 	<!-- Import the client WSDL -->
-    <bpel:import namespace="http://service.build.jenkins.appfactory.carbon.wso2.org" location="TenantContinousIntegrationSystemDriverService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
     <bpel:import namespace="http://service.mgt.repository.appfactory.carbon.wso2.org" location="TenantRepositoryCreationService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
 	<bpel:import namespace="http://service.mgt.repository.appfactory.carbon.wso2.org"
 		location="RepositoryManagementService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>

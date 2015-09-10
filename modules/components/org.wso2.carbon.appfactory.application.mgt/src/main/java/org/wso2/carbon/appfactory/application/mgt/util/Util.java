@@ -17,12 +17,6 @@
 package org.wso2.carbon.appfactory.application.mgt.util;
 
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +32,8 @@ import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+
+import java.util.*;
 
 /**
  *
@@ -190,23 +186,12 @@ public class Util {
     }
     
     public static void setTenantManagementService(TenantManagementService tenantManagementService){
-    	Util.tenantManagementService=tenantManagementService;
+    	Util.tenantManagementService = tenantManagementService;
     }
     
     public static TenantManagementService getTenantManagementService(){
-    	return Util.tenantManagementService=tenantManagementService;
+    	return Util.tenantManagementService;
     }
-    
-    public static void setTenantContinousIntegrationSystemDriverService(TenantContinousIntegrationSystemDriverService tenantContinousIntegrationSystemDriverService) {
-		Util.tenantContinousIntegrationSystemDriverService =
-		                                                     tenantContinousIntegrationSystemDriverService;
-
-	}
-
-	public static TenantContinousIntegrationSystemDriverService getTenantContinousIntegrationSystemDriverService() {
-		return Util.tenantContinousIntegrationSystemDriverService;
-
-	}
 	
 	private static boolean isHandlerPriorityAlreadyAvailable(ApplicationEventsHandler hanlderToBeRegistered) {
 
