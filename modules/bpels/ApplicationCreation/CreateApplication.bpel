@@ -34,7 +34,6 @@
 			partnerLinkType="tns:RepositoryMgtPLType" partnerRole="RepositoryMgt"></bpel:partnerLink>
 		
         <bpel:partnerLink name="RepoMgtPL" partnerLinkType="tns:RepoMgtPLType" partnerRole="RepoMgt"></bpel:partnerLink>
-        <bpel:partnerLink name="ContinousIntegrationPL" partnerLinkType="tns:ContinousIntegrationPLType" partnerRole="ContinousIntegration"></bpel:partnerLink>
     </bpel:partnerLinks>
 
 	<!-- ================================================================= -->
@@ -58,7 +57,7 @@
 
         <bpel:variable name="RepoMgtPLResponse" messageType="ns2:createRepositoryResponse"></bpel:variable>
         <bpel:variable name="RepoMgtPLRequest" messageType="ns2:createRepositoryRequest"></bpel:variable>
-        <bpel:variable name="ContinousIntegrationPLRequest" messageType="ns4:createJobRequest"></bpel:variable>
+        
 
         <bpel:variable name="ApplicationMgtPLResponse" messageType="ns1:deleteApplicationResponse"></bpel:variable>
         <bpel:variable name="ApplicationMgtPLRequest" messageType="ns1:deleteApplicationRequest"></bpel:variable>
