@@ -1,6 +1,10 @@
 var lastBuildId = 0;
+var lastDeployedBuildId = 0;
 var timer = null;
+var deployInfoTimer = null;
 var handlerAdded = false;
+var isProgBuildsAvailable = false;
+var buildCompleted = false;
 
 // initialize the page when document is ready
 $(document).ready(function() {
@@ -34,44 +38,55 @@ var getBuildHistory = function (isForkData) {
 
 var drawBuildHistory = function(buildHistory) {
     if(buildHistory && buildHistory.builds) {
+        // keep data in variable
         var builds = buildHistory.builds;
         var maxBuildId = getMaxBuildId(builds);
+        trackInProgressBuilds(builds);
+
+        // draw table
+        $('#buildHistoryTbl').empty();
+        for(var key in builds) {
+            var buildInfo = builds[key];
+            appendBuildDataRowToView(buildInfo);
+        }
+
         if(maxBuildId === 0 || (maxBuildId > lastBuildId)) {
             lastBuildId = maxBuildId;
-            $('#buildHistoryTbl').empty();
-            for(var key in builds) {
-                var buildInfo = builds[key];
-                if(buildInfo) {
-                    var date = new Date(parseInt(buildInfo.timestamp));
-                    var message = "";
-                    message += "<tr>";
-                    message += "<td><span class='table-notification-msg";
-                    if("SUCCESS" === buildInfo.result) {
-                        message += " table-noti-success";
-                    } else if("FAILURE" === buildInfo.result) {
-                        message += " table-noti-error";
-                    } else {
-                        message += " table-noti-default";
-                    }
-                    message += " '></span>";
-                    message += "Build   ";
-                    message += buildInfo.id;
-                    message += "</td>";
-                    message += "<td>";
-                    message += date.toDateString();
-                    message += "</td>";
-                    message += "<td><a href='#modal-one' data-toggle='modal' data-target='#modal-one' id='build-log-" + buildInfo.id + "'>Build Logs</a>";
-                    message += "</td>";
-                    message += "</tr>";
-
-                   // set message
-                   $('#buildHistoryTbl').append(message);
-                }
-            }
             clearTimeout(timer);
         } else {
+            // pool until all the builds are completed
             poolUntilBuildTriggers(init);
         }
+    }
+    poolUntilCurrentBuildsCompleted(init);
+}
+
+var appendBuildDataRowToView = function(buildInfo) {
+    if(buildInfo) {
+        var date = new Date(parseInt(buildInfo.timestamp));
+        var message = "";
+        message += "<tr>";
+        message += "<td><span class='table-notification-msg";
+        if("SUCCESS" === buildInfo.result) {
+            message += " table-noti-success";
+        } else if("FAILURE" === buildInfo.result) {
+            message += " table-noti-error";
+        } else {
+            message += " table-noti-default";
+        }
+        message += " '></span>";
+        message += "Build   ";
+        message += buildInfo.id;
+        message += "</td>";
+        message += "<td>";
+        message += date.toDateString();
+        message += "</td>";
+        message += "<td><a href='#modal-one' data-toggle='modal' data-target='#modal-one' id='build-log-" + buildInfo.id + "'>Build Logs</a>";
+        message += "</td>";
+        message += "</tr>";
+
+        // set message
+        $('#buildHistoryTbl').append(message);
     }
 }
 
@@ -120,7 +135,6 @@ var getBuildAndDeploymentInfo = function(isForkInfo) {
             if(!isForkInfo || isForkInfo == "null") {
                 drawDeployedStatus(versionInfo, isForkInfo);
             }
-
         }
     },
     function (jqXHR, textStatus, errorThrown) {
@@ -137,7 +151,11 @@ var addBuildNDeployListeners = function (versionInfo, isForkInfo) {
         if(!handlerAdded) {
             // add build button listener
             $("#buildBtn").click(function(event) {
-                doBuild(applicationKey, " ", versionInfo.stage, " ", currentVersion, versionInfo.isAutoDeploy, repoFrom);
+                var autoDeploy = versionInfo.isAutoDeploy;
+                if(isForkInfo) {
+                    autoDeploy = false;
+                }
+                doBuild(applicationKey, " ", versionInfo.stage, " ", currentVersion, autoDeploy, repoFrom);
             });
 
             // add deploy button listener
@@ -174,6 +192,11 @@ var drawDeployedStatus = function(buildInfo, isForkInfo) {
         message += " stage";
     }
     $('#buildStatus').html(message);
+
+    if(lastDeployedBuildId === 0 || (buildInfo.deployedBuildId <= lastDeployedBuildId)) {
+        refreshDeployInfo(getBuildAndDeploymentInfo, isForkInfo);
+        lastDeployedBuildId = buildInfo.deployedBuildId;
+    }
 }
 
 var doBuild = function(applicationKey, revision, stage, tagName, version, autoDeploy, repoFrom) {
@@ -208,11 +231,11 @@ var doDeploy = function(applicationKey, deployAction, stage, tagName, version) {
                 version:version
     }, function (result) {
         jagg.message({
-            content: "Deployment has been submitted successfully - Refresh the page in few seconds.",
+            content: "Deployment has been submitted successfully.",
             type: 'success',
             id:'message_id_success'
         });
-        refreshBuildStatus(getBuildAndDeploymentInfo, isForkInfo);
+        refreshDeployInfo(getBuildAndDeploymentInfo, isForkInfo);
     },
 
     function (jqXHR, textStatus, errorThrown) {
@@ -235,10 +258,6 @@ var isJsonString = function(value) {
     return true;
 }
 
-var refreshBuildStatus = function(callback) {
-    var timer = setTimeout(callback, 10000);
-}
-
 var getMaxBuildId = function(builds) {
     var maxId = 0;
     if(builds) {
@@ -255,7 +274,38 @@ var getMaxBuildId = function(builds) {
     return maxId;
 }
 
+var trackInProgressBuilds = function(builds) {
+    var result = false;
+    if(builds) {
+        for(var i=0; i<builds.length; i++) {
+            var build = builds[i];
+            if(build) {
+                var buildStatus = build.result;
+                if("SUCCESS" != buildStatus && "FAILURE" != buildStatus) {
+                    result = true;
+                }
+            }
+        }
+    }
+    isProgBuildsAvailable = result;
+}
+
+var refreshDeployInfo = function(callback) {
+    clearTimeout(deployInfoTimer);
+    deployInfoTimer = setTimeout(callback, 10000);
+}
+
 var poolUntilBuildTriggers = function(callback) {
-    clearTimeout(timer);
-    timer = setTimeout(callback, 3000);
+    if(buildCompleted === false) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, 3000);
+    }
+}
+
+var poolUntilCurrentBuildsCompleted = function(callback) {
+    if(isProgBuildsAvailable === true) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, 3000);
+        buildCompleted = true;
+    }
 }
