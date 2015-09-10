@@ -1,27 +1,34 @@
+var lastBuildId = 0;
+var lastDeployedBuildId = 0;
+var timer = null;
+var deployInfoTimer = null;
+var handlerAdded = false;
+var isProgBuildsAvailable = false;
+var buildCompleted = false;
+
 // initialize the page when document is ready
 $(document).ready(function() {
     init();
 });
 
 var init = function() {
-//    getAppVersionInfo();
-    getBuildAndDeploymentInfo();
-    getBuildHistory(false);
-    // add element listeners
-//    addListeners();
+    getBuildAndDeploymentInfo(isForkInfo);
+    getBuildHistory(isForkInfo);
 }
 
-var getBuildHistory = function (isFork) {
+var getBuildHistory = function (isForkData) {
     jagg.post("../blocks/buildDeploy/list/ajax/list.jag", {
           action:"getBuildHistory",
           applicationKey: applicationKey,
           applicationVersion: currentVersion,
-          forkedRepository: isFork,
+          forkedRepository: isForkData,
           tenantDomain:tenantDomain
     },function (result) {
+        if(isJsonString(result)) {
             var buildHistory = jQuery.parseJSON(result);
             drawBuildHistory(buildHistory);
-            addBuildLogHandlers(buildHistory, isFork);
+            addBuildLogHandlers(buildHistory, isForkData);
+        }
       },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
                 jagg.message({content:'Could not build history information', type:'error', id:'notification' });
@@ -31,50 +38,69 @@ var getBuildHistory = function (isFork) {
 
 var drawBuildHistory = function(buildHistory) {
     if(buildHistory && buildHistory.builds) {
+        // keep data in variable
         var builds = buildHistory.builds;
+        var maxBuildId = getMaxBuildId(builds);
+        trackInProgressBuilds(builds);
+
+        // draw table
+        $('#buildHistoryTbl').empty();
         for(var key in builds) {
             var buildInfo = builds[key];
-            if(buildInfo) {
-                var date = new Date(parseInt(buildInfo.timestamp));
-                var message = "";
-                message += "<tr>";
-                message += "<td><span class='table-notification-msg";
-                if("SUCCESS" === buildInfo.result) {
-                    message += " table-noti-success";
-                } else if("FAIL" === buildInfo.result) {
-                    message += " table-noti-error";
-                } else {
-                    message += " table-noti-default";
-                }
-                message += " '></span>";
-                message += "Build   ";
-                message += buildInfo.id;
-                message += "</td>";
-                message += "<td>";
-                message += date.toDateString();
-                message += "</td>";
-                message += "<td><a href='#modal-one' data-toggle='modal' data-target='#modal-one' id='build-log-" + buildInfo.id + "'>Build Logs</a>";
-                message += "</td>";
-                message += "</tr>";
-
-               // set message
-               $('#buildHistoryTbl').append(message);
-            }
+            appendBuildDataRowToView(buildInfo);
         }
+
+        if(maxBuildId === 0 || (maxBuildId > lastBuildId)) {
+            lastBuildId = maxBuildId;
+            clearTimeout(timer);
+        } else {
+            // pool until all the builds are completed
+            poolUntilBuildTriggers(init);
+        }
+    }
+    poolUntilCurrentBuildsCompleted(init);
+}
+
+var appendBuildDataRowToView = function(buildInfo) {
+    if(buildInfo) {
+        var date = new Date(parseInt(buildInfo.timestamp));
+        var message = "";
+        message += "<tr>";
+        message += "<td><span class='table-notification-msg";
+        if("SUCCESS" === buildInfo.result) {
+            message += " table-noti-success";
+        } else if("FAILURE" === buildInfo.result) {
+            message += " table-noti-error";
+        } else {
+            message += " table-noti-default";
+        }
+        message += " '></span>";
+        message += "Build   ";
+        message += buildInfo.id;
+        message += "</td>";
+        message += "<td>";
+        message += date.toDateString();
+        message += "</td>";
+        message += "<td><a href='#modal-one' data-toggle='modal' data-target='#modal-one' id='build-log-" + buildInfo.id + "'>Build Logs</a>";
+        message += "</td>";
+        message += "</tr>";
+
+        // set message
+        $('#buildHistoryTbl').append(message);
     }
 }
 
-var addBuildLogHandlers = function(buildHistory, isFork) {
+var addBuildLogHandlers = function(buildHistory, isForkData) {
     if(buildHistory && buildHistory.builds) {
         var builds = buildHistory.builds;
          for(var i=0; i<builds.length ; i++) {
             var buildInfo = builds[i];
-            addBuildLogHandler("build-log-" + buildInfo.id, buildInfo.id, isFork);
+            addBuildLogHandler("build-log-" + buildInfo.id, buildInfo.id, isForkData);
         }
     }
 }
 
-var addBuildLogHandler = function(elementId, buildId, isFork) {
+var addBuildLogHandler = function(elementId, buildId, isForkData) {
     $("#" + elementId).click(function(event) {
         jagg.post("../blocks/buildDeploy/list/ajax/list.jag", {
              action : "printBuildLogs",
@@ -82,7 +108,7 @@ var addBuildLogHandler = function(elementId, buildId, isFork) {
              applicationKey : applicationKey,
              applicationVersion : currentVersion,
              lastBuildId : buildId,
-             forkedRepository : isFork
+             forkedRepository : isForkData
         }, function (result) {
             $('#build_logs').html(result);
         },
@@ -92,28 +118,12 @@ var addBuildLogHandler = function(elementId, buildId, isFork) {
     });
 }
 
-var getAppVersionInfo = function() {
-    jagg.post("../blocks/application/get/ajax/list.jag", {
-          action:"getAppVersionAllInfoByVersion",
-          applicationKey: applicationKey,
-          userName: userName,
-          version: currentVersion
-    },function (result) {
-            var appInfo = jQuery.parseJSON(result);
-
-      },function (jqXHR, textStatus, errorThrown) {
-            if (jqXHR.status != 0) {
-                jagg.message({content:'Could not load Application information', type:'error', id:'notification' });
-            }
-      });
-}
-
-function getBuildAndDeploymentInfo() {
+var getBuildAndDeploymentInfo = function(isForkInfo) {
     jagg.post("../blocks/buildDeploy/list/ajax/list.jag", {
         action: "getBuildAndRepoDataForVersion",
         applicationKey:applicationKey,
         version:currentVersion,
-        userName: $("#userName").attr('value')
+        userName: userName
     }, function (result) {
         result = jQuery.parseJSON(result);
         if(result && result.length > 0) {
@@ -121,8 +131,10 @@ function getBuildAndDeploymentInfo() {
             var appInfo = result[0];
             var versionInfo = filterVersionInfo(appInfo.versions);
 
-            addBuildNDeployListeners(versionInfo);
-            drawDeployedStatus(versionInfo);
+            addBuildNDeployListeners(versionInfo, isForkInfo);
+            if(!isForkInfo || isForkInfo == "null") {
+                drawDeployedStatus(versionInfo, isForkInfo);
+            }
         }
     },
     function (jqXHR, textStatus, errorThrown) {
@@ -130,21 +142,32 @@ function getBuildAndDeploymentInfo() {
     });
 }
 
-var addBuildNDeployListeners = function (versionInfo) {
+var addBuildNDeployListeners = function (versionInfo, isForkInfo) {
     if(versionInfo) {
-        // add build button listener
-        $("#buildBtn").click(function(event) {
-            doBuild(applicationKey, " ", versionInfo.stage, " ", currentVersion, versionInfo.isAutoDeploy, "original");
-        });
+        var repoFrom = "original";
+        if(isForkInfo) {
+            repoFrom = "fork";
+        }
+        if(!handlerAdded) {
+            // add build button listener
+            $("#buildBtn").click(function(event) {
+                var autoDeploy = versionInfo.isAutoDeploy;
+                if(isForkInfo) {
+                    autoDeploy = false;
+                }
+                doBuild(applicationKey, " ", versionInfo.stage, " ", currentVersion, autoDeploy, repoFrom);
+            });
 
-        // add deploy button listener
-        $("#deployBtn").click(function(event) {
-            doDeploy(applicationKey, "deploy", versionInfo.stage, "", currentVersion);
-        });
+            // add deploy button listener
+            $("#deployBtn").click(function(event) {
+                doDeploy(applicationKey, "deploy", versionInfo.stage, "", currentVersion);
+            });
+            handlerAdded = true;
+        }
     }
 }
 
-function filterVersionInfo(versionData) {
+var filterVersionInfo = function(versionData) {
     var result = null;
     if(versionData) {
         for(var key in versionData) {
@@ -159,9 +182,9 @@ function filterVersionInfo(versionData) {
 }
 
 
-function drawDeployedStatus(buildInfo) {
+var drawDeployedStatus = function(buildInfo, isForkInfo) {
     var message = "";
-    if (buildInfo) {
+    if (buildInfo && buildInfo.deployedBuildId && buildInfo.stage) {
         message += "Build ";
         message += buildInfo.deployedBuildId;
         message += " deployed to ";
@@ -169,9 +192,14 @@ function drawDeployedStatus(buildInfo) {
         message += " stage";
     }
     $('#buildStatus').html(message);
+
+    if(lastDeployedBuildId === 0 || (buildInfo.deployedBuildId <= lastDeployedBuildId)) {
+        refreshDeployInfo(getBuildAndDeploymentInfo, isForkInfo);
+        lastDeployedBuildId = buildInfo.deployedBuildId;
+    }
 }
 
-function doBuild(applicationKey, revision, stage, tagName, version, autoDeploy, repoFrom) {
+var doBuild = function(applicationKey, revision, stage, tagName, version, autoDeploy, repoFrom) {
     jagg.post("../blocks/buildDeploy/add/ajax/add.jag", {
         action: "createArtifact",
         applicationKey: applicationKey,
@@ -187,12 +215,13 @@ function doBuild(applicationKey, revision, stage, tagName, version, autoDeploy, 
             type: 'success',
             id:'message_id_success'
         });
+        poolUntilBuildTriggers(init);
     },
     function (jqXHR, textStatus, errorThrown) {});
 }
 
 
-function doDeploy(applicationKey, deployAction, stage, tagName, version) {
+var doDeploy = function(applicationKey, deployAction, stage, tagName, version) {
     jagg.post("../blocks/buildDeploy/add/ajax/add.jag", {
                 action: "deployArtifact",
                 applicationKey: applicationKey,
@@ -202,10 +231,11 @@ function doDeploy(applicationKey, deployAction, stage, tagName, version) {
                 version:version
     }, function (result) {
         jagg.message({
-            content: "Deployment has been submitted successfully - Refresh the page in few seconds.",
+            content: "Deployment has been submitted successfully.",
             type: 'success',
             id:'message_id_success'
         });
+        refreshDeployInfo(getBuildAndDeploymentInfo, isForkInfo);
     },
 
     function (jqXHR, textStatus, errorThrown) {
@@ -217,5 +247,65 @@ function doDeploy(applicationKey, deployAction, stage, tagName, version) {
             });
         }
     });
+}
 
+var isJsonString = function(value) {
+    try {
+        JSON.parse(value);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+var getMaxBuildId = function(builds) {
+    var maxId = 0;
+    if(builds) {
+        for(var i=0; i<builds.length; i++) {
+            var build = builds[i];
+            if(build) {
+                var buildId = parseInt(build.id);
+                if(buildId && (buildId > maxId)) {
+                    maxId = buildId;
+                }
+            }
+        }
+    }
+    return maxId;
+}
+
+var trackInProgressBuilds = function(builds) {
+    var result = false;
+    if(builds) {
+        for(var i=0; i<builds.length; i++) {
+            var build = builds[i];
+            if(build) {
+                var buildStatus = build.result;
+                if("SUCCESS" != buildStatus && "FAILURE" != buildStatus) {
+                    result = true;
+                }
+            }
+        }
+    }
+    isProgBuildsAvailable = result;
+}
+
+var refreshDeployInfo = function(callback) {
+    clearTimeout(deployInfoTimer);
+    deployInfoTimer = setTimeout(callback, 10000);
+}
+
+var poolUntilBuildTriggers = function(callback) {
+    if(buildCompleted === false) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, 3000);
+    }
+}
+
+var poolUntilCurrentBuildsCompleted = function(callback) {
+    if(isProgBuildsAvailable === true) {
+        clearTimeout(timer);
+        timer = setTimeout(callback, 3000);
+        buildCompleted = true;
+    }
 }
