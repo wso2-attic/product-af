@@ -218,14 +218,14 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         }
 
         ServiceContainer.getJenkinsCISystemDriver()
-                .createJob(application.getId(), target.getVersion(), "", tenantDomain, userName,
+                .createJob(application.getId(), target.getVersion(), "", tenantDomain, "",
                         repoURL, AppFactoryConstants.ORIGINAL_REPOSITORY);
 
         ServiceContainer.getJenkinsCISystemDriver()
                 .startBuild(application.getId(),
                         target.getVersion(),
                         true, JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(),
-                                target.getVersion()), "", tenantDomain, userName,
+                                target.getVersion()), "", tenantDomain, "",
                         AppFactoryConstants.ORIGINAL_REPOSITORY);
 
     }
