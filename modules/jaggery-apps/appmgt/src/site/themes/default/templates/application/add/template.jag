@@ -87,7 +87,7 @@ function getFileUploadErrorMsg(){
 // Return whether the app icon is validated or not
 function validateAppIcon(value) {
     var file = $("#appIcon");
-    if (file.val() != "" && (ie == undefined || ie > 9) ) {
+    if ($("#icon").val() && file.val() != "" && (ie == undefined || ie > 9) ) {
         return validateIconImage(file.val(), file[0].files[0].size);
     } else {
         return true;
@@ -470,9 +470,7 @@ function showLoader(show){
         rules: {                                        // validation rules
             applicationName: {                          // applicationName filed
                 required: true,
-                validateDuplicateApplicationName: true,
-                validateApplicationName: true,
-                validateDuplicateApplicationKey: true
+                validateApplicationName: true
             },
             icon: {                                     // app icon field
                 validateAppIcon: true
@@ -606,7 +604,8 @@ function showLoader(show){
              $('#appHome').text(url);
              $('#applicationKey').val(msg);
          }
-         var isNameValid = validateApplicationName();
+         var validator = $( "#createAppForm" ).validate();
+         var isNameValid = validator.element( "#applicationName" );
          if(isNameValid){
             if (appCreationType == "existing") {
                 $("#fileupload").prop("disabled", false);
@@ -644,6 +643,14 @@ function showLoader(show){
  //New Function to submit upload apps and create new apps
  function submitAppForm(type) {
     showLoader(true);
+
+    var applicationNameElem =  $( "#applicationName" );
+    // Since validateDuplicateApplicationName and validateDuplicateApplicationKey are involved with rest calls, we
+    // add those validations to the "applicationName" at the form submission. Otherwise it will introduce delay in UI
+    applicationNameElem.rules( "add", {
+        validateDuplicateApplicationName: true,
+        validateDuplicateApplicationKey: true
+    });
     var validator = $( "#createAppForm" ).validate();
     var formValidated = validator.form();
     if(formValidated) {
@@ -656,6 +663,9 @@ function showLoader(show){
          //showTopSuccessMsg("Application creation started.");
     } else {
         showLoader(false);
+         // remove validation methods, which involve rest calls
+         applicationNameElem.rules( "remove", "validateDuplicateApplicationName");
+         applicationNameElem.rules( "remove", "validateDuplicateApplicationKey");
     }
  }
 
@@ -671,6 +681,9 @@ function showLoader(show){
 
  function clearUploadIconField() {
      document.getElementById("icon").value = "";
+     document.getElementById("appIcon").value = "";
+     var validator = $( "#createAppForm" ).validate();
+     validator.element( "#icon" );
 }
 
     </script>
