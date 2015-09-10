@@ -2,7 +2,7 @@
     "type": "<%=@test_cartridge_type %>",
     "provider": "wso2",
     "category": "framework",
-    "host": "as.stratos.org",
+    "host": "<%= @domain %>",
     "displayName": "WSO2AS",
     "description": "WSO2 App Server",
     "version": "5.2.1",
@@ -100,7 +100,7 @@
         },
         {
            "name": "payload_parameter.CONFIG_PARAM_WORKER_HOST_NAME",
-           "value": "appserver.test.<%= @domain %>"
+           "value": "<%= test_app_id %>.<%= @domain %>"
          },
          {
            "name": "payload_parameter.S2GIT_IP",

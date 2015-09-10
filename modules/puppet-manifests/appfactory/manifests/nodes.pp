@@ -58,6 +58,8 @@ node basenode {
 
   $ipaddress = $appfac_ip
   $mysql_server_1 = $ipaddress
+  $kubernetes_host_ip = $kubernetes_host
+  $kubernetes_port = $kubernetes_port
 
 # Jenkins Configs
   $jenkins_keystore_name = "/mnt/${ipaddress}/jenkins/security/wso2carbon.jks"
@@ -150,9 +152,6 @@ node basenode {
     "$ipaddress,cc.stratos.apache.org",
     "$ipaddress,as.stratos.apache.org",
     "$ipaddress,autoscaler.stratos.apache.org",
-    "192.168.18.242,appserver.dev.${domain}",
-    "192.168.18.244,appserver.test.${domain}",
-    "192.168.18.246,appserver.${domain}",
     "$ipaddress,mysql-dev-01.${domain}",
     "$ipaddress,mysql-test-01.${domain}",
     "$ipaddress,mysql-prod-01.${domain}",
