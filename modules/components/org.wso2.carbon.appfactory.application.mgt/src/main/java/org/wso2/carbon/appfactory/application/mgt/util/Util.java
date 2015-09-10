@@ -25,7 +25,6 @@ import org.wso2.carbon.appfactory.application.mgt.service.UserInfoBean;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
-import org.wso2.carbon.appfactory.jenkins.build.service.TenantContinousIntegrationSystemDriverService;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.registry.api.RegistryService;
@@ -44,7 +43,6 @@ public class Util {
     private static RealmService realmService;
     private static AppFactoryConfiguration configuration;
     private static ContinuousIntegrationSystemDriver continuousIntegrationSystemDriver;
-	private static TenantContinousIntegrationSystemDriverService tenantContinousIntegrationSystemDriverService;
     private static TenantManagementService tenantManagementService;
     public static String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
     public static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";

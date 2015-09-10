@@ -28,7 +28,6 @@ class bps (
     'conf/appfactory/endpoints/ApplicationDeployer.epr', 
     'conf/appfactory/endpoints/ApplicationManagementService.epr', 
     'conf/appfactory/endpoints/ArtifactCreator.epr', 
-    'conf/appfactory/endpoints/ContinousIntegrationService.epr', 
     'conf/appfactory/endpoints/CustomLifecyclesChecklistAdminService.epr', 
     'conf/appfactory/endpoints/EmailSenderService.epr', 
     'conf/appfactory/endpoints/EventNotificationService.epr', 
