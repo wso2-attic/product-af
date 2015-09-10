@@ -73,12 +73,12 @@ public class TenantContinousIntegrationSystemDriverService extends AbstractAdmin
      * @param version
      * @throws AppFactoryException
      */
-    public void DeleteJob(String applicationId, String version) throws AppFactoryException {
+    public void DeleteJob(String applicationId, String version, String userName) throws AppFactoryException {
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         // Job name will be '<ApplicationId>-<version>-default'
-        String jobName = ServiceContainer.getJenkinsCISystemDriver().getJobName(applicationId, version, null);
-        ServiceContainer.getJenkinsCISystemDriver().deleteJob(jobName, version, tenantDomain);
+        String jobName = ServiceContainer.getJenkinsCISystemDriver().getJobName(applicationId, version, userName);
+        ServiceContainer.getJenkinsCISystemDriver().deleteJob(jobName, version, tenantDomain, userName);
     }
 
     /**
@@ -90,10 +90,8 @@ public class TenantContinousIntegrationSystemDriverService extends AbstractAdmin
      * @throws AppFactoryException
      */
     ///// TODO register service as osgi
-    public boolean isJobExist(String applicationId, String version) throws AppFactoryException{
+    public boolean isJobExist(String applicationId, String version, String userName) throws AppFactoryException{
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        String jobName = ServiceContainer.getJenkinsCISystemDriver().getJobName(applicationId, version, null);
-        return ServiceContainer.getJenkinsCISystemDriver().isJobExists(applicationId, version, CarbonContext.
-                getThreadLocalCarbonContext().getTenantDomain());
+        return ServiceContainer.getJenkinsCISystemDriver().isJobExists(applicationId, version, tenantDomain, userName);
     }
 }

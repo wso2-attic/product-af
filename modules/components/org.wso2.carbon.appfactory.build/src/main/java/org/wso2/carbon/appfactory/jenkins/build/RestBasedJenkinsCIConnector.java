@@ -391,9 +391,9 @@ public class RestBasedJenkinsCIConnector {
      * @return true if job exits, false otherwise.
      * @throws AppFactoryException if an error occurs.
      */
-    public boolean isJobExists(String applicationId, String version, String tenantDomain) throws AppFactoryException {
+    public boolean isJobExists(String applicationId, String version, String userName, String tenantDomain) throws AppFactoryException {
 
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, "");
+        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, userName);
         final String wrapperTag = "JobNames";
 
         List<NameValuePair> queryParameters = new ArrayList<NameValuePair>();
@@ -422,8 +422,21 @@ public class RestBasedJenkinsCIConnector {
                 throw new AppFactoryException(errorMsg);
             }
 
-            StAXOMBuilder builder = new StAXOMBuilder(jobExistResponse.getEntity().getContent());
-            isExists = builder.getDocumentElement().getChildElements().hasNext();
+	        StAXOMBuilder builder = new StAXOMBuilder(jobExistResponse.getEntity().getContent());
+	        Iterator elementIterator = builder.getDocumentElement().getChildElements();
+	        while (elementIterator.hasNext()) {
+		        OMElement element = (OMElement) elementIterator.next();
+		        if(element.getLocalName().equals(AppFactoryConstants.JOB_TAG_NAME)){
+			        Iterator jobIterator = element.getChildElements();
+			        while (jobIterator.hasNext()) {
+				        OMElement jobChild = (OMElement) jobIterator.next();
+				        if(jobChild.getLocalName().equals(AppFactoryConstants.JOB_NAME_KEY) &&
+				           jobChild.getText().equals(jobName)) {
+					        isExists = true;
+				        }
+			        }
+		        }
+	        }
 
         } catch (XMLStreamException e) {
             String msg =
@@ -531,8 +544,7 @@ public class RestBasedJenkinsCIConnector {
                            String tenantDomain, String userName, String repoFrom) throws AppFactoryException {
 
         userName = MultitenantUtils.getTenantAwareUsername(userName);
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version,
-                                                                                         userName, repoFrom);
+        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, userName);
         String artifactType = ApplicationDAO.getInstance().getApplicationType(applicationId);
         boolean isFreestyle = false;
 

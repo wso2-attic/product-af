@@ -16,21 +16,21 @@
 
 package org.wso2.carbon.appfactory.jenkins.build.service;
 
-import java.util.List;
-
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 
+import java.util.List;
+
 public class ContinousIntegrationSystemDriverService extends AbstractAdmin {
 
-    public void deleteJob(String jobName, String version) throws AppFactoryException {
+    public void deleteJob(String jobName, String version, String userName) throws AppFactoryException {
 //        Getting the tenant domain from CarbonContext
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
-        ServiceContainer.getJenkinsCISystemDriver().deleteJob(jobName, version, tenantDomain);
+        ServiceContainer.getJenkinsCISystemDriver().deleteJob(jobName, version, tenantDomain, userName);
     }
 
     public List<String> getAllJobNames() throws AppFactoryException {
@@ -53,16 +53,15 @@ public class ContinousIntegrationSystemDriverService extends AbstractAdmin {
                                                                tagName, tenantDomain, userName, AppFactoryConstants.ORIGINAL_REPOSITORY);
     }
 
-    public boolean isJobExists(String applicationId, String version) throws AppFactoryException {
+    public boolean isJobExists(String applicationId, String version, String userName) throws AppFactoryException {
 
 //        Getting the tenant domain from CarbonContext
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
-        return ServiceContainer.getJenkinsCISystemDriver().isJobExists(applicationId, version, tenantDomain);
+        return ServiceContainer.getJenkinsCISystemDriver().isJobExists(applicationId, version, tenantDomain, userName);
     }
 
-    public String getJobName(String applicationId, String version, String revision) {
-        return ServiceContainer.getJenkinsCISystemDriver().getJobName(applicationId, version,
-                                                                      revision);
+    public String getJobName(String applicationId, String version, String userName) {
+        return ServiceContainer.getJenkinsCISystemDriver().getJobName(applicationId, version, userName);
     }
 }

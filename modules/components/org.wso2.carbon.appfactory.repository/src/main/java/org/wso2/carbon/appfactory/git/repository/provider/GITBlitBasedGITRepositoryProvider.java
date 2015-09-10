@@ -24,14 +24,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.appfactory.repository.provider.common.AbstractRepositoryProvider;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -94,25 +98,12 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 		String repoUrl = config.getFirstProperty(BASE_URL);
 		String adminUsername = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_USERNAME);
 		String adminPassword = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_PASSWORD);
-		// Create the gftblit repository model
-		RepositoryModel model = new RepositoryModel();
-		model.name = repoName;
-		// authenticated users can clone, push and view the repository
-		model.accessRestriction = Constants.AccessRestrictionType.VIEW;
-		model.isBare = true; // TODO: temporaryly added for demo purpose, need
-							 // to fixed with new gitblit
         boolean isDeleted;
         try {
-			RepositoryModel retrievedRepo =
-			                                findRepository(model.name, repoUrl, adminUsername,
-			                                               adminPassword);
-			isDeleted =
-			            RpcUtils.deleteRepository(retrievedRepo, repoUrl, adminUsername,
-			                                      adminPassword.toCharArray());
+			RepositoryModel retrievedRepo = findRepository(repoName, repoUrl, adminUsername, adminPassword);
+			isDeleted = RpcUtils.deleteRepository(retrievedRepo, repoUrl, adminUsername, adminPassword.toCharArray());
 		} catch (IOException e) {
-			String msg =
-			             "Repository is not deleted for " + applicationKey + " due to " +
-			                     e.getLocalizedMessage();
+			String msg = "Repository is not deleted for " + applicationKey + " due to " + e.getLocalizedMessage();
 			log.error(msg);
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -122,34 +113,18 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 		return isDeleted;
 	}
 
-	/**
-	 *
-	 * @param applicationKey for the deleting app
-	 * @param userName of the forked repo owner
-	 * @param tenantDomain of the forked repo owner
-	 * @return
-	 * @throws RepositoryMgtException
-	 */
     @Override
     public boolean deleteForkedRepository(String applicationKey, String userName, String tenantDomain)
 		    throws RepositoryMgtException {
 
 	    String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(userName);
-	    String repoName =
-			    "~" + tenantDomain + File.separator + tenantAwareUserName + File.separator + applicationKey + ".git";
+	    String repoName = getForkedRepoName(applicationKey, tenantDomain, tenantAwareUserName);
 	    String repoUrl = config.getFirstProperty(BASE_URL);
 	    String adminUsername = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_USERNAME);
 	    String adminPassword = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_PASSWORD);
-	    // Create the gftblit repository model
-	    RepositoryModel model = new RepositoryModel();
-	    model.name = repoName;
-	    // authenticated users can clone, push and view the repository
-	    model.accessRestriction = Constants.AccessRestrictionType.VIEW;
-	    model.isBare = true; // TODO: temporaryly added for demo purpose, need
-	    // to fixed with new gitblit
 	    boolean isDeleted;
 	    try {
-		    RepositoryModel retrievedRepo = findRepository(model.name, repoUrl, adminUsername, adminPassword);
+		    RepositoryModel retrievedRepo = findRepository(repoName, repoUrl, adminUsername, adminPassword);
 		    isDeleted = RpcUtils.deleteRepository(retrievedRepo, repoUrl, adminUsername, adminPassword.toCharArray());
 	    } catch (IOException e) {
 		    throw new RepositoryMgtException(
@@ -159,8 +134,51 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 	    return isDeleted;
     }
 
+	@Override
+	public boolean deleteForkedRepositoriesForApplication(String applicationKey, String tenantDomain)
+			throws RepositoryMgtException {
+		boolean isDeleted = true;
+		try {
+			String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
+			String[] usersOfApplication = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+			                                           .getUserStoreManager().getUserListOfRole(applicationRole);
+			//Constructing the possible forked repo names for all users in application. All of these may not be exist.
+			List<String> possibleForkedRepoUrls = new ArrayList<String>();
+			for (String userName : usersOfApplication) {
+				possibleForkedRepoUrls.add(getForkedRepoName(applicationKey, tenantDomain, userName));
+			}
+			String repoUrl = config.getFirstProperty(BASE_URL);
+			String adminUsername = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_USERNAME);
+			String adminPassword = config.getFirstProperty(AppFactoryConstants.GITBLIT_ADMIN_PASSWORD);
+			Map<String, RepositoryModel> repositories = RpcUtils.getRepositories(repoUrl, adminUsername,
+			                                                                     adminPassword.toCharArray());
+			for (RepositoryModel model : repositories.values()) {
+				if (possibleForkedRepoUrls.contains(model.name)) {
+					try {
+						//If one of the instance failed then result will be false
+						if(!RpcUtils.deleteRepository(model, repoUrl, adminUsername, adminPassword.toCharArray())){
+							isDeleted = false;
+						}
+					} catch (IOException e) {
+						//Continuing even when one fork deletion failed.
+						log.error("Forked Repository is not deleted for application : " + applicationKey
+						          + " repo name :  " + model.name, e);
+					}
+				}
+			}
+		} catch (UserStoreException e) {
+			throw new RepositoryMgtException("Retrieving Users of application failed application : " + applicationKey
+			                                 + ", tenantDomain : " + tenantDomain, e);
+		} catch (IOException e) {
+			throw new RepositoryMgtException("Fetching all repositories failed from git repository : " + applicationKey
+			                                 + ", tenantDomain : " + tenantDomain, e);
+		}
+		return isDeleted;
+	}
 
-    @Override
+
+
+	@Override
 	public boolean repoExists(String applicationKey, String tenantDomain)
 	                                                                     throws RepositoryMgtException {
 		// TODO implement method
@@ -188,11 +206,8 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 		return retrievedRepo != null;
 	}
 
-	private RepositoryModel findRepository(String name, String url, String account, String password)
-	                                                                                                throws IOException {
-		Map<String, RepositoryModel> repositories =
-		                                            RpcUtils.getRepositories(url, account,
-		                                                                     password.toCharArray());
+	private RepositoryModel findRepository(String name, String url, String account, String password) throws IOException {
+		Map<String, RepositoryModel> repositories = RpcUtils.getRepositories(url, account, password.toCharArray());
 		RepositoryModel retrievedRepository = null;
 		for (RepositoryModel model : repositories.values()) {
 			if (model.name.equalsIgnoreCase(name)) {
@@ -211,6 +226,11 @@ public class GITBlitBasedGITRepositoryProvider extends AbstractRepositoryProvide
 	                                                                             throws RepositoryMgtException {
 		return config.getFirstProperty(BASE_URL) + REPO_TYPE + "/" + tenantDomain + "/" +
 		       applicationKey + ".git";
+	}
+
+	private String getForkedRepoName(String applicationKey, String tenantDomain, String userName) {
+		return "~" + tenantDomain + File.separator + userName + File.separator
+		       + applicationKey + ".git";
 	}
 
 	public void createFork(String repoUrl) {

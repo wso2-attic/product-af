@@ -22,6 +22,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.Undeployer;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
@@ -43,6 +44,8 @@ import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 /**
@@ -137,15 +140,12 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
         JenkinsCISystemDriver jenkinsCISystemDriver = ServiceContainer.getJenkinsCISystemDriver();
         Undeployer undeployer = new StratosUndeployer();
 
-        //This has put to fix APPFAC-2853 issue. This has used to load the tenant in build server when build server has unload the tenant.
-        jenkinsCISystemDriver.isJobExists(application.getId(), "trunk", tenantDomain);
-
         for (String version : versions) {
             String lifecycleStage = appVersionDAO.getAppVersionStage(application.getId(), version);
-            String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
-                    .getJobName(application.getId(), version, null);
+            String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(application.getId(),
+                                                                                             version, null);
 
-            jenkinsCISystemDriver.deleteJob(application.getId(), version, tenantDomain);
+            jenkinsCISystemDriver.deleteJob(application.getId(), version, tenantDomain, null);
 
             log.info("Successfully deleted the jenkins job : " + jobName +
                     " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
@@ -156,7 +156,22 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                      " of the application : " + application.getId() + " in the environment: " + lifecycleStage +
                      " from tenant domain : " + tenantDomain + " from dep sync repo");
 
+	        //Deleting forked repo build jobs
+	        try {
+		        String applicationRole = AppFactoryUtil.getRoleNameForApplication(application.getId());
+		        String[] usersOfApplication = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
+		                                                   .getUserStoreManager().getUserListOfRole(applicationRole);
+		        for (String user : usersOfApplication) {
+			        if(jenkinsCISystemDriver.isJobExists(application.getId(), version, tenantDomain, user)){
+				        jenkinsCISystemDriver.deleteJob(application.getId(), version, tenantDomain, user);
+			        }
+		        }
+	        } catch (UserStoreException e){
+		        log.error("Get user of application : " + application.getId() + " failed.");
+	        }
         }
+
+
     }
 
     /**
@@ -305,7 +320,8 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                        String version, String[] forkedUsers) throws AppFactoryException {
         AppFactoryConfiguration configuration = ServiceContainer.getAppFactoryConfiguration();
         String perDeveloperBuild = configuration.getFirstProperty("EnablePerDeveloperBuild");
-        if (!AppFactoryCoreUtil.isBuildServerRequiredProject(application.getType()) || (perDeveloperBuild == null || perDeveloperBuild.equals("false"))) {
+        if (!AppFactoryCoreUtil.isBuildServerRequiredProject(application.getType())
+            || (perDeveloperBuild == null || perDeveloperBuild.equals("false"))) {
             return;
         }
         // for (int i = 0; i < forkedUsers.length; i++) {
