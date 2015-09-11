@@ -137,8 +137,8 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     /**
      * {@inheritDoc}
      */
-    public void startBuild(String applicationId, String version, boolean doDeploy, String stageName, String tagName, String tenantDomain, String userName, String repoFrom)
-            throws AppFactoryException {
+    public void startBuild(String applicationId, String version, boolean doDeploy, String stageName, String tagName,
+                           String tenantDomain, String userName, String repoFrom) throws AppFactoryException {
         connector.startBuild(applicationId, version, doDeploy, stageName, tagName, tenantDomain, userName,repoFrom);
     }
 

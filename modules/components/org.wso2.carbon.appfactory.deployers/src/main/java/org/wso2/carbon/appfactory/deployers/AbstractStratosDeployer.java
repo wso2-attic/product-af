@@ -325,22 +325,26 @@ public abstract class AbstractStratosDeployer extends AbstractDeployer {
         String baseUrl = getBaseRepoUrl();
         String gitRepoUrl = "";
         if (subscribeOnDeployment) {
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
-                         + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR + applicationId
-                         + AppFactoryConstants.MINUS +version
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR
+                         + paasRepositoryURLPattern + AppFactoryConstants.URL_SEPERATOR + tenantId
+                         + AppFactoryConstants.URL_SEPERATOR + applicationId
+                         + AppFactoryConstants.APPFACTORY_ARTIFACT_NAME_VERSION_SEPERATOR + version
                          + tenantDomain.replace(AppFactoryConstants.DOT_SEPERATOR,
-                                           AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
+                                                AppFactoryConstants.SUBSCRIPTION_ALIAS_DOT_REPLACEMENT)
                          + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         } else {
-            String repoFrom = DeployerUtil.getParameterValue(metadata,AppFactoryConstants.REPOSITORY_FROM);
+            String repoFrom = DeployerUtil.getParameterValue(metadata,AppFactoryConstants.BUILD_REPO_FROM);
             String preDevRepoNameAppender = "";
             // append _<username>, if the deployment repo is a forked one
-            if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom))
-                preDevRepoNameAppender = "_" + MultitenantUtils.getTenantAwareUsername(DeployerUtil.getParameterValue(metadata,"tenantUserName"));
+            if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom)) {
+	            preDevRepoNameAppender = "_" + MultitenantUtils
+			            .getTenantAwareUsername(DeployerUtil.getParameterValue(metadata,
+			                                                                   AppFactoryConstants.TENANT_USER_NAME));
+            }
 
-            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR + paasRepositoryURLPattern
-                         + AppFactoryConstants.URL_SEPERATOR + tenantId + preDevRepoNameAppender
-                         + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
+            gitRepoUrl = baseUrl + AppFactoryConstants.GIT_REPOSITORY_CONTEXT + AppFactoryConstants.URL_SEPERATOR
+                         + paasRepositoryURLPattern + AppFactoryConstants.URL_SEPERATOR + tenantId
+                         + preDevRepoNameAppender + AppFactoryConstants.GIT_REPOSITORY_EXTENSION;
         }
         gitRepoUrl = gitRepoUrl.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
         if (log.isDebugEnabled()) {

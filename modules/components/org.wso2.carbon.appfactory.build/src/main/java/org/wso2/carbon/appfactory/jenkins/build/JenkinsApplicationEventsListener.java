@@ -162,8 +162,20 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
 		        String[] usersOfApplication = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
 		                                                   .getUserStoreManager().getUserListOfRole(applicationRole);
 		        for (String user : usersOfApplication) {
-			        if(jenkinsCISystemDriver.isJobExists(application.getId(), version, tenantDomain, user)){
-				        jenkinsCISystemDriver.deleteJob(application.getId(), version, tenantDomain, user);
+			        try {
+				        log.info("Checking the availability of the jenkins job for application : "
+				                 + application.getId() + ", version : " + version + ", tenantDomain : "
+				                 + tenantDomain + ", username : " + user);
+				        if (jenkinsCISystemDriver.isJobExists(application.getId(), version, tenantDomain, user)) {
+					        jenkinsCISystemDriver.deleteJob(application.getId(), version, tenantDomain, user);
+					        log.info("Successfully deleted the jenkins job for application : "
+					                 + application.getId() + ", version : " + version + ", tenantDomain : "
+					                 + tenantDomain + ", username : " + user);
+				        }
+			        } catch (Exception e){
+				        //logging and continuing since we need to delete other things.
+				        log.error("Error while deleting build job for application : " + application.getId()
+				                  + ", user : " + user + ", tenantDomain : " + tenantDomain);
 			        }
 		        }
 	        } catch (UserStoreException e){
