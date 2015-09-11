@@ -46,6 +46,10 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
     private static final String TENANT_MANAGEMENT_URL = "TenantMgtUrl";
     private static final String SYMBOL_AT = "@";
 
+    NodejsApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
     @Override
     public void doVersion(String applicationId, String targetVersion,
                           String currentVersion, String workingDirectory)

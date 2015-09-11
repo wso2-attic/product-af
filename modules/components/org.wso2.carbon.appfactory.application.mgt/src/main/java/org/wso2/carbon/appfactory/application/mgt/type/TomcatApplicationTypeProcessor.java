@@ -38,6 +38,10 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
 
     private static final Log log = LogFactory.getLog(TomcatApplicationTypeProcessor.class);
 
+    TomcatApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
     /**
      * Construct the URL pattern : http://{hostname}/{applicationID}-{version}
      * Hostname is obtained from  the stratos application runtime

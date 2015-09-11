@@ -42,6 +42,9 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
     private static final String TENANT_MANAGEMENT_URL = "TenantMgtUrl";
     private static final String SYMBOL_AT = "@";
 
+    PHPApplicationTypeProcessor(String type) {
+        super(type);
+    }
 
 
     @Override

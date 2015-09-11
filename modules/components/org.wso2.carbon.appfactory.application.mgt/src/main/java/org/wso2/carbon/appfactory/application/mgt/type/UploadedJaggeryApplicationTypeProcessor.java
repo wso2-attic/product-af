@@ -29,6 +29,10 @@ import java.io.File;
  */
 public class UploadedJaggeryApplicationTypeProcessor extends UploadedApplicationTypeProcessor {
 
+    UploadedJaggeryApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
     public ApplicationTypeValidationStatus validate(String uploadedFileName) {
         File zipFile = new File(getUploadedApplicationTmpPath() + File.separator +
                                 uploadedFileName);
