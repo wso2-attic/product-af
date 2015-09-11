@@ -40,7 +40,7 @@ public class ESBApplicationTypeProcessor extends MavenMultiModuleApplicationType
 
 	private static final Log log = LogFactory.getLog(ESBApplicationTypeProcessor.class);
 
-    ESBApplicationTypeProcessor(String type) {
+    public ESBApplicationTypeProcessor(String type) {
         super(type);
     }
 

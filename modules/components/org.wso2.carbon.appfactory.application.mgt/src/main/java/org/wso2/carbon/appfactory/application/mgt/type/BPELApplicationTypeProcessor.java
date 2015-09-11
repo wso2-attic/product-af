@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class BPELApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
 
-    BPELApplicationTypeProcessor(String type) {
+    public BPELApplicationTypeProcessor(String type) {
         super(type);
     }
 

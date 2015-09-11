@@ -48,7 +48,7 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 
 	private static Log log = LogFactory.getLog(UploadedApplicationTypeProcessor.class);
 
-    UploadedApplicationTypeProcessor(String type) {
+    public UploadedApplicationTypeProcessor(String type) {
         super(type);
     }
 

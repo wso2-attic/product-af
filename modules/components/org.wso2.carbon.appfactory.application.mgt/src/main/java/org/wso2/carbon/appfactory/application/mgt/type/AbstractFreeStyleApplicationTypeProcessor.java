@@ -18,7 +18,7 @@ import java.util.Map;
 public abstract class AbstractFreeStyleApplicationTypeProcessor extends AbstractApplicationTypeProcessor{
     private static final Log log = LogFactory.getLog(AbstractFreeStyleApplicationTypeProcessor.class);
 
-    AbstractFreeStyleApplicationTypeProcessor(String type) {
+    public AbstractFreeStyleApplicationTypeProcessor(String type) {
         super(type);
     }
 

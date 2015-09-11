@@ -32,7 +32,7 @@ import java.util.Map;
 public class MavenBasedApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
     private static final Log log = LogFactory.getLog(MavenBasedApplicationTypeProcessor.class);
 
-    MavenBasedApplicationTypeProcessor(String type) {
+    public MavenBasedApplicationTypeProcessor(String type) {
         super(type);
     }
 

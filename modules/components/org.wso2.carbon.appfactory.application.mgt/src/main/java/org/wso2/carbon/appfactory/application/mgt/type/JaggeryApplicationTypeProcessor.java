@@ -33,7 +33,7 @@ import java.io.IOException;
 public class JaggeryApplicationTypeProcessor extends AbstractFreeStyleApplicationTypeProcessor {
     private static final Log log = LogFactory.getLog(JaggeryApplicationTypeProcessor.class);
 
-    JaggeryApplicationTypeProcessor(String type) {
+    public JaggeryApplicationTypeProcessor(String type) {
         super(type);
     }
 
