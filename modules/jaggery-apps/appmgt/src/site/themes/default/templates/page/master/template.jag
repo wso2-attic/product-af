@@ -94,7 +94,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>">
 		<link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
         <link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
-        
+
     </head>
     <body <% if(applicationKey == null){ %>id="home"<% } %>>
         <!--[if lt IE 7]>
@@ -151,11 +151,15 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                        <div class="clearfix"></div> <!-- to make seperate -->
                    </div>
                    <div class="cloud-actions">
-                       <h3>Manage your cloud</h3>
-                       <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
+                        <h3>Manage your cloud</h3>
+                        <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
                            <i class="fa fa-3x  fa-users"></i>
                            <div class="cloud-name">Members</div>
-                       </a>
+                        </a>
+                        <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
+                           <i class="fa fa-3x  fa-dashboard"></i>
+                           <div class="cloud-name">Dashboard</div>
+                        </a>
                    </div>
                 </div>
             </div>
