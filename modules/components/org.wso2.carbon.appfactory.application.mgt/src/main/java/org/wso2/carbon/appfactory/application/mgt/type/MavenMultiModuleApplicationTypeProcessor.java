@@ -28,7 +28,7 @@ import java.io.File;
 public class MavenMultiModuleApplicationTypeProcessor extends MavenBasedApplicationTypeProcessor {
 	private static final Log log = LogFactory.getLog(MavenMultiModuleApplicationTypeProcessor.class);
 
-    MavenMultiModuleApplicationTypeProcessor(String type) {
+    public MavenMultiModuleApplicationTypeProcessor(String type) {
         super(type);
     }
 

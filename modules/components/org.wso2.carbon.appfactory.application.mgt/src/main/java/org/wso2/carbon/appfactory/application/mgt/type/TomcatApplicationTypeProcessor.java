@@ -38,7 +38,7 @@ public class TomcatApplicationTypeProcessor extends MavenBasedApplicationTypePro
 
     private static final Log log = LogFactory.getLog(TomcatApplicationTypeProcessor.class);
 
-    TomcatApplicationTypeProcessor(String type) {
+    public TomcatApplicationTypeProcessor(String type) {
         super(type);
     }
 

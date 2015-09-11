@@ -32,7 +32,7 @@ import java.util.Map;
 public class DotnetApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
 	private static final Log log = LogFactory.getLog(DotnetApplicationTypeProcessor.class);
 
-    DotnetApplicationTypeProcessor(String type) {
+    public DotnetApplicationTypeProcessor(String type) {
         super(type);
     }
 

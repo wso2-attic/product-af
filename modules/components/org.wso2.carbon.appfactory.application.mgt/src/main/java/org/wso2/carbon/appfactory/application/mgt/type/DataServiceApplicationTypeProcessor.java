@@ -36,7 +36,7 @@ public class DataServiceApplicationTypeProcessor extends AbstractFreeStyleApplic
 
 	private static final Log log = LogFactory.getLog(DataServiceApplicationTypeProcessor.class);
 
-    DataServiceApplicationTypeProcessor(String type) {
+    public DataServiceApplicationTypeProcessor(String type) {
         super(type);
     }
 

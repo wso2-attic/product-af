@@ -58,7 +58,7 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
     protected String appType = null;
     protected Properties properties;
 
-    AbstractApplicationTypeProcessor(String type){
+    public AbstractApplicationTypeProcessor(String type){
         this.appType = type;
 
     }
