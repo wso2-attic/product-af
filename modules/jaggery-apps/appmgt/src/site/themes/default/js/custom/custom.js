@@ -33,7 +33,7 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 
 
 (function($) {
-    
+
     /* ========================================================================
      * loading function
      * ======================================================================== */
@@ -106,7 +106,7 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
             }
         });
     }
-    
+
 }(jQuery));
 
 
@@ -137,10 +137,18 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 }( jQuery ));
 
 //fix popover close issue
-$('body').on('click', function (e) {
+function hidePopover(e) {
     $('[data-toggle="popover"]').each(function () {
         if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
             $(this).popover('hide');
         }
     });
+}
+
+$('body').on('click', function (e) {
+    hidePopover(e);
+});
+
+$('#username-btn').on('click', function (e) {
+    hidePopover(e);
 });

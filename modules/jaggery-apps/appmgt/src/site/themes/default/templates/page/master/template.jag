@@ -122,9 +122,10 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                 <li><a href="https://docs.wso2.org/display/AF210/WSO2+App+Factory+Documentation" target=_blank><i class="fa fa-book"></i> Documentation</a></li>
                 <li><a href="http://wso2.com/support/" target=_blank><i class="fa fa-envelope"></i> Support</a></li>
                 <li class="dropdown user-name">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=jagg.getUser()%>
+                    <a id="username-btn" href="#" class="dropdown-toggle" data-toggle="dropdown"><%=jagg.getUser()%>
                         <i class="fa fa-chevron-circle-down"></i>
-                        <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/user.png"))%>" alt="user" class="user-image"></a>
+                        <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/user.png"))%>" alt="user" class="user-image">
+                    </a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="/your_profile">Profile</a></li>
                         <li><a href="#" onclick="window.location.href='logout.jag'">Logout</a></li>
