@@ -34,6 +34,7 @@ class greg (
       ]
 
   $common_templates = [
+          "conf/tenant-mgt.xml",
           "conf/appfactory/appfactory.xml",
           "conf/log4j.properties",
       ]

@@ -18,10 +18,6 @@
         <dataSource>jdbc/<%=@registry_db_schema%></dataSource>
     </dbConfig>
 
-    <dbConfig name="config">
-        <dataSource>jdbc/<%=@config_db_schema%></dataSource>
-    </dbConfig>
-
     <remoteInstance url="https://HOSTNAME">
         <id>governance</id>
         <dbConfig>governance</dbConfig>
@@ -34,20 +30,6 @@
     <mount path="/_system/governance" overwrite="virtual">
         <instanceId>governance</instanceId>
         <targetPath>/_system/<%=@greg_stage%>/governance</targetPath>
-    </mount>
-
-    <remoteInstance url="https://HOSTNAME">
-        <id>config</id>
-        <dbConfig>config</dbConfig>
-        <readOnly>false</readOnly>
-        <registryRoot>/</registryRoot>
-        <enableCache>true</enableCache>
-        <cacheId>root@jdbc:mysql://<%=@ppaas_mysql_host%>:3306/<%=@config_db_schema%></cacheId>
-    </remoteInstance>
-
-    <mount path="/_system/config" overwrite="virtual">
-        <instanceId>config</instanceId>
-        <targetPath>/_system/config</targetPath>
     </mount>
 
     <!-- This handler provides the feature to add a simlink to a given resource -->
