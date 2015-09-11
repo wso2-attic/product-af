@@ -51,13 +51,10 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
                 </a>
             </li>
             <% } %>
+
             <% if (outputs.isReposAndBuildsAllowed) { %>
             <li class="<% if (pageName == "reposBuilds") { %>selected<%}%>">
-                 <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
-                        <i class="fa fa-cogs"></i> Deployed Versions
-                    </a>
-                <% } else { %>
+                 <% if(!outputs.isUploadableAppType || (outputs.isUploadableAppType === false)){ %>
                     <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Repos & Builds">
                         <i class="fa fa-cogs"></i> Repos & Builds
                     </a>
@@ -67,11 +64,7 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
 
             <% if (outputs.isReposAndBuildsAllowed) { %>
             <li class="<% if (pageName == "repos") { %>selected<%}%>">
-                 <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
-                        <i class="fa fa-cogs"></i> Deployed Versions
-                    </a>
-                <% } else { %>
+                 <% if(!outputs.isUploadableAppType || (outputs.isUploadableAppType === false)){ %>
                     <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/repository.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Repository">
                         <i class="fa fa-cogs"></i> Repository
                     </a>
@@ -81,24 +74,23 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
 
             <% if (outputs.isReposAndBuildsAllowed) { %>
             <li class="<% if (pageName == "buildDeploy") { %>selected<%}%>">
-                <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
-                <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
-                    <i class="fa fa-cogs"></i> Deployed Versions
-                </a>
+                <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)) { %>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
+                        <i class="fa fa-cogs"></i> Deployed Versions
+                    </a>
                 <% } else { %>
-                <a id="menu_buildDeploy" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Build & Deploy">
-                    <i class="fw fw-deploy"></i> Build & Deploy
-                </a>
-                <% } %>
-
-                <% if(isForked) { %>
-                    <ul>
-                         <li>
-                            <a id="menu_buildDeploy_fork" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isForkInfo=true"  title="My Fork">
-                                 <i class="fa fa-code-fork"></i> My Fork
-                            </a>
-                         </li>
-                    </ul>
+                    <a id="menu_buildDeploy" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Build & Deploy">
+                        <i class="fw fw-deploy"></i> Build & Deploy
+                    </a>
+                    <% if(isForked) { %>
+                        <ul>
+                             <li>
+                                <a id="menu_buildDeploy_fork" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isForkInfo=true"  title="My Fork">
+                                     <i class="fa fa-code-fork"></i> My Fork
+                                </a>
+                             </li>
+                        </ul>
+                    <% } %>
                 <% } %>
             </li>
             <% } %>
