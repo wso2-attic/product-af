@@ -20,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.appfactory.jenkins.build.service.TenantContinousIntegrationSystemDriverService;
 
 /**
  * @scr.component name="appfactory.common" immediate="true"
@@ -33,11 +32,7 @@ public class MavenBuildServiceComponent {
     protected void activate(ComponentContext context) {
 		BundleContext bundleContext = context.getBundleContext();
 		try {
-			TenantContinousIntegrationSystemDriverService tenantContinousIntegrationSystemDriverService =
-                new TenantContinousIntegrationSystemDriverService();
-            bundleContext.registerService(TenantContinousIntegrationSystemDriverService.class.getName(),
-            tenantContinousIntegrationSystemDriverService, null);
-            			if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
 				log.debug("Appfactory common bundle is activated");
 			}
 		} catch (Throwable e) {

@@ -1,4 +1,4 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns="http://deploy.core.appfactory.carbon.wso2.org" xmlns:ax239="http://common.appfactory.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax245="http://io.java/xsd" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ax241="http://dto.core.appfactory.carbon.wso2.org/xsd" xmlns:ax243="http://deploy.core.appfactory.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://deploy.core.appfactory.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax233="http://dto.core.appfactory.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://deploy.core.appfactory.carbon.wso2.org" xmlns:ax231="http://common.appfactory.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax237="http://deploy.core.appfactory.carbon.wso2.org/xsd" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax235="http://io.java/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://deploy.core.appfactory.carbon.wso2.org">
     <wsdl:documentation>ApplicationDeployer</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.appfactory.carbon.wso2.org/xsd">
@@ -10,9 +10,9 @@
             <xs:complexType name="File">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="absolute" type="xs:boolean"></xs:element>
-                    <xs:element minOccurs="0" name="absoluteFile" nillable="true" type="ax245:File"></xs:element>
+                    <xs:element minOccurs="0" name="absoluteFile" nillable="true" type="ax235:File"></xs:element>
                     <xs:element minOccurs="0" name="absolutePath" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="canonicalFile" nillable="true" type="ax245:File"></xs:element>
+                    <xs:element minOccurs="0" name="canonicalFile" nillable="true" type="ax235:File"></xs:element>
                     <xs:element minOccurs="0" name="canonicalPath" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="directory" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="file" type="xs:boolean"></xs:element>
@@ -20,47 +20,22 @@
                     <xs:element minOccurs="0" name="hidden" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="parent" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="parentFile" nillable="true" type="ax245:File"></xs:element>
+                    <xs:element minOccurs="0" name="parentFile" nillable="true" type="ax235:File"></xs:element>
                     <xs:element minOccurs="0" name="path" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="totalSpace" type="xs:long"></xs:element>
                     <xs:element minOccurs="0" name="usableSpace" type="xs:long"></xs:element>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax246="http://io.java/xsd" xmlns:ax240="http://common.appfactory.carbon.wso2.org/xsd" xmlns:ax242="http://dto.core.appfactory.carbon.wso2.org/xsd" xmlns:ax244="http://deploy.core.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://deploy.core.appfactory.carbon.wso2.org">
+        <xs:schema xmlns:ax232="http://common.appfactory.carbon.wso2.org/xsd" xmlns:ax236="http://io.java/xsd" xmlns:ax238="http://deploy.core.appfactory.carbon.wso2.org/xsd" xmlns:ax234="http://dto.core.appfactory.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://deploy.core.appfactory.carbon.wso2.org">
             <xs:import namespace="http://common.appfactory.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://dto.core.appfactory.carbon.wso2.org/xsd"></xs:import>
-            <xs:import namespace="http://deploy.core.appfactory.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://io.java/xsd"></xs:import>
+            <xs:import namespace="http://deploy.core.appfactory.carbon.wso2.org/xsd"></xs:import>
             <xs:element name="ApplicationDeployerAppFactoryException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="AppFactoryException" nillable="true" type="ax240:AppFactoryException"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="undeployAllArtifactsOfAppFromDepSyncGitRepo">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="applicationType" nillable="true" type="xs:string"></xs:element>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="versions" nillable="true" type="ax242:Version"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getDeployedArtifactInformation">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="stage" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getDeployedArtifactInformationResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="AppFactoryException" nillable="true" type="ax232:AppFactoryException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -74,7 +49,47 @@
             <xs:element name="getArtifactInformationResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax244:Artifact"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax233:Version"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateDeploymentInformation">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="stage" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="buildId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getArtifactDetails">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="file" nillable="true" type="ax236:File"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getArtifactDetailsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getStage">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
+                        <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"></xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getStageResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -93,47 +108,7 @@
             <xs:element name="deployArtifactResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax244:ArtifactDeploymentStatusBean"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="updateDeploymentInformation">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="stage" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="buildId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getArtifactDetails">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="file" nillable="true" type="ax246:File"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getArtifactDetailsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getTagNamesOfPersistedArtifacts">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
-                        <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"></xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getTagNamesOfPersistedArtifactsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax238:ArtifactDeploymentStatusBean"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -153,7 +128,7 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getStage">
+            <xs:element name="getTagNamesOfPersistedArtifacts">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
@@ -161,25 +136,16 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getStageResponse">
+            <xs:element name="getTagNamesOfPersistedArtifactsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.core.appfactory.carbon.wso2.org/xsd">
             <xs:complexType name="Version">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="lifecycleStage" nillable="true" type="xs:string"></xs:element>
-                    <xs:element minOccurs="0" name="promoteStatus" nillable="true" type="xs:string"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-        </xs:schema>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://deploy.core.appfactory.carbon.wso2.org/xsd">
-            <xs:complexType name="Artifact">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="applicationKey" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="autoBuild" type="xs:boolean"></xs:element>
@@ -195,6 +161,8 @@
                     <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>
             </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://deploy.core.appfactory.carbon.wso2.org/xsd">
             <xs:complexType name="ArtifactDeploymentStatusBean">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="applicationId" nillable="true" type="xs:string"></xs:element>
@@ -217,9 +185,6 @@
     <wsdl:message name="ApplicationDeployerAppFactoryException">
         <wsdl:part name="parameters" element="ns:ApplicationDeployerAppFactoryException"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="undeployAllArtifactsOfAppFromDepSyncGitRepoRequest">
-        <wsdl:part name="parameters" element="ns:undeployAllArtifactsOfAppFromDepSyncGitRepo"></wsdl:part>
-    </wsdl:message>
     <wsdl:message name="deployArtifactRequest">
         <wsdl:part name="parameters" element="ns:deployArtifact"></wsdl:part>
     </wsdl:message>
@@ -231,12 +196,6 @@
     </wsdl:message>
     <wsdl:message name="getArtifactDetailsResponse">
         <wsdl:part name="parameters" element="ns:getArtifactDetailsResponse"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getDeployedArtifactInformationRequest">
-        <wsdl:part name="parameters" element="ns:getDeployedArtifactInformation"></wsdl:part>
-    </wsdl:message>
-    <wsdl:message name="getDeployedArtifactInformationResponse">
-        <wsdl:part name="parameters" element="ns:getDeployedArtifactInformationResponse"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="getTagNamesOfPersistedArtifactsRequest">
         <wsdl:part name="parameters" element="ns:getTagNamesOfPersistedArtifacts"></wsdl:part>
@@ -265,10 +224,6 @@
             <wsdl:output message="ns:unDeployArtifactResponse" wsaw:Action="urn:unDeployArtifactResponse"></wsdl:output>
             <wsdl:fault message="ns:ApplicationDeployerAppFactoryException" name="ApplicationDeployerAppFactoryException" wsaw:Action="urn:unDeployArtifactApplicationDeployerAppFactoryException"></wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="undeployAllArtifactsOfAppFromDepSyncGitRepo">
-            <wsdl:input message="ns:undeployAllArtifactsOfAppFromDepSyncGitRepoRequest" wsaw:Action="urn:undeployAllArtifactsOfAppFromDepSyncGitRepo"></wsdl:input>
-            <wsdl:fault message="ns:ApplicationDeployerAppFactoryException" name="ApplicationDeployerAppFactoryException" wsaw:Action="urn:undeployAllArtifactsOfAppFromDepSyncGitRepoApplicationDeployerAppFactoryException"></wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="deployArtifact">
             <wsdl:input message="ns:deployArtifactRequest" wsaw:Action="urn:deployArtifact"></wsdl:input>
             <wsdl:output message="ns:deployArtifactResponse" wsaw:Action="urn:deployArtifactResponse"></wsdl:output>
@@ -278,11 +233,6 @@
             <wsdl:input message="ns:getArtifactDetailsRequest" wsaw:Action="urn:getArtifactDetails"></wsdl:input>
             <wsdl:output message="ns:getArtifactDetailsResponse" wsaw:Action="urn:getArtifactDetailsResponse"></wsdl:output>
             <wsdl:fault message="ns:ApplicationDeployerAppFactoryException" name="ApplicationDeployerAppFactoryException" wsaw:Action="urn:getArtifactDetailsApplicationDeployerAppFactoryException"></wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getDeployedArtifactInformation">
-            <wsdl:input message="ns:getDeployedArtifactInformationRequest" wsaw:Action="urn:getDeployedArtifactInformation"></wsdl:input>
-            <wsdl:output message="ns:getDeployedArtifactInformationResponse" wsaw:Action="urn:getDeployedArtifactInformationResponse"></wsdl:output>
-            <wsdl:fault message="ns:ApplicationDeployerAppFactoryException" name="ApplicationDeployerAppFactoryException" wsaw:Action="urn:getDeployedArtifactInformationApplicationDeployerAppFactoryException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getTagNamesOfPersistedArtifacts">
             <wsdl:input message="ns:getTagNamesOfPersistedArtifactsRequest" wsaw:Action="urn:getTagNamesOfPersistedArtifacts"></wsdl:input>
@@ -318,15 +268,6 @@
                 <soap:fault use="literal" name="ApplicationDeployerAppFactoryException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="undeployAllArtifactsOfAppFromDepSyncGitRepo">
-            <soap:operation soapAction="urn:undeployAllArtifactsOfAppFromDepSyncGitRepo" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:fault name="ApplicationDeployerAppFactoryException">
-                <soap:fault use="literal" name="ApplicationDeployerAppFactoryException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="deployArtifact">
             <soap:operation soapAction="urn:deployArtifact" style="document"></soap:operation>
             <wsdl:input>
@@ -341,18 +282,6 @@
         </wsdl:operation>
         <wsdl:operation name="getArtifactDetails">
             <soap:operation soapAction="urn:getArtifactDetails" style="document"></soap:operation>
-            <wsdl:input>
-                <soap:body use="literal"></soap:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"></soap:body>
-            </wsdl:output>
-            <wsdl:fault name="ApplicationDeployerAppFactoryException">
-                <soap:fault use="literal" name="ApplicationDeployerAppFactoryException"></soap:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getDeployedArtifactInformation">
-            <soap:operation soapAction="urn:getDeployedArtifactInformation" style="document"></soap:operation>
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
@@ -423,15 +352,6 @@
                 <soap12:fault use="literal" name="ApplicationDeployerAppFactoryException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="undeployAllArtifactsOfAppFromDepSyncGitRepo">
-            <soap12:operation soapAction="urn:undeployAllArtifactsOfAppFromDepSyncGitRepo" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:fault name="ApplicationDeployerAppFactoryException">
-                <soap12:fault use="literal" name="ApplicationDeployerAppFactoryException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="deployArtifact">
             <soap12:operation soapAction="urn:deployArtifact" style="document"></soap12:operation>
             <wsdl:input>
@@ -446,18 +366,6 @@
         </wsdl:operation>
         <wsdl:operation name="getArtifactDetails">
             <soap12:operation soapAction="urn:getArtifactDetails" style="document"></soap12:operation>
-            <wsdl:input>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"></soap12:body>
-            </wsdl:output>
-            <wsdl:fault name="ApplicationDeployerAppFactoryException">
-                <soap12:fault use="literal" name="ApplicationDeployerAppFactoryException"></soap12:fault>
-            </wsdl:fault>
-        </wsdl:operation>
-        <wsdl:operation name="getDeployedArtifactInformation">
-            <soap12:operation soapAction="urn:getDeployedArtifactInformation" style="document"></soap12:operation>
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
@@ -525,12 +433,6 @@
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="undeployAllArtifactsOfAppFromDepSyncGitRepo">
-            <http:operation location="undeployAllArtifactsOfAppFromDepSyncGitRepo"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-        </wsdl:operation>
         <wsdl:operation name="deployArtifact">
             <http:operation location="deployArtifact"></http:operation>
             <wsdl:input>
@@ -542,15 +444,6 @@
         </wsdl:operation>
         <wsdl:operation name="getArtifactDetails">
             <http:operation location="getArtifactDetails"></http:operation>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"></mime:content>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getDeployedArtifactInformation">
-            <http:operation location="getDeployedArtifactInformation"></http:operation>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"></mime:content>
             </wsdl:input>

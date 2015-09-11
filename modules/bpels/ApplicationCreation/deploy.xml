@@ -19,11 +19,6 @@
        <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="./../../../../repository/conf/appfactory/endpoints/ApplicationManagementService.epr"/>
       </service>
     </invoke>
-    <invoke partnerLink="ContinousIntegrationPL">
-     	<service name="service.build.jenkins.appfactory.carbon.wso2.org:TenantContinousIntegrationSystemDriverService" port="TenantContinousIntegrationSystemDriverServiceHttpsSoap11Endpoint">    
-       <endpoint xmlns="http://wso2.org/bps/bpel/endpoint/config" endpointReference="./../../../../repository/conf/appfactory/endpoints/ContinousIntegrationService.epr"/>
-       </service>
-    </invoke>
     
   </process>
 </deploy>

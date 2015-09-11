@@ -391,9 +391,11 @@ public class RestBasedJenkinsCIConnector {
      * @return true if job exits, false otherwise.
      * @throws AppFactoryException if an error occurs.
      */
-    public boolean isJobExists(String applicationId, String version, String tenantDomain) throws AppFactoryException {
+    public boolean isJobExists(String applicationId, String version, String tenantDomain, String userName) throws AppFactoryException {
 
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, "");
+        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
+                                      .getJobName(applicationId, version,
+                                                  MultitenantUtils.getTenantAwareUsername(userName));
         final String wrapperTag = "JobNames";
 
         List<NameValuePair> queryParameters = new ArrayList<NameValuePair>();
@@ -422,8 +424,8 @@ public class RestBasedJenkinsCIConnector {
                 throw new AppFactoryException(errorMsg);
             }
 
-            StAXOMBuilder builder = new StAXOMBuilder(jobExistResponse.getEntity().getContent());
-            isExists = builder.getDocumentElement().getChildElements().hasNext();
+	        StAXOMBuilder builder = new StAXOMBuilder(jobExistResponse.getEntity().getContent());
+	        isExists = builder.getDocumentElement().getChildElements().hasNext();
 
         } catch (XMLStreamException e) {
             String msg =
@@ -531,8 +533,12 @@ public class RestBasedJenkinsCIConnector {
                            String tenantDomain, String userName, String repoFrom) throws AppFactoryException {
 
         userName = MultitenantUtils.getTenantAwareUsername(userName);
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version,
-                                                                                         userName, repoFrom);
+        String jobName;
+	    if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom)) {
+		    jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, userName);
+	    } else {
+		    jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, null);
+	    }
         String artifactType = ApplicationDAO.getInstance().getApplicationType(applicationId);
         boolean isFreestyle = false;
 

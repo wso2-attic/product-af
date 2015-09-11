@@ -104,6 +104,7 @@ public class AppFactoryConstants {
 	public static final String SVN_PASSWORD = "password1";
 	public static final String LOCATION_HEADER_PARAM = "Location";
 	public static final String JOB_NAME_KEY = "name";
+	public static final String JOB_TAG_NAME = "job";
 
 	/*
 	*  constants for cartridge subscription info
