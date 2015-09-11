@@ -4,8 +4,8 @@
     "kubernetesMaster": {
         "hostId": "master",
         "hostname": "master.dev.kubernetes.org",
-        "privateIPAddress": "<%= @$kubernetes_host_ip %>",
-        "publicIPAddress": "<%= @$kubernetes_host_ip %>",
+        "privateIPAddress": "<%= @kubernetes_host_ip %>",
+        "publicIPAddress": "<%= @kubernetes_host_ip %>",
         "property": [
              {
                 "name": "KUBERNETES_MASTER_PORT",
@@ -21,8 +21,8 @@
         {
             "hostId": "minion-1",
             "hostname": "minion-1.dev.kubernetes.org",
-            "privateIPAddress": "<%= @$kubernetes_host_ip %>",
-            "publicIPAddress": "<%= @$kubernetes_host_ip %>",
+            "privateIPAddress": "<%= @kubernetes_host_ip %>",
+            "publicIPAddress": "<%= @kubernetes_host_ip %>",
             "property": [
             ]
         }
