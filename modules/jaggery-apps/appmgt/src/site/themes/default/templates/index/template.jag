@@ -116,7 +116,7 @@ function addTableRow(application) {
         var iconClass = " <i class="+ icon + "><\/i>"
         var spinIcon = application.applicationCreationStatus == APPLICATION_CREATION_STATUS.PENDING ? "<i class=\"fa fa-spinner fa-pulse fa-spin\"></i>" : "";
 
-        var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
+        var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" id="'+application.key+'"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
                             iconClass+
                             '<div class="app-icon">' +
                              '<img id="' + application.key + '_icon"  ' +
@@ -234,6 +234,7 @@ function repopulatePendingApps() {
             for (var i = 0; i < completedAppArray.length; i++) {
             	var application = completedAppArray[i];
             	removeFromProgressList(application.key);
+            	removeTableRow(application.key);
             	addTableRow(application);
             	loadAppIcon(application.key);
             }
