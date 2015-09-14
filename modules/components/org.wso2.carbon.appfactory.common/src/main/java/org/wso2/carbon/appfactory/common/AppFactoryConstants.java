@@ -99,6 +99,7 @@ public class AppFactoryConstants {
 	public static final String STRATOS_APP_ID ="StratosApplicationId";
 	public static final String STRATOS_APP_STATUS_DEPLOYED ="Deployed";
 	public static final String STRATOS_RUNTIME_STATUS_ACTIVE ="Active";
+	public static final String STRATOS_RUNTIME_STATUS_INACTIVE ="Inactive";
 
     /**
      * Defining archetype related constants

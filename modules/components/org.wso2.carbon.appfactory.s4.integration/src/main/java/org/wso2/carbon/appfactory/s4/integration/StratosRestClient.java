@@ -21,10 +21,12 @@ package org.wso2.carbon.appfactory.s4.integration;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.MutualAuthHttpClient;
 import org.wso2.carbon.appfactory.common.util.ServerResponse;
@@ -61,7 +63,7 @@ public class StratosRestClient {
                                                                   autoScalingPolicy);
 
         ServerResponse response = MutualAuthHttpClient.sendPostRequest(stratosApplicationJson, this.stratosManagerURL
-                                                                                               + this.APPLICATIONS_REST_END_POINT,
+                                                                                               + APPLICATIONS_REST_END_POINT,
                                                                        username);
         if (response.getStatusCode() == HttpStatus.SC_CREATED) {
             if (log.isDebugEnabled()) {
@@ -94,7 +96,7 @@ public class StratosRestClient {
 
     public void undeployApplication(String applicationId) throws AppFactoryException {
         ServerResponse response = MutualAuthHttpClient.sendPostRequest("", this.stratosManagerURL
-                                                                           + this.APPLICATIONS_REST_END_POINT + "/"
+                                                                           + APPLICATIONS_REST_END_POINT + "/"
                                                                            + applicationId + "/undeploy/", username);
         if (response.getStatusCode() == HttpStatus.SC_ACCEPTED) {
             if (log.isDebugEnabled()) {
@@ -110,7 +112,7 @@ public class StratosRestClient {
 
     public void deleteApplication(String applicationId) throws AppFactoryException {
         ServerResponse response = MutualAuthHttpClient.sendDeleteRequest(this.stratosManagerURL
-                                                                         + this.APPLICATIONS_REST_END_POINT + "/"
+                                                                         + APPLICATIONS_REST_END_POINT + "/"
                                                                          + applicationId, username);
         if (response.getStatusCode() == HttpStatus.SC_OK) {
             if (log.isDebugEnabled()) {
@@ -128,38 +130,51 @@ public class StratosRestClient {
         undeployApplication(applicationId);
         //TODO :
         // Have to wait till application get undeployed
-        // Stratos is going to make undeploy a synchronous call or will provide a certial wait time
+        // Stratos is going to make undeploy a synchronous call or will provide a certian wait time
         // Before deletion
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            log.error("Sleep thread got interrupted before deleting stratos application", e);
+        for (int i = 1; i < 4; i++) {
+            if (AppFactoryConstants.STRATOS_RUNTIME_STATUS_INACTIVE.equalsIgnoreCase(
+                    getApplicationRuntimeStatus(applicationId))) {
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.error("Sleep thread got interrupted before deleting stratos application", e);
+            }
         }
         deleteApplication(applicationId);
     }
 
     public String getApplicationRuntime(String applicationId) throws AppFactoryException {
-    ServerResponse response = MutualAuthHttpClient.sendGetRequest(this.stratosManagerURL
-                                                                  + this.APPLICATIONS_REST_END_POINT + "/"
-                                                                  + applicationId + "/runtime", username);
-    if (response.getStatusCode() == HttpStatus.SC_OK) {
-        String applicationInstanceJson = response.getResponse();
-        if (log.isDebugEnabled()) {
-            log.debug("Stratos application runtime json : " + applicationInstanceJson);
+        ServerResponse response = MutualAuthHttpClient.sendGetRequest(this.stratosManagerURL
+                                                                      + APPLICATIONS_REST_END_POINT + "/"
+                                                                      + applicationId + "/runtime", username);
+        if (response.getStatusCode() == HttpStatus.SC_OK) {
+            String applicationInstanceJson = response.getResponse();
+            if (log.isDebugEnabled()) {
+                log.debug("Stratos application runtime json : " + applicationInstanceJson);
+            }
+            return applicationInstanceJson;
+        } else {
+            String errorMsg = "Error occured while getting application runtime for ID : " + applicationId
+                              + "HTTP Status code : " + response.getStatusCode() + " server response : "
+                              + response.getResponse();
+            handleException(errorMsg);
         }
-        return applicationInstanceJson;
-    } else {
-        String errorMsg = "Error occured while getting application runtime for ID : " + applicationId
-                          + "HTTP Status code : " + response.getStatusCode() + " server response : "
-                          + response.getResponse();
-        handleException(errorMsg);
+        return null;
     }
-    return null;
+
+    public String getApplicationRuntimeStatus(String applicationId) throws AppFactoryException {
+        String applicationInstanceJson = getApplicationRuntime(applicationId);
+        JsonParser jsonParser = new JsonParser();
+        JsonObject applicationInstanceObject = (JsonObject) jsonParser.parse(applicationInstanceJson);
+        return applicationInstanceObject.get("status").getAsString();
     }
 
     public boolean isApplicationCreated(String applicationId) throws AppFactoryException {
         ServerResponse response = MutualAuthHttpClient.sendGetRequest(this.stratosManagerURL
-                                                                      + this.APPLICATIONS_REST_END_POINT + "/"
+                                                                      + APPLICATIONS_REST_END_POINT + "/"
                                                                       + applicationId, username);
         if (response.getStatusCode() == HttpStatus.SC_OK) {
             String applicationInfoJson = response.getResponse();
@@ -182,7 +197,7 @@ public class StratosRestClient {
      * Construct the stratos application JSON
      *
      * @param applicationId
-     * @param repoUrl
+     * @param repoUrl stratos artifact repository url
      * @param repoUsername
      * @param repoPassword
      * @param cartridgeType
