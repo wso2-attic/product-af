@@ -80,6 +80,7 @@ var hasDBs = outputs.hasDBs;
                             <th>Description</th>
                             <th>Database URL</th>
                             <th>Type</th>
+                            <th>Attached Users</th>
                             <th>Users & Privileges</th>
                             <th>Delete</th>
                         </tr>
@@ -132,9 +133,10 @@ function populateDatatable() {
                     columns: [
                         { data: 'name', "width": "5%"},
                         { data: 'stage', "width": "8%"},
-                        { data: 'description' , "width": "30%"},
+                        { data: 'description' , "width": "10%"},
                         { data: 'database_url' , "width": "30%"},
                         { data: 'type', "width": "5%" },
+                         { data: 'attachedUsers', "width": "20%" },
                         { data: 'userpriviledges', "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
                         { data: 'trash', "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
                     ],

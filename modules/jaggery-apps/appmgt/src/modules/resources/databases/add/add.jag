@@ -900,6 +900,15 @@ var generateDatabaseInfoForDataTable = function (applicationKey, applicationName
 			    singleDatabaseInfo.trash = '<a class="delete_db ' + notActive + '" stage="' + singleDatabaseInfo.stage + '" id="delete_' + singleDatabaseInfo.name + '" href="#"><i class="fa  fa-trash"></i></a>';
 			    // currently we dont record database type, support only MySQL.change this when multiple types are allowed
 			    singleDatabaseInfo.type = "MySQL";
+                var attachedUsersArray = getAttachedUsers(applicationKey,singleDatabaseInfo.name,allStages[i]); 
+                var attachedUsersString= "";
+                for(var k in attachedUsersArray) {
+                    if (k>0) {
+                        attachedUsersString = ", " + attachedUsersString;
+                    }
+                    attachedUsersString = attachedUsersArray[k] + attachedUsersString ;
+                }
+                singleDatabaseInfo.attachedUsers = attachedUsersString;
                 allDBInfo.push(singleDatabaseInfo);
             }
         }
