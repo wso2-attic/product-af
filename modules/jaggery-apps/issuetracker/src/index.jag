@@ -9,18 +9,21 @@ var log =new Log();
 
     caramel = require('caramel');
     include('jagg/jagg.jag');
-
+    include('jagg/config_reader.jag');
     issue = require('/modules/issue.js');
     project = require('/modules/project.js');
 //    help=require('/modules/help.js');
-    var appkey = request.getParameter('appkey');
+    var appKey = request.getParameter('appkey');
+    var appName = request.getParameter('appName');
     var helpMessage='You get a birds eye view of all the issues that have been created in applications where you are a member.\n Issue tracking for a application version provides you the ability to create new issues per application version, edit existing issues and search for issues based on a search criteria.';
     userName = context.get(LOGGED_IN_USER);
     domain = context.get(DOMAIN);
+    var issuetrackerURL = getProperties(ISSUE_TRACKER_URL);
+    var baseURL = issuetrackerURL[0].split("issuetracker")[0];
     caramel.render({
         title  : { text   : 'Issue Tracker'},
         header : { domain : domain, userName : userName},
-        body   : {title: 'Issue',  data: issue.getIssusesForDataTable('1',appkey), appkey: appkey, versions: project.getAllVersionOfProjectForDataTable(appkey)},
+        body   : {title: 'Issue',  data: issue.getIssusesForDataTable('1',appKey), appKey: appKey, appName : appName, versions: project.getAllVersionOfProjectForDataTable(appKey), baseURL: baseURL},
 	    help :{text:helpMessage}
     });
 

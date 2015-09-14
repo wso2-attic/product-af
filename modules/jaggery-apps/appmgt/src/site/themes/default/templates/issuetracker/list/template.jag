@@ -192,7 +192,7 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
     <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
     <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 
-<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>" id="iframeId"></iframe>
+<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>&appName=<%=applicationName%>" id="iframeId"></iframe>
 
 <% jagg.includeBlock("page/messages", null); %>
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.ISSUES}); %>
