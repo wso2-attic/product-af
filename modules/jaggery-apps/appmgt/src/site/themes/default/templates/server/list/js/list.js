@@ -19,7 +19,6 @@
  */
 
 $(document).ready(function () {
-    
     initializeUserActivity("logs", applicationKey, applicationName);
     setVersions($('#stage-download'));
     setVersions($('#stage-view'));
@@ -94,7 +93,7 @@ $(document).ready(function () {
     };
     
     $('#view-log').click(function(){
-        $('#view-log').loadingButton('show');
+        $('#view-log').loadingButton({action : "show"});
         var selectedStage = $('#stage-view').val();
         var selectedVersion = $('#version-view').val();
         if(selectedStage && selectedVersion) {
@@ -107,18 +106,21 @@ $(document).ready(function () {
                 pageNumber : 1
             },function (result) {
                 var resultJson = JSON.parse(result);
-                var logData = resultJson.logEvents;
-                $('#view-logs-content').html(logData);
+                if(!resultJson.error && resultJson.logEvents) {
+                    $('#view-logs-content').html(resultJson.logEvents);
+                } else {
+                    jagg.message({content: "No logs available for version" + selectedVersion + " in stage " + selectedStage + " .", type: 'error', id:'view_log'});
+                }
                 $('.log-container').show();
             },function (jqXHR, textStatus, errorThrown) {
                 jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
             });        
         }
-        $('#view-log').loadingButton('hide');
-    });
+        $('#view-log').loadingButton({action : "hide"});
+      });
     
     $('#download-log').click(function(){
-        $('#download-log').loadingButton('show');
+        $('#download-log').loadingButton({action : "show"});
         var selectedDate = $('#date').val();
         var selectedStage = $('#stage-download').val();
         var selectedVersion = $('#version-download').val();
@@ -131,7 +133,7 @@ $(document).ready(function () {
                 date:selectedDate,
                 downloadFile:"true"
             },function (result) {
-                 var resultJson = JSON.parse(result);
+                var resultJson = JSON.parse(result);
                 if(resultJson.error == true) {
                     jagg.message({content: "No archived logs available to download on " + selectedDate + " .", type: 'warning', id:'download_log'});
                 }
@@ -139,7 +141,7 @@ $(document).ready(function () {
                 jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
             }); 
         }
-         $('#download-log').loadingButton('hide');
+         $('#download-log').loadingButton({action : "hide"});
         
     });
     
