@@ -18,7 +18,10 @@ var log = new Log();
                 throw "Error while retrieving users of the tenant";
             }
         } catch(e) {
-            throw "Error while retrieving users of the tenant";
+		    var errMsg = "Error while retrieving users of the tenant";
+            log.error(e);
+            log.error(errMsg);
+            throw errMsg;
         }
     }else if(action=="getUserInfo"){
         mod = jagg.module("tenant");
