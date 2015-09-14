@@ -368,6 +368,17 @@ var loggedInUser = jagg.getUser();
 			if(hasDBInformationReadPermissionToStage){
 
 				try {
+				    // Code flow is as follows.
+				    // Get all Databases from stage
+                	// For ex : devdb001, devdb002
+				    // Get all Datasources from stage
+                	// For ex : ds001, ds002
+                	// Loop Datasources. Say current Datasource is ds001.
+                	// Loop Databases inside that. devdb001 and devdb002.
+                	// Check whether any of the Database urls matches the current Database's Database url.
+                	// ds001.url == devdb001.url & ds001.url == devdb002.url
+                	// If not Consider it as a Custom Database used by the user and add it to the list of databases
+                	// that user can use to create a Datasource for.
 					result = mod.getDatabasesInfoForStage(applicationKey, deploymentStages[i]);
 					if(result!=null && result.stage!=null){
 						// identify custom databases.
