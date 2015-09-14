@@ -567,7 +567,7 @@ public class JGitAgent implements GitAgent {
     private Repository getLocalRepository(File repositoryDir) throws IOException {
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         return builder.addCeilingDirectory(repositoryDir)
-                .setWorkTree(repositoryDir).findGitDir()
+                .setWorkTree(repositoryDir).findGitDir(repositoryDir)
                 .setMustExist(true).build();
     }
 
