@@ -276,5 +276,7 @@ var APPLICATION_CREATION_STATUS = {
     FAULTY:"FAULTY"
 };
 
+var START_STAGE_TAG_NAME = "StartStage";
+
 
 %>
