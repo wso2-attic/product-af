@@ -33,7 +33,7 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 
 
 (function($) {
-
+    
     /* ========================================================================
      * loading function
      * ======================================================================== */
@@ -75,9 +75,25 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
     /* ========================================================================
      * loading button function
      * ======================================================================== */
-    $.fn.loadingButton = function(action) {
-        var html = '<span class="button-loader"><div class="loading-logo">\
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="3em"\
+    $.fn.loadingButton = function(options) {
+
+        var settings = $.extend({
+                    // defaults.
+                    action: "show",
+                    width: "3em"
+                }, options );
+        var wValue = '';
+        if(settings.width.indexOf('px') >= 0){
+            wValue = parseFloat(settings.width.replace("px",''));
+            wValueString = wValue + "px";
+            wValueRadius = wValue * 10 + "px";
+        }else if(settings.width.indexOf('em') >= 0){
+            wValue = parseFloat(settings.width.replace("em",''));
+            wValueString = wValue + "em";
+            wValueRadius = wValue * 10 + "em";
+        }
+
+        var html = '<span class="button-loader"><div class="loading-logo"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="'+ wValueString +'"\
                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\
                     viewBox="0 0 14 14" enable-background="new 0 0 14 14" xml:space="preserve">\
                         <path class="circle" stroke-width="1.4" stroke-miterlimit="10" d="M6.534,\
@@ -94,19 +110,24 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
                     </div></span>';
 
         return $(this).each(function(){
-            if (action === 'show') {
+            if (settings.action === 'show') {
                 $(this).prop( "disabled", true );
                 $(this).find('span').css('display','none');
                 $(this).prepend(html).addClass('loading');
+                $(this).find('.signal').css({
+                    'height':wValueString,
+                    'width':wValueString,
+                    'border-radius': wValueRadius
+                });
             }
-            if (action === 'hide') {
+            if (settings.action === 'hide') {
                 $(this).prop( "disabled", false );
                 $(this).find('.button-loader').remove();
                 $(this).find('span').css('display','inline-block');
             }
         });
     }
-
+    
 }(jQuery));
 
 
@@ -137,18 +158,10 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 }( jQuery ));
 
 //fix popover close issue
-function hidePopover(e) {
+$('body').on('click', function (e) {
     $('[data-toggle="popover"]').each(function () {
         if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
             $(this).popover('hide');
         }
     });
-}
-
-$('body').on('click', function (e) {
-    hidePopover(e);
-});
-
-$('#username-btn').on('click', function (e) {
-    hidePopover(e);
 });
