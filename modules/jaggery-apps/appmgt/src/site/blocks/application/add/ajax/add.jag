@@ -40,7 +40,7 @@ var log=new Log();
 		var registryMod = jagg.module("registry");
 		var applicationName = request.getParameter("applicationName");
 		var applicationKey = request.getParameter("applicationKey");
-		var applicationDescription = request.getParameter("applicationDescription");
+		var applicationDescription = replaceSpecialCharacters(request.getParameter("applicationDescription"));
 		var applicationType = request.getParameter("appType");
 		var repositoryType = request.getParameter("repositoryType");
         log.info(repositoryType)
@@ -132,7 +132,7 @@ var log=new Log();
 
 	var applicationName = request.getParameter("applicationName");
 	var applicationKey = request.getParameter("applicationKey");
-	var applicationDescription = request.getParameter("applicationDescription");
+	var applicationDescription = replaceSpecialCharacters(request.getParameter("applicationDescription"));
 	var applicationType = request.getParameter("appType");
 	var uploadedApplicationKey = request.getParameter("uploadedApplicationKey");
 	var repoAccessibility = request.getParameter("repoAccessibility");
@@ -352,6 +352,14 @@ function generateValidationResponse(isSuccess, message) {
 		isSuccessful: isSuccess,
 		message: message
 	}
+}
+
+function replaceSpecialCharacters(unsafe) {
+	return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;");
 }
 
 %>
