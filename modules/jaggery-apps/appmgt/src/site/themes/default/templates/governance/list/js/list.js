@@ -53,7 +53,7 @@ $(document).ready(function () {
         var days = moment().diff(start, 'days'); // current date - selected date -> if old date is seleted this will give positive value
         if (days > 0) {
             isSelectedDateValid = false;
-            jagg.message({content: "You selected an old date, please re select a future date", type: 'warning'});
+            jagg.message({content: "You selected an old date, please re select an upcoming date", type: 'warning'});
         } else {
             isSelectedDateValid = true;
         }
@@ -71,11 +71,11 @@ $(document).ready(function () {
 
 
     $('#promote-to-testing-btn').click(function () {
-        doLifeCycleAction("Promote", "[true,true,true]", "");
+        doLifeCycleAction("Promote", "[true,true,true]", ""); // TODO : get 2nd parameter  dynamically
     });
 
     $('#promote-to-production-btn').click(function () {
-        doLifeCycleAction("Promote", "[true,true]", "");
+        doLifeCycleAction("Promote", "[true,true]", ""); // TODO : get 2nd parameter  dynamically
     });
 
     $('#retire-btn').click(function () {
@@ -117,7 +117,7 @@ $(document).ready(function () {
     }
 
     /**
-     * Retrieve eta and update the estimated time field calendar text.
+     * Retrieve eta from backend and update the estimated time field calendar text.
      */
     function retrieveETA() {
         jagg.post("../blocks/eta/get/ajax/get.jag", {
@@ -163,7 +163,7 @@ $(document).ready(function () {
                 jagg.message({content: parsedResult.message, type: 'error'});
             } else {
                 jagg.message({
-                                 content: "Successfully submitted request for the governance operation - " + actionName,
+                                 content: "Successfully submitted request for the operation - " + actionName,
                                  type: 'success'
                              });
                 var newStage;
@@ -280,7 +280,6 @@ $(document).ready(function () {
                     }
                     checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + '><span>' + resultJson[i].name + '</span></label></div>'
                 }
-                console.log(checkBoxes);
                 $('#' + resultJson[0].status.toLowerCase()).find('.progress-bar-indicator').html("0/" + resultJson.length);
                 $('#' + resultJson[0].status.toLowerCase()).find('.checkboxes').html(checkBoxes);
             }
@@ -317,7 +316,6 @@ $(document).ready(function () {
                 $('.tab-content').hide();
                 // active only the current stage tab, meanwhile check the visibility permission
                 if (hasVisibilityPermissions[currentStage]) {
-                    //  $('#' + currentStage.toLowerCase()).addClass('active');
                     $('.nav-tabs').show();
                     $('.tab-content').show();
                     $('.nav-tabs a[href="#' + currentStage.toLowerCase() + '"]').tab('show');
@@ -361,7 +359,7 @@ $(document).ready(function () {
             }
 
         }, function (jqXHR, textStatus, errorThrown) {
-
+            jagg.message({content: 'Could not retrieve lifecycle history.', type: 'error', id: 'history'});
         });
     }
 });
