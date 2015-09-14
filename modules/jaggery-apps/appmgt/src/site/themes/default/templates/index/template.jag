@@ -267,6 +267,7 @@ function repopulatePendingApps() {
 * initialize the user home page
 */
 function init() {
+    $("#item_list").empty(); //clearing the item list before re-rendering
 	createTable();
 	hideLoading();
 }
@@ -364,8 +365,6 @@ $(document).ready(function () {
                             var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
 
                             element.highlightedName = pre + "^" + highlight + "~" + rest;
-
-
                         }
                         addTableRow(element);
                         loadAppIcon(element.key);
