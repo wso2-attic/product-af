@@ -55,7 +55,7 @@ var log=new Log();
         var hasResourceReadPermissionToStage =
                     permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
         if(!stage) {
-            stage = getProperty("StartStage");
+            stage = getProperty(START_STAGE_TAG_NAME);
         }
         if(hasResourceReadPermissionToStage){
     		try {

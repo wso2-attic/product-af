@@ -59,7 +59,7 @@ public class ApplicationTypeBean {
 		this.properties = properties;
 	}
 
-	public Object getProperty(String name){
+	public String getProperty(String name){
 		return this.getProperties().getProperty(name);
 	}
 
