@@ -39,7 +39,7 @@ var modApplication = jagg.module("application");
     if (action == "updateDescription") {
         mod = jagg.module("application");
         var applicationKey = request.getParameter("applicationKey");
-        var newDescription = request.getParameter("newDescription");
+        var newDescription = replaceSpecialCharacters(request.getParameter("newDescription"));
 
         if(permission.checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER)){
             try{
@@ -90,7 +90,7 @@ var modApplication = jagg.module("application");
 
     } else if(action == "changeGeneralInfo"){
         var applicationKey = request.getParameter("applicationKey");
-        var newDescription = request.getParameter("description");
+        var newDescription = replaceSpecialCharacters(request.getParameter("description"));
         var errorOccurred = {
             status: false,
             msg:""
@@ -198,5 +198,13 @@ function updateAppDescription(applicationKey, newDescription){
         log.error(e1);
         throw (err);
     }
+}
+
+function replaceSpecialCharacters(unsafe) {
+    return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
 }
 %>
