@@ -28,6 +28,12 @@ jagg.module("tenant", {
    getUserInfo:function () {
         return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUserInfo.apply(this, arguments);
    },
+    getUsersOfTenant:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getUsersOfTenant.apply(this, arguments);
+   },
+    getPendingUsersOfTenantByAppKey:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfTenantByAppKey.apply(this, arguments);
+    },
    updateUserRoles:function () {
         return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
    },
@@ -48,7 +54,13 @@ jagg.module("tenant", {
    },
    getApplicatioinKeysOfUser:function () {
         return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getApplicatioinKeysOfUser.apply(this, arguments);
-   }
+   },
+    addUsersToTenant:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").addUsersToTenant.apply(this, arguments);
+    },
+    resendInvitation:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").resendInvitation.apply(this, arguments);
+    }
 
 
     

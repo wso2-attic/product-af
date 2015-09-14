@@ -28,6 +28,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var appfactory = require('appFactory');
 var multitenancy = carbon.multitenancy;
+var modUser = jagg.module("user");
 
 //var appfactory = require('appFactory');
 //var multitenancy = carbon.multitenancy;
@@ -93,7 +94,71 @@ var changePassword=function(oldPassword,newPassword){
         log.error(e);
         throw e;
     }
-}
+};
+
+var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if (log.isDebugEnabled()) {
+        log.debug("Adding  users to tenant: " + tenantDomain);
+        log.debug("Users list: " + stringify(usersList));
+    }
+
+    // TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
+    var addTenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH;
+    var data = {
+        action: "addUsersToTenant",     // TODO update correct action
+        applicationKey: applicationKey,
+        tenantDomain: tenantDomain,
+        users: stringify(usersList),               // TODO: change correct parameter name
+        welcomeText: stringify(welcomeText)
+    };
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(addTenantUsersUrl, data, headers, type);
+    if (result.xhr.status == "200") {
+        log.info("Successfully added users to tenant: " + tenantDomain + ", for application: " + applicationKey);
+    } else {
+        log.error("Error occurred when adding users to tenant:" + tenantDomain + ", for application: " + applicationKey
+                  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+        throw "Error occurred when adding users of tenant";
+    }
+};
+
+var resendInvitation = function (applicationKey, userName) {
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if (log.isDebugEnabled()) {
+        log.debug("Resending invitation to user: " + userName+" for tenant: "+tenantDomain);
+    }
+
+    // TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
+    var resendInvitationUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_RESEND_INVITATION_AJAX_PATH;
+    var data = {
+        action: "resendInvitation",     // TODO update correct action
+        applicationKey: applicationKey,
+        tenantDomain: tenantDomain,
+        userName: stringify(userName)               // TODO: change correct parameter name
+    };
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(resendInvitationUrl, data, headers, type);
+    if (result.xhr.status == "200") {
+        log.info("Successfully resent user invitation to user:"+userName
+                 +", tenant: " + tenantDomain + ", for application: "+ applicationKey);
+    } else {
+        log.error("Error occurred when resending invitation to user:"+userName
+                  +" tenant:" + tenantDomain + ", for application: " + applicationKey
+                  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+        throw "Error occurred when resending invitation";
+    }
+};
 
 
 %>

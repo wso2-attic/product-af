@@ -17,7 +17,14 @@
  *   under the License.
  */
 
-include('/jagg/constants.jag');
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var modTenant = jagg.module("tenant");
+var modApplication = jagg.module("application");
+var userIdentifier = "userName";
+var log = new Log();
+var permissionModule = jagg.module("permission");
 jagg.block("application/user/invite", {
     initialize:function (data) {
 
@@ -28,18 +35,38 @@ jagg.block("application/user/invite", {
         }
     },
 
-    getOutputs:function (inputs) {
-       jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_CONFIGURATION_API_MANAGER);
-       var hasInviteUserPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_USER_INVITE);
-       var isOTTenant= session.get(TENANT_INFO).isOTTenant;
-       var helpTips = jagg.module("help").getHelpTips("memberAddition");
-              return {
-            "hasInviteUserPermission":hasInviteUserPermission,
-            "isOTTenant":isOTTenant,
-	        "helpTips":helpTips
-       };
+    getOutputs: function (inputs) {
+
+        var applicationKey = request.getParameter("applicationKey");
+        var hasInviteUserPermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_USER_INVITE);
+        if(!hasInviteUserPermission){
+            response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
+        }
+
+        try {
+            var isOTTenant = session.get(TENANT_INFO).isOTTenant;
+            var uninvitedTenantUsers = getUninvitedTenantUsers(applicationKey);
+            var hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
+            return {
+                "hasInviteUserPermission": hasInviteUserPermission,
+                "isOTTenant": isOTTenant,
+                "uninvitedTenantUsers": uninvitedTenantUsers,
+                "hasTenantLevelUserMgtPermission":hasTenantLevelUserMgtPermission
+            };
+        } catch(e) {
+            log.error(e);
+            response.sendError(400, "Error Ouccerred while getting user info");
+        }
     }
-
-
 });
+
+function getUninvitedTenantUsers(applicationKey){
+    var arrayUtils = require('/site/themes/default/js/appfac/arrayUtils.js');
+    var tenantUsers = modTenant.getUsersOfTenant();
+    var existingApplicationUsers = modApplication.getTeamMembersOfApplication(applicationKey);
+    tenantUsers.sort(arrayUtils.dynamicSort(userIdentifier));
+    existingApplicationUsers.sort(arrayUtils.dynamicSort(userIdentifier));
+    return arrayUtils.inverseIntersection(tenantUsers,existingApplicationUsers,userIdentifier);
+}
+
 %>

@@ -24,6 +24,7 @@ include("/jagg/config_reader.jag");
 var log = new Log('modules/tenant/users/get/get.jag');
 
 var modManager = jagg.module("manager");
+var modUser = jagg.module("user");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
@@ -121,6 +122,84 @@ var getApplicatioinKeysOfUser=function(userName){
                                                 getApplicationKeysOfUser(userName);
        return appsOfUser;
 };
+
+var getUsersOfTenant = function(){
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if(log.isDebugEnabled()){
+        log.debug("Getting users of tenants for tenant: "+tenantDomain);
+    }
+    var tenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_TENANT_USERS_AJAX_PATH;
+    var data = {
+        action: "getUsersofTenant",
+        tenantDomain: tenantDomain
+    };
+    var headers = {
+        "Content-Type":"application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(tenantUsersUrl, data, headers, type);
+    if(result.xhr.status == "200"){
+        return convertTenantUsersArrayForDisplay(result.data);
+    } else {
+        log.error("Error occurred when getting users of tenant:"+tenantDomain
+                  +". Server response status:"+result.xhr.status+". responseText"+ result.xhr.responseText);
+        throw "Error occurred when getting users of tenant";
+    }
+};
+
+var getPendingUsersOfTenantByAppKey = function(applicationKey){
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if(log.isDebugEnabled()){
+        log.debug("Getting users of tenants for tenant: "+tenantDomain);
+    }
+    var tenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_PENDING_TENANT_USERS_AJAX_PATH;
+    var data = {
+        action: "getPendingUsersOfTenant",
+        tenantDomain: tenantDomain,
+        applicationKey: applicationKey // TODO : update this accordingly
+    };
+    var headers = {
+        "Content-Type":"application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(tenantUsersUrl, data, headers, type);
+    if(result.xhr.status == "200"){
+        return (result.data);
+    } else {
+        log.error("Error occurred when getting pending users of tenant:"+tenantDomain 
+                  +" for application: " + applicationKey +
+                  +". Server response status:"+result.xhr.status+". responseText"+ result.xhr.responseText);
+        throw "Error occurred when getting pending users of tenant";
+    }
+};
+
+function convertTenantUsersArrayForDisplay(users){
+    var returnUsersArray = [];
+    for(var i = 0, len = users.length; i < len; i++){
+        var user = users[i];
+        var tempUser = {};
+        tempUser["email"] = user.email;
+        tempUser["userName"] = user.userName;
+        tempUser["id"] = tempUser["email"];
+        tempUser["displayName"] = user.displayName;
+        tempUser["text"] = tempUser["displayName"];
+        var displayRoles=[];
+        var roles = (user.roles).split('\n');
+        for (var j = 0 , roleLen = roles.length; j < roleLen; j++) {
+            var roleDisplayName = getProperty("TenantRoles.Role." + roles[j] + ".DisplayName");
+            if(roleDisplayName != null) {
+                displayRoles.push(roleDisplayName);
+            }
+        }
+        tempUser["role"] = displayRoles;
+        returnUsersArray.push(tempUser);
+    }
+    return returnUsersArray;
+}
 
 
 %>

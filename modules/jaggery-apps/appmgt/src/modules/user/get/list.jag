@@ -283,4 +283,36 @@ function getUserInfoBean(userName) {
     }
 }
 
+function getCookieForCloudMgtBySAMLToken(){
+	if(log.isDebugEnabled()){
+		log.debug("login with saml token for user: "+jagg.getUser());
+	}
+	var loginUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_LOGIN_AJAX_PATH;
+	var data = {
+		action: "loginWithSAMLToken",
+		samlToken: session.get("SAML_TOKEN")
+	};
+	var headers = {"Content-Type":"application/x-www-form-urlencoded"};
+	var type = "json";
+	var result;
+	try {
+		result = post(loginUrl, data, headers, type);
+	} catch(e) {
+		log.error("Error occurred when login with saml token for user:"+jagg.getUser()
+				  +". Authentication failure.");
+		log.error(e);
+		throw "Error occurred when login with saml token";
+	}
+
+	if(result.xhr.status == "200"){
+		var cookie = result.xhr.getResponseHeader("Set-Cookie");
+		var cookieString = cookie.split(";")[0];
+		return cookieString;
+	} else {
+		log.error("Error occurred when login with saml token for user:"+jagg.getUser()
+				  +". Server response status:"+result.xhr.status+". responseText: "+ result.xhr.responseText);
+		throw "Error occurred when login with saml token";
+	}
+}
+
 %>
