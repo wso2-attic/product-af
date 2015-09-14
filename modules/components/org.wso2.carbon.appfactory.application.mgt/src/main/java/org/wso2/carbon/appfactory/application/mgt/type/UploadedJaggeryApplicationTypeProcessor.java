@@ -29,7 +29,7 @@ import java.io.File;
  */
 public class UploadedJaggeryApplicationTypeProcessor extends UploadedApplicationTypeProcessor {
 
-    UploadedJaggeryApplicationTypeProcessor(String type) {
+    public UploadedJaggeryApplicationTypeProcessor(String type) {
         super(type);
     }
 
