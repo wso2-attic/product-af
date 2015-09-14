@@ -64,6 +64,7 @@ include("/jagg/config_reader.jag");
                     } else {
                         fileName = applicationKey + "_" + date + ".log";
                     }
+                    response.error = false;
                     response.contentType = 'application/txt';
                     response.addHeader('Content-Disposition', 'attachment;filename=' + fileName.toString());
                     print(result.logEvents);
@@ -74,7 +75,7 @@ include("/jagg/config_reader.jag");
                 print({error: true, message: "Unable to download logs"});
             }
         } else {
-            response.result = 0;
+            response.error = true;
             response.message = "You don't have permission to download the log file";
             print(response);
         }
