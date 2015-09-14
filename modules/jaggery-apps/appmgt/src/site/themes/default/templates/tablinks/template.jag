@@ -46,7 +46,7 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
 
             <% if (outputs.isTeamAllowed) { %>
             <li class="<% if (pageName == "User Administration") { %>selected<%}%>">
-                <a id="menu_userAdmin"  href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Team">
+                <a id="menu_userAdmin"  href="<%=jagg.getAbsoluteUrl("/site/pages/application-team.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Team">
                     <i class="fa fa-users"></i> Team
                 </a>
             </li>
