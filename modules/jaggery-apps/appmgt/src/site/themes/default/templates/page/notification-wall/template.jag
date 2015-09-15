@@ -175,7 +175,7 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 </script>
 
 <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
-<div class="notification-pane nano" id="notificationWrapper">
+<div class="notification-pane nano" id="notificationWrapper" title="My Wall">
     <div class="notification-pane-trigger">
         <i class="fw fw-right-arrow fw-1-5x"></i>
     </div>

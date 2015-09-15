@@ -28,7 +28,7 @@ include("/jagg/constants.jag");
             <div class="col-md-12 breadcrumb-secondary">
                 <i class="fa fa-cubes visible-xs"></i><span>
         <% } else {%>
-            <div class="side-pane-trigger">
+            <div class="side-pane-trigger" title="Application Menu">
                 <i class="fa fa-reorder"></i>
             </div>
             <div class="breadcrumb-secondary">

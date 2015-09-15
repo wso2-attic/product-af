@@ -134,7 +134,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                 <li class="cloud-menu hidden-xs">
                     <a href="#" id="cloud-menu-popover" data-toggle="popover" data-placement="bottom"
                             class="cloud-menu-popover">
-                        <i class="fw fw-tiles"></i>
+                        <i class="fw fw-tiles" title="Cloud Menu"></i>
                     </a>
                 </li>
             </ul>
