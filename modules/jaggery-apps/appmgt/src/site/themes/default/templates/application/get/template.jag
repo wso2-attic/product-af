@@ -300,8 +300,6 @@
 </div>
 
 <!-- loading javascript files to the page after page is rendering -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
