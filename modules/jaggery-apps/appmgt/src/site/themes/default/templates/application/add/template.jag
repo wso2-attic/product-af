@@ -316,6 +316,7 @@ function fileUploadSend(e, data) {
         $('#progress').hide();
         return false;
     }
+    $("#progressDiv").text("");
 }
 
 function fileUploadChange(e, data){
@@ -359,6 +360,7 @@ function fileUploadProcessAlways(e, data){
 function fileUploadDone(e, data){
     if(data.result.isSuccessful){
         fileUploadSuccess = true;
+        $("#progressDiv").text("Applicatoin uploded successfully.");
         // Here we set uploadedApplicationKey value to current applicationKey value to identify whether the app key
         // has changed, when user clicks the create application button
         $("#uploadedApplicationKey").val($("#applicationKey").val());
@@ -375,10 +377,8 @@ function fileUploadFail(e, data){
     $('#progress').hide();
     fileUploadSuccess = false;
     var appKey = $('#applicationKey').val().trim();
-    if (data.files.length ) {
-        fileUploadErrorMsg = "Please upload non empty file";
-    } else if(!appKey.length || appKey == "null"){
-        fileUploadErrorMsg= "Invalid application name";
+    if(!appKey.length || appKey == "null"){
+        fileUploadErrorMsg= "Please add an application name";
     }else {
         fileUploadErrorMsg = "Error occurred while validating the application";
     }
@@ -737,7 +737,7 @@ function showLoader(show){
                     <input  type='hidden' maxlength="19" id='repoAccessibility' name="repoAccessibility" value="perDevRepo"/>
                     <div class="form-group">
                         <label for="application-description">Description: </label>
-                        <textarea class="form-control" name='applicationDescription' id='applicationDescription' rows="3"></textarea>
+                        <textarea class="form-control" name='applicationDescription' id='applicationDescription' placeholder="Enter Application Description" rows="3"></textarea>
                     </div>
 
                     <!-- If uploadable application -->
@@ -750,8 +750,7 @@ function showLoader(show){
                         <span class="input-group-btn">
                             <!-- The file input field used as target for the file upload widget -->
                             <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input id="fileupload" type="file" name="fileupload" multiple
-                                    disabled>
+                               Browse <input id="fileupload" type="file" name="fileupload" multiple disabled>
                             </span>
                         </span>
                         <!-- Progress bar-->
@@ -772,7 +771,7 @@ function showLoader(show){
                             <input type="text" id="icon" name="icon" class="form-control" readonly>
                             <span class="input-group-btn">
                                 <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input type="file" id="appIcon" name="appIcon"/>
+                                    Browse <input type="file" id="appIcon" name="appIcon"/>
                                 </span>
                                 <span class="btn btn-primary btn-file" onclick="clearUploadIconField()" id="clear">
                                     Clear
