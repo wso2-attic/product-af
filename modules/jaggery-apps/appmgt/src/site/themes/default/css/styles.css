@@ -1103,8 +1103,11 @@ a.btn-action {
     font-weight: 300;
 }
 .gray-hr {
-    border-top: 1px solid #333;
+    border-top: 1px solid #666;
     margin-top: 60px;
+}
+.dotted{
+    border-top:2px dotted #666;
 }
 .comment-line {
     margin-bottom: 20px;
@@ -1740,6 +1743,9 @@ a.btn-action {
     .btn-launch-app{
        width:60%;
     }
+    .btn-edit-code{
+        margin-left:0px;
+    }
     .btn-edit-code > a{
         margin-top:0px;
     }
@@ -2287,4 +2293,16 @@ th.hide-column-data, td.hide-column-data {
     font-size: 1.2em;
     font-weight: 300;
     margin-bottom: 2em;
+}
+.master-container{
+    padding-top:10px;
+}
+.fork-container{
+    padding-top:10px;
+    background:#47505A;
+}
+.fork-down{
+    padding:20px 0px;
+    text-align:center;
+    color:#999;
 }
