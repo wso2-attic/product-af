@@ -21,7 +21,6 @@
 $(document).ready(function () {
     initializeUserActivity("logs", applicationKey, applicationName);
     setCurrentStageTabActive();
-    getlifeCycleInfo();
     $('.tab-pane').each(function () {
         var $this = $(this);
         $this.find('.progress-bar-indicator').text($('.strikethrough:checked').length + '/' + $(this).find('.strikethrough').length);

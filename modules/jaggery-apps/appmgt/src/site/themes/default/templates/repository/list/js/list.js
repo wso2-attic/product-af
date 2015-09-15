@@ -30,7 +30,10 @@ $("#copytoClipboardForked").on("click",function(){
 });
 
 $("#fork").on("click",function(){
-    $(this).loadingButton('show');   
+    $('.btn-fork-code').loadingButton({
+        action: "show",
+        type: "small"
+    });
     jagg.post("../blocks/reposBuilds/set/ajax/set.jag", {
             action:"createFork",
             applicationKey:applicationKey,
@@ -58,10 +61,12 @@ function drawForkedRepo(data) {
     var dataJson = JSON.parse(data);
     if(!jQuery.isEmptyObject(dataJson)) {
         $('#fork').hide();
+        $('#arrow-down').show();
         $('#forkedRepoDiv').show();
         $('#forkedRepo').val(dataJson.trunk.version.repoURL);
     }else {
         $('#fork').show();
+        $('#arrow-down').hide();
         $('#forkedRepoDiv').hide();
     }    
 }    

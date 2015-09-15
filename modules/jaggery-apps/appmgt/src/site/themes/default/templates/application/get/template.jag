@@ -29,7 +29,7 @@
 
     // get the previously selected version
     var previousVersion = "trunk";
-    if (applicationInfo.type && applicationInfo.type.indexOf("Uploaded") >= 0) {
+    if (applicationInfo.type && applicationInfo.isUploadable) {
         previousVersion = "1.0.0";
     }
     var selectedVersion = getSelectedVersionFromSession(applicationKey);
@@ -58,7 +58,7 @@
 
 <!-- end of setting global javascript variable -->
 
-<!-- start of HTML code >
+<!-- start of HTML code -->
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
@@ -73,6 +73,22 @@
 
 <!-- BOF Container -->
 <div class="container-fluid app-content-section">
+    <div id="app_creation_success_message" class="row" style="display:none">
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <span class="alert-content">
+                <i class="fa fa-check-circle-o"></i> <strong> Congratulations..</strong> your application 'Demo Application' is now ready..! We have created a sample app and it is deploying.
+            </span>
+            <div class='alert-extra-content'>
+                <h5>Now you can</h5>
+                <ul>
+                    <li><a href='#'>Launch</a> the web after it is successfully deployed</li>
+                    <li>Edit code in the sample app</li>
+                    <li>Map to a custom URL</li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="row">
       <div class="col-xs-12 col-md-12 col-lg-12 app-preview">
           <div class="app-thumb">
