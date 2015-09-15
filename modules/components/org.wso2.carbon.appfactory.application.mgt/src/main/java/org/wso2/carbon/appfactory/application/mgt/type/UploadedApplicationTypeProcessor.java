@@ -117,13 +117,9 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 			throw new AppFactoryException(msg);
 		}
 
-		String artifactArchiver = null;
-		Object hudsonArtifactArchiver = ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType)
-		                                                      .getProperty(
-				                                                      AppFactoryConstants.HUDSON_ARTIFACT_ARCHIVER);
-		if (hudsonArtifactArchiver != null) {
-			artifactArchiver = hudsonArtifactArchiver.toString();
-		}
+		String artifactArchiver = ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType)
+		                                                .getProperty(AppFactoryConstants.HUDSON_ARTIFACT_ARCHIVER);
+
 		jobConfigTemplate = configureRepositoryData(jobConfigTemplate, parameters);
 
 		// Support for post build listener residing in jenkins server

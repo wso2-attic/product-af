@@ -30,8 +30,8 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var appTypeBean = outputs.appTypeBean;
     var appType = appTypeBean.getApplicationTypeName();
     var appTypeDisplayName = appTypeBean.getDisplayName();
-    var apptypeIconImageClass = appTypeBean.getIconImageClass();
-
+    var appTypeIconImageClass = appTypeBean.getIconImageClass();
+    var appTypeIconColorClass = appTypeBean.getIconColorClass();
 
     var buttonCreateUpload = "Create";
     if( type == "existing"){
@@ -711,13 +711,13 @@ function showLoader(show){
     <div class="container-fluid cloud-container">
         <div class="row">
             <div class="col-fixed-left col-fixed-1x">
-                <div class="cloud-selected-app-type  <%=request.getParameter("apptypeIconColor")%>">
-                    <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-4x"></i>
+                <div class="cloud-selected-app-type  <%=appTypeIconColorClass%>">
+                    <i class="fw <%=appTypeIconImageClass%> fw-4x"></i>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="cloud-selected-app-type-name">
-                    <h1><%=request.getParameter("appTypeDisplayName")%></h1>
+                    <h1><%=appTypeDisplayName%></h1>
                 </div>
             </div>
         </div>

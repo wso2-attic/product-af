@@ -18,6 +18,8 @@
  */
 
 include('/jagg/constants.jag');
+var permissionModule = jagg.module("permission");
+var modTenant = jagg.module("tenant");
 jagg.block("application/user/list", {
     initialize:function (data) {
 
@@ -29,11 +31,18 @@ jagg.block("application/user/list", {
     },
 
     getOutputs:function (inputs) {
-        var hasInviteUserPermission = jagg.module("permission").hasApplevelUserMgtPermission(inputs.applicationKey);
-        var helpTips = jagg.module("help").getHelpTips("team");
+        var hasInviteUserPermission = permissionModule.hasApplevelUserMgtPermission(inputs.applicationKey);
+        var hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
+        var applicationKey = request.getParameter("applicationKey");
+        var pendingUsers =  [];
+        if(hasTenantLevelUserMgtPermission) {
+            pendingUsers = modTenant.getPendingUsersOfTenantByAppKey(applicationKey);
+        }
+
         return {
             "hasInviteUserPermission":hasInviteUserPermission,
-	        "helpTips":helpTips
+            "hasTenantLevelUserMgtPermission": hasTenantLevelUserMgtPermission,
+            "pendingUsers": pendingUsers
         };
     }
 

@@ -38,9 +38,14 @@ import java.io.ByteArrayInputStream;
 
 public class DSApplicationListener extends ApplicationEventsHandler {
 
-    private static final Log log = LogFactory.getLog(DSApplicationListener.class);
+	private static final Log log = LogFactory.getLog(DSApplicationListener.class);
+	public static final String SAMPLE_DB_HOST_URL = "SampleDbHostUrl";
+	public static final String SAMPLE_DB_USER = "SampleDbUser";
+	public static final String SAMPLE_DB_USER_PASSWORD = "SampleDbUserPassword";
+	public static final String SAMPLE_DB_NAME = "SampleDbName";
+	public static final String SAMPLE_DATASOURCE_NAME = "SampleDatasourceName";
 
-    private static String sampleDbUrl = "jdbc:mysql://wso2admin.czrket1hdi7t.us-east-1.rds.amazonaws.com/testdb?autoReconnect=true";
+	private static String sampleDbUrl = "jdbc:mysql://wso2admin.czrket1hdi7t.us-east-1.rds.amazonaws.com/testdb?autoReconnect=true";
     private static String testUserName = "testuser";
     private static String testUserPw = "testuser123";
     private static String sampleDSName = "TestDS";
@@ -67,11 +72,16 @@ public class DSApplicationListener extends ApplicationEventsHandler {
 
     private void createSampleDataSource(Application application) throws AppFactoryException {
 	    try {
-		    String dbHost = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbHostUrl").toString();
-		    testUserName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbUser").toString();
-		    testUserPw = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbUserPassword").toString();
-		    String sampleDbName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDbName").toString();
-		    sampleDSName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS).getProperty("SampleDatasourceName").toString();
+		    String dbHost = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS)
+		                                          .getProperty(SAMPLE_DB_HOST_URL);
+		    testUserName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS)
+		                                         .getProperty(SAMPLE_DB_USER);
+		    testUserPw = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS)
+		                                       .getProperty(SAMPLE_DB_USER_PASSWORD);
+		    String sampleDbName = ApplicationTypeManager.getInstance().getApplicationTypeBean( APPLICATION_TYPE_DBS)
+		                                                .getProperty(SAMPLE_DB_NAME);
+		    sampleDSName = ApplicationTypeManager.getInstance().getApplicationTypeBean(APPLICATION_TYPE_DBS)
+		                                         .getProperty(SAMPLE_DATASOURCE_NAME);
 		    sampleDbUrl = "jdbc:mysql://" + dbHost + "/" + sampleDbName;
 	    } catch (AppFactoryException e) {
 		    log.error("Error while setting the sample data source properties", e);

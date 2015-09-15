@@ -102,6 +102,12 @@ var TENANT_ADMIN__DASHBOARD_PATH = "BAM.Dashboards.TenantAdminDashboard.Path";
 var TENANT_USERS_DASHBOARD_PATH = "BAM.Dashboards.TenantUserDashboard.Path";
 
 var CLOUDMGT_SERVER_URL = "CloudMgtConfig.Property.Url";
+var CLOUDMGT_LOGIN_AJAX_PATH = "/site/blocks/user/authenticate/ajax/login.jag";
+var CLOUDMGT_TENANT_USERS_AJAX_PATH = "/site/blocks/tenant/users/get/ajax/get.jag";
+var CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH = "/site/blocks/temp/ajax/temp.jag";
+var CLOUDMGT_SEND_EMAIL_AJAX_PATH = "/site/blocks/temp/ajax/temp.jag";
+var CLOUDMGT_PENDING_TENANT_USERS_AJAX_PATH = "/site/blocks/temp/ajax/temp.jag";
+var CLOUDMGT_RESEND_INVITATION_AJAX_PATH = "/site/blocks/temp/ajax/temp.jag";
 
 var PREFERRED_REPOSITORY_TYPE = "RepositoryType";
 var SHOW_OTHER_SERVICES_TAB = "OtherServices.ShowOtherServicesTab"
@@ -275,6 +281,8 @@ var APPLICATION_CREATION_STATUS = {
     PENDING:"PENDING",
     FAULTY:"FAULTY"
 };
+
+var START_STAGE_TAG_NAME = "StartStage";
 
 
 %>

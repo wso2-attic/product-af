@@ -1,12 +1,12 @@
 <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="#" class="btn-action">
+        <a href="{{baseURL}}appmgt/site/pages/application.jag?applicationKey={{appKey}}&applicationName={{appName}}"  target="_parent" class="btn-action">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to Overview
         </a>
-        <a href="/issuetracker/issue/add?appkey={{appkey}}" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="/issuetracker/issue/add?appkey={{appKey}}" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
@@ -20,7 +20,7 @@
             You get a birds eye view of all the issues that have been created in applications where you are a member.
               Issue tracking for a application version provides you the ability to create new issues per application
               version, edit existing issues and search for issues based on a search criteria.
-          </div>
+         </div>
         </div>
         <div class="row">
             <div class="col-md-12">
@@ -62,7 +62,7 @@
                       <div class="row row-centered">
                           <div class="col-centered col-xs-10 col-sm-7  col-md-7 col-lg-6">
                               <div class="add-issue-content">
-                                  <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue" href="/issuetracker/issue/add?appkey={{appkey}}">
+                                  <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue" href="/issuetracker/issue/add?appkey={{appKey}}">
                                   <span class="fw-stack fw-lg btn-action-ico">
                                       <i class="fw fw-ring fw-stack-2x"></i>
                                       <i class="fw fw-add fw-stack-1x"></i>
