@@ -61,6 +61,7 @@ function drawForkedRepo(data) {
         $('#forkedRepoDiv').show();
         $('#forkedRepo').val(dataJson.trunk.version.repoURL);
     }else {
+        $('#fork').show();
         $('#forkedRepoDiv').hide();
     }    
 }    
