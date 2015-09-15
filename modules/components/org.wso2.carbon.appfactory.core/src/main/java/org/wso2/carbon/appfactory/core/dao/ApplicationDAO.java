@@ -405,8 +405,8 @@ public class ApplicationDAO {
             ApplicationSummary applicationSummary = null;
             if(artifact !=null) {
                 applicationSummary = getAppInfoSummaryFromRXT(artifact);
+                appSummaryList.add(applicationSummary);
             }
-            appSummaryList.add(applicationSummary);
         }
         return appSummaryList;
     }
