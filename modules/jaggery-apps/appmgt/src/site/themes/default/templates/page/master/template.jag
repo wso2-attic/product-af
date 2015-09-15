@@ -157,7 +157,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                            <i class="fa fa-3x  fa-users"></i>
                            <div class="cloud-name">Members</div>
                         </a>
-                        <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
+                        <a class="cloud-block-invert" href="<%=jagg.getDashboardAbsoluteUrl()%>">
                            <i class="fa fa-3x  fa-dashboard"></i>
                            <div class="cloud-name">Dashboard</div>
                         </a>

@@ -346,6 +346,14 @@ return getThemePath() + path;
         return site.cloudMgtContext + path + "?cloudType=" +  CLOUD_TYPE;
     };
 
+    var getDashboardAbsoluteUrl = function (path) {
+        var result = site.dashboardContext;
+        if(path) {
+            result += path;
+        }
+        return result;
+    };
+
     var module = function (name, module) {
         if (module) {
             return modules[name] = module;
@@ -562,6 +570,7 @@ return getThemePath() + path;
         require:requir,
         getAbsoluteUrl:getAbsoluteUrl,
         getCloudMgtAbsoluteUrl:getCloudMgtAbsoluteUrl,
+        getDashboardAbsoluteUrl:getDashboardAbsoluteUrl,
         getMappedUrl:getMappedUrl,
         printData:printData,
         getModulesDir:getModulesDir,
