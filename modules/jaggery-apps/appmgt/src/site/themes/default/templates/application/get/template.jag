@@ -171,7 +171,7 @@
 
             <div class="col-xs-12 col-md-4 col-lg-4" >
               <div class="block-life-cycle">
-                    <h3>Lifecycle Mgt</h3>
+                    <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Lifecycle Mgt</a></h3>
                     <div class="block-icon pull-left">
                       <i class="fw fw-lifecycle fw-5x"></i>
                     </div>
@@ -209,7 +209,7 @@
 
             <div class="col-xs-12 col-md-4 col-lg-4">
               <div class="block-repos">
-                  <h3>Repos and Builds</h3>
+                  <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Build and Deploy</a></h3>
                   <div class="block-icon pull-left">
                       <i class="fw fw-clock fw-5x"></i>
                   </div>
@@ -219,7 +219,7 @@
 
             <div class="col-xs-12 col-md-4 col-lg-4">
               <div class="block-issues">
-                  <h3>Issues</h3>
+                  <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Issues</a></h3>
                   <div class="block-icon pull-left">
                        <i class="fw fw-warning fw-5x"></i>
                   </div>
@@ -248,7 +248,7 @@
             <!-- EOF add loading overlay -->
 
             <div class="block-team pull-left">
-              <h3>Team</h3>
+              <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Team</a></h3>
               <div class="block-icon pull-left">
                 <i class="fa fa-users fa-5x"></i>
               </div>
@@ -265,7 +265,7 @@
             </div>
 
             <div class="block-database pull-left">
-              <h3>Databases</h3>
+              <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Databases</a></h3>
               <div class="block-icon pull-left">
                 <i class="fa fa-database fa-5x"></i>
               </div>
