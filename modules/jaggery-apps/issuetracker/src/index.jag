@@ -20,10 +20,11 @@ var log =new Log();
     domain = context.get(DOMAIN);
     var issuetrackerURL = getProperties(ISSUE_TRACKER_URL);
     var baseURL = issuetrackerURL[0].split("issuetracker")[0];
+    var issueType = request.getParameter('issueType');
     caramel.render({
         title  : { text   : 'Issue Tracker'},
         header : { domain : domain, userName : userName},
-        body   : {title: 'Issue',  data: issue.getIssusesForDataTable('1',appKey), appKey: appKey, appName : appName, versions: project.getAllVersionOfProjectForDataTable(appKey), baseURL: baseURL},
+        body   : {title: 'Issue',  data: issue.getIssusesForDataTable('1',appKey), appKey: appKey, appName : appName, versions: project.getAllVersionOfProjectForDataTable(appKey), baseURL: baseURL, issueType: issueType},
 	    help :{text:helpMessage}
     });
 
