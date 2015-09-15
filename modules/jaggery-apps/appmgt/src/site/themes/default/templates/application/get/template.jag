@@ -159,7 +159,7 @@
             </div>
 
             <div class="col-xs-12 col-md-12 col-lg-3">
-              <div class="btn-create-version">
+              <div class="btn-create-version" data-toggle="popover">
                 <a id="createVersionBtn" href="#">
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
@@ -291,12 +291,11 @@
     <div class="form-inline">
         <div class="form-group">
             <label for="new-version" class="control-label">Specify new version :
-                <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left"
-                   title="Version..."></i>
+                <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left" title="Version..."></i>
             </label>
-            <input type="text" class="form-control" id="new-version">
+            <input type="text" class="form-control" id="new-version" placeholder="1.0.0">
+            <button type="submit" id="versionCreationBtn" class="btn btn-primary">Create</button>
         </div>
-        <button type="submit" id="versionCreationBtn" class="btn btn-primary">Create</button>
     </div>
 </div>
 
