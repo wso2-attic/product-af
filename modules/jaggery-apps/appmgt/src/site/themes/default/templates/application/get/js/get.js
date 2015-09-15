@@ -359,18 +359,26 @@ function loadIssuesInfo() {
         }
 
         // render issue data
-        var issueSegment = "<i class='fa fa-bug'></i> ";
+        var issueSegment = "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key + "&issueType=Bug' class='block-anch'>";
+        issueSegment += "<i class='fa fa-bug'></i> ";
         issueSegment += formatCount(issueData.BUG);
-        issueSegment += " Bugs<br>";
+        issueSegment += " Bugs<br></a>";
+
+        issueSegment += "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key + "&issueType=New Feature' class='block-anch'>";
         issueSegment += "<i class='fa fa-leaf'></i> ";
         issueSegment +=  formatCount(issueData.NEW_FEATURE);
-        issueSegment += " Features<br>";
+        issueSegment += " Features<br></a>";
+
+        issueSegment += "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key + "&issueType=Improvement' class='block-anch'>";
         issueSegment += "<i class='fa fa-line-chart'></i> ";
         issueSegment += formatCount(issueData.IMPROVEMENT);
-        issueSegment += " Improvements<br>";
-        issueSegment += "<i class='fa fa-paw'></i> ";
+        issueSegment += " Improvements<br></a>";
+
+        issueSegment += "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key +  "&issueType=Task' class='block-anch'>";
+        issueSegment += "<i class='fa fa-tasks'></i> ";
         issueSegment += formatCount(issueData.TASK);
-        issueSegment += " Tasks";
+        issueSegment += " Tasks</a>";
+
         $("#issueCount").html(issueSegment);
 
         // hide loading image after loading all the version specific data
