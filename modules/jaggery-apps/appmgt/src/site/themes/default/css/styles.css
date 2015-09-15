@@ -541,6 +541,12 @@ a.btn-action {
 .forms label {
     font-weight: 300;
 }
+
+.form-group label>span {
+    color: #E74C3C;
+    font-weight: 400;
+}
+
 .forms .form-group {
     margin-bottom: 3.5em;
 }
@@ -882,6 +888,12 @@ a.btn-action {
     text-decoration: none;
 }
 
+.block-anch:hover{
+    text-decoration: none;
+    cursor: pointer;
+    color: #e3e3e3;
+}
+
 .block-general {
     margin-top: 1em;
     background-color: #34495e;
@@ -924,12 +936,51 @@ a.btn-action {
     background-color: #8b8b8b;
     border-color: transparent;
     max-width: 62%;
+    min-width: 40%;
 }
 .version-url>a>span{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: block;
+}
+.url-loading i{
+    float: left;
+    margin: 2px 3px;
+}
+.url-loading i:before,.url-loading i {
+    -webkit-animation: fw-hide 2s cubic-bezier(0, -2.15, 0.2, 0.32) infinite;
+    animation: fw-hide 2s cubic-bezier(0, -2.15, 0.2, 0.32) infinite;
+}
+.url-loading span:after{
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: bottom;
+    -moz-animation: ellipsis 2s infinite;
+    -webkit-animation: ellipsis 2s infinite;
+    animation: ellipsis 2s infinite;
+    content: "\2026"; /* ascii code for the ellipsis character */
+}
+
+@-webkit-keyframes fw-hide {
+    0%, 30%  {
+        opacity: 0;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes ellipsis {
+    from {
+        width: 2px;
+    }
+    to {
+        width: 15px;
+    }
 }
 
 
@@ -979,6 +1030,10 @@ a.btn-action {
 .block-team .block-action-button:hover {
     background-color: rgb(111, 121, 122);
 }
+.block-team .block-repos:hover {
+    background-color: rgb(111, 121, 122);
+}
+
 .block-database .block-action-button:hover {
     background-color: rgb(0, 95, 143)
 }
@@ -1174,6 +1229,9 @@ a.btn-action {
 }
 .alert-extra-content ul{
     list-style: decimal;
+}
+.alert-no-margin{
+    margin:0px;
 }
 
 
@@ -2044,6 +2102,9 @@ th.hide-column-data, td.hide-column-data {
 }
 .roles-container .role_type {
     color:#fff;
+}
+.edit-roles .role_type_tag{
+    padding: 2px 8px 2px 15px;
 }
 
 .tooltip-inner {
