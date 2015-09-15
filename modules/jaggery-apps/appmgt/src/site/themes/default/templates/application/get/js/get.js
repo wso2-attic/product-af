@@ -330,9 +330,9 @@ function loadRepoAndBuildsInfo(appVersionInfo) {
 
         var buildStatusTag = "";
         if("successful" == buildStatus)  {
-            buildStatusTag += "<i class='fa fa-smile-o'></li>";
+            buildStatusTag += "<i class='fa fa-smile-o'></i>";
         } else {
-            buildStatusTag += "<i class='fa fa-frown-o'></li>";
+            buildStatusTag += "<i class='fa fa-frown-o'></i>";
         }
         buildStatusTag += " Build ";
         buildStatusTag += buildNumber;
