@@ -241,6 +241,7 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
                     // clear the timer if exist
                     clearTimeout(timer);
                     hideTopMessage();
+                    showSuccessMessage();
                 } else {
                    // remove status message
                    var repoUrlHtml = "<b>URL : </b>deployment in progress...";
@@ -266,6 +267,10 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
             // log error
             jagg.message({content:'Could not load Application deployment information!', type:'error', id:'notification' });
     });
+}
+
+function showSuccessMessage(){
+    $("app_creation_success_message").show();
 }
 
 // pool until the app is deployed
