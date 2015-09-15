@@ -241,6 +241,7 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
                     // clear the timer if exist
                     clearTimeout(timer);
                     hideTopMessage();
+                    showSuccessMessage();
                 } else {
                    // remove status message
                    var repoUrlHtml = "<b>URL : </b>deployment in progress...";
@@ -266,6 +267,10 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
             // log error
             jagg.message({content:'Could not load Application deployment information!', type:'error', id:'notification' });
     });
+}
+
+function showSuccessMessage(){
+    $("app_creation_success_message").show();
 }
 
 // pool until the app is deployed
@@ -330,9 +335,9 @@ function loadRepoAndBuildsInfo(appVersionInfo) {
 
         var buildStatusTag = "";
         if("successful" == buildStatus)  {
-            buildStatusTag += "<i class='fa fa-smile-o'></li>";
+            buildStatusTag += "<i class='fa fa-smile-o'></i>";
         } else {
-            buildStatusTag += "<i class='fa fa-frown-o'></li>";
+            buildStatusTag += "<i class='fa fa-frown-o'></i>";
         }
         buildStatusTag += " Build ";
         buildStatusTag += buildNumber;
@@ -359,18 +364,26 @@ function loadIssuesInfo() {
         }
 
         // render issue data
-        var issueSegment = "<i class='fa fa-bug'></i> ";
+        var issueSegment = "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key + "&issueType=Bug' class='block-anch'>";
+        issueSegment += "<i class='fa fa-bug'></i> ";
         issueSegment += formatCount(issueData.BUG);
-        issueSegment += " Bugs<br>";
+        issueSegment += " Bugs<br></a>";
+
+        issueSegment += "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key + "&issueType=New Feature' class='block-anch'>";
         issueSegment += "<i class='fa fa-leaf'></i> ";
         issueSegment +=  formatCount(issueData.NEW_FEATURE);
-        issueSegment += " Features<br>";
+        issueSegment += " Features<br></a>";
+
+        issueSegment += "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key + "&issueType=Improvement' class='block-anch'>";
         issueSegment += "<i class='fa fa-line-chart'></i> ";
         issueSegment += formatCount(issueData.IMPROVEMENT);
-        issueSegment += " Improvements<br>";
-        issueSegment += "<i class='fa fa-paw'></i> ";
+        issueSegment += " Improvements<br></a>";
+
+        issueSegment += "<a href='" + servicePath + "/site/pages/issuetracker.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key +  "&issueType=Task' class='block-anch'>";
+        issueSegment += "<i class='fa fa-tasks'></i> ";
         issueSegment += formatCount(issueData.TASK);
-        issueSegment += " Tasks";
+        issueSegment += " Tasks</a>";
+
         $("#issueCount").html(issueSegment);
 
         // hide loading image after loading all the version specific data

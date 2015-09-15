@@ -27,7 +27,7 @@
                 <div id="push"></div>
                 {{#if data}}
                 <div class="datatable">
-                    <table id="issuelist" class="display" cellspacing="0" width="100%">         
+                    <table id="issuelist" class="display" cellspacing="0" width="100%">
                     <thead>
                         <tr>
                             <th>Issue</th>
@@ -71,7 +71,7 @@
                                   </a>
                               </div>
                           </div>
-                      </div> 
+                      </div>
                 {{/if}}
                 <div class="clearfix"></div>
                 <div id="push"></div>
@@ -88,6 +88,9 @@
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 <script>
+
+    var issueType = "{{issueType}}";
+
     $('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
         var leftPane = $('.left-pane');
@@ -134,6 +137,11 @@
                 null
             ]
         });
+
+        // filter the issues by issue type which user selected
+        if(issueType) {
+            $('.datatable table').DataTable().column(3).search(issueType).draw();
+        }
 </script>
 
 <!--EOF NEW UI -->

@@ -80,19 +80,35 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
         var settings = $.extend({
                     // defaults.
                     action: "show",
-                    width: "3em"
+                    width: "3em",
+                    type: "default"
                 }, options );
         var wValue = '';
-        if(settings.width.indexOf('px') >= 0){
-            wValue = parseFloat(settings.width.replace("px",''));
-            wValueString = wValue + "px";
-            wValueRadius = wValue * 10 + "px";
-        }else if(settings.width.indexOf('em') >= 0){
-            wValue = parseFloat(settings.width.replace("em",''));
-            wValueString = wValue + "em";
-            wValueRadius = wValue * 10 + "em";
-        }
+        var borderSize = '5';
+        var lineHeight = '3em';
+        var marginTop = '3px';
+        var top = '3px';
+        var loaderMargin = '0px';
 
+        if(settings.type === 'small'){
+            wValueString = '20px';
+            wValueRadius = '20px';
+            borderSize = '2';
+            lineHeight = '2.2em';
+            marginTop = '0px';
+            top = '0px';
+            loaderMargin = '8px';
+        }else{
+            if(settings.width.indexOf('px') >= 0){
+                wValue = parseFloat(settings.width.replace("px",''));
+                wValueString = wValue + "px";
+                wValueRadius = wValue * 10 + "px";
+            }else if(settings.width.indexOf('em') >= 0){
+                wValue = parseFloat(settings.width.replace("em",''));
+                wValueString = wValue + "em";
+                wValueRadius = wValue * 10 + "em";
+            }
+        }
         var html = '<span class="button-loader"><div class="loading-logo"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="'+ wValueString +'"\
                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\
                     viewBox="0 0 14 14" enable-background="new 0 0 14 14" xml:space="preserve">\
@@ -114,10 +130,23 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
                 $(this).prop( "disabled", true );
                 $(this).find('span').css('display','none');
                 $(this).prepend(html).addClass('loading');
+                $(this).find('.loading-logo').css({
+                    'height':wValueString,
+                    'width':wValueString,
+                    'line-height': lineHeight
+                });
                 $(this).find('.signal').css({
                     'height':wValueString,
                     'width':wValueString,
-                    'border-radius': wValueRadius
+                    'border-radius': wValueRadius,
+                    'border': borderSize + 'px solid #fff',
+                    'top': top
+                });
+                $(this).find('svg').css({
+                    'margin-top':marginTop
+                });
+                $(this).find('.button-loader').css({
+                    'margin-right':loaderMargin
                 });
             }
             if (settings.action === 'hide') {
