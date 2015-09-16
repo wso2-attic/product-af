@@ -72,14 +72,12 @@ jagg.template("application/select", function (inputs, outputs, jagg) { %>
                 <div class="row">
                     <div class="col-sm-8 col-md-8 col-lg-7">
                         <h2 class="app-appTypeDisplayName">JAVA Appication</h2>
-                        <div class="app-description">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. ultricies nec,
-                            pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla
-                            vel, aliquet nec, vulputate eget, arcu.
+                        <div class="app-description">
                         </div>
-                        <div class="button-bar">
+                       <!-- <div class="button-bar">
                             <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-book"></i> Documentation</a>
                             <a href="#" class="cu-btn cu-btn-md cu-btn-gray"><i class="fa fa-video-camera"></i> Video Guide</a>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="col-sm-4 col-md-4 col-lg-5 description-action">
                           <form id='testForm'  method='post' action='<%=jagg.getAbsoluteUrl("/site/pages/createapplication.jag")%>?type=<%=type%>'>
