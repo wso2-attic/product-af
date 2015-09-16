@@ -43,8 +43,6 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>">
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 
 
     <script type="text/javascript">
@@ -245,9 +243,9 @@ function getAppKeyErrorMessage(){
      var appNameLength = ($("#applicationName").val()).length;
      var isNameValid = validateApplicationNameForQuotes();
      if (appNameLength == 0) {
-         appNameErrorMsg = "Invalid Application Name - Create a Name which is not empty";
+         appNameErrorMsg = "Application Name cannot be empty";
          isNameValid = false;
-     } else if (appNameLength > 200) {
+     } else if (appNameLength > 150) {
          appNameErrorMsg = "Invalid Application Name - Too Lengthy";
          isNameValid = false;
      }
@@ -468,7 +466,7 @@ function showLoader(show){
     var creationFormValidationOpts = {
         rules: {                                        // validation rules
             applicationName: {                          // applicationName filed
-                required: true,
+                required: false,
                 validateApplicationName: true,
             },
             icon: {                                     // app icon field
@@ -685,6 +683,7 @@ function showLoader(show){
      document.getElementById("appIcon").value = "";
      var validator = $( "#createAppForm" ).validate();
      validator.element( "#icon" );
+     validator.element( "#applicationName" );
 }
 
     </script>
@@ -727,6 +726,7 @@ function showLoader(show){
                 <div class="col-md-5 forms">
                     <div class="form-group" for="applicationName">
                         <label for="application-name">Application Name: </label>
+                        <span class="required"> *</span>
                         <input type="appname" class="form-control" name="applicationName" id="applicationName" placeholder="Enter Application name">
                         <span class="glyphicon glyphicon-remove form-control-feedback" for="applicationName" style="display: none;"></span>
                     </div>
@@ -749,8 +749,7 @@ function showLoader(show){
                             <input type="text" id="fileUploadDisplay" name="fileUploadDisplay" class="form-control" readonly>
                         <span class="input-group-btn">
                             <!-- The file input field used as target for the file upload widget -->
-                            <span class="btn btn-primary btn-file">
-                               Browse <input id="fileupload" type="file" name="fileupload" multiple disabled>
+                            <span class="btn btn-primary btn-file">Browse <input id="fileupload" type="file" name="fileupload" multiple disabled>
                             </span>
                         </span>
                         <!-- Progress bar-->

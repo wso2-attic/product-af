@@ -21,12 +21,24 @@
 $(document).ready(function() {
     getForkedRepoData();
 
-$("#copytoClipboardMaster").on("click",function(){
+if( 3 === getBrowserId()) {
+    $("#copytoClipboardMaster").on("click",function(){
         $(this).copyToClipboard("#masterRepo");
-});
-
-$("#copytoClipboardForked").on("click",function(){
+    });
+    $("#copytoClipboardForked").on("click",function(){
         $(this).copyToClipboard("#forkedRepo");
+    }); 
+}else {
+    $("#copytoClipboardMaster").remove();
+    $("#masterRepo").focus(function(){ $(this).select(); }).mouseup(function (e) {e.preventDefault(); });
+    $("#copytoClipboardForked").remove();
+    $("#forkedRepo").focus(function(){ $(this).select(); }).mouseup(function (e) {e.preventDefault(); }); 
+}
+
+$(".check-your-code").on("click",function(){
+    var url = gitBaseUrl + "summary/?=" + tenantDomain + "/" + applicationKey + ".git";
+    var win = window.open(url, '_blank');
+    win.focus();
 });
 
 $("#fork").on("click",function(){
@@ -52,6 +64,16 @@ $("#fork").on("click",function(){
             }
     });
 });
+
+/**
+* Identify the browser
+*/
+function getBrowserId () {
+        var aKeys = ["MSIE", "Firefox", "Safari", "Chrome", "Opera"],
+            sUsrAg = navigator.userAgent, nIdx = aKeys.length - 1;
+        for (nIdx; nIdx > -1 && sUsrAg.indexOf(aKeys[nIdx]) === -1; nIdx--);
+        return nIdx
+}
     
 /**
 * Show/hide fork button and forked repo div according to forked repo data.

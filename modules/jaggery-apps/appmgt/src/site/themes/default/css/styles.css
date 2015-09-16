@@ -542,7 +542,7 @@ a.btn-action {
     font-weight: 300;
 }
 
-.form-group label>span {
+.form-group label>.required {
     color: #E74C3C;
     font-weight: 400;
 }
@@ -776,6 +776,7 @@ a.btn-action {
     left: -18em;
     top: 53px;
     min-height: 100%;
+    overflow-y: auto;
 }
 .notification-pane {
     position: fixed;
@@ -951,6 +952,7 @@ a.btn-action {
 .url-loading i:before,.url-loading i {
     -webkit-animation: fw-hide 2s cubic-bezier(0, -2.15, 0.2, 0.32) infinite;
     animation: fw-hide 2s cubic-bezier(0, -2.15, 0.2, 0.32) infinite;
+    -moz-animation: fw-hide 2s infinite;
 }
 .url-loading span:after{
     overflow: hidden;
@@ -962,7 +964,7 @@ a.btn-action {
     content: "\2026"; /* ascii code for the ellipsis character */
 }
 
-@-webkit-keyframes fw-hide {
+@keyframes fw-hide {
     0%, 30%  {
         opacity: 0;
     }
@@ -1172,11 +1174,13 @@ a.btn-action {
 
 /* notification customization */
 /* noti overides */
-#noty_top_layout_container{
+#noty_topCenter_layout_container{
     top: 133px !important;
+    width: 500px !important;
 }
-#noty_top_layout_container li{
+#noty_topCenter_layout_container li{
     border-radius: 0px !important;
+    width:500px !important;
 }
 
 .noty_close{
@@ -1199,8 +1203,6 @@ a.btn-action {
 
 .alert{
     border-radius: 0px;
-    margin: 15px;
-    padding:0px;
     min-height:50px;
 }
 .alert-success{
@@ -1209,6 +1211,7 @@ a.btn-action {
     border-radius:0px;
     margin: 15px;
     color:#fff;
+    padding:0px;
 }
 .alert-info .close{
     color:#666;
@@ -1220,11 +1223,12 @@ a.btn-action {
     opacity:1;
     padding:5px 10px;
 }
-.alert .alert-content{
+.alert .alert-content-block{
     display:block;
     padding:15px;
     font-size: 16px;
 }
+
 .alert-extra-content{
     background-color: #50E28E;
     padding: 10px 15px;
@@ -1623,9 +1627,10 @@ a.btn-action {
     color: #cecece;
     word-break: break-all;
     word-wrap: break-word;
-    border: 1px solid #444;    
+    border: 1px solid #444;
     background-color:#333;
     border-radius:0;
+    max-height: 340px;
 }
 .note{
     padding: 10px;
@@ -2117,11 +2122,11 @@ th.hide-column-data, td.hide-column-data {
     max-width:600px;
 }
 .table-buildlogs{
-    font-size:13px;
+    font-size:14px;
     color:#999;
 }
 .table-buildlogs td{
-    line-height:14px;
+    line-height:35px !important;
 }
 .table-borderless>thead>tr>th, .table-borderless>tbody>tr>th, .table-borderless>tfoot>tr>th, .table-borderless>thead>tr>td,
 .table-borderless>tbody>tr>td, .table-borderless>tfoot>tr>td{
@@ -2129,10 +2134,13 @@ th.hide-column-data, td.hide-column-data {
 }
 .table-notification-msg{
     display:inline-block;
-    width:4px;
-    height:16px;
-    margin-right:15px;
+    width:2px;
+    height:33px;
+    margin-right:7px;
     border:none;
+}
+.table-notification-i{
+    margin-top: -27px;
 }
 .table-noti-error{
     background-color:#e74c3c;
@@ -2145,10 +2153,14 @@ th.hide-column-data, td.hide-column-data {
 }
 .nav-tabs-wizard{
     padding-bottom:1px;
-    border-bottom:2px solid #0196d8;
+    border-bottom:1px solid #626262;
 }
 .strikethrough:checked + span{
     text-decoration:line-through
+}
+
+.disabled-tab{
+    pointer-events: none;
 }
 .nav-tabs-wizard>li>a{
     -webkit-border-radius: 0px;
@@ -2233,6 +2245,31 @@ th.hide-column-data, td.hide-column-data {
     border: 2px solid #0196D8;
     color: #0196D8;
 }
+
+.custom-checkbox-small{
+    -webkit-appearance: none;
+    border: 1px solid #0196D8;
+    padding: 6px !important;
+    border-radius: 0px !important;
+    display: inline-block;
+    position: relative !important;
+    margin-right: 7px !important;
+}
+
+.custom-checkbox-small:checked:after {
+    content: '\2714';
+    font-size: 15px;
+    position: absolute;
+    top: -3px;
+    left: 0px;
+    color: #0196D8;
+}
+
+.custom-checkbox-small:checked {
+    border: 1px solid #0196D8;
+    color: #0196D8;
+}
+
 .modal-body label.data-select-all,.modal-body label.structure-select-all{
     margin-bottom:0px;
 }
@@ -2294,11 +2331,14 @@ th.hide-column-data, td.hide-column-data {
     font-weight: 300;
     margin-bottom: 2em;
 }
-.master-container{
+.master-container,.fork-container{
     padding-top:10px;
+    padding-bottom:10px;
+}
+.master-container .form-group,.fork-container .form-group{
+    margin-bottom:2em;
 }
 .fork-container{
-    padding-top:10px;
     background:#47505A;
 }
 .fork-down{

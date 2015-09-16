@@ -139,7 +139,8 @@
                   <ul id="appVersionList" class="dropdown-menu"></ul>
                 </div>
 
-                <div class="version-url"><a id="version-url-link" target="_blank"><span id="app-version-url"><b>URL : </b>deployment in progress...</span></a></div>
+                <div id="version-url-link" class="version-url url-loading"></div>
+
                 <div class="sec">
                     <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">Launch App</button>
 
@@ -171,7 +172,7 @@
 
             <div class="col-xs-12 col-md-4 col-lg-4" >
               <div class="block-life-cycle">
-                    <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Lifecycle Mgt</a></h3>
+                    <h3><a href="#" class="block-anch lifecycle-link">Lifecycle Mgt</a></h3>
                     <div class="block-icon pull-left">
                       <i class="fw fw-lifecycle fw-5x"></i>
                     </div>
@@ -182,7 +183,7 @@
 
                     <div class="clearfix"></div>
 
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                    <a href="#" class="lifecycle-link">
                         <div class="block-action-button margin-top-xs">
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
@@ -300,8 +301,6 @@
 </div>
 
 <!-- loading javascript files to the page after page is rendering -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>

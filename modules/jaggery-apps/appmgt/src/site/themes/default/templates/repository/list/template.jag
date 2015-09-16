@@ -60,8 +60,7 @@ var tenantDomain = outputs.tenantDomain;
                                 <button id="copytoClipboardMaster" class="btn btn-default" type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
                                 </button>
-                            <!--  <a href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" target="_blank" class="btn btn-default btn-gray" type="button" title="Check your code @GitBit"> -->
-                                <button class="btn btn-lightgray" type="button" title="Check your code @GitBit">
+                                <button class="btn btn-lightgray check-your-code" type="button" title="Check your code @GitBit">
                                     <span class="hidden-xs">Check your code @GitBit</span>
                                     <span class="visible-xs"><i class="fw fw-globe"></i> </span>
                                 </button>
@@ -85,8 +84,7 @@ var tenantDomain = outputs.tenantDomain;
                                 <button id="copytoClipboardForked" class="btn btn-default " type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
                                 </button>
-                             <!--   <a href="<%=gitBaseUrl%>summary/?r=<%=tenantDomain%>/<%=applicationKey%>.git" target="_blank" class="btn btn-default btn-gray" type="button" title="Check your code @GitBit"> -->
-                                <button class="btn btn-lightgray" type="button" title="Check your code @GitBit">
+                                <button class="btn btn-lightgray check-your-code" type="button" title="Check your code @GitBit">
                                     <span class="hidden-xs">Check your code @GitBit</span>
                                     <span class="visible-xs"><i class="fw fw-globe"></i> </span>
                                 </button>
@@ -109,6 +107,8 @@ var tenantDomain = outputs.tenantDomain;
 <script>
 var applicationKey = '<%=applicationKey%>';
 var userName = '<%=userName%>';
+var gitBaseUrl = '<%=gitBaseUrl%>';
+var tenantDomain = '<%=tenantDomain%>';
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/repository/list/js/list.js'))%>"></script>
 <% }); %>

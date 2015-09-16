@@ -168,20 +168,19 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 
     $.fn.copyToClipboard = function( element ) {
 
-        var $temp = $("<input>");
-        $("body").append($temp);
-        $temp.val($(element).val()).select();
-        document.execCommand("copy");
-        var t = $temp.val();
-        copiedText = t +'   : copied to clipboard';
-        $(element).attr('data-original-title', copiedText).tooltip('show',{ placement: 'top',trigger:'manual'});
-        setTimeout(function(){
-            $(element).tooltip('destroy');
-        }, 3000);
-        $temp.remove();
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val($(element).val()).select();
+            document.execCommand("copy");
+            var t = $temp.val();
+            copiedText = t +'   : copied to clipboard';
+            $(element).attr('data-original-title', copiedText).tooltip('show',{ placement: 'top',trigger:'manual'});
+            setTimeout(function(){
+                $(element).tooltip('destroy');
+            }, 3000);
+            $temp.remove();
 
-        return this;
-
+            return this;
     };
 
 }( jQuery ));
