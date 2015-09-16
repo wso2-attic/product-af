@@ -62,6 +62,7 @@ jagg.block("tablinks", {
     	var isOtherServicesTabAvailable = getProperty(SHOW_OTHER_SERVICES_TAB);
 
     	var log = new Log();
+    	var applicationInfo;
 
     	if(userName){
 
@@ -108,6 +109,8 @@ jagg.block("tablinks", {
                 // Currently settings page only supports for application deletion, we have restrict settings tab only
                 // for app owner. Once other tabs are completed, set this value accordingly
                 var isSettingsAllowed = hasAppCreationPermission && memberOfApplication;
+                var applicationMod = jagg.module("application");
+                applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
     		}
     	}
         return {
@@ -129,7 +132,8 @@ jagg.block("tablinks", {
             "isLifecylceAllowed":isLifecylceAllowed,
             "isLogsAllowed":isLogsAllowed,
             "isAllowDomainMapping":isAllowDomainMapping,
-            "isSettingsAllowed":isSettingsAllowed
+            "isSettingsAllowed":isSettingsAllowed,
+            "applicationInfo":applicationInfo
         };
     }
 });
