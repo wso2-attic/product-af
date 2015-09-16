@@ -19,6 +19,7 @@
 
 include('/jagg/constants.jag');
 include('/jagg/config_reader.jag');
+include('/jagg/jagg.jag');
 jagg.block("server/list", {
     initialize: function (data) {
 
@@ -30,15 +31,21 @@ jagg.block("server/list", {
     },
 
     getOutputs: function (inputs) {
+        var userName = jagg.getUser();
         var permissionModule = jagg.module("permission");
         var lifecycleModule = jagg.module("lifecycle");
         var logModule = jagg.module("logdownload");
         var applicationKey = request.getParameter("applicationKey");
-
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        var helpTips = jagg.module("help").getHelpTips("server");
-        var appVersionsInStages = logModule.getVersionsOfApplicationInStages(jagg.getUser(), applicationKey);
-        var appVersions = appVersionsInStages.allAppVersions;
+        var deploymentStages = null;
+        var helpTips = null;
+        var appVersionsInStages = null;
+        var appVersions = null;
+        if(userName){
+            deploymentStages = getProperties(DEPLOYMENT_STAGES);
+            helpTips = jagg.module("help").getHelpTips("server");
+            appVersionsInStages = logModule.getVersionsOfApplicationInStages(jagg.getUser(), applicationKey);
+            appVersions = appVersionsInStages.allAppVersions;
+        }
         return {
             "appVersionsInStages": appVersionsInStages,
 	        "helpTips":helpTips

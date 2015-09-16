@@ -26,8 +26,9 @@ var domainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
 var initialAppVersionInfo = outputs.initialAppVersionInfo;
 var defaultDomainName = getProperty(DOMAIN_NAME);
 var mappedVersion = "";
+var mappedSubDomain = "";
 
-if (initialAppVersionInfo.versions.length > 0 ) {
+if (initialAppVersionInfo && initialAppVersionInfo.versions.length > 0 ) {
     var versionString = "" ;
     var mappedVersionExists = false;
     for (var i = 0; i < initialAppVersionInfo.versions.length; i++) {
@@ -60,6 +61,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
 </script><!-- end of setting global javascript variable -->
 
 <!-- BOF App factory menu actionbar -->
+<input type="hidden" maxlength="19" id="defaultDomain" name="defaultDomain" value="<%=getProperty(DOMAIN_NAME)%>"/>
 <div class="action-bar">
 	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Cancel">
 			<span class="fw-stack fw-lg btn-action-ico">
@@ -68,7 +70,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
 			</span> Cancel
 	</a>
 </div><!-- EOF App factory menu actionbar-->
-
+<% if (initialAppVersionInfo) {%>
 <div class="container-fluid app-content-section">
     <div class="row">
          <div class="col-md-12 msg-issues">
@@ -167,7 +169,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
                     </div>
             <% }%>
      <% }%>
-
+<% }%>
      </div>
 </form>
  </div>
