@@ -238,7 +238,7 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
             if(resJSON) {
                 // display app url
                 var appURL = resJSON.url;
-                var repoUrlHtml = generateLunchUrl(appURL);
+                var repoUrlHtml = generateLunchUrl(appURL, currentAppInfo);
                 // display app url
                 $("#version-url-link").html(repoUrlHtml);
 
@@ -277,15 +277,17 @@ function clearnLaunchUrl() {
 
 }
 
-function generateLunchUrl(appURL) {
+function generateLunchUrl(appURL, currentAppInfo) {
     var message = "";
-    if(appURL) {
+    if(appURL && !isAppWaitingForAccept(currentAppInfo)) {
         message += "<a target='_blank' href='" + appURL + "' >";
         message += "<span>";
         message += "<b>URL : </b>";
         message += appURL;
         message += "</span>";
         message += "</a>";
+    } else if (isAppWaitingForAccept(currentAppInfo)) {
+        message += "<i class='fw fw-1x'></i><span>Waiting for Accept & Deploy in " + currentAppInfo.stage + " Stage </span>";
     } else {
         message += "<i class='fw fw-deploy fw-1x'></i><span>Application is still deploying</span>";
     }
@@ -317,12 +319,12 @@ function createCodeEnvyUrl(gitURL) {
             codeEnvyUrl = result;
             if(codeEnvyUrl==="" || codeEnvyUrl==null){
                 jagg.message({
-                                 content: "Failed creating the Codenvy workspace URL!",
-                                 type: 'error',
-                                 id:'message_id'
-                             });
+                     content: "Failed creating the Codenvy workspace URL!",
+                     type: 'error',
+                     id:'message_id'
+                 });
 
-            }else{
+            } else {
                 newWindow.location = codeEnvyUrl;
             }
         });
@@ -331,8 +333,13 @@ function createCodeEnvyUrl(gitURL) {
 // load life cycle management information
 function loadLifeCycleManagementInfo(appVersionInfo) {
     if(appVersionInfo && !isEmpty(appVersionInfo)) {
-        var stage = appVersionInfo.appStage;
-        $("#appStage").html(stage);
+        var stage = appVersionInfo.stage;
+        // show data in the UI
+        var message = "Application <strong>" + applicationInfo.name + "</strong> is in <br> <strong>" + stage + "</strong> Stage";
+        if(isSelfPromoted(appVersionInfo)) {
+            message += ", Waiting for Accept and Deploy";
+        }
+        $("#lifecycle-mgt-main").html(message);
     }
 }
 
@@ -353,9 +360,6 @@ function loadRepoAndBuildsInfo(appVersionInfo) {
         if (buildSplitted.length > 2 && buildSplitted[2] != "null") {
             buildStatus = buildSplitted[2];
         }
-
-        // show data in the UI
-        $("#lifecycle-mgt-main").html("Application <strong>" + applicationInfo.name + "</strong> is in <br> <strong>" + versionStage + "</strong> Stage");
 
         var buildStatusTag = "";
         if("successful" == buildStatus)  {
@@ -462,23 +466,52 @@ function hideAcceptAndDeploy() {
 
 // accept and deploy show
 function showAcceptAndDeploy(appInfo, currentAppInfo) {
-    var promoteStatus = currentAppInfo.promoteStatus;
-    var pendingState = "pending";
     var deployAction = "deploy";
     var state = "started";
-    var stage = currentAppInfo.stage;
 
     // hide the button by default
     hideAcceptAndDeploy();
 
-    if(pendingState == promoteStatus && deploymentPermission[stage]) {
+    if(hasPermissionForAccept(currentAppInfo)) {
         addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state);
     }
 }
 
+function hasPermissionForAccept(currentAppInfo) {
+    var result = false;
+    if(currentAppInfo) {
+        var stage = currentAppInfo.stage;
+        if(("pending" === currentAppInfo.promoteStatus) && deploymentPermission[stage]) {
+            result = true;
+        }
+    }
+    return result;
+}
+
+function isAppWaitingForAccept(currentAppInfo) {
+    var result = false;
+    if(currentAppInfo) {
+        if("pending" === currentAppInfo.promoteStatus) {
+            result = true;
+        }
+    }
+    return result;
+}
+
+function isSelfPromoted(currentAppInfo) {
+    var result = false;
+    if(currentAppInfo) {
+        var stage = currentAppInfo.stage;
+        if(("pending" === currentAppInfo.promoteStatus) && !deploymentPermission[stage]) {
+            result = true;
+        }
+    }
+    return result;
+}
+
 function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
     $("#accepndeploy-button").off('click').click(function(event) {
-        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, true);
+        deployApp(appInfo, currentAppInfo, deployAction, state, appInfo.type, true);
     });
     $("#acceptDeployWrapper").show();
 }
@@ -486,27 +519,30 @@ function addAcceptNDeployHandler(appInfo, currentAppInfo, deployAction, state) {
 
 function addDeployHandler(appInfo, currentAppInfo, deployAction, state) {
     $("#accepndeploy-button").off('click').click(function(event) {
-        deployApp(currentAppInfo.version, currentAppInfo.stage, deployAction, state, appInfo.type, false);
+        deployApp(appInfo, currentAppInfo, deployAction, state, appInfo.type, false);
     });
     $("#acceptDeployWrapper").show();
 }
 
 
-function deployApp(version, stage, deployAction, state, type, isUpdateState) {
+function deployApp(appInfo, currentAppInfo, deployAction, state, type, isUpdateState) {
    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
            action: "copyNewDependenciesAndDeployArtifact",
            applicationKey: applicationInfo.key,
            deployAction:deployAction,
-           stage:stage,
+           stage:currentAppInfo.stage,
            tagName: "",
-           version:version
+           version:currentAppInfo.version
        }, function (result) {
-           jagg.message({content: "The Deployment is underway. Please wait and refresh page after few minutes.", type: 'success', id:'notification'});
+           jagg.message({content: "The Deployment is underway.", type: 'success', id:'notification'});
 
            if (isUpdateState) {
-                updateAppVersionPromoteStatus("", version, stage);
+                updateAppVersionPromoteStatus("", currentAppInfo.version, currentAppInfo.stage);
            }
            hideAcceptAndDeploy();
+
+           // reload the url
+           loadAppInfo(currentAppInfo.version);
        }, function (jqXHR, textStatus, errorThrown) {
             jagg.message({content: "Error occurred while deploying the artifact.", type: 'error', id:'notification'});
        });
@@ -543,7 +579,7 @@ function hideTopMessage() {
 
 function addVersionCreationHandler(isUploadable) {
     $("#createVersionBtn").removeAttr("href");
-    if(isUploadable) {
+    if(isUploadable === true) {
         var deployedVersionsUrl = "../pages/uploadedVersions.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key;
         $('#createVersionBtn').attr({href:deployedVersionsUrl});
     } else {
@@ -600,6 +636,11 @@ function createVersion(srcVersion, targetVersion) {
             if(result === true) {
                 // load new data
                 loadAppInfoFromServer(targetVersion);
+            } else {
+                var message = result.message;
+                if(message) {
+                    jagg.message({content: message, type: 'error', id:'notification'});
+                }
             }
         }, function (jqXHR, textStatus, errorThrown) {
             jagg.message({
@@ -633,6 +674,26 @@ function validateVersion(version) {
     var pattern = /^(\d{1,2}\.){2}(\d{1,5})$/;
     return pattern.test(version);
 }
+
+function loadAppInfo(version) {
+    jagg.post("../blocks/application/get/ajax/list.jag", {
+        action:"getAppVersionAllInfoByVersion",
+        applicationKey: applicationInfo.key,
+        userName: $("#userName").attr('value'),
+        version: version
+    },function (result) {
+        var appInfo = jQuery.parseJSON(result);
+        if (appInfo) {
+            var currentAppInfo = appInfo.versionInfo;
+            poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
+        }
+    },function (jqXHR, textStatus, errorThrown) {
+        if (jqXHR.status != 0) {
+            jagg.message({content:'Could not load Application information', type:'error', id:'notification' });
+        }
+    });
+}
+
 
 // Utility Functions Goes Here
 // extract file extension
