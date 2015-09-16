@@ -534,7 +534,7 @@ function deployApp(appInfo, currentAppInfo, deployAction, state, type, isUpdateS
            tagName: "",
            version:currentAppInfo.version
        }, function (result) {
-           jagg.message({content: "The Deployment is underway. Please wait and refresh page after few minutes.", type: 'success', id:'notification'});
+           jagg.message({content: "The Deployment is underway.", type: 'success', id:'notification'});
 
            if (isUpdateState) {
                 updateAppVersionPromoteStatus("", currentAppInfo.version, currentAppInfo.stage);
@@ -579,7 +579,7 @@ function hideTopMessage() {
 
 function addVersionCreationHandler(isUploadable) {
     $("#createVersionBtn").removeAttr("href");
-    if(isUploadable) {
+    if(isUploadable === true) {
         var deployedVersionsUrl = "../pages/uploadedVersions.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key;
         $('#createVersionBtn').attr({href:deployedVersionsUrl});
     } else {
@@ -636,6 +636,11 @@ function createVersion(srcVersion, targetVersion) {
             if(result === true) {
                 // load new data
                 loadAppInfoFromServer(targetVersion);
+            } else {
+                var message = result.message;
+                if(message) {
+                    jagg.message({content: message, type: 'error', id:'notification'});
+                }
             }
         }, function (jqXHR, textStatus, errorThrown) {
             jagg.message({
