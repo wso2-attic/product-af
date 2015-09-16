@@ -153,7 +153,7 @@ public class DomainMappingManagementService {
                 AppFactoryConstants.DOMAIN_NAME);
         String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(
                 appKey + AppFactoryConstants.MINUS + (new Random()).nextInt(1000),
-                tenantDomain, defaultHostName);
+                tenantDomain.replace(".", ""), defaultHostName);
         try {
             addSubscriptionDomain(ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
                     AppFactoryConstants.FINE_GRAINED_DOMAIN_MAPPING_ALLOWED_STAGE), defaultUrl, appKey, version, false);

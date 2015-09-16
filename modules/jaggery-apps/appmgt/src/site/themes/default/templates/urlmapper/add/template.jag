@@ -60,6 +60,7 @@ if (initialAppVersionInfo.versions.length > 0 ) {
 </script><!-- end of setting global javascript variable -->
 
 <!-- BOF App factory menu actionbar -->
+<input type="hidden" maxlength="19" id="defaultDomain" name="defaultDomain" value="<%=getProperty(DOMAIN_NAME)%>"/>
 <div class="action-bar">
 	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Cancel">
 			<span class="fw-stack fw-lg btn-action-ico">
