@@ -134,7 +134,7 @@ $(document).ready(function () {
             if (!resultJson.error && resultJson.eta.etaTo.length > 0) {
                 $('.ecdate').val(resultJson.eta.etaTo);
             } else {
-                $('.ecdate').val("-- set a date --");
+                $('.ecdate').val("-- select a date --");
             }
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
@@ -304,6 +304,7 @@ $(document).ready(function () {
             userName: userName,
             version: selectedVersion
         }, function (result) {
+console.log(result);
             var appInfo = jQuery.parseJSON(result);
             if (appInfo) {
                 currentStage = appInfo.versionInfo.stage;
@@ -353,7 +354,7 @@ $(document).ready(function () {
             for (var i in resultJson) {
                 var historyEvent = resultJson[i];
                 if (historyEvent.item.action) {
-                    $('#history-events-table tbody').append(' <tr><td><span class="table-notification-msg table-noti-default"></span>' +
+                    $('#history-events-table tbody').append(' <tr><td><span class="table-notification-msg table-noti-success"></span><i class="fw fw-ok table-notification-i noti-success"></i></td><td>' +
                                                             historyEvent.item.timestamp + '</td><td>Application ' + historyEvent.item.action + 'd - ' + historyEvent.item.state +
                                                             ' to ' + historyEvent.item.targetState + '</td><td>By ' + historyEvent.item.user + '</td></tr>');
                     $('.lifecycle-event-history').show();
