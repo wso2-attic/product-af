@@ -22,6 +22,17 @@ $(document).ready(function() {
     loadAppInfoFromServer(currentVersion);
 });
 
+$('.lifecycle-link').click(function(event){
+    event.preventDefault();
+    if($('#selected-version').html()== "trunk") {
+         jagg.message({content:'You can not manage lifecycles of trunk , select available version or create a version first', type:'warning', id:'notification' });
+    } else {
+        var url = appFacURL + "appmgt/site/pages/governance.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key ;
+        window.location.href = url;
+    }
+    
+});
+
 // set default app version
 function setDefaultVersion() {
     var appType = applicationInfo.type;

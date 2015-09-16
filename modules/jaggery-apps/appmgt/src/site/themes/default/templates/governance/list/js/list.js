@@ -25,20 +25,9 @@ $(document).ready(function () {
         var $this = $(this);
         $this.find('.progress-bar-indicator').text($('.strikethrough:checked').length + '/' + $(this).find('.strikethrough').length);
         $(this).on('click', '.strikethrough', function () {
-            var percentage = 0;
             var checkEl = $this.find('.strikethrough');
             var checkedEl = $this.find('.strikethrough:checked');
-            var perElPercentage = 100 / checkEl.length;
-            checkedEl.each(function () {
-                percentage += perElPercentage;
-            })
-            if (percentage == 100 && hasPromotePermissions[currentStage]) {
-                $this.find('.promote-button').prop('disabled', false);
-            } else {
-                $this.find('.promote-button').prop('disabled', true);
-            }
-            $this.find('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage);
-            $this.find('.progress-bar-indicator').text(checkedEl.length + '/' + checkEl.length);
+            drawProgress($this, checkEl.length, checkedEl.length);
             checkListItemChecked(checkEl);
         });
     });
@@ -88,6 +77,21 @@ $(document).ready(function () {
     $('#demote-to-testing-btn').click(function () {
         doLifeCycleAction("Demote", "[]", "");
     });
+
+    function drawProgress(tabPaneElement, allCheckListItemCount, checkedCheckListItemCount) {
+        var percentage = 0;
+        var perElementPercentage = 100 / allCheckListItemCount;
+        for(var i=0; i<checkedCheckListItemCount; i++) {
+              percentage += perElementPercentage;
+        }
+        if(percentage == 100 && hasPromotePermissions[currentStage]) {
+                tabPaneElement.find('.promote-button').prop('disabled', false);
+        } else {
+                tabPaneElement.find('.promote-button').prop('disabled', true);
+        }
+        tabPaneElement.find('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage);
+        tabPaneElement.find('.progress-bar-indicator').text(checkedCheckListItemCount + '/' + allCheckListItemCount);
+    }
 
     /**
      * When estimated time is changed.This will do the update.
@@ -271,25 +275,23 @@ $(document).ready(function () {
             var resultJson = JSON.parse(result);
             if (!resultJson.error) {
                 var checkBoxes = "";
+                var checkedItemsCount = 0;
                 for (var i in resultJson) {
                     var checkListItemName = resultJson[i].name;
                     var checked = "";
                     if (resultJson[i].value == "true") {
+                        checkedItemsCount += 1;
                         checked = "checked";
                     }
                     checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + '><span>' + resultJson[i].name + '</span></label></div>'
                 }
-                $('#' + resultJson[0].status.toLowerCase()).find('.progress-bar-indicator').html("0/" + resultJson.length);
+                drawProgress($('#' + resultJson[0].status.toLowerCase()), resultJson.length, checkedItemsCount);
+               // $('#' + resultJson[0].status.toLowerCase()).find('.progress-bar-indicator').html(checkedItemsCount + "/" + resultJson.length);
                 $('#' + resultJson[0].status.toLowerCase()).find('.checkboxes').html(checkBoxes);
             }
         }, function (jqXHR, textStatus, errorThrown) {
         });
     }
-
-    function drawProgress() {
-        // To do
-    }
-
 
     /**
      * Activate the tab and its elements according to current stage of the version of the application
@@ -353,7 +355,8 @@ $(document).ready(function () {
                 if (historyEvent.item.action) {
                     $('#history-events-table tbody').append(' <tr><td><span class="table-notification-msg table-noti-default"></span>' +
                                                             historyEvent.item.timestamp + '</td><td>Application ' + historyEvent.item.action + 'd - ' + historyEvent.item.state +
-                                                            ' to ' + historyEvent.item.targetState + '</td><td><a href="#">By ' + historyEvent.item.user + '</a></td></tr>');
+                                                            ' to ' + historyEvent.item.targetState + '</td><td>By ' + historyEvent.item.user + '</td></tr>');
+                    $('.lifecycle-event-history').show();
                 }
             }
 
