@@ -28,6 +28,8 @@ var getBuildHistory = function (isForkData) {
             var buildHistory = jQuery.parseJSON(result);
             drawBuildHistory(buildHistory);
             addBuildLogHandlers(buildHistory, isForkData);
+        } else {
+            $('#buildHistoryTblOuterDiv').hide();
         }
       },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
@@ -49,7 +51,12 @@ var drawBuildHistory = function(buildHistory) {
             var buildInfo = builds[key];
             appendBuildDataRowToView(buildInfo);
         }
-
+        $('.build-logs').on('click',function(e){
+            e.preventDefault();
+            $('.build-logs-modal').modal({
+                show: true
+            });
+        })
         if(maxBuildId === 0 || (maxBuildId > lastBuildId)) {
             lastBuildId = maxBuildId;
             clearTimeout(timer);
@@ -63,32 +70,32 @@ var drawBuildHistory = function(buildHistory) {
 
 var appendBuildDataRowToView = function(buildInfo) {
     if(buildInfo) {
-        var date = new Date(parseInt(buildInfo.timestamp));
+        var date = moment(parseInt(buildInfo.timestamp));
         var message = "";
         message += "<tr>";
         message += "<td><span class='table-notification-msg";
         if("SUCCESS" === buildInfo.result) {
-            message += " table-noti-success";
+            message += " table-noti-success'></span><i class='fw fw-ok table-notification-i noti-success'></i>";
         } else if("FAILURE" === buildInfo.result) {
-            message += " table-noti-error";
+            message += " table-noti-error'></span><i class='fw fw-error table-notification-i noti-error'></i>";
         } else {
-            message += " table-noti-default";
+            message += " table-noti-default'></span>";
         }
-        message += " '></span>";
         message += "Build   ";
         message += buildInfo.id;
         message += "</td>";
         message += "<td>";
-        message += date.toDateString();
+        message += date.format("YYYY-MM-DD HH:mm:ss.SSS");
         message += "</td>";
-        message += "<td><a href='#modal-one' data-toggle='modal' data-target='#modal-one' id='build-log-" + buildInfo.id + "'>Build Logs</a>";
+        message += "<td><a href='#modal-one'  class='build-logs' id='build-log-" ;
+        message += buildInfo.id + "'>Build Logs</a>";
         message += "</td>";
         message += "</tr>";
-
         // set message
         $('#buildHistoryTbl').append(message);
     }
 }
+
 
 var addBuildLogHandlers = function(buildHistory, isForkData) {
     if(buildHistory && buildHistory.builds) {
@@ -110,6 +117,7 @@ var addBuildLogHandler = function(elementId, buildId, isForkData) {
              lastBuildId : buildId,
              forkedRepository : isForkData
         }, function (result) {
+            $('#buildLogTitleBuildNo').html("Build " + buildId);
             $('#build_logs').html(result);
         },
         function (jqXHR, textStatus, errorThrown) {
@@ -190,6 +198,8 @@ var drawDeployedStatus = function(buildInfo, isForkInfo) {
         message += " deployed to ";
         message += buildInfo.stage;
         message += " stage";
+    }else {
+        message = "No build has been triggered";
     }
     $('#buildStatus').html(message);
 

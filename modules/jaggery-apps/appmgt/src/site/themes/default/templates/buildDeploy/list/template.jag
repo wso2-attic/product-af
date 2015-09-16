@@ -85,7 +85,7 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
                     </div>
                 </div>
                 <% if(!isForkInfo) { %>
-                    <div class="form-group">
+                    <div class="form-group" id="buildStatusOuterDiv">
                         <label for=""><strong>Status: </strong></label>
                         <div class="input-group">
                             <label id="buildStatus"></label>
@@ -93,7 +93,7 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
                     </div>
                 <% } %>
             </div>
-            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+            <div id="buildHistoryTblOuterDiv" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
                 <h4>Build log history</h4>
                 <table id="buildHistoryTbl" class="table table-condensed table-borderless table-buildlogs"></table>
             </div>
@@ -106,25 +106,36 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
 <div class="clearfix"></div>
 <div id="push"></div>
 
-<div class="modal fade" id="modal-one" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-          <h2>Jenkins Build Log</h2>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<div class="modal build-logs-modal">
+    <div class="modal-dialog modal-dialog-margin-top-md modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Jenkins Build Log: <i id="buildLogTitleBuildNo"></i></h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="scroll-container">
+                            <textarea id="build_logs" name="nowrap" cols="30" rows="3" wrap="soft">Retrieving logs.... </textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="privilege_edit_cancel" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
         </div>
-        <div class="modal-body">
-          <pre id="build_logs">Retrieving logs.... </pre>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
+        <!-- /.modal-content -->
     </div>
-  </div>
+    <!-- /.modal-dialog -->
 </div>
-
+<!-- /.modal -->
 <!-- loading javascript files to the page after page is rendering -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/buildDeploy/list/js/list.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
 <!-- end of loading javascript files -->
 
 <% }); %>
