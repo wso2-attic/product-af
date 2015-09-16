@@ -23,14 +23,27 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
     var applicationKey = inputs.applicationKey;
     var applicationName = inputs.applicationName;
     var pageName = inputs.pageName;
+    var applicationMod = jagg.module("application");
     var userName = jagg.getUser();
 
-    var applicationInfo = outputs.applicationInfo;
+    var applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
     var isForked = false;
     if (applicationInfo && applicationInfo.length > 0) {
         isForked = true;
     }
 %>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        var scrollHeight = $('.notification-pane').height() - 150;
+        $('.left-pane').css('max-height', $('.notification-pane').height());
+        $('.left-pane').css('min-height', $('.notification-pane').height());
+        $('.notifications').css('height', scrollHeight);
+        $(".nano").nanoScroller();
+    });
+</script>
+
+
     <!-- left pane wrapper -->
     <div class="left-pane">
 
