@@ -22,11 +22,22 @@ $(document).ready(function() {
     loadAppInfoFromServer(currentVersion);
 });
 
+$('.lifecycle-link').click(function(event){
+    event.preventDefault();
+    if($('#selected-version').html()== "trunk") {
+         jagg.message({content:'You can not manage lifecycles of trunk , select available version or create a version first', type:'warning', id:'notification' });
+    } else {
+        var url = appFacURL + "appmgt/site/pages/governance.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key ;
+        window.location.href = url;
+    }
+
+});
+
 // set default app version
 function setDefaultVersion() {
     var appType = applicationInfo.type;
     currentVersion = "trunk";
-    if (appType && appType.indexOf("Uploaded") >= 0) {
+    if (applicationInfo.isUploadable) {
         currentVersion = "1.0.0";
     }
     if(previousVersion && previousVersion != null) {
@@ -109,7 +120,7 @@ function loadAppInfoFromServer(version) {
                     loadLaunchInfo(appInfo, currentAppInfo);
                     loadIssuesInfo(version);
                     loadDatabaseInfo(currentAppInfo);
-                    addVersionCreationHandler();
+                    addVersionCreationHandler(appInfo.isUploadable);
                 }
             }
       },function (jqXHR, textStatus, errorThrown) {
@@ -210,8 +221,10 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
     showAcceptAndDeploy(appInfo, currentAppInfo);
 }
 
-//// load application launch url
+//  load application launch url
 var loadLaunchUrl = function(appInfo, currentAppInfo) {
+    clearnLaunchUrl();
+
     jagg.post("../blocks/application/get/ajax/list.jag", {
        action: "getMetaDataForAppVersion",
        applicationKey: applicationInfo.key,
@@ -223,36 +236,22 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
         if(result) {
             var resJSON = jQuery.parseJSON(result);
             if(resJSON) {
-
                 // display app url
-                var repoUrlHtml = "<b>URL : </b>" + appURL;
-                if("Success" == resJSON.status) {
-                    var appURL = resJSON.url;
-                    // display app url
-                    var repoUrlHtml = "<b>URL : </b>" + appURL;
-                    $("#app-version-url").html(repoUrlHtml);
-                    $('#version-url-link').attr({href:appURL});
-                    $('#btn-launchApp').attr({url:appURL});
+                var appURL = resJSON.url;
+                var repoUrlHtml = generateLunchUrl(appURL);
+                // display app url
+                $("#version-url-link").html(repoUrlHtml);
 
+                if("Success" == resJSON.status) {
+                    $('#btn-launchApp').attr({url:appURL});
                     // set url to launch button
                     $('#btn-launchApp').removeAttr('disabled');
-                    $('#version-url-link').removeAttr('disabled');
 
                     // clear the timer if exist
                     clearTimeout(timer);
                     hideTopMessage();
                     showSuccessMessage();
                 } else {
-                   // remove status message
-                   var repoUrlHtml = "<b>URL : </b>deployment in progress...";
-                   $("#app-version-url").html(repoUrlHtml);
-                   // disable links and buttons
-                   $('#btn-launchApp').attr('disabled','disabled');
-                   $('#version-url-link').attr('disabled','disabled');
-                   // remove previous urls
-                   $('#version-url-link').removeAttr('href');
-                   $('#btn-launchApp').removeAttr('url');
-
                    // set the timer until the app get deployed
                    poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
                 }
@@ -260,14 +259,39 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
         }
     }, function (jqXHR, textStatus, errorThrown) {
             // show error to the user
-            var appURL = "deployment error";
-            var repoUrlHtml = "<b>URL : </b>" + appURL;
-            $("#app-version-url").html(repoUrlHtml);
+            var repoUrlHtml = "<i class='fw fw-error fw-1x'></i><span>Deployment Error</span>";
+            $("#version-url-link").html(repoUrlHtml);
 
             // log error
             jagg.message({content:'Could not load Application deployment information!', type:'error', id:'notification' });
     });
 }
+
+function clearnLaunchUrl() {
+    var message = "<span></span>";
+    $("#version-url-link").html(message);
+    // disable links and buttons
+    $('#btn-launchApp').attr('disabled','disabled');
+    // remove previous urls
+    $('#btn-launchApp').removeAttr('url');
+
+}
+
+function generateLunchUrl(appURL) {
+    var message = "";
+    if(appURL) {
+        message += "<a target='_blank' href='" + appURL + "' >";
+        message += "<span>";
+        message += "<b>URL : </b>";
+        message += appURL;
+        message += "</span>";
+        message += "</a>";
+    } else {
+        message += "<i class='fw fw-deploy fw-1x'></i><span>Application is still deploying</span>";
+    }
+    return message;
+}
+
 
 function showSuccessMessage(){
     $("app_creation_success_message").show();
@@ -517,7 +541,17 @@ function hideTopMessage() {
     }
 }
 
-function addVersionCreationHandler() {
+function addVersionCreationHandler(isUploadable) {
+    $("#createVersionBtn").removeAttr("href");
+    if(isUploadable) {
+        var deployedVersionsUrl = "../pages/uploadedVersions.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key;
+        $('#createVersionBtn').attr({href:deployedVersionsUrl});
+    } else {
+        addCreateVersionHandler();
+    }
+}
+
+function addCreateVersionHandler() {
     // create the message
     var version = "";
     if("trunk" == currentVersion) {

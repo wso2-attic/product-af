@@ -35,6 +35,12 @@ if( 3 === getBrowserId()) {
     $("#forkedRepo").focus(function(){ $(this).select(); }).mouseup(function (e) {e.preventDefault(); }); 
 }
 
+$(".check-your-code").on("click",function(){
+    var url = gitBaseUrl + "summary/?=" + tenantDomain + "/" + applicationKey + ".git";
+    var win = window.open(url, '_blank');
+    win.focus();
+});
+
 $("#fork").on("click",function(){
     $('.btn-fork-code').loadingButton({
         action: "show",

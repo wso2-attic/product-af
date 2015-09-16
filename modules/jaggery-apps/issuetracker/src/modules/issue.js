@@ -154,7 +154,7 @@ var convertIssuePriorityValToText = function (issuePriorityVal){
 
 var convertIssueSeverityValToText = function (issueSeverityVal){
     var issueSeverityText = "";
-    if(issueSeverityVal == "NONE"){issueSeverityText = "Non Critcal";}
+    if(issueSeverityVal == "NONE"){issueSeverityText = "Non Critical";}
     else if(issueSeverityVal == "BLOCKER"){issueSeverityText = "Blocker";}
     else if(issueSeverityVal == "CRITICAL"){issueSeverityText = "Critical";}
     else if(issueSeverityVal == "TRIVIAL"){issueSeverityText = "Non Critical";}

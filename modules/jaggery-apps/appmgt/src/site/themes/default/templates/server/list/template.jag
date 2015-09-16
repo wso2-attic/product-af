@@ -45,7 +45,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
     <div class="container-fluid app-content-section">
         <div class="row">
             <div class="col-md-12 msg-issues">
-                Using this page, you can download server logs. Logs of deployed applications are archived daily. Specify a date to download archived logs. To view logs that are not archived yet, click the <strong>View</strong> button.
+                Download the logs of the deployed applications that are archived daily. To view logs that are not archived yet, click the <strong>View</strong> button.
             </div>
         </div>
         <div class='row'>

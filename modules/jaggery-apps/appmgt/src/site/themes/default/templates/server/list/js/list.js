@@ -27,7 +27,13 @@ $(document).ready(function () {
     $(".stage").on("change", function() {
         var selectedStageElement = $(this);
         setVersions(selectedStageElement);
-    });    
+    });
+
+    // Hiding loaded log container when changing the new versions
+    $("#version-view").on("change", function() {
+        $('.log-container').hide();
+    });
+
 
     /**
     * Set versions according to the selected stage
@@ -38,6 +44,8 @@ $(document).ready(function () {
         var versionsData = []; 
         var currentVersionElement = selectedStageElement.parents('.tab-pane').find('.version');
         currentVersionElement.select2().enable(true);
+        $('#view-log').enable(true);
+        $('#download-log').enable(true);
         for(var i in appVersionsInfoArray) {
             if(selectedStage == appVersionsInfoArray[i].stage) {
                 var versionsInStage = appVersionsInfoArray[i].versions;
@@ -48,13 +56,15 @@ $(document).ready(function () {
                     versionsData.push(select2DataObject);
                 }   
             }   
-        }   
+        }
         if(versionsData.length == 0) {
             var select2DataObject = {}; 
             select2DataObject.id = null;
             select2DataObject.text = "No versions available";
             versionsData.push(select2DataObject);
-            currentVersionElement.select2().enable(false); 
+            currentVersionElement.select2().enable(false);
+            $('#view-log').enable(false);
+            $('#download-log').enable(false);
         }   
 
         currentVersionElement.empty();

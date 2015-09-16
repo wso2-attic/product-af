@@ -56,10 +56,23 @@ You can also set the estimated date of completion for each stage. The mean of th
                 <div id="push"></div>
                 <h4>Current Version: <span><%=selectedVersion%></span></h4>
                 <div id="push"></div>
+<%if(selectedVersion=="trunk") {%>
+ <div class="form-group">
+                    <div class="alert alert-warning alert-no-margin" role="alert">
+                            <span class="alert-content">
+                               To promote application to the next stage of lifecycle, you need to first create a version of it . <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"> Click here </a> to create version
+                            </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /.container -->
+<%} else {%>
                 <div class="margin-bottom-md">
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs nav-tabs-wizard" role="tablist">
-                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-left">
+                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-left" disabled-tab>
                             <a href="#development" aria-controls="home" role="tab" data-toggle="tab">
                                 <div class="step-number">
                                     <span>01</span>
@@ -71,7 +84,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                                 <div class="clearfix"></div>
                             </a>
                         </li>
-                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-both">
+                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-both" disabled-tab>
                             <a href="#testing" aria-controls="profile" role="tab" data-toggle="tab">
                                 <div class="step-number">
                                     <span>02</span>
@@ -83,7 +96,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                                 <div class="clearfix"></div>
                             </a>
                         </li>
-                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-right">
+                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-right" disabled-tab>
                             <a href="#production" aria-controls="messages" role="tab" data-toggle="tab">
                                 <div class="step-number">
                                     <span>03</span>
@@ -289,7 +302,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                     </div>
                 </div>
             </div>
-            <div class="col-md-5 lifecycle-event-history">
+            <div class="col-xs-12 col-sm-12 col-md-10 col-lg-6 lifecycle-event-history" style="display:none">
                 <h4>Lifecycle event history</h4>
                 <table class="table table-condensed table-borderless table-buildlogs" id="history-events-table">
                     <tbody>
@@ -298,7 +311,7 @@ You can also set the estimated date of completion for each stage. The mean of th
             </div>
         </div>
     </div><!-- /.container -->
-
+<%}%>
 
     </div>
     <div class="clearfix"></div>
