@@ -176,10 +176,7 @@
                     <div class="block-icon pull-left">
                       <i class="fw fw-lifecycle fw-5x"></i>
                     </div>
-                    <div class="block-description pull-right" id="lifecycle-mgt-main">
-                      Application <strong><%=appName%></strong> is in <br>
-                      <strong><span id="appStage"></span></strong> Stage
-                    </div>
+                    <div class="block-description pull-right" id="lifecycle-mgt-main"></div>
 
                     <div class="clearfix"></div>
 
