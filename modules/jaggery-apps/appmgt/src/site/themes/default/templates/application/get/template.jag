@@ -139,7 +139,7 @@
                   <ul id="appVersionList" class="dropdown-menu"></ul>
                 </div>
 
-                <div id="version-url-link" class="version-url url-loading"></div>
+                <div id="version-url-link" class="version-url url-loading"><span></span></div>
 
                 <div class="sec">
                     <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">Launch App</button>
