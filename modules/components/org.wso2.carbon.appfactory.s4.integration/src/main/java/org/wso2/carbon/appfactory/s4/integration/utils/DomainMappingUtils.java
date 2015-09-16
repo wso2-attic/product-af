@@ -82,8 +82,9 @@ public class DomainMappingUtils {
     private static final String DEFAULT_URL_PREFIX = "{prefix}";
     private static final String DEFAULT_URL_MIDDLE = "{middle}";
     private static final String DEFAULT_URL_SUFFIX = "{suffix}";
+    private static final String HYPHEN = "-";
     private static final String DEFAULT_URL_FORMAT =
-            DEFAULT_URL_PREFIX + "." + DEFAULT_URL_MIDDLE + "." + DEFAULT_URL_SUFFIX;
+            DEFAULT_URL_PREFIX + HYPHEN + DEFAULT_URL_MIDDLE + "." + DEFAULT_URL_SUFFIX;
 
     /**
      * Send rest POST request to Stratos SM.

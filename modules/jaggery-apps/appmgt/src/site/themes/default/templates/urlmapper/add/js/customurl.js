@@ -86,7 +86,21 @@ function validateCustomUrlPattern() {
     var defaultProdUrl = $("#production-url").val().trim();
     var pattern = /[\w-]+(\.[\w-]+)+/;
     var validated = true;
-    if (!tempCustUrl.length || tempCustUrl == 'null' || !pattern.test(tempCustUrl)) { //if new custom url has not valid text
+    var defaultDomain = $("#defaultDomain").val();
+    var domainRegEx = defaultDomain+'$';
+    if(tempCustUrl.match(domainRegEx)){
+        var regex = new RegExp('^[a-zA-Z0-9]+[\d-]*[a-zA-Z0-9]+$');
+        var subDomain = tempCustUrl.split("." + defaultDomain)[0];
+        if (subDomain == defaultDomain){
+            urlPatternErrorMsg = "No subdomain specified for default domain " + defaultDomain;
+            validated = false;
+        } else if (regex.test(subDomain)) {
+            validated =  true;
+        } else {
+            urlPatternErrorMsg = "Invalid subdomain: " + subDomain + " Subdomain for default domain " + defaultDomain + " can contain only alphanumeric values and hyphens only";
+            validated = false;
+        }
+    } else if (!tempCustUrl.length || tempCustUrl == 'null' || !pattern.test(tempCustUrl)) { //if new custom url has not valid text
         var validator = $("#customUrlForm").validate();
         if (!existingProdUrl && !tempCustUrl && validator.element("#productionVersion")) {
             validated = true;
@@ -115,7 +129,7 @@ function getValidationOptions() {
     return {
         rules: {                                        // validation rules
             productionCustom: {                          // custom Url filed
-                //validateCustomUrlPattern: true,
+                validateCustomUrlPattern: true,
                 require_from_group: [1, '.mygroup']
             },
             productionVersion: {
@@ -215,4 +229,3 @@ function drawVersionList(versionsArray) {
     }
 
 }
-
