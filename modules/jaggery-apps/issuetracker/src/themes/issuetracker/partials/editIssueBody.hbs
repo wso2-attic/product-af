@@ -16,6 +16,12 @@
             <div class="col-md-5 forms">
                 <div class="col-md-12">
                     <div class="form-group">
+                        <label for="issue-id">Issue ID: </label>
+                        <input type="text" class="form-control" id="issue-id" value="{{issue.key}}"  disabled>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
                         <label for="summary">Summary: </label>
                         <input type="text" class="form-control" id="summary" placeholder="Write a summary of your issue" value="{{issue.summary}}" >
                     </div>
