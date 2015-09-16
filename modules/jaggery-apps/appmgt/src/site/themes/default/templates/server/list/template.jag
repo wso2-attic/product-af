@@ -20,12 +20,15 @@
 jagg.template("server/list", function (inputs, outputs, jagg) { %>
 
  	<%
-    var applicationName = request.getParameter("applicationName");
-    var applicationKey = request.getParameter("applicationKey");
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
-    var helpTips = outputs.helpTips;
-    var appVersionsInStages= outputs.appVersionsInStages;
-    var appVersionsInfoArray = appVersionsInStages.allAppVersions;
+        var applicationName = request.getParameter("applicationName");
+        var applicationKey = request.getParameter("applicationKey");
+        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+        var helpTips = outputs.helpTips;
+        var appVersionsInStages = outputs.appVersionsInStages;
+        var appVersionsInfoArray = [];
+        if(appVersionsInStages){
+            appVersionsInStages.allAppVersions;
+        }
     %>
     
     <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/daterangepicker/daterangepicker.css'))%>">

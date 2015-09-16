@@ -27,11 +27,14 @@ var isNamesOnly = outputs.isNamesOnly;
 //var hasConfigureResourcePermissions=outputs.hasConfigureResourcePermissions;
 //var dependencies=outputs.dependencies;
 var hasCreateResourcePermissions = outputs.hasCreateResourcePermissions;
-appInfo=session.get("APP_INFO");
-language=appInfo.language;
+var appInfo = session.get("APP_INFO");
+var language = null;
+if(appInfo){
+    language = appInfo.language;
     if(appInfo.type == 'jaggery'){
         language=appInfo.type;
     }
+}
 
 %>
 

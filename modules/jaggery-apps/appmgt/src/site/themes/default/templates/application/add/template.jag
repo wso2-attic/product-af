@@ -24,7 +24,6 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var webContext = getProperty(WEB_CONTEXT_ROOT);
     var helpTips = outputs.helpTips;
     var uploadableAppExts = outputs.uploadableAppExts;
-    var mod = jagg.module("manager");
     var type = request.getParameter("type");
     var uploadableApplicationMaxSize=outputs.uploadableApplicationMaxSize;
     var appTypeBean = outputs.appTypeBean;

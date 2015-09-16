@@ -35,9 +35,11 @@ jagg.block("application/get", {
         var applicationKey = request.getParameter("applicationKey");
     	var mod = jagg.module("manager");
     	var lifeCycleModule = jagg.module("lifecycle");
+    	var applicationMod = jagg.module("application");
 
         var userName = jagg.getUser();
         var stagesMap = {};
+        var applicationInfo;
 
         if(userName) {
 
@@ -52,13 +54,15 @@ jagg.block("application/get", {
             var isCodeEditorSupported = mod.getApplicationTypeBean(applicationType).isCodeEditorSupported();
             var hasDomainMappingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DOMAIN_MAPPING);
             var fineGrainedDomainMappingAllowedStage = getProperty(FINE_GRAINED_DOMAIN_MAPPING);
+            applicationInfo = applicationMod.getAppInfo(applicationKey);
         }
 
     	return {
 			"isCodeEditorSupported":isCodeEditorSupported,
 			"hasDomainMappingPermission":hasDomainMappingPermission,
 			"fineGrainedDomainMappingAllowedStage":fineGrainedDomainMappingAllowedStage,
-			"stagesMap": stagesMap
+			"stagesMap": stagesMap,
+			"applicationInfo": applicationInfo
     	};
     }
 
