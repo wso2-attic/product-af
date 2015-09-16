@@ -23,10 +23,10 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
     var applicationKey = inputs.applicationKey;
     var applicationName = inputs.applicationName;
     var pageName = inputs.pageName;
-    var applicationMod = jagg.module("application");
     var userName = jagg.getUser();
 
-    var applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
+    var applicationInfo = outputs.applicationInfo;
+
     var isForked = false;
     if (applicationInfo && applicationInfo.length > 0) {
         isForked = true;
