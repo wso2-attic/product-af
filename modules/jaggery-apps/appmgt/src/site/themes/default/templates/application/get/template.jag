@@ -139,7 +139,8 @@
                   <ul id="appVersionList" class="dropdown-menu"></ul>
                 </div>
 
-                <div class="version-url"><a id="version-url-link" target="_blank"><span id="app-version-url"><b>URL : </b>deployment in progress...</span></a></div>
+                <div id="version-url-link" class="version-url url-loading"></div>
+
                 <div class="sec">
                     <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">Launch App</button>
 
