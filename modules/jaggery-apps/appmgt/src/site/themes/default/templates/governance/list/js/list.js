@@ -20,7 +20,7 @@
 
 $(document).ready(function () {
     initializeUserActivity("logs", applicationKey, applicationName);
-    setCurrentStageTabActive();
+    getAppVersionInfo();
     $('.tab-pane').each(function () {
         var $this = $(this);
         $this.find('.progress-bar-indicator').text($('.strikethrough:checked').length + '/' + $(this).find('.strikethrough').length);
@@ -70,14 +70,20 @@ $(document).ready(function () {
         doLifeCycleAction("Retire", "[]", "");
     });
 
-    $('#demote-to-development-btn').click(function () {
-        doLifeCycleAction("Demote", "[]", "");
+    $('.demote-button').click(function () {
+        var modalElement = $('#demote-confirm-modal');
+        modalElement.modal({show: true});
+        $('#demote-confirm').on('click',function(e){
+            var demoteReasonTxt = $('textarea#demote-reason-text').val();
+            doLifeCycleAction("Demote", "[]", demoteReasonTxt);
+            modalElement.modal('hide');
+            $('textarea#demote-reason-text').val("");
+        });
     });
 
-    $('#demote-to-testing-btn').click(function () {
-        doLifeCycleAction("Demote", "[]", "");
-    });
-
+    /**
+    * Draw progress bar and set values
+    */
     function drawProgress(tabPaneElement, allCheckListItemCount, checkedCheckListItemCount) {
         var percentage = 0;
         var perElementPercentage = 100 / allCheckListItemCount;
@@ -134,7 +140,7 @@ $(document).ready(function () {
             if (!resultJson.error && resultJson.eta.etaTo.length > 0) {
                 $('.ecdate').val(resultJson.eta.etaTo);
             } else {
-                $('.ecdate').val("-- select a date --");
+                $('.ecdate').val("YYYY-MM-DD");
             }
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
@@ -176,14 +182,14 @@ $(document).ready(function () {
                     newStage = previousStage[currentStage];
                 }
                 else if (actionName == 'Retire') {
-                    newStage = stage;
+                    newStage = currentStage;
                 }
                 currentStage = newStage;
                 updateSessionNewStage(newStage);
                 if (actionName == "Promote") {
                     deployAndUpdatePromoteStatus(newStage);
                 }
-                setCurrentStageTabActive();
+                getAppVersionInfo();
             }
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
@@ -261,19 +267,56 @@ $(document).ready(function () {
         }, function (jqXHR, textStatus, errorThrown) {
         });
     }
-
+    
+    /**
+     * Activate the tab and its elements according to current stage of the version of the application
+     * and permissions of the user.
+     */
+    function setElementsVisible(isAppRetired) {
+            if(!isAppRetired) {
+            $('#app-retired-text').hide();
+            // active only the current stage tab, meanwhile check the visibility permission
+            if (hasVisibilityPermissions[currentStage]) {
+                $('.nav-tabs').show();
+                $('.tab-content').show();
+                $('.nav-tabs a[href="#' + currentStage.toLowerCase() + '"]').tab('show');
+            }
+            // disable promote button (once all the checkboxes are checked this will become active)
+            $('.promote-button').prop('disabled', true);
+            // disable demote button if user doesnt have demote permissions
+            if (!hasDemotePermissions[currentStage]) {
+                $('.demote-button').prop('disabled', true);
+            }
+            if (!hasRetirePermission) {
+                $('#retire-btn').prop('disabled', true);
+            }
+        } else {
+             $('#app-retired-text').show();
+        }
+    
+    }
 
     /**
      * Draw the markup of checklist items
      */
     function drawCheckListItems() {
+        var isAppRetired;
         jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
             action: "getCheckListItemsOfAppVersion",
             applicationKey: applicationKey,
             version: selectedVersion
         }, function (result) {
             var resultJson = JSON.parse(result);
-            if (!resultJson.error) {
+            // This is to check whether app is retired, if app is retired there are no checklist items
+            if(resultJson.length ==0) {
+                // app retired
+                isAppRetired = true;
+            } else {
+                isAppRetired = false;
+                // app is not retired
+            }
+            setElementsVisible(isAppRetired);
+            if (!resultJson.error && resultJson.length > 0) {
                 var checkBoxes = "";
                 var checkedItemsCount = 0;
                 for (var i in resultJson) {
@@ -286,51 +329,45 @@ $(document).ready(function () {
                     checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + '><span>' + resultJson[i].name + '</span></label></div>'
                 }
                 drawProgress($('#' + resultJson[0].status.toLowerCase()), resultJson.length, checkedItemsCount);
-               // $('#' + resultJson[0].status.toLowerCase()).find('.progress-bar-indicator').html(checkedItemsCount + "/" + resultJson.length);
                 $('#' + resultJson[0].status.toLowerCase()).find('.checkboxes').html(checkBoxes);
             }
+            if(!resultJson[0] || currentStage == resultJson[0].status) {
+                // governance operation successfull
+                $('.loader').loading('hide');
+                $('.loading-cover').overlay('hide'); 
+            } else {
+                drawCheckListItems();
+            }
+            
         }, function (jqXHR, textStatus, errorThrown) {
         });
     }
 
     /**
-     * Activate the tab and its elements according to current stage of the version of the application
-     * and permissions of the user.
+     * Get app version info
      */
-    function setCurrentStageTabActive() {
+    function getAppVersionInfo() {
+        // displaying loader
+        $('.loader').loading('show');
+        $('.loading-cover').overlay('show');
+        // disable all tabs
+        $('.nav-tabs a').prop('disabled', true);
+        // hide tab panel
+        $('.nav-tabs').hide();
+        $('.tab-content').hide();
+        
         jagg.post("../blocks/application/get/ajax/list.jag", {
             action: "getAppVersionAllInfoByVersion",
             applicationKey: applicationKey,
             userName: userName,
             version: selectedVersion
         }, function (result) {
-console.log(result);
             var appInfo = jQuery.parseJSON(result);
             if (appInfo) {
-                currentStage = appInfo.versionInfo.stage;
-                loadLifeCycleEventHistory();
-                retrieveETA();
-                drawCheckListItems();
-                // disable all tabs
-                $('.nav-tabs a').prop('disabled', true);
-                // hide tab panel
-                $('.nav-tabs').hide();
-                $('.tab-content').hide();
-                // active only the current stage tab, meanwhile check the visibility permission
-                if (hasVisibilityPermissions[currentStage]) {
-                    $('.nav-tabs').show();
-                    $('.tab-content').show();
-                    $('.nav-tabs a[href="#' + currentStage.toLowerCase() + '"]').tab('show');
-                }
-                // disable promote button (once all the checkboxes are checked this will become active)
-                $('.promote-button').prop('disabled', true);
-                // disable demote button if user doesnt have demote permissions
-                if (!hasDemotePermissions[currentStage]) {
-                    $('.demote-button').prop('disabled', true);
-                }
-                if (!hasRetirePermission) {
-                    $('#retire-btn').prop('disabled', true);
-                }
+                    currentStage = appInfo.versionInfo.stage;
+                    loadLifeCycleEventHistory();
+                    retrieveETA();
+                    drawCheckListItems();
             }
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
