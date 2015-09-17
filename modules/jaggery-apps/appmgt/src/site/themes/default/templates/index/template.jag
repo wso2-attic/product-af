@@ -322,10 +322,12 @@ function checkFirstLogin() {
                 action: "isFirstLogin"
             },
             function (result) {
-                var isFirstLogin = jQuery.parseJSON(result);
-                if(isFirstLogin==true){
-                    window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/password-change.jag")%>");
-                }
+                if(result && result.trim().length>1){
+                    var isFirstLogin = jQuery.parseJSON(result);
+                    if(isFirstLogin==true){
+                        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/password-change.jag")%>");
+                    }
+                }   
             },
 
             function (jqXHR, textStatus, errorThrown) {
