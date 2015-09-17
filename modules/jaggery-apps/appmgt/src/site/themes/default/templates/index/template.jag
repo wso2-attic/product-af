@@ -113,7 +113,7 @@ function addTableRow(application) {
             url += "&isUploadableAppType=" + application.isUploadable;
         }
         var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
-        var iconClass = " <i class="+ icon + "><\/i>"
+        var iconClass = " <i class="+ icon + "data-toggle='tooltip' data-placement='right' title='" + application.typeDisplayName + "'><\/i>"
         var spinIcon = application.applicationCreationStatus == APPLICATION_CREATION_STATUS.PENDING ? "<i class=\"fa fa-spinner fa-pulse fa-spin\"></i>" : "";
 
         var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" id="'+application.key+'"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
