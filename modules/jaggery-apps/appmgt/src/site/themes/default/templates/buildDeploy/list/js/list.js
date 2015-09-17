@@ -81,7 +81,7 @@ var appendBuildDataRowToView = function(buildInfo) {
         } else {
             message += " table-noti-default'></span>";
         }
-        message += "Build   ";
+        message += "</td><td>Build ";
         message += buildInfo.id;
         message += "</td>";
         message += "<td>";
