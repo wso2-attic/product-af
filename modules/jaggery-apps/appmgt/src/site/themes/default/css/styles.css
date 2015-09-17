@@ -2388,3 +2388,12 @@ th.hide-column-data, td.hide-column-data {
     max-height:400px;
     overflow-y: auto;
 }
+.editroles > span.fw-stack{
+    font-size:0.8em;
+}
+.delete i.fw-delete{
+    font-size:1em;
+}
+.editroles .fw-stack span{
+    color:#0498d5;
+}
