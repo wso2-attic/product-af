@@ -287,14 +287,6 @@ function populateAppOverview() {
         parsedAppArray = jQuery.parseJSON(result);
         parsedAppArray.sort(NameComparator);
         appCount = parsedAppArray.length;
-        if(appCount > 0) {
-            document.getElementById("userHomeWithApps").style.display = 'block';
-            document.getElementById("userHomeEmpty").style.display = 'none';
-        } else {
-            document.getElementById("userHomeWithApps").style.display = 'none';
-            document.getElementById("userHomeEmpty").style.display = 'block';
-        }
-
         init();
         $('#main-spinner').remove();
     },
@@ -445,7 +437,8 @@ function hideLoading() {
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 
 <!--##################################################-->
- <div class="inner-wrapper" id="userHomeEmpty" style="display:none">
+<% if(outputs.applicationCount == 0){ %>
+ <div class="inner-wrapper" id="userHomeEmpty" >
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
@@ -458,7 +451,6 @@ function hideLoading() {
         </div>
     </div><!-- EOF App factory menu -->
 
-%>
 <!-- BOF App factory menu actionbar -->
    <% if (outputs.hasAppCreationPermission) { %>
    <div class="action-bar">
@@ -508,7 +500,9 @@ function hideLoading() {
     </div><!-- /.container -->
     <div id="push"></div>
 </div>
+ <% }%>
 
+<% if(outputs.applicationCount > 0){%>
 <div class="inner-wrapper" id="userHomeWithApps" style="display:block">
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
@@ -570,6 +564,7 @@ function hideLoading() {
         </div>
     </div><!-- /.container -->
 </div>
+<% } %>
 
 <!-- loading javascript files to the page after page is rendering -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
