@@ -105,6 +105,7 @@ function populateDatatable() {
                             } else {
                                  jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
                             }
+                            userName = "";
                         });
                      }else {
                         detachUserAndDropTemplate(userName);
@@ -132,6 +133,7 @@ function populateDatatable() {
                     } else {
                         jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
                     }
+                    userName = "";
                 });
                 $('#privilege_edit_cancel').on('click', function (e) {
                     userName = "";
@@ -143,7 +145,6 @@ function populateDatatable() {
                 //getting the user name from  id, removing 'delete_'
                 var userName = currentId.substr(7);
                 jagg.popMessage({type:'confirm',title:'Delete User',content:'Are you sure you want to delete the user ' + userName + ' ?', okCallback:function(){deleteUser(userName);;}, cancelCallback:function(){}});
-
             });
         } // end of call back function
     }); // end of datatable
