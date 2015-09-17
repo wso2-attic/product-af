@@ -22,6 +22,7 @@ jagg.template("resources/database/list", function (inputs, outputs, jagg) { %>
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var hasDBs = outputs.hasDBs;
+var isSSRunning = outputs.isSSRunning;
 %>
 
 <input type="hidden" id='applicationKey' value='<%=request.getParameter("applicationKey")%>' />
@@ -53,7 +54,17 @@ var hasDBs = outputs.hasDBs;
             datasource, which provides a connection to the database.
             </div>
         </div>
-    <% if(!hasDBs) {%>
+    <%if(!isSSRunning) {%>
+        <div id="push"></div>
+        <div class="form-group">
+            <div class="alert alert-warning alert-no-margin" role="alert">
+                <span class="alert-content">
+                    Error occurred while retrieving database information, please try again later.
+                </span>
+            </div>
+        </div> 
+    <%}%>
+    <% if(!hasDBs && isSSRunning) {%>
         <div class="row row-centered">
             <div class="col-centered col-xs-10 col-sm-7  col-md-7 col-lg-6">
                 <div class="add-issue-content">
