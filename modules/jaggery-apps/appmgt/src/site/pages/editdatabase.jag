@@ -69,7 +69,7 @@ var environment = request.getParameter('environment');
                                         },
                                         {
                                             "basePath":"/site/pages/editdatabase.jag",
-                                            "displayName": "Edit DB",
+                                            "displayName": dbName,
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName,
