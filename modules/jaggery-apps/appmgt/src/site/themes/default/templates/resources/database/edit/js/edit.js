@@ -84,6 +84,7 @@ function populateDatatable() {
                     var currentElement = $("#"+ currentId);
                     //getting the user name from checkbox id, removing 'chkbx_'
                     var userName = currentId.substr(7);
+                    $('#modal-title').html('Select User Privilege for User: <i>' + userName + '</i>');
                     if(isChecked){
                         //clear all checked boxes
                         $('#priviledges_modal input:checkbox').prop('checked', false);
@@ -119,6 +120,7 @@ function populateDatatable() {
                 var currentId = $(this).attr("id");
                 //getting the user name from  id, removing 'edit_'
                 var userName = currentId.substr(5);
+                $('#modal-title').html('Select User Privilege for User: <i>' + userName + '</i>');
                 markExistingPriviledges(userName);
                 $('#priviledges_modal').modal({
                             show: true,
