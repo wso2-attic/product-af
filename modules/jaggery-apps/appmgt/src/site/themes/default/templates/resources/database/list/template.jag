@@ -146,7 +146,7 @@ function populateDatatable() {
                             var environment = $(this).attr("stage");
                             //getting the database name from  id
                             var dbName = currentId.substr(7);
-                            jagg.popMessage({type:'confirm',title:'Delete Database',content:'Are you sure you want to delete the database ' + dbName + ' ?', okCallback:function(){deleteDatabase(dbName, environment);}, cancelCallback:function(){}});
+                            jagg.popMessage({type:'confirm', modalStatus: true, title:'Delete Database',content:'Are you sure you want to delete the database ' + dbName + ' ?', okCallback:function(){deleteDatabase(dbName, environment);}, cancelCallback:function(){}});
                         });
                     }
                 });
