@@ -138,7 +138,20 @@ function populateDatatable() {
                         { data: 'type', "width": "5%" },
                          { data: 'attachedUsers', "width": "20%" },
                         { data: 'userpriviledges', "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
-                        { data: 'trash', "orderable": false, "width": "5%", "sClass" : "dt-body-center" }
+                        { data: 'trash', "orderable": false, "width": "5%", "sClass" : "dt-body-center" },
+                        { data: 'notActive', "visible": false, "class": "hide-column-data"}
+                    ],
+                    "columnDefs": [
+                        { "targets": 6, "data": 'userpriviledges',
+                        "render": function ( data, type, row ) {
+                            return "<a class='editroles "+ row.notActive+"' href='editdatabase.jag?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&dbName="+ row.name + "&environment=" + row.stage+"'><span class='fw-stack'><i class='fw fw-user fw-stack-2x'></i><span class='fw-stack fw-move-right fw-move-bottom'><i class='fw fw-circle fw-stack-2x fw-stroke fw-inverse'></i><i class='fw fw-circle fw-stack-2x'></i><i class='fw fw-edit fw-stack-1x fw-inverse'></i></span></span></a>";
+                        }
+                        },
+                        { "targets": 7,"data": 'trash',
+                        "render": function ( data, type, row ) {
+                            return "<a class='delete_db "+ row.notActive+" ' stage='" + row.stage + "' id='delete_" + row.name + "' href='#'><i class='fw fw-delete'></i></a>";
+                        }
+                        }
                     ],
                     "fnDrawCallback": function( oSettings ) {
                         $('.delete_db').on("click",function(){
