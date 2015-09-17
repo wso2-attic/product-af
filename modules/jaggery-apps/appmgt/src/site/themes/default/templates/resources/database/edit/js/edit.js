@@ -84,6 +84,7 @@ function populateDatatable() {
                     var currentElement = $("#"+ currentId);
                     //getting the user name from checkbox id, removing 'chkbx_'
                     var userName = currentId.substr(7);
+                    $('#modal-title').html('Select User Privilege for User: <i>' + userName + '</i>');
                     if(isChecked){
                         //clear all checked boxes
                         $('#priviledges_modal input:checkbox').prop('checked', false);
@@ -105,6 +106,7 @@ function populateDatatable() {
                             } else {
                                  jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
                             }
+                            userName = "";
                         });
                      }else {
                         detachUserAndDropTemplate(userName);
@@ -118,6 +120,7 @@ function populateDatatable() {
                 var currentId = $(this).attr("id");
                 //getting the user name from  id, removing 'edit_'
                 var userName = currentId.substr(5);
+                $('#modal-title').html('Select User Privilege for User: <i>' + userName + '</i>');
                 markExistingPriviledges(userName);
                 $('#priviledges_modal').modal({
                             show: true,
@@ -132,6 +135,7 @@ function populateDatatable() {
                     } else {
                         jagg.message({content:'Select at least one priviledge before attaching user' , type:'error', id:'userattach_checkbox_validation'});
                     }
+                    userName = "";
                 });
                 $('#privilege_edit_cancel').on('click', function (e) {
                     userName = "";
@@ -143,7 +147,6 @@ function populateDatatable() {
                 //getting the user name from  id, removing 'delete_'
                 var userName = currentId.substr(7);
                 jagg.popMessage({type:'confirm',title:'Delete User',content:'Are you sure you want to delete the user ' + userName + ' ?', okCallback:function(){deleteUser(userName);;}, cancelCallback:function(){}});
-
             });
         } // end of call back function
     }); // end of datatable
