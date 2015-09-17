@@ -166,6 +166,7 @@ function detachUserAndDropTemplate(userName){
             username:userName
     }, function (result) {
         if(result) {
+            usersDatatable.api().ajax.reload();
             jagg.message({content:'User ' + userName +' detached from database ' + dbName , type:'success', id:'userdetach'});
         }
     },function (jqXHR, textStatus, errorThrown) {
