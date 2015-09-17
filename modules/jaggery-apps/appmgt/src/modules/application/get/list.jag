@@ -119,10 +119,12 @@
              throw message;
          }
          try {
-             var result = getAllApps(userName);
-             var ns = new Namespace("http://service.mgt.application.appfactory.carbon.wso2.org");
-             var elements = result.ns::["return"].text();
-             return elements.length();
+             var result = getAllApps(userName.split('@')[0]);
+             var count = 0;
+             for(i in result){
+                 count++;
+             }
+             return count;
          } catch (e) {
              log.error("Error while getting count of all applications of user : " + userName);
              log.error(e);
