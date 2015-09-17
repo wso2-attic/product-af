@@ -136,38 +136,34 @@ var messageTimer;
     jagg.popMessage = function(params){
         return noty({
                         theme: 'wso2',
-                        layout: 'top',
+                        layout: 'topCenter',
                         type: 'confirm',
+                        closeWith: ['button','click'],
+                        modal: (params.modalStatus ? params.modalStatus : false),
                         text: params.content ? params.content : 'Do you want to continue?',
+                        buttons: [
+                            {addClass: 'btn btn-primary', text: (params.okText ? params.okText : 'Ok'), onClick: function($noty) {
+                                $noty.close();
+                                if (isFunction(params.okCallback)) {
+                                    params.okCallback();
+                                }
+                            }
+                            },
+                            {addClass: 'btn btn-default', text: 'Cancel', onClick: function($noty) {
+                                $noty.close();
+                                if (isFunction(params.cancelCallback)) {
+                                    params.cancelCallback();
+                                }
+
+                            }
+                            }
+                        ],
                         animation: {
                             open: {height: 'toggle'}, // jQuery animate function property object
                             close: {height: 'toggle'}, // jQuery animate function property object
                             easing: 'swing', // easing
                             speed: 500 // opening & closing animation speed
-                        },
-                        buttons: [
-                            {
-                                addClass: 'btn btn-primary',
-                                text: (params.okText ? params.okText : 'Ok'),
-                                onClick: function($noty) {
-                                    $noty.close();
-                                    if (isFunction(params.okCallback)) {
-                                        params.okCallback();
-                                    }
-                                }
-                            },
-                            {
-                                addClass: 'btn btn-default',
-                                text: 'Cancel',
-                                onClick: function($noty) {
-                                    $noty.close();
-                                    if (isFunction(params.cancelCallback)) {
-                                        params.cancelCallback();
-                                    }
-
-                                }
-                            }
-                        ]
+                        }
                     });
 
     };
