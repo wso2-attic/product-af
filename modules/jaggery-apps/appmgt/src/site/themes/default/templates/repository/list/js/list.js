@@ -55,7 +55,7 @@ $("#fork").on("click",function(){
         }, function (result) {
             jagg.message({content: "Application forked successfully.", type: 'success', id:'notification'});
             getForkedRepoData();
-            drawMyForkMenuItem();
+            drawTabLinks();
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
                 jagg.message({
@@ -65,11 +65,6 @@ $("#fork").on("click",function(){
             }
     });
 });
-
-function drawMyForkMenuItem() {
-    $("<ul><li><a id='menu_buildDeploy_fork' href='/appmgt/site/pages/buildDeploy.jag?applicationName=" + applicationName +
-        "&amp;applicationKey=" + applicationKey + "&amp;isForkInfo=true' title='My Fork'><i class='fa fa-code-fork'></i>My Fork</a></li></ul>").insertAfter("#menu_buildDeploy");
-}
 
 
     /**

@@ -49,6 +49,8 @@
     var applicationInfo = <%=applicationInfo%>;
     var deploymentPermission  = JSON.parse('<%=stringify(outputs.stagesMap)%>') ;
     var userAction = "<%=userAction%>";
+    var applicationName = '<%=applicationName%>';
+    var applicationKey = '<%=applicationKey%>';
 
     var isCodeEditorSupported = "<%=outputs.isCodeEditorSupported%>";
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
@@ -303,6 +305,7 @@
 
 <!-- loading javascript files to the page after page is rendering -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/tablinks.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/get/js/get.js'))%>"></script>
 <!-- end of loading javascript files -->

@@ -215,6 +215,7 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
         // reload page info for the selected version
         currentVersion = this.textContent;
         loadAppInfoFromServer(currentVersion);
+        drawTabLinks();
     });
 
     // show hide accept and deploy handler

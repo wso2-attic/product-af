@@ -190,6 +190,7 @@ $(document).ready(function () {
                     deployAndUpdatePromoteStatus(newStage);
                 }
                 getAppVersionInfo();
+                drawTabLinks();
             }
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {

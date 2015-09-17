@@ -112,5 +112,6 @@ var gitBaseUrl = '<%=gitBaseUrl%>';
 var tenantDomain = '<%=tenantDomain%>';
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/repository/list/js/list.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/tablinks.js'))%>"></script>
 <% }); %>
 

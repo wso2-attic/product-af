@@ -378,6 +378,7 @@ You can also set the estimated date of completion for each stage. The mean of th
     var isSelectedDateValid;
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/tablinks.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/daterangepicker.js'))%>"></script>
