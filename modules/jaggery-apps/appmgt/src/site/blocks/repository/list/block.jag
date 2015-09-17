@@ -19,6 +19,7 @@
 
 include('/jagg/constants.jag');
 include('/jagg/config_reader.jag');
+include("/jagg/jagg.jag");
 jagg.block("repository/list", {
     initialize: function (data) {
 
@@ -30,13 +31,18 @@ jagg.block("repository/list", {
     },
 
     getOutputs: function (inputs) {
+        var userName = jagg.getUser();
         var applicationKey = request.getParameter("applicationKey");
         var modApp = jagg.module("application");
-        var userName = jagg.getUser();
-        var appVersionInfo = modApp.getAppVersionInfoByVersion(applicationKey,"trunk",userName);
-        var masterRepoURL = appVersionInfo[0].versions[0].repoURL;
         var modManager = jagg.module("manager");
-        var tenantDomain = modManager.getTenantDomain();
+        var appVersionInfo;
+        var masterRepoURL;
+        var tenantDomain;
+        if(userName){
+            appVersionInfo = modApp.getAppVersionInfoByVersion(applicationKey,"trunk",userName);
+            masterRepoURL = appVersionInfo[0].versions[0].repoURL;
+            tenantDomain = modManager.getTenantDomain();
+        }
         return {
             "masterRepoURL": masterRepoURL,
             "tenantDomain": tenantDomain    

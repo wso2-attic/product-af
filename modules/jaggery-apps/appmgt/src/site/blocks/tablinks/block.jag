@@ -18,6 +18,7 @@
  */
 
 include("/jagg/jagg.jag");
+include("/jagg/util.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 jagg.block("tablinks", {
@@ -31,7 +32,6 @@ jagg.block("tablinks", {
 	    var cloudMgtUrl = "";
     	var dashboardPath = "";
     	var serverUrl = getProperty(DASHBOARD_SERVER_URL);
-    	var mod = jagg.module("manager");
     	var result = false;
     	var carbon = require('carbon');
     	var server = carbon.server;
@@ -48,6 +48,8 @@ jagg.block("tablinks", {
         var isLogsAllowed = false;
 
     	var permissionModule = jagg.module("permission");
+        var applicationMod = jagg.module("application");
+        var lifeCycleMod = jagg.module("lifecycle");
         var manager = jagg.module("manager");
     	var tenantID = null;
     	var hasTenantLevelUserMgtPermission = null;
@@ -62,11 +64,12 @@ jagg.block("tablinks", {
     	var isOtherServicesTabAvailable = getProperty(SHOW_OTHER_SERVICES_TAB);
 
     	var log = new Log();
+    	var applicationInfo;
 
     	if(userName){
 
     		if(!inputs.applicationKey){
-    			tenantDomain = mod.getTenantDomain();
+    			tenantDomain = manager.getTenantDomain();
     			tenantID = realmService.getTenantManager().getTenantId(tenantDomain);
     			hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
     			if(session.get(TENANT_INFO)){
@@ -82,20 +85,30 @@ jagg.block("tablinks", {
     			var applicationKey = inputs.applicationKey;
     			var applicationName = inputs.applicationName;
 
+                var currentVersion = getSelectedVersionFromSession(applicationKey);
+                if (!currentVersion) {
+                    currentVersion = 'trunk';
+                }
+
+                var isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(
+                        applicationMod.getStage(applicationKey, currentVersion));
+
                 hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
 
                 // Set tablinks
-                isOverviewAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
-                isTeamAllowed  = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
-                isReposAndBuildsAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission);
-                isResourcesAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
-                isIssuesAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_ISSUES) || hasTenantLevelUserMgtPermission);
+                isOverviewAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
+                isTeamAllowed  = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
+                if(isApplicationCurrentVersionInInitialStage){
+                    isReposAndBuildsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission );
+                }
+                isResourcesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
+                isIssuesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_ISSUES) || hasTenantLevelUserMgtPermission);
 
-                var isLifecylceAllowedDemoteTo = jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO);
-                var isLifecylceAllowedPromoteTo = jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO);
+                var isLifecylceAllowedDemoteTo = permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO);
+                var isLifecylceAllowedPromoteTo = permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO);
                 isLifecylceAllowed = (isLifecylceAllowedDemoteTo || isLifecylceAllowedPromoteTo || hasTenantLevelUserMgtPermission);
 
-                isLogsAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
+                isLogsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
 
                 applicationType = manager.getApplicationType(applicationKey);
     			isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
@@ -108,6 +121,7 @@ jagg.block("tablinks", {
                 // Currently settings page only supports for application deletion, we have restrict settings tab only
                 // for app owner. Once other tabs are completed, set this value accordingly
                 var isSettingsAllowed = hasAppCreationPermission && memberOfApplication;
+                applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
     		}
     	}
         return {
@@ -129,7 +143,8 @@ jagg.block("tablinks", {
             "isLifecylceAllowed":isLifecylceAllowed,
             "isLogsAllowed":isLogsAllowed,
             "isAllowDomainMapping":isAllowDomainMapping,
-            "isSettingsAllowed":isSettingsAllowed
+            "isSettingsAllowed":isSettingsAllowed,
+            "applicationInfo":applicationInfo
         };
     }
 });

@@ -70,8 +70,17 @@ You can also set the estimated date of completion for each stage. The mean of th
     </div><!-- /.container -->
 <%} else {%>
                 <div class="margin-bottom-md">
+                    <!-- BOF add loading overlay -->
+                    <div class="loading-cover">
+                        <div class="loader"></div>
+                    </div>
+                    <!-- EOF add loading overlay -->
+
+                    <div id="app-retired-text" style="display : none;" class="alert alert-warning alert-no-margin" role="alert">
+                        <span class="alert-content">This app is retired.</span>
+                    </div>
                     <!-- Nav tabs -->
-                    <ul class="nav nav-tabs nav-tabs-wizard" role="tablist">
+                    <ul class="nav nav-tabs nav-tabs-wizard" role="tablist" style="display : none;">
                         <li role="presentation" class="col-md-4 col-lg-4 no-pad-left" disabled-tab>
                             <a href="#development" aria-controls="home" role="tab" data-toggle="tab">
                                 <div class="step-number">
@@ -79,7 +88,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                                 </div>
                                 <div class="step-desc">
                                     <h2>Development</h2>
-                                    <p>Development description text</p>
+                                    <p>Application is in initial stage</p>
                                 </div>
                                 <div class="clearfix"></div>
                             </a>
@@ -91,7 +100,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                                 </div>
                                 <div class="step-desc">
                                     <h2>Testing</h2>
-                                    <p>Testing description text</p>
+                                    <p>Application is under testing</p>
                                 </div>
                                 <div class="clearfix"></div>
                             </a>
@@ -103,7 +112,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                                 </div>
                                 <div class="step-desc">
                                     <h2>Production</h2>
-                                    <p>Production description text</p>
+                                    <p>Application is production ready</p>
                                 </div>
                                 <div class="clearfix"></div>
                             </a>
@@ -288,7 +297,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                                             </span>
                                             Demote to testing
                                         </button>
-                                         <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="retire-btn" >
+                                         <button type="button" class="cu-btn cu-btn-sm cu-btn-blue promote-button" id="retire-btn" >
                                             <span class="fw-stack fw-lg btn-action-ico">
                                                 <i class="fw fw-ring fw-stack-2x"></i>
                                                 <i class="fw fw-up-arrow fw-stack-1x"></i>
@@ -316,6 +325,33 @@ You can also set the estimated date of completion for each stage. The mean of th
     </div>
     <div class="clearfix"></div>
     <div id="push"></div>
+    <!-- Model for demote confirmation -->
+    <div id="demote-confirm-modal" class="modal fade">
+        <div class="modal-dialog modal-dialog-margin-top-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Demoting Application</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form">
+                                <div class="form-group">
+                                    <label for="demote-reason-text" class="control-label">Please state a reason for this action:</label>
+                                    <textarea class="form-control" id="demote-reason-text"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="demote-confirm" type="button" class="btn btn-primary">Confirm</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
 <% jagg.includeBlock("page/messages", null); %>
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
@@ -341,6 +377,7 @@ You can also set the estimated date of completion for each stage. The mean of th
     hasVisibilityPermissions = JSON.parse(hasVisibilityPermissions);
     var isSelectedDateValid;
 </script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/daterangepicker.js'))%>"></script>

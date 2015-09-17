@@ -9,32 +9,33 @@
     var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
-    var applicationMod = jagg.module("application");
-    var applicationInfo = applicationMod.getAppInfo(applicationKey);
+    var applicationInfo = outputs.applicationInfo;
 
     var appName = "";
-    if (applicationInfo.name) {
-        appName = applicationInfo.name;
-    }
-    var appDescription = "";
-    if (applicationInfo.description) {
-        appDescription = applicationInfo.description;
-    }
+    if(applicationInfo){
+        if (applicationInfo.name) {
+            appName = applicationInfo.name;
+        }
+        var appDescription = "";
+        if (applicationInfo.description) {
+            appDescription = applicationInfo.description;
+        }
 
-    // generate create version url
-    var createVersionUrl = jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag");
-    if (applicationInfo.isUploadable) {
-        createVersionUrl = jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag");
-    }
+        // generate create version url
+        var createVersionUrl = jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag");
+        if (applicationInfo.isUploadable) {
+            createVersionUrl = jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag");
+        }
 
-    // get the previously selected version
-    var previousVersion = "trunk";
-    if (applicationInfo.type && applicationInfo.isUploadable) {
-        previousVersion = "1.0.0";
-    }
-    var selectedVersion = getSelectedVersionFromSession(applicationKey);
-    if(selectedVersion) {
-        previousVersion = selectedVersion;
+        // get the previously selected version
+        var previousVersion = "trunk";
+        if (applicationInfo.type && applicationInfo.isUploadable) {
+            previousVersion = "1.0.0";
+        }
+        var selectedVersion = getSelectedVersionFromSession(applicationKey);
+        if(selectedVersion) {
+            previousVersion = selectedVersion;
+        }
     }
 %>
 
@@ -108,7 +109,10 @@
             <p><%=appDescription%></p>
             <div class="app-preview-action-bar">
                 <%
-                    var customUrl = applicationInfo.customUrl;
+                    var customUrl;
+                    if(applicationInfo){
+                        customUrl = applicationInfo.customUrl;
+                    }
                     if (customUrl) { %>
                         <div class="sec prod-url">
                           <a id="prod-url" href="#"><%=customUrl%></a>
@@ -139,7 +143,7 @@
                   <ul id="appVersionList" class="dropdown-menu"></ul>
                 </div>
 
-                <div id="version-url-link" class="version-url url-loading"></div>
+                <div id="version-url-link" class="version-url url-loading"><span></span></div>
 
                 <div class="sec">
                     <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">Launch App</button>
@@ -176,10 +180,7 @@
                     <div class="block-icon pull-left">
                       <i class="fw fw-lifecycle fw-5x"></i>
                     </div>
-                    <div class="block-description pull-right" id="lifecycle-mgt-main">
-                      Application <strong><%=appName%></strong> is in <br>
-                      <strong><span id="appStage"></span></strong> Stage
-                    </div>
+                    <div class="block-description pull-right" id="lifecycle-mgt-main"></div>
 
                     <div class="clearfix"></div>
 

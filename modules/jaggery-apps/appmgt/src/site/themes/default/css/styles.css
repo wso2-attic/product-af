@@ -346,6 +346,12 @@ a.btn-action {
     .listing .col-lg-2 {
         width: 13.666667%;
     }
+    .modal-dialog-margin-top-md{
+        margin-top:10%;
+    }
+    .modal-lg{
+        width: 80%;
+    }
 }
 /* use for landing page blocks*/
 
@@ -1574,8 +1580,8 @@ a.btn-action {
 
 @media screen and (min-width: 768px) {
     .modal-dialog  {
-        /* margin-top:20%; */
-        width:800px;
+        /* margin-top:20%;
+        width:800px; */
     }
 }
 .modal-content{
@@ -1686,6 +1692,12 @@ a.btn-action {
     }
     .block-general.fw-5x,.block-team.fw-5x ,.block-database.fw-5x{
         font-size:4em;
+    }
+    .modal-dialog-margin-top-md{
+        margin-top:10%;
+    }
+    .modal-lg{
+        width: 95%;
     }
 }
 @media (max-width: 992px) {
@@ -2345,4 +2357,34 @@ th.hide-column-data, td.hide-column-data {
     padding:20px 0px;
     text-align:center;
     color:#999;
+}
+.build-logs-modal .modal-body textarea{
+    font-size:11px;
+    color:#eee;
+    margin:0px;
+    background:none;
+    border:none;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+.build-logs-modal .modal-body textarea{
+    min-width:3200px;
+    height:300px;
+    padding:0px;
+    border: none;
+    overflow: auto;
+    outline: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+/* build logs model body scroll */
+.build-logs-modal .modal-dialog{
+    overflow-y: initial !important
+}
+.build-logs-modal .modal-body .scroll-container{
+    min-height: 300px;
+    max-height:400px;
+    overflow-y: auto;
 }
