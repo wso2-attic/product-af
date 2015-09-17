@@ -27,7 +27,7 @@ jagg.template("server/list", function (inputs, outputs, jagg) { %>
         var appVersionsInStages = outputs.appVersionsInStages;
         var appVersionsInfoArray = [];
         if(appVersionsInStages){
-            appVersionsInStages.allAppVersions;
+            appVersionsInfoArray = appVersionsInStages.allAppVersions;
         }
     %>
     
