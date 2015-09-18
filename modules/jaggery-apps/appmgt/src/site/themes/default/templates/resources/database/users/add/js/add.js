@@ -158,12 +158,13 @@ $(document).ready(function () {
 });
 
 function submitForm() {
-    $("#add-user").prop("disabled", true);
     var addDbUserForm = $("#addDbUserForm");
     var validator = addDbUserForm.validate();
     var formValidated = validator.form();
     if (formValidated) {
+        $("#add-user").loadingButton('show');
         addDbUserForm.submit();
+        $("#add-user").loadingButton('hide');
     }
 }
 
