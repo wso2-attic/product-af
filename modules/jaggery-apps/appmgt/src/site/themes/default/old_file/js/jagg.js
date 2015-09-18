@@ -104,7 +104,7 @@ var messageTimer;
         }
         return noty({
                  theme: 'wso2',
-                 layout: 'top',
+                 layout: 'topCenter',
                  type: params.type,
                  text: params.content,
                  timeout: '5000',
