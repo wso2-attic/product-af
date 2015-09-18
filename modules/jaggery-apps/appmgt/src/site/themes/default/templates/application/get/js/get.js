@@ -307,7 +307,7 @@ function generateLunchUrl(appURL, currentAppInfo) {
 
 
 function showSuccessMessage(){
-    $("app_creation_success_message").show();
+    $("#app_creation_success_message").show();
 }
 
 // pool until the app is deployed

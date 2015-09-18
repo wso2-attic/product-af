@@ -28,8 +28,6 @@ var getBuildHistory = function (isForkData) {
             var buildHistory = jQuery.parseJSON(result);
             drawBuildHistory(buildHistory);
             addBuildLogHandlers(buildHistory, isForkData);
-        } else {
-            $('#buildHistoryTblOuterDiv').hide();
         }
       },function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {
@@ -47,6 +45,10 @@ var drawBuildHistory = function(buildHistory) {
 
         // draw table
         $('#buildHistoryTbl').empty();
+        if(builds.length == 0){
+            $('#buildHistoryTblOuterDiv').hide();
+        }
+
         for(var key in builds) {
             var buildInfo = builds[key];
             appendBuildDataRowToView(buildInfo);
@@ -192,13 +194,13 @@ var filterVersionInfo = function(versionData) {
 
 var drawDeployedStatus = function(buildInfo, isForkInfo) {
     var message = "";
-    if (buildInfo && buildInfo.deployedBuildId && buildInfo.stage) {
+    if (buildInfo && buildInfo.deployedBuildId && buildInfo.stage && buildInfo.deployedBuildId > 0) {
         message += "Build ";
         message += buildInfo.deployedBuildId;
         message += " deployed to ";
         message += buildInfo.stage;
         message += " stage";
-    }else {
+    } else {
         message = "No build has been triggered";
     }
     $('#buildStatus').html(message);
