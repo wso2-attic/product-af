@@ -30,9 +30,10 @@ jagg.template("governance/list", function(inputs, outputs, jagg){%>
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var selectedVersion = getSelectedVersionFromSession(applicationKey);
+    var versions =outputs.versions;
 %>
     <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/daterangepicker/daterangepicker.css'))%>">
-   
+
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
         <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" data-toggle="tooltip" data-placement="top"
@@ -43,7 +44,7 @@ jagg.template("governance/list", function(inputs, outputs, jagg){%>
                 </span> Back to Overview
         </a>
     </div><!-- EOF App factory menu actionbar-->
-    
+
     <div class="container-fluid app-content-section">
         <div class="row">
           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg-issues">
@@ -60,7 +61,11 @@ You can also set the estimated date of completion for each stage. The mean of th
  <div class="form-group">
                     <div class="alert alert-warning alert-no-margin" role="alert">
                             <span class="alert-content">
-                               To promote application to the next stage of lifecycle, you need to first create a version of it . <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"> Click here </a> to create version
+                               <%if(versions && versions.length > 1) {%>
+                                To promote application to the next stage of lifecycle, you need to select a version other than trunk.
+                               <%} else {%>
+                                To promote application to the next stage of lifecycle, you need to first create a version of it . <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"> Click here </a> to create version
+                               <%}%>
                             </span>
                     </div>
                 </div>
@@ -249,7 +254,7 @@ You can also set the estimated date of completion for each stage. The mean of th
                             </div>
                         </div><!-- /. testing tab pane -->
 
-                        <!-- production tab pane -->   
+                        <!-- production tab pane -->
                         <div role="tabpanel" class="tab-pane" id="production">
                             <div class="row">
                                 <div class="col-md-4">

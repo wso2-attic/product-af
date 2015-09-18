@@ -18,6 +18,7 @@
  */
 
 include('/jagg/constants.jag');
+include('/jagg/util.jag');
 include('/jagg/config_reader.jag');
 jagg.block("governance/list", {
     initialize: function (data) {
@@ -31,10 +32,11 @@ jagg.block("governance/list", {
 
     getOutputs: function (inputs) {
         var log = new Log();
-	var applicationKey = request.getParameter("applicationKey");
+	    var applicationKey = request.getParameter("applicationKey");
         var permissionModule = jagg.module("permission");
         var lifecycleModule = jagg.module("lifecycle");
         var mod = jagg.module("manager");
+        var applicationMod = jagg.module("application");
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
         var hasPromotePermissions = {};
         var nextStage = {};
@@ -42,6 +44,7 @@ jagg.block("governance/list", {
         var hasDemotePermissions = {};
         var hasVisibilityPermissions = {};
         var userName = jagg.getUser();
+
         if(userName) {
             for (var i = 0; i < deploymentStages.length; i++) {
                 var currentStage = deploymentStages[i];
@@ -69,6 +72,10 @@ jagg.block("governance/list", {
                                                                                    PERMISSION_REPOSITORY_BRANCH);
             var applicationType = mod.getApplicationType(applicationKey);
             var isUploadableAppType = mod.getApplicationTypeBean(applicationType).isUploadableAppType();
+
+            var selectedVersion = getSelectedVersionFromSession(applicationKey);
+            var appInfo = applicationMod.getAppVersionAllInfoByVersion(applicationKey, selectedVersion, userName);
+
         }
         return {
         	"nextStage": nextStage,
@@ -77,7 +84,8 @@ jagg.block("governance/list", {
             "hasDemotePermissions": hasDemotePermissions,
             "hasRetirePermission": hasRetirePermission,
             "hasVisibilityPermissions": hasVisibilityPermissions,
-	        "repositoryOperationsAllowed":repositoryOperationsAllowed
+	        "repositoryOperationsAllowed":repositoryOperationsAllowed,
+	        "versions":appInfo.versions
         };
     }
 
