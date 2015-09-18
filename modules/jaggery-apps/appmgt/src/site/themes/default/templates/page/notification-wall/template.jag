@@ -34,7 +34,6 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
     <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/css/jquery.qtip.min.css'))%>">
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.cookie.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-observe-1.00/jquery-observe.js'))%>"></script>
     <script type="text/javascript">
 
 

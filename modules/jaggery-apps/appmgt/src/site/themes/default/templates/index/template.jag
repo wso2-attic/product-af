@@ -444,7 +444,7 @@ function hideLoading() {
         <div class="container-fliud">
             <div class="row">
                 <div class="col-md-3 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs visible-lg"></i>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><i class="fa fa-cubes visible-xs visible-lg"></i></a>
                     <span class="hidden-xs"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a></span>
                 </div>
             </div>
@@ -509,7 +509,7 @@ function hideLoading() {
         <div class="container-fliud">
             <div class="row">
                 <div class="col-md-3 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs visible-lg"></i>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><i class="fa fa-cubes visible-xs visible-lg"></i></a>
                     <span class="hidden-xs"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a></span>
                 </div>
             </div>

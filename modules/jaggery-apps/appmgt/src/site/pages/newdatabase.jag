@@ -67,7 +67,7 @@ var applicationName = request.getParameter('applicationName');
                                         },
                                         {
                                             "basePath":"/site/pages/newdatabase.jag",
-                                            "displayName": "Create new DB",
+                                            "displayName": "Create New Database",
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName
