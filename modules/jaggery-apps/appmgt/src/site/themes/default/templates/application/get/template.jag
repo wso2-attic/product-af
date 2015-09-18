@@ -211,7 +211,25 @@
               </div>
             </div>
 
-            <div class="col-xs-12 col-md-4 col-lg-4">
+            <div id="runtimeLogs" class="col-xs-12 col-md-4 col-lg-4" style="display:none;">
+                <div class="block-runtime">
+                  <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/server.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Runtime Logs</a></h3>
+                  <div class="block-icon pull-left">
+                      <i class="fa fa-hdd-o fa-5x"></i>
+                  </div>
+                  <div class="clearfix"></div>
+                  <a href="<%=jagg.getAbsoluteUrl("/site/pages/server.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                      <div class="block-action-button">
+                        <span class="fw-stack fw-lg btn-action-ico">
+                            <i class="fw fw-ring fw-stack-2x"></i>
+                            <i class="fw fw-add fw-stack-1x"></i>
+                          </span> View Logs
+                      </div>
+                  </a>
+                </div>
+            </div>
+
+            <div id="buildDeploy" class="col-xs-12 col-md-4 col-lg-4" style="display:none;">
               <div class="block-repos">
                   <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Build and Deploy</a></h3>
                   <div class="block-icon pull-left">
