@@ -65,17 +65,7 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
             <% } %>
 
             <% if (outputs.isReposAndBuildsAllowed) { %>
-            <li class="<% if (pageName == "reposBuilds") { %>selected<%}%>">
-                 <% if(!outputs.isUploadableAppType || (outputs.isUploadableAppType === false)){ %>
-                    <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                        <i class="fa fa-cogs"></i> Repos & Builds
-                    </a>
-                <% } %>
-            </li>
-            <% } %>
-
-            <% if (outputs.isReposAndBuildsAllowed) { %>
-            <li class="<% if (pageName == "repos") { %>selected<%}%>">
+            <li class="<% if (pageName == "repository") { %>selected<%}%>">
                  <% if(!outputs.isUploadableAppType || (outputs.isUploadableAppType === false)){ %>
                     <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/repository.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                         <i class="fa fa-cogs"></i> Repository
@@ -86,9 +76,9 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
 
             <% if (outputs.isReposAndBuildsAllowed) { %>
             <li class="<% if (pageName == "buildDeploy") { %>selected<%}%>">
-                <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)) { %>
+                <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType === true)) { %>
                     <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
-                        <i class="fa fa-cogs"></i> Deployed Versions
+                        <i class="fw fw-deploy"></i> Deployments
                     </a>
                 <% } else { %>
                     <a id="menu_buildDeploy" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">

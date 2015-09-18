@@ -29,11 +29,7 @@ var lifeCycleMod = jagg.module("lifecycle");
 var manager = jagg.module("manager");
 
 var getAllowedTabLinks = function (applicationKey, userName) {
-
     var currentVersion = getSelectedVersionFromSession(applicationKey);
-    if (!currentVersion) {
-        currentVersion = 'trunk';
-    }
 
     var isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(
             applicationMod.getStage(applicationKey, currentVersion));
@@ -44,7 +40,11 @@ var getAllowedTabLinks = function (applicationKey, userName) {
     var isOverviewAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
     var isTeamAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
     var isReposAndBuildsAllowed = false;
-    if (isApplicationCurrentVersionInInitialStage) {
+    var applicationType = manager.getApplicationType(applicationKey);
+    var isAllowDomainMapping = manager.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+    var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+
+    if (isApplicationCurrentVersionInInitialStage || isUploadableAppType) {
         isReposAndBuildsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission );
     }
     var isResourcesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
@@ -55,10 +55,6 @@ var getAllowedTabLinks = function (applicationKey, userName) {
     var isLifecylceAllowed = (isLifecylceAllowedDemoteTo || isLifecylceAllowedPromoteTo || hasTenantLevelUserMgtPermission);
 
     var isLogsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
-
-    var applicationType = manager.getApplicationType(applicationKey);
-    var isAllowDomainMapping = manager.getApplicationTypeBean(applicationType).isAllowDomainMapping();
-
 
     var hasAppCreationPermission = permissionModule.hasAppCreationPermission();
     var memberOfApplication = permissionModule.isUserAccessGranted(applicationKey,
