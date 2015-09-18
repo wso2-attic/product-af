@@ -80,6 +80,7 @@ var getAllowedTabLinks = function (applicationKey, userName) {
         "isLogsAllowed": isLogsAllowed,
         "isAllowDomainMapping": isAllowDomainMapping,
         "isSettingsAllowed": isSettingsAllowed,
+        "isUploadableAppType": isUploadableAppType,
         "isForked": isForked
     };
     return result;

@@ -186,7 +186,7 @@
 
                     <div class="clearfix"></div>
 
-                    <a href="#" class="lifecycle-link">
+                    <a id="lifecycleLink" href="#" class="lifecycle-link" style="display:none;">
                         <div class="block-action-button margin-top-xs">
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>

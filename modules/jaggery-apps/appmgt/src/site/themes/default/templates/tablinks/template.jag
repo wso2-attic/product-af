@@ -121,7 +121,7 @@ jagg.template("tablinks", function (inputs, outputs, jagg) { %>
             </li>
             <% } %>
 
-            <% if (outputs.isLifecylceAllowed) { %>
+            <% if (outputs.isLifecylceAllowed && outputs.isUploadableAppType === false) { %>
             <li class="<% if (pageName == "Governance") { %>selected<%}%>">
                 <a id="menu_governance" href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fw fw-lifecycle"></i> Lifecycle Management

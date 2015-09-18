@@ -1,5 +1,6 @@
 // constants
 var development_stage = "Development";
+var versionTrunk = "trunk";
 
 // global data store
 var currentVersion = null;
@@ -116,7 +117,7 @@ function loadAppInfoFromServer(version) {
                 // load application version specific data
                 // note : need to hide overlay in the final ajax call's callback function
                 if (currentAppInfo) {
-                    loadLifeCycleManagementInfo(currentAppInfo);
+                    loadLifeCycleManagementInfo(appInfo, currentAppInfo);
 
                     // show runtime logs or build and deploy based on the stage of the version
                     if(development_stage === currentAppInfo.stage) {
@@ -341,7 +342,7 @@ function createCodeEnvyUrl(gitURL) {
 }
 
 // load life cycle management information
-function loadLifeCycleManagementInfo(appVersionInfo) {
+function loadLifeCycleManagementInfo(appInfo, appVersionInfo) {
     if(appVersionInfo && !isEmpty(appVersionInfo)) {
         var stage = appVersionInfo.stage;
         // show data in the UI
@@ -350,6 +351,13 @@ function loadLifeCycleManagementInfo(appVersionInfo) {
             message += ", Waiting for Accept and Deploy";
         }
         $("#lifecycle-mgt-main").html(message);
+
+        // hide life cycle button when trunk is selected or application is an uploadable type
+        if(versionTrunk === appVersionInfo.version || appInfo.isUploadable === true) {
+            $("#lifecycleLink").hide();
+        } else {
+            $("#lifecycleLink").show();
+        }
     }
 }
 
