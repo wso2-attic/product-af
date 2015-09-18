@@ -313,7 +313,7 @@
     <div class="form-inline">
         <div class="form-group">
             <label for="new-version" class="control-label">Specify new version :
-                <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left" title="Version..."></i>
+                <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left" title="Set the version in the form of <Major>.<Minor>.<Patch>"></i>
             </label>
             <input type="text" class="form-control" id="new-version" placeholder="1.0.0">
             <button type="submit" id="versionCreationBtn" class="btn btn-primary">Create</button>
