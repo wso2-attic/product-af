@@ -1,3 +1,6 @@
+// constants
+var development_stage = "Development";
+
 // global data store
 var currentVersion = null;
 var isInit = true;
@@ -114,7 +117,13 @@ function loadAppInfoFromServer(version) {
                 // note : need to hide overlay in the final ajax call's callback function
                 if (currentAppInfo) {
                     loadLifeCycleManagementInfo(currentAppInfo);
-                    loadRepoAndBuildsInfo(currentAppInfo);
+
+                    // show runtime logs or build and deploy based on the stage of the version
+                    if(development_stage === currentAppInfo.stage) {
+                        loadRepoAndBuildsInfo(currentAppInfo);
+                    } else {
+                        loadRuntimeLogs();
+                    }
 
                     // Asyn calls
                     loadLaunchInfo(appInfo, currentAppInfo);
@@ -344,6 +353,11 @@ function loadLifeCycleManagementInfo(appVersionInfo) {
     }
 }
 
+function loadRuntimeLogs() {
+    $("#buildDeploy").hide();
+    $("#runtimeLogs").show();
+}
+
 // load repository and build information
 function loadRepoAndBuildsInfo(appVersionInfo) {
     if (appVersionInfo && !isEmpty(appVersionInfo)) {
@@ -375,6 +389,8 @@ function loadRepoAndBuildsInfo(appVersionInfo) {
 
         $("#success-and-fail-ids").html(buildStatusTag);
     }
+    $("#runtimeLogs").hide();
+    $("#buildDeploy").show();
 }
 
 // load issue tracking information

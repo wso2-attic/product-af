@@ -121,19 +121,37 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
         $('.notification-pane-trigger').click(function() {
             var notificationPane = $('.notification-pane');
             var notiTrigger = $('.notification-pane-trigger');
+            var newNotificationIcon = $('.new-notifications');
             if(notificationPane.hasClass('visible')){
                 $.cookie('closed', false, { expires: 7 });
                 notiTrigger.find('i').removeClass('fw-notification').addClass('fw-right-arrow');
                 notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+                newNotificationIcon.hide();
             }else{
                 $.cookie('closed', true, { expires: 7 });
                 notiTrigger.find('i').removeClass('fw-right-arrow').addClass('fw-notification');
                 notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+                newNotificationIcon.hide();
             }
         });
         var scrollHeight = $('.notification-pane').height() - 150;
         $('.notifications').css('height', scrollHeight);
         $(".nano").nanoScroller();
+
+        // adding notificatoin glow on new notifications being appended to wall
+        $('.notifications').observe('childlist subtree', function(mutations) {
+          if(mutations.addedNodes.length > 0){
+              $('.new-notifications').css({
+                'display':'block',
+                'box-shadow':'0px 0px 10px red'
+              });
+              $('.notification-pane-trigger').addClass('notification-glow');
+          }
+        });
+
+         $('.notification-pane').click(function() {
+            $('.new-notifications').hide();
+        });
     });
 
     //to get time details
@@ -177,6 +195,7 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 <input type="hidden" name="userName"  id="userName" value='<%= jagg.getUser() %>'/>
 <div class="notification-pane nano" id="notificationWrapper" title="My Wall">
     <div class="notification-pane-trigger">
+        <span class='new-notifications'></span>
         <i class="fw fw-right-arrow fw-1-5x"></i>
     </div>
     <div id="notificationBar" class="notifications nano-content"></div>

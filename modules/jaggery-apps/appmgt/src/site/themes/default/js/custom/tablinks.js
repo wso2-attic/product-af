@@ -48,6 +48,7 @@ function drawTabLinks(){
  "isForked":isForked
 * */
 function constructTabLinksHTML(permissions) {
+    <!-- Below HTML content is duplicated in site/themes/default/templates/tablinks/template.jag page too because we need to redraw the tablinks using ajax in some cases.-->
     var content="<ul>";
     if (permissions.isOverviewAllowed) {
         content += "<li class='selected'>" + "                <a href="

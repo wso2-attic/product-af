@@ -17,23 +17,10 @@
  *   under the License.
  */
 
-include("/jagg/jagg.jag");
-include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
+jagg.initializer("deployments/list", {
 
-(function () {
+    preInitialize:function () {
 
-    var action = request.getParameter("action");
-    var tablinksModule = jagg.module("tablinks");
-    var applicationKey = request.getParameter("applicationKey");
-    if (action === "getAllowedTabLinks") {
-        var result = tablinksModule.getAllowedTabLinks(applicationKey, jagg.getUser());
-        print(result);
-    } else {
-        print('Action is not specified');
     }
-
-}());
-
+});
 %>
-

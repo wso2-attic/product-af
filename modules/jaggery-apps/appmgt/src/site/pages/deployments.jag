@@ -19,15 +19,17 @@
 
 include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
-var applicationKey = request.getParameter('applicationKey');
-var applicationName = request.getParameter('applicationName');
-(function () {
 
+(function () {
+   var applicationKey = request.getParameter('applicationKey');
+   var applicationName = request.getParameter('applicationName');
+   var vesionPage = 'deployments/list';
     jagg.render({
         "name":"page/master",
         "inputs":{
-            "title":"WSO2 App Factory",
-            "pagePath":"/site/pages/newdatabases.jag",
+            "title":"Deployments",
+            "pagePath":"/site/pages/deployments.jag",
+
             "body":[
                 {
                     "name":"layout/master",
@@ -35,19 +37,16 @@ var applicationName = request.getParameter('applicationName');
                         "title":"WSO2 App Factory",
                         "middle":[
                             {
-                                "name":"resources/database/add",
-                            "inputs":{
-                                "applicationKey":applicationKey
-                            }
+                            	"name": vesionPage,
+                                "inputs":{
+                                    "applicationKey":applicationKey
+                                }
                             }
                         ],
                         "breadcrumb":[
                             {
-                                "name":"breadcrumb",
+                            	"name":"breadcrumb",
                                 "inputs":{
-                                    "applicationKey":applicationKey,
-                                    "applicationName":applicationName,
-                                    "pageName":"Configure Databases",
                                     "linkParams": [
                                         {
                                             "basePath":"/site/pages/application.jag",
@@ -58,16 +57,8 @@ var applicationName = request.getParameter('applicationName');
                                             }
                                         },
                                         {
-                                            "basePath":"/site/pages/databases.jag",
-                                            "displayName": "Databases",
-                                            "params": {
-                                                "applicationKey":applicationKey,
-                                                "applicationName":applicationName
-                                            }
-                                        },
-                                        {
-                                            "basePath":"/site/pages/newdatabase.jag",
-                                            "displayName": "Create New Database",
+                                            "basePath":"/site/pages/deployments.jag",
+                                            "displayName": "Deployments",
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName
@@ -79,11 +70,11 @@ var applicationName = request.getParameter('applicationName');
                         ],
                         "tablinks":[
                             {
-                                "name":"tablinks",
+                            	"name":"tablinks",
                                 "inputs":{
                                      "applicationKey":applicationKey,
                                     "applicationName":applicationName,
-                                    "pageName":"Configure Databases"
+                                    "pageName":"buildDeploy"
                                 }
                             }
                         ]
@@ -93,6 +84,5 @@ var applicationName = request.getParameter('applicationName');
         }
     });
 }());
+
 %>
-
-

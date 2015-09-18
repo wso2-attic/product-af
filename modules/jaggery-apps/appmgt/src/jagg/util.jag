@@ -21,6 +21,7 @@ include("/jagg/jagg.jag");
 var log = new Log("jagg/util.jag");
 var permissionModule = jagg.module("permission");
 var lifeCycleModule = jagg.module("lifecycle");
+var applicationMod = jagg.module("application");
 
 var getAllowedStages= function getAllowedStages(allStages,permissionPrefix,applicationKey){
 	var stages=[];
@@ -72,6 +73,16 @@ var getSelectedVersionFromSession = function(applicationKey) {
                     break;
                 }
             }
+        }
+    }
+
+    // get default version
+    if(!result) {
+        var applicationInfo = applicationMod.getAppInfo(applicationKey);
+        if(applicationInfo && applicationInfo.isUploadable === true) {
+            result = "1.0.0";
+        } else {
+            result = "trunk";
         }
     }
     return result;

@@ -1,0 +1,88 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+include("/jagg/util.jag");
+
+var log = new Log("module/tablinks/tablinks.jag");
+var permissionModule = jagg.module("permission");
+var applicationMod = jagg.module("application");
+var lifeCycleMod = jagg.module("lifecycle");
+var manager = jagg.module("manager");
+
+var getAllowedTabLinks = function (applicationKey, userName) {
+    var currentVersion = getSelectedVersionFromSession(applicationKey);
+
+    var isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(
+            applicationMod.getStage(applicationKey, currentVersion));
+
+    var hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
+
+    // Set tablinks
+    var isOverviewAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
+    var isTeamAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
+    var isReposAndBuildsAllowed = false;
+    var applicationType = manager.getApplicationType(applicationKey);
+    var isAllowDomainMapping = manager.getApplicationTypeBean(applicationType).isAllowDomainMapping();
+    var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+
+    if (isApplicationCurrentVersionInInitialStage || isUploadableAppType) {
+        isReposAndBuildsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission );
+    }
+    var isResourcesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
+    var isIssuesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_ISSUES) || hasTenantLevelUserMgtPermission);
+
+    var isLifecylceAllowedDemoteTo = permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO);
+    var isLifecylceAllowedPromoteTo = permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO);
+    var isLifecylceAllowed = (isLifecylceAllowedDemoteTo || isLifecylceAllowedPromoteTo || hasTenantLevelUserMgtPermission);
+
+    var isLogsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey, PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
+
+    var hasAppCreationPermission = permissionModule.hasAppCreationPermission();
+    var memberOfApplication = permissionModule.isUserAccessGranted(applicationKey,
+            PERMISSION_APPLICATION_MEMBER);
+
+    // Currently settings page only supports for application deletion, we have restrict settings tab only
+    // for app owner. Once other tabs are completed, set this value accordingly
+    var isSettingsAllowed = hasAppCreationPermission && memberOfApplication;
+
+    var applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
+    var isForked = false;
+    if (applicationInfo && applicationInfo.length > 0) {
+        isForked = true;
+    }
+
+    var result = {
+        "isOverviewAllowed": isOverviewAllowed,
+        "isTeamAllowed": isTeamAllowed,
+        "isReposAndBuildsAllowed": isReposAndBuildsAllowed,
+        "isResourcesAllowed": isResourcesAllowed,
+        "isIssuesAllowed": isIssuesAllowed,
+        "isLifecylceAllowed": isLifecylceAllowed,
+        "isLogsAllowed": isLogsAllowed,
+        "isAllowDomainMapping": isAllowDomainMapping,
+        "isSettingsAllowed": isSettingsAllowed,
+        "isForked": isForked
+    };
+    return result;
+};
+
+%>

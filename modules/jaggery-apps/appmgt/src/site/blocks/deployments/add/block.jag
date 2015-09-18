@@ -17,23 +17,25 @@
  *   under the License.
  */
 
-include("/jagg/jagg.jag");
-include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
+include('/jagg/constants.jag');
+jagg.block("deployments/add", {
 
-(function () {
+    initialize:function (data) {
 
-    var action = request.getParameter("action");
-    var tablinksModule = jagg.module("tablinks");
-    var applicationKey = request.getParameter("applicationKey");
-    if (action === "getAllowedTabLinks") {
-        var result = tablinksModule.getAllowedTabLinks(applicationKey, jagg.getUser());
-        print(result);
-    } else {
-        print('Action is not specified');
+    },
+
+    getInputs:function () {
+        return {
+            "applicationKey":null
+        }
+    },
+
+    getOutputs:function (inputs) {
+       var hasBranchingPermission = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,PERMISSION_REPOSITORY_BRANCH);
+       return {
+            "hasBranchingPermission":hasBranchingPermission
+       };
     }
 
-}());
-
+});
 %>
-

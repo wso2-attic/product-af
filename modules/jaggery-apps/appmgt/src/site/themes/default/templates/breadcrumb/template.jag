@@ -26,13 +26,13 @@ include("/jagg/constants.jag");
 
         <% if(inputs.noSidePane){%>
             <div class="col-md-12 breadcrumb-secondary">
-                <i class="fa fa-cubes visible-xs visible-lg"></i><span>
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><i class="fa fa-cubes visible-xs visible-lg"></i></a><span>
         <% } else {%>
             <div class="side-pane-trigger" title="Application Menu">
                 <i class="fa fa-reorder"></i>
             </div>
             <div class="breadcrumb-secondary">
-                <i class="fa fa-cubes"></i><span>
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><i class="fa fa-cubes"></i></a><span>
         <% }%>
                 <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a><%=outputs.breadcrumbHTML%>
                 </span>
