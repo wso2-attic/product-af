@@ -15,10 +15,10 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- * 
+ *
  */
 
-function drawTabLinks(){
+function drawTabLinks() {
     jagg.post("../blocks/tablinks/ajax/tablinks.jag", {
         action:"getAllowedTabLinks",
         applicationKey:applicationKey
@@ -62,19 +62,19 @@ function constructTabLinksHTML(permissions) {
             + "                id='menu_userAdmin'><i class='fa fa-users'></i> Team</a>"
             + "            </li>";
     }
-    if (permissions.isReposAndBuildsAllowed) {
+    if (permissions.isReposAndBuildsAllowed && !permissions.isUploadableAppType) {
         content += "            <li class=''>" + "                <a href="
             + "                '/appmgt/site/pages/repository.jag?applicationName="+applicationName+"&amp;applicationKey="+applicationKey+"'"
             + "                id='menu_buildRepo'><i class='fa fa-cogs'></i> Repository</a>"
             + "            </li>";
     }
 
-    if (permissions.isReposAndBuildsAllowed) {
+    if (permissions.isReposAndBuildsAllowed || permissions.isUploadableAppType) {
         content += "<li class=''>";
         if(permissions.isUploadableAppType){
-            content += "<a href='/appmgt/site/pages/uploadedVersions.jag'?applicationName="+applicationName+"&applicationKey="+applicationKey+">"+
-                +"    <i class='fa fa-cogs'></i> Deployed Versions</a>";
-        }else{
+            content += "<a href='/appmgt/site/pages/uploadedVersions.jag?applicationName=" + applicationName + "&amp;applicationKey=" + applicationKey + "'>" +
+                        "<i class='fw fw-deploy'></i> Deployments </a>";
+        } else {
             content += "                <a href="
                 + "                '/appmgt/site/pages/buildDeploy.jag?applicationName="+applicationName+"&amp;applicationKey="+applicationKey+"'"
                 + "                id='menu_buildDeploy'><i class='fw fw-deploy'></i> Build &amp; Deploy</a>";
@@ -107,7 +107,7 @@ function constructTabLinksHTML(permissions) {
             + "                id='menu_trackIssues'><i class='fa fa-tags'></i> Issues</a>"
             + "            </li>";
     }
-    if(permissions.isLifecylceAllowed){
+    if(permissions.isLifecylceAllowed && !permissions.isUploadableAppType){
         content +=  "            <li class=''>" + "                <a href="
             + "                '/appmgt/site/pages/governance.jag?applicationName="+applicationName+"&amp;applicationKey="+applicationKey+"'"
             + "                id='menu_governance'><i class='fw fw-lifecycle'></i> Lifecycle"
