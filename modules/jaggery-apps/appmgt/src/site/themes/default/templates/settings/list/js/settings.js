@@ -46,6 +46,7 @@ $(document).ready(function () {
             }
         });
     }
+    preparePreview();
 });
 
 /**
@@ -99,6 +100,7 @@ function deleteConfirmation() {
     if(isDeleteAllowed){
         $("#deleteApplication").prop("disabled", true);
         jagg.popMessage({
+            modalStatus: true,
             content:'Are you sure you want to delete the application?',
             okCallback:deleteApplication,
             cancelCallback:function(){
@@ -185,4 +187,57 @@ function getGeneralFormValidationOptions(){
             }
         }
     };
+}
+function formatState (state) {
+    if (!state.id) { return state.text; }
+    var $state;
+    if(state.element.attributes['data-icon']){
+        var $state = $('<span><i class="fa '+ state.element.attributes['data-icon'].value.toLowerCase()
+                    +'"></i>&nbsp;&nbsp;' + state.text + '</span>');
+    }else{
+        var $state = $('<span><i class="fa '+state.id.toLowerCase() +'"></i>&nbsp;&nbsp;'+ state.text + '</span>');
+    }
+    return $state;
+};
+
+function preparePreview(){
+    var $image = $('.img-container > img');
+    $image.cropper({
+        aspectRatio: 1 / 1,
+        minCanvasWidth:100,
+        minCanvasHeight:100,
+        minContainerWidth: 110,
+        minContainerHeight: 110,
+        crop: function(e) {
+          // Output the result data for cropping image.
+        }
+    });
+
+    // Import image
+    var $inputImage = $('#inputImage');
+    var URL = window.URL || window.webkitURL;
+    var blobURL;
+    if (URL) {
+        $inputImage.change(function () {
+            var files = this.files;
+            var file;
+            if (!$image.data('cropper')) {
+                return;
+            }
+            if (files && files.length) {
+                file = files[0];
+                if (/^image\/\w+$/.test(file.type)) {
+                    blobURL = URL.createObjectURL(file);
+                    $image.one('built.cropper', function () {
+                        URL.revokeObjectURL(blobURL); // Revoke when load complete
+                    }).cropper('reset').cropper('replace', blobURL);
+                    $inputImage.val('');
+                } else {
+                    $body.tooltip('Please choose an image file.', 'warning');
+                }
+            }
+        });
+    } else {
+        $inputImage.parent().remove();
+    }
 }

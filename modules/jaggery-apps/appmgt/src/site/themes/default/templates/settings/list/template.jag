@@ -24,11 +24,10 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
     var hasAppCreationPermission = outputs.hasAppCreationPermission;
     var memberOfApplication = outputs.memberOfApplication;
 
-    // disabled until UX is finalized
     var isUpdateInfoAllowed = false; //(hasAppCreationPermission && memberOfApplication);
-    // disabled until UX is finalized
-    var isBuildInfoAllowed = false;
+    var isBuildInfoAllowed = false; //(hasAppCreationPermission && memberOfApplication);
     var isDeleteAllowed = (hasAppCreationPermission && memberOfApplication);
+    var iconUrl = jagg.getAbsoluteUrl("/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey);
 %>
 
 <!-- start of setting global javascript variable values from jaggery side -->
@@ -46,7 +45,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
 
 <!-- BOF App factory menu actionbar -->
 <div class="action-bar">
-	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Back to Overview">
+	<a href="<%=jagg.getAbsoluteUrl('/site/pages/application.jag')%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Back to Overview">
 			<span class="fw-stack fw-lg btn-action-ico">
 				<i class="fw fw-ring fw-stack-2x"></i>
 				<i class="fw fw-left-arrow fw-stack-1x"></i>
@@ -76,7 +75,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                 <% }%>
 
                 <% if (isDeleteAllowed) {%>
-                    <li role="presentation" class="<%=(!isUpdateInfoAllowed)?'active':(!isBuildInfoAllowed)?'active':'active'%>">
+                    <li role="presentation" class="<%=(!isUpdateInfoAllowed && !isBuildInfoAllowed)?'active':''%>">
                         <a href="#deleteapp" aria-controls="deleteapp" role="tab" data-toggle="tab">Delete Application</a>
                     </li>
                 <% }%>
@@ -87,25 +86,28 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
             <div class="tab-content">
                 <% if (isUpdateInfoAllowed) {%>
                     <!-- General Tab pane -->
-                    <form enctype="multipart/form-data" method='post'
-                    action='<%=jagg.getAbsoluteUrl("/site/blocks/application/update/ajax/update.jag")%>'
-                    name="generalForm" id="generalForm">
-                        <input type="hidden" name="action" id="action" value="changeGeneralInfo" />
-                        <input type="hidden" name="applicationKey"  id="applicationKey" value="<%=applicationKey%>"/>
-                        <div role="tabpanel" class="tab-pane active" id="general">
+                    <div role="tabpanel" class="tab-pane active" id="general">
+                        <form enctype="multipart/form-data" method='post'
+                        action='<%=jagg.getAbsoluteUrl("/site/blocks/application/update/ajax/update.jag")%>'
+                        name="generalForm" id="generalForm">
+                            <input type="hidden" name="action" id="action" value="changeGeneralInfo" />
+                            <input type="hidden" name="applicationKey"  id="applicationKey" value="<%=applicationKey%>" />
                             <div id="push"></div>
                             <div class="form-group">
                                 <label for="appIcon">Application Icon: </label>
                                 <div class="input-group">
-                                    <input type="text" id="icon" name="icon" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input type="file" id="appIcon" name="appIcon"/>
-                                </span>
-                                <span class="btn btn-primary btn-file" onclick="clearUploadIconField()" id="clear">
-                                    Clear
-                                </span>
-                            </span>
+                                    <input type="text" id="icon" name="icon" class="form-control" readonly />
+                                    <span class="input-group-btn">
+                                        <span class="btn btn-primary btn-file">
+                                            Browse<input type="file" id="appIcon" name="appIcon" />
+                                        </span>
+                                    </span>
+                                </div>
+                                <label class="margin-top-xs" for="preview-icon">Preview</label>
+                                <div class="input-group">
+                                    <div class="img-container">
+                                        <img id="preview-icon" src="<%=iconUrl%>" />
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -116,15 +118,15 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                             <div class="form-group">
                                 <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="updateGeneralInfo"
                                  onclick="submitGeneralForm(); return false;" disabled>
-                                <span class="fw-stack fw-lg btn-action-ico">
-                                    <i class="fw fw-ring fw-stack-2x"></i>
-                                    <i class="fw fw-add fw-stack-1x"></i>
-                                </span>
+                                    <span class="fw-stack fw-lg btn-action-ico">
+                                        <i class="fw fw-ring fw-stack-2x"></i>
+                                        <i class="fw fw-add fw-stack-1x"></i>
+                                    </span>
                                     Update
                                 </button>
                             </div>
-                        </div> <!-- END OF General Tab panes -->
-                    </form>
+                        </form>
+                    </div><!-- END OF General Tab panes -->
                 <% }%>
 
                 <% if (isBuildInfoAllowed) {%>
@@ -137,7 +139,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
 
                 <% if (isDeleteAllowed) {%>
                     <!-- deleteapp Tab pane -->
-                    <div role="tabpanel" class="tab-pane <%=(!isUpdateInfoAllowed)?'active':(!isBuildInfoAllowed)?'active':'active'%>" id="deleteapp">
+                    <div role="tabpanel" class="tab-pane <%=(!isUpdateInfoAllowed && !isBuildInfoAllowed)?'active':''%>" id="deleteapp">
                         <div id="push"></div>
                         <div class="msg-issues">
                             Once you delete an application, there is no going back. Please be certain.
@@ -165,6 +167,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <!-- include custom js functions -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/cropper-0.11.1/cropper.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/settings/list/js/settings.js'))%>"></script>
    <%
 }); %>
