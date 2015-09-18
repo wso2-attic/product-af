@@ -59,18 +59,25 @@ $(document).ready(function () {
 
 
     $('#promote-to-testing-btn').click(function () {
+        $('#promote-to-testing-btn').loadingButton('show');
         doLifeCycleAction("Promote", "[true,true,true]", ""); // TODO : get 2nd parameter  dynamically
+        $('#promote-to-testing-btn').loadingButton('hide');
     });
 
     $('#promote-to-production-btn').click(function () {
+        $('#promote-to-production-btn').loadingButton('show');
         doLifeCycleAction("Promote", "[true,true]", ""); // TODO : get 2nd parameter  dynamically
+        $('#promote-to-production-btn').loadingButton('hide');
     });
 
     $('#retire-btn').click(function () {
+        $('#retire-btn').loadingButton('show');
         doLifeCycleAction("Retire", "[]", "");
+        $('#retire-btn').loadingButton('hide');
     });
 
     $('.demote-button').click(function () {
+        $('.demote-button').loadingButton('show');
         var modalElement = $('#demote-confirm-modal');
         modalElement.modal({show: true});
         $('#demote-confirm').on('click',function(e){
@@ -79,6 +86,7 @@ $(document).ready(function () {
             modalElement.modal('hide');
             $('textarea#demote-reason-text').val("");
         });
+        $('.demote-button').loadingButton('hide');
     });
 
     /**
