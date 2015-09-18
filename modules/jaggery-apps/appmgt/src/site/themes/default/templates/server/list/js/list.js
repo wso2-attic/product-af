@@ -118,10 +118,10 @@ $(document).ready(function () {
                 var resultJson = JSON.parse(result);
                 if(!resultJson.error && resultJson.logEvents) {
                     $('#view-logs-content').html(resultJson.logEvents);
+                    $('.log-container').show();
                 } else {
                     jagg.message({content: "No logs available for version" + selectedVersion + " in stage " + selectedStage + " .", type: 'error', id:'view_log'});
                 }
-                $('.log-container').show();
             },function (jqXHR, textStatus, errorThrown) {
                 jagg.message({content: "Error occurred while loading the logs for version" + selectedVersion + " .", type: 'error', id:'view_log'});
             });        
