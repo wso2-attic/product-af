@@ -18,7 +18,6 @@
  */
 
 include("/jagg/jagg.jag");
-include("/jagg/util.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
 jagg.block("tablinks", {
@@ -32,25 +31,16 @@ jagg.block("tablinks", {
 	    var cloudMgtUrl = "";
     	var dashboardPath = "";
     	var serverUrl = getProperty(DASHBOARD_SERVER_URL);
-    	var result = false;
     	var carbon = require('carbon');
     	var server = carbon.server;
     	var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
     	var tenantDomain = null;
 
         //Tablink permissions
-        var isOverviewAllowed = true;
-        var isTeamAllowed = true;
-        var isReposAndBuildsAllowed = false;
-        var isResourcesAllowed = false;
-        var isIssuesAllowed = true;
-        var isLifecylceAllowed = false;
-        var isLogsAllowed = false;
-
     	var permissionModule = jagg.module("permission");
         var applicationMod = jagg.module("application");
-        var lifeCycleMod = jagg.module("lifecycle");
         var manager = jagg.module("manager");
+        var tablinksModule = jagg.module("tablinks");
     	var tenantID = null;
     	var hasTenantLevelUserMgtPermission = null;
     	var isOTtenant = false;
@@ -59,12 +49,12 @@ jagg.block("tablinks", {
 
     	var applicationType = false;
     	var isUploadableAppType = false;
-        var isAllowDomainMapping = false;
 
     	var isOtherServicesTabAvailable = getProperty(SHOW_OTHER_SERVICES_TAB);
 
     	var log = new Log();
     	var applicationInfo;
+        var allowedTablinks = {};
 
     	if(userName){
 
@@ -83,44 +73,12 @@ jagg.block("tablinks", {
     		}else{
 
     			var applicationKey = inputs.applicationKey;
-    			var applicationName = inputs.applicationName;
-
-                var currentVersion = getSelectedVersionFromSession(applicationKey);
-                if (!currentVersion) {
-                    currentVersion = 'trunk';
-                }
-
-                var isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(
-                        applicationMod.getStage(applicationKey, currentVersion));
+                allowedTablinks = tablinksModule.getAllowedTabLinks(applicationKey, userName);
 
                 hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
-
-                // Set tablinks
-                isOverviewAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
-                isTeamAllowed  = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
-                if(isApplicationCurrentVersionInInitialStage){
-                    isReposAndBuildsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission );
-                }
-                isResourcesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
-                isIssuesAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_ISSUES) || hasTenantLevelUserMgtPermission);
-
-                var isLifecylceAllowedDemoteTo = permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO);
-                var isLifecylceAllowedPromoteTo = permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO);
-                isLifecylceAllowed = (isLifecylceAllowedDemoteTo || isLifecylceAllowedPromoteTo || hasTenantLevelUserMgtPermission);
-
-                isLogsAllowed = (permissionModule.isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
-
                 applicationType = manager.getApplicationType(applicationKey);
     			isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
-                isAllowDomainMapping  = manager.getApplicationTypeBean(applicationType).isAllowDomainMapping();
 
-                var hasAppCreationPermission = permissionModule.hasAppCreationPermission();
-                var memberOfApplication = permissionModule.isUserAccessGranted(applicationKey,
-                                                                               PERMISSION_APPLICATION_MEMBER);
-
-                // Currently settings page only supports for application deletion, we have restrict settings tab only
-                // for app owner. Once other tabs are completed, set this value accordingly
-                var isSettingsAllowed = hasAppCreationPermission && memberOfApplication;
                 applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
     		}
     	}
@@ -135,15 +93,15 @@ jagg.block("tablinks", {
             "applicationType":applicationType,
             "isUploadableAppType":isUploadableAppType,
             "isOtherServicesTabAvailable":isOtherServicesTabAvailable,
-            "isOverviewAllowed":isOverviewAllowed,
-            "isTeamAllowed":isTeamAllowed,
-            "isReposAndBuildsAllowed":isReposAndBuildsAllowed,
-            "isResourcesAllowed":isResourcesAllowed,
-            "isIssuesAllowed":isIssuesAllowed,
-            "isLifecylceAllowed":isLifecylceAllowed,
-            "isLogsAllowed":isLogsAllowed,
-            "isAllowDomainMapping":isAllowDomainMapping,
-            "isSettingsAllowed":isSettingsAllowed,
+            "isOverviewAllowed":allowedTablinks.isOverviewAllowed,
+            "isTeamAllowed":allowedTablinks.isTeamAllowed,
+            "isReposAndBuildsAllowed":allowedTablinks.isReposAndBuildsAllowed,
+            "isResourcesAllowed":allowedTablinks.isResourcesAllowed,
+            "isIssuesAllowed":allowedTablinks.isIssuesAllowed,
+            "isLifecylceAllowed":allowedTablinks.isLifecylceAllowed,
+            "isLogsAllowed":allowedTablinks.isLogsAllowed,
+            "isAllowDomainMapping":allowedTablinks.isAllowDomainMapping,
+            "isSettingsAllowed":allowedTablinks.isSettingsAllowed,
             "applicationInfo":applicationInfo
         };
     }

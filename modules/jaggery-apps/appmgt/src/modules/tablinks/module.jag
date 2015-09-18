@@ -17,23 +17,11 @@
  *   under the License.
  */
 
-include("/jagg/jagg.jag");
-include("/jagg/constants.jag");
-include("/jagg/config_reader.jag");
+jagg.module("tablinks", {
 
-(function () {
+	getAllowedTabLinks: function () {
+		return jagg.require(jagg.getModulesDir() + "tablinks/tablinks.jag").getAllowedTabLinks.apply(this, arguments);
+	}
 
-    var action = request.getParameter("action");
-    var tablinksModule = jagg.module("tablinks");
-    var applicationKey = request.getParameter("applicationKey");
-    if (action === "getAllowedTabLinks") {
-        var result = tablinksModule.getAllowedTabLinks(applicationKey, jagg.getUser());
-        print(result);
-    } else {
-        print('Action is not specified');
-    }
-
-}());
-
+});
 %>
-
