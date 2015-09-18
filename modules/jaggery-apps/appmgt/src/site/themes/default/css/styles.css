@@ -352,6 +352,9 @@ a.btn-action {
     .modal-lg{
         width: 80%;
     }
+    .modal-md{
+        width: 60%;
+    }
 }
 /* use for landing page blocks*/
 
@@ -610,6 +613,8 @@ a.btn-action {
     width: 140px;
     padding-top: 5px;
     float: left;
+    max-height: 100px;
+    overflow: hidden;
 }
 .app-preview .app-desc {
     float: left;
@@ -995,6 +1000,7 @@ a.btn-action {
 .block-life-cycle,
 .block-repos,
 .block-issues,
+.block-runtime,
 .block-team,
 .block-database {
     margin-top: 1em;
@@ -1016,6 +1022,10 @@ a.btn-action {
 }
 .block-issues {
     background-color: #0aa699;
+    min-height: 24em;
+}
+.block-runtime{
+    background-color: #e67e22;
     min-height: 24em;
 }
 .block-action-button {
@@ -1067,6 +1077,10 @@ a.btn-action {
 
 .block-issues .block-action-button:hover {
     background-color: rgb(4, 97, 89);
+}
+
+.block-runtime .block-action-button:hover {
+    background-color: #d35400;
 }
 
 .block-description-multiline {
@@ -1228,6 +1242,11 @@ a.btn-action {
     text-shadow:none;
     opacity:1;
     padding:5px 10px;
+
+}
+.alert-pending .close{
+    margin-top: -15px;
+    margin-right: -15px;
 }
 .alert .alert-content-block{
     display:block;
@@ -1243,10 +1262,6 @@ a.btn-action {
 .alert-extra-content ul{
     list-style: decimal;
 }
-.alert-no-margin{
-    margin:0px;
-}
-
 
 
 /* ========================================================================
@@ -1578,12 +1593,6 @@ a.btn-action {
     margin-top: 3em;
 }
 
-@media screen and (min-width: 768px) {
-    .modal-dialog  {
-        /* margin-top:20%;
-        width:800px; */
-    }
-}
 .modal-content{
     background-color:#464646;
 }
@@ -1699,6 +1708,9 @@ a.btn-action {
     .modal-lg{
         width: 95%;
     }
+    .modal-md{
+        width: 80%;
+    }
 }
 @media (max-width: 992px) {
  .version-url{
@@ -1745,6 +1757,15 @@ a.btn-action {
     }
     .block-description{
         width:62%;
+    }
+    .modal-dialog-margin-top-md{
+        margin-top:10%;
+    }
+    .modal-lg{
+        width: auto;
+    }
+    .modal-md{
+        width: auto;
     }
 }
 @media (max-width: 480px) {
@@ -2358,6 +2379,7 @@ th.hide-column-data, td.hide-column-data {
     text-align:center;
     color:#999;
 }
+
 .build-logs-modal .modal-body textarea{
     font-size:11px;
     color:#eee;
@@ -2396,4 +2418,14 @@ th.hide-column-data, td.hide-column-data {
 }
 .editroles .fw-stack span{
     color:#0498d5;
+}
+#user-name-select + .select2-container .select2-selection--multiple{
+    height:34px;
+}
+#user-name-select + .select2-container .select2-selection--multiple li{
+    border:none;
+    background-color:#fff;
+}
+#user-name-select + .select2-container .select2-selection--multiple li span.select2-selection__choice__remove{
+    display:none;
 }
