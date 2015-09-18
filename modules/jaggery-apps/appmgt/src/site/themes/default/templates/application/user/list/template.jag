@@ -76,19 +76,22 @@ jagg.template("application/user/list", function (inputs, outputs, jagg) { %>
     </div>
     <% if (pendingUsers && pendingUsers.length > 0) { %>
     <div class="row">
-        <div class="alert alert-info" role="alert">
-            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-            <span class="alert-content">
-                    <i class="fa fa-check-circle-o"></i> <strong> <span><%=pendingUsers.length%></span> invitations are pending...</strong> <a class="click_to_expand" href="#">Click here to view</a>
-            </span>
-            <ul class="invitaiton_list" style="display:none;">
-            <%  for(var i = 0, len = pendingUsers.length; i < len; i++){  %>
-                <li><span><%=pendingUsers[i]%></span>
-                    <a href="#" onclick="resendInvitation('<%=pendingUsers[i]%>'); return false;">Resend Invitation</a>
-                </li>
-                <!--<li><span>amila@wso2.com</span> <a href="#">Resend Invitation</a></li>-->
-            <% } %>
-            </ul>
+        <div class="col-md-12">
+            <div id="push"></div>
+            <div class="alert alert-info alert-pending" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <span class="alert-content">
+                        <i class="fa fa-check-circle-o"></i> <strong> <span><%=pendingUsers.length%></span> invitations are pending...</strong> <a class="click_to_expand" href="#">Click here to view</a>
+                </span>
+                <ul class="invitaiton_list" style="display:none;">
+                <%  for(var i = 0, len = pendingUsers.length; i < len; i++){  %>
+                    <li><span><%=pendingUsers[i]%></span>
+                        <a href="#" onclick="resendInvitation('<%=pendingUsers[i]%>'); return false;">Resend Invitation</a>
+                    </li>
+                    <!--<li><span>amila@wso2.com</span> <a href="#">Resend Invitation</a></li>-->
+                <% } %>
+                </ul>
+            </div>
         </div>
     </div>
 
