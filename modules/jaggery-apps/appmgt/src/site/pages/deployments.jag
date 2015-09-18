@@ -23,16 +23,16 @@ var site = require("/site/conf/site.json");
 (function () {
    var applicationKey = request.getParameter('applicationKey');
    var applicationName = request.getParameter('applicationName');
-   var vesionPage = 'uploadedAppVersions/list';
+   var vesionPage = 'deployments/list';
     jagg.render({
-        "name":"page/base",
+        "name":"page/master",
         "inputs":{
-            "title":"WSO2 App Factory",
-            "pagePath":"/site/pages/reposBuilds.jag",
+            "title":"Deployments",
+            "pagePath":"/site/pages/deployments.jag",
 
             "body":[
                 {
-                    "name":"layout/base",
+                    "name":"layout/master",
                     "inputs":{
                         "title":"WSO2 App Factory",
                         "middle":[
@@ -57,7 +57,7 @@ var site = require("/site/conf/site.json");
                                             }
                                         },
                                         {
-                                            "basePath":"/site/pages/uploadedVersions.jag",
+                                            "basePath":"/site/pages/deployments.jag",
                                             "displayName": "Deployments",
                                             "params": {
                                                 "applicationKey":applicationKey,
