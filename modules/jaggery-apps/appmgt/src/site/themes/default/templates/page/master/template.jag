@@ -193,6 +193,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/main.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-observe-1.00/jquery-observe.js'))%>"></script>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/nanoscroller-0.8.7/jquery.nanoscroller.min.js'))%>"></script>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
     </body>
