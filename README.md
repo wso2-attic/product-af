@@ -5,7 +5,7 @@ WSO2 App Factory
 
 | Branch | Build Status |
 | :------------ |:-------------
-| master | [![Build Status](https://wso2.org/jenkins/job/product-ml/badge/icon)](https://wso2.org/jenkins/job/product-ml) |
+| master | [![Build Status](https://wso2.org/jenkins/job/product-ml/badge/icon)](https://wso2.org/jenkins/job/product-af) |
 
 
 ---
