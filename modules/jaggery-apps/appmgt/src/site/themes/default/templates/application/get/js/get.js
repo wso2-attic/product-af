@@ -261,9 +261,9 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
                     // clear the timer if exist
                     clearTimeout(timer);
                     hideTopMessage();
-		    if("created" == userAction) {
-                    	showSuccessMessage();
-		    }
+                    if("created" == userAction) {
+                        showSuccessMessage();
+                    }
                 } else {
                    // set the timer until the app get deployed
                    poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
