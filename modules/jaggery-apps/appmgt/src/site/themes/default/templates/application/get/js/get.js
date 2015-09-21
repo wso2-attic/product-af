@@ -255,13 +255,16 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
 
                 if("Success" == resJSON.status) {
                     $('#btn-launchApp').attr({url:appURL});
+                    $('#applicationCreationMessageLaunchId').attr({href:appURL})
                     // set url to launch button
                     $('#btn-launchApp').removeAttr('disabled');
 
                     // clear the timer if exist
                     clearTimeout(timer);
                     hideTopMessage();
-                    showSuccessMessage();
+                    if("created" == userAction) {
+                        showSuccessMessage();
+                    }
                 } else {
                    // set the timer until the app get deployed
                    poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);

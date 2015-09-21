@@ -89,8 +89,6 @@
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 <script>
 
-    var issueType = "{{issueType}}";
-
     $('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
         var leftPane = $('.left-pane');
@@ -140,7 +138,9 @@
         });
 
         // filter the issues by issue type which user selected
-        if(issueType) {
+        var issueType = "{{issueType}}";
+        var issueTypeJson = JSON.parse(issueType);
+        if(issueTypeJson) {
             $('.datatable table').DataTable().column(3).search(issueType).draw();
         }
 </script>

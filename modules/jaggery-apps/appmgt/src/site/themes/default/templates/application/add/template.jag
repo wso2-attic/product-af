@@ -404,6 +404,8 @@ function showLoader(show){
 
  $(document).ready(function($) {
 
+$('#applicationName').focus();
+
     $('#progress').hide();
      $("#appIcon").change(function() {
          $("#icon").val($("#appIcon").val());
@@ -600,22 +602,11 @@ function showLoader(show){
              $('#appHome').text(url);
              $('#applicationKey').val(msg);
          }
-         var validator = $( "#createAppForm" ).validate();
-         var isNameValid = validator.element( "#applicationName" );
-         if(isNameValid){
-            if (appCreationType == "existing") {
-                $("#fileupload").prop("disabled", false);
-                if(!fileUploadSuccess){
-                    $("#add-application").prop("disabled", true);
-                } else {
-                     $("#add-application").prop("disabled", false);
-                }
-            } else {
-                $("#add-application").prop("disabled", false);
-            }
-         } else {
-            $("#add-application").prop("disabled", true);
-         }
+         validateControls();
+     });
+
+     $('#applicationDescription').keyup(function(event) {
+        validateControls();
      });
 
      // Validate Icon
@@ -626,6 +617,24 @@ function showLoader(show){
 
  });
 
+function validateControls(){
+    var validator = $( "#createAppForm" ).validate();
+    var isNameValid = validator.element( "#applicationName" );
+    if(isNameValid){
+        if (appCreationType == "existing") {
+            $("#fileupload").prop("disabled", false);
+            if(!fileUploadSuccess){
+                $("#add-application").prop("disabled", true);
+            } else {
+                $("#add-application").prop("disabled", false);
+            }
+        } else {
+            $("#add-application").prop("disabled", false);
+        }
+    } else {
+        $("#add-application").prop("disabled", true);
+    }
+}
 
 
  function format(type) {

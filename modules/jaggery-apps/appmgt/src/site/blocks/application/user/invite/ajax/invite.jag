@@ -153,7 +153,8 @@ function inviteExistingTenantUsersToApplication(applicationKey, existingUsers, w
 
         // Sending emails
         try {
-            modApplication.sendApplicationInvitationEmail(applicationKey, invitationArray.userNames, welcomeMsg);
+            // TODO: enable this once cloudmgt is updated with the new user endpoints
+            //modApplication.sendApplicationInvitationEmail(applicationKey, invitationArray.userNames, welcomeMsg);
         } catch (e){
             var errMsg = 'Error occurred while sending application invite emails to users '
                          +invitationArray.displayNames.join(", ") + ', to application';
