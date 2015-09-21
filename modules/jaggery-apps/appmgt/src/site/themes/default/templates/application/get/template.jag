@@ -272,14 +272,14 @@
             <!-- EOF add loading overlay -->
 
             <div class="block-team pull-left">
-              <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Team</a></h3>
+              <h3><a href="<%=jagg.getAbsoluteUrl("/site/pages/application-team.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="block-anch">Team</a></h3>
               <div class="block-icon pull-left">
                 <i class="fa fa-users fa-5x"></i>
               </div>
               <div id="teamCount" class="block-number pull-right"></div>
               <div class="clearfix"></div>
               <div class="block-action-button">
-                <a href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                <a href="<%=jagg.getAbsoluteUrl("/site/pages/application-team.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-add fw-stack-1x"></i>
