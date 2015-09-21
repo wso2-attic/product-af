@@ -1087,14 +1087,7 @@
 var getStage = function(applicationKey, version) {
     jagg.module("permission").checkUserAuthenticated();
     var tenantDomain = modManager.getTenantDomain();
-    try {
-        return getApplicationInfoService().getStage(applicationKey, version);
-    } catch (e) {
-        log.error("Error while getting stage of application :  " + applicationKey + " with version : " + version
-                  + " of the tenant domain : " + tenantDomain);
-        log.error(e);
-        throw e;
-    }
+    return getApplicationInfoService().getStage(applicationKey, version);
 };
 
 var getVersionInfo = function(applicationKey, artifacts) {

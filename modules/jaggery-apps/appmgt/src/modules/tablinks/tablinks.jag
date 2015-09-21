@@ -31,8 +31,15 @@ var manager = jagg.module("manager");
 var getAllowedTabLinks = function (applicationKey, userName) {
     var currentVersion = getSelectedVersionFromSession(applicationKey);
 
-    var isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(
-            applicationMod.getStage(applicationKey, currentVersion));
+    var isApplicationCurrentVersionInInitialStage = true;
+
+    try {
+        // TODO: this is a temporary fix for https://wso2.org/jira/browse/APPFAC-3445
+        isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(applicationMod.getStage(applicationKey, currentVersion));
+    } catch(e) {
+        log.warn("Error while getting stage of application :  " + applicationKey + " with version : " + currentVersion+".Version creation is not completed yet" );
+        log.warn(e);
+    }
 
     var hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
 
