@@ -405,7 +405,6 @@
 
     		 var elementsArray = new Array();
              for (var applicationKey in result){
-                 log.info("$$$$$$$$$applicationKey:  " + applicationKey)
                  var appInfo = convertAppInfoLightWeight(result[applicationKey]);
                  if (appInfo != null) {
                      elementsArray.push(appInfo);
@@ -594,10 +593,8 @@
             appList[APPLICATION_CREATION_STATUS.FAULTY] ={};
 
             for (var listKey in result){
-                log.info("$$$$$$$$$applicationKey:  " + listKey)
                 var appInfo = convertAppInfoLightWeight(result[listKey]);
                 if (appInfo != null) {
-                    log.info("***************appInfo.applicationCreationStatus: " + appInfo.key)
                     var creationStatus = (appInfo.applicationCreationStatus) ? (appInfo.applicationCreationStatus) :
                                          APPLICATION_CREATION_STATUS.PENDING;
                     appList[creationStatus][appInfo.key] = appInfo;
