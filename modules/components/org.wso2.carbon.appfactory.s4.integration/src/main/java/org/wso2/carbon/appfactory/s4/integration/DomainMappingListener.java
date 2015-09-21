@@ -58,7 +58,8 @@ public class DomainMappingListener extends ApplicationEventsHandler {
 
                 String defaultHostName = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
                         "DomainName");
-                String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(application.getId(), tenantDomain,
+                String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(application.getId(),
+                                                                              tenantDomain.replace(".", ""),
                                                                               defaultHostName);
                 try {
 
