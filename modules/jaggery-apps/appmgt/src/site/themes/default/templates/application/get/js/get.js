@@ -255,6 +255,7 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
 
                 if("Success" == resJSON.status) {
                     $('#btn-launchApp').attr({url:appURL});
+                    $('#applicationCreationMessageLaunchId').attr({href:appURL})
                     // set url to launch button
                     $('#btn-launchApp').removeAttr('disabled');
 
