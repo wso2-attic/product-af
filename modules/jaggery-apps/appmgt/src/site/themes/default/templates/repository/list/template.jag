@@ -55,7 +55,7 @@ var tenantDomain = outputs.tenantDomain;
                     <div class="form-group">
                         <label for="master-repo">Master Repository: </label>
                         <div class="input-group input-wrap">
-                            <input id="masterRepo" type="text" class="form-control" placeholder="" value="<%=masterRepoURL%>">
+                            <input id="masterRepo" type="text" class="form-control" placeholder="" value="<%=masterRepoURL%>" readonly>
                             <div class="input-group-btn">
                                 <button id="copytoClipboardMaster" class="btn btn-default" type="button" title="Copy to clipboard">
                                     <i class="fw fw-copy" aria-hidden="true"></i>
