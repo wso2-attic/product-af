@@ -139,8 +139,7 @@
 
         // filter the issues by issue type which user selected
         var issueType = "{{issueType}}";
-        var issueTypeJson = JSON.parse(issueType);
-        if(issueTypeJson) {
+        if(issueType) {
             $('.datatable table').DataTable().column(3).search(issueType).draw();
         }
 </script>
