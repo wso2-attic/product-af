@@ -22,13 +22,40 @@ include('/jagg/constants.jag');
 var site = require("/site/conf/site.json");
 
 (function () {
-   var applicationKey = request.getParameter('applicationKey');
-   var applicationName = request.getParameter('applicationName');
-   var isForkInfo = request.getParameter('isForkInfo');
-   var displayName = "Build and Deploy";
-   if(isForkInfo) {
-        displayName = "Build and Deploy/My Fork";
-   }
+    var applicationKey = request.getParameter('applicationKey');
+    var applicationName = request.getParameter('applicationName');
+    var isForkInfo = request.getParameter('isForkInfo');
+    var linkParams = [
+        {
+            "basePath": "/site/pages/application.jag",
+            "displayName": applicationName,
+            "params": {
+                "applicationKey": applicationKey,
+                "applicationName": applicationName
+            }
+        },
+        {
+            "basePath": "/site/pages/buildDeploy.jag",
+            "displayName": "Build and Deploy",
+            "params": {
+                "applicationKey": applicationKey,
+                "applicationName": applicationName
+            }
+        }];
+
+    if (isForkInfo) {
+        var myForkLink = {
+            "basePath": "/site/pages/buildDeploy.jag",
+            "displayName": "My Fork",
+            "params": {
+                "applicationKey": applicationKey,
+                "applicationName": applicationName,
+                "isForkInfo": isForkInfo
+            }
+        };
+        linkParams.push(myForkLink);
+    }
+
    var buildDeployPage = 'buildDeploy/list';
 
    jagg.render({
@@ -54,24 +81,7 @@ var site = require("/site/conf/site.json");
                             {
                                 "name":"breadcrumb",
                                 "inputs":{
-                                    "linkParams": [
-                                        {
-                                            "basePath":"/site/pages/application.jag",
-                                            "displayName": applicationName,
-                                            "params": {
-                                                "applicationKey":applicationKey,
-                                                "applicationName":applicationName
-                                            }
-                                        },
-                                        {
-                                            "basePath":"/site/pages/buildDeploy.jag",
-                                            "displayName": displayName,
-                                            "params": {
-                                                "applicationKey":applicationKey,
-                                                "applicationName":applicationName
-                                            }
-                                        }
-                                    ]
+                                    "linkParams": linkParams
                                 }
                             }
                         ],
