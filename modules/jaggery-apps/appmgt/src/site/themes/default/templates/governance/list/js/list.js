@@ -349,7 +349,14 @@ $(document).ready(function () {
                 $('.loader').loading('hide');
                 $('.loading-cover').overlay('hide'); 
             } else {
-                drawCheckListItems();
+                if(retryCount < 3) {
+                    setTimeout(function() {
+                        drawCheckListItems();
+                        retryCount++;
+                    }, 5000);
+                } else {
+                    jagg.message({content: 'Theres a problem is completing lifecycle operation, please try again later', type: 'warning'});
+                }
             }
             
         }, function (jqXHR, textStatus, errorThrown) {
