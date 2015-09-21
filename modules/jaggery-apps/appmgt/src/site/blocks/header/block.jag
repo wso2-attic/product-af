@@ -16,14 +16,17 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
+include("/jagg/constants.jag");
 jagg.block("header", {
     initialize:function (data) {
         var applicationKey = request.getParameter("applicationKey");
         var user = jagg.getUser();
         if(user && applicationKey) {
             var modPermission = jagg.module("permission");
-            if(!modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)) {
+            var mod = jagg.module("application");
+            var userHomeData = mod.getUpdatedUserHomeData();
+            var isPendingApp = userHomeData[APPLICATION_CREATION_STATUS.PENDING][applicationKey];
+            if(!isPendingApp && !modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)) {
                 response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
             }   
         }   
