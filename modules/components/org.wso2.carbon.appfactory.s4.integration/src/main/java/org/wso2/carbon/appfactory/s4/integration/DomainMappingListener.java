@@ -81,8 +81,8 @@ public class DomainMappingListener extends ApplicationEventsHandler {
                     // retying again assuming defaultProdUrl is already taken.
                     try {
                         defaultUrl = DomainMappingUtils.
-                                generateDefaultProdUrl(application.getId() + "_" + (new Random()).nextInt(1000),
-                                                       tenantDomain, defaultHostName);
+                                generateDefaultProdUrl(application.getId() + AppFactoryConstants.MINUS + (new Random()).nextInt(1000),
+                                                       tenantDomain.replace(".", ""), defaultHostName);
                         setDefaultProdUrl(application.getId(), defaultUrl, isUploadableAppType);
                         log.info("Successfully added default production url:" + defaultUrl + " for application " +
                                  application.getId() + " for tenant:" + tenantDomain);
