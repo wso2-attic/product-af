@@ -119,7 +119,7 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
     <!-- END OF NEW -->
-        
+
     </head>
     <body <% if(applicationKey == null){ %>id="home"<% } %>>
         <!--[if lt IE 7]>
@@ -193,28 +193,28 @@ jagg.template("page/base", function(inputs, outputs, jagg) {%>
     <% jagg.includeBlocks(outputs.body); %> <!-- including body -->
     <%jagg.includeBlock("footer", {});%>    <!-- including footer -->
 
-    <!-- ################ OLD ###################-->
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/jquery.validate.min.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/custom.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/snippet/jquery.snippet.js'))%>"></script>
+    <!-- ################ OLD ################### -->
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/bootstrap-dropdown.min.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/jquery.validate.min.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.qtip.min.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/custom.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/snippet/jquery.snippet.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery-migrate-1.2.1.min.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/js/codeSnippetGenerator.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/select2/select2.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.sticky.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/main.js'))%>"></script>
-    <!-- END OF OLD-->
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/main.js'))%>"></script>
+    <!-- END OF OLD -->
 
     <!-- ***************** NEW ************* -->
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
-
-        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/nanoscroller-0.8.7/jquery.nanoscroller.min.js'))%>"></script>
-        <!-- include new custom js functions -->
-        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
-    <!-- END OF NEW-->
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-observe-1.00/jquery-observe.js'))%>"></script>
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/nanoscroller-0.8.7/jquery.nanoscroller.min.js'))%>"></script>
+    <!-- include new custom js functions -->
+    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
+    <!-- END OF NEW -->
 
     </body>
 </html>
