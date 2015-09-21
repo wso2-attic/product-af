@@ -325,6 +325,10 @@ $(document).ready(function () {
                 // app is not retired
             }
             setElementsVisible(isAppRetired);
+            var disabled = "";
+            if(!hasPromotePermissions[currentStage]) {
+                disabled = " disabled";
+            }
             if (!resultJson.error && resultJson.length > 0) {
                 var checkBoxes = "";
                 var checkedItemsCount = 0;
@@ -335,7 +339,7 @@ $(document).ready(function () {
                         checkedItemsCount += 1;
                         checked = "checked";
                     }
-                    checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + '><span>' + resultJson[i].name + '</span></label></div>'
+                    checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + disabled +'><span>' + resultJson[i].name + '</span></label></div>'
                 }
                 drawProgress($('#' + resultJson[0].status.toLowerCase()), resultJson.length, checkedItemsCount);
                 $('#' + resultJson[0].status.toLowerCase()).find('.checkboxes').html(checkBoxes);
@@ -345,7 +349,14 @@ $(document).ready(function () {
                 $('.loader').loading('hide');
                 $('.loading-cover').overlay('hide'); 
             } else {
-                drawCheckListItems();
+                if(retryCount < 3) {
+                    setTimeout(function() {
+                        drawCheckListItems();
+                        retryCount++;
+                    }, 5000);
+                } else {
+                    jagg.message({content: 'Theres a problem is completing lifecycle operation, please try again later', type: 'warning'});
+                }
             }
             
         }, function (jqXHR, textStatus, errorThrown) {

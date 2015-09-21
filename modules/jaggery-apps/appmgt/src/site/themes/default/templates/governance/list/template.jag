@@ -381,6 +381,7 @@ You can also set the estimated date of completion for each stage. The mean of th
     var hasVisibilityPermissions = '<%=hasVisibilityPermissions%>';
     hasVisibilityPermissions = JSON.parse(hasVisibilityPermissions);
     var isSelectedDateValid;
+    var retryCount = 0;
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/tablinks.js'))%>"></script>
