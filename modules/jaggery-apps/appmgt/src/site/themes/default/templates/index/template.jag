@@ -367,8 +367,8 @@ $(document).ready(function () {
                 });
                 // enf of "jQuery.grep.."
 
-                if ($("#item_list").children().length == 0) {
-                    $("#item_list").append($('<div>"No matches found!"</div>'));
+                if ($("#item_list").children().length <= 1) {
+                    $("#item_list").append($('<div class="cloud-new-content"> <h1>No matching applicatoins found! </h1></div>'));
                 }
 
 

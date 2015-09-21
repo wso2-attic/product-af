@@ -355,9 +355,24 @@ function loadLifeCycleManagementInfo(appInfo, appVersionInfo) {
         $("#lifecycle-mgt-main").html(message);
 
         // hide life cycle button when trunk is selected or application is an uploadable type
-        if(versionTrunk === appVersionInfo.version || appInfo.isUploadable === true) {
+        if(versionTrunk === appVersionInfo.version) {
+            var message = "";
+            var versions = appInfo.versions;
+            if (versions && versions.length > 1) {
+                message = "To promote application to the next stage of lifecycle, you need to select a version other than trunk";
+            } else {
+                message = "To promote application to the next stage of lifecycle, you need to first create a version of it.";
+            }
+            $("#lifeCycleMsg").html(message);
+            $("#lifecycleLink").hide();
+            $("#lifeCycleMsg").show();
+        } else if (appInfo.isUploadable) {
+            $("#lifeCycleMsg").html("");
+            $("#lifeCycleMsg").hide();
             $("#lifecycleLink").hide();
         } else {
+            $("#lifeCycleMsg").html("");
+            $("#lifeCycleMsg").hide();
             $("#lifecycleLink").show();
         }
     }

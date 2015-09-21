@@ -195,6 +195,8 @@
                         </div>
                     </a>
 
+                    <div id="lifeCycleMsg" class="add-tag" style="display:none;"></div>
+
                     <!-- BOF permission based icon section -->
                     <div class="clearfix"></div>
 

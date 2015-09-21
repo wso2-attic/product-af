@@ -201,7 +201,7 @@ var drawDeployedStatus = function(buildInfo, isForkInfo) {
         message += buildInfo.stage;
         message += " stage";
     } else {
-        message = "No build has been triggered";
+        message = "Deployment is not triggered";
     }
     $('#buildStatus').html(message);
 
