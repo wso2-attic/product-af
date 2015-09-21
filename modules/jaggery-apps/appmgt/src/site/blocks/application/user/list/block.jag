@@ -36,7 +36,8 @@ jagg.block("application/user/list", {
         var applicationKey = request.getParameter("applicationKey");
         var pendingUsers =  [];
         if(hasTenantLevelUserMgtPermission) {
-            pendingUsers = modTenant.getPendingUsersOfTenantByAppKey(applicationKey);
+            // TODO: uncomment below once cloudmgt is updated
+            //pendingUsers = modTenant.getPendingUsersOfTenantByAppKey(applicationKey);
         }
 
         return {
