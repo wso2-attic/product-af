@@ -53,6 +53,7 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 	    obj = obj.list;
 
 	    if(obj) {
+            triggerNotification(obj.length);
             var correlationKeyArray = [];
             for(var i=obj.length-1;i>-1;i--) {
                 var event = jQuery.parseJSON(obj[i]);
@@ -92,17 +93,46 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
         setTimeout(pollNotifications,'<%=polling_period%>');
     },
     function (jqXHR, textStatus, errorThrown) {});
+
+    /**
+     * Triggers notification pane notification when the count is increased
+     * in the poll
+     *
+     * @param  {Number} pollCount notification count of the current poll
+     * @return {Null}
+     */
+    function triggerNotification(pollCount){
+      var count = $.cookie('notification-count');
+      if(count != undefined && parseInt(count) < parseInt(pollCount)){
+        $.cookie('notification-count',pollCount);
+        $('.new-notifications').css({
+          'display':'block',
+          'box-shadow':'0px 0px 10px red'
+        });
+        $('.notification-pane-trigger').addClass('notification-glow');
+      }else if(count == undefined){
+        throw 'Please enable cookies in your browser in order to make notification pane work.'
+      }
+
+    }
+
+
 }
 
-    $(document).ready(function () {
 
+     $(document).ready(function () {
+        if($.cookie('notification-count') == undefined){
+            $.cookie('notification-count',0,{ expires: 7, path: '/' });
+        }
         if($.cookie('closed') == 'false'){
             $('.notification-pane-trigger').find('i').removeClass('fw-notification').addClass('fw-right-arrow');
             $('.notification-pane').animate({"right":"0em"}, "slow").removeClass('visible');
         }else{
             $('.notification-pane-trigger').find('i').removeClass('fw-right-arrow').addClass('fw-notification');
-            $('.notification-pane').animate({"right":"-24em"}, "slow").addClass('visible');
+            //$('.notification-pane').animate({"right":"-24em"}, "slow").addClass('visible');
+            $('.notification-pane').css('right','-24em').addClass('visible');
         }
+
         pollNotifications();
         $('.side-pane-trigger').click(function() {
             var rightPane = $('.right-pane');
@@ -118,38 +148,27 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
             }
         });
 
-        $('.notification-pane-trigger').click(function() {
-            var notificationPane = $('.notification-pane');
-            var notiTrigger = $('.notification-pane-trigger');
-            var newNotificationIcon = $('.new-notifications');
-            if(notificationPane.hasClass('visible')){
-                $.cookie('closed', false, { expires: 7 });
-                notiTrigger.find('i').removeClass('fw-notification').addClass('fw-right-arrow');
-                notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
-                newNotificationIcon.hide();
-            }else{
-                $.cookie('closed', true, { expires: 7 });
-                notiTrigger.find('i').removeClass('fw-right-arrow').addClass('fw-notification');
-                notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
-                newNotificationIcon.hide();
-            }
-        });
+    $('.notification-pane-trigger').click(function(){
+        var notificationPane = $('.notification-pane');
+        var notiTrigger = $('.notification-pane-trigger');
+        var newNotificationIcon = $('.new-notifications');
+        if(notificationPane.hasClass('visible')){
+            $.cookie('closed', false, { expires: 7 });
+            notiTrigger.removeClass('notification-glow').find('i').removeClass('fw-notification').addClass('fw-right-arrow');
+            notificationPane.animate({"right":"0em"}, "slow").removeClass('visible');
+            newNotificationIcon.hide();
+
+        }else{
+            $.cookie('closed', true, { expires: 7 });
+            notiTrigger.removeClass('notification-glow').find('i').removeClass('fw-right-arrow').addClass('fw-notification');
+            notificationPane.animate({"right":"-24em"}, "slow").addClass('visible');
+            newNotificationIcon.hide();
+        }
+    });
         var scrollHeight = $('.notification-pane').height() - 150;
         $('.notifications').css('height', scrollHeight);
         $(".nano").nanoScroller();
-
-        // adding notificatoin glow on new notifications being appended to wall
-        $('.notifications').observe('childlist subtree', function(mutations) {
-          if(mutations.addedNodes.length > 0){
-              $('.new-notifications').css({
-                'display':'block',
-                'box-shadow':'0px 0px 10px red'
-              });
-              $('.notification-pane-trigger').addClass('notification-glow');
-          }
-        });
-
-         $('.notification-pane').click(function() {
+        $('.notification-pane').click(function() {
             $('.new-notifications').hide();
         });
     });
@@ -203,4 +222,3 @@ jagg.template("page/notification-wall", function (inputs, outputs, jagg) {
 <%
 });
 %>
-
