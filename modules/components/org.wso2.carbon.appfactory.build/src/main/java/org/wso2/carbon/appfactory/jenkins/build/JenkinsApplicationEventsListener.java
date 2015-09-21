@@ -237,7 +237,7 @@ public class JenkinsApplicationEventsListener extends ApplicationEventsHandler {
                 .startBuild(application.getId(),
                         target.getVersion(),
                         true, JDBCAppVersionDAO.getInstance().getAppVersionStage(application.getId(),
-                                target.getVersion()), "", tenantDomain, "",
+                                target.getVersion()), "", tenantDomain, userName,
                         AppFactoryConstants.ORIGINAL_REPOSITORY);
 
     }
