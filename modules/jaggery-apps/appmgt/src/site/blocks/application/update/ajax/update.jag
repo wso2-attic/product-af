@@ -104,6 +104,7 @@ var modApplication = jagg.module("application");
             }
             try{
                 var appIcon = request.getFile("appIcon");
+                var iconData = request.getParameter("iconData");
                 changeApplicationIcon(applicationKey, appIcon);
             } catch(e){
                 var tenantDomain = modManager.getTenantDomain();
