@@ -43,12 +43,10 @@ var log=new Log();
 		var applicationDescription = replaceSpecialCharacters(request.getParameter("applicationDescription"));
 		var applicationType = request.getParameter("appType");
 		var repositoryType = request.getParameter("repositoryType");
-        log.info(repositoryType)
-                var repoAccessibility = request.getParameter("repoAccessibility");
+		var repoAccessibility = request.getParameter("repoAccessibility");
 		var userName = request.getParameter("userName");
 		var applicationURL = request.getParameter("applicationURL");
         var appTypeDisplayName1 = request.getParameter("appTypeDisplayName");
-        log.info("applicationType + " + applicationType);
 		var response = {};
 		if (jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_CREATE)) {
 			try {
@@ -64,15 +62,12 @@ var log=new Log();
 					// is created.
                     if(!isApplicationDuplicateWithSession(applicationKey,applicationName, repositoryType,
                                                           applicationDescription, applicationType, userName,appTypeDisplayName)){
-                        log.info("inside if 1")
 						for (var provider in repositoryProviders) {
 							if (repositoryType == repositoryProviders[provider]) {
-                                log.info("repositoryType if 2")
 								result = mod.createApplicationBPEL(applicationName, applicationKey,
 											           applicationDescription, applicationType,
 											           repoAccessibility, repositoryType, userName,
 											           applicationURL, 'trunk', LIFE_CYCLE_NAME);
-                                log.info(result)
 								message = "Application was created under Repository type ".concat(repositoryType);
 								response.message = message;
 								response.result = 1;
@@ -85,7 +80,8 @@ var log=new Log();
 					response.message = message;
 					response.result = 0;
 				}
-
+				// this session parameter is to , show the application creation started message only once
+				session.put("appCreationStartedFlag_" + applicationKey, true);
 				print(response);
 
 			} catch (e) {
@@ -126,6 +122,8 @@ var log=new Log();
 			log.error(e);
 			status = generateValidationResponse(false, msg);
 		}
+		// this session parameter is to , show the application creation started message only once
+		session.put("appCreationStartedFlag_" + applicationKey, true);
 		print(status);
 	} else if (action == "uploadExistingApplication") {
 		var registryMod = jagg.module("registry");
@@ -190,6 +188,8 @@ var log=new Log();
 			response.message = "You don't have permission to create application";
 			response.result = 0;
 		}
+		// this session parameter is to , show the application creation started message only once
+		session.put("appCreationStartedFlag_" + applicationKey, true);
 		print(response);
 
 		} catch (e) {
