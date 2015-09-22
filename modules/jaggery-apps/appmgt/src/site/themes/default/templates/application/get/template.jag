@@ -10,8 +10,8 @@
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
     var applicationInfo = outputs.applicationInfo;
-    var appCreationStartedFlag = session.get("appCreationStartedFlag_" + applicationKey);
-    session.remove("appCreationStartedFlag_" + applicationKey);
+    var appCreationStartedFlag = session.get(APPLICATION_CREATION_STARTED_FLAG + applicationKey);
+    session.remove(APPLICATION_CREATION_STARTED_FLAG + applicationKey);
     var appName = "";
     if(applicationInfo){
         if (applicationInfo.name) {

@@ -81,7 +81,7 @@ var log=new Log();
 					response.result = 0;
 				}
 				// this session parameter is to , show the application creation started message only once
-				session.put("appCreationStartedFlag_" + applicationKey, true);
+				session.put(APPLICATION_CREATION_STARTED_FLAG + applicationKey, true);
 				print(response);
 
 			} catch (e) {
@@ -123,7 +123,7 @@ var log=new Log();
 			status = generateValidationResponse(false, msg);
 		}
 		// this session parameter is to , show the application creation started message only once
-		session.put("appCreationStartedFlag_" + applicationKey, true);
+		session.put(APPLICATION_CREATION_STARTED_FLAG + applicationKey, true);
 		print(status);
 	} else if (action == "uploadExistingApplication") {
 		var registryMod = jagg.module("registry");
@@ -189,7 +189,7 @@ var log=new Log();
 			response.result = 0;
 		}
 		// this session parameter is to , show the application creation started message only once
-		session.put("appCreationStartedFlag_" + applicationKey, true);
+		session.put(APPLICATION_CREATION_STARTED_FLAG + applicationKey, true);
 		print(response);
 
 		} catch (e) {
