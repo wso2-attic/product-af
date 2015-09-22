@@ -83,6 +83,11 @@ function submitGeneralForm() {
     if (isUpdateInfoAllowed) {
         $("#updateGeneralInfo").prop("disabled", true);
         var generalForm = $("#generalForm");
+        $('<input />').attr('type', 'hidden')
+                    .attr('name', "iconData")
+                    .attr('value', $image.cropper('getCroppedCanvas').toDataURL())
+                    .appendTo('#generalForm');
+        var generalForm = $("#generalForm");
         var validator = generalForm.validate();
         var formValidated = validator.form();
         if (formValidated) {
@@ -231,7 +236,7 @@ function preparePreview(){
                     $image.one('built.cropper', function () {
                         URL.revokeObjectURL(blobURL); // Revoke when load complete
                     }).cropper('reset').cropper('replace', blobURL);
-                    $inputImage.val('');
+                    $inputImage.val(file.name);
                 } else {
                     $body.tooltip('Please choose an image file.', 'warning');
                 }

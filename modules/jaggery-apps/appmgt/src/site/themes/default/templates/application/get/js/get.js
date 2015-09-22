@@ -263,8 +263,11 @@ var loadLaunchUrl = function(appInfo, currentAppInfo) {
                     clearTimeout(timer);
                     hideTopMessage();
                     if("created" == userAction) {
-                        showSuccessMessage();
+                        var type;
+                        applicationInfo.isUploadable ? type = "uploadable" : type = applicationInfo.type;
+                        showSuccessMessage(type, applicationInfo.name, appURL);
                     }
+
                 } else {
                    // set the timer until the app get deployed
                    poolUntilAppDeploy(loadLaunchUrl, appInfo, currentAppInfo);
@@ -309,7 +312,9 @@ function generateLunchUrl(appURL, currentAppInfo) {
 }
 
 
-function showSuccessMessage(){
+function showSuccessMessage(type, appName, appURL){
+    var message = getMessage(type, appName, appURL);
+    $("#app_creation_success_message").html(message);
     $("#app_creation_success_message").show();
 }
 
@@ -761,4 +766,122 @@ function isEmpty(object) {
         return true;
     }
     return false;
+}
+
+function getMessage(type, applicationName, launchUrl){
+    var successMessage;
+    if(type == "war") {
+        successMessage =    "<div class='alert alert-success' role='alert'>"
+                                + "<button type='button' class='close' data-dismiss='alert'>"
+                                +    "<span aria-hidden='true'>&times;</span>"
+                                +    "<span class='sr-only'>Close</span>"
+                                +    "</button>"
+                                +    "<span class='alert-content'>"
+                                +        "<i class='fa fa-check-circle-o'></i>"
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deploying."
+                                +    "</span>"
+                                +    "<div class='alert-extra-content'>"
+                                +        "<h5>Now you can</h5>"
+                                +            "<ul>"
+                                +                "<li><a href='" + launchUrl + "'>Launch</a> the web after it is successfully deployed</li>"
+                                +                "<li>Edit code in the sample app</li>"
+                                +                "<li>Map to a custom URL</li>"
+                                +            "</ul>"
+                                +    "</div>"
+                                + "</div>";
+    } else if (type == "uploadable") {
+        successMessage =    "<div class='alert alert-success' role='alert'>"
+                                + "<button type='button' class='close' data-dismiss='alert'>"
+                                +    "<span aria-hidden='true'>&times;</span>"
+                                +    "<span class='sr-only'>Close</span>"
+                                +    "</button>"
+                                +    "<span class='alert-content'>"
+                                +        "<i class='fa fa-check-circle-o'></i>"
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deploying."
+                                +    "</span>"
+                                +    "<div class='alert-extra-content'>"
+                                +        "<h5>Now you can</h5>"
+                                +            "<ul>"
+                                +                "<li><a href='" + launchUrl + "'>Launch</a> the application after it is successfully deployed</li>"
+                                +                "<li>You can upload new versions for the application.</li>"
+                                +            "</ul>"
+                                +    "</div>"
+                                + "</div>";
+    } else if (type == "dbs") {
+        successMessage =    "<div class='alert alert-success' role='alert'>"
+                                + "<button type='button' class='close' data-dismiss='alert'>"
+                                +    "<span aria-hidden='true'>&times;</span>"
+                                +    "<span class='sr-only'>Close</span>"
+                                +    "</button>"
+                                +    "<span class='alert-content'>"
+                                +        "<i class='fa fa-check-circle-o'></i>"
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deploying."
+                                +    "</span>"
+                                +    "<div class='alert-extra-content'>"
+                                +        "<h5>Now you can</h5>"
+                                +            "<ul>"
+                                +                "<li>Get the <a href='" + launchUrl + "'>url</a> of data service once it is successfully deployed. The sample app points to a common sample datasource.</li>"
+                                +                "<li>Edit code in the sample data service app</li>"
+                                +                "<li>Point the app to your own datasource</li>"
+                                +            "</ul>"
+                                +    "</div>"
+                                + "</div>";
+    } else if (type == "jax-rs") {
+        successMessage =    "<div class='alert alert-success' role='alert'>"
+                                + "<button type='button' class='close' data-dismiss='alert'>"
+                                +    "<span aria-hidden='true'>&times;</span>"
+                                +    "<span class='sr-only'>Close</span>"
+                                +    "</button>"
+                                +    "<span class='alert-content'>"
+                                +        "<i class='fa fa-check-circle-o'></i>"
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deploying."
+                                +    "</span>"
+                                +    "<div class='alert-extra-content'>"
+                                +        "<h5>Now you can</h5>"
+                                +            "<ul>"
+                                +                "<li>Get the <a href='" + launchUrl + "'>url</a> of the service once it is successfully deployed.</li>"
+                                +                "<li>Edit code in the sample jax-rs app</li>"
+                                +            "</ul>"
+                                +    "</div>"
+                                + "</div>";
+    } else if (type == "jax-ws") {
+        successMessage =    "<div class='alert alert-success' role='alert'>"
+                                + "<button type='button' class='close' data-dismiss='alert'>"
+                                +    "<span aria-hidden='true'>&times;</span>"
+                                +    "<span class='sr-only'>Close</span>"
+                                +    "</button>"
+                                +    "<span class='alert-content'>"
+                                +        "<i class='fa fa-check-circle-o'></i>"
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deploying."
+                                +    "</span>"
+                                +    "<div class='alert-extra-content'>"
+                                +        "<h5>Now you can</h5>"
+                                +            "<ul>"
+                                +            "<ul>"
+                                +                "<li>Get the <a href='" + launchUrl + "'>url</a> of the service once it is successfully deployed.</li>"
+                                +                "<li>Edit code in the sample jax-rs app</li>"
+                                +            "</ul>"
+                                +    "</div>"
+                                + "</div>";
+    } else {
+        successMessage =    "<div class='alert alert-success' role='alert'>"
+                                + "<button type='button' class='close' data-dismiss='alert'>"
+                                +    "<span aria-hidden='true'>&times;</span>"
+                                +    "<span class='sr-only'>Close</span>"
+                                +    "</button>"
+                                +    "<span class='alert-content'>"
+                                +        "<i class='fa fa-check-circle-o'></i>"
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deploying."
+                                +    "</span>"
+                                +    "<div class='alert-extra-content'>"
+                                +        "<h5>Now you can</h5>"
+                                +            "<ul>"
+                                +                "<li><a href='" + launchUrl + "'>Launch</a> the web after it is successfully deployed</li>"
+                                +                "<li>Edit code in the sample app</li>"
+                                +            "</ul>"
+                                +    "</div>"
+                                + "</div>";
+    }
+    return successMessage;
+
 }
