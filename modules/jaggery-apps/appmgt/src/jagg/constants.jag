@@ -265,6 +265,9 @@ var MUTUALSSL_HEADER_USERNAME_URL = "http://mutualssl.carbon.wso2.org";
 var CLOUD_HEADER_USERNAME_URL = "http://cloud.carbon.wso2.org/username";
 var CLOUD_HEADER_SECRET_URL = "http://cloud.carbon.wso2.org/secret";
 
+//for application creation started message
+
+var APPLICATION_CREATION_STARTED_FLAG = "appCreationStartedFlag_";
 var PAGES={
               APP_HOME : "APP_HOME",
               USER_HOME : "USER_HOME",               
