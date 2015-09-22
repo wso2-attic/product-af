@@ -840,7 +840,7 @@ function getMessage(type, applicationName, launchUrl){
                                 +        "<h5>Now you can</h5>"
                                 +            "<ul>"
                                 +                "<li>Get the <a target='_blank' href='" + launchUrl + "'>url</a> of the service.</li>"
-                                +                "<li>Edit code in the sample jax-rs app</li>"
+                                +                "<li>Edit code in the sample jax-rs application</li>"
                                 +            "</ul>"
                                 +    "</div>"
                                 + "</div>";
@@ -859,7 +859,7 @@ function getMessage(type, applicationName, launchUrl){
                                 +            "<ul>"
                                 +            "<ul>"
                                 +                "<li>Get the <a target='_blank' href='" + launchUrl + "'>url</a> of the service.</li>"
-                                +                "<li>Edit code in the sample jax-rs app</li>"
+                                +                "<li>Edit code in the sample jax-rs application</li>"
                                 +            "</ul>"
                                 +    "</div>"
                                 + "</div>";
@@ -871,17 +871,16 @@ function getMessage(type, applicationName, launchUrl){
                                 +    "</button>"
                                 +    "<span class='alert-content-block'>"
                                 +        "<i class='fa fa-check-circle-o'></i>"
-                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample app and it is deployed."
+                                +        "<strong> Congratulations..</strong> your application " + applicationName + " is now ready..! We have created a sample application and it is deployed."
                                 +    "</span>"
                                 +    "<div class='alert-extra-content'>"
                                 +        "<h5>Now you can</h5>"
                                 +            "<ul>"
                                 +                "<li><a target='_blank' href='" + launchUrl + "'>Launch</a> the application.</li>"
-                                +                "<li>Edit code in the sample app</li>"
+                                +                "<li>Edit code in the sample application</li>"
                                 +            "</ul>"
                                 +    "</div>"
                                 + "</div>";
     }
     return successMessage;
-
 }
