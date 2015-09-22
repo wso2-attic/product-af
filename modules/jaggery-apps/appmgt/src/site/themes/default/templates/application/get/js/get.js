@@ -14,7 +14,7 @@ var popoverAdded = false;
 // page initialization
 $(document).ready(function() {
     // show the application creation status as a notification
-    if("created" == userAction) {
+    if(appCreationStartedFlag) {
         showTopMessage("Application creation started.");
     }
     // set current version

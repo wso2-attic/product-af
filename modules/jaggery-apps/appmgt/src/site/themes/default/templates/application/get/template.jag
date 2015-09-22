@@ -10,7 +10,8 @@
     var servicePath = appFacURL + getProperty(WEB_CONTEXT_ROOT);
     var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey;
     var applicationInfo = outputs.applicationInfo;
-
+    var appCreationStartedFlag = session.get(APPLICATION_CREATION_STARTED_FLAG + applicationKey);
+    session.remove(APPLICATION_CREATION_STARTED_FLAG + applicationKey);
     var appName = "";
     if(applicationInfo){
         if (applicationInfo.name) {
@@ -57,6 +58,8 @@
     var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>');
     var previousVersion = "<%=previousVersion%>";
     var lifeCycleName = "<%=LIFE_CYCLE_NAME%>";
+    var appCreationStartedFlag = "<%=appCreationStartedFlag%>";
+    appCreationStartedFlag = JSON.parse(appCreationStartedFlag);
 </script>
 
 <!-- end of setting global javascript variable -->
