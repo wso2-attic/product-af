@@ -130,7 +130,7 @@ function loadAppInfoFromServer(version) {
                     loadLaunchInfo(appInfo, currentAppInfo);
                     loadIssuesInfo(version);
                     loadDatabaseInfo(currentAppInfo);
-                    addVersionCreationHandler(appInfo.isUploadable);
+                    addVersionCreationHandler(appInfo.isUploadable, version);
                 }
             }
       },function (jqXHR, textStatus, errorThrown) {
@@ -625,24 +625,24 @@ function hideTopMessage() {
     }
 }
 
-function addVersionCreationHandler(isUploadable) {
+function addVersionCreationHandler(isUploadable, selectedVersion) {
     $("#createVersionBtn").removeAttr("href");
     if(isUploadable === true) {
         var deployedVersionsUrl = "../pages/uploadedVersions.jag?applicationName=" + applicationInfo.name + "&applicationKey=" + applicationInfo.key;
         $('#createVersionBtn').attr({href:deployedVersionsUrl});
     } else {
-        addCreateVersionHandler();
+        addCreateVersionHandler(selectedVersion);
     }
 }
 
-function addCreateVersionHandler() {
+function addCreateVersionHandler(selectedVersion) {
     // create the message
     var version = "";
-    if("trunk" == currentVersion) {
-        version = currentVersion;
+    if("trunk" == selectedVersion) {
+        version = selectedVersion;
     } else {
         version = "v ";
-        version += currentVersion;
+        version += selectedVersion;
     }
     var message = "You are creating a new version from ";
     message += "<b>" + version + "</b>";
@@ -659,9 +659,9 @@ function addCreateVersionHandler() {
 
     // add button click handler
     $(".btn-create-version").on('shown.bs.popover', function() {
-        $("#versionCreationBtn").click(function() {
+        $("#versionCreationBtn").off('click').click(function() {
             var newVersion = $("#new-version").val();
-            createVersion(currentVersion, newVersion);
+            createVersion(selectedVersion, newVersion);
         });
     });
 }
