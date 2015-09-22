@@ -17,20 +17,36 @@
  *   under the License.
  */
 include("/jagg/constants.jag");
+var log = new Log();
 jagg.block("header", {
     initialize:function (data) {
         var applicationKey = request.getParameter("applicationKey");
         var user = jagg.getUser();
         if(user && applicationKey) {
-            var modPermission = jagg.module("permission");
             var mod = jagg.module("application");
             var userHomeData = mod.getUpdatedUserHomeData();
-            var isPendingApp = userHomeData[APPLICATION_CREATION_STATUS.PENDING][applicationKey];
-            if(!isPendingApp && !modPermission.isUserAccessGranted(applicationKey, PERMISSION_APPLICATION_MEMBER)) {
+            var isCompletedApp = !isEmpty(userHomeData[APPLICATION_CREATION_STATUS.COMPLETED][applicationKey]);
+            var isPendingApp = !isEmpty(userHomeData[APPLICATION_CREATION_STATUS.PENDING][applicationKey]);
+            var isAllowed = (isCompletedApp) || (isPendingApp);
+            if(!isAllowed ) {
+                log.warn("User :"+user +" is not allowed access the application: "+applicationKey);
                 response.sendError(401, "Unauthorized!!! Only Application Owner has permission to complete this action");
-            }   
+            }
         }   
     }
 
 });
+
+/**
+ * Check whether the {@code obj} is empty object({}) or not
+ * @param obj
+ * @returns {boolean}
+ */
+var isEmpty = function(obj){
+    if(!obj){       // if object is null
+        return true;
+    } else {
+        return (Object.getOwnPropertyNames(obj).length === 0);
+    }
+};
 %>
