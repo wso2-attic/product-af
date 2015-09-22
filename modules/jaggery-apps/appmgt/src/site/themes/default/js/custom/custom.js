@@ -33,7 +33,7 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 
 
 (function($) {
-
+    
     /* ========================================================================
      * loading function
      * ======================================================================== */
@@ -156,7 +156,7 @@ $('.btn-file :file').on('fileselect', function(event, numFiles, label) {
             }
         });
     }
-
+    
 }(jQuery));
 
 
