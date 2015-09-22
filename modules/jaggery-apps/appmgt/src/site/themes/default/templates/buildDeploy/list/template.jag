@@ -116,9 +116,20 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
+                      <div class="div-search">
+                            <div class="form-horizontal" role="form">
+                                <div class="form-group">
+                                    <label for="log-search" class="col-sm-1 control-label">Search: </label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="log-search" placeholder="Enter search text">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                         <div class="col-xs-12 col-md-12">
-                            <div class="scroll-container">
-                            <textarea id="build_logs" name="nowrap" cols="30" rows="3" wrap="soft">Retrieving logs.... </textarea>
+                            <div class="scroll-container" id="build_logs">
+                           Retrieving logs....
                             </div>
                         </div>
                     </div>
@@ -136,6 +147,7 @@ jagg.template("buildDeploy/list", function (inputs, outputs, jagg) { %>
 <!-- loading javascript files to the page after page is rendering -->
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/buildDeploy/list/js/list.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom-logview.js'))%>"></script>
 <!-- end of loading javascript files -->
 
 <% }); %>

@@ -355,6 +355,9 @@ a.btn-action {
     .modal-md{
         width: 60%;
     }
+    .version-url{
+        width:41.8%;
+    }
 }
 /* use for landing page blocks*/
 
@@ -1642,7 +1645,7 @@ a.btn-action {
     color: #cecece;
     word-break: break-all;
     word-wrap: break-word;
-    border: 1px solid #444;
+    border: 1px solid #444;    
     background-color:#333;
     border-radius:0;
     max-height: 340px;
@@ -2043,9 +2046,11 @@ a.btn-action {
 }
 .notification-glow {
     -webkit-animation: glow .5s infinite alternate;
+    -moz-animation: glow .5s infinite alternate;
+    animation: glow .5s infinite alternate;
 }
 
-@-webkit-keyframes glow {
+@keyframes glow {
     to {
         text-shadow: 0 0 10px red;
     }
@@ -2380,27 +2385,6 @@ th.hide-column-data, td.hide-column-data {
     color:#999;
 }
 
-.build-logs-modal .modal-body textarea{
-    font-size:11px;
-    color:#eee;
-    margin:0px;
-    background:none;
-    border:none;
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    border-radius: 0px;
-}
-.build-logs-modal .modal-body textarea{
-    min-width:3200px;
-    height:300px;
-    padding:0px;
-    border: none;
-    overflow: auto;
-    outline: none;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-}
 /* build logs model body scroll */
 .build-logs-modal .modal-dialog{
     overflow-y: initial !important
@@ -2409,7 +2393,28 @@ th.hide-column-data, td.hide-column-data {
     min-height: 300px;
     max-height:400px;
     overflow-y: auto;
+    white-space: pre-line;
+    margin-top: 20px;
 }
+#log-search{
+    color: #000;
+}
+
+.div-search {
+    padding: 19px 0px 5px;
+    background-color: #5F5F5F;
+    margin: -15px;
+}
+
+.highlight {
+    background-color: #2C81DC;
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); /* FF3.5+ */
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); /* Saf3.0+, Chrome */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); /* Opera 10.5+, IE 9.0 */
+    padding:1px 4px;
+    margin:0 -4px;
+}
+
 .editroles > span.fw-stack{
     font-size:0.8em;
 }
@@ -2440,3 +2445,4 @@ th.hide-column-data, td.hide-column-data {
 .modal-header button.close-override:focus {
     outline:none;
 }
+

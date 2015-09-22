@@ -9,6 +9,19 @@ var buildCompleted = false;
 // initialize the page when document is ready
 $(document).ready(function() {
     init();
+      $('#log-search').bind('keyup change', function(ev) {
+        // pull in the new value
+        var searchTerm = $(this).val();
+
+        // remove any old highlighted terms
+        $('.scroll-container').removeHighlight();
+
+        // disable highlighting if empty
+        if ( searchTerm ) {
+            // highlight the new term
+            $('.scroll-container').highlight( searchTerm );
+        }
+    });
 });
 
 var init = function() {
