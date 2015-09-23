@@ -40,6 +40,8 @@ jagg.template("application/user/list", function (inputs, outputs, jagg) { %>
     var loggedInUser = '<%=jagg.getUser()%>';
     var appOwnerRole = '<%=ROLE_APP_OWNER%>';
     var pendingUsers = JSON.parse('<%=stringify(pendingUsers)%>');
+    var editRolesUrl =
+        '<%=jagg.getAbsoluteUrl("/site/pages/user-update.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'
 
     // TODO remove usage of this variable after edit user page is done
     var editUserRoleLink = "<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>";
