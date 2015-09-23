@@ -34,6 +34,9 @@ jagg.module("tenant", {
     getPendingUsersOfTenantByAppKey:function () {
         return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getPendingUsersOfTenantByAppKey.apply(this, arguments);
     },
+    getAllUserDisplayRoles:function () {
+        return jagg.require(jagg.getModulesDir() + "tenant/users/get/get.jag").getAllUserDisplayRoles.apply(this, arguments);
+    },
    updateUserRoles:function () {
         return jagg.require(jagg.getModulesDir() + "tenant/users/add/add.jag").updateUserRoles.apply(this, arguments);
    },

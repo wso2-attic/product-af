@@ -20,6 +20,7 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+include("/jagg/util.jag");
 
 var log = new Log('modules/tenant/users/get/get.jag');
 
@@ -49,7 +50,7 @@ var getUserInfo = function getUserInfo(userName) {
         var ns=new Namespace("http://service.mgt.tenant.appfactory.carbon.wso2.org");
         var user = result.ns::["return"];
         var tmpuserName=user.*::["userName"];
- 
+
         if(tmpuserName.length()==0){
         	return null;
         }
@@ -199,6 +200,38 @@ function convertTenantUsersArrayForDisplay(users){
         returnUsersArray.push(tempUser);
     }
     return returnUsersArray;
+}
+
+function getAllUserDisplayRoles(){
+
+    var allAfRoles = application.get(ALL_AF_ROLES);
+    if(isEmpty(allAfRoles)){
+        // TODO: get this from cloudmgt
+        allAfRoles = [
+            {
+                role:'developer',
+                displayName:'Developer'
+            },
+            {
+                role:'devops',
+                displayName:'DevOps'
+            },
+            {
+                role:'qa',
+                displayName:'QA'
+            },
+            {
+                role:'appowner',
+                displayName:'Application Owner'
+            },
+            {
+                role:'cxo',
+                displayName:'CXO'
+            }
+        ];
+        application.put(ALL_AF_ROLES, allAfRoles);
+    }
+    return allAfRoles;
 }
 
 
