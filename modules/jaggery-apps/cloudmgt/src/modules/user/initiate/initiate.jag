@@ -104,8 +104,7 @@ var loginWithSAMLToken = function (token) {
 
     var finalResult={};
     if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
-        var cookie = (xhr.getAllResponseHeaders());
-        var cookieString = cookie.split(";")[0].split(":")[1];
+        var cookieString = xhr.getResponseHeader("Set-Cookie").split(";")[0];
         var userName = ssoRelyingParty.getSAMLResponseNameId(token);
         jagg.setUser(userName);
         session.put("LOGGED_IN_USER", userName);
