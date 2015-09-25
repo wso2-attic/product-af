@@ -983,7 +983,7 @@ class {"greg":
   owner              => $owner,
   group              => $group,
   sub_cluster_domain => "mgt",
-  registry_db_schema => $dev_registry_db_schema,
+  registry_db_schema => $ppaas_registry_db_schema,
   user_store         => $ppaas_userstore,
   config_db_schema   => $dev_config_db_schema,
   stage_subdomain    => "dev",

@@ -63,7 +63,7 @@ do
     
     [ "$PUPPET_PW" = "$PUPPET_PW_2" ] && break
     echo "Password confirmation failed please try again ..." 
-donek
+done
 
 #PKG_OK=$(dpkg-query -W --showformat='${Status}\n' mkpasswd 2>/dev/null | grep -c "install ok installed")
 #echo Checking for somelib: $PKG_OK
