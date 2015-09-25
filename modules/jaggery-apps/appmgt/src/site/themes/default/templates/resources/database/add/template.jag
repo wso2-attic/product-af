@@ -23,6 +23,7 @@ var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var isDefaultMode = request.getParameter("isDefaultMode");
 var dbCreationAllowedStages = outputs.dbCreationAllowedStages;
+var dbUsers = outputs.dbUsers;
 isEdit = request.getParameter("isEdit");
 appInfo=session.get("APP_INFO");
 language=appInfo.language;
@@ -63,8 +64,9 @@ language=appInfo.language;
                     <div class="clearfix"></div>
                     
                     <div class="form-group col-md-6">
-                        <label for="user-name">Default User Name: </label>
-                        <input type="text" class="form-control" id="user-name" maxlength="5" placeholder="Enter the user name">
+                        <label for="user-name-select">Default User Name: </label>
+                        <select id="user-name-select" class="form-control select2">
+                        </select>
                     </div>
 
                     <div class="clearfix"></div>
@@ -101,7 +103,7 @@ language=appInfo.language;
 
                     <div class="clearfix"></div>
                     <div class="form-group">
-                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="addNewDatabase()" >
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-database" onclick="addNewDatabase()" >
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-add fw-stack-1x"></i>
@@ -114,29 +116,11 @@ language=appInfo.language;
         </div>
     </div><!-- /.container -->
 
-<!-- Modal -->
-    <div class="modal fade" id="password-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
-         >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Password Generator</h4>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Use this Password</button>
-                </div>
-            </div>
-        </div>
-    </div>
 <!-- start of setting global javascript variable values from jaggery side -->
 <script type="text/javascript" charset="utf-8">
     var appName = "<%=applicationName%>";
     var appKey = "<%=applicationKey%>";
+    var dbUsers = '<%=dbUsers%>';
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/resources/database/add/js/add.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/pgenerator-1.0.0/pGenerator.jquery.js'))%>"></script>
