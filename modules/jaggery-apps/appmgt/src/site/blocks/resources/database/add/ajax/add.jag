@@ -246,6 +246,11 @@ var loggedInUser = jagg.getUser();
 						log.debug("Error while attaching new user :" + userName + ". Rollback database : " + actualDBName + " creation....");
 					}
 					mod.dropDatabase(applicationKey,actualDBName,databaseServerInstanceName);
+					// sending proper error message to front end. APPFAC-3457
+					response.error = true;
+					response.errorMessage = "Error while attaching user.";
+					print(response);
+					return;
 				}
 			} catch (e) {
 				dbResult = e.javaException.cause;
