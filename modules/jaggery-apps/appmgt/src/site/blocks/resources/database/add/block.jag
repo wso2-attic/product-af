@@ -37,8 +37,11 @@ jagg.block("resources/database/add", {
                 dbCreationAllowedStages.push(allStages[i]);
             }
         }
+        var resourceModule = jagg.module("resources");
+        var dbUsers = resourceModule.getDatabaseUsers(applicationKey);
         return {
-           	   "dbCreationAllowedStages":dbCreationAllowedStages
+            "dbCreationAllowedStages": dbCreationAllowedStages,
+            "dbUsers": dbUsers
            };
         }
   });
