@@ -81,7 +81,6 @@ var log = new Log();
                 return;
             }
         	
-        	
             if ( currentStage != stageName){
                 // check whether current stage and the stage user saw is the same.
                 throw new Error("Unable to complete the governance operation. Application stage is already changed to : " +
@@ -96,16 +95,25 @@ var log = new Log();
                 var buildModule = jagg.module("build");
                 buildModule.deployArtifact(applicationKey, previousStage, version, tagName, PROMOTE);
             }
-            stratosApplicationId = commonUtil.generateUniqueStratosApplicationId(tenantId, applicationKey, version,
-                                                                                 currentStage)
-            try{
-                stratosRestClient.getInstance(stratosServerUrl,userName).undeployAndDeleteApplication(stratosApplicationId)
-            }catch (e) {
-                var errorMsg = "Failed to delete stratos application for action : " + action;
-                log.error(errorMsg);
-                log.error(e);
-                response.status = 500;
-                response.content = errorMsg;
+            var applicationType = manager.getApplicationType(applicationKey);
+            var applicationTypeBean = manager.getApplicationTypeBean(applicationType);
+
+            var runtimeNameForAppType = applicationTypeBean.getRuntimes()[0];
+            var isSubscribeOndeployment = manager.getRuntimeBean(runtimeNameForAppType).getSubscribeOnDeployment();
+
+            // Deleting this stage pod if it's a single tenant application
+            if(isSubscribeOndeployment){
+                stratosApplicationId = commonUtil.generateUniqueStratosApplicationId(tenantId, applicationKey, version,
+                        currentStage)
+                try{
+                    stratosRestClient.getInstance(stratosServerUrl,userName).undeployAndDeleteApplication(stratosApplicationId)
+                }catch (e) {
+                    var errorMsg = "Failed to delete stratos application for action : " + action;
+                    log.error(errorMsg);
+                    log.error(e);
+                    response.status = 500;
+                    response.content = errorMsg;
+                }
             }
 
             var revision = '0';
@@ -120,8 +128,7 @@ var log = new Log();
                 deployAction = "rePromote";
             }
 
-			var applicationType = manager.getApplicationType(applicationKey);
-			var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+			var isUploadableAppType = applicationTypeBean.isUploadableAppType();
 			var aspect;
 			if(isUploadableAppType){
 				aspect = UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME;

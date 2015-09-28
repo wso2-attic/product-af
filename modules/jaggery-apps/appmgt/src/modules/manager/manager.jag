@@ -240,6 +240,11 @@ var getApplicationTypeBean=function(applicationType){
     return applicationTypeManager.getApplicationTypeBean(applicationType);
 }
 
+var getRuntimeBean = function(runtimeName){
+    var runtimemanagerClass = Packages.org.wso2.carbon.appfactory.core.runtime.RuntimeManager
+    return runtimemanagerClass.getInstance().getRuntimeBean(runtimeName);
+}
+
 var getUploadableApplicationMaxSize = function(){
     var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
     return AppFactoryUtil.getUploadableArtifactMaxSize();
