@@ -3,7 +3,8 @@
 
 . ./config.properties
 
-sudo service dnsmasq restart
+service dnsmasq restart
+service nginx stop
 
 sudo su $APPFACTORY_USER <<'EOF'
 
@@ -17,10 +18,11 @@ afpath=appfactory/wso2appfactory-$APPFACTORY_VERSION
 bampath=bam/wso2bam-$BAM_VERSION
 mbpath=mb/wso2mb-$MB_VERSION
 jenkinspath=jenkins
+gregpath=wso2greg-$GREG_VERSION
 bpspath=bps/wso2bps-$BPS_VERSION
 uespath=ues/wso2ues-$UES_VERSION
 apimpath=api-manager/wso2am-$APIM_VERSION
-storagepath=ss/wso2ss-$SS_VERSOIN
+storagepath=ss/wso2ss-$STORAGE_VERSOIN
 
 echo "STOPPING SERVERS..."
 
@@ -49,7 +51,6 @@ echo "starting BPS"
 echo "starting UES"
 ./$uespath/bin/wso2server.sh start
 
-
 echo "starting s2-gitblit"
 cd s2gitblit/
 /bin/bash start-gitblit.sh
@@ -65,11 +66,16 @@ echo "starting APIM"
 echo "starting stogare server"
 ./$storagepath/bin/wso2server.sh start
 
+echo "starting greg servers"
+./dev_greg/$gregpath/bin/wso2server.sh start
+./test_greg/$gregpath/bin/wso2server.sh start
+./prod_greg/$gregpath/bin/wso2server.sh start
+
 sleep 5s
 
+echo "starting stratos"
 setup_path="$CURRENT_DIR/ppaas/privatepaas/stratos-installer"
 $setup_path/start-servers.sh -p default restart
 sleep 10s
-
 
 EOF
