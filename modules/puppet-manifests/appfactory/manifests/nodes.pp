@@ -83,6 +83,48 @@ node basenode {
   $jenkins_admin_password_hash = '#jbcrypt:$2a$10$WuhaeQqp36TXkTbUWZLxiOUkfJabKS1Ex4tFNqoRlzpeXhK7hY3am'
   $jenkins_admin_email = 'jenkinsadmin@cloud.com'
 
+#Stratos configs
+  $app_id_prefix      = "as"
+
+#Dev
+  $dev_app_id               = "${app_id_prefix}development"
+
+#Test
+  $test_app_id              = "${app_id_prefix}testing"
+
+#Prod
+  $prod_app_id              = "${app_id_prefix}production"
+
+#AF stratos cartridge information
+  $deployment_policy    = "af-deployment"
+  $autoscale_policy     = "economy"
+
+#Single Tenant Applicatoin configs
+  $single_tenant_application_policy_id = "application-policy-st"
+
+  $autoscaling_policy_id = "autoscaling-policy"
+  $deployment_policy_id = "deployment-policy"
+
+  $appserver_cartridge_alias_prefix      = "as"
+  $appserver_cartridge_type_prefix       = "${dev_id}as"
+
+#Dev
+  $dev_cartridge_alias      = "asdevelopment"
+  $dev_cartridge_type       = "${dev_id}asdevelopment"
+  $php_dev_cartridge_alias  = "{@appName}"
+  $php_dev_cartridge_type  = "php"
+
+#Test
+  $test_cartridge_alias     = "astesting"
+  $test_cartridge_type      = "${dev_id}astesting"
+  $php_test_cartridge_alias  = "{@appName}"
+  $php_test_cartridge_type  = "php"
+
+#Prod
+  $prod_cartridge_alias     = "asproduction"
+  $prod_cartridge_type      = "${dev_id}asproduction"
+  $php_prod_cartridge_alias  = "{@appName}"
+  $php_prod_cartridge_type  = "php"
 
 
 ############## Stratos DBS for Dev Setup #########################
@@ -96,27 +138,15 @@ node basenode {
   $ppaas_config_db           = [$mysql_server_1, $ppaas_config_db_schema,'root','root']
 
 ## Dev ##
- # $dev_registry_db_schema  = "devregistry"
- # $dev_userstore           = "devuserstore"
   $dev_config_db_schema    = "DEV_CONFIG_DB"
- # $devpaas_database       = [$mysql_server_1,$dev_registry_db_schema,'root','root']
- # $dev_userstore_db         = [$mysql_server_1, $dev_userstore,'root','root']
   $dev_config_db         = [$mysql_server_1, $dev_config_db_schema,'root','root']
 
 ## Test ##
- # $test_registry_db_schema  = "testregistry"
- # $test_userstore           = "testuserstore"
   $test_config_db_schema    = "TEST_CONFIG_DB"
- # $testpaas_database       = [$mysql_server_1,$test_registry_db_schema,'root','root']
- #$test_userstore_db         = [$mysql_server_1, $test_userstore,'root','root']
   $test_config_db         = [$mysql_server_1, $test_config_db_schema,'root','root']
 
 ## Prod ##
-  #$prod_registry_db_schema  = "prodregistry"
-  #$prod_userstore           = "produserstore"
   $prod_config_db_schema    = "PROD_CONFIG_DB"
-  #$prodpaas_database       = [$mysql_server_1,$prod_registry_db_schema,'root','root']
-  #$prod_userstore_db         = [$mysql_server_1, $prod_userstore,'root','root']
   $prod_config_db         = [$mysql_server_1, $prod_config_db_schema,'root','root']
 
   $domain         = 'appfactory.private.wso2.com'
@@ -157,7 +187,10 @@ node basenode {
     "$ipaddress,mysql-prod-01.${domain}",
     "$ipaddress,gregserver.dev.${domain}",
     "$ipaddress,gregserver.test.${domain}",
-    "$ipaddress,gregserver.prod.${domain}"
+    "$ipaddress,gregserver.prod.${domain}",
+    "$ipaddress,$dev_cartridge_alias.${domain}",
+    "$ipaddress,$test_cartridge_alias.${domain}",
+    "$ipaddress,$prod_cartridge_alias.${domain}"
   ]
 
   include 'wso2base'
@@ -347,50 +380,6 @@ node confignode inherits basenode  {
   $appfactory_tenant_mgt_service_epr= "sc.${wso2_env_domain}"
   $jenkins_admin_user         = "jenkinssystemadmin"
   $jenkins_admin_password     = "password"
-
-#AF stratos application information
-
-  $app_id_prefix      = "as"
-
-#Dev
-  $dev_app_id               = "${app_id_prefix}development"
-
-#Test
-  $test_app_id              = "${app_id_prefix}testing"
-
-#Prod
-  $prod_app_id              = "${app_id_prefix}production"
-
-#AF stratos cartridge information
-  $deployment_policy    = "af-deployment"
-  $autoscale_policy     = "economy"
-
-#Single Tenant Applicatoin configs
-  $single_tenant_application_policy_id = "application-policy-st"
-
-  $autoscaling_policy_id = "autoscaling-policy"
-  $deployment_policy_id = "deployment-policy"
-
-  $appserver_cartridge_alias_prefix      = "as"
-  $appserver_cartridge_type_prefix       = "${dev_id}as"
-
-#Dev
-  $dev_cartridge_alias      = "asdevelopment"
-  $dev_cartridge_type       = "${dev_id}asdevelopment"
-  $php_dev_cartridge_alias  = "{@appName}"
-  $php_dev_cartridge_type  = "php"
-
-#Test
-  $test_cartridge_alias     = "astesting"
-  $test_cartridge_type      = "${dev_id}astesting"
-  $php_test_cartridge_alias  = "{@appName}"
-  $php_test_cartridge_type  = "php"
-
-#Prod
-  $prod_cartridge_alias     = "asproduction"
-  $prod_cartridge_type      = "${dev_id}asproduction"
-  $php_prod_cartridge_alias  = "{@appName}"
-  $php_prod_cartridge_type  = "php"
 
 # AF domain mapping
   $allow_dev_domainmapping  = 'false'
