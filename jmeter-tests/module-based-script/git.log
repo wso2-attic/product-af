@@ -1,14 +1,35 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERiqpbcpl9developer%40puva1.cAlready up-to-date.
-[dockersupport-1.1 7009398] commit
- 2 files changed, 8 insertions(+), 7 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/53667506-7d63-4b9d-a3df-7eaf8d0d7caf/6e93f30e-11bc-4c26-a95f-4236084286f8.java
+[dockersupport-1.1 ccdc0c4] commit
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/2d22f031-8d6f-46fa-83a0-4a504609ebb3/9a597535-dbfb-4b12-b2db-bc37784e915d.java
 a
 44-1749-4cbd-934a-da3b90c317d8.java
 99ce6fbd9b/APPu98pC0sDwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit b52735662a86ce896e14c6c038e478bb2ddcc2d0.
+Warning: commit 29f3619e4e9ad8009cc777aceab81e65f39a23ce.
+fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
+Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff 29f3619e4e9ad8009cc777aceab81e65f39a23ce
+output, run
+$ git reset --hard
+to recover.
+fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
+fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
 warning: push.default is unset; its implicit value is changing in
 Git 2.0 from 'matching' to 'simple'. To squelch this message
 and maintain the current behavior after the default changes, use:
@@ -20,31 +41,6 @@ To squelch this message and adopt the new behavior now, use:
   git config --global push.default simple
 
 When push.default is set to 'matching', git will push local branches
-to the remote branches that already exist with the same name.
-
-In Git 2.0, Git will default to the more conservative 'simple'
-behavior, which only pushes the current branch to the corresponding
-remote branch that 'git pull' uses to update the current branch.
-
-See 'git help config' and search for 'push.default' for further information.
-(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
-'current' instead of 'simple' if you sometimes use older versions of Git)
-
-duced in Git 1.7.11. Use the similar mode
-'current' instead of 'simple' if you sometimes use older versions of Git)
-
-t will push local branches
-to the remote branches that already exist with the same name.
-
-In Git 2.0, Git will default to the more conservative 'simple'
-behavior, which only pushes the current branch to the corresponding
-remote branch that 'git pull' uses to update the current branch.
-
-See 'git help config' and search for 'push.default' for further information.
-(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
-'current' instead of 'simple' if you sometimes use older versions of Git)
-
- push local branches
 to the remote branches that already exist with the same name.
 
 In Git 2.0, Git will default to the more conservative 'simple'
