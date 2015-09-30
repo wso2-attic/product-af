@@ -1,5 +1,4 @@
-Cloning into 'APPdKYF6pbcwar'...
-fatal: https://USERn08SrtNedeveloper%40puva1.com:password@s2git.appfactory.private.wso2.com/git/puva1.com/APPUbGXjeBwwar.git/info/refs not valid: is this a git repository?
-./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/41a1f972-a02c-43d2-89df-20549a0ee0c1/APPUbGXjeBwwar/: No such file or directory
-Your configuration specifies to merge with the ref 'dockersupport-1.1'
-from the remote, but no such ref was fetched.
+Cloning into 'APPE92QALIawar'...
+fatal: https://USERfU1oijDndeveloper%40puva1.cAlready up-to-date.
+pfactory.private.wso2.com/git/puva1.com/APPdKYF6pbcwar.git/info/refs not valid: is this a git repository?
+./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/8dcc5541-64d0-4c42-8d8b-38afa438f016/APPdKYF6pbcwar/: No such file or directory
