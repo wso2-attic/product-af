@@ -1,10 +1,9 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERnFal7JIsdeveloper%40puva1.cAlready up-to-date.
-ad3139] commit
- 1 file changed, 8 insertions(+), 7 deletions(-)
-s(+), 2 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/0baa461a-4aec-484b-afe0-09460764a4e8/83d8e89b-e68d-4320-b70b-943a0bc0063c.java
-t/puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
+[dockersupport-1.1 c64dc16] commit
+ 2 files changed, 22 insertions(+), 6 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/0b494f0c-9a96-414b-b54a-dd9040c44e72/c53e7e2e-cb7a-4f54-a945-f5c139b7dc8b.java
+/puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 17cdd6fc6973c9d827208544e55eca18935c28f6.
@@ -26,8 +25,10 @@ behavior, which only pushes the current branch to the corresponding
 remote branch that 'git pull' uses to update the current branch.
 
 See 'git help config' and search for 'push.default' for further information.
-(the 'simple' mode was introduced in Git 1.7.11. Use the similar mwarning: push.default is unset; its implicit value is changing in
-Git 2.0 from 'matching' to 'simple'. To squelch this message
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+'matching' to 'simple'. To squelch this message
 and maintain the current behavior after the default changes, use:
 
   git config --global push.default matching
