@@ -1,14 +1,12 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERnFal7JIsdeveloper%40puva1.cAlready up-to-date.
-657f95] commit
- 2 files changed, 24 insertions(+), 3 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/2d938450-bc46-4443-887c-1afa4613e6f2/a92dab9f-450c-4521-9f66-ec94a2382ab5.java
-/module-based-script/puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
+[dockersupport-1.1 e29bbcc] commit
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/0baa461a-4aec-484b-afe0-09460764a4e8/83d8e89b-e68d-4320-b70b-943a0bc0063c.java
+t/puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 5b979759e8144482dfd2aae441993a14c7b6d219.
-Your configuration specifies to merge with the ref 'dockersupport-1.1'
-from the remote, but no such ref was fetched.
+Warning: commit df4b6b4c4b557be090e58d7f1504a1f57e6d0e0e.
 warning: push.default is unset; its implicit value is changing in
 Git 2.0 from 'matching' to 'simple'. To squelch this message
 and maintain the current behavior after the default changes, use:
@@ -28,5 +26,8 @@ remote branch that 'git pull' uses to update the current branch.
 
 See 'git help config' and search for 'push.default' for further information.
 (the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+duced in Git 1.7.11. Use the similar mode
 'current' instead of 'simple' if you sometimes use older versions of Git)
 
