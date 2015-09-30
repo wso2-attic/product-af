@@ -1,15 +1,13 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERiqpbcpl9developer%40puva1.cAlready up-to-date.
-c79aa7] commit
- 2 files changed, 48 insertions(+), 2 deletions(-)
- rewrite jmeter-tests/module-based-script/git.log (100%)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/26402e68-9dfc-4f4b-8a6b-eced18458f58/a615f544-1749-4cbd-934a-da3b90c317d8.java
+[dockersupport-1.1 a91c790] commit
+ 2 files changed, 18 insertions(+), 11 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/f59345c7-8875-42c9-b297-e272c6a0fb22/6863a029-e743-4ebd-b2c7-154bdf49aba6.java
+44-1749-4cbd-934a-da3b90c317d8.java
 99ce6fbd9b/APPu98pC0sDwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 914be7c652ac6db1b754149d8bd467b73f907e24.
-Your configuration specifies to merge with the ref 'dockersupport-1.1'
-from the remote, but no such ref was fetched.
+Warning: commit b52735662a86ce896e14c6c038e478bb2ddcc2d0.
 warning: push.default is unset; its implicit value is changing in
 Git 2.0 from 'matching' to 'simple'. To squelch this message
 and maintain the current behavior after the default changes, use:
@@ -29,6 +27,9 @@ remote branch that 'git pull' uses to update the current branch.
 
 See 'git help config' and search for 'push.default' for further information.
 (the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+duced in Git 1.7.11. Use the similar mode
 'current' instead of 'simple' if you sometimes use older versions of Git)
 
 t will push local branches
