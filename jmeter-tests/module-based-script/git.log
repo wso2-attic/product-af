@@ -1,34 +1,3 @@
-Cloning into 'APPNkJwVIxRwar'...
-fatal: https://USERQBdnNhPVdeveloper%40puva1.com:password@s2git.appfactory.private.wso2.com/git/puva1.com/APP0jmlzxRVwar.git/info/refs not valid: is this a git repository?
-./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/b19fed1e-143f-4694-9831-347990929d4c/APP0jmlzxRVwar/: No such file or directory
-Warning: fetch updated the current branch head.
-Warning: fast-forwarding your working tree from
-Warning: commit ee8ea9a267d7e5c88afffb26405840ec994f42dc.
-Your configuration specifies to merge with the ref 'dockersupport-1.1'
-from the remote, but no such ref was fetched.
-fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-warning: push.default is unset; its implicit value is changing in
-Git 2.0 from 'matching' to 'simple'. To squelch this message
-and maintain the current behavior after the default changes, use:
-
-  git config --global push.default matching
-
-To squelch this message and adopt the new behavior now, use:
-
-  git config --global push.default simple
-
-When push.default is set to 'matching', git will push local branches
-to the remote branches that already exist with the same name.
-
-In Git 2.0, Git will default to the more conservative 'simple'
-behavior, which only pushes the current branch to the corresponding
-remote branch that 'git pull' uses to update the current branch.
-
-See 'git help config' and search for 'push.default' for further information.
-(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
-'current' instead of 'simple' if you sometimes use older versions of Git)
-
+Cloning into 'APP5rHNMgfPwar'...
+fatal: https://USERfmdVV5PRdeveloper%40puva1.com:password@s2git.appfactory.private.wso2.com/git/puva1.com/APPOejZWxfuwar.git/info/refs not valid: is this a git repository?
+./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/996cd8a0-7cf6-470e-8c1a-43f22fe1ccaa/APPOejZWxfuwar/: No such file or directory
