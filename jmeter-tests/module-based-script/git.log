@@ -1,19 +1,21 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERnFal7JIsdeveloper%40puva1.cAlready up-to-date.
-[dockersupport-1.1 ac532e6] commit
- 2 files changed, 25 insertions(+), 21 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/e54df9ee-b697-4caf-962f-5695f14a10de/e311b438-17b4-4ef3-88bb-38bd9f0ce893.java
+[dockersupport-1.1 ba8452c] commit
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/996cd8a0-7cf6-470e-8c1a-43f22fe1ccaa/1a27391b-e50c-4ab1-a88f-7d25cd56cbc2.java
+a
 puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 54eb9800ed7fa36ad6e820275dca690ffe1362db.
-warning: push.default is unset; its implicit value is changing in
-Git 2.0 from 'matching' to 'simple'. To squelch this message
-and maintain the current behavior after the default changes, use:
-
-  git config --global push.default matching
-
-To squelch this message and adopt the new behavior now, use:
+Warning: commit 5ebbc68087757302ae40e147c0e7ec42c38552ba.
+error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
+Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff 5ebbc68087757302ae40e147c0e7ec42c38552ba
+output, run
+$ git reset --hard
+to recover.
+ow, use:
 
   git config --global push.default simple
 
