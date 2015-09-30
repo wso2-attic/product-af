@@ -1,21 +1,12 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERnFal7JIsdeveloper%40puva1.cAlready up-to-date.
-923c56] commit
+[dockersupport-1.1 34e9502] commit
  2 files changed, 13 insertions(+), 11 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/e2703d53-ccb1-4ee1-a2aa-c4f59a226ded/3ef92e74-1203-4863-9168-a81c55cd8a6b.java
-7d25cd56cbc2.java
-a
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/30e83d3f-a0ad-49d2-877f-e898f1062bd9/cdf67353-732d-4ad9-b873-73851e33db50.java
 puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 159e82137e61e0c745aecd892757033172f65642.
-error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
-Cannot fast-forward your working tree.
-After making sure that you saved anything precious from
-$ git diff 5ebbc68087757302ae40e147c0e7ec42c38552ba
-output, run
-$ git reset --hard
-to recover.
+Warning: commit 5df94a375919a9cea20710ee920922b872d68111.
 warning: push.default is unset; its implicit value is changing in
 Git 2.0 from 'matching' to 'simple'. To squelch this message
 and maintain the current behavior after the default changes, use:
@@ -31,6 +22,13 @@ to the remote branches that already exist with the same name.
 
 In Git 2.0, Git will default to the more conservative 'simple'
 behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+ng
 remote branch that 'git pull' uses to update the current branch.
 
 See 'git help config' and search for 'push.default' for further information.
