@@ -1,0 +1,3 @@
+Cloning into 'APP5rHNMgfPwar'...
+fatal: https://USERzyXJZZObdeveloper%40puva1.com:password@s2git.appfactory.private.wso2.com/git/puva1.com/APPOejZWxfuwar.git/info/refs not valid: is this a git repository?
+./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/38ae6b7d-0b27-4870-876c-d558598e3896/APPOejZWxfuwar/: No such file or directory
