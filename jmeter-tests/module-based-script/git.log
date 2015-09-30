@@ -1,4 +1,7 @@
-Cloning into 'APPOejZWxfuwar'...
-fatal: https://USERLHQrgs5zdeveloper%40puva1.cAlready up-to-date.
-pfactory.private.wso2.com/git/puva1.com/APPNkJwVIxRwar.git/info/refs not valid: is this a git repository?
-./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/c8b43a67-0a43-4aa8-8a50-63669a572519/APPNkJwVIxRwar/: No such file or directory
+Cloning into 'APP5rHNMgfPwar'...
+fatal: https://USERt8Qdy6Lcdeveloper%40puva1.cAlready up-to-date.
+pfactory.private.wso2.com/git/puva1.com/APPOejZWxfuwar.git/info/refs not valid: is this a git repository?
+./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/31773571-18ad-4c68-8003-d0a9d865b297/APPOejZWxfuwar/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit c1eacbd9a318056c087054485040d398c1dca0b7.
