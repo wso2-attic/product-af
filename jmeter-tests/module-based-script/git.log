@@ -1,13 +1,14 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERnFal7JIsdeveloper%40puva1.cAlready up-to-date.
-[dockersupport-1.1 ba8452c] commit
- 2 files changed, 3 insertions(+), 3 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva1.com/996cd8a0-7cf6-470e-8c1a-43f22fe1ccaa/1a27391b-e50c-4ab1-a88f-7d25cd56cbc2.java
+923c56] commit
+ 2 files changed, 13 insertions(+), 11 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/e2703d53-ccb1-4ee1-a2aa-c4f59a226ded/3ef92e74-1203-4863-9168-a81c55cd8a6b.java
+7d25cd56cbc2.java
 a
 puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit 5ebbc68087757302ae40e147c0e7ec42c38552ba.
+Warning: commit 159e82137e61e0c745aecd892757033172f65642.
 error: Entry 'jmeter-tests/module-based-script/git.log' would be overwritten by merge. Cannot merge.
 Cannot fast-forward your working tree.
 After making sure that you saved anything precious from
@@ -15,7 +16,13 @@ $ git diff 5ebbc68087757302ae40e147c0e7ec42c38552ba
 output, run
 $ git reset --hard
 to recover.
-ow, use:
+warning: push.default is unset; its implicit value is changing in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the current behavior after the default changes, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
 
   git config --global push.default simple
 
@@ -30,12 +37,7 @@ See 'git help config' and search for 'push.default' for further information.
 (the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
 'current' instead of 'simple' if you sometimes use older versions of Git)
 
-f/.git/index.lock': File exists.
-
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-warning: push.default is unset; its implicit value is changing in
+nging in
 Git 2.0 from 'matching' to 'simple'. To squelch this message
 and maintain the current behavior after the default changes, use:
 
