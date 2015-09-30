@@ -1,4 +1,8 @@
-Cloning into 'APPu98pC0sDwar'...
-fatal: https://USERxZLYiajMdeveloper%40puva1.cAlready up-to-date.
-pfactory.private.wso2.com/git/puva1.com/APP5rHNMgfPwar.git/info/refs not valid: is this a git repository?
-./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/4f658815-ebd5-41ba-97a9-172d2a8118eb/APP5rHNMgfPwar/: No such file or directory
+Cloning into 'APP22bzO6xVwar'...
+fatal: https://USERZRChNpOHdeveloper%40puva1.com:password@s2git.appfactory.private.wso2.com/git/puva1.com/APPu98pC0sDwar.git/info/refs not valid: is this a git repository?
+./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/621fa44f-dd09-4a0d-a293-594a5d8ca2cc/APPu98pC0sDwar/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit 4d1e4738f71fe24f7c9f713f511d681fb224cda1.
+Your configuration specifies to merge with the ref 'dockersupport-1.1'
+from the remote, but no such ref was fetched.
