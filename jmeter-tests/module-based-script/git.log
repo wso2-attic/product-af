@@ -1,30 +1,35 @@
 Cloning into 'APP22bzO6xVwar'...
 fatal: https://USERnFal7JIsdeveloper%40puva.coAlready up-to-date.
-[dockersupport-1.1 eaa4ac1] commit
- 2 files changed, 8 insertions(+), 6 deletions(-)
- create mode 100644 jmeter-tests/module-based-script/puva.com/e1432a94-1274-41d5-b71f-332b8e829eac/7211fa64-f754-43bb-b91a-af7bd9122c43.java
-0143e1-a489-4aea-8b91-e44b109e4990.java
+[dockersupport-1.1 85a6f12] commit
+ 2 files changed, 26 insertions(+), 23 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva.com/656566e2-2f2c-4398-b106-c3aedb28e4ad/3b432d16-c9bb-42ad-abd5-24f971c5ff45.java
+43e1-a489-4aea-8b91-e44b109e4990.java
 35fe69/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
-Warning: commit a525f744d06acdae96d6b4dba663269544d1b8cd.
-fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+Warning: commit da2745ce8c9d77d33bc102bdbc766d3b4d4abeac.
+warning: push.default is unset; its implicit value is changing in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the current behavior after the default changes, use:
 
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-Cannot fast-forward your working tree.
-After making sure that you saved anything precious from
-$ git diff a525f744d06acdae96d6b4dba663269544d1b8cd
-output, run
-$ git reset --hard
-to recover.
-fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+  git config --global push.default matching
 
-If no other git process is currently running, this probably means a
-git process crashed in this repository earlier. Make sure no other git
-process is running and remove the file manually to continue.
-fatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+In Git 2.0, Git will default to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+f/.git/index.lock': File exists.
 
 If no other git process is currently running, this probably means a
 git process crashed in this repository earlier. Make sure no other git
