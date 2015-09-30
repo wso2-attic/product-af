@@ -1,3 +1,43 @@
-fatal: https://USER5ERqSAmJdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPGMwAlready up-to-date.
-fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/49271c51-bcdb-49f4-8bf0-88ff4c9b76d5/APPGMwn2Dllwar/: No such file or directory
+Cloning into 'APPUbGXjeBwwar'...
+=====================================password
+Updating bb8a3d0..8a13b94
+y.private.wso2.com/git/puva.com/APP22bzO6xVwar.git/info/refs not valid: is this a git repository?
+./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva.com/6bf1b90d-ccf8-4ad4-9062-7ac8ca6f30cf/APP22bzO6xVwar/: No such file or directory
+error: Ref refs/remotes/origin/dockersupport-1.1 is at 8a13b944b36310327ef80fd71ebc6eb181ff6610 but expectefatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means afatal: Unable to create '/home/punnadi/wso2/git_code_base/git/fork_af/product-af/.git/index.lock': File exists.
+
+If no other git process is currently running, this probably means a
+git process crashed in this repository earlier. Make sure no other git
+process is running and remove the file manually to continue.
+warning: push.default is unset; its implicit value is changing in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the current behavior after the default changes, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+In Git 2.0, Git will default to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+nch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+he similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
