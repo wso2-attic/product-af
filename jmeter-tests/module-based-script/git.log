@@ -1,6 +1,9 @@
 Cloning into 'APP22bzO6xVwar'...
-fatal: https://USERnFal7JIsdeveloper%40puva1.com:password@s2git.appfactory.private.wso2.com/git/puva1.com/APP22bzO6xVwar.git/info/refs not valid: is this a git repository?
-./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
+fatal: https://USERnFal7JIsdeveloper%40puva1.cAlready up-to-date.
+657f95] commit
+ 2 files changed, 24 insertions(+), 3 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/2d938450-bc46-4443-887c-1afa4613e6f2/a92dab9f-450c-4521-9f66-ec94a2382ab5.java
+/module-based-script/puva1.com/60e9b4c8-d74f-46ef-91c1-4dec03327af7/APP22bzO6xVwar/: No such file or directory
 Warning: fetch updated the current branch head.
 Warning: fast-forwarding your working tree from
 Warning: commit 5b979759e8144482dfd2aae441993a14c7b6d219.
