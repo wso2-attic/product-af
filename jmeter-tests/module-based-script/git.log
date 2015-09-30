@@ -1,8 +1,13 @@
 Cloning into 'APP22bzO6xVwar'...
-fatal: https://USERnFal7JIsdeveloper%40puva.com:password@s2git.appfactory.private.wso2.com/git/puva.com/APP22bzO6xVwar.git/info/refs not valid: is this a git repository?
-./clone_and_push.sh: line 32: cd: /home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script/puva.com/7351b45b-85aa-43b2-9a57-3a0df435fe69/APP22bzO6xVwar/: No such file or directory
-error: Ref refs/remotes/origin/dockersupport-1.1 is at 8a13b944b36310327ef80fd71ebc6eb181ff6610 but expected bb8a3d0fecb34da4fe23e467f67eeae1fdc6a30f
-From https://github.com/wso2/product-af
+fatal: https://USERnFal7JIsdeveloper%40puva.coAlready up-to-date!
+Merge made by the 'recursive' strategy.
+rtions(+), 12 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva.com/cdf9e77f-9798-456d-a876-c603c699fb81/63a13bc6-e587-4fa1-8d40-dcad63ef1014.java
+odule-based-script/puva.com/7351b45b-85aa-43b2-9a57-3a0df435fe69/APP22bzO6xVwar/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit bb8a3d0fecb34da4fe23e467f67eeae1fdc6a30f.
+ https://github.com/wso2/product-af
  ! bb8a3d0..8a13b94  dockersupport-1.1 -> origin/dockersupport-1.1  (unable to update local ref)
 warning: push.default is unset; its implicit value is changing in
 Git 2.0 from 'matching' to 'simple'. To squelch this message
