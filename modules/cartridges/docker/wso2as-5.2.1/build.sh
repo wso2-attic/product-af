@@ -20,34 +20,25 @@
 set -e
 prgdir=`dirname "$0"`
 script_path=`cd "$prgdir"; pwd`
-
+echo ${script_path}
 wso2_ppaas_version="4.1.0-SNAPSHOT"
 wso2_product_type="as"
 wso2_product_version="5.2.1"
-wso2_product_template_module_path=`cd ${script_path}/../../templates-modules/wso2${wso2_product_type}-${wso2_product_version}/; pwd`
-wso2_product_plugin_path=`cd ${script_path}/../../plugins/wso2${wso2_product_type}-${wso2_product_version}/; pwd`
-clean=false
+wso2_product_template_module_path=`cd ${script_path}/templates-module/; pwd`
+wso2_product_plugin_path=`cd ${script_path}/plugins/; pwd`
 
-if [ "$1" = "clean" ]; then
-   clean=true
-fi
+echo "-----------------------------------"
+echo "Building" ${wso2_product_type^^} - ${wso2_product_version} "template module"
+echo "-----------------------------------"
+pushd ${wso2_product_template_module_path}
+mvn clean install
+cp -vf target/wso2${wso2_product_type}-${wso2_product_version}-template-module-${wso2_ppaas_version}.zip ${script_path}/packages/
+chmod -R 777 ${script_path}/packages/wso2${wso2_product_type}-${wso2_product_version}-template-module-${wso2_ppaas_version}.zip
+popd
 
-if ${clean} ; then
-   echo "-----------------------------------"
-   echo "Building" ${wso2_product_type^^} - ${wso2_product_version} "template module"
-   echo "-----------------------------------"
-   pushd ${wso2_product_template_module_path}
-   mvn clean install
-   cp -v target/wso2${wso2_product_type}-${wso2_product_version}-template-module-${wso2_ppaas_version}.zip ${script_path}/packages/
-   popd
-
-   echo "----------------------------------"
-   echo "Copying" ${wso2_product_type^^} - ${wso2_product_version} "python plugins"
-   echo "----------------------------------"
-   pushd ${wso2_product_plugin_path}
-   cp * ${script_path}/plugins
-   popd
-fi
+echo "----------------------------------"
+echo "Copying" ${wso2_product_type^^} - ${wso2_product_version} "python plugins"
+echo "----------------------------------"
 
 echo "----------------------------------"
 echo "Building" ${wso2_product_type^^} - ${wso2_product_version} "docker image"

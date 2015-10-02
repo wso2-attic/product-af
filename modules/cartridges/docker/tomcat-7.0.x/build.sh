@@ -22,7 +22,6 @@ prgdir=`dirname "$0"`
 script_path=`cd "$prgdir"; pwd`
 
 wso2_ppaas_version="4.1.0-SNAPSHOT"
-clean=false
 
 echo "----------------------------------"
 echo "Building tomcat docker image"
