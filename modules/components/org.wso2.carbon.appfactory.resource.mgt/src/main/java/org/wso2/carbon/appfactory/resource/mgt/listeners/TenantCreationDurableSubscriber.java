@@ -82,7 +82,7 @@ public class TenantCreationDurableSubscriber {
             }
 	        topicSubscriber = topicSession.createDurableSubscriber(topic, subscriptionId);
             topicSubscriber.setMessageListener(
-                    new TenantCreatioMessageListener(topicConnection, topicSession, topicSubscriber));
+                    new TenantCreationMessageListener(topicConnection, topicSession, topicSubscriber));
             topicConnection.start();
 	        if (log.isDebugEnabled()) {
 		        log.debug("Durable Subscriber created for topic " + topicName + " with subscription id : " +
