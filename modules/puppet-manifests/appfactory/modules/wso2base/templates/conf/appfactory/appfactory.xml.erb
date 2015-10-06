@@ -53,6 +53,9 @@
 
     <EventHandlers>
         <!-- Prioity of the handlers related to App Factory -->
+        <SingleTenantApplicationEventListner>
+           <priority>65</priority>
+        </SingleTenantApplicationEventListner>
         <RepositoryHandler>
             <priority>60</priority>
         </RepositoryHandler>
@@ -504,12 +507,10 @@
                 <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
             </Promote>
             <CreateArtifact>Always</CreateArtifact>
-            <DeploymentServerURL>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %>/services/</DeploymentServerURL>
-            <LogServerURL>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %>/services/</LogServerURL>
+            <DeploymentServerURL>https://<%= dev_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= dev_app_id %>.<%= @wso2_env_domain %>/services/</LogServerURL>
             <MountPoint>dev</MountPoint>
-            <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= as_dev_port %></BaseAccessUrl>
-            <TenantMgtUrl>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %></TenantMgtUrl>
-            <PAASServicesURL>https://<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %>/services/</PAASServicesURL>
+            <BaseAccessUrl>https://<%= dev_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= @dev_greg_port %>/services/</GregServerURL>
             <Buildable>true</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
@@ -599,12 +600,10 @@
                 <TargetStage>Development</TargetStage>
             </Demote>
             <CreateArtifact>UserInput</CreateArtifact>
-            <DeploymentServerURL>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %>/services/</DeploymentServerURL>
-            <LogServerURL>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %>/services/</LogServerURL>
+            <DeploymentServerURL>https://<%= test_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= test_app_id %>.<%= @wso2_env_domain %>/services/</LogServerURL>
             <MountPoint>test</MountPoint>
-            <BaseAccessUrl>https://<%= as_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= as_test_port %></BaseAccessUrl>
-            <TenantMgtUrl>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %></TenantMgtUrl>
-            <PAASServicesURL>https://<%= @stratos_test_server %>:<%= @stratos_test_server_port %>/services/</PAASServicesURL>
+            <BaseAccessUrl>https://<%= test_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= @test_greg_port %>/services/</GregServerURL>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
@@ -650,7 +649,8 @@
                         /permission/admin/appfactory/resources/create/Production,
                         /permission/admin/appfactory/resources/read/Production,
                         /permission/admin/appfactory/resources/update/Production,
-			/permission/protected/manage/monitor/tenants
+			            /permission/admin/stratos/domainMappings/manage,
+			            /permission/admin/stratos/domainMappings/view
                     </Permission>
                 </Role>
             </TenantRoles>
@@ -668,12 +668,10 @@
                 <TargetStage>Testing</TargetStage>
             </Demote>
             <CreateArtifact>Never</CreateArtifact>
-            <DeploymentServerURL>https://<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %>/services/</DeploymentServerURL>
-            <LogServerURL>https://<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %>/services/</LogServerURL>
+            <DeploymentServerURL>https://<%= prod_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
+            <LogServerURL>https://<%= prod_app_id %>.<%= @wso2_env_domain %>/services/</LogServerURL>
             <MountPoint>prod</MountPoint>
-            <BaseAccessUrl>https:/<%= as_subdomain %>.<%= @wso2_env_domain %>:<%= as_prod_port %></BaseAccessUrl>
-            <TenantMgtUrl>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %></TenantMgtUrl>
-            <PAASServicesURL>https://<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %>/services/</PAASServicesURL>
+            <BaseAccessUrl>https://<%= prod_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_prod_subdomain %>.<%= @wso2_env_domain %>:<%= @prod_greg_port %>/services/</GregServerURL>
             <Semantic>Production</Semantic>
             <Buildable>false</Buildable>
@@ -681,6 +679,12 @@
             <RssName>Production</RssName>
         </DeploymentStage>
     </ApplicationDeployment>
+
+    <!--Stratos Configurations-->
+    <Stratos>
+        <TenantMgtUrl>https://<%= @stratos_server %>:<%= @stratos_server_port %></TenantMgtUrl>
+        <PAASServicesURL>https://<%= @stratos_server %>:<%= @stratos_server_port %>/services/</PAASServicesURL>
+    </Stratos>
 
     <!--Initial Deployment Stage-->
     <StartStage>Development</StartStage>
@@ -703,16 +707,6 @@
     <StratosLBUrl><%= @stratos_lb_url %></StratosLBUrl>
     <!-- Set the initial application context to be mapped when initializing a custom url -->
     <DefaultMappingContext><%= @domain_mapping_default_context %></DefaultMappingContext>
-
-    <!--DNS specific to Amazon, If the IAAS provider is EC2 enable this-->
-    <EnableAWSRoute53><%= @enable_route53 %></EnableAWSRoute53>
-    <!--false|true-->
-    <AWSRoute53AccessKeyId><%= @route53_access_key_id %></AWSRoute53AccessKeyId>
-    <!--If EnableAWSRoute is true set this value-->
-    <AWSRoute53SecretAccessKey><%= @route53_secret_access_key %></AWSRoute53SecretAccessKey>
-    <!--If EnableAWSRoute is true set this value-->
-    <AWSRoute53HostedZoneId><%= @route53_hosted_zone_id %></AWSRoute53HostedZoneId>
-    <!--If EnableAWSRoute is true set this value-->
 
     <!-- API-Token should be set according to the running instance of Jenkins-->
     <ContinuousIntegrationProvider name="jenkins" enabled="true">
@@ -745,7 +739,7 @@
         <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>
     </JenkinsLBConfig>
     <OtherServices>
-        <Service name="ViewVC">
+        <Service name="ViewVC">me
             <Link>http://www.viewvc.org/</Link>
             <Description>Browse the repository, view files, display diffs between versions.</Description>
             <Title>ViewVC</Title>

@@ -27,7 +27,7 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
+import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -45,6 +45,10 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
     private static final String ENVIRONMENT = "ApplicationDeployment.DeploymentStage";
     private static final String TENANT_MANAGEMENT_URL = "TenantMgtUrl";
     private static final String SYMBOL_AT = "@";
+
+    public NodejsApplicationTypeProcessor(String type) {
+        super(type);
+    }
 
     @Override
     public void doVersion(String applicationId, String targetVersion,
@@ -134,16 +138,15 @@ public class NodejsApplicationTypeProcessor extends AbstractApplicationTypeProce
 
         AppFactoryConfiguration configuration = AppFactoryUtil.getAppfactoryConfiguration();
         String serverURL = configuration
-                .getFirstProperty(ENVIRONMENT + XPATH_SEPERATOR + stage + XPATH_SEPERATOR +
-                        TENANT_MANAGEMENT_URL);
+                .getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + SYMBOL_AT +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = getCartridgeAlias(applicationId, applicationVersion, tenantDomain,
                 subscribeOnDeployment);
 
-        StratosRestService restService =
-                new StratosRestService(serverURL, userName, StringUtils.EMPTY);
-        String clusterId = restService.getSubscribedCartridgeClusterId(cartridgeAlias);
+        StratosRestClient restService = StratosRestClient.getInstance(serverURL, userName);
+        //TODO : implement this using new api
+        String clusterId = "";//restService.getSubscribedCartridgeClusterId(cartridgeAlias);
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();
 
         try {

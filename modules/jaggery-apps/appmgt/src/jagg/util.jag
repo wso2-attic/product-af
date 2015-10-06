@@ -88,4 +88,17 @@ var getSelectedVersionFromSession = function(applicationKey) {
     return result;
 };
 
+/**
+ * Check whether the {@code obj} is empty object({}) or not
+ * @param obj
+ * @returns {boolean}
+ */
+var isEmpty = function(obj){
+    if(!obj){       // if object is null
+        return true;
+    } else {
+        return (Object.getOwnPropertyNames(obj).length === 0);
+    }
+};
+
 %>

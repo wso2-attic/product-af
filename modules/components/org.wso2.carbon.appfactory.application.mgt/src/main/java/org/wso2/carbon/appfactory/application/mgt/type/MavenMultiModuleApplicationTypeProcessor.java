@@ -28,7 +28,11 @@ import java.io.File;
 public class MavenMultiModuleApplicationTypeProcessor extends MavenBasedApplicationTypeProcessor {
 	private static final Log log = LogFactory.getLog(MavenMultiModuleApplicationTypeProcessor.class);
 
-	@Override
+    public MavenMultiModuleApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
 	public void doVersion(String applicationId, String targetVersion, String currentVersion,
 	                      String workingDirectory) throws AppFactoryException {
 		AppVersionStrategyExecutor.doVersionForMultiModuleMVN(targetVersion, new File(workingDirectory));

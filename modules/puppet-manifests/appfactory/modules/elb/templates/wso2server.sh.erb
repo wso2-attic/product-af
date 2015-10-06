@@ -313,13 +313,13 @@ do
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
 <%- if @cluster_domain == 's2dev' -%>
     -Dstratos.stage="Development" \
-    -Dsc.host.name="sc.dev.cloud.wso2.com" \
+    -Dsc.host.name="sc.cloud.wso2.com" \
 <%- elsif @cluster_domain == 's2test' -%>
     -Dstratos.stage="Testing" \
-    -Dsc.host.name="sc.test.cloud.wso2.com" \
+    -Dsc.host.name="sc.cloud.wso2.com" \
 <%- elsif @cluster_domain == 's2prod' -%>
     -Dstratos.stage="Production" \
-    -Dsc.host.name="sc.prod.cloud.wso2.com" \
+    -Dsc.host.name="sc.cloud.wso2.com" \
 <%- end -%>
     org.wso2.carbon.bootstrap.Bootstrap $*
     status=$?

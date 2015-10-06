@@ -24,7 +24,7 @@
                 <Password><%= @usrmgt_password %></Password>
             </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
-            <Property name="dataSource">jdbc/<%=@user_store%></Property>
+            <Property name="dataSource">jdbc/userstore</Property>
             <Property name="MultiTenantRealmConfigBuilder"><%= @tenant_realm_builder_class %></Property>
         </Configuration>
         <!--<UserStoreManager class="org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager">

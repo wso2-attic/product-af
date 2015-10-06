@@ -45,22 +45,38 @@ var addRolestoUserinTenantDomain = function addUserToTenantDomain(requestersUser
 
 };
 
-var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
-//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
-    var paraAddRoles,paraRemoveRoles;
-    paraAddRoles=addRoles.split(",");
-    paraRemoveRoles=removeRols.split(",");
-    if((paraAddRoles.length==0)||(paraAddRoles[0].length==0)){
-        paraAddRoles=null;
+var updateUserRoles = function updateUserRoles(userName,newRoles,removeRoles) {
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    if (log.isDebugEnabled()) {
+        log.debug("Updating user roles of user: " + userName
+                  +". New user roles:"+newRoles.join(", ")
+                  +" .Removed Roles: "+removeRoles.join(", "));
     }
-    if((paraRemoveRoles.length==0)||(paraRemoveRoles[0].length==0)){
-        paraRemoveRoles=null;
+
+    var updateUserRoleUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_UPDATE_USER_ROLES_AJAX_PATH;
+    var data = {
+        action: "updateUserRoles",
+        rolesToAdd: newRoles.toString(),
+        rolesToDelete : removeRoles.toString(),
+        userName: userName
+    };
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(updateUserRoleUrl, data, headers, type);
+    if (result.xhr.status == "200") {
+        log.info("Successfully updated the user roles of user:"+userName);
+    } else {
+        log.error("Error occurred while updating roles of user:"+userName
+                  +". New user roles:"+newRoles.join(", ")
+                  +" .Removed Roles: "+removeRoles.join(", ")
+                  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+        throw "Error occurred while updating roles of user:"+userName;
     }
-    var result;
-    result = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
-                                    .updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
-    return result;
 };
+
 var deleteUserFromTenant = function deleteUserFromTenant(userName){
     var isSuccess = "false";
     isSuccess = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
@@ -141,7 +157,7 @@ var resendInvitation = function (applicationKey, userName) {
         action: "resendInvitation",     // TODO update correct action
         applicationKey: applicationKey,
         tenantDomain: tenantDomain,
-        userName: stringify(userName)               // TODO: change correct parameter name
+        userName: userName               // TODO: change correct parameter name
     };
     var headers = {
         "Content-Type": "application/x-www-form-urlencoded",
