@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
-import org.wso2.carbon.appfactory.stratos.listeners.CloudEnvironmentPermissionListener;
 import org.wso2.carbon.appfactory.stratos.listeners.StratosSubscriptionDurableSubscriber;
 import org.wso2.carbon.appfactory.stratos.util.AppFactoryS4ListenersUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -68,9 +67,6 @@ public class AppFactoryS4ListenersServiceComponent {
     protected void activate(ComponentContext context) {
 
         try {
-            context.getBundleContext().registerService(
-                    org.wso2.carbon.stratos.common.listeners.TenantMgtListener.class.getName(),
-                    new CloudEnvironmentPermissionListener(), null);
             context.getBundleContext().registerService(StratosSubscriptionDurableSubscriber.class.getName(),
                                                        new StratosSubscriptionDurableSubscriber
                                                                (AppFactoryConstants.TENANT_SUBSCRIPTION_TOPIC), null);
