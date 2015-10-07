@@ -100,7 +100,7 @@ function _update_libs() {
         do
                 if [ -f "${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${LIB_JAR}" ]; then
                     echo -e "\n${MAGENTA}[Lib][${SOURCE_DIR}]${RESET_CLR} Copying ${LIB_JAR} to ${PUPPET_MODULES_HOME}/${DEST_DIR}/"
-                    if [ -f "${PUPPET_MODULES_HOME}/${DEST_DIR}" ]; then
+                    if [ -d "${PUPPET_MODULES_HOME}/${DEST_DIR}" ]; then
 #                        rm -rf ${PUPPET_MODULES_HOME}/${DEST_DIR}/${LIB_JAR}
                         cp -f ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${LIB_JAR} ${PUPPET_MODULES_HOME}/${DEST_DIR}/
                     else
