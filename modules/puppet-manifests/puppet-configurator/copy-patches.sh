@@ -71,7 +71,6 @@ function _update_dropins() {
 
         for DROPIN_JAR in "${LIST[@]}"
         do
-                _echo_red "${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${DROPIN_JAR}"
                 if [ -f "${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${DROPIN_JAR}" ]; then
                     echo -e "\n${MAGENTA}[Dropins][${SOURCE_DIR}]${RESET_CLR} Copying ${DROPIN_JAR} to ${PUPPET_MODULES_HOME}/${DEST_DIR}/"
                     if [ -d "${PUPPET_MODULES_HOME}/${DEST_DIR}" ]; then
@@ -137,15 +136,15 @@ _update_patches STRATOS_INSTALLER_PATCHES[@] stratos-installer privatepaas/files
 _update_patches TASK_SERVER[@] taskserver taskserver/files/patches/repository/components/patches
 _update_patches BAM_PATCHES[@] bam bam/files/patches/repository/components/patches
 
-_update_dropins AF_DROPINS[@] dropins appfactory/files/patches/repository/components/dropins
-_update_dropins BAM_DROPINS[@] dropins bam/files/patches/repository/components/dropins
-_update_dropins GREG_DROPINS[@] dropins greg/files/patches/repository/components/dropins
-_update_dropins MB_DROPINS[@] dropins messagebroker/files/patches/repository/components/dropins
+_update_dropins AF_DROPINS[@] dropins appfactory/files/configs/repository/components/dropins
+_update_dropins BAM_DROPINS[@] dropins bam/files/configs/repository/components/dropins
+_update_dropins GREG_DROPINS[@] dropins greg/files/configs/repository/components/dropins
+_update_dropins MB_DROPINS[@] dropins messagebroker/files/configs/repository/components/dropins
 _update_dropins AS_DROPINS[@] dropins paaspuppet/files/puppet/modules/appserver/files/configs/repository/components/dropins
 _update_dropins SM_DROPINS[@] dropins privatepaas/files/appfactory_deployment/repository/components/dropins
 
-_update_libs AF_LIBS[@] lib appfactory/files/patches/repository/components/lib
-_update_libs GREG_LIBS[@] lib greg/files/patches/repository/components/lib
+_update_libs AF_LIBS[@] lib appfactory/files/configs/repository/components/lib
+_update_libs GREG_LIBS[@] lib greg/files/configs/repository/components/lib
 
 #cleaning the extracted patches folder
 #rm -rf ${PATCHES_HOME}

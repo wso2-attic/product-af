@@ -74,9 +74,8 @@ declare -a AS_DROPINS=("org.wso2.carbon.registry.ws.api_4.2.0.jar" "org.wso2.car
 declare -a SM_DROPINS=("gitblit_1.2.0.wso2v1.jar" "org.eclipse.jgit_2.1.0.wso2v1.jar" "org.wso2.carbon.adc.reponotification.service.stub-4.1.1.jar" "org.wso2.carbon.andes.stub-4.2.1.jar" "org.wso2.carbon.identity.authenticator.mutualssl_4.2.0.jar" "org.wso2.carbon.registry.ws.api_4.2.0.jar" "org.wso2.carbon.registry.ws.client_4.2.0.jar" "org.wso2.carbon.registry.ws.stub_4.2.0.jar" "org.wso2.carbon.um.ws.api.stub_4.2.1.jar" "org.wso2.carbon.um.ws.api_4.2.1.jar" "org.wso2.carbon.um.ws.service_4.2.1.jar" "org.wso2.carbon.user.mgt.common_4.2.0.jar");
 
 ## libs
-declare -a AF_LIBS=("activemq-broker-5.9.1.jar" "activemq-client-5.9.1.jar" "andes_0.13.0.wso2v8.jar" "geronimo-j2ee-management_1.1_spec-1.0.1.jar" "geronimo-jms_1.1_spec-1.1.1.jar" "hawtbuf-1.9" "jsch-0.1.51.jar");
-declare -a GREG_LIBS=("geronimo-j2ee-management_1.1_spec-1.0.1.jar" "jackson_core_asl_1.9.2.jar" "jackson_mapper_asl_1.9.2.jar");
-
+declare -a AF_LIBS=("activemq-broker-5.9.1.jar" "activemq-client-5.9.1.jar" "andes_0.13.0.wso2v8.jar" "geronimo-j2ee-management_1.1_spec-1.0.1.jar" "geronimo-jms_1.1_spec-1.1.1.jar" "hawtbuf-1.9.jar" "jsch-0.1.51.jar");
+declare -a GREG_LIBS=("geronimo-j2ee-management_1.1_spec-1.0.1.jar" "jackson-core-asl_1.9.2.jar" "jackson-mapper-asl_1.9.2.jar");
 
 function _echo_red() {
     MSG=${1}
@@ -87,3 +86,4 @@ function _echo_green() {
     MSG=${1}
     echo -e "${GREEN}${MSG}${RESET_CLR}"
 }
+declare -a GREG_LIBS=("geronimo-j2ee-management_1.1_spec-1.0.1.jar" "jackson-core-asl_1.9.2.jar" "jackson-mapper-asl_1.9.2.jar");
