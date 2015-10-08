@@ -150,6 +150,12 @@ cd ..
 cp tmp/jenkins.war ${PACKS_DIR}/
 rm -rf tmp
 
+#copying gitblit plugin to gitblit
+#cp ${AF_HOME}/resources/plugins/gitblit/appfactory.gitblit.plugin*.jar ${PUPPET_MODULES_HOME}/gitblit/files/ext/
+
+#copying gitblit plugin to s2gitblit
+#cp ${AF_HOME}/resources/plugins/gitblit/appfactory.gitblit.plugin*.jar ${PUPPET_MODULES_HOME}/s2gitblit/files/ext/
+
 #copying BPEL to BPS
 echo " Coppying BPELS to bps "
 rm -rf ${PUPPET_MODULES_HOME}/bps/files/configs/repository/deployment/server/bpel/*

@@ -139,15 +139,27 @@ node basenode {
 
 ## Dev ##
   $dev_config_db_schema    = "DEV_CONFIG_DB"
-  $dev_config_db         = [$mysql_server_1, $dev_config_db_schema,'root','root']
+  $dev_registry_db_schema  = "devregistry"
+  $dev_userstore_db_schema = "devuserstore"
+  $dev_config_db           = [$mysql_server_1, $dev_config_db_schema,'root','root']
+  $dev_registry_db         = [$mysql_server_1, $dev_registry_db_schema,'root','root']
+  $dev_userstore_db        = [$mysql_server_1, $dev_userstore_db_schema,'root','root']
 
 ## Test ##
   $test_config_db_schema    = "TEST_CONFIG_DB"
-  $test_config_db         = [$mysql_server_1, $test_config_db_schema,'root','root']
+  $test_registry_db_schema  = "testregistry"
+  $test_userstore_db_schema = "testuserstore"
+  $test_config_db           = [$mysql_server_1, $test_config_db_schema,'root','root']
+  $test_registry_db         = [$mysql_server_1, $test_registry_db_schema,'root','root']
+  $test_userstore_db        = [$mysql_server_1, $test_userstore_db_schema,'root','root']
 
 ## Prod ##
   $prod_config_db_schema    = "PROD_CONFIG_DB"
-  $prod_config_db         = [$mysql_server_1, $prod_config_db_schema,'root','root']
+  $prod_registry_db_schema  = "prodregistry"
+  $prod_userstore_db_schema = "produserstore"
+  $prod_config_db           = [$mysql_server_1, $prod_config_db_schema,'root','root']
+  $prod_registry_db         = [$mysql_server_1, $prod_registry_db_schema,'root','root']
+  $prod_userstore_db        = [$mysql_server_1, $prod_userstore_db_schema,'root','root']
 
   $domain         = 'appfactory.private.wso2.com'
   $hosts_mapping  = [
@@ -615,12 +627,9 @@ node /clean.devsetup/ inherits confignode {
     $bam_config_database_name,$rss_mgt_config_database_name,
     $ts_config_database_name,$ues_config_database_name,$apim_config_database_name,
     $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
-    #$dev_registry_db_schema, $dev_userstore,
-    $dev_config_db_schema,
-    #$test_registry_db_schema,$test_userstore,
-    $test_config_db_schema,
-    #$prod_registry_db_schema,$prod_userstore,
-    $prod_config_db_schema,
+    $dev_config_db_schema, $dev_registry_db_schema, $dev_userstore_db_schema,
+    $test_config_db_schema, $test_registry_db_schema,$test_userstore_db_schema,
+    $prod_config_db_schema, $prod_registry_db_schema,$prod_userstore_db_schema,
     $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
   ]
 
@@ -644,12 +653,9 @@ node /backup.devsetup/ inherits confignode {
     $bam_config_database_name,$rss_mgt_config_database_name,
     $ts_config_database_name,$ues_config_database_name,$apim_config_database_name,
     $dbApimStats,$dbAfStats,$dbLoginAnalytics,$hive_database,
-    #$dev_registry_db_schema, $dev_userstore,
-    $dev_config_db_schema,
-    #$test_registry_db_schema,$test_userstore,
-    $test_config_db_schema,
-    #$prod_registry_db_schema,$prod_userstore,
-    $prod_config_db_schema,
+    $dev_config_db_schema, $dev_registry_db_schema, $dev_userstore_db_schema,
+    $test_config_db_schema, $test_registry_db_schema,$test_userstore_db_schema,
+    $prod_config_db_schema, $prod_registry_db_schema,$prod_userstore_db_schema,
     $ppaas_registry_db_schema,$ppaas_userstore, $ppaas_config_db_schema
   ]
 
@@ -686,14 +692,14 @@ node /mysql/ inherits confignode{
     ues_config =>  {config => $ues_config_database, script_name => "mysql"},
     apim_config =>  {config => $apimgt_config_database, script_name => "mysql"},
     apimdb =>  {config => $apimgt_database, script_name => "apim-mysql"},
-    #devregistry =>  {config => $devpaas_database, script_name => "mysql"},
-    #devuser_store =>  {config => $dev_userstore_db, script_name =>"mysql" },
+    devregistry =>  {config => $dev_registry_db, script_name => "mysql"},
+    devuserstore =>  {config => $dev_userstore_db, script_name =>"mysql" },
     devconfigdb =>  {config => $dev_config_db, script_name => "mysql"},
-    #testregistry =>  {config => $testpaas_database, script_name => "mysql"},
-    #testuser_store =>  {config => $test_userstore_db, script_name => "mysql"},
+    testregistry =>  {config => $test_registry_db, script_name => "mysql"},
+    testuserstore =>  {config => $test_userstore_db, script_name => "mysql"},
     testconfigdb =>  {config => $test_config_db, script_name => "mysql"},
-    #prodregistry =>  {config => $prodpaas_database, script_name => "mysql"},
-    #produser_store =>  {config => $prod_userstore_db, script_name => "mysql"},
+    prodregistry =>  {config => $prod_registry_db, script_name => "mysql"},
+    produserstore =>  {config => $prod_userstore_db, script_name => "mysql"},
     prodconfigdb =>  {config => $prod_config_db, script_name => "mysql"},
     ppaasregistry =>  {config => $ppaas_registry_db, script_name => "mysql"},
     ppaasuser_store =>  {config => $ppaas_userstore_db, script_name => "mysql"},
@@ -972,9 +978,9 @@ class {"greg":
   owner              => $owner,
   group              => $group,
   sub_cluster_domain => "mgt",
-  registry_db_schema => $ppaas_registry_db_schema,
-  user_store         => $ppaas_userstore,
-  config_db_schema   => $dev_config_db_schema,
+  registry_db_schema => $dev_registry_db_schema,
+  user_store         => $dev_userstore_db_schema,
+  #config_db_schema  => $dev_config_db_schema,
   stage_subdomain    => "dev",
   greg_stage         => "Development",
   members            => {},
@@ -995,9 +1001,9 @@ class {"greg":
   owner              => $owner,
   group              => $group,
   sub_cluster_domain => "mgt",
-  registry_db_schema => $ppaas_registry_db_schema,
-  user_store         => $ppaas_userstore,
-  config_db_schema   => $test_config_db_schema,
+  registry_db_schema => $test_registry_db_schema,
+  user_store         => $test_userstore_db_schema,
+  #config_db_schema  => $test_config_db_schema,
   greg_stage         => "Testing",
   stage_subdomain    => "test",
   members            => {
@@ -1019,9 +1025,9 @@ class {"greg":
   owner              => $owner,
   group              => $group,
   sub_cluster_domain => "mgt",
-  registry_db_schema => $ppaas_registry_db_schema,
-  user_store         => $ppaas_userstore,
-  config_db_schema   => $prod_config_db_schema,
+  registry_db_schema => $prod_registry_db_schema,
+  user_store         => $prod_userstore_db_schema,
+  #config_db_schema   => $prod_config_db_schema,
   greg_stage         => "Production",
   stage_subdomain    => "prod",
   members            => {

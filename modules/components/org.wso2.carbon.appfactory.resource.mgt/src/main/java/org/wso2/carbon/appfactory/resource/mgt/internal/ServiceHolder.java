@@ -18,7 +18,9 @@ package org.wso2.carbon.appfactory.resource.mgt.internal;
 
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 public class ServiceHolder {
 
@@ -26,6 +28,8 @@ public class ServiceHolder {
 	private static RegistryService registryService;
 	private static RealmService realmService;
 	private static final ServiceHolder instance = new ServiceHolder();
+	private TenantRegistryLoader tenantRegistryLoader;
+	private ConfigurationContextService configurationContextService;
 
 	private ServiceHolder() {
 	}
@@ -59,4 +63,15 @@ public class ServiceHolder {
 		realmService = realmSer;
 	}
 
+	public void setConfigurationContextService(ConfigurationContextService configurationContextService) {
+		this.configurationContextService = configurationContextService;
+	}
+
+	public void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+		this.tenantRegistryLoader = tenantRegistryLoader;
+	}
+
+	public TenantRegistryLoader getTenantRegistryLoader() {
+		return tenantRegistryLoader;
+	}
 }
