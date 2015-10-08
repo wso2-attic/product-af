@@ -76,6 +76,7 @@ declare -a SM_DROPINS=("gitblit_1.2.0.wso2v1.jar" "org.eclipse.jgit_2.1.0.wso2v1
 ## libs
 declare -a AF_LIBS=("activemq-broker-5.9.1.jar" "activemq-client-5.9.1.jar" "andes_0.13.0.wso2v8.jar" "geronimo-j2ee-management_1.1_spec-1.0.1.jar" "geronimo-jms_1.1_spec-1.1.1.jar" "hawtbuf-1.9.jar" "jsch-0.1.51.jar");
 declare -a GREG_LIBS=("geronimo-j2ee-management_1.1_spec-1.0.1.jar" "jackson-core-asl_1.9.2.jar" "jackson-mapper-asl_1.9.2.jar");
+declare -a AS_LIBS=("activemq-broker-5.9.1.jar" "activemq-client-5.9.1.jar" "commons-collections-3.2.1.jar" "commons-lang3-3.1.jar" "geronimo-j2ee-management_1.1_spec-1.0.1.jar" "geronimo-jms_1.1_spec-1.1.1.jar" "hawtbuf-1.9.jar" "jsch_0.1.49.wso2v1.jar" "mysql-connector-java-5.1.27-bin.jar" "org.eclipse.jgit_2.3.1-wso2v2.jar");
 
 function _echo_red() {
     MSG=${1}
@@ -86,4 +87,3 @@ function _echo_green() {
     MSG=${1}
     echo -e "${GREEN}${MSG}${RESET_CLR}"
 }
-declare -a GREG_LIBS=("geronimo-j2ee-management_1.1_spec-1.0.1.jar" "jackson-core-asl_1.9.2.jar" "jackson-mapper-asl_1.9.2.jar");
