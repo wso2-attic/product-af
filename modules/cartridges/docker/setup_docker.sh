@@ -155,7 +155,9 @@ function _update_patches() {
         done
 }
 
-function _update_dropins() {
+_update_patches PAAS_AS_PATCHES[@] paas_as wso2as-5.2.1/templates-module/files/repository/component/patches
+
+function _copy_files() {
         # $1 -> Array of dropins
         # $2 -> source directory
         # $3 -> module destination directory
@@ -164,54 +166,33 @@ function _update_dropins() {
         SOURCE_DIR=${2}
         DEST_DIR=${3}
 
-        for DROPIN_JAR in "${LIST[@]}"
+        for FILE in "${LIST[@]}"
         do
-                if [ -f "${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${DROPIN_JAR}" ]; then
-                    echo -e "\n${MAGENTA}[Dropins][${SOURCE_DIR}]${RESET_CLR} Copying ${DROPIN_JAR} to ${DOCKER_HOME}/${DEST_DIR}/"
+                if [ -f "${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${FILE}" ]; then
+                    echo -e "\n${MAGENTA}[Files][${SOURCE_DIR}]${RESET_CLR} Copying ${FILE} to ${DOCKER_HOME}/${DEST_DIR}/"
                     if [ -d "${DOCKER_HOME}/${DEST_DIR}" ]; then
-#                        rm -rf ${PUPPET_MODULES_HOME}/${DEST_DIR}/${DROPIN_JAR}
-                        cp -f ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${DROPIN_JAR} ${DOCKER_HOME}/${DEST_DIR}/
+                        cp -f ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${FILE} ${DOCKER_HOME}/${DEST_DIR}/
                     else
 #                        ERROR_OCCURED=true
-                        _echo_red "\n[Dropins][${SOURCE_DIR}] Destination folder ${DOCKER_HOME}/${DEST_DIR} does not exists."
+                        _echo_red "\n[Files][${SOURCE_DIR}] Destination folder ${DOCKER_HOME}/${DEST_DIR} does not exists."
                     fi
                 else
 #                    ERROR_OCCURED=true
-                    _echo_red "\n[Dropins][${SOURCE_DIR}] Cloudn't find ${DROPIN_JAR} inside the extracted ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}."
+                    _echo_red "\n[Files][${SOURCE_DIR}] Cloudn't find ${DROPIN_JAR} inside the extracted ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}."
                 fi
         done
 }
 
-function _update_libs() {
-        # $1 -> Array of libs
-        # $2 -> source directory
-        # $3 -> module destination directory
 
-        declare -a LIST=("${!1}")
-        SOURCE_DIR=${2}
-        DEST_DIR=${3}
+_copy_files AS_DROPINS[@] dropins wso2as-5.2.1/templates-module/files/repository/component/dropins
+_copy_files AS_LIBS[@] lib wso2as-5.2.1/templates-module/files/repository/component/lib
 
-        for LIB_JAR in "${LIST[@]}"
-        do
-                if [ -f "${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${LIB_JAR}" ]; then
-                    echo -e "\n${MAGENTA}[Lib][${SOURCE_DIR}]${RESET_CLR} Copying ${LIB_JAR} to ${DOCKER_HOME}/${DEST_DIR}/"
-                    if [ -d "${DOCKER_HOME}/${DEST_DIR}" ]; then
-#                        rm -rf ${PUPPET_MODULES_HOME}/${DEST_DIR}/${LIB_JAR}
-                        cp -f ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}/${LIB_JAR} ${DOCKER_HOME}/${DEST_DIR}/
-                    else
-#                        ERROR_OCCURED=true
-                        _echo_red "\n[Lib][${SOURCE_DIR}] Destination folder ${DOCKER_HOME}/${DEST_DIR} does not exists."
-                    fi
-                else
-#                    ERROR_OCCURED=true
-                    _echo_red "\n[Lib][${SOURCE_DIR}] Cloudn't find ${LIB_JAR} inside the extracted ${AF_ARTIFACTS_HOME}/${SOURCE_DIR}."
-                fi
-        done
-}
+declare -a BASE_IMAGE=("apache-stratos-python-cartridge-agent-4.1.1.zip" "jdk-7u60-linux-x64.tar.gz" "ppaas-configurator-4.1.0-SNAPSHOT.zip");
+declare -a WSO2AS_IMAGE=("jdk-7u60-linux-x64.tar.gz" "mysql-connector-java-5.1.27-bin.jar" "wso2as-5.2.1.zip");
 
-_update_patches PAAS_AS_PATCHES[@] paas_as wso2as-5.2.1/templates-module/files/repository/component/patches
-_update_dropins AS_DROPINS[@] dropins wso2as-5.2.1/templates-module/files/repository/component/dropins
-_update_libs AS_LIBS[@] lib wso2as-5.2.1/templates-module/files/repository/component/lib
+_copy_files BASE_IMAGE[@] docker base-image/packages
+_copy_files WSO2AS_IMAGE[@] docker wso2as-5.2.1/packages
+
 
 _echo_green "DONE"
 
