@@ -70,7 +70,7 @@ declare -a AF_DROPINS=("org.apache.commons.lang3_3.1.0.jar" "org.apache.stratos.
 declare -a BAM_DROPINS=("org.wso2.carbon.logging.summarizer_4.2.0.jar");
 declare -a GREG_DROPINS=("andes-client-0.13.wso2v10.jar" "org.apache.commons.lang3_3.1.0.jar" "org.apache.stratos.common_4.1.1.jar" "org.apache.stratos.messaging_4.1.1.jar" "org.wso2.carbon.andes.stub-4.2.1.jar");
 declare -a MB_DROPINS=("org.wso2.carbon.identity.authenticator.mutualssl-4.2.0.jar");
-declare -a AS_DROPINS=("org.wso2.carbon.registry.ws.api_4.2.0.jar" "org.wso2.carbon.registry.ws.client_4.2.0.jar" "org.wso2.carbon.registry.ws.stub_4.2.0.jar");
+declare -a AS_DROPINS=("org.apache.stratos.common_4.1.1.jar" "org.apache.stratos.messaging_4.1.1.jar" "org.wso2.carbon.adc.repositoryinformation.service.stub_4.1.1.jar" "org.wso2.carbon.deployment.synchronizer.git_4.1.1.jar" "org.wso2.carbon.identity.authenticator.mutualssl_4.2.0.jar" "org.wso2.carbon.logging.propfile_1.0.0.jar" "org.wso2.carbon.social.core_1.1.0.jar" "org.wso2.carbon.registry.ws.api_4.2.0.jar" "org.wso2.carbon.registry.ws.client_4.2.0.jar" "org.wso2.carbon.registry.ws.stub_4.2.0.jar");
 declare -a SM_DROPINS=("gitblit_1.2.0.wso2v1.jar" "org.eclipse.jgit_2.1.0.wso2v1.jar" "org.wso2.carbon.adc.reponotification.service.stub-4.1.1.jar" "org.wso2.carbon.andes.stub-4.2.1.jar" "org.wso2.carbon.identity.authenticator.mutualssl_4.2.0.jar" "org.wso2.carbon.registry.ws.api_4.2.0.jar" "org.wso2.carbon.registry.ws.client_4.2.0.jar" "org.wso2.carbon.registry.ws.stub_4.2.0.jar" "org.wso2.carbon.um.ws.api.stub_4.2.1.jar" "org.wso2.carbon.um.ws.api_4.2.1.jar" "org.wso2.carbon.um.ws.service_4.2.1.jar" "org.wso2.carbon.user.mgt.common_4.2.0.jar");
 
 ## libs
