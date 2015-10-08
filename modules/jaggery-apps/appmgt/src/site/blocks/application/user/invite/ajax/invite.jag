@@ -76,15 +76,15 @@ var modTenant = jagg.module("tenant");
         }
     } else if(action=="resendInvitation"){
         var applicationKey=request.getParameter("applicationKey");
-        var userName=request.getParameter("userName");
+        var email=request.getParameter("email");
         if(permissionModule.hasTenantLevelUserMgtPermission()){
             try {
-                modTenant.resendInvitation(applicationKey,userName);
+                modTenant.resendInvitation(applicationKey,email);
                 print(true);
             } catch(e) {
                 log.error(e);
                 response.status = 400;
-                response.content =  "Error while resending invitation for user "+userName;
+                response.content =  "Error while resending invitation for user "+email;
             }
         } else {
             log.warn("User: "+jagg.getUser()+" doesn't has permission to invite users to tenant."
@@ -153,8 +153,7 @@ function inviteExistingTenantUsersToApplication(applicationKey, existingUsers, w
 
         // Sending emails
         try {
-            // TODO: enable this once cloudmgt is updated with the new user endpoints
-            //modApplication.sendApplicationInvitationEmail(applicationKey, invitationArray.userNames, welcomeMsg);
+            modApplication.sendApplicationInvitationEmail(applicationKey, invitationArray.emails, welcomeMsg);
         } catch (e){
             var errMsg = 'Error occurred while sending application invite emails to users '
                          +invitationArray.displayNames.join(", ") + ', to application';

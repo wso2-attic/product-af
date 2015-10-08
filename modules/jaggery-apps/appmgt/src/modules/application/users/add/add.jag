@@ -134,11 +134,10 @@ var sendApplicationInvitationEmail = function(applicationKey, userEmails, welcom
 	// TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
 	var sendEmailUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_SEND_EMAIL_AJAX_PATH;
 	var data = {
-		action: "sendEmail",     			// TODO update correct action
-		applicationKey: applicationKey,
-		tenantDomain: tenantDomain,
-		users: stringify(userEmails),               	// TODO: change correct parameter name
-		welcomeText: stringify(welcomeMsg)				// TODO: change correct parameter name
+		action: "sendEmailWithCustomMessage",
+		subject: INVITE_USER_EMAIL_SUBJECT,
+		to: stringify(userEmails),
+		message: stringify(welcomeMsg)
 	};
 	var headers = {
 		"Content-Type": "application/x-www-form-urlencoded",
