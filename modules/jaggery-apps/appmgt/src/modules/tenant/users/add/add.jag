@@ -119,15 +119,15 @@ var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
         log.debug("Adding  users to tenant: " + tenantDomain);
         log.debug("Users list: " + stringify(usersList));
     }
-
-    // TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
+    var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+    var defaultAppRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
     var addTenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH;
     var data = {
-        action: "addUsersToTenant",     // TODO update correct action
-        applicationKey: applicationKey,
+        action: "inviteUsers",
+        defaultRoles: [defaultAppRole],
         tenantDomain: tenantDomain,
-        users: stringify(usersList),               // TODO: change correct parameter name
-        welcomeText: stringify(welcomeText)
+        users: stringify(usersList),
+        message: stringify(welcomeText)
     };
     var headers = {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -144,20 +144,18 @@ var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
     }
 };
 
-var resendInvitation = function (applicationKey, userName) {
+var resendInvitation = function (applicationKey, email) {
     var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
     var tenantDomain = modManager.getTenantDomain();
     if (log.isDebugEnabled()) {
-        log.debug("Resending invitation to user: " + userName+" for tenant: "+tenantDomain);
+        log.debug("Resending invitation to user: " + email+" for tenant: "+tenantDomain);
     }
 
     // TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
     var resendInvitationUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_RESEND_INVITATION_AJAX_PATH;
     var data = {
-        action: "resendInvitation",     // TODO update correct action
-        applicationKey: applicationKey,
-        tenantDomain: tenantDomain,
-        userName: userName               // TODO: change correct parameter name
+        action: "resendInvite",
+        userName: email
     };
     var headers = {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -166,10 +164,10 @@ var resendInvitation = function (applicationKey, userName) {
     var type = "json";
     var result = post(resendInvitationUrl, data, headers, type);
     if (result.xhr.status == "200") {
-        log.info("Successfully resent user invitation to user:"+userName
+        log.info("Successfully resent user invitation to user:"+email
                  +", tenant: " + tenantDomain + ", for application: "+ applicationKey);
     } else {
-        log.error("Error occurred when resending invitation to user:"+userName
+        log.error("Error occurred when resending invitation to user:"+email
                   +" tenant:" + tenantDomain + ", for application: " + applicationKey
                   +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
         throw "Error occurred when resending invitation";

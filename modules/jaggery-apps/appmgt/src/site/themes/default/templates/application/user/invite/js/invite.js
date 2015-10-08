@@ -66,12 +66,11 @@ $(document).ready(function () {
                 templateResult: memberResult,
                 placeholder :'Type member emails',
                 createTag: function (tag) {
-                    return undefined; // TODO: once cloudmgt is updated remove this and uncomment below return block
-                    //return {
-                    //    id: tag.term,
-                    //    text: tag.term,
-                    //    isNew : true
-                    //};
+                    return {
+                        id: tag.term,
+                        text: tag.term,
+                        isNew : true
+                    };
                 },
                 escapeMarkup:function(m){
                   return m;
@@ -246,9 +245,7 @@ function inviteSelectedUsers(users){
         action:"inviteUsers",
         applicationKey:applicationKey,
         users:JSON.stringify(users),
-        welcomeMsg:""       // TODO: sending empty message until cloudmgt is updated. Once cloudmgt is updated with new
-                            // changes uncomment "description" element in template.jag and get the welcome msg as below
-        //welcomeMsg:$('#description').val()
+        welcomeMsg:$('#description').val()
     }, function (result) {
         $('#inviteMembers').loadingButton({action : "hide"});
         jagg.message({
