@@ -36,8 +36,7 @@ jagg.block("application/user/list", {
         var applicationKey = request.getParameter("applicationKey");
         var pendingUsers =  [];
         if(hasTenantLevelUserMgtPermission) {
-            // TODO: uncomment below once cloudmgt is updated
-            //pendingUsers = modTenant.getPendingUsersOfTenantByAppKey(applicationKey);
+            pendingUsers = getPendingUsersOfTenantByAppKey(applicationKey);
         }
 
         return {
@@ -49,4 +48,16 @@ jagg.block("application/user/list", {
 
 
 });
+
+function getPendingUsersOfTenantByAppKey(applicationKey) {
+    var unFormattedPendingUsers = modTenant.getPendingUsersOfTenantByAppKey(applicationKey);
+    var pendingUsers = [];
+    for (var key in unFormattedPendingUsers) {
+        var email = unFormattedPendingUsers[key]["email"];
+        if(email){
+            pendingUsers.push(email);
+        }
+    }
+    return pendingUsers;
+}
 %>

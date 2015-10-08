@@ -132,8 +132,9 @@ var getUsersOfTenant = function(){
     }
     var tenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_TENANT_USERS_AJAX_PATH;
     var data = {
-        action: "getUsersofTenant",
-        tenantDomain: tenantDomain
+        action: "getUsersOfTenantByCloudType",
+        tenantDomain: tenantDomain,
+        cloudType:CLOUD_TYPE_AF
     };
     var headers = {
         "Content-Type":"application/x-www-form-urlencoded",
@@ -157,10 +158,12 @@ var getPendingUsersOfTenantByAppKey = function(applicationKey){
         log.debug("Getting users of tenants for tenant: "+tenantDomain);
     }
     var tenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_PENDING_TENANT_USERS_AJAX_PATH;
+    var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+    var appRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
     var data = {
-        action: "getPendingUsersOfTenant",
+        action: "getPendingUsersOfRole",
         tenantDomain: tenantDomain,
-        applicationKey: applicationKey // TODO : update this accordingly
+        applicationKey: appRole
     };
     var headers = {
         "Content-Type":"application/x-www-form-urlencoded",
@@ -189,12 +192,9 @@ function convertTenantUsersArrayForDisplay(users){
         tempUser["displayName"] = user.displayName;
         tempUser["text"] = tempUser["displayName"];
         var displayRoles=[];
-        var roles = (user.roles).split('\n');
+        var roles = (user.roleTypes).split('\n');
         for (var j = 0 , roleLen = roles.length; j < roleLen; j++) {
-            var roleDisplayName = getProperty("TenantRoles.Role." + roles[j] + ".DisplayName");
-            if(roleDisplayName != null) {
-                displayRoles.push(roleDisplayName);
-            }
+            displayRoles.push(roles[j]["displayName"]);
         }
         tempUser["role"] = displayRoles;
         returnUsersArray.push(tempUser);
