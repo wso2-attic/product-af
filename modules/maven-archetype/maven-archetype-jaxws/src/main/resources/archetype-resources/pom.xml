@@ -22,11 +22,39 @@
                 <version>2.3.2</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
+                    <webappDirectory>src/main/webapp</webappDirectory>
+                    <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
                     <warName>${project.artifactId}</warName>
+                    <packagingExcludes>
+                        WEB-INF/lib/org.wso2.carbon.utils-4.2.0.jar,WEB-INF/lib/org.wso2.carbon.user.api-4.2.0.jar,WEB-INF/lib/org.wso2.carbon.registry.api-4.2.0.jar
+                    </packagingExcludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.6.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/webapp/WEB-INF/lib/</directory>
+                            <followSymlinks>false</followSymlinks>
+                            <!--includes>
+                              <include>**/*.tmp</include>
+                              <include>**/*.log</include>
+                            </includes-->
+                            <!--excludes>
+                              <exclude>**/important.log</exclude>
+                              <exclude>**/another-important.log</exclude>
+                            </excludes-->
+                        </fileset>
+                    </filesets>
                 </configuration>
             </plugin>
         </plugins>
