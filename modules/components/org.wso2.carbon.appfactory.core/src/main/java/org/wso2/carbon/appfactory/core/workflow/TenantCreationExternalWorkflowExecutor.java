@@ -146,7 +146,6 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
     }
 
     private String createPayload(TenantCreationWorkflowDTO tenantCreationWorkflow) {
-        //StringBuilder payloadStringBuilder = new StringBuilder();
 
         String value = "<p:CreateTenantRequest xmlns:p=\"http://wso2.org/bps/sample\">" +
                 "<admin xmlns=\"http://wso2.org/bps/sample\">{0}</admin>" +
