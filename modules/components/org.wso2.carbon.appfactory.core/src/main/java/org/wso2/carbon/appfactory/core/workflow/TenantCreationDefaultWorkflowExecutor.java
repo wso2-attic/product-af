@@ -54,8 +54,7 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
 
         TenantCreationWorkflowDTO tenantCreationWorkflow = (TenantCreationWorkflowDTO) workflowDTO;
 
-        AppFactoryTenantInfraStructureInitializerService tenantInfraStructureInitializerService =
-                new AppFactoryTenantInfraStructureInitializerService();
+        AppFactoryTenantInfraStructureInitializerService tenantInfraStructureInitializerService = new AppFactoryTenantInfraStructureInitializerService();
 
         try {
             tenantInfraStructureInitializerService.initializeRepositoryManager(tenantCreationWorkflow.getTenantDomain(),

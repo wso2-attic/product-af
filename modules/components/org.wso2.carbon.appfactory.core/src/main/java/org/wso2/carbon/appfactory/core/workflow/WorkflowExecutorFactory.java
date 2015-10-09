@@ -24,25 +24,27 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.workflow.dto.TenantCreationWorkflowDTO;
 import org.wso2.carbon.appfactory.core.workflow.dto.WorkflowDTO;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The factory class is creating workflow dto object and workflow executor object
  */
 public class WorkflowExecutorFactory {
 
-    private Map<String, WorkflowExecutor> workflowExecutorMap;
+    private Map<WorkflowConstant.WorkflowType, WorkflowExecutor> workflowExecutorMap;
     private static Log log = LogFactory.getLog(WorkflowExecutorFactory.class);
     private static final WorkflowExecutorFactory workflowExecutorFactory = new WorkflowExecutorFactory();
 
     private WorkflowExecutorFactory() {
+
         try {
             loadWorkflowConfiguration();
         } catch (AppFactoryException e) {
-            String message = "Unable to load workflow configuration and ";
+            String message = "Unable to load workflow configuration or create workflow objects";
             log.error(message, e);
         }
+
     }
 
     public static WorkflowExecutorFactory getInstance() {
@@ -60,7 +62,7 @@ public class WorkflowExecutorFactory {
             log.debug(message);
         }
 
-        workflowExecutorMap = new HashMap<String, WorkflowExecutor>();
+        workflowExecutorMap = new ConcurrentHashMap<WorkflowConstant.WorkflowType, WorkflowExecutor>();
         String executorClass;
         WorkflowExecutor workflowExecutor;
         try {
@@ -72,16 +74,17 @@ public class WorkflowExecutorFactory {
         }
 
         if (StringUtils.isBlank(executorClass)) {
-            executorClass = WorkflowConstant.DEFAULT_WORKFLOW_CLASS;
-            String message = "The executor class is not define in appfactory.xml because default workflow is "
-                    + "executing. The default workflow class is : " + executorClass;
+            executorClass = WorkflowConstant.TENANT_CREATION_DEFAULT_WORKFLOW_CLASS;
+            String message = "The tenant creation executor class is not define in appfactory.xml because tenant "
+                    + "creation default workflow is " + "executing. The tenant creation default workflow class is : "
+                    + executorClass;
             log.warn(message);
         }
 
         try {
             Class tenantCreationExecutorClass = WorkflowExecutorFactory.class.getClassLoader().loadClass(executorClass);
             workflowExecutor = (WorkflowExecutor) tenantCreationExecutorClass.newInstance();
-            workflowExecutorMap.put(WorkflowConstant.WF_TYPE_AF_TENANT_CREATION, workflowExecutor);
+            workflowExecutorMap.put(WorkflowConstant.WorkflowType.TENANT_CREATION, workflowExecutor);
         } catch (ClassNotFoundException e) {
             String message = "Unable to find configured class from the source code : class name : " + executorClass;
             throw new AppFactoryException(message, e);
@@ -100,7 +103,7 @@ public class WorkflowExecutorFactory {
      * @param workflowType type of the workflow
      * @return workflow object
      */
-    public WorkflowExecutor getWorkflowExecutor(String workflowType) {
+    public WorkflowExecutor getWorkflowExecutor(WorkflowConstant.WorkflowType workflowType) {
         return workflowExecutorMap.get(workflowType);
     }
 
@@ -110,11 +113,15 @@ public class WorkflowExecutorFactory {
      * @param workflowType type of the workflow
      * @return workflow DTO object
      */
-    public WorkflowDTO createWorkflowDTO(String workflowType) {
+    public WorkflowDTO createWorkflowDTO(WorkflowConstant.WorkflowType workflowType) {
         WorkflowDTO workflowDTO;
-        if (WorkflowConstant.WF_TYPE_AF_TENANT_CREATION.equals(workflowType)) {
+
+        switch (workflowType) {
+        case TENANT_CREATION:
             workflowDTO = new TenantCreationWorkflowDTO();
-        } else {
+            break;
+
+        default:
             String message = "The type of workflow not support : workflow type : " + workflowType;
             throw new IllegalArgumentException(message);
         }
