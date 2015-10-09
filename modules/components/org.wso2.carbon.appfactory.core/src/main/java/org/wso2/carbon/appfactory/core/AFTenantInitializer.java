@@ -48,9 +48,9 @@ public class AFTenantInitializer {
 
     public static void initializeAFTenant(String tenantDomain) throws UserStoreException, AppFactoryException {
         int tenantId = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenantId(tenantDomain);
-        Tenant tenant = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenant(tenantId);
+        Tenant tenantInfoBean = ServiceHolder.getInstance().getRealmService().getTenantManager().getTenant(tenantId);
         //APPFAC-3211 fix
-        tenant.setAdminPassword("");
+        tenantInfoBean.setAdminPassword("");
         UserRealm userRealm = ServiceHolder.getInstance().getRealmService().getTenantUserRealm(tenantId);
         String defaultRole = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(
                 AppFactoryConstants.TENANT_ROLES_DEFAULT_USER_ROLE);
@@ -59,23 +59,22 @@ public class AFTenantInitializer {
             //TODO acquire clusterwide lock
             isExisting = userRealm.getUserStoreManager().isExistingRole(defaultRole);
             if (!isExisting) {
-                Set<RoleBean> roleBeanList = AppFactoryUtil
-                        .getRolePermissionConfigurations(AppFactoryConstants.TENANT_ROLES_DEFAULT_USER_ROLE,
-                                tenant.getAdminName());
-                roleBeanList.addAll(AppFactoryUtil
-                        .getRolePermissionConfigurations(AppFactoryConstants.TENANT_ROLES_ROLE,
-                                tenant.getAdminName()));
+                Set<RoleBean> roleBeanList = AppFactoryUtil.getRolePermissionConfigurations(
+                        AppFactoryConstants.TENANT_ROLES_DEFAULT_USER_ROLE,
+                        tenantInfoBean.getAdminName());
+                roleBeanList.addAll(AppFactoryUtil.getRolePermissionConfigurations(
+                        AppFactoryConstants.TENANT_ROLES_ROLE, tenantInfoBean.getAdminName()));
 
                 UserStoreManager userStoreManager = userRealm.getUserStoreManager();
-                String[] claims = new String[] { FIRST_NAME_CLAIM_URI, LAST_NAME_CLAIM_URI };
-                Map<String, String> claimMappings = userStoreManager
-                        .getUserClaimValues(tenant.getAdminName(), claims, null);
+                String[] claims = new String[]{FIRST_NAME_CLAIM_URI, LAST_NAME_CLAIM_URI};
+                Map<String, String> claimMappings = userStoreManager.getUserClaimValues(
+                        tenantInfoBean.getAdminName(), claims, null);
                 String firstName = claimMappings.get(FIRST_NAME_CLAIM_URI);
                 String lastName = claimMappings.get(LAST_NAME_CLAIM_URI);
                 AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
                 AppFactoryUtil.addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
 
-                executeTenantCreationWorkflow(tenantDomain, tenantId, tenant, firstName, lastName);
+                executeTenantCreationWorkflow(tenantDomain, tenantId, tenantInfoBean, firstName, lastName);
 
             }
         }
@@ -93,22 +92,16 @@ public class AFTenantInitializer {
      */
     private static void executeTenantCreationWorkflow(String tenantDomain, int tenantId, Tenant tenant,
             String firstName, String lastName) throws AppFactoryException {
-        try {
 
-            TenantInfoBean bean = populateTenantInfoBean(tenantDomain, tenantId, tenant, firstName, lastName);
+        TenantInfoBean bean = populateTenantInfoBean(tenantDomain, tenantId, tenant, firstName, lastName);
 
-            WorkflowExecutorFactory workflowExecutorFactory = WorkflowExecutorFactory.getInstance();
-            WorkflowExecutor tenantCreationWorkflowExecutor = workflowExecutorFactory
-                    .getWorkflowExecutor(WorkflowConstant.WF_TYPE_AF_TENANT_CREATION);
-            TenantCreationWorkflowDTO tenantCreationWorkflow = getTenantCreationWorkflowDTO(tenantDomain, tenantId,
-                    workflowExecutorFactory, bean);
-            tenantCreationWorkflowExecutor.execute(tenantCreationWorkflow);
+        WorkflowExecutorFactory workflowExecutorFactory = WorkflowExecutorFactory.getInstance();
 
-        } catch (AppFactoryException e) {
-            String message = "Unable to initialize tenant. Please contact administrator";
-            log.error(message, e);
-            throw new AppFactoryException(message, e);
-        }
+        WorkflowExecutor tenantCreationWorkflowExecutor = workflowExecutorFactory
+                .getWorkflowExecutor(WorkflowConstant.WorkflowType.TENANT_CREATION);
+        TenantCreationWorkflowDTO tenantCreationWorkflow = getTenantCreationWorkflowDTO(tenantDomain, tenantId,
+                workflowExecutorFactory, bean);
+        tenantCreationWorkflowExecutor.execute(tenantCreationWorkflow);
     }
 
     private static TenantInfoBean populateTenantInfoBean(String tenantDomain, int tenantId, Tenant tenant,
@@ -136,7 +129,7 @@ public class AFTenantInitializer {
             WorkflowExecutorFactory workflowExecutorFactory, TenantInfoBean bean) {
         String usagePlan = "Demo";
         TenantCreationWorkflowDTO tenantCreationWorkflowDTO = (TenantCreationWorkflowDTO) workflowExecutorFactory
-                .createWorkflowDTO(WorkflowConstant.WF_TYPE_AF_TENANT_CREATION);
+                .createWorkflowDTO(WorkflowConstant.WorkflowType.TENANT_CREATION);
         tenantCreationWorkflowDTO.setTenantDomain(tenantDomain);
         tenantCreationWorkflowDTO.setTenantId(tenantId);
         tenantCreationWorkflowDTO.setUsagePlan(usagePlan);

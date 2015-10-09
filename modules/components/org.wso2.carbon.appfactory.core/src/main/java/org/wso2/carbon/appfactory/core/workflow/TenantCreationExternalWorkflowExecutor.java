@@ -40,6 +40,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.FileNotFoundException;
+import java.text.MessageFormat;
 
 /**
  * The executor class for tenant creation external execution
@@ -62,8 +63,8 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
     @Override public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
 
         if (log.isDebugEnabled()) {
-            String message = "Executing tenant creation external workflow : tenant domain : " + workflowDTO
-                    .getTenantDomain();
+            String message =
+                    "Executing tenant creation external workflow : tenant domain : " + workflowDTO.getTenantDomain();
             log.debug(message);
         }
         String EPR;
@@ -116,52 +117,59 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
             OMElement payload = AXIOMUtil.stringToOM(value);
             serviceClient.sendReceive(payload);
 
-
         } catch (AxisFault axisFault) {
-            String message = "";
+            String message = "Unable to do the service class to the BPS server";
             throw new AppFactoryException(message, axisFault);
         } catch (FileNotFoundException e) {
             String message = "Unable to find the bpel-policy.xml file";
             throw new AppFactoryException(message);
         } catch (XMLStreamException e) {
-            e.printStackTrace();
+            String message = "Unable to parse the xml";
+            throw new AppFactoryException(message, e);
         } finally {
-            try {
-                serviceClient.cleanup();
-            } catch (AxisFault axisFault) {
-                String message = "Unable to clean up the resources which is used by the client";
-                throw new AppFactoryException(message, axisFault);
-            }
+            closeServiceClient(serviceClient);
         }
 
-        log.info("The BPEL ran successfully to create tenant in all Clouds. Tenant domain is " +
+        log.info("The BPEL ran successfully to create tenant in the cloud. Tenant domain is " +
                 tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is " + tenantCreationWorkflow.getTenantId());
     }
 
-    private String createPayload(TenantCreationWorkflowDTO tenantCreationWorkflow) {
-        StringBuilder payloadStringBuilder = new StringBuilder();
-        payloadStringBuilder.append("<p:CreateTenantRequest xmlns:p=\"http://wso2.org/bps/sample\">")
-                .append("<admin xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantInfoBean().getAdmin()).append("</admin>")
-                .append("<firstName xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantInfoBean().getFirstname()).append("</firstName>")
-                .append("<lastName xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantInfoBean().getLastname()).append("</lastName>")
-                .append("<adminPassword xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantInfoBean().getAdminPassword()).append("</adminPassword>")
-                .append("<tenantDomain xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantDomain()).append("</tenantDomain>")
-                .append("<tenantId xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantInfoBean().getTenantId()).append("</tenantId>")
-                .append("<email xmlns=\"http://wso2.org/bps/sample\">")
-                .append(tenantCreationWorkflow.getTenantInfoBean().getEmail()).append("</email>")
-                .append("<active xmlns=\"http://wso2.org/bps/sample\">true</active>")
-                .append("<successKey xmlns=\"http://wso2.org/bps/sample\">key</successKey>")
-                .append("<originatedService xmlns=\"http://wso2.org/bps/sample\">WSO2 Stratos "
-                        + "Manager</originatedService>")
-                .append("<usagePlan xmlns=\"http://wso2.org/bps/sample\">Demo</usagePlan>")
-                .append("</p:CreateTenantRequest>");
+    private void closeServiceClient(ServiceClient serviceClient) {
+        try {
+            if (serviceClient != null) {
+                serviceClient.cleanup();
+            }
+        } catch (AxisFault axisFault) {
+            String message = "Unable to clean up the resources which is used by the client";
+            log.error(message, axisFault);
+        }
+    }
 
-        return payloadStringBuilder.toString();
+    private String createPayload(TenantCreationWorkflowDTO tenantCreationWorkflow) {
+        //StringBuilder payloadStringBuilder = new StringBuilder();
+
+        String value = "<p:CreateTenantRequest xmlns:p=\"http://wso2.org/bps/sample\">" +
+                "<admin xmlns=\"http://wso2.org/bps/sample\">{0}</admin>" +
+                "<firstName xmlns=\"http://wso2.org/bps/sample\">{1}</firstName>" +
+                "<lastName xmlns=\"http://wso2.org/bps/sample\">{2}</lastName>" +
+                "<adminPassword xmlns=\"http://wso2.org/bps/sample\">{3}</adminPassword>" +
+                "<tenantDomain xmlns=\"http://wso2.org/bps/sample\">{4}</tenantDomain>" +
+                "<tenantId xmlns=\"http://wso2.org/bps/sample\">{5}</tenantId>" +
+                "<email xmlns=\"http://wso2.org/bps/sample\">{6}</email>" +
+                "<active xmlns=\"http://wso2.org/bps/sample\">true</active>" +
+                "<successKey xmlns=\"http://wso2.org/bps/sample\">key</successKey>" +
+                "<createdDate xmlns=\"http://wso2.org/bps/sample\">2001-12-31T12:00:00</createdDate>" +
+                "<originatedService xmlns=\"http://wso2.org/bps/sample\">WSO2 Stratos Manager</originatedService>" +
+                "<usagePlan xmlns=\"http://wso2.org/bps/sample\">Demo</usagePlan>" +
+                "</p:CreateTenantRequest>";
+
+        String payLoadValue = MessageFormat.format(value, tenantCreationWorkflow.getTenantInfoBean().getAdmin(),
+                tenantCreationWorkflow.getTenantInfoBean().getFirstname(),
+                tenantCreationWorkflow.getTenantInfoBean().getLastname(),
+                tenantCreationWorkflow.getTenantInfoBean().getAdminPassword(), tenantCreationWorkflow.getTenantDomain(),
+                tenantCreationWorkflow.getTenantInfoBean().getTenantId(),
+                tenantCreationWorkflow.getTenantInfoBean().getEmail());
+
+        return payLoadValue;
     }
 }
