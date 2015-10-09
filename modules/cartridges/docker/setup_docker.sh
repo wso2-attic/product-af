@@ -21,7 +21,7 @@
 CODE_PATH=/home/amalka/A/git/fork/tenant/product-af
 PUPPET_CONFIG_HOME=${CODE_PATH}/modules/puppet-manifests/puppet-configurator
 DOCKER_HOME=${CODE_PATH}/modules/cartridges/docker
-AF_ARTIFACTS_HOME=/home/amalka/A/af_artifacts/af_artifacts
+AF_ARTIFACTS_HOME=/home/amalka/A/af_artifacts
 PATCHES_DIR=${AF_ARTIFACTS_HOME}/patches
 
 if [ -f ${PUPPET_CONFIG_HOME}/config.sh ]; then
@@ -125,8 +125,8 @@ function _update_jars() {
 	done
 }
 
-_update_jars APPSERVER[@] wso2as-5.2.1/templates-module/files/repository/component/dropins ${OLD_VERSION} ${NEW_VERSION}
-_update_common_jars APPSERVER_COMMON[@] wso2as-5.2.1/templates-module/files/repository/component/dropins "*" "*"
+_update_jars APPSERVER[@] wso2as-5.2.1/templates-module/files/repository/components/dropins ${OLD_VERSION} ${NEW_VERSION}
+_update_common_jars APPSERVER_COMMON[@] wso2as-5.2.1/templates-module/files/repository/components/dropins "*" "*"
 
 function _update_patches() {
         # $1 -> Array of patches
@@ -155,7 +155,7 @@ function _update_patches() {
         done
 }
 
-_update_patches PAAS_AS_PATCHES[@] paas_as wso2as-5.2.1/templates-module/files/repository/component/patches
+_update_patches PAAS_AS_PATCHES[@] paas_as wso2as-5.2.1/templates-module/files/repository/components/patches
 
 function _copy_files() {
         # $1 -> Array of dropins
@@ -184,8 +184,8 @@ function _copy_files() {
 }
 
 
-_copy_files AS_DROPINS[@] dropins wso2as-5.2.1/templates-module/files/repository/component/dropins
-_copy_files AS_LIBS[@] lib wso2as-5.2.1/templates-module/files/repository/component/lib
+_copy_files AS_DROPINS[@] dropins wso2as-5.2.1/templates-module/files/repository/components/dropins
+_copy_files AS_LIBS[@] lib wso2as-5.2.1/templates-module/files/repository/components/lib
 
 declare -a BASE_IMAGE=("apache-stratos-python-cartridge-agent-4.1.1.zip" "jdk-7u60-linux-x64.tar.gz" "ppaas-configurator-4.1.0-SNAPSHOT.zip");
 declare -a WSO2AS_IMAGE=("jdk-7u60-linux-x64.tar.gz" "mysql-connector-java-5.1.27-bin.jar" "wso2as-5.2.1.zip");
