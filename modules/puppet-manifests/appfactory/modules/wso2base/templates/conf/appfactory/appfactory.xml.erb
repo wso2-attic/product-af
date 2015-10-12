@@ -814,11 +814,13 @@
     </AbstractSingleTenantApplicationTypeProcessor>
 
     <!--
-        Following configuration for workflow exentions
+        Following configuration for workflow exertions
         WorkflowType Tenant creation
         : usage : Config tenant creation workflow class inside property element
-        : Default configuration : The TenantCreationDefaultWorkflow class is already configured here
-        : No configuration : The TenantCreationDefaultWorkflow class will configure in the runtime
+        : Default configuration : The org.wso2.carbon.appfactory.core.workflow.TenantCreationDefaultWorkflowExecutor
+                                  class is already configured here
+        : No configuration : The org.wso2.carbon.appfactory.core.workflow.TenantCreationDefaultWorkflowExecutor class
+                             will configure in the runtime
 
     -->
         <WorkflowExtensions>
