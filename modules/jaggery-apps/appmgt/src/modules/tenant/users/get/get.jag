@@ -163,7 +163,7 @@ var getPendingUsersOfTenantByAppKey = function(applicationKey){
     var data = {
         action: "getPendingUsersOfRole",
         tenantDomain: tenantDomain,
-        applicationKey: appRole
+        role: appRole
     };
     var headers = {
         "Content-Type":"application/x-www-form-urlencoded",
