@@ -128,7 +128,7 @@ var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
         defaultRoles: stringify(defaultRoleObject),
         tenantDomain: tenantDomain,
         users: stringify(usersList),
-        message: stringify(welcomeText)
+        message: welcomeText
     };
     var headers = {
         "Content-Type": "application/x-www-form-urlencoded",
