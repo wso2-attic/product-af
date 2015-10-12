@@ -129,7 +129,7 @@ node basenode {
 ############## Workflow Configuration values ####################
 
 #Tenant Creation
-  $tenant_creation_wf_java_class = "org.wso2.carbon.appfactory.core.workflow.TenantCreationExternalWorkflowExecutor"
+  $tenant_creation_wf_java_class = "org.wso2.carbon.appfactory.core.workflow.TenantCreationDefaultWorkflowExecutor"
 
 
 ############## Stratos DBS for Dev Setup #########################

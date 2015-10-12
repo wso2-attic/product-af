@@ -79,17 +79,18 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
 
         try {
             EPR = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(WorkflowConstant.BPS_SERVER_URL)
-                    + "CreateTenant";
-            if (StringUtils.isBlank(EPR)) {
-                String message = "Can not read EPR value from the appfactory.xml configuration, the value is null or "
-                        + "empty for the tenant domain : " + workflowDTO.getTenantDomain();
-                throw new AppFactoryException(message);
-            }
+                    + WorkflowConstant.BPEL_NAME;
 
         } catch (AppFactoryException e) {
             String message = "Unable to read appfactory.xml configuration for the tenant domain : " + workflowDTO
                     .getTenantDomain();
             throw new AppFactoryException(message, e);
+        }
+
+        if (StringUtils.isBlank(EPR)) {
+            String message = "Can not read EPR value from the appfactory.xml configuration, the value is null or "
+                    + "empty for the tenant domain : " + workflowDTO.getTenantDomain();
+            throw new AppFactoryException(message);
         }
 
         String value = createPayload(tenantCreationWorkflow);

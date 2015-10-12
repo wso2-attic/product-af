@@ -24,8 +24,6 @@ package org.wso2.carbon.appfactory.core.workflow.dto;
 public class WorkflowDTO {
 
     private String tenantDomain;
-    private String usagePlan;
-    private String stage;
     private int tenantId;
 
     public String getTenantDomain() {
@@ -34,22 +32,6 @@ public class WorkflowDTO {
 
     public void setTenantDomain(String tenantDomain) {
         this.tenantDomain = tenantDomain;
-    }
-
-    public String getUsagePlan() {
-        return usagePlan;
-    }
-
-    public void setUsagePlan(String usagePlan) {
-        this.usagePlan = usagePlan;
-    }
-
-    public String getStage() {
-        return stage;
-    }
-
-    public void setStage(String stage) {
-        this.stage = stage;
     }
 
     public int getTenantId() {

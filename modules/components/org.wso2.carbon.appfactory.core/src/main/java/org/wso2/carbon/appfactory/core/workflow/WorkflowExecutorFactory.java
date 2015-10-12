@@ -32,16 +32,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WorkflowExecutorFactory {
 
-    private static final WorkflowExecutorFactory workflowExecutorFactory = new WorkflowExecutorFactory();
     private static Log log = LogFactory.getLog(WorkflowExecutorFactory.class);
     private Map<WorkflowConstant.WorkflowType, WorkflowExecutor> workflowExecutorMap;
+    private static final WorkflowExecutorFactory workflowExecutorFactory = new WorkflowExecutorFactory();
 
     private WorkflowExecutorFactory() {
 
         try {
             loadWorkflowConfiguration();
         } catch (AppFactoryException e) {
-            String message = "Unable to load workflow configuration or create workflow objects";
+            String message = "Unable to load workflow configuration or create workflow type objects";
             log.error(message, e);
         }
 
@@ -69,7 +69,9 @@ public class WorkflowExecutorFactory {
             executorClass = AppFactoryUtil.getAppfactoryConfiguration()
                     .getFirstProperty(WorkflowConstant.TENANT_CREATION);
         } catch (AppFactoryException e) {
-            String message = "Unable to read executor class from the appfactory.xml configuration";
+            String message =
+                    "Unable to read executor class from the appfactory.xml configuration, the workflow type " + ": "
+                            + WorkflowConstant.WorkflowType.TENANT_CREATION;
             throw new AppFactoryException(message, e);
         }
 
@@ -86,13 +88,18 @@ public class WorkflowExecutorFactory {
             workflowExecutor = (WorkflowExecutor) tenantCreationExecutorClass.newInstance();
             workflowExecutorMap.put(WorkflowConstant.WorkflowType.TENANT_CREATION, workflowExecutor);
         } catch (ClassNotFoundException e) {
-            String message = "Unable to find configured class from the source code : class name : " + executorClass;
+            String message = "Unable to find configured class : " + executorClass + " in the class loader, when "
+                    + "initializing the executor class for workflow type : "
+                    + WorkflowConstant.WorkflowType.TENANT_CREATION;
             throw new AppFactoryException(message, e);
         } catch (InstantiationException e) {
-            String message = "Can not initiate object of the class : class name : " + executorClass;
+            String message = "Unable to initiate object of the class : " + executorClass + "when initializing the "
+                    + "object of the executor class for workflow type : "
+                    + WorkflowConstant.WorkflowType.TENANT_CREATION;
             throw new AppFactoryException(message, e);
         } catch (IllegalAccessException e) {
-            String message = "Can not access the class to create new instance : class name : " + executorClass;
+            String message = "Unable to access the class" + executorClass + " for create new instance when accessing "
+                    + "the executor class for workflow type : " + WorkflowConstant.WorkflowType.TENANT_CREATION;
             throw new AppFactoryException(message, e);
         }
     }
@@ -115,14 +122,12 @@ public class WorkflowExecutorFactory {
      */
     public WorkflowDTO createWorkflowDTO(WorkflowConstant.WorkflowType workflowType) {
         WorkflowDTO workflowDTO;
-
         switch (workflowType) {
         case TENANT_CREATION:
             workflowDTO = new TenantCreationWorkflowDTO();
             break;
-
         default:
-            String message = "The type of workflow not support : workflow type : " + workflowType;
+            String message = "The type of workflow not support, the workflow type : " + workflowType;
             throw new IllegalArgumentException(message);
         }
 
