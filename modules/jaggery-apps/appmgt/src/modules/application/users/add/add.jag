@@ -137,7 +137,7 @@ var sendApplicationInvitationEmail = function(applicationKey, userEmails, welcom
 		action: "sendEmailWithCustomMessage",
 		subject: INVITE_USER_EMAIL_SUBJECT,
 		to: stringify(userEmails),
-		message: stringify(welcomeMsg)
+		message: welcomeMsg
 	};
 	var headers = {
 		"Content-Type": "application/x-www-form-urlencoded",

@@ -126,8 +126,7 @@ var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
     var data = {
         action: "inviteUsers",
         defaultRoles: stringify(defaultRoleObject),
-        tenantDomain: tenantDomain,
-        users: stringify(usersList),
+        userRoleList: stringify(usersList),
         message: welcomeText
     };
     var headers = {
