@@ -21,8 +21,8 @@ package org.wso2.carbon.appfactory.core.workflow;
  */
 public class WorkflowConstant {
 
-    public static final String TENANT_CREATION = "WorkflowExetensions.WorkflowType.TenantCreation.Property.ClassName";
-    public static final String BPS_SERVER_URL = "WorkflowExetensions.BPS.Url";
+    public static final String TENANT_CREATION = "WorkflowExtensions.WorkflowType.TenantCreation.Property.ClassName";
+    public static final String BPS_SERVER_URL = "WorkflowExtensions.BPS.URL";
     public static final String TENANT_CREATION_DEFAULT_WORKFLOW_CLASS = "org.wso2.carbon.appfactory.core.workflow.TenantCreationDefaultWorkflowExecutor";
 
     public enum WorkflowType {
