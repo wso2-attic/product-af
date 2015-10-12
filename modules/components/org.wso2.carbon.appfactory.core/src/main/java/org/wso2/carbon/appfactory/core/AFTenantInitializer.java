@@ -74,7 +74,13 @@ public class AFTenantInitializer {
                 AuthorizationManager authorizationManager = userRealm.getAuthorizationManager();
                 AppFactoryUtil.addRolePermissions(userStoreManager, authorizationManager, roleBeanList);
 
-                executeTenantCreationWorkflow(tenantDomain, tenantId, tenantInfoBean, firstName, lastName);
+                try {
+                    executeTenantCreationWorkflow(tenantDomain, tenantId, tenantInfoBean, firstName, lastName);
+                } catch (AppFactoryException e) {
+                    String message = "Unable to initialize tenant. Please contact administrator";
+                    log.error(message, e);
+                    throw new AppFactoryException(message, e);
+                }
 
             }
         }
@@ -102,6 +108,7 @@ public class AFTenantInitializer {
         TenantCreationWorkflowDTO tenantCreationWorkflow = getTenantCreationWorkflowDTO(tenantDomain, tenantId,
                 workflowExecutorFactory, bean);
         tenantCreationWorkflowExecutor.execute(tenantCreationWorkflow);
+
     }
 
     private static TenantInfoBean populateTenantInfoBean(String tenantDomain, int tenantId, Tenant tenant,

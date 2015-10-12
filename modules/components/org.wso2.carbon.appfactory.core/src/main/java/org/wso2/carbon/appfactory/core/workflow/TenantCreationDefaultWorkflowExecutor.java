@@ -38,17 +38,17 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
      * @param workflowDTO the tenant creation workflowDTO dto
      * @throws AppFactoryException exception throw if not success the execution
      */
-    @Override public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
+    @Override
+    public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
         if (log.isDebugEnabled()) {
-            String message = "Executing tenant creation default workflow for the tenant domain : " + workflowDTO
-                    .getTenantDomain();
+            String message = "Executing tenant creation default workflow for the tenant domain : " +
+                    workflowDTO.getTenantDomain();
             log.debug(message);
         }
 
         if (!(workflowDTO instanceof TenantCreationWorkflowDTO)) {
             String message = "TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
-                    + " method for the tenant domain : " +
-                    workflowDTO.getTenantDomain();
+                    + " method for the tenant domain : " + workflowDTO.getTenantDomain();
             if (log.isDebugEnabled()) {
                 log.debug(message);
             }
@@ -63,8 +63,8 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
 
         try {
             if (log.isDebugEnabled()) {
-                String message = "Executing the initializeRepositoryManager for tenant domain : " + workflowDTO
-                        .getTenantDomain();
+                String message = "Executing the initializeRepositoryManager for tenant domain : " +
+                        workflowDTO.getTenantDomain();
                 log.debug(message);
             }
             tenantInfraStructureInitializerService.initializeRepositoryManager(tenantCreationWorkflow.getTenantDomain(),
@@ -101,6 +101,9 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
                     "Can not initialize cloud manager for the tenant domain : " + workflowDTO.getTenantDomain();
             throw new AppFactoryException(message, e);
         }
+
+        log.info("The default tenant creation workflow executed successfully.Tenant domain is : " +
+                tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is : " + tenantCreationWorkflow.getTenantId());
 
     }
 
