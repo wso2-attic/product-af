@@ -60,14 +60,14 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
      * @param workflowDTO the tenant creation workflowDTO dto
      * @throws AppFactoryException AppFactoryException exception throws if not success the execution
      */
-    @Override public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
+    @Override
+    public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
 
         if (log.isDebugEnabled()) {
-            String message = "Executing tenant creation external workflow for the tenant domain : " + workflowDTO
-                    .getTenantDomain();
+            String message = "Executing tenant creation external workflow for the tenant domain : " +
+                    workflowDTO.getTenantDomain();
             log.debug(message);
         }
-        String EPR;
 
         if (!(workflowDTO instanceof TenantCreationWorkflowDTO)) {
             String message = "TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
@@ -77,13 +77,16 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
 
         TenantCreationWorkflowDTO tenantCreationWorkflow = (TenantCreationWorkflowDTO) workflowDTO;
 
+        //End point reference for Tenant creation BPEL in BPS server
+        String EPR;
+
         try {
             EPR = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(WorkflowConstant.BPS_SERVER_URL)
-                    + WorkflowConstant.BPEL_NAME;
+                    + WorkflowConstant.CREATE_TENANT_BPEL_NAME;
 
         } catch (AppFactoryException e) {
-            String message = "Unable to read appfactory.xml configuration for the tenant domain : " + workflowDTO
-                    .getTenantDomain();
+            String message = "Unable to read appfactory.xml configuration for the tenant domain : " +
+                    workflowDTO.getTenantDomain();
             throw new AppFactoryException(message, e);
         }
 

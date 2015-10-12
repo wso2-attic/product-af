@@ -37,14 +37,12 @@ public class WorkflowExecutorFactory {
     private static final WorkflowExecutorFactory workflowExecutorFactory = new WorkflowExecutorFactory();
 
     private WorkflowExecutorFactory() {
-
         try {
             loadWorkflowConfiguration();
         } catch (AppFactoryException e) {
             String message = "Unable to load workflow configuration or create workflow type objects";
             log.error(message, e);
         }
-
     }
 
     public static WorkflowExecutorFactory getInstance() {
@@ -123,13 +121,13 @@ public class WorkflowExecutorFactory {
     public WorkflowDTO createWorkflowDTO(WorkflowConstant.WorkflowType workflowType) {
         WorkflowDTO workflowDTO;
         switch (workflowType) {
-        case TENANT_CREATION:
-            workflowDTO = new TenantCreationWorkflowDTO();
-            break;
-        default:
-            String message = "The type of workflow not support, the workflow type : " + workflowType;
-            throw new IllegalArgumentException(message);
-        }
+            case TENANT_CREATION:
+                workflowDTO = new TenantCreationWorkflowDTO();
+                break;
+            default:
+                String message = "The type of workflow not support, the workflow type : " + workflowType;
+                throw new IllegalArgumentException(message);
+            }
 
         return workflowDTO;
     }
