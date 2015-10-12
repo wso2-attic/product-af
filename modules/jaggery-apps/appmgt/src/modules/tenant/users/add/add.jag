@@ -156,7 +156,7 @@ var resendInvitation = function (applicationKey, email) {
     var resendInvitationUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_RESEND_INVITATION_AJAX_PATH;
     var data = {
         action: "resendInvite",
-        userName: email
+        email: email
     };
     var headers = {
         "Content-Type": "application/x-www-form-urlencoded",
