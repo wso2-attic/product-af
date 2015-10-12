@@ -34,13 +34,15 @@ sleep 30s
 echo "starting App Factory"
 ./$afpath/bin/wso2server.sh start
 
-sleep 30s
-
-echo "starting BAM"
-./$bampath/bin/wso2server.sh start
+while ! nc -z localhost 9443; do sleep 5; done; echo '------ AF is up ----------'
 
 echo "starting MB"
 ./$mbpath/bin/wso2server.sh start
+
+while ! nc -z localhost 9743; do sleep 5; done; echo '------ MB is up ----------'
+
+echo "starting BAM"
+./$bampath/bin/wso2server.sh start
 
 echo "starting jenkins"
 ./$jenkinspath/jenkins.sh start
@@ -71,11 +73,18 @@ echo "starting greg servers"
 ./test_greg/$gregpath/bin/wso2server.sh start
 ./prod_greg/$gregpath/bin/wso2server.sh start
 
-sleep 5s
-
 echo "starting stratos"
-setup_path="$CURRENT_DIR/ppaas/privatepaas/stratos-installer"
-$setup_path/start-servers.sh -p default restart
+./ppaas/privatepaas/install/apache-stratos-default/bin/stratos.sh start
+./ppaas/privatepaas/install/apache-activemq-5.9.1/bin/activemq start
+
 sleep 10s
+
+EOF
+
+sudo su << 'EOF'
+. ./config.properties
+
+cd /mnt/$MACHINE_IP/
+bash nginx/apache-stratos-nginx-extension-4.1.2/bin/nginx-extension.sh > extension.log  2>&1 &
 
 EOF

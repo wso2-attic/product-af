@@ -167,7 +167,9 @@
         <!--
              The fully qualified name of the default initial context factory
         -->
-        <DefaultInitialContextFactory>org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory</DefaultInitialContextFactory>
+        <!--DefaultInitialContextFactory>org.wso2.carbon.tomcat.jndi.CarbonJavaURLContextFactory</DefaultInitialContextFactory-->
+        <DefaultInitialContextFactory>org.wso2.carbon.appfactory.ext.jndi.ApplicationAwareCarbonJavaURLContextFactory</DefaultInitialContextFactory>
+        <CarbonInitialJNDIContextFactory>org.wso2.carbon.appfactory.ext.jndi.ApplicationAwareCarbonInitialJNDIContextFactory</CarbonInitialJNDIContextFactory>
         <!--
              The restrictions that are done to various JNDI Contexts in a Multi-tenant environment
         -->
@@ -331,6 +333,22 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
+
+        <!--
+			Encrypt Decrypt Store will be used for encrypting and decrypting
+		-->
+        <RegistryKeyStore>
+            <!-- Keystore file location-->
+            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
+            <!-- Keystore type (JKS/PKCS12 etc.)-->
+            <Type>JKS</Type>
+            <!-- Keystore password-->
+            <Password>wso2carbon</Password>
+            <!-- Private Key alias-->
+            <KeyAlias>wso2carbon</KeyAlias>
+            <!-- Private Key password-->
+            <KeyPassword>wso2carbon</KeyPassword>
+        </RegistryKeyStore>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all
@@ -509,7 +527,7 @@
 	In master nodes you need to set both AutoCommit and AutoCheckout to true
 	and in  worker nodes set only AutoCheckout to true.
     -->
-    <DeploymentSynchronizer>
+    <!--DeploymentSynchronizer>
         <Enabled>false</Enabled>
         <AutoCommit>false</AutoCommit>
         <AutoCheckout>true</AutoCheckout>
@@ -518,7 +536,19 @@
         <SvnUser>username</SvnUser>
         <SvnPassword>password</SvnPassword>
         <SvnUrlAppendTenantId>true</SvnUrlAppendTenantId>
-    </DeploymentSynchronizer>
+    </DeploymentSynchronizer-->
+
+        <DeploymentSynchronizer>
+               <Enabled>false</Enabled>
+               <AutoCommit>false</AutoCommit>
+               <AutoCheckout>true</AutoCheckout>
+               <StandardDeployment>false</StandardDeployment>
+               <RepositoryType>git</RepositoryType>
+               <GitServer>gitblit</GitServer>
+               <GitBaseUrl>s2git.appfactory.private.wso2.com:8444</GitBaseUrl>
+               <GitUserName>admin</GitUserName>
+               <GitPassword>admin</GitPassword>
+       </DeploymentSynchronizer>
 
     <!-- Deployment Synchronizer Configuration. Uncomment the following section when running with "registry based" dep sync.
         In master nodes you need to set both AutoCommit and AutoCheckout to true
