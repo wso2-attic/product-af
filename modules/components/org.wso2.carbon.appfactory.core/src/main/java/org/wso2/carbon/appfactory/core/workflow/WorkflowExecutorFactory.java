@@ -68,7 +68,7 @@ public class WorkflowExecutorFactory {
                     .getFirstProperty(WorkflowConstant.TENANT_CREATION);
         } catch (AppFactoryException e) {
             String message =
-                    "Unable to read executor class from the appfactory.xml configuration, the workflow type " + ": "
+                    "Unable to read executor class from the appfactory.xml configuration, the workflow type : "
                             + WorkflowConstant.WorkflowType.TENANT_CREATION;
             throw new AppFactoryException(message, e);
         }
