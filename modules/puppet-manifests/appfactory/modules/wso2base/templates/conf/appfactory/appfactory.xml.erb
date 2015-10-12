@@ -817,13 +817,13 @@
         Following configuration for workflow exentions
         WorkflowType Tenant creation
         : usage : Config tenant creation workflow class inside property element
-        : Default configuration : The class which is already configured in here
+        : Default configuration : The TenantCreationDefaultWorkflow class is already configured here
         : No configuration : The TenantCreationDefaultWorkflow class will configure in the runtime
 
     -->
         <WorkflowExtensions>
             <BPS>
-               <URL>https://process.appfactory.private.wso2.com:9543/services/</URL>
+               <URL>https://<%= @bps_subdomain %>.<%= @wso2_env_domain %>:<%= @bps_port %>/services/</URL>
             </BPS>
             <WorkflowType name="TenantCreation">
                     <Property name="ClassName"><%= @tenant_creation_wf_java_class %></Property>

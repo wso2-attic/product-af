@@ -127,12 +127,10 @@ public class AFTenantInitializer {
 
     private static TenantCreationWorkflowDTO getTenantCreationWorkflowDTO(String tenantDomain, int tenantId,
             WorkflowExecutorFactory workflowExecutorFactory, TenantInfoBean bean) {
-        String usagePlan = "Demo";
         TenantCreationWorkflowDTO tenantCreationWorkflowDTO = (TenantCreationWorkflowDTO) workflowExecutorFactory
                 .createWorkflowDTO(WorkflowConstant.WorkflowType.TENANT_CREATION);
         tenantCreationWorkflowDTO.setTenantDomain(tenantDomain);
         tenantCreationWorkflowDTO.setTenantId(tenantId);
-        tenantCreationWorkflowDTO.setUsagePlan(usagePlan);
         tenantCreationWorkflowDTO.setTenantInfoBean(bean);
         return tenantCreationWorkflowDTO;
     }
