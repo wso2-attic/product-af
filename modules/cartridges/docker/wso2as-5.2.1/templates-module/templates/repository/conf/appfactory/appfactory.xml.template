@@ -239,7 +239,7 @@
         <IdentityProviderURL>https://apps.appfactory.private.wso2.com:9443/samlsso</IdentityProviderURL>
         <KeyStorePassword>wso2carbon</KeyStorePassword>
         <IdentityKeyAlias>wso2carbon</IdentityKeyAlias>
-        <KeyStoreName>/mnt/10.100.0.106/appfactory/wso2appfactory-2.2.0-SNAPSHOT/repository/resources/security/wso2carbon.jks</KeyStoreName>
+        <KeyStoreName>repository/resources/security/wso2carbon.jks</KeyStoreName>
     </SSORelyingParty>
 
     <!-- Server URLs -->
@@ -256,7 +256,7 @@
 
     <!-- Issue tracker connector configs-->
     <IssueTrackerConnector name="issueTracker" summaryOnly="false">
-        <Property name="Url">https://apps.appfactory.private.wso2.com:9443/issuetracker-2.1.0/</Property>
+        <Property name="Url">https://apps.appfactory.private.wso2.com:9443/issuetracker-2.2.0-SNAPSHOT/</Property>
         <Property name="FrontUrl">https://apps.appfactory.private.wso2.com:9443/issuetracker/</Property>
         <!-- Bigger number will result in higher priority -->
         <Property name="ListenerPriority">40</Property>
@@ -507,6 +507,7 @@
             <BaseAccessUrl>https://appserver.dev.appfactory.private.wso2.com:9443</BaseAccessUrl>
             <TenantMgtUrl>https://sc.dev.appfactory.private.wso2.com:9463</TenantMgtUrl>
             <PAASServicesURL>https://sc.dev.appfactory.private.wso2.com:9463/services/</PAASServicesURL>
+            <GregServerURL>https://gregserver.dev.appfactory.private.wso2.com:9473/services/</GregServerURL>
             <Buildable>true</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Development</RssName>
@@ -601,6 +602,7 @@
             <BaseAccessUrl>https://appserver.test.appfactory.private.wso2.com:9443</BaseAccessUrl>
             <TenantMgtUrl>https://sc.test.appfactory.private.wso2.com:9464</TenantMgtUrl>
             <PAASServicesURL>https://sc.test.appfactory.private.wso2.com:9464/services/</PAASServicesURL>
+            <GregServerURL>https://gregserver.test.appfactory.private.wso2.com:9474/services/</GregServerURL>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Testing</RssName>
@@ -669,6 +671,7 @@
             <BaseAccessUrl>https:/appserver.appfactory.private.wso2.com:9443</BaseAccessUrl>
             <TenantMgtUrl>https://sc.prod.appfactory.private.wso2.com:9465</TenantMgtUrl>
             <PAASServicesURL>https://sc.prod.appfactory.private.wso2.com:9465/services/</PAASServicesURL>
+            <GregServerURL>https://gregserver.prod.appfactory.private.wso2.com:9475/services/</GregServerURL>
             <Semantic>Production</Semantic>
             <Buildable>false</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
@@ -739,7 +742,7 @@
         <ClusterSelectingStrategy>org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategyImpl</ClusterSelectingStrategy>
     </JenkinsLBConfig>
     <OtherServices>
-        <Service name="ViewVC">me
+        <Service name="ViewVC">
             <Link>http://www.viewvc.org/</Link>
             <Description>Browse the repository, view files, display diffs between versions.</Description>
             <Title>ViewVC</Title>
