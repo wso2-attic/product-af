@@ -63,15 +63,15 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
     @Override public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
 
         if (log.isDebugEnabled()) {
-            String message =
-                    "Executing tenant creation external workflow : tenant domain : " + workflowDTO.getTenantDomain();
+            String message = "Executing tenant creation external workflow for the tenant domain : " + workflowDTO
+                    .getTenantDomain();
             log.debug(message);
         }
         String EPR;
 
         if (!(workflowDTO instanceof TenantCreationWorkflowDTO)) {
             String message = "TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
-                    + " method : tenant domain : " + workflowDTO.getTenantDomain();
+                    + " method for the tenant domain : " + workflowDTO.getTenantDomain();
             throw new IllegalArgumentException(message);
         }
 
@@ -82,13 +82,13 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
                     + "CreateTenant";
             if (StringUtils.isBlank(EPR)) {
                 String message = "Can not read EPR value from the appfactory.xml configuration, the value is null or "
-                        + "empty : tenant domain : " + workflowDTO.getTenantDomain();
+                        + "empty for the tenant domain : " + workflowDTO.getTenantDomain();
                 throw new AppFactoryException(message);
             }
 
         } catch (AppFactoryException e) {
-            String message =
-                    "Unable to read appfactory.xml configuration : tenant domain : " + workflowDTO.getTenantDomain();
+            String message = "Unable to read appfactory.xml configuration for the tenant domain : " + workflowDTO
+                    .getTenantDomain();
             throw new AppFactoryException(message, e);
         }
 
@@ -130,8 +130,8 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
             closeServiceClient(serviceClient);
         }
 
-        log.info("The BPEL ran successfully to create tenant in the cloud. Tenant domain is " +
-                tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is " + tenantCreationWorkflow.getTenantId());
+        log.info("The BPEL ran successfully to create tenant in the cloud. Tenant domain is : " +
+                tenantCreationWorkflow.getTenantDomain() + ". Tenant Id is : " + tenantCreationWorkflow.getTenantId());
     }
 
     private void closeServiceClient(ServiceClient serviceClient) {
@@ -162,7 +162,8 @@ public class TenantCreationExternalWorkflowExecutor implements WorkflowExecutor 
                 "<usagePlan xmlns=\"http://wso2.org/bps/sample\">Demo</usagePlan>" +
                 "</p:CreateTenantRequest>";
 
-        String payLoadValue = MessageFormat.format(value, tenantCreationWorkflow.getTenantInfoBean().getAdmin(),
+        String payLoadValue;
+        payLoadValue = MessageFormat.format(value, tenantCreationWorkflow.getTenantInfoBean().getAdmin(),
                 tenantCreationWorkflow.getTenantInfoBean().getFirstname(),
                 tenantCreationWorkflow.getTenantInfoBean().getLastname(),
                 tenantCreationWorkflow.getTenantInfoBean().getAdminPassword(), tenantCreationWorkflow.getTenantDomain(),
