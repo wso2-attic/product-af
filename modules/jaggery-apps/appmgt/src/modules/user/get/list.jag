@@ -304,10 +304,15 @@ function getCookieForCloudMgtBySAMLToken(){
 		throw "Error occurred when login with saml token";
 	}
 
-	if(result.xhr.status == "200"){
-		var cookie = result.xhr.getResponseHeader("Set-Cookie");
-		var cookieString = cookie.split(";")[0];
-		return cookieString;
+	if(result.xhr.status == "200") {
+	    // due to jaggery bug get all the cookies by name
+        var headers = result.xhr.getAllResponseHeaders();
+        var nginX = headers.substring(headers.indexOf("route"));
+        var route = nginX.substring(0, nginX.indexOf(";"));
+        var carbonServer = headers.substring(headers.indexOf("JSESSIONID"));
+        var jsession = carbonServer.substring(0,carbonServer.indexOf(";"));
+        var fullCookie = jsession + "; " + route;
+        return fullCookie;
 	} else {
 		log.error("Error occurred when login with saml token for user:"+jagg.getUser()
 				  +". Server response status:"+result.xhr.status+". responseText: "+ result.xhr.responseText);

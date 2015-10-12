@@ -122,9 +122,11 @@ var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
     var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
     var defaultAppRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
     var addTenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH;
+
+    var defaultRoleObject = [{"id":defaultAppRole}];
     var data = {
         action: "inviteUsers",
-        defaultRoles: [defaultAppRole],
+        defaultRoles: stringify(defaultRoleObject),
         tenantDomain: tenantDomain,
         users: stringify(usersList),
         message: stringify(welcomeText)
