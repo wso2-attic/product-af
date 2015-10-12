@@ -40,28 +40,29 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
      */
     @Override public void execute(WorkflowDTO workflowDTO) throws AppFactoryException {
         if (log.isDebugEnabled()) {
-            String message = "Executing tenant creation default workflow of the : tenant domain : " + workflowDTO
+            String message = "Executing tenant creation default workflow for the tenant domain : " + workflowDTO
                     .getTenantDomain();
             log.debug(message);
         }
 
         if (!(workflowDTO instanceof TenantCreationWorkflowDTO)) {
             String message = "TenantCreationWorkflowDTO type is expected but unexpected type is passed to the execute"
-                    + " method : tenant domain :" +
+                    + " method for the tenant domain : " +
                     workflowDTO.getTenantDomain();
             throw new IllegalArgumentException(message);
         }
 
         TenantCreationWorkflowDTO tenantCreationWorkflow = (TenantCreationWorkflowDTO) workflowDTO;
 
-        AppFactoryTenantInfraStructureInitializerService tenantInfraStructureInitializerService = new AppFactoryTenantInfraStructureInitializerService();
+        AppFactoryTenantInfraStructureInitializerService tenantInfraStructureInitializerService =
+                new AppFactoryTenantInfraStructureInitializerService();
 
         try {
             tenantInfraStructureInitializerService.initializeRepositoryManager(tenantCreationWorkflow.getTenantDomain(),
                     tenantCreationWorkflow.getUsagePlan());
         } catch (AppFactoryException e) {
             String message =
-                    "Can not initialize repository manager of the : tenant domain : " + workflowDTO.getTenantDomain();
+                    "Can not initialize repository manager for the tenant domain : " + workflowDTO.getTenantDomain();
             throw new AppFactoryException(message, e);
         }
 
@@ -70,7 +71,7 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
                     tenantCreationWorkflow.getUsagePlan());
         } catch (AppFactoryException e) {
             String message =
-                    "Can not initialize build manager of the : tenant domain : " + workflowDTO.getTenantDomain();
+                    "Can not initialize build manager for the tenant domain : " + workflowDTO.getTenantDomain();
             throw new AppFactoryException(message, e);
         }
 
@@ -78,7 +79,7 @@ public class TenantCreationDefaultWorkflowExecutor implements WorkflowExecutor {
             tenantInfraStructureInitializerService.initializeCloudManager(tenantCreationWorkflow.getTenantInfoBean());
         } catch (AppFactoryException e) {
             String message =
-                    "Can not initialize cloud manager of the : tenant domain : " + workflowDTO.getTenantDomain();
+                    "Can not initialize cloud manager for the tenant domain : " + workflowDTO.getTenantDomain();
             throw new AppFactoryException(message, e);
         }
 

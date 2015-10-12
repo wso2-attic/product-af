@@ -32,9 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WorkflowExecutorFactory {
 
-    private Map<WorkflowConstant.WorkflowType, WorkflowExecutor> workflowExecutorMap;
-    private static Log log = LogFactory.getLog(WorkflowExecutorFactory.class);
     private static final WorkflowExecutorFactory workflowExecutorFactory = new WorkflowExecutorFactory();
+    private static Log log = LogFactory.getLog(WorkflowExecutorFactory.class);
+    private Map<WorkflowConstant.WorkflowType, WorkflowExecutor> workflowExecutorMap;
 
     private WorkflowExecutorFactory() {
 
