@@ -35,6 +35,9 @@ import org.wso2.carbon.tenant.mgt.stub.beans.xsd.TenantInfoBean;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.SAXException;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
@@ -59,6 +62,15 @@ public class AFDefaultDataPopulator {
     private String tenantAdminPassword;
     private  ApplicationClient applicationClient;
 	private static final int MAX_SUCCESS_HTTP_STATUS_CODE = 299;
+	private TenantInfoBean tenantInfoBean;
+
+	static {
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		});
+	}
 
     /**
      * Start test execution with super tenant login
@@ -105,7 +117,7 @@ public class AFDefaultDataPopulator {
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_ARTIFACT_VERSION),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_DEFAULT_STAGE),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_RUNTIME_ALIAS),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_ID));
+                              String.valueOf(tenantInfoBean.getTenantId()));
             Thread.sleep(40000);
             createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
@@ -150,7 +162,7 @@ public class AFDefaultDataPopulator {
         TenantManagementServiceClient tenantManagementServiceClient =
                 new TenantManagementServiceClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                                   superTenantSession);
-        TenantInfoBean tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
+        this.tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
         return tenantInfoBean.getTenantId() == 0 ? false : true;
     }
 
@@ -223,10 +235,10 @@ public class AFDefaultDataPopulator {
         CreateTenantBPELClient createTenantBPELClient =
                 new CreateTenantBPELClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BPS),
                                            superTenantSession);
-
+		this.tenantInfoBean = tenantInfoBean;
         String result = createTenantBPELClient
                 .createTenant(context, tenantAwareAdminUsername, tenantInfoBean, tenantAdminPassword,
-                              "key", "WSO2 App Factory");
+                              "key", "WSO2 Stratos Manager");
         Assert.assertNotNull(result, "Result of createTenantBPELClient.createTenant() is null ");
         Assert.assertTrue(result.contains("true"), "Result of createTenantBPELClient.createTenant() is not true ");
 
@@ -254,6 +266,16 @@ public class AFDefaultDataPopulator {
             try {
                 login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_PROD_SC), tenantAdminUsername,
                       adminPassword, context.getInstance().getHosts().get("default"));
+
+	            login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_DEV_GREG), tenantAdminUsername,
+	                  adminPassword, context.getInstance().getHosts().get("default"));
+
+	            login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_TEST_GREG), tenantAdminUsername,
+	                  adminPassword, context.getInstance().getHosts().get("default"));
+
+	            login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_PROD_GREG), tenantAdminUsername,
+	                  adminPassword, context.getInstance().getHosts().get("default"));
+
                 isTenantLoggedIn = true;
                 break;
             } catch (Exception e) {
@@ -661,6 +683,7 @@ public class AFDefaultDataPopulator {
 					OMElement jobChild = (OMElement) jobIterator.next();
 					if(jobChild.getLocalName().equals("name") && jobChild.getText().equals(jobName)) {
 						isExists = true;
+						break;
 					}
 				}
 			}
