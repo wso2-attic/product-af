@@ -128,6 +128,7 @@ public class TenantCreationMessageListener implements MessageListener {
 			                       .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
 			Tenant tenant = TenantMgtUtil.initializeTenant(tenantInfoBean);
+			tenant.setId(tenantInfoBean.getTenantId());
 			TenantPersistor persistor = new TenantPersistor();
 			// not validating the domain ownership, since created by super tenant
 			int tenantId = persistor.persistTenant(tenant, false, tenantInfoBean.getSuccessKey(),
