@@ -69,7 +69,30 @@ var log = new Log();
           // throw
         }
 
-    }else{
+    } else if(action=="getUsersOfTenantByCloudType") {
+        mod = jagg.module("tenant");
+        var tenantDomain = request.getParameter("tenantDomain");
+        var cloudType = request.getParameter("cloudType");
+        try {
+            var result = mod.getUsersofTenant();
+            if (result != null) {
+                print(result);
+            } else {
+                throw "Error while retrieving users of the tenant : " + tenantDomain + " for the cloud type: " + cloudType;
+            }
+        } catch(e) {
+            var errMsg = "Error while retrieving users of the tenant : " + tenantDomain + " for the cloud type: " + cloudType;
+            log.error(e);
+            log.error(errMsg);
+            throw errMsg;
+        }
+    } else if(action=="getPendingUsersOfRole") {
+        var tenantDomain = request.getParameter("tenantDomain");
+        var role = request.getParameter("role");
+        log.info("Retrieving pending users of role: " + role + " for the tenant domain " + tenantDomain);
+        var tempArray = [{"email":"clouduser@wso2.com","roleTypes":[{"role":"devops","displayName":"DevOps"}]},{"email":"appuser@wso2.com","roleTypes":[{"role":"qa","displayName":"QA"}]}];
+        print(tempArray);
+    } else {
 	    throw new Error("No action specified");
     }
 

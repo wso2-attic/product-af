@@ -53,21 +53,21 @@ function populateTableData(){
     $('#teamlist').DataTable(getDatatabelOptions());
 }
 
-function resendInvitation(userName){
+function resendInvitation(email){
     jagg.post("../blocks/application/user/invite/ajax/invite.jag", {
             action:"resendInvitation",
             applicationKey:applicationKey,
-            userName:userName
+            email:email
         },
         function () {
             jagg.message({
-                content:'Successfully resent the invitation to user '+userName,
+                content:'Successfully resent the invitation to user '+email,
                 type: 'success'
             });
         },
         function () {
             jagg.message({
-                content:'Error occurred while resending the invitation to user '+userName,
+                content:'Error occurred while resending the invitation to user '+email,
                 type: 'error'
             });
         }
