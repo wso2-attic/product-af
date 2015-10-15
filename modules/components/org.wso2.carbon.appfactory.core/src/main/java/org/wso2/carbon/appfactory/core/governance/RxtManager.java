@@ -193,6 +193,10 @@ public class RxtManager {
     }
 
     public String addArtifact(String key, String info, String lifecycleAttribute) throws AppFactoryException {
+	    if (log.isDebugEnabled()) {
+		    log.debug("calling add artifact with key : " + key + ", info : " + info + ", lifecycleAttribute : " +
+		              lifecycleAttribute);
+	    }
         RegistryUtils.recordStatistics(key, info, lifecycleAttribute);
         try {
             UserRegistry userRegistry = getUserRegistry();
@@ -200,6 +204,7 @@ public class RxtManager {
             factory.setProperty(XMLInputFactory.IS_COALESCING, true);
             XMLStreamReader reader = null;
             reader = factory.createXMLStreamReader(new StringReader(info));
+	        GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager manager = new GenericArtifactManager(userRegistry, key);
             GenericArtifact artifact = manager.newGovernanceArtifact(new StAXOMBuilder(reader).getDocumentElement());
 
