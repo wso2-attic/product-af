@@ -70,7 +70,7 @@ var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 var BPS_SERVER_URL = "ServerUrls.BPS";
 var GREG_SERVER_URL = "ServerUrls.Greg";
 var SS_SERVER_URL = "ServerUrls.SS";
-
+var STRATOS_PAAS_URL= "Stratos.PAASServicesURL";
 
 var ROLE_ADMIN = "admin";
 var ROLE_APP_OWNER = "appowner";
