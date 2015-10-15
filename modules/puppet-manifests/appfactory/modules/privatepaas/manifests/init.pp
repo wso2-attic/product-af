@@ -23,7 +23,7 @@ class privatepaas (
   $deployment_code	= "privatepaas"
 
   $deployment_files =[ "apache-activemq-5.9.1-bin.tar.gz",
-                       "apache-stratos-4.1.1.zip",
+                       "apache-stratos-4.1.3.zip",
                       "mysql-connector-java-5.1.29-bin.jar"
                      ]
   $service_templates 	= [
