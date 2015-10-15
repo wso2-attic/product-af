@@ -410,8 +410,7 @@ public class AppFactoryUtil {
             String[] stages = appFactoryConfiguration.getProperties(AppFactoryConstants.DEPLOYMENT_STAGES);
             if (stages != null) {
                 for (String stage : stages) {
-                    String baseAccessURL = appFactoryConfiguration.getFirstProperty(
-                            AppFactoryConstants.PPAAS_SERVICE_URL);
+                    String baseAccessURL = appFactoryConfiguration.getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".GregServerURL");
                     environmentDetails.put(stage, baseAccessURL);
                 }
             }
