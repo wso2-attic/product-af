@@ -20,9 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.PushResult;
@@ -30,14 +28,11 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
-import org.wso2.carbon.appfactory.repository.mgt.client.SCMAgent;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * JGit implementation of Git GitAgent
@@ -48,6 +43,7 @@ public class JGitAgent implements GitAgent {
     private static final String REMOTE_REF_PREFIX = "refs/remotes/origin/";
     private static final String HEAD_REF_PREFIX = "refs/heads/";
     private static final String FETCH_HEAD = "FETCH_HEAD";
+    private static final int MAX_RETRY_COUNT=4;
     private String username;
     private String password;
 
@@ -375,6 +371,7 @@ public class JGitAgent implements GitAgent {
     public boolean push(String remoteRepoUrl, String pushBranch, File repoFile) throws RepositoryMgtException {
         try {
             Git gitRepo = getGitRepository(remoteRepoUrl, repoFile);
+
             Iterable<PushResult> pushResults = gitRepo.push()
                     .setRemote(remoteRepoUrl)
                     .setRefSpecs(new RefSpec("refs/heads/" + pushBranch))
@@ -382,6 +379,7 @@ public class JGitAgent implements GitAgent {
                     .call();
             // we need to verify if git push was successful. Here we can check RemoteRefUpdate status is rejected or not.
             boolean pushed = true;
+
             for (PushResult pushResult : pushResults) {
                 if (pushResult.getRemoteUpdates().size() > 0) {
                     Collection<RemoteRefUpdate> refUpdates = pushResult.getRemoteUpdates();
@@ -392,15 +390,28 @@ public class JGitAgent implements GitAgent {
                                     refUpdate.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD ||
                                     refUpdate.getStatus() == RemoteRefUpdate.Status.REJECTED_REMOTE_CHANGED) {
                                 pushed = false;
-                                log.warn("Failed to push artifacts on repo:" + remoteRepoUrl + " due to " +
-                                        refUpdate.getMessage());
+                                log.warn("Failed to push artifacts on repo, So called pushFailed method" + remoteRepoUrl + " due to " +
+                                        refUpdate.getStatus() + " Message " + refUpdate.getMessage()+" Application"+repoFile);
                                 break;
+
                             }
                         }
                     }
                 }
             }
+            synchronized (remoteRepoUrl) {
+                int currentPushTry=1;
+                boolean pushedInRetry=pushed;
+                while (currentPushTry < MAX_RETRY_COUNT && !pushedInRetry) {
+                    Thread.sleep(10000 * currentPushTry); //Pause for 10*retrycount seconds
+                    pushedInRetry = pushFailed(remoteRepoUrl, pushBranch, repoFile, currentPushTry);
+                    currentPushTry++;
+                }
+                pushed=pushedInRetry;
+            }
             return pushed;
+
+
         } catch (RepositoryMgtException e) {
             String msg =
                     "Error while pushing  : " + pushBranch + " due to " +
@@ -413,7 +424,62 @@ public class JGitAgent implements GitAgent {
                             e.getMessage() + " from GitAPIException";
             log.error(msg, e);
             throw new RepositoryMgtException(msg, e);
+        } catch (InterruptedException e) {
+            String msg =
+                    "Thread is interupted due to " +
+                            e.getMessage();
+            log.error(msg, e);
+            return false;
         }
+
+    }
+
+    /**
+     * Re-try the push with using this method.
+     *
+     * @param remoteRepoUrl remote repository url
+     * @param pushBranch branch to push
+     * @param repoFile repository directory where .git exists. If not exists will get cloned using {@code
+     *                      remoteRepoUrl}
+     * @param currentPushTry - Push try count
+     * @return success
+     * @throws RepositoryMgtException if error while branching
+     * @throws GitAPIException if error while merging or pushing
+     */
+    public boolean pushFailed(String remoteRepoUrl, String pushBranch, File repoFile,int currentPushTry) throws RepositoryMgtException, GitAPIException {
+        log.warn("Re trying " + currentPushTry + " time, for " + repoFile);
+        boolean pushed;
+        log.warn("Lock obtained for remote repo URL: " + remoteRepoUrl);
+        Git gitRepo = getGitRepository(remoteRepoUrl, repoFile);
+
+        gitRepo.pull().setRebase(true).setCredentialsProvider(getCredentialsProvider()).call();
+        Iterable<PushResult> pushResults = gitRepo.push()
+                .setRemote(remoteRepoUrl)
+                .setRefSpecs(new RefSpec("refs/heads/" + pushBranch))
+                .setCredentialsProvider(getCredentialsProvider())
+                .call();
+        // we need to verify if git push was successful. Here we can check RemoteRefUpdate status is rejected or not.
+        pushed = true;
+        for (PushResult pushResult : pushResults) {
+            if (pushResult.getRemoteUpdates().size() > 0) {
+                Collection<RemoteRefUpdate> refUpdates = pushResult.getRemoteUpdates();
+                if (refUpdates != null && refUpdates.size() > 0) {
+                    for (RemoteRefUpdate refUpdate : refUpdates) {
+                        if (refUpdate.getStatus() == RemoteRefUpdate.Status.REJECTED_OTHER_REASON ||
+                                refUpdate.getStatus() == RemoteRefUpdate.Status.REJECTED_NODELETE ||
+                                refUpdate.getStatus() == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD ||
+                                refUpdate.getStatus() == RemoteRefUpdate.Status.REJECTED_REMOTE_CHANGED) {
+                            pushed = false;
+                            log.warn("Failed to push artifacts on repo:" + remoteRepoUrl + " due to " +
+                                    refUpdate.getStatus() + " Message " + refUpdate.getMessage()+" Application"+repoFile);
+                            break;
+
+                        }
+                    }
+                }
+            }
+        }
+        return pushed;
 
     }
 
