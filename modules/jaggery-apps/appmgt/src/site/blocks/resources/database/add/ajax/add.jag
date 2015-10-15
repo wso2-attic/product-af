@@ -191,14 +191,24 @@ var loggedInUser = jagg.getUser();
                         }
                     }
 
-				} else {
-					userName = request.getParameter("userName");
-					templateName = request.getParameter("templateName");
+				} else { // basic = false;
+					var allowed = "Y";
+					var restricted = "N";
+					userName = userNameFromRequest;
+					templateName = applicationKey + "_" + databaseName + "_" + userName + "@" + databaseServerInstanceName;
+					// create a template which has only select privileges
+					try {
+						dbResult = mod.createTemplate(applicationKey, databaseServerInstanceName, templateName, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, allowed, restricted, restricted, restricted, true);
+						isTemplateCreated = true; // if template creation fails, this line will not be executed.
+					} catch (e) {
+						response.error = true;
+						response.errorMessage = "Error while creating template.";
+						print(response);
+						return;
+					}
 				}
-
 				try{
                     actualDBName = mod.createDatabase(applicationKey, databaseName, databaseServerInstanceName, databaseDescription);
-
                     if(actualDBName.indexOf('already exists') > -1){
                         print("database exists");
                     }
@@ -236,6 +246,11 @@ var loggedInUser = jagg.getUser();
 						log.debug("Error while attaching new user :" + userName + ". Rollback database : " + actualDBName + " creation....");
 					}
 					mod.dropDatabase(applicationKey,actualDBName,databaseServerInstanceName);
+					// sending proper error message to front end. APPFAC-3457
+					response.error = true;
+					response.errorMessage = "Error while attaching user.";
+					print(response);
+					return;
 				}
 			} catch (e) {
 				dbResult = e.javaException.cause;

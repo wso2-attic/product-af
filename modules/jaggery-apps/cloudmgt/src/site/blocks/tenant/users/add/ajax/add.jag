@@ -78,6 +78,34 @@ var log = new Log();
             throw "Error while changing user passwords for the user";
         }
 
+    } else if(action=="sendEmailWithCustomMessage") {
+        var subject = request.getParameter("subject");
+        var to = request.getParameter("to");
+        var message = request.getParameter("message");
+        try {
+            log.info("Successfully submitted to send application welcome email for  user: "+ to);
+            print(true);
+        } catch(e) {
+            throw "Error while sending the email with custom message. ";
+        }
+    } else if(action=="inviteUsers") {
+        var defaultRoles = parse(request.getParameter("defaultRoles"));
+        var userRoleList = parse(request.getParameter("userRoleList"));
+        var message = request.getParameter("message");
+        try {
+            log.info("Inviting user for the new roles : " + userRoleList + " with the custom message" + message);
+            print(true);
+        } catch(e) {
+            throw "Error while inviting users for the new roles.";
+        }
+    } else if(action=="resendInvite") {
+        var email = request.getParameter("email");
+        try {
+            log.info("Resending invitation to the users with email address :" + email);
+            print(true);
+        } catch(e) {
+            throw "Error while resending invitation to the users.";
+        }
     }else{
 	    throw new Error("No action specified");
     }

@@ -30,6 +30,11 @@ $(document).ready(function () {
     }
 
     var teamListBody = $('#teamlist tbody');
+    teamListBody.on( 'click', '.editroles', function () {
+        var table = $('#teamlist').DataTable();
+        var userData = table.row( $(this).parents('tr') ).data();
+        editRoles(userData);
+    });
 
     teamListBody.on( 'click', '.delete', function () {
         var table = $('#teamlist').DataTable();
@@ -48,21 +53,21 @@ function populateTableData(){
     $('#teamlist').DataTable(getDatatabelOptions());
 }
 
-function resendInvitation(userName){
+function resendInvitation(email){
     jagg.post("../blocks/application/user/invite/ajax/invite.jag", {
             action:"resendInvitation",
             applicationKey:applicationKey,
-            userName:userName
+            email:email
         },
-        function (result) {
+        function () {
             jagg.message({
-                content:'Successfully resent the invitation to user '+userName,
+                content:'Successfully resent the invitation to user '+email,
                 type: 'success'
             });
         },
-        function (jqXHR, textStatus, errorThrown) {
+        function () {
             jagg.message({
-                content:'Error occurred while resending the invitation to user '+userName,
+                content:'Error occurred while resending the invitation to user '+email,
                 type: 'error'
             });
         }
@@ -92,7 +97,7 @@ function getDatatabelOptions(){
         "columnDefs": [
             {
                 "targets": 0,
-                "render": function ( data, type, row ) {
+                "render": function ( data ) {
                     return "<a>"+data+"</a>";
                 }
             },
@@ -107,7 +112,7 @@ function getDatatabelOptions(){
                 }
             },
             { "targets": "hidden-username", "visible": false, "class": "hide-column-data"}, // hide hidden-username
-            { "targets": "hidden-roles", "visible": false, "class": "hide-column-data"},    // hide hidden-roles
+            { "targets": "hidden-roles", "visible": false, "class": "hide-column-data"}    // hide hidden-roles
         ]
     };
 
@@ -119,8 +124,15 @@ function getDatatabelOptions(){
             {
                 "targets": "af-edit-roles",
                 "data": null,
-                // redirecting to cloudmgt page until new edit user page is provided
-                "defaultContent": '<a class="editroles" href="'+editUserRoleLink+ '"><i class="fa fa-edit"></i></a>'
+                //"defaultContent": '<a class="editroles"><i class="fa fa-edit"></i></a>',
+                "render": function ( data, type, row ) {
+                    var editElement = "";
+
+                    if( row.roles.indexOf("admin") == -1){
+                        editElement = '<a class="editroles"><i class="fa fa-edit"></i></a>'
+                    }
+                    return editElement;
+                }
             }
         ];
         options.columns = options.columns.concat(editColumn.slice());
@@ -166,7 +178,7 @@ function deleteUser(userName){
         applicationKey:applicationKey,
         users:userName
     },
-    function (result) {
+    function () {
         window.setTimeout(function () {
             jagg.message({
                 content:'Successfully removed the user '+userName,
@@ -175,13 +187,34 @@ function deleteUser(userName){
             reloadDataTable();
         }, 300);
     },
-    function (jqXHR, textStatus, errorThrown) {
+    function () {
         jagg.message({
             content:'Error occurred while removing user '+userName,
             type: 'error'
         });
         reloadDataTable();
     });
+}
+
+function getCurrentAfRolesFromDisplayRoles(displayRoles){
+    return $.map(displayRoles, function(displayRole) {
+        return displayRole.role;
+    });
+}
+
+function editRoles(userData){
+    var simplifiedUserObj = {
+        email : userData.email,
+        name : userData.name,
+        userName : userData.userName,
+        currentRoles :getCurrentAfRolesFromDisplayRoles(userData.displayRoles)
+    };
+    var tempForm =
+            $('<form action="' + editRolesUrl + '" method="post">' +
+                "<input type='text' name='currentUser' id='currentUser' value='" + JSON.stringify(simplifiedUserObj) + "' />" +
+            '</form>');
+    $('body').append(tempForm);
+    tempForm.submit();
 }
 
 

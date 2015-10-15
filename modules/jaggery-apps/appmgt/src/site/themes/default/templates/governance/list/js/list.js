@@ -80,7 +80,7 @@ $(document).ready(function () {
         $('.demote-button').loadingButton('show');
         var modalElement = $('#demote-confirm-modal');
         modalElement.modal({show: true});
-        $('#demote-confirm').on('click',function(e){
+        $('#demote-confirm').on('click', function (e) {
             var demoteReasonTxt = $('textarea#demote-reason-text').val();
             doLifeCycleAction("Demote", "[]", demoteReasonTxt);
             modalElement.modal('hide');
@@ -90,18 +90,18 @@ $(document).ready(function () {
     });
 
     /**
-    * Draw progress bar and set values
-    */
+     * Draw progress bar and set values
+     */
     function drawProgress(tabPaneElement, allCheckListItemCount, checkedCheckListItemCount) {
         var percentage = 0;
         var perElementPercentage = 100 / allCheckListItemCount;
-        for(var i=0; i<checkedCheckListItemCount; i++) {
-              percentage += perElementPercentage;
+        for (var i = 0; i < checkedCheckListItemCount; i++) {
+            percentage += perElementPercentage;
         }
-        if(percentage == 100 && hasPromotePermissions[currentStage]) {
-                tabPaneElement.find('.promote-button').prop('disabled', false);
+        if (percentage == 100 && hasPromotePermissions[currentStage]) {
+            tabPaneElement.find('.promote-button').prop('disabled', false);
         } else {
-                tabPaneElement.find('.promote-button').prop('disabled', true);
+            tabPaneElement.find('.promote-button').prop('disabled', true);
         }
         tabPaneElement.find('.progress-bar').css('width', percentage + '%').attr('aria-valuenow', percentage);
         tabPaneElement.find('.progress-bar-indicator').text(checkedCheckListItemCount + '/' + allCheckListItemCount);
@@ -276,13 +276,13 @@ $(document).ready(function () {
         }, function (jqXHR, textStatus, errorThrown) {
         });
     }
-    
+
     /**
      * Activate the tab and its elements according to current stage of the version of the application
      * and permissions of the user.
      */
     function setElementsVisible(isAppRetired) {
-            if(!isAppRetired) {
+        if (!isAppRetired) {
             $('#app-retired-text').hide();
             // active only the current stage tab, meanwhile check the visibility permission
             if (hasVisibilityPermissions[currentStage]) {
@@ -300,9 +300,9 @@ $(document).ready(function () {
                 $('#retire-btn').prop('disabled', true);
             }
         } else {
-             $('#app-retired-text').show();
+            $('#app-retired-text').show();
         }
-    
+
     }
 
     /**
@@ -317,7 +317,7 @@ $(document).ready(function () {
         }, function (result) {
             var resultJson = JSON.parse(result);
             // This is to check whether app is retired, if app is retired there are no checklist items
-            if(resultJson.length ==0) {
+            if (resultJson.length == 0) {
                 // app retired
                 isAppRetired = true;
             } else {
@@ -326,39 +326,41 @@ $(document).ready(function () {
             }
             setElementsVisible(isAppRetired);
             var disabled = "";
-            if(!hasPromotePermissions[currentStage]) {
+            if (!hasPromotePermissions[currentStage]) {
                 disabled = " disabled";
             }
             if (!resultJson.error && resultJson.length > 0) {
                 var checkBoxes = "";
                 var checkedItemsCount = 0;
                 for (var i in resultJson) {
-                    var checkListItemName = resultJson[i].name;
                     var checked = "";
                     if (resultJson[i].value == "true") {
                         checkedItemsCount += 1;
                         checked = "checked";
                     }
-                    checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + disabled +'><span>' + resultJson[i].name + '</span></label></div>'
+                    checkBoxes += '<div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="' + i + '" ' + checked + disabled + '><span>' + resultJson[i].name + '</span></label></div>'
                 }
                 drawProgress($('#' + resultJson[0].status.toLowerCase()), resultJson.length, checkedItemsCount);
                 $('#' + resultJson[0].status.toLowerCase()).find('.checkboxes').html(checkBoxes);
             }
-            if(!resultJson[0] || currentStage == resultJson[0].status) {
+            if (!resultJson[0] || currentStage == resultJson[0].status) {
                 // governance operation successfull
                 $('.loader').loading('hide');
-                $('.loading-cover').overlay('hide'); 
+                $('.loading-cover').overlay('hide');
             } else {
-                if(retryCount < 3) {
-                    setTimeout(function() {
+                if (retryCount < 3) {
+                    setTimeout(function () {
                         drawCheckListItems();
                         retryCount++;
                     }, 5000);
                 } else {
-                    jagg.message({content: 'Theres a problem is completing lifecycle operation, please try again later', type: 'warning'});
+                    jagg.message({
+                                     content: 'Theres a problem is completing lifecycle operation, please try again later',
+                                     type: 'warning'
+                                 });
                 }
             }
-            
+
         }, function (jqXHR, textStatus, errorThrown) {
         });
     }
@@ -375,7 +377,7 @@ $(document).ready(function () {
         // hide tab panel
         $('.nav-tabs').hide();
         $('.tab-content').hide();
-        
+
         jagg.post("../blocks/application/get/ajax/list.jag", {
             action: "getAppVersionAllInfoByVersion",
             applicationKey: applicationKey,
@@ -384,10 +386,10 @@ $(document).ready(function () {
         }, function (result) {
             var appInfo = jQuery.parseJSON(result);
             if (appInfo) {
-                    currentStage = appInfo.versionInfo.stage;
-                    loadLifeCycleEventHistory();
-                    retrieveETA();
-                    drawCheckListItems();
+                currentStage = appInfo.versionInfo.stage;
+                loadLifeCycleEventHistory();
+                retrieveETA();
+                drawCheckListItems();
             }
         }, function (jqXHR, textStatus, errorThrown) {
             if (jqXHR.status != 0) {

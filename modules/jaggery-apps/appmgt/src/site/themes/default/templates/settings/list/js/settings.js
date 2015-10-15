@@ -81,11 +81,21 @@ function validateInputForAlphanumericAndSpaces(inputValue){
 
 function submitGeneralForm() {
     if (isUpdateInfoAllowed) {
+        var $image = $('.img-container > img');
+        var imageData = $image.cropper('getCroppedCanvas').toDataURL("image/jpg");
+        var data = imageData.replace(/^data:image\/\w+;base64,/, "");
+        //console.log(data);
+        var uint8Array = new Uint8Array(data.length);
+        for( var i = 0, len = data.length; i < len; ++i ) {
+            uint8Array[i] = data.charCodeAt(i);
+        }
+        var blob = new Blob( [ uint8Array ], {type: "image/jpg"} );
+        var url = window.URL.createObjectURL(blob);
         $("#updateGeneralInfo").prop("disabled", true);
         var generalForm = $("#generalForm");
         $('<input />').attr('type', 'hidden')
                     .attr('name', "iconData")
-                    .attr('value', $image.cropper('getCroppedCanvas').toDataURL())
+                    .attr('value', data)
                     .appendTo('#generalForm');
         var generalForm = $("#generalForm");
         var validator = generalForm.validate();

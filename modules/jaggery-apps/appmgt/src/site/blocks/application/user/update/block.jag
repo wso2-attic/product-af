@@ -18,9 +18,11 @@
  */
 
 include('/jagg/constants.jag');
+include('/jagg/util.jag');
 var permissionModule = jagg.module("permission");
 var modTenant = jagg.module("tenant");
-jagg.block("application/user/list", {
+var log = new Log();
+jagg.block("application/user/update", {
     initialize:function (data) {
 
     },
@@ -31,33 +33,17 @@ jagg.block("application/user/list", {
     },
 
     getOutputs:function (inputs) {
-        var hasInviteUserPermission = permissionModule.hasApplevelUserMgtPermission(inputs.applicationKey);
         var hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
-        var applicationKey = request.getParameter("applicationKey");
-        var pendingUsers =  [];
-        if(hasTenantLevelUserMgtPermission) {
-            pendingUsers = getPendingUsersOfTenantByAppKey(applicationKey);
+        if(!hasTenantLevelUserMgtPermission){
+            response.sendError(401, "Unauthorized!!! Only Tenant admin has permission to complete this action");
         }
-
+        var currentUser = parse(request.getParameter("currentUser"));
+        var allRoles = modTenant.getAllUserDisplayRoles();
         return {
-            "hasInviteUserPermission":hasInviteUserPermission,
             "hasTenantLevelUserMgtPermission": hasTenantLevelUserMgtPermission,
-            "pendingUsers": pendingUsers
+            "currentUser": currentUser,
+            "allRoles": allRoles
         };
     }
-
-
 });
-
-function getPendingUsersOfTenantByAppKey(applicationKey) {
-    var unFormattedPendingUsers = modTenant.getPendingUsersOfTenantByAppKey(applicationKey);
-    var pendingUsers = [];
-    for (var key in unFormattedPendingUsers) {
-        var email = unFormattedPendingUsers[key]["email"];
-        if(email){
-            pendingUsers.push(email);
-        }
-    }
-    return pendingUsers;
-}
 %>

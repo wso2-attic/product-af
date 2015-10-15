@@ -18,10 +18,11 @@
  */
 
 include("/jagg/constants.jag"); %>
-<% jagg.template("application/user/invite", function(inputs, outputs, jagg) { %>
+<% jagg.template("application/user/update", function(inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
+    var user = request.getParameter("user");
     var hasTenantLevelUserMgtPermission = outputs.hasTenantLevelUserMgtPermission;
 %>
 
@@ -35,6 +36,8 @@ include("/jagg/constants.jag"); %>
     var applicationKey = "<%=applicationKey%>";
     var uninvitedTenantUsers = jQuery.parseJSON('<%=outputs.uninvitedTenantUsers%>');
     var hasTenantLevelUserMgtPermission = JSON.parse('<%=stringify(hasTenantLevelUserMgtPermission)%>');
+    var allRoleList = jQuery.parseJSON('<%=outputs.allRoles%>');
+    var currentUser = jQuery.parseJSON('<%=outputs.currentUser%>');;
 </script><!-- end of setting global javascript variable -->
 
 <!-- BOF App factory menu actionbar -->
@@ -50,29 +53,27 @@ include("/jagg/constants.jag"); %>
 <div class="container-fluid app-content-section">
     <div class="row">
         <div class="col-md-12 msg-issues">
-            Use the form below to add collaborators to your application.
+            Update the roles of the user
         </div>
     </div>
     <div class='row '>
         <div id="push"></div>
         <div class="col-md-5 forms">
             <div class="form-group members-container">
-                <label for="members">Member(s) Email: </label>
-                <select id="members" type='hidden' class="form-control members" multiple='multiple'></select>
+                <label for="members">Member Email: </label>
+                <input type="text" class="form-control" disabled='disabled' id="member-email" value='<%=outputs.currentUser.email%>'>
             </div>
-
-            <div class="form-group">
-                <label for="description">Welcome Text : </label>
-                <textarea class="form-control" rows="3" id="description"
-                          placeholder="Type your invitation message here"></textarea>
+            <div class="form-group roles-container edit-roles">
+                <label for="role">Member Roles: </label>
+                <select id="role" type='hidden' class="form-control role" multiple='multiple'></select>
             </div>
             <div class="form-group">
-                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="inviteMembers" disabled>
+                <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="update-roles" disabled>
                     <span class="fw-stack fw-lg btn-action-ico">
                         <i class="fw fw-ring fw-stack-2x"></i>
                         <i class="fw fw-add fw-stack-1x"></i>
                     </span>
-                    Invite Members(s)
+                    Update Roles
                 </button>
             </div>
         </div>
@@ -85,7 +86,7 @@ include("/jagg/constants.jag"); %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/select2-4.0.0/select2.full.min.js'))%>"></script>
 <!-- include custom js functions -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/user/invite/js/invite.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/user/update/js/update.js'))%>"></script>
 
    <%
 }); %>
