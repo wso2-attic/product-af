@@ -193,8 +193,10 @@ function convertTenantUsersArrayForDisplay(users){
         tempUser["text"] = tempUser["displayName"];
         var displayRoles=[];
         var roles = (user.roleTypes);
-        for (var j = 0 , roleLen = roles.length; j < roleLen; j++) {
-            displayRoles.push(roles[j]["displayName"]);
+        if(roles) {
+            for (var j = 0; j < roles.length; j++) {
+                displayRoles.push(roles[j]["displayName"]);
+            }
         }
         tempUser["role"] = displayRoles;
         returnUsersArray.push(tempUser);
