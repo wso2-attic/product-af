@@ -29,6 +29,12 @@ var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
 
+var loadTenantAxisConfiguration = function (tenantDomain) {
+    if (SUPER_TENANT_DOMAIN_NAME !== tenantDomain) {
+        var appFactoryCoreUtil = Packages.org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
+        appFactoryCoreUtil.loadTenantAxisConfiguration(tenantDomain);
+    }
+};
 
 var setAuthHeaders = function (options, httpHeaders, username) {
     if(!username){

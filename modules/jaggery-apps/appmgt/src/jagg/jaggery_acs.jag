@@ -59,10 +59,12 @@
             ssoRelyingParty.setSessionAuthenticated(sessionId, samlResponse);
             jagg.setUser(ssoRelyingParty.getLoggedInUser(sessionId));
             session.put("LOGGED_IN_USER", ssoRelyingParty.getLoggedInUser(sessionId));
+
+            var modManager = jagg.module("manager");
+            modManager.loadTenantAxisConfiguration(String(modManager.getTenantDomain()));
             response.sendRedirect("/appmgt/site/pages/index.jag");
             createTenantInfoObject();
-            
-            var modManager = jagg.module("manager");
+
             var tenantInitilizer = Packages.org.wso2.carbon.appfactory.core.AFTenantInitializer;
             tenantInitilizer.initializeAFTenant(modManager.getTenantDomain());
 

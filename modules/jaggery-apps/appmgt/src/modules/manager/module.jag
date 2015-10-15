@@ -18,7 +18,10 @@
  */
 
 jagg.module("manager", {
-	setAuthHeaders:function () {
+    loadTenantAxisConfiguration:function () {
+		return jagg.require(jagg.getModulesDir() + "manager/manager.jag").loadTenantAxisConfiguration.apply(this, arguments);
+	},
+    setAuthHeaders:function () {
 		return jagg.require(jagg.getModulesDir() + "manager/manager.jag").setAuthHeaders.apply(this, arguments);
 	},
 	getBackendCookie:function () {
