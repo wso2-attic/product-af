@@ -43,6 +43,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
@@ -100,9 +101,9 @@ public class CloudUtils {
 	 */
 	public static boolean isAWSRoute53Enabled() {
 		return Boolean.parseBoolean(ServiceReferenceHolder.getInstance()
-		                                                  .getAppFactoryConfiguration()
-		                                                  .getFirstProperty("EnableAWSRoute53")
-		                                                  .trim());
+				                            .getAppFactoryConfiguration()
+				                            .getFirstProperty("EnableAWSRoute53")
+				                            .trim());
 	}
 
 	/**

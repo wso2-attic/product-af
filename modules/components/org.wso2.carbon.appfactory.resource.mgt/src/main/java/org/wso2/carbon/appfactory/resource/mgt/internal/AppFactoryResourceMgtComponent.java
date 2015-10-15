@@ -20,42 +20,73 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
+import org.wso2.carbon.appfactory.common.AppFactoryConstants;
+import org.wso2.carbon.appfactory.resource.mgt.listeners.CloudEnvironmentPermissionListener;
+import org.wso2.carbon.appfactory.resource.mgt.listeners.TenantCreationDurableSubscriber;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name=
  *                "org.wso2.carbon.appfactory.resource.mgt.internal.AppFactoryResourceMgtComponent"
  *                immediate="true"
- * @scr.reference name="appfactory.configuration"
- *                interface="org.wso2.carbon.appfactory.common.AppFactoryConfiguration"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setAppFactoryConfiguration"
- *                unbind="unsetAppFactoryConfiguration"
- * @scr.reference name="registry.service"
- *                interface="org.wso2.carbon.registry.core.service.RegistryService"
- *                cardinality="1..1" policy="dynamic" bind="setRegistryService" unbind="unsetRegistryService"
  * @scr.reference name="user.realmservice.default"
  *                interface="org.wso2.carbon.user.core.service.RealmService"
- *                cardinality="1..1" policy="dynamic"
- *                bind="setRealmService"
+ *                cardinality="1..1" policy="dynamic" bind="setRealmService"
  *                unbind="unsetRealmService"
+ * @scr.reference name="appfactory.common"
+ *                interface=
+ *                "org.wso2.carbon.appfactory.common.AppFactoryConfiguration"
+ *                cardinality="1..1"
+ *                policy="dynamic" bind="setAppFactoryConfiguration"
+ *                unbind="unsetAppFactoryConfiguration"
+ * @scr.reference name="registry.service"
+ *                interface=
+ *                "org.wso2.carbon.registry.core.service.RegistryService"
+ *                cardinality="1..1" policy="dynamic"
+ *                bind="setRegistryService"
+ *                unbind="unsetRegistryService"
+ * @scr.reference name="configuration.context.service"
+ *                interface="org.wso2.carbon.utils.ConfigurationContextService"
+ *                cardinality="1..1" policy="dynamic"
+ *                bind="setConfigurationContextService"
+ *                unbind="unsetConfigurationContextService"
+ * @scr.reference name="registry.loader.default"
+ *                interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
+ *                cardinality="1..1"
+ *                policy="dynamic"
+ *                bind="setRegistryLoader"
+ *                unbind="unsetRegistryLoader"
  */
 public class AppFactoryResourceMgtComponent {
 
 	private static final Log log = LogFactory.getLog(AppFactoryResourceMgtComponent.class);
+	private static String stage = System.getProperty(AppFactoryConstants.CLOUD_STAGE);
 
 	@SuppressWarnings("UnusedDeclaration")
 	protected void activate(ComponentContext context) {
-		if (log.isDebugEnabled()) {
-			log.debug("appfactory.eventing service bundle is activated");
+		try {
+			context.getBundleContext().registerService(
+					org.wso2.carbon.stratos.common.listeners.TenantMgtListener.class.getName(),
+					new CloudEnvironmentPermissionListener(), null);
+			context.getBundleContext().registerService(TenantCreationDurableSubscriber.class.getName(),
+			                                           new TenantCreationDurableSubscriber
+					                                           (stage + AppFactoryConstants.TENANT_CREATION_TOPIC,
+					                                            stage), null);
+			if (log.isDebugEnabled()) {
+				log.debug("AppFactoryResourceMgtComponent is activated");
+			}
+		} catch (Exception e) {
+			log.error("AppFactoryResourceMgtComponent activation failed.", e);
 		}
 	}
 
 	@SuppressWarnings("UnusedDeclaration")
 	protected void deactivate(ComponentContext ctxt) {
 		if (log.isDebugEnabled()) {
-			log.debug("appfactory.eventing service bundle is deactivated");
+			log.debug("AppFactoryResourceMgtComponent is deactivated");
 		}
 	}
 
@@ -85,4 +116,20 @@ public class AppFactoryResourceMgtComponent {
 	protected void unsetRegistryService(RegistryService registryService) {
 		ServiceHolder.getInstance().setRegistryService(null);
 	}
+
+	protected void setConfigurationContextService(ConfigurationContextService configurationContextService){
+		ServiceHolder.getInstance().setConfigurationContextService(configurationContextService);
+	}
+	protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService){
+		ServiceHolder.getInstance().setConfigurationContextService(null);
+	}
+
+	protected void setRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+		ServiceHolder.getInstance().setTenantRegistryLoader(tenantRegistryLoader);
+	}
+
+	protected void unsetRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+		ServiceHolder.getInstance().setTenantRegistryLoader(null);
+	}
+
 }

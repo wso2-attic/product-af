@@ -18,7 +18,10 @@
  */
 
 jagg.module("manager", {
-	setAuthHeaders:function () {
+    loadTenantAxisConfiguration:function () {
+		return jagg.require(jagg.getModulesDir() + "manager/manager.jag").loadTenantAxisConfiguration.apply(this, arguments);
+	},
+    setAuthHeaders:function () {
 		return jagg.require(jagg.getModulesDir() + "manager/manager.jag").setAuthHeaders.apply(this, arguments);
 	},
 	getBackendCookie:function () {
@@ -57,6 +60,9 @@ jagg.module("manager", {
     getApplicationTypeBean:function () {
         	return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getApplicationTypeBean.apply(this, arguments);
     },
+	getRuntimeBean:function () {
+		return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getRuntimeBean.apply(this, arguments);
+	},
     getUploadableApplicationMaxSize:function () {
         return jagg.require(jagg.getModulesDir() + "manager/manager.jag").getUploadableApplicationMaxSize.apply(this, arguments);
     }

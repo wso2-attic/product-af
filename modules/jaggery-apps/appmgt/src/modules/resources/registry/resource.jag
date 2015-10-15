@@ -175,7 +175,7 @@ var updatePropertyDescriptionInStages = function (propname, mediatype, descripti
  * @returns {*}
  */
 var getPropertyValueInStage = function (propname, appId, stage) {
-    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + DEPLOYER_APPTYPE_EP);
+    var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
     var username = jagg.getUser();
     var path = DEPENDANCIES_PATH + appId + PATH_SEPERATOR + propname;
     var resourceValue;

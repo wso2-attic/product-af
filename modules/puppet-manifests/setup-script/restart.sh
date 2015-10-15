@@ -3,6 +3,9 @@
 
 . ./config.properties
 
+service dnsmasq restart
+service nginx stop
+
 sudo su $APPFACTORY_USER <<'EOF'
 
 . ./config.properties
@@ -15,10 +18,11 @@ afpath=appfactory/wso2appfactory-$APPFACTORY_VERSION
 bampath=bam/wso2bam-$BAM_VERSION
 mbpath=mb/wso2mb-$MB_VERSION
 jenkinspath=jenkins
+gregpath=wso2greg-$GREG_VERSION
 bpspath=bps/wso2bps-$BPS_VERSION
 uespath=ues/wso2ues-$UES_VERSION
 apimpath=api-manager/wso2am-$APIM_VERSION
-storagepath=ss/wso2ss-$SS_VERSOIN
+storagepath=ss/wso2ss-$STORAGE_VERSOIN
 
 echo "STOPPING SERVERS..."
 
@@ -30,13 +34,15 @@ sleep 30s
 echo "starting App Factory"
 ./$afpath/bin/wso2server.sh start
 
-sleep 30s
-
-echo "starting BAM"
-./$bampath/bin/wso2server.sh start
+while ! nc -z localhost 9443; do sleep 5; done; echo '------ AF is up ----------'
 
 echo "starting MB"
 ./$mbpath/bin/wso2server.sh start
+
+while ! nc -z localhost 9743; do sleep 5; done; echo '------ MB is up ----------'
+
+echo "starting BAM"
+./$bampath/bin/wso2server.sh start
 
 echo "starting jenkins"
 ./$jenkinspath/jenkins.sh start
@@ -46,7 +52,6 @@ echo "starting BPS"
 
 echo "starting UES"
 ./$uespath/bin/wso2server.sh start
-
 
 echo "starting s2-gitblit"
 cd s2gitblit/
@@ -63,39 +68,23 @@ echo "starting APIM"
 echo "starting stogare server"
 ./$storagepath/bin/wso2server.sh start
 
-echo "starting dev greg server"
-./dev_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
+echo "starting greg servers"
+./dev_greg/$gregpath/bin/wso2server.sh start
+./test_greg/$gregpath/bin/wso2server.sh start
+./prod_greg/$gregpath/bin/wso2server.sh start
 
-echo "starting test greg server"
-./test_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
+echo "starting stratos"
+./ppaas/privatepaas/install/apache-stratos-default/bin/stratos.sh start
+./ppaas/privatepaas/install/apache-activemq-5.9.1/bin/activemq start
 
-echo "starting prod greg server"
-./prod_greg/wso2greg-$GREG_VERSION/bin/wso2server.sh start
-
-echo "Starting Active MQs"
-./dev_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
-./prod_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
-./test_pass/privatepaas/install/apache-activemq-$ACTIVEMQ_VERSION/bin/activemq start
-
-sleep 5s
-
-source "$CURRENT_DIR/dev_pass/privatepaas/conf.sh"
-export LOG=$log_path/stratos-setup.log
-setup_path="$CURRENT_DIR/dev_pass/privatepaas/stratos-installer"
-source $setup_path/conf/setup.conf;$setup_path/start-servers.sh -p default >> $LOG
 sleep 10s
 
-source "$CURRENT_DIR/test_pass/privatepaas/conf.sh"
-export LOG=$log_path/stratos-setup.log
-setup_path="$CURRENT_DIR/test_pass/privatepaas/stratos-installer"
-source $setup_path/conf/setup.conf;$setup_path/start-servers.sh -p default >> $LOG
-sleep 10s
+EOF
 
-source "$CURRENT_DIR/prod_pass/privatepaas/conf.sh"
-export LOG=$log_path/stratos-setup.log
-setup_path="$CURRENT_DIR/prod_pass/privatepaas/stratos-installer"
-source $setup_path/conf/setup.conf;$setup_path/start-servers.sh -p default >> $LOG
-sleep 10s
+sudo su << 'EOF'
+. ./config.properties
 
+cd /mnt/$MACHINE_IP/
+bash nginx/apache-stratos-nginx-extension-4.1.2/bin/nginx-extension.sh > extension.log  2>&1 &
 
 EOF

@@ -307,6 +307,8 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
         private String baseDeployUrl;
         private String stratosAdminUsername;
         private String stratosAdminPassword;
+        private String stratosServerURL;
+
         // private String jenkinsHome;String applicationId, String artifactType, String stage, String tenantDomainString applicationId, String artifactType, String stage, String tenantDomain
 
         public DescriptorImpl() {
@@ -363,6 +365,7 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
             setBaseDeployUrl(formData.getString("baseDeployUrl"));
             setStratosAdminUsername(formData.getString("stratosAdminUsername"));
             setStratosAdminPassword(formData.getString("stratosAdminPassword"));
+            setStratosServerURL(formData.getString("StratosServerURL"));
 
             //To persist global configuration information
             save();
@@ -391,6 +394,14 @@ public class AppfactoryPluginManager extends Notifier implements Serializable {
 
         public String getClientTrustStorePassword() {
             return clientTrustStorePassword;
+        }
+
+        public String getStratosServerURL() {
+            return stratosServerURL;
+         }
+
+        public void setStratosServerURL(String stratosServerURL) {
+           this.stratosServerURL = stratosServerURL;
         }
 
         public void setClientTrustStorePassword(String clientTrustStorePassword) {

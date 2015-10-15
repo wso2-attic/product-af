@@ -15,7 +15,7 @@ class greg (
   $target="/mnt",
   $registry_db_schema,
   $user_store,
-  $config_db_schema,
+  #$config_db_schema,
   $greg_stage
   ) inherits params {
 

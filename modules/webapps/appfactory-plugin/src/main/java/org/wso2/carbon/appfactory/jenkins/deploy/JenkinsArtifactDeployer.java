@@ -47,6 +47,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	private String baseDeployUrl;
 	private String s2AdminUsername;
 	private String s2AdminPassword;
+	private String stratosServerURL;
 
 	public JenkinsArtifactDeployer() {
 		super.setAdminUserName(descriptor.getAdminUserName());
@@ -55,6 +56,7 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		setBaseDeployUrl(descriptor.getBaseDeployUrl());
 		setS2AdminPassword(descriptor.getStratosAdminPassword());
 		setS2AdminUsername(descriptor.getStratosAdminUsername());
+		setStratosServerURL(descriptor.getStratosServerURL());
 		super.buildStatusProvider = new JenkinsBuildStatusProvider();
 	}
 
@@ -193,6 +195,10 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 		this.s2AdminPassword = s2AdminPassword;
 	}
 
+	public void setStratosServerURL(String stratosServerURL) {
+		this.stratosServerURL = stratosServerURL;
+	}
+
 	@Override
 	protected String getBaseRepoUrl() throws AppFactoryException {
 		return this.baseDeployUrl;
@@ -206,6 +212,11 @@ public class JenkinsArtifactDeployer extends AbstractStratosDeployer {
 	@Override
 	protected String getAdminUserName() throws AppFactoryException {
 		return this.s2AdminUsername;
+	}
+
+	@Override
+	protected String getStratosServerURL() throws AppFactoryException {
+		return this.stratosServerURL;
 	}
 
 	@Override

@@ -33,7 +33,7 @@ else
  appType=$defaultAppType
 fi
    uuid=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)$appType
-   appText=APP$uuid,APP$uuid,AppDesc$uuid,$appType,git
+   appText=APP$uuid,APP$uuid,AppDesc$uuid,$appType,git,Java Web Application
    echo "$appText" >> ./apps/af_apps.csv 
 done 
 }

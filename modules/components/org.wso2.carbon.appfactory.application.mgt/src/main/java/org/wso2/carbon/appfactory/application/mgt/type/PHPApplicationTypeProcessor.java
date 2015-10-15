@@ -27,7 +27,7 @@ import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
-import org.wso2.carbon.appfactory.s4.integration.StratosRestService;
+import org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 import org.wso2.carbon.context.CarbonContext;
 
 import java.io.File;
@@ -42,6 +42,9 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
     private static final String TENANT_MANAGEMENT_URL = "TenantMgtUrl";
     private static final String SYMBOL_AT = "@";
 
+    public PHPApplicationTypeProcessor(String type) {
+        super(type);
+    }
 
 
     @Override
@@ -93,14 +96,14 @@ public class PHPApplicationTypeProcessor extends AbstractFreeStyleApplicationTyp
     private String getCartridgeActiveIP(String applicationId, String tenantDomain, String stage)
             throws AppFactoryException {
         AppFactoryConfiguration configuration = AppFactoryUtil.getAppfactoryConfiguration();
-        String serverURL = configuration.getFirstProperty(ENVIRONMENT + XPATH_SEPERATOR + stage + XPATH_SEPERATOR +
-                TENANT_MANAGEMENT_URL);
+        String serverURL = configuration.getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername() + SYMBOL_AT +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String cartridgeAlias = AppFactoryCoreUtil.getCartridgeAlias(applicationId, tenantDomain);
 
-        StratosRestService restService = new StratosRestService(serverURL, userName, StringUtils.EMPTY);
-        String clusterId = restService.getSubscribedCartridgeClusterId(cartridgeAlias);
+        StratosRestClient restService = StratosRestClient.getInstance(serverURL, userName);
+        //TODO : implement this using new api
+        String clusterId = "" ;//restService.getSubscribedCartridgeClusterId(cartridgeAlias);
 
         // get data from runtime db
         JDBCApplicationDAO jdbcApplicationDAO = JDBCApplicationDAO.getInstance();

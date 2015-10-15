@@ -48,7 +48,11 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 
 	private static Log log = LogFactory.getLog(UploadedApplicationTypeProcessor.class);
 
-	@Override
+    public UploadedApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
 	public void doVersion(String applicationID, String targetVersion, String currentVersion,
 	                      String workingDirectory) throws AppFactoryException {
 

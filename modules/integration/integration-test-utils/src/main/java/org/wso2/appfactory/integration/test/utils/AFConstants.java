@@ -28,6 +28,9 @@ public class AFConstants {
 	// Properties from automation.xml
 	public static final String URLS_APPFACTORY = "//appFactoryProperties/urls/appFactory";
 	public static final String URLS_PROD_SC = "//appFactoryProperties/urls/prodStratosController";
+	public static final String URLS_DEV_GREG = "//appFactoryProperties/urls/devGreg";
+	public static final String URLS_TEST_GREG = "//appFactoryProperties/urls/testGreg";
+	public static final String URLS_PROD_GREG = "//appFactoryProperties/urls/prodGreg";
 	public static final String URLS_BPS = "//appFactoryProperties/urls/bps";
 	public static final String URLS_GIT = "//appFactoryProperties/urls/git";
 	public static final String URLS_S2GIT = "//appFactoryProperties/urls/s2git";

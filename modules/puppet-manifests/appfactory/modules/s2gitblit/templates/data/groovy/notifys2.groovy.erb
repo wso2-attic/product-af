@@ -13,17 +13,17 @@ println json
 
 if (repoUrl ==~ devRegex) {
 
-        def response = ["curl", "-k", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${json}", "https://<%= @usrmgt_username %>:<%= @usrmgt_password %>@<%= @stratos_dev_server %>:<%= @stratos_dev_server_port %>/stratos/admin/reponotification"].execute().text
+        def response = ["curl", "-k", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${json}", "https://<%= @usrmgt_username %>:<%= @usrmgt_password %>@<%= @stratos_server %>:<%= @stratos_server_port %>/stratos/admin/reponotification"].execute().text
         println response
 
 } else if (repoUrl ==~ testRegex) {
 
-        def response = ["curl", "-k", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${json}", "https://<%= @usrmgt_username %>:<%= @usrmgt_password %>@<%= @stratos_test_server %>:<%= @stratos_test_server_port %>/stratos/admin/reponotification"].execute().text
+        def response = ["curl", "-k", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${json}", "https://<%= @usrmgt_username %>:<%= @usrmgt_password %>@<%= @stratos_server %>:<%= @stratos_server_port %>/stratos/admin/reponotification"].execute().text
         println response
 
 } else if (repoUrl ==~ prodRegex) {
 
-        def response = ["curl", "-k", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${json}", "https://<%= @usrmgt_username %>:<%= @usrmgt_password %>@<%= @stratos_prod_server %>:<%= @stratos_prod_server_port %>/stratos/admin/reponotification"].execute().text
+        def response = ["curl", "-k", "-X", "POST", "-H", "Content-Type: application/json", "-d", "${json}", "https://<%= @usrmgt_username %>:<%= @usrmgt_password %>@<%= @stratos_server %>:<%= @stratos_server_port %>/stratos/admin/reponotification"].execute().text
         println response
 
 }

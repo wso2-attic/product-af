@@ -27,6 +27,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeProcessor;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeValidationStatus;
+import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -48,13 +49,19 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
     public static final String PARAM_TENANT_DOMAIN = "{tenantDomain}";
     public static final String PARAM_APP_ID = "{applicationID}";
     public static final String PARAM_APP_VERSION = "{applicationVersion}";
-    public static final String PARAM_APP_STAGE = "{stage}";
+    public static final String PARAM_STRATOS_APP_ID = "{stratos_app_id}";
+	public static final String PARAM_HOSTNAME = "{hostname}";
     public static final String PARAM_APP_STAGE_NAME_SUFFIX = "StageParam";
     public static final String ARTIFACT_VERSION_XPATH = "TrunkVersioning.WebappVersioning.ArtifactVersionName";
     public static final String SOURCE_VERSION_XPATH = "TrunkVersioning.WebappVersioning.SourceVersionName";
     public static final String XPATH_SEPERATOR = ".";
+    protected String appType = null;
+    protected Properties properties;
 
-	protected Properties properties;
+    public AbstractApplicationTypeProcessor(String type){
+        this.appType = type;
+
+    }
 
 	@Override
 	public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
@@ -142,21 +149,9 @@ public abstract class AbstractApplicationTypeProcessor implements ApplicationTyp
 			applicationVersion = artifactTrunkVersionName;
 		}
 
-		String urlStageValue = "";
-
-		try {
-			urlStageValue = (String) this.properties.getProperty(stage + PARAM_APP_STAGE_NAME_SUFFIX);
-		} catch (Exception e){
-			// no need to throw just log and continue
-			log.error("Error while getting the url stage value fo application:" + applicationID, e);
-		}
-
-		if(urlStageValue == null){
-			urlStageValue = "";
-		}
-
+        String stratosAppId = CommonUtil.getStratosApplicationId(applicationID, applicationVersion, stage, appType);
 		url = url.replace(PARAM_TENANT_DOMAIN, tenantDomain).replace(PARAM_APP_ID, applicationID)
-		         .replace(PARAM_APP_VERSION, applicationVersion).replace(PARAM_APP_STAGE, urlStageValue);
+		         .replace(PARAM_APP_VERSION, applicationVersion).replace(PARAM_STRATOS_APP_ID, stratosAppId);
 		return url;
 	}
 

@@ -297,6 +297,7 @@ do
     -Dcom.sun.jndi.ldap.connect.pool.timeout=3000  \
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Djava.security.egd=file:/dev/./urandom \
+     -Dstratos.component.startup.synchronizer.enabled=true \
     -Dfile.encoding=UTF8 \
     -Dstratos.stage="<%= @paas_stage %>" \
     -Djndi.properties.dir="$CARBON_HOME/repository/conf" \

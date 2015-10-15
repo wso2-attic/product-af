@@ -46,7 +46,8 @@
             mod = jagg.module("build");
             var applicationKey = request.getParameter("applicationKey");
             var applicationVersion = request.getParameter("applicationVersion");
-            var tenantDomain = request.getParameter("tenantDomain");
+            var manager = jagg.module("manager");
+            var tenantDomain = manager.getTenantDomain();
             var buildId = request.getParameter("lastBuildId");
             var forkedRepository = request.getParameter("forkedRepository");
             var jenkinsUrl = mod.getJenkinsBaseUrl(tenantDomain);

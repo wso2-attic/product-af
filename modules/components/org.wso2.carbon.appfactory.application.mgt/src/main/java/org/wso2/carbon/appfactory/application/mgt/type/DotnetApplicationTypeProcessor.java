@@ -32,6 +32,10 @@ import java.util.Map;
 public class DotnetApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
 	private static final Log log = LogFactory.getLog(DotnetApplicationTypeProcessor.class);
 
+    public DotnetApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
     @Override
     public void doVersion(String applicationId, String targetVersion, String currentVersion, String workingDirectory)
             throws AppFactoryException {
