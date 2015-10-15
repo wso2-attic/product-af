@@ -38,6 +38,7 @@
             <class name="org.wso2.appfactory.tests.scenarios.DevStudioAPITestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.IssueTrackerTestCase"/>
             <class name="org.wso2.appfactory.tests.scenarios.GovernanceTestCase"/>
+            <!--<class name="org.wso2.appfactory.tests.scenarios.GitOperationsTestCase"/>-->
             <!--class name="org.wso2.appfactory.tests.scenarios.DomainMappingTestCase"/-->
         </classes>
     </test>

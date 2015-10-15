@@ -18,6 +18,10 @@ import java.util.Map;
 public abstract class AbstractFreeStyleApplicationTypeProcessor extends AbstractApplicationTypeProcessor{
     private static final Log log = LogFactory.getLog(AbstractFreeStyleApplicationTypeProcessor.class);
 
+    public AbstractFreeStyleApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
 
     @Override
     public void doVersion(String applicationId, String targetVersion, String currentVersion, String workingDirectory)

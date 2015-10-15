@@ -70,7 +70,7 @@ var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 var BPS_SERVER_URL = "ServerUrls.BPS";
 var GREG_SERVER_URL = "ServerUrls.Greg";
 var SS_SERVER_URL = "ServerUrls.SS";
-
+var STRATOS_PAAS_URL= "Stratos.PAASServicesURL";
 
 var ROLE_ADMIN = "admin";
 var ROLE_APP_OWNER = "appowner";
@@ -212,7 +212,6 @@ var BAM_ADMIN_PASSWORD = "BAM.AdminPassword"
 var ISSUETRACKER_URL = "IssueTrackerConnector.issueTracker.Property.FrontUrl";
 var ISSUE_TRACKER_SERVER_URL = "IssueTrackerConnector.issueTracker.Property.Url";
 
-var DEPLOYER_APPTYPE_EP= ".PAASServicesURL";
 var SC_URL=".TenantMgtUrl";
 var GREG_URL= ".GregServerURL";
 

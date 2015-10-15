@@ -1,0 +1,35 @@
+<ApplicationType>
+    <ApplicationType>dbs</ApplicationType>
+    <ProcessorClassName>org.wso2.carbon.appfactory.application.mgt.type.DataServiceApplicationTypeProcessor</ProcessorClassName>
+    <DisplayName>WSO2 Data Service</DisplayName>
+    <Extension>dbs</Extension>
+    <Description>Data as a Service</Description>
+    <Buildable>false</Buildable>
+    <BuildJobTemplate>freestyle</BuildJobTemplate>
+    <MavenArcheTypeRequest>-DarchetypeGroupId=org.wso2.appfactory
+            -DarchetypeArtifactId=dbs-archetype -DarchetypeVersion=2.1.0-SNAPSHOT -DgroupId=org.wso2.appfactory
+            -Dversion=default-SNAPSHOT
+            -DinteractiveMode=false -DarchetypeCatalog=local
+    </MavenArcheTypeRequest>
+    <ServerDeploymentPaths>dataservices</ServerDeploymentPaths>
+    <Enable>enabled</Enable>
+    <Comment>Test123</Comment>
+    <Language>Java</Language>
+    <SubscriptionAvailability>aPaaS</SubscriptionAvailability>
+    <IsUploadableAppType>false</IsUploadableAppType>
+	<DeployerType>*</DeployerType>
+    <DevelopmentStageParam>.dev</DevelopmentStageParam>
+    <TestingStageParam>.test</TestingStageParam>
+    <SampleDbHostUrl>appfactory.private.wso2.com</SampleDbHostUrl>
+    <SampleDbName>testdb</SampleDbName>
+    <SampleDbUser>testuser</SampleDbUser>
+    <SampleDbUserPassword>testuser123</SampleDbUserPassword>	
+    <SampleDatasourceName>TestDS</SampleDatasourceName>
+    <LaunchURLPattern>https://appserver{stage}.appfactory.private.wso2.com:9443/services/t/{tenantDomain}/{applicationID}-default-{applicationVersion}?wsdl</LaunchURLPattern>
+    <isAllowDomainMapping>false</isAllowDomainMapping>
+    <HudsonArtifactArchiver>**/*.*</HudsonArtifactArchiver>
+    <DisplayOrder>5</DisplayOrder>
+    <Runtimes>appserver</Runtimes>
+    <ExecutionType>View WSDL</ExecutionType>
+    <IsCodeEditorSupported>false</IsCodeEditorSupported>
+</ApplicationType>

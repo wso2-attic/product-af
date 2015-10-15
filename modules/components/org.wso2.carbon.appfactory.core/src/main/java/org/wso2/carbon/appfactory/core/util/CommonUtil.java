@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -189,7 +190,7 @@ public class CommonUtil {
      * @return alias
      */
     public static String getSubscriptionAlias(String stage, String appType) throws AppFactoryException {
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
+        //String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain().replace(".", "dot");
         try {
             String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
             String  appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
@@ -198,11 +199,12 @@ public class CommonUtil {
             String subscriptionAlias;
             if(Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))){
                 subscriptionAlias =
-                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + stage.toLowerCase() +
-                        tenantDomain;
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeAliasPrefix() + stage.toLowerCase();
+                       // + tenantDomain;
             }else{
                 subscriptionAlias =
-                        RuntimeManager.getInstance().getRuntimeBean(runtime).getAliasPrefix() + tenantDomain;
+                        RuntimeManager.getInstance().getRuntimeBean(runtime).getCartridgeAliasPrefix();
+                       // + tenantDomain;
             }
             return subscriptionAlias;
         } catch (AppFactoryException e) {
@@ -239,6 +241,82 @@ public class CommonUtil {
             throw new AppFactoryException(
                     "Error while getting cartridge type stage:" + stage + "application type:" + appType, e);
         }
+    }
+
+    /**
+     * Get stratos application id
+     *
+     *
+     * @param appKey
+     * @param version
+     *@param stage   the stage of the Stratos
+     * @param appType application type   @return stratos application id
+     */
+    public static String getStratosApplicationId(String appKey, String version, String stage, String appType) throws AppFactoryException {
+        try {
+            String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).getRuntimes()[0];
+
+            String appendStageToCartridgeInfo = AppFactoryUtil.getAppfactoryConfiguration().
+                    getFirstProperty(AppFactoryConstants.APPEND_STAGE_TO_CARTRIDGE_INFO);
+
+            String stratosAppId = null;
+            RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtime);
+
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+
+            if (runtimeBean.getSubscribeOnDeployment()) {
+                stratosAppId = generateUniqueStratosApplicationId(tenantId, appKey, version, stage);
+            } else if (Boolean.TRUE.equals(Boolean.parseBoolean(appendStageToCartridgeInfo))) {
+                stratosAppId = runtimeBean.getCartridgeAliasPrefix()
+                               + stage.toLowerCase();
+            } else {
+                stratosAppId = runtimeBean.getCartridgeAliasPrefix();
+            }
+            return stratosAppId;
+        } catch (AppFactoryException e) {
+            String msg =
+                    "Error while getting stratos application id for stage:" + stage + "application type:" + appType;
+            log.error(msg, e);
+            throw new AppFactoryException(msg, e);
+        }
+    }
+
+    /**
+     * Generate a UniqueId for single tenant applications using the following format
+     * {tenantId}-{applicationId}-{application-version}-{stage}
+     *
+     * @param tenantId
+     * @param applicationId
+     * @param version
+     * @return
+     */
+    public static String generateUniqueStratosApplicationId(int tenantId, String applicationId, String version,
+                                                            String stage) {
+        return tenantId + AppFactoryConstants.HYPHEN + applicationId + AppFactoryConstants.HYPHEN
+               + (version + "").replace(AppFactoryConstants.DOT, AppFactoryConstants.HYPHEN) + AppFactoryConstants.HYPHEN
+               + stage.toLowerCase();
+    }
+
+    /**
+     * Generate the Stratos artifact repository name
+     *
+     * @param paasRepositoryURLPattern Ex : {@stage}/tomcat
+     * @param stage
+     * @param version
+     * @param applicationId
+     * @param tenantId
+     * @return repository name
+     */
+    public static String generateSingleTenantArtifactRepositoryName(String paasRepositoryURLPattern, String stage,
+                                                                    String version, String applicationId,
+                                                                    int tenantId) {
+        //needs to replace dot(.) with minus(-) cause git doesn't allow
+        version = version.replaceAll("\\.+", AppFactoryConstants.MINUS);
+        String gitRepoName = paasRepositoryURLPattern
+                             + AppFactoryConstants.URL_SEPERATOR + tenantId + AppFactoryConstants.URL_SEPERATOR
+                             + applicationId + AppFactoryConstants.MINUS + version;
+        gitRepoName = gitRepoName.replace(AppFactoryConstants.STAGE_PLACE_HOLDER, stage);
+        return gitRepoName;
     }
 
 }

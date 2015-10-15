@@ -48,13 +48,8 @@
                   !org.wso2.carbon.appfactory.resource.mgt.internal,
                   org.wso2.carbon.appfactory.resource.mgt.*,
               </Export-Package>
-              <Import-Package>
-                  !javax.xml.namespace,
-                  javax.xml.namespace; version=0.0.0,
-                  javax.activation.DataHandler.*,javax.activation.DataSource.*
-                  org.apache.axiom.*; version="${axiom.osgi.version.range}",
-                  *;resolution:=optional
-              </Import-Package>
+              <Import-Package>org.wso2.carbon.appfactory.common.*,org.wso2.carbon.appfactory
+                  .s4.integration.*,org.wso2.carbon.appfactory.eventing.*</Import-Package>
               <DynamicImport-Package>*</DynamicImport-Package>
 
           </instructions>
@@ -75,6 +70,45 @@
       <groupId>org.wso2.carbon.appfactory</groupId>
       <artifactId>org.wso2.carbon.appfactory.common</artifactId>
     </dependency>
+      <dependency>
+          <groupId>org.wso2.carbon</groupId>
+          <artifactId>org.wso2.carbon.tenant.mgt.stub</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.wso2.carbon.appfactory</groupId>
+          <artifactId>org.wso2.carbon.appfactory.eventing</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.wso2.carbon.appfactory</groupId>
+          <artifactId>org.wso2.carbon.appfactory.s4.integration</artifactId>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.apache.stratos</groupId>
+                  <artifactId>org.apache.stratos.cli</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.wso2.carbon</groupId>
+          <artifactId>org.wso2.carbon.registry.ws.client</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.stratos</groupId>
+          <artifactId>org.apache.stratos.common</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.stratos</groupId>
+          <artifactId>org.apache.stratos.manager</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.stratos</groupId>
+          <artifactId>org.apache.stratos.common</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.wso2.carbon</groupId>
+          <artifactId>org.wso2.carbon.stratos.common</artifactId>
+      </dependency>
+
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
@@ -153,10 +187,6 @@
     <dependency>
       <groupId>org.wso2.carbon</groupId>
       <artifactId>org.wso2.carbon.service.mgt.stub</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.stratos</groupId>
-      <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
     </dependency>
     <dependency>
       <groupId>org.wso2.carbon</groupId>

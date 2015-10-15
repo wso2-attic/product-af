@@ -78,5 +78,4 @@ public class Constants {
     public static final String API_MANAGER_DEFAULT_TIER = "ApiManager.DefaultTier";
     public static final String API_MANAGER_DEFAULT_CALLBACK_URL = "ApiManager.DefaultCallbackURL";
     public static final String API_MANAGER_DEFAULT_AUTHORIZED_DOMAINS_ALL = "ALL";
-    public static final String DEPLOYER_APPTYPE_EP = "Deployer.ApplicationType.*.Endpoint";
 }

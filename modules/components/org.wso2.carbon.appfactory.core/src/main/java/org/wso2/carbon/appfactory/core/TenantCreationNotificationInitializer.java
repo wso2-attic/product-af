@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.appfactory.core;
 
-import org.apache.stratos.tenant.mgt.stub.beans.xsd.TenantInfoBean;
+import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 
 /**
  * Implementation of this is used to initialize a Build Manager for a tenant by

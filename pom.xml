@@ -173,36 +173,31 @@
             <groupId>commons-lang.wso2</groupId>
             <artifactId>commons-lang</artifactId>
             <version>${orbit.version.commons.lang}</version>
-        </dependency>
+          </dependency>
           <dependency>
               <groupId>org.apache.stratos</groupId>
               <artifactId>org.apache.stratos.manager</artifactId>
-              <version>4.0.0-wso2v1</version>
+              <version>${stratos.version}</version>
           </dependency>
           <dependency>
               <groupId>org.apache.stratos</groupId>
               <artifactId>org.apache.stratos.tenant.mgt</artifactId>
-              <version>4.0.0-wso2v1</version>
+              <version>${stratos.version}</version>
           </dependency>
           <dependency>
               <groupId>org.apache.stratos</groupId>
               <artifactId>org.apache.stratos.tenant.mgt.core</artifactId>
-              <version>4.0.0-wso2v1</version>
+              <version>${stratos.version}</version>
           </dependency>
-        <dependency>
-            <groupId>org.apache.stratos</groupId>
-            <artifactId>org.apache.stratos.tenant.mgt.stub</artifactId>
-            <version>4.0.0-wso2v1</version>
-        </dependency>
-	<dependency>
+          <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.andes.stub</artifactId>
             <version>4.2.1</version>
         </dependency>
-	<dependency>
-	   <groupId>org.wso2.carbon</groupId>
-	   <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>
-	   <version>4.2.0</version>
+	    <dependency>
+           <groupId>org.wso2.carbon</groupId>
+           <artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>
+           <version>4.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -1320,7 +1315,7 @@
 
 
       <!--Stratos-->
-      <stratos.version>4.0.0</stratos.version>
+      <stratos.version>4.1.1</stratos.version>
       <carbon.platform.stratos.version0>2.2.0</carbon.platform.stratos.version0>
       <carbon.platform.stratos.version1>2.2.1</carbon.platform.stratos.version1>
       <carbon.platform.stratos.version2>2.2.2</carbon.platform.stratos.version2>

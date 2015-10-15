@@ -103,7 +103,12 @@ public class NonBuildableArtifactDeployer extends AbstractStratosDeployer {
 				getFirstProperty(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
 	}
 
-    /**
+	@Override
+	protected String getStratosServerURL() throws AppFactoryException {
+		return null;
+	}
+
+	/**
      * {@inheritDoc}
      */
 	@Override

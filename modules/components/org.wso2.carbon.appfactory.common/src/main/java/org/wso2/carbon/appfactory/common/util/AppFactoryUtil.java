@@ -407,10 +407,10 @@ public class AppFactoryUtil {
         Map<String, String> environmentDetails = new HashMap<String, String>();
         try {
             AppFactoryConfiguration appFactoryConfiguration = getAppfactoryConfiguration();
-            String[] stages = appFactoryConfiguration.getProperties("ApplicationDeployment.DeploymentStage");
+            String[] stages = appFactoryConfiguration.getProperties(AppFactoryConstants.DEPLOYMENT_STAGES);
             if (stages != null) {
                 for (String stage : stages) {
-                    String baseAccessURL = appFactoryConfiguration.getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".TenantMgtUrl");
+                    String baseAccessURL = appFactoryConfiguration.getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".GregServerURL");
                     environmentDetails.put(stage, baseAccessURL);
                 }
             }

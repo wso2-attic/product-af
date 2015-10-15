@@ -191,6 +191,11 @@ public class SCMManagerBasedGITRepositoryProvider extends AbstractRepositoryProv
 	}
 
     @Override
+    public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException {
+
+    }
+
+    @Override
     public String createForkRepo(String applicationKey, String userName) throws RepositoryMgtException {
         return null;
     }

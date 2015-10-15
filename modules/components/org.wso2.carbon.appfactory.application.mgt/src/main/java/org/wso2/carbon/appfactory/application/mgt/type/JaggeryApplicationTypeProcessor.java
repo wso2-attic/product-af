@@ -32,7 +32,12 @@ import java.io.IOException;
  */
 public class JaggeryApplicationTypeProcessor extends AbstractFreeStyleApplicationTypeProcessor {
     private static final Log log = LogFactory.getLog(JaggeryApplicationTypeProcessor.class);
- @Override
+
+    public JaggeryApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
     public void generateApplicationSkeleton(String applicationId, String workingDirectory) throws AppFactoryException {
 	    super.generateApplicationSkeleton(applicationId, workingDirectory);
         File pomFile = new File(workingDirectory + File.separator + AppFactoryConstants.DEFAULT_POM_FILE);

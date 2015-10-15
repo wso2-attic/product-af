@@ -51,11 +51,11 @@ public class TenantStratosSubscriptionMessagePublisher {
 	 * @param runtimeJson runtimebeans as a json
 	 * @param tenantInfoJson tenantInfoBean as a json
 	 * @param restServiceProperties propertyMap
-	 * @param stage current stage
+	 * @param stageJson stages
 	 * @throws AppFactoryEventException
 	 */
     public void publishMessage(String runtimeJson, String tenantInfoJson, Map<String, String> restServiceProperties,
-                               String stage) throws AppFactoryEventException {
+                               String stageJson) throws AppFactoryEventException {
         Properties properties = new Properties();
         properties.put(Context.INITIAL_CONTEXT_FACTORY, AppFactoryConstants.ANDES_ICF);
         properties.put(AppFactoryConstants.CF_NAME_PREFIX + AppFactoryConstants.CF_NAME, Util.getTCPConnectionURL());
@@ -70,7 +70,7 @@ public class TenantStratosSubscriptionMessagePublisher {
             topicSession = topicConnection.createTopicSession(false, TopicSession.CLIENT_ACKNOWLEDGE);
             Topic topic = topicSession.createTopic(topicName);
             MapMessage mapMessage = topicSession.createMapMessage();
-            mapMessage.setString(AppFactoryConstants.STAGE, stage);
+            mapMessage.setString(AppFactoryConstants.STAGE, stageJson);
             mapMessage.setString(AppFactoryConstants.RUNTIMES_INFO, runtimeJson);
             mapMessage.setString(AppFactoryConstants.TENANT_INFO, tenantInfoJson);
             javax.jms.TopicPublisher topicPublisher = topicSession.createPublisher(topic);
