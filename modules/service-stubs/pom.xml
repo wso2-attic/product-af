@@ -25,16 +25,16 @@
 	<name>WSO2 Carbon - Service Stubs - Aggregator Module</name>
 	<url>http://wso2.org</url>
 	<modules>
-                <module>org.wso2.carbon.appfactory.application.mgt.stub</module>
-		<module>org.wso2.carbon.appfactory.application.deployer.stub</module>
-                <module>org.wso2.carbon.appfactory.artifact.storage.stub</module>
-        	<module>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</module>
-		<module>org.wso2.carbon.appfactory.events.notification.stub</module>
-		<module>org.wso2.carbon.appfactory.build.stub</module>
-		<module>org.wso2.carbon.appfactory.stratos.listeners.stub</module>
-        	<module>org.wso2.carbon.appfactory.tenant.mgt.stub</module> 
-        	<module>org.wso2.carbon.appfactory.createtenant.stub</module> 
-	</modules>
+        <module>org.wso2.carbon.appfactory.application.mgt.stub</module>
+        <module>org.wso2.carbon.appfactory.application.deployer.stub</module>
+        <module>org.wso2.carbon.appfactory.buildserver.teanant.mgt.stub</module>
+        <module>org.wso2.carbon.appfactory.events.notification.stub</module>
+        <module>org.wso2.carbon.appfactory.build.stub</module>
+        <module>org.wso2.carbon.appfactory.stratos.listeners.stub</module>
+        <module>org.wso2.carbon.appfactory.resource.mgt.stub</module>
+        <module>org.wso2.carbon.appfactory.tenant.mgt.stub</module>
+        <module>org.wso2.carbon.appfactory.createtenant.stub</module>
+    </modules>
 	<build>
 		<plugins>
 			<plugin>

@@ -34,41 +34,58 @@ public class JenkinsStorage extends Storage {
         this.connector = connector;
     }
 
-    /**
-     *
-     * @param jobName jobName of which we need to get the tag names of
-     * @return the tag names of the persisted artifacts for the given job name
-     * @throws AppFactoryException
-     */
+	/**
+	 *
+	 * @param applicationId
+	 * @param version
+	 * @param revision
+	 * @param tenantDomain
+	 * @returnthe tag names of the persisted artifacts for the given job name
+	 * @throws AppFactoryException
+	 */
     public String[] getTagNamesOfPersistedArtifacts(String applicationId, String version, String revision, String tenantDomain) throws AppFactoryException{
-    	String jobName =
-                ServiceHolder.getContinuousIntegrationSystemDriver()
-                             .getJobName(applicationId, version, revision);
+    	String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, null);
         return null;
     }
 
-    /**
-     * Deploy the latest built artifact of the given job
-     * @param jobName jobname
-     * @param artifactType car/war
-     * @param stage URLs to which the artifact will be deployed into
-     * @throws AppFactoryException
-     */
+	/**
+	 * Deploy the latest built artifact of the given job
+	 * @param applicationId
+	 * @param version
+	 * @param revision
+	 * @param artifactType
+	 * @param stage
+	 * @param tenantDomain
+	 * @param userName
+	 * @param deployAction
+	 * @param repoFrom
+	 * @throws AppFactoryException
+	 */
     public void deployLatestSuccessArtifact(String applicationId, String version, String revision, String artifactType,
                                             String stage, String tenantDomain, String userName, String deployAction,
                                             String repoFrom) throws AppFactoryException {
 
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version,
-                                                                                         userName, repoFrom);
+        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, null);
         /*If this is a freestyle project deployment is done through a new build otherwise new changes to the repo after
         /last build would not be deployed. */
         connector.deployLatestSuccessArtifact(jobName, artifactType, stage, tenantDomain, userName,
                                               AppFactoryConstants.DEPLOY_ACTION_LABEL_ARTIFACT,repoFrom);
     }
 
-    public void deployPromotedArtifact(String applicationId, String version, String revision,String artifactType, String stage, String tenantDomain, String userName) throws AppFactoryException{
-    	String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
-                             .getJobName(applicationId, version, revision);
+	/**
+	 * Deploy the tagged artifact for promote
+	 * @param applicationId
+	 * @param version
+	 * @param revision
+	 * @param artifactType
+	 * @param stage
+	 * @param tenantDomain
+	 * @param userName
+	 * @throws AppFactoryException
+	 */
+    public void deployPromotedArtifact(String applicationId, String version, String revision,String artifactType,
+                                       String stage, String tenantDomain, String userName) throws AppFactoryException {
+    	String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, null);
         connector.deployPromotedArtifact(jobName,artifactType, stage, tenantDomain, userName);
     }
 

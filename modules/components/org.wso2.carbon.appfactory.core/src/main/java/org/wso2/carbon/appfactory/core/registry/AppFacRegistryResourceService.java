@@ -245,7 +245,7 @@ public class AppFacRegistryResourceService {
                 getProperty(AppFactoryConstants.SUPPORT_DATASOURCE));
         boolean appTypeDS = false;
         if (appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE) != null &&
-                appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE).toString() == "true"){
+            Boolean.parseBoolean(appType.getProperty(AppFactoryConstants.SUPPORT_DATASOURCE))){
             appTypeDS = true;
         }
         if (runtimeDS && appTypeDS) {

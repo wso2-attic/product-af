@@ -22,12 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
 import org.wso2.carbon.appfactory.eventing.Event;
-
 import org.wso2.carbon.appfactory.eventing.EventNotifier;
 import org.wso2.carbon.appfactory.eventing.builder.utils.AppCreationEventBuilderUtil;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
@@ -74,12 +73,15 @@ public class RepositoryHandler extends ApplicationEventsHandler {
         RepositoryProvider provider = Util.getRepositoryProvider(application.getRepositoryType());
         try {
             provider.deleteRepository(application.getId(), tenantDomain);
-
             // if forks available, delete forked repos also
-            //TODO : check all the forked repos by different users. and delete all forked repos.
-            provider.deleteForkedRepository(application.getId(), userName, tenantDomain);
-            log.info("Successfully deleted the repository of application : " + application.getId() +
-                    " from tenant domain : " + tenantDomain);
+	        boolean isDeleted = provider.deleteForkedRepositoriesForApplication(application.getId(), tenantDomain);
+	        if(isDeleted) {
+		        log.info("Successfully deleted the repositories of application : " + application.getId() +
+		                 " from tenant domain : " + tenantDomain);
+	        } else {
+		        log.warn("Deletion of repositories failed for application : " + application.getId() +
+		                 " from tenant domain : " + tenantDomain);
+	        }
         } catch (RepositoryMgtException e) {
             String errorMsg = "Error while deleting repository of application" + application.getId() +
                     " from tenant domain : " + tenantDomain;

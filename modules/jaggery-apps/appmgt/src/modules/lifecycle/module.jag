@@ -89,6 +89,9 @@ jagg.module("lifecycle", {
     },
     getCheckItemsByPathWithSleep:function () {
         return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getCheckItemsByPathWithSleep.apply(this, arguments);
-    }
+    },
+    getCheckListItemsOfAppVersion:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getCheckListItemsOfAppVersion.apply(this, arguments);
+    }  
 });
 %>

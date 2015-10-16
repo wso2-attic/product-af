@@ -1,0 +1,58 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+(function () {
+    var action = request.getParameter("action"),
+            site = require("/site/conf/site.json");
+    var modPermission = jagg.module("permission");
+    var modApplication = jagg.module("application");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+    if (action == "getTeamMembersOfApplication") {
+        var appKey=request.getParameter("applicationKey");
+        if (modPermission.isUserAccessGranted(appKey, PERMISSION_APPLICATION_MEMBER)){
+            try {
+                var users = modApplication.getTeamMembersOfApplication(appKey);
+                var tableData = {
+                    "data":users
+                };
+                print(tableData);
+            } catch(e) {
+                var errMsg = "Error while retrieving users of application";
+                log.error(e);
+                log.error(errMsg +". appkey: "+appKey);
+                response.status = 400;
+                response.content = errMsg;
+            }
+        } else {
+            response.status = 401;
+            response.content = "You don't have permission to get the users of application";
+        }
+    } else {
+	    throw new Error("No action specified");
+    }
+
+}());
+%>

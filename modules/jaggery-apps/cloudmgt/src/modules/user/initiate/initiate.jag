@@ -76,6 +76,53 @@ function login(userName, password){
     }
 }
 
+var loginWithSAMLToken = function (token) {
+    var site = require("/site/conf/site.json");
+    var security =require("sso");
+    var SSO_NAME = doc.SSORelyingParty.Name.toString();
+    var ssoRelyingParty = new security.SSORelyingParty(SSO_NAME);
+    var encodedToken = ssoRelyingParty.xmlEncode(token);
+    var xhr = new XMLHttpRequest();
+    var endPoint = AFURL + "SAML2SSOAuthenticationService";
+    xhr.open("POST", endPoint);
+
+    var payload =   '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" >' +
+                    '<soap:Body>' +
+                        '<sso:login xmlns:sso="http://sso.saml2.authenticator.identity.carbon.wso2.org">' +
+                        '<sso:authDto>' +
+                            '<xsd:response xmlns:xsd="http://dto.sso.saml2.authenticator.identity.carbon.wso2.org/xsd">'
+                                +encodedToken +
+                            '</xsd:response>' +
+                        '</sso:authDto>' +
+                        '</sso:login>' +
+                    '</soap:Body>' +
+                    '</soap:Envelope>';
+    xhr.setRequestHeader('SOAPAction','urn:login');
+    xhr.setRequestHeader('Content-Type','application/soap+xml');
+    xhr.send(payload);
+    var result = xhr.responseText;
+
+    var finalResult={};
+    if (result.indexOf("false") === -1 && result.indexOf("faultstring") === -1) {
+        var cookieString = xhr.getResponseHeader("Set-Cookie").split(";")[0];
+        var userName = ssoRelyingParty.getSAMLResponseNameId(token);
+        jagg.setUser(userName);
+        session.put("LOGGED_IN_USER", userName);
+        log.info("User :"+userName +" successfully is logged in with saml token");
+        finalResult.error=false;
+        finalResult.message="User successfully logged in";
+        finalResult.username=userName;
+        finalResult.cookie=cookieString;
+    } else {
+        log.warn("Error occurred while login with saml token");
+        log.warn("Authentication Server response status:"+xhr.status+". responseText:"+ xhr.responseText);
+        finalResult.error=true;
+        finalResult.message="Authentication failure";
+    }
+    return finalResult;
+
+};
+
 
 
 %>

@@ -1,12 +1,12 @@
 <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="#" class="btn-action">
+        <a href="{{baseURL}}appmgt/site/pages/application.jag?applicationKey={{appKey}}&applicationName={{appName}}"  target="_parent" class="btn-action">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to Overview
         </a>
-        <a href="/issuetracker/issue/add?appkey={{appkey}}" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="/issuetracker/issue/add?appkey={{appKey}}" class="btn-action" data-toggle="tooltip" data-placement="top" title="Create New Issue">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
@@ -17,17 +17,17 @@
 <div class="container-fluid app-content-section">
         <div class="row">
           <div class="col-md-12 msg-issues">
-                  You get a birds eye view of all the issues that have been created in applications where you are a member.
+            You get a birds eye view of all the issues that have been created in applications where you are a member.
               Issue tracking for a application version provides you the ability to create new issues per application
               version, edit existing issues and search for issues based on a search criteria.
-          </div>
+         </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <div id="push"></div>
                 {{#if data}}
                 <div class="datatable">
-                    <table id="issuelist" class="display" cellspacing="0" width="100%">         
+                    <table id="issuelist" class="display" cellspacing="0" width="100%">
                     <thead>
                         <tr>
                             <th>Issue</th>
@@ -35,6 +35,7 @@
                             <th>Version</th>
                             <th>Type</th>
                             <th>Priority</th>
+                            <th>Severity</th>
                             <th>Status</th>
                             <th>Reporter</th>
                             <th>Assignee</th>
@@ -47,6 +48,7 @@
                             <td>Version</td>
                             <td>Type</td>
                             <td>Priority</td>
+                            <td>Severity</td>
                             <td>Status</td>
                             <td></td>
                             <td></td>
@@ -60,16 +62,16 @@
                       <div class="row row-centered">
                           <div class="col-centered col-xs-10 col-sm-7  col-md-7 col-lg-6">
                               <div class="add-issue-content">
-                                  <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue" href="/issuetracker/issue/add?appkey={{appkey}}">
+                                  <a id="add-issue-button" class="cu-btn cu-btn-md cu-btn-blue" href="/issuetracker/issue/add?appkey={{appKey}}">
                                   <span class="fw-stack fw-lg btn-action-ico">
                                       <i class="fw fw-ring fw-stack-2x"></i>
                                       <i class="fw fw-add fw-stack-1x"></i>
                                   </span>
-                                  <span class="hidden-xs">Report an Issue</span>
+                                  <span class="hidden-xs">Create an Issue</span>
                                   </a>
                               </div>
                           </div>
-                      </div> 
+                      </div>
                 {{/if}}
                 <div class="clearfix"></div>
                 <div id="push"></div>
@@ -86,6 +88,7 @@
 <!-- include custom js functions -->
 <script src="{{url "/themes/issuetracker/js/custom/custom.js"}}"></script>
 <script>
+
     $('.side-pane-trigger').click(function(){
         var rightPane = $('.right-pane');
         var leftPane = $('.left-pane');
@@ -109,6 +112,7 @@
                 { "data": "version" , "width": "8%"},
                 { "data": "issueTypeText", "width": "8%" },
                 { "data": "issuePriorityText", "width": "8%" },
+                { "data": "issueSeverityText", "width": "8%" },
                 { "data": "issueStatusText" , "width": "8%"},
                 { "data": "owner" , "width": "13%", "sClass" : "dt-body-right"},
                 { "data": "assignee" , "width": "13%", "sClass" : "dt-body-right"},
@@ -121,15 +125,23 @@
                 null,
                 null,
                 { type: "select", values: {{{versions}}} },
-                { type: "select", values: [ 'Bug', 'Task', 'New Feature', 'Improvement'] },
-                { type: "select", values: [ 'Highest', 'High', 'Low', 'Lowest'] },
-                { type: "select", values: [ 'Open', 'Resolved', 'In Progress', 'Closed'] },
+                { type: "select", bRegex: true, values: [ 'Bug', 'Task', 'New Feature', 'Improvement'] },
+                { type: "select", bRegex: true, values: [{ value: '^Low$', label: 'Low'}, { value: '^Lowest$', label: 'Lowest'},
+                    { value: '^Highest$', label: 'Highest'}, { value: '^High$', label: 'High'}] },
+                { type: "select", bRegex: true, values: [ 'Blocker', 'Critical', 'Non Critical'] },
+                { type: "select", bRegex: true, values: [ 'Open', 'Resolved', 'In Progress', 'Closed'] },
                 { "bSortable": false },
                 { "bSortable": false },
                 null,
                 null
             ]
         });
+
+        // filter the issues by issue type which user selected
+        var issueType = "{{issueType}}";
+        if(issueType) {
+            $('.datatable table').DataTable().column(3).search(issueType).draw();
+        }
 </script>
 
 <!--EOF NEW UI -->

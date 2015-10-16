@@ -20,10 +20,12 @@
 include("/jagg/jagg.jag");
 include("/jagg/constants.jag");
 include("/jagg/config_reader.jag");
+include("/jagg/util.jag");
 
 var log = new Log('modules/tenant/users/get/get.jag');
 
 var modManager = jagg.module("manager");
+var modUser = jagg.module("user");
 var carbon = require('carbon');
 var server = carbon.server;
 var multitenancy = carbon.multitenancy;
@@ -48,7 +50,7 @@ var getUserInfo = function getUserInfo(userName) {
         var ns=new Namespace("http://service.mgt.tenant.appfactory.carbon.wso2.org");
         var user = result.ns::["return"];
         var tmpuserName=user.*::["userName"];
- 
+
         if(tmpuserName.length()==0){
         	return null;
         }
@@ -121,6 +123,118 @@ var getApplicatioinKeysOfUser=function(userName){
                                                 getApplicationKeysOfUser(userName);
        return appsOfUser;
 };
+
+var getUsersOfTenant = function(){
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if(log.isDebugEnabled()){
+        log.debug("Getting users of tenants for tenant: "+tenantDomain);
+    }
+    var tenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_TENANT_USERS_AJAX_PATH;
+    var data = {
+        action: "getUsersOfTenantByCloudType",
+        tenantDomain: tenantDomain,
+        cloudType:CLOUD_TYPE_AF
+    };
+    var headers = {
+        "Content-Type":"application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(tenantUsersUrl, data, headers, type);
+    if(result.xhr.status == "200"){
+        return convertTenantUsersArrayForDisplay(result.data);
+    } else {
+        log.error("Error occurred when getting users of tenant:"+tenantDomain
+                  +". Server response status:"+result.xhr.status+". responseText"+ result.xhr.responseText);
+        throw "Error occurred when getting users of tenant";
+    }
+};
+
+var getPendingUsersOfTenantByAppKey = function(applicationKey){
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if(log.isDebugEnabled()){
+        log.debug("Getting users of tenants for tenant: "+tenantDomain);
+    }
+    var tenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL)+"/"+CLOUDMGT_PENDING_TENANT_USERS_AJAX_PATH;
+    var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+    var appRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
+    var data = {
+        action: "getPendingUsersOfRole",
+        tenantDomain: tenantDomain,
+        role: appRole
+    };
+    var headers = {
+        "Content-Type":"application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(tenantUsersUrl, data, headers, type);
+    if(result.xhr.status == "200"){
+        return (result.data);
+    } else {
+        log.error("Error occurred when getting pending users of tenant:"+tenantDomain 
+                  +" for application: " + applicationKey +
+                  +". Server response status:"+result.xhr.status+". responseText"+ result.xhr.responseText);
+        throw "Error occurred when getting pending users of tenant";
+    }
+};
+
+function convertTenantUsersArrayForDisplay(users){
+    var returnUsersArray = [];
+    for(var i = 0, len = users.length; i < len; i++){
+        var user = users[i];
+        var tempUser = {};
+        tempUser["email"] = user.email;
+        tempUser["userName"] = user.userName;
+        tempUser["id"] = tempUser["email"];
+        tempUser["displayName"] = user.displayName;
+        tempUser["text"] = tempUser["displayName"];
+        var displayRoles=[];
+        var roles = (user.roleTypes);
+        if(roles) {
+            for (var j = 0; j < roles.length; j++) {
+                displayRoles.push(roles[j]["displayName"]);
+            }
+        }
+        tempUser["role"] = displayRoles;
+        returnUsersArray.push(tempUser);
+    }
+    return returnUsersArray;
+}
+
+function getAllUserDisplayRoles(){
+
+    var allAfRoles = application.get(ALL_AF_ROLES);
+    if(isEmpty(allAfRoles)){
+        // TODO: get this from cloudmgt
+        allAfRoles = [
+            {
+                role:'developer',
+                displayName:'Developer'
+            },
+            {
+                role:'devops',
+                displayName:'DevOps'
+            },
+            {
+                role:'qa',
+                displayName:'QA'
+            },
+            {
+                role:'appowner',
+                displayName:'Application Owner'
+            },
+            {
+                role:'cxo',
+                displayName:'CXO'
+            }
+        ];
+        application.put(ALL_AF_ROLES, allAfRoles);
+    }
+    return allAfRoles;
+}
 
 
 %>

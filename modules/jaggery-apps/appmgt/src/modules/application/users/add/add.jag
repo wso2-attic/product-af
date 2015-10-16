@@ -29,6 +29,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var appfactory = require('appFactory');
 var multitenancy = carbon.multitenancy;
+var modUser = jagg.module("user");
 
 
 // add the user to the application in LDAP
@@ -121,5 +122,37 @@ var addUserToApplicationWS = function addUserToApplicationWS(applicationKey,user
     var userNames=users.split(",");
     result = server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').addUsersToApplication(userNames,applicationKey);
     return result;
+};
+
+var sendApplicationInvitationEmail = function(applicationKey, userEmails, welcomeMsg) {
+	var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+	var tenantDomain = modManager.getTenantDomain();
+	if (log.isDebugEnabled()) {
+		log.debug("Sending welcome email to Users list: " + stringify(userEmails)+" for application: "+applicationKey);
+	}
+
+	// TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
+	var sendEmailUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_SEND_EMAIL_AJAX_PATH;
+	var data = {
+		action: "sendEmailWithCustomMessage",
+		subject: INVITE_USER_EMAIL_SUBJECT,
+		to: stringify(userEmails),
+		message: welcomeMsg
+	};
+	var headers = {
+		"Content-Type": "application/x-www-form-urlencoded",
+		"Cookie": cookieString
+	};
+	var type = "json";
+	var result = post(sendEmailUrl, data, headers, type);
+	if (result.xhr.status == "200") {
+		log.info("Successfully submitted to send application welcome email for  users: "+ userEmails.join(",")
+				 + " in tnenant: " + tenantDomain +", for application: " + applicationKey);
+	} else {
+		log.error("Error occurred when submitted to send application welcome email for  users: "+ userEmails.join(",")
+				  + " in tnenant: " + tenantDomain +", for application: " + applicationKey
+				  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+		throw "Error occurred when sending application invite email";
+	}
 };
 %>

@@ -99,7 +99,8 @@ var loggedInUser = jagg.getUser();
 		var isBasic = request.getParameter("isBasic");
 		var createInAll=request.getParameter("copyToAll");
 		var isCreateDatasource= request.getParameter("createDatasource");
-		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        var userNameFromRequest = request.getParameter("userName");
+	    var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
         var databaseDescription = request.getParameter("databaseDescription");
 		if( !hasPermission ){
@@ -154,7 +155,12 @@ var loggedInUser = jagg.getUser();
 
 				if (isBasic == "true") {
 				    // generate possible username
-                    userName = mod.getPossibleUsername(applicationKey, databaseServerInstanceName, databaseName);
+                    if(userNameFromRequest == null || userNameFromRequest == undefined || userNameFromRequest == "") {
+                        userName = mod.getPossibleUsername(applicationKey, databaseServerInstanceName, databaseName);
+                    } else {
+                        userName = userNameFromRequest;
+                    }
+                    
                     templateName = applicationKey + '_admin@'+ databaseServerInstanceName;
 					userName = mod.createDatabaseUser(applicationKey, customPassword, databaseServerInstanceName, userName);
 					if(userName.indexOf('already exists') == -1) {
@@ -185,14 +191,24 @@ var loggedInUser = jagg.getUser();
                         }
                     }
 
-				} else {
-					userName = request.getParameter("userName");
-					templateName = request.getParameter("templateName");
+				} else { // basic = false;
+					var allowed = "Y";
+					var restricted = "N";
+					userName = userNameFromRequest;
+					templateName = applicationKey + "_" + databaseName + "_" + userName + "@" + databaseServerInstanceName;
+					// create a template which has only select privileges
+					try {
+						dbResult = mod.createTemplate(applicationKey, databaseServerInstanceName, templateName, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, restricted, allowed, restricted, restricted, restricted, true);
+						isTemplateCreated = true; // if template creation fails, this line will not be executed.
+					} catch (e) {
+						response.error = true;
+						response.errorMessage = "Error while creating template.";
+						print(response);
+						return;
+					}
 				}
-
 				try{
                     actualDBName = mod.createDatabase(applicationKey, databaseName, databaseServerInstanceName, databaseDescription);
-
                     if(actualDBName.indexOf('already exists') > -1){
                         print("database exists");
                     }
@@ -230,6 +246,11 @@ var loggedInUser = jagg.getUser();
 						log.debug("Error while attaching new user :" + userName + ". Rollback database : " + actualDBName + " creation....");
 					}
 					mod.dropDatabase(applicationKey,actualDBName,databaseServerInstanceName);
+					// sending proper error message to front end. APPFAC-3457
+					response.error = true;
+					response.errorMessage = "Error while attaching user.";
+					print(response);
+					return;
 				}
 			} catch (e) {
 				dbResult = e.javaException.cause;
@@ -362,6 +383,17 @@ var loggedInUser = jagg.getUser();
 			if(hasDBInformationReadPermissionToStage){
 
 				try {
+				    // Code flow is as follows.
+				    // Get all Databases from stage
+                	// For ex : devdb001, devdb002
+				    // Get all Datasources from stage
+                	// For ex : ds001, ds002
+                	// Loop Datasources. Say current Datasource is ds001.
+                	// Loop Databases inside that. devdb001 and devdb002.
+                	// Check whether any of the Database urls matches the current Database's Database url.
+                	// ds001.url == devdb001.url & ds001.url == devdb002.url
+                	// If not Consider it as a Custom Database used by the user and add it to the list of databases
+                	// that user can use to create a Datasource for.
 					result = mod.getDatabasesInfoForStage(applicationKey, deploymentStages[i]);
 					if(result!=null && result.stage!=null){
 						// identify custom databases.
@@ -590,7 +622,40 @@ var loggedInUser = jagg.getUser();
 			throw e;
 		}
 
-	}else if(action == "detachUser"){
+	}else if(action == "attachUserWithPermissions"){
+        var applicationKey = request.getParameter("applicationKey");
+        var dbname = request.getParameter("databaseName");
+        var rssInstance = request.getParameter("dbServerInstanceName");
+        var userName = request.getParameter("userName");
+        var permissions =  request.getParameter("permissions");
+        var templateName = applicationKey + "_" + dbname + "_" + userName + "@" + rssInstance; 
+        var permissionObj = parse(permissions);
+        var stage = mod.getStageFromRssInstanceName(rssInstance);
+        var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+                PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
+        // checking permission to add a user
+        if( !hasPermission ){
+            response.error = true;
+            response.errorMessage = "No permission";
+            print(response);
+            return;
+        }
+        // creating a template using provided permissions
+        try {
+            var dbResult = mod.createTemplate(applicationKey,rssInstance,templateName,permissionObj.alterPriv,permissionObj.alterRoutinePriv,permissionObj.createPriv,permissionObj.createRoutinePriv,permissionObj.createTmpTablePriv,permissionObj.createViewPriv,permissionObj.deletePriv,permissionObj.dropPriv,permissionObj.eventPriv,permissionObj.executePriv,permissionObj.grantPriv,permissionObj.indexPriv,permissionObj.insertPriv,permissionObj.lockTablesPriv,permissionObj.referencesPriv,permissionObj.selectPriv,permissionObj.showViewPriv,permissionObj.triggerPriv,permissionObj.updatePriv,true);
+            if(dbResult[rssInstance] == "success"){
+                result = mod.attachNewUser(applicationKey,rssInstance, dbname, userName, templateName);
+                print(result);
+            }
+        } catch(e) {
+            var msg = "Error while attching user " + userName + " to the db : " + dbname + ", application key: " + applicationKey + " & stage: " + rssInstance;
+            log.error(msg);
+            log.error(e);
+            throw e;
+        }
+
+        
+    }else if(action == "detachUser"){
 
 		var applicationKey = request.getParameter("applicationKey");
 		var dbname = request.getParameter("databaseName");
@@ -666,12 +731,13 @@ var loggedInUser = jagg.getUser();
 
 		var rssInstance = request.getParameter("rssInstanceName");
 		var applicationKey = request.getParameter("applicationKey");
-
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
-
-
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
-		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
+        var dbname = request.getParameter("databaseName");
+        var userName = request.getParameter("userName");
+        var permissions =  request.getParameter("permissions");
+	    	
+        var stage = mod.getStageFromRssInstanceName(rssInstance);
+		// checking whether user is allowed  to update in given stage
+        var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
 		if( !hasPermission ){
 			response.error = true;
@@ -679,32 +745,7 @@ var loggedInUser = jagg.getUser();
 			print(response);
 			return;
 		}
-
-
-		var dbname = request.getParameter("databaseName");
-		var username = request.getParameter("username");
-		var alterPriv=createValue(request.getParameter("alterPriv"));
-		var alterRoutinePriv=createValue(request.getParameter("alterRoutinePriv"));
-		var createPriv=createValue(request.getParameter("createPriv"));
-		var createRoutinePriv=createValue(request.getParameter("createRoutinePriv"));
-		var createTmpTablePriv=createValue(request.getParameter("createTmpTablePriv"));
-		var createViewPriv=createValue(request.getParameter("createViewPriv"));
-		var deletePriv=createValue(request.getParameter("deletePriv"));
-		var dropPriv=createValue(request.getParameter("dropPriv"));
-		var eventPriv=createValue(request.getParameter("eventPriv"));
-		var executePriv=createValue(request.getParameter("executePriv"));
-		var grantPriv=createValue(request.getParameter("grantPriv"));
-		var indexPriv=createValue(request.getParameter("indexPriv"));
-		var insertPriv=createValue(request.getParameter("insertPriv"));
-		var lockTablesPriv=createValue(request.getParameter("lockTablesPriv"));
-		var referencesPriv=createValue(request.getParameter("referencesPriv"));
-		var selectPriv=createValue(request.getParameter("selectPriv"));
-		var showViewPriv=createValue(request.getParameter("showViewPriv"));
-		var triggerPriv=createValue(request.getParameter("triggerPriv"));
-		var updatePriv=createValue(request.getParameter("updatePriv"));
-
-		var response = {};
-
+        // sending message to notification wall
 		try {
             var notificationTitle = "Privileges update started for database " + dbname + " in " + stage;
             var notificationMessageDescription = "For user: " + username + " in environment: " + stage;
@@ -714,10 +755,10 @@ var loggedInUser = jagg.getUser();
         } catch (e) {
             log.error("Error while sending database user privilege update start notification \n" + e.message);
         }
-
-		try {
-			mod.editUserPermissions(applicationKey,dbname,rssInstance,username,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv);
-
+        // edit user permissions
+        var permissionObj = parse(permissions);
+        try {
+             mod.editUserPermissions(applicationKey,dbname,rssInstance,userName,permissionObj.alterPriv,permissionObj.alterRoutinePriv,permissionObj.createPriv,permissionObj.createRoutinePriv,permissionObj.createTmpTablePriv,permissionObj.createViewPriv,permissionObj.deletePriv,permissionObj.dropPriv,permissionObj.eventPriv,permissionObj.executePriv,permissionObj.grantPriv,permissionObj.indexPriv,permissionObj.insertPriv,permissionObj.lockTablesPriv,permissionObj.referencesPriv,permissionObj.selectPriv,permissionObj.showViewPriv,permissionObj.triggerPriv,permissionObj.updatePriv);
 		} catch(e) {
 			throw "Error while reading permissions";
 		}
@@ -748,6 +789,56 @@ var loggedInUser = jagg.getUser();
             }
         }
         print(databasesByName);
+    } else if (action== "getDatabaseInfoForDataTable") {
+        var applicationKey = request.getParameter("applicationKey");
+        var applicationName = request.getParameter("applicationName");
+        try {
+            result  =  mod.generateDatabaseInfoForDataTable(applicationKey, applicationName);
+        } catch (e) {
+            var msg = "Error while getting info for datatable of databases for the application : " + applicationKey;
+            log.error(msg);
+            log.error(e);
+            throw e;
+        }
+        print(result); 
+    } else if(action == "getDatabaseUsersForDataTable") {
+        var applicationKey = request.getParameter("applicationKey");
+        var currentStage = request.getParameter("environment");
+        var dbName = request.getParameter("dbName");
+        var permissionModule = jagg.module("permission");
+        var resourceModule = jagg.module("resources");
+        var hasReadPermission = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + currentStage);
+        var userInfoArray = [];
+        if(hasReadPermission) {
+            var unAttachedUsers = resourceModule.getAvailableUsersToAttachToDatabase(applicationKey,dbName, currentStage);
+            var attachedUsers = resourceModule.getAttachedUsers(applicationKey, dbName, currentStage);
+            for(var i in attachedUsers) {
+                var user = {};
+                user.username = "<a>" + attachedUsers[i] + "</a>";
+                user.attachuser = '<label class="switch"> <input id="chkbox_' + attachedUsers[i] + '" type="checkbox" checked><span class="toggle-button"></span></label>';
+                var priviledgeJsonArray =  resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, attachedUsers[i]);
+                var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
+                user.priviledges = '<div id="priviledges_' + attachedUsers[i] + '" >' + priviledgeString + '</div>';
+                user.editpriviledges = "<a class='editroles edit_priviledge' id='edit_" + attachedUsers[i] + "'href='#'><i class='fw fw-edit'></i></a>";
+                user.trash = "<a class='delete not-active' href='#'><i class='fw fw-delete'></i></a>";
+                userInfoArray.push(user);
+            }
+            for(var i in unAttachedUsers) {
+                var user = {};
+                user.username = "<a>" + unAttachedUsers[i] + "</a>";
+                user.attachuser = '<label class="switch"> <input id="chkbox_' + unAttachedUsers[i] + '" type="checkbox" ><span class="toggle-button"></span></label>';
+                var priviledgeJsonArray = resourceModule.getUserPrivileges(applicationKey, currentStage, dbName, unAttachedUsers[i]);
+                var priviledgeString = resourceModule.getPriviledgesString(priviledgeJsonArray);
+                user.priviledges = priviledgeString;
+                user.editpriviledges = "<a class='editroles not-active' href='#'><i class='fw fw-edit'></i></a>";
+                user.trash = '<a class="delete delete_user" id="delete_' + unAttachedUsers[i] + '" href="#"><i class="fw fw-delete"></i></a>';
+                userInfoArray.push(user);
+            }
+        }
+        // Data table expects a object with the format {data : [{},{},{}.....]}
+        var userInfoArrayWithDataAtrribute = {};
+        userInfoArrayWithDataAtrribute.data = userInfoArray;
+        print(stringify(userInfoArrayWithDataAtrribute));
     } else {
 		throw new Error("No action specified");
 	}

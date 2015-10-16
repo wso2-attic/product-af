@@ -27,10 +27,15 @@ jagg.block("index", {
     },
 
     getOutputs:function (inputs) {
-       var hasAppCreationPermission=jagg.module("permission").hasAppCreationPermission();
-             return {
+        var hasAppCreationPermission=jagg.module("permission").hasAppCreationPermission();
+        var username = jagg.getUser();
+        var applicationCount = 0;
+        if(username)
+            applicationCount = jagg.module("application").getAllAppsCountOfUser(username);
+        return {
             "hasAppCreationPermission":hasAppCreationPermission,
-       };
+            "applicationCount" : applicationCount
+        };
     }
 
 });

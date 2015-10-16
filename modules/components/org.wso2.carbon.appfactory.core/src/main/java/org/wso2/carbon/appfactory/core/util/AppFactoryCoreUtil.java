@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.core.util;
 
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,6 +30,8 @@ import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import org.wso2.carbon.governance.api.util.GovernanceUtils;
@@ -41,11 +44,25 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AppFactoryCoreUtil {
 
     private static final Log log = LogFactory.getLog(AppFactoryCoreUtil.class);
+	private static long tenantIdleTimeMillis;
+	private static final int DEFAULT_TENANT_IDLE_MINS = 30;
+	private static Set<String> currentLoadingTenants = new HashSet<String>();
+
+	//Need tenantIdleTime to check whether the tenant is in idle state in loadTenantConfig method
+	static {
+		tenantIdleTimeMillis =
+				Long.parseLong(System.getProperty(
+						org.wso2.carbon.utils.multitenancy.MultitenantConstants.TENANT_IDLE_TIME,
+						String.valueOf(DEFAULT_TENANT_IDLE_MINS)))
+				* 60 * 1000;
+	}
 
     public static String getStage (String applicationId, String version) throws AppFactoryException {
 	    	String stage = null;
@@ -266,8 +283,8 @@ public class AppFactoryCoreUtil {
 	 * @param runtimeBean runtime bean that we need to add parameters from
 	 */
 	private static void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
-		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
-		                                 runtimeBean.getAliasPrefix() + stage));
+		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX,
+		                                 runtimeBean.getCartridgeAliasPrefix() + stage));
 		parameters.add(new NameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
 		                                 runtimeBean.getCartridgeTypePrefix() + stage));
 		parameters.add(new NameValuePair(AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN,
@@ -299,5 +316,53 @@ public class AppFactoryCoreUtil {
 		                                      applicationTypeBean.getServerDeploymentPath()));
 	}
 
+	/**
+	 * load tenant axis configuration
+	 *
+	 * @param tenantDomain tenant domain
+	 */
+	public static void loadTenantAxisConfiguration(String tenantDomain) {
+		final String finalTenantDomain = tenantDomain;
+		ConfigurationContext ctx =
+				ServiceHolder.getInstance().getConfigContextService().getServerConfigContext();
+
+		//Cannot use the tenantDomain directly because it's getting locked in createTenantConfigurationContext()
+		// method in TenantAxisUtils
+		String accessFlag = tenantDomain + "@WSO2";
+
+		long lastAccessed = TenantAxisUtils.getLastAccessed(tenantDomain, ctx);
+		//Only if the tenant is in unloaded state, we do the loading
+		if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
+			synchronized (accessFlag.intern()) {
+				// Currently loading tenants are added to a set.
+				// If a tenant domain is in the set it implies that particular tenant is being loaded.
+				// Therefore if and only if the set does not contain the tenant.
+				if (!currentLoadingTenants.contains(tenantDomain)) {
+					//Only one concurrent request is allowed to add to the currentLoadingTenants
+					currentLoadingTenants.add(tenantDomain);
+					ctx.getThreadPool().execute(new Runnable() {
+						public void run() {
+							Thread.currentThread()
+							      .setName("APPFactory-loadTenantConfig-thread");
+							try {
+								PrivilegedCarbonContext.startTenantFlow();
+								ConfigurationContext ctx =
+										ServiceHolder.getInstance().getConfigContextService()
+										             .getServerConfigContext();
+								TenantAxisUtils.getTenantAxisConfiguration(finalTenantDomain, ctx);
+							} catch (Exception e) {
+								log.error("Error while creating axis configuration for tenant " +
+								          finalTenantDomain, e);
+							} finally {
+								//only after the tenant is loaded completely, the tenant domain is removed from the set
+								currentLoadingTenants.remove(finalTenantDomain);
+								PrivilegedCarbonContext.endTenantFlow();
+							}
+						}
+					});
+				}
+			}
+		}
+	}
 
 }

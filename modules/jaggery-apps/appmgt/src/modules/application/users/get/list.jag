@@ -60,6 +60,34 @@ var log = new Log("module/application/users/get/list.jag");
  	return resultUsers;
  }
 
+var getTeamMembersOfApplication = function(applicationKey){
+	jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_APPLICATION_MEMBER);
+	var users, tenantDomain=modManager.getTenantDomain();
+	var context=multitenancy.getPrivilegedCarbonContext();
+	var tenantManager= multitenancy.getTenantManager();
+	users= server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationUserManagementService').getUsersOftheApplication(applicationKey);
+	var resultUsers=[];
+	for (var k in users) {
+		var user = users[k];
+		var object = {};
+		object.userName = user.userName;
+		object.email = user.email;
+		object.name = user.displayName;
+		object.roles = user.roles;
+		var displayRoles=[];
+		for (var i in user.roles) {
+			var roleDisplayName = getProperty("TenantRoles.Role." + user.roles[i] + ".DisplayName");
+			if(roleDisplayName != null) {
+				displayRoles.push({"roleType":roleDisplayName ,"role":user.roles[i]});
+			}
+		}
+
+		object.displayRoles = displayRoles;
+		resultUsers.push(object);
+	}
+	return resultUsers;
+}
+
 var getUserAccess = function(applicationKey, userName) {
 	// no need to secure, internal calls are secured.
 	var jsonFeed = {};

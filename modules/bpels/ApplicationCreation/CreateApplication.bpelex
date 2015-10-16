@@ -38,11 +38,7 @@
   </extensions>
   <extensions>
     <extendedObject href="CreateApplication.bpel#/"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ProcessExtension" modificationStamp="1381560664000"/>
-  </extensions>
-  <extensions>
-    <extendedObject href="CreateApplication.bpel#//@variables/@children.6"/>
-    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ProcessExtension" modificationStamp="1441890147000"/>
   </extensions>
   <extensions>
     <extendedObject href="CreateApplication.bpel#//@activity/@activities.1/@activities.0"/>
@@ -75,5 +71,25 @@
   <extensions>
     <extendedObject href="CreateApplication.bpel#//@activity/@activities.1/@activities.0/@copy.5"/>
     <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="CreateApplication.bpel#//@variables/@children.6"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="CreateApplication.bpel#//@variables/@children.7"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:VariableExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="CreateApplication.bpel#//@activity/@activities.1/@activities.0/@copy.6"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:CopyExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="CreateApplication.bpel#//@activity/@activities.1/@activities.1/@faultHandler/@catch.0/@activity"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
+  </extensions>
+  <extensions>
+    <extendedObject href="CreateApplication.bpel#//@activity/@activities.1/@activities.1/@faultHandler/@catch.0/@activity/@activities.0"/>
+    <extensionObject xsi:type="org.eclipse.bpel.ui.uiextensionmodel:ActivityExtension"/>
   </extensions>
 </extensionmodel:ExtensionMap>

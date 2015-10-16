@@ -46,13 +46,14 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.jaxen.JaxenException;
+import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.BuildDriverListener;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
-import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.dto.Statistic;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
@@ -391,9 +392,11 @@ public class RestBasedJenkinsCIConnector {
      * @return true if job exits, false otherwise.
      * @throws AppFactoryException if an error occurs.
      */
-    public boolean isJobExists(String applicationId, String version, String tenantDomain) throws AppFactoryException {
+    public boolean isJobExists(String applicationId, String version, String tenantDomain, String userName) throws AppFactoryException {
 
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, "");
+        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver()
+                                      .getJobName(applicationId, version,
+                                                  MultitenantUtils.getTenantAwareUsername(userName));
         final String wrapperTag = "JobNames";
 
         List<NameValuePair> queryParameters = new ArrayList<NameValuePair>();
@@ -422,8 +425,8 @@ public class RestBasedJenkinsCIConnector {
                 throw new AppFactoryException(errorMsg);
             }
 
-            StAXOMBuilder builder = new StAXOMBuilder(jobExistResponse.getEntity().getContent());
-            isExists = builder.getDocumentElement().getChildElements().hasNext();
+	        StAXOMBuilder builder = new StAXOMBuilder(jobExistResponse.getEntity().getContent());
+	        isExists = builder.getDocumentElement().getChildElements().hasNext();
 
         } catch (XMLStreamException e) {
             String msg =
@@ -531,8 +534,12 @@ public class RestBasedJenkinsCIConnector {
                            String tenantDomain, String userName, String repoFrom) throws AppFactoryException {
 
         userName = MultitenantUtils.getTenantAwareUsername(userName);
-        String jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version,
-                                                                                         userName, repoFrom);
+        String jobName;
+	    if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom)) {
+		    jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, userName);
+	    } else {
+		    jobName = ServiceHolder.getContinuousIntegrationSystemDriver().getJobName(applicationId, version, null);
+	    }
         String artifactType = ApplicationDAO.getInstance().getApplicationType(applicationId);
         boolean isFreestyle = false;
 
@@ -654,7 +661,11 @@ public class RestBasedJenkinsCIConnector {
             }
         }
 
-        (new DefaultBuildDriverListener()).onBuildStart(applicationId, version, "", userName, repoFrom, tenantDomain);
+	    Iterator<BuildDriverListener> buildDriverListeners = ServiceContainer.getBuildDriverListeners().iterator();
+	    while (buildDriverListeners.hasNext()) {
+		    BuildDriverListener listener = buildDriverListeners.next();
+		    listener.onBuildStart(applicationId, version, "", userName, repoFrom, tenantDomain);
+	    }
     }
 
 
@@ -959,6 +970,11 @@ public class RestBasedJenkinsCIConnector {
                         jobName + ", stage : " + stage + " for username: " + userName);
             }
 
+            AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+
+            String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
+                    AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
+
             parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
@@ -966,6 +982,9 @@ public class RestBasedJenkinsCIConnector {
             parameters.add(new BasicNameValuePair(AppFactoryConstants.JOB_NAME, jobName));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_STAGE, stage));
             parameters.add(new BasicNameValuePair(AppFactoryConstants.DEPLOY_ACTION, deployAction));
+            parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,
+                                                  paasRepositoryProviderClassName));
+
 	        addAppTypeParameters(parameters, applicationTypeBean);
             addRunTimeParameters(stage, parameters, runtimeBean);
 	        parameters.add(new BasicNameValuePair(AppFactoryConstants.REPOSITORY_FROM, repoFrom));
@@ -1066,7 +1085,13 @@ public class RestBasedJenkinsCIConnector {
             throw new AppFactoryException("Runtime details cannot be found");
         }
 
+        AppFactoryConfiguration appfactoryConfiguration = AppFactoryUtil.getAppfactoryConfiguration();
+
         List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+        String paasRepositoryProviderClassName = appfactoryConfiguration.getFirstProperty(
+                AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME);
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_ARTIFACT_REPO_PROVIDER_CLASS_NAME,
+                                              paasRepositoryProviderClassName));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_DOMAIN,tenantDomain));
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         parameters.add(new BasicNameValuePair(AppFactoryConstants.TENANT_ID,Integer.toString(tenantId)));
@@ -1769,8 +1794,8 @@ public class RestBasedJenkinsCIConnector {
      * @param runtimeBean runtime bean that we need to add parameters from
      */
     private void addRunTimeParameters(String stage, List<NameValuePair> parameters, RuntimeBean runtimeBean) {
-        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_ALIAS_PREFIX,
-                                              runtimeBean.getAliasPrefix() + stage));
+        parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_ALIAS_PREFIX,
+                                              runtimeBean.getCartridgeAliasPrefix() + stage));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.RUNTIME_CARTRIDGE_TYPE_PREFIX,
                                               runtimeBean.getCartridgeTypePrefix() + stage));
         parameters.add(new BasicNameValuePair(AppFactoryConstants.PAAS_REPOSITORY_URL_PATTERN,

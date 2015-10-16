@@ -1,12 +1,14 @@
 {
-    "theme" : {
-        "base" : "default"
-    },
-    "context" : "/appmgt",
-    "recentAPIsCount" : 5,
-    "topRatedCount" : 5,
-    "defaultUser" : {
-        "username" : "admin",
-        "password" : "admin"
-    }
+  "theme" : {
+    "base" : "default"
+  },
+  "context" : "/appmgt",
+  "cloudMgtContext" : "/cloudmgt",
+  "dashboardContext" : "/dashboard",
+  "recentAPIsCount" : 5,
+  "topRatedCount" : 5,
+  "defaultUser" : {
+    "username" : "admin",
+    "password" : "admin"
+  }
 }

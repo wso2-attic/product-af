@@ -19,7 +19,6 @@ package org.wso2.carbon.appfactory.repository.mgt.internal;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
-import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import java.util.Map;
  * Singleton class for storing services and map to hold repository providers vs type
  */
 public class Util {
-    private static AppVersionStrategyExecutor versionStrategyExecutor;
     private static AppFactoryConfiguration configuration = null;
     private static RealmService realmService;
     //this is a map to sore Repository providers against repository type(i.e svn,git)
@@ -63,15 +61,6 @@ public class Util {
 
     public static boolean isProviderMapEmpty() {
         return repositoryProviderMap.isEmpty();
-    }
-
-    public static AppVersionStrategyExecutor getVersionStrategyExecutor() {
-        return versionStrategyExecutor;
-    }
-
-    public static void setVersionStrategyExecutor(
-            AppVersionStrategyExecutor versionStrategyExecutor) {
-        Util.versionStrategyExecutor = versionStrategyExecutor;
     }
 
     public static TenantManagementService getTenantManagementService() {

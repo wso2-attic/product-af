@@ -36,13 +36,15 @@ language=appInfo.language;
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="#" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"
+         class="btn-action"  title="Back to Database">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
-                </span> Back to Database
+                </span> Back to Databases
         </a>
-        <a href="#" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/createdbuser.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&environment=<%=environment%>&dbName=<%=dbName%>"
+        class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New User">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
@@ -53,9 +55,7 @@ language=appInfo.language;
  <div class="container-fluid app-content-section">
         <div class="row">
           <div class="col-md-12 msg-issues">
-              Orem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-              Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-              Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.
+           Given here are the users of the database. You can connect to the database as these users.
           </div>
         </div>
         <div class="row">
@@ -67,8 +67,8 @@ language=appInfo.language;
                         <tr>
                             <th>User Name</th>
                             <th>Attach user to Database</th>
-                            <th>Priviledges</th>
-                            <th>Edit</th>
+                            <th>Privileges</th>
+                            <th>Edit Privileges</th>
                             <th>Delete</th>
                         </tr>
                         </thead>
@@ -86,49 +86,79 @@ language=appInfo.language;
     </div>
     <div class="clearfix"></div>
     <div id="push"></div>
+
+
+<!-- Model for previledge assignment -->
+<div id="priviledges_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal-title">Select User Privileges</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-12 section-title">
+                            <label class="data-select-all"><input type='checkbox' class="custom-checkbox-small"> &nbsp;Data</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='selectPriv' > &nbsp;SELECT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='insertPriv' > &nbsp;INSERT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='updatePriv' > &nbsp;UPDATE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='deletePriv' > &nbsp;DELETE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='createPriv' > &nbsp;CREATE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='dropPriv' > &nbsp;DROP</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='grantPriv' > &nbsp;GRANT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='referencesPriv' > &nbsp;REFERENCES</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="datacbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='indexPriv' > &nbsp;INDEX</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-12 section-title">
+                            <label class="structure-select-all"><input type='checkbox' class="custom-checkbox-small"> &nbsp;Structure</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='alterPriv' > &nbsp;ALTER</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='createTmpTablePriv' > &nbsp;CREATE TEMP TABLE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='lockTablesPriv' > &nbsp;LOCK TABLES</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='createViewPriv' > &nbsp;CREATE VIEW</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='showViewPriv' > &nbsp;SHOW VIEW</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='createRoutinePriv' > &nbsp;CREATE ROUTINE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='alterRoutinePriv' > &nbsp;ALTER ROUTINE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='executePriv' > &nbsp;EXECUTE</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='eventPriv' > &nbsp;EVENT</div>
+                        <div class="col-xs-6 col-md-3 "> <input class="structurecbx custom-checkbox-small" name='chkbx_priviledge' type='checkbox' id='triggerPriv' > &nbsp;TRIGGER</div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button id="privilege_edit_cancel" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id="privilege_edit_save" type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <% jagg.includeBlock("page/messages", null); %>
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/resources/database/edit/js/edit.js'))%>"></script>
+<script>
+    var usrInfo = <%=userInfo%>;
+    var applicationKey = '<%=applicationKey%>';
+    var dbName = '<%=dbName%>';
+    var environment = '<%=environment%>';
+</script>
+
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
-
-<script>
-    $('.side-pane-trigger').click(function(){
-        var rightPane = $('.right-pane');
-        var leftPane = $('.left-pane');
-        if (rightPane.hasClass('visible')){
-            rightPane.animate({"left":"0em"}, "slow").removeClass('visible');
-            leftPane.animate({"left":"-18em"}, "slow");
-            $(this).find('i').removeClass('fa-arrow-left').addClass('fa-reorder');
-        } else {
-            rightPane.animate({"left":"18em"}, "slow").addClass('visible');
-            leftPane.animate({"left":"0em"}, "slow");
-            $(this).find('i').removeClass('fa-reorder').addClass('fa-arrow-left');
-        }
-    });
-    var usrInfo = <%=userInfo%>; 
-    $('.datatable table').dataTable({
-            responsive: true,
-            "orderCellsTop": true,
-            data: usrInfo,
-            "columns": [
-                { "data": "username", "width": "10%"},
-                { "data": "attachuser" , "width": "5%","sClass" : "dt-body-center"},
-                { "data": "priviledges" , "width": "40%"},
-                { "data": "editpriviledges", "width": "3%","sClass" : "dt-body-center"  },
-                { "data": "trash", "orderable": false, "width": "3%", "sClass" : "dt-body-center" }
-            ]
-        });
-    var applicationKey = '<%=applicationKey%>';
-    var dbName = '<%=dbName%>';
-    var environment = '<%=environment%>';
-    $(document).ready(function() {
-    });
-</script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/resources/database/edit/js/edit.js'))%>"></script>
 
 <%
 }); %>

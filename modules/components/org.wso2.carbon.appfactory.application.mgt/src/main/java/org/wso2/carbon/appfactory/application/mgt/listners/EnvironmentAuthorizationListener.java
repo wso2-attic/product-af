@@ -135,13 +135,7 @@ public class EnvironmentAuthorizationListener extends ApplicationEventsHandler {
             try {
                 //construct remote service url based on base access url
                 String remoteServiceURL = (String) entry.getValue();
-                if (!remoteServiceURL.endsWith("/")) {
-                    remoteServiceURL += "/services/";
-                } else {
-                    remoteServiceURL += "services/";
-                }
-
-                // create remote authorization management client and authenticate with mutual auth.
+                  // create remote authorization management client and authenticate with mutual auth.
                 RemoteAuthorizationMgtClient authorizationMgtClient = new RemoteAuthorizationMgtClient(remoteServiceURL);
 	            AppFactoryUtil.setAuthHeaders(authorizationMgtClient.getStub()._getServiceClient(), userName);
 

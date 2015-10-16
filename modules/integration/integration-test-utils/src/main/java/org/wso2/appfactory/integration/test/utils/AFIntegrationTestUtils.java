@@ -14,8 +14,11 @@ import javax.xml.xpath.XPathExpressionException;
  * Utility methods
  */
 public class AFIntegrationTestUtils {
-    private static AutomationContext context;
+	public static final String JENKINS_JOB_NAME_POSTFIX = "default";
+	public static final String JENKINS_JOB_NAME_SEPERATOR = "-";
+	private static AutomationContext context;
     private static String tenantDomain;
+	private static final int MAX_SUCCESS_HTTP_STATUS_CODE = 299;
     private static final Log log = LogFactory.getLog(AFIntegrationTestUtils.class);
 
     static {
@@ -111,4 +114,16 @@ public class AFIntegrationTestUtils {
     public static String getBEServerURL() {
         return getPropertyValue(AFConstants.URLS_APPFACTORY);
     }
+
+	/**
+	 * Return jenkins job name
+	 * @param appName application name
+	 * @param version application version
+	 * @return jenkins job name
+	 */
+	public static String getJenkinsJobName(String appName, String version){
+		return appName.concat(JENKINS_JOB_NAME_SEPERATOR).
+				concat(version).concat(JENKINS_JOB_NAME_SEPERATOR).concat(JENKINS_JOB_NAME_POSTFIX);
+	}
+
 }

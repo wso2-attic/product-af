@@ -31,7 +31,12 @@ import java.util.Map;
  */
 public class MavenBasedApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
     private static final Log log = LogFactory.getLog(MavenBasedApplicationTypeProcessor.class);
-	@Override
+
+    public MavenBasedApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
     public void doVersion(String applicationId, String targetVersion, String currentVersion, String workingDirectory)
             throws AppFactoryException {
         AppVersionStrategyExecutor.doVersionForMVN(targetVersion, new File(workingDirectory));

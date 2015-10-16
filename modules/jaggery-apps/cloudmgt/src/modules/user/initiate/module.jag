@@ -6,6 +6,9 @@ initiatePasswordReset: function () {
     login: function () {
         return jagg.require(jagg.getModulesDir() + "user/initiate/initiate.jag").login.apply(this, arguments);
     },
+    loginWithSAMLToken: function () {
+        return jagg.require(jagg.getModulesDir() + "user/initiate/initiate.jag").loginWithSAMLToken.apply(this, arguments);
+    },
    
 });
 %>

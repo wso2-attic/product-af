@@ -135,9 +135,9 @@ public class ApplicationTypeManager {
 					(Class<ApplicationTypeManager>) applicationTypeManager.getClass()
 					                                       .getClassLoader()
 					                                       .loadClass(className);
-			Constructor constructor = clazz.getConstructor();
+			Constructor constructor = clazz.getConstructor(String.class);
 			ApplicationTypeProcessor applicationTypeProcessor =
-					(ApplicationTypeProcessor) constructor.newInstance();
+					(ApplicationTypeProcessor) constructor.newInstance(type);
 			applicationTypeBean = new ApplicationTypeBean();
 			applicationTypeBean.setApplicationTypeName(type);
             // Null checking in optional parameters.

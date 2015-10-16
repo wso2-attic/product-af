@@ -1,0 +1,55 @@
+<%
+/*
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include('/jagg/constants.jag');
+include('/jagg/config_reader.jag');
+include("/jagg/jagg.jag");
+jagg.block("repository/list", {
+    initialize: function (data) {
+
+    },
+    getInputs: function () {
+        return {
+            "applicationKey": null
+        }
+    },
+
+    getOutputs: function (inputs) {
+        var userName = jagg.getUser();
+        var applicationKey = request.getParameter("applicationKey");
+        var modApp = jagg.module("application");
+        var modManager = jagg.module("manager");
+        var appVersionInfo;
+        var masterRepoURL;
+        var tenantDomain;
+        if(userName){
+            appVersionInfo = modApp.getAppVersionInfoByVersion(applicationKey,"trunk",userName);
+            masterRepoURL = appVersionInfo[0].versions[0].repoURL;
+            tenantDomain = modManager.getTenantDomain();
+        }
+        return {
+            "masterRepoURL": masterRepoURL,
+            "tenantDomain": tenantDomain    
+        };
+    }
+
+
+});
+%>
+

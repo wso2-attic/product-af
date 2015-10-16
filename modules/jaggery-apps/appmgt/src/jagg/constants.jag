@@ -70,7 +70,7 @@ var APPFACTORY_SERVER_URL = "ServerUrls.AppFactory";
 var BPS_SERVER_URL = "ServerUrls.BPS";
 var GREG_SERVER_URL = "ServerUrls.Greg";
 var SS_SERVER_URL = "ServerUrls.SS";
-
+var STRATOS_PAAS_URL= "Stratos.PAASServicesURL";
 
 var ROLE_ADMIN = "admin";
 var ROLE_APP_OWNER = "appowner";
@@ -101,7 +101,17 @@ var PLATFORM_ADMIN_DASHBOARD_PATH = "BAM.Dashboards.PlatformAdminDashboard.Path"
 var TENANT_ADMIN__DASHBOARD_PATH = "BAM.Dashboards.TenantAdminDashboard.Path";
 var TENANT_USERS_DASHBOARD_PATH = "BAM.Dashboards.TenantUserDashboard.Path";
 
+var ALL_AF_ROLES = "ALL_AF_ROLES";
 var CLOUDMGT_SERVER_URL = "CloudMgtConfig.Property.Url";
+var CLOUDMGT_LOGIN_AJAX_PATH = "/site/blocks/user/authenticate/ajax/login.jag";
+var CLOUDMGT_TENANT_USERS_AJAX_PATH = "/site/blocks/tenant/users/get/ajax/get.jag";
+var CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH = "/site/blocks/tenant/users/add/ajax/add.jag";
+var CLOUDMGT_SEND_EMAIL_AJAX_PATH = "/site/blocks/tenant/users/add/ajax/add.jag";
+var CLOUDMGT_PENDING_TENANT_USERS_AJAX_PATH = "/site/blocks/tenant/users/get/ajax/get.jag";
+var CLOUDMGT_RESEND_INVITATION_AJAX_PATH = "/site/blocks/tenant/users/add/ajax/add.jag";
+var CLOUDMGT_UPDATE_USER_ROLES_AJAX_PATH = "/site/blocks/tenant/users/add/ajax/add.jag";
+var INVITE_USER_EMAIL_SUBJECT = "Welcome to the WSO2 Cloud";
+var CLOUD_TYPE_AF = "app_cloud";
 
 var PREFERRED_REPOSITORY_TYPE = "RepositoryType";
 var SHOW_OTHER_SERVICES_TAB = "OtherServices.ShowOtherServicesTab"
@@ -202,8 +212,8 @@ var BAM_ADMIN_PASSWORD = "BAM.AdminPassword"
 var ISSUETRACKER_URL = "IssueTrackerConnector.issueTracker.Property.FrontUrl";
 var ISSUE_TRACKER_SERVER_URL = "IssueTrackerConnector.issueTracker.Property.Url";
 
-var DEPLOYER_APPTYPE_EP= ".PAASServicesURL";
 var SC_URL=".TenantMgtUrl";
+var GREG_URL= ".GregServerURL";
 
 //For Codenvy
 var CODENVY_BASE_URL = "Codenvy.Property.Url";
@@ -230,7 +240,6 @@ var MAX_NO_OF_TRY_FOR_ADD_DEFAULT_DOMAIN = 1;
 
 var FIRST_LOGIN_CLAIM="http://wso2.org/claims/firstlogin";
 
-var CLOUD_MGT_CONTEXT="/cloudmgt";
 var CLOUD_TYPE="AppCloud";
 var WALL_POLLING_PERIOD="NotificationConfig.Social.PollingPeriod";
 var ERROR_NOTIFICATION_POLLING_PERIOD="NotificationConfig.MessageBroker.PollingPeriod";
@@ -259,6 +268,9 @@ var MUTUALSSL_HEADER_USERNAME_URL = "http://mutualssl.carbon.wso2.org";
 var CLOUD_HEADER_USERNAME_URL = "http://cloud.carbon.wso2.org/username";
 var CLOUD_HEADER_SECRET_URL = "http://cloud.carbon.wso2.org/secret";
 
+//for application creation started message
+
+var APPLICATION_CREATION_STARTED_FLAG = "appCreationStartedFlag_";
 var PAGES={
               APP_HOME : "APP_HOME",
               USER_HOME : "USER_HOME",               
@@ -275,6 +287,8 @@ var APPLICATION_CREATION_STATUS = {
     PENDING:"PENDING",
     FAULTY:"FAULTY"
 };
+
+var START_STAGE_TAG_NAME = "StartStage";
 
 
 %>

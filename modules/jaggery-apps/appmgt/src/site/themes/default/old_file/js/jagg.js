@@ -104,9 +104,10 @@ var messageTimer;
         }
         return noty({
                  theme: 'wso2',
-                 layout: 'top',
+                 layout: 'topCenter',
                  type: params.type,
                  text: params.content,
+                 timeout: '5000',
                  animation: {
                      open: {height: 'toggle'}, // jQuery animate function property object
                      close: {height: 'toggle'}, // jQuery animate function property object
@@ -125,41 +126,44 @@ var messageTimer;
 
     //jagg.popMessage({content:'Message'});
 
-    jagg.popMessage = function(params){
-        // Included noty plugin implementation
-        var allowedType = ["alert", "success", "error", "warning", "information", "confirm"];
-        if(allowedType.indexOf(params.type) < 0){
-            params.type = "confirm"
+
+    jagg.removeMessageById = function(id) {
+        if(id) {
+            $.noty.close(id);
         }
+    };
+
+    jagg.popMessage = function(params){
         return noty({
                         theme: 'wso2',
-                        layout: 'center',
-                        type: confirm,
-                        text: params.content,
+                        layout: 'topCenter',
+                        type: 'confirm',
+                        closeWith: ['button','click'],
+                        modal: (params.modalStatus ? params.modalStatus : false),
+                        text: params.content ? params.content : 'Do you want to continue?',
+                        buttons: [
+                            {addClass: 'btn btn-primary', text: (params.okText ? params.okText : 'Ok'), onClick: function($noty) {
+                                $noty.close();
+                                if (isFunction(params.okCallback)) {
+                                    params.okCallback();
+                                }
+                            }
+                            },
+                            {addClass: 'btn btn-default', text: 'Cancel', onClick: function($noty) {
+                                $noty.close();
+                                if (isFunction(params.cancelCallback)) {
+                                    params.cancelCallback();
+                                }
+
+                            }
+                            }
+                        ],
                         animation: {
                             open: {height: 'toggle'}, // jQuery animate function property object
                             close: {height: 'toggle'}, // jQuery animate function property object
                             easing: 'swing', // easing
                             speed: 500 // opening & closing animation speed
-                        },
-                        buttons: [
-                            {
-                                addClass: 'btn btn-primary', text: 'Ok', onClick: function($noty) {
-                                // this = button element
-                                // $noty = $noty element
-                                $noty.close();
-                                noty({text: 'Operation Successfull.', type: 'success'});
-                                params.okCallback();
-                            }
-                            },
-                            {
-                                addClass: 'btn btn-danger', text: 'Cancel', onClick: function($noty) {
-                                $noty.close();
-                                params.cancelCallback();
-                                //noty({text: 'You clicked "Cancel" button', type: 'error'});
-                            }
-                            }
-                        ]
+                        }
                     });
 
     };
@@ -176,9 +180,19 @@ var messageTimer;
 			jagg.removeMessage();
 		}
 	});
-	
+
 	jagg.getConvertedVersion=function(version){
 	    return version.replace(/\./g,'_');
 	};
 
 }());
+
+/**
+ * Check whether the {@code functionToCheck} is a function or not
+ * @param functionToCheck
+ * @returns {*|boolean}
+ */
+function isFunction(functionToCheck) {
+    var getType = {};
+    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+}

@@ -43,6 +43,16 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 		this.tenantID = tenantId;
 		this.tenantDomain = tenantDomain;
 		this.parameters = parameters;
+		try {
+			super.setAdminUserName(getAdminUserName());
+		} catch (AppFactoryException e) {
+			log.error("Error while setting PAAS repository provider admin username",e);
+		}
+		try {
+			super.setAdminPassword(getAdminPassword());
+		} catch (AppFactoryException e) {
+			log.error("Error while setting PAAS repository provider admin password", e);
+		}
 	}
 
 //	@Override
@@ -68,6 +78,12 @@ public class InitialArtifactDeployer extends AbstractStratosDeployer {
 	protected String getAdminPassword() throws AppFactoryException {
 		return AppFactoryUtil.getAppfactoryConfiguration().
 				getFirstProperty(AppFactoryConstants. PAAS_ARTIFACT_REPO_PROVIDER_ADMIN_PASSWORD);
+	}
+
+	@Override
+	protected String getStratosServerURL() throws AppFactoryException {
+		return AppFactoryUtil.getAppfactoryConfiguration().
+				getFirstProperty(AppFactoryConstants.TENANT_MGT_URL);
 	}
 
 	@Override

@@ -17,9 +17,9 @@
 package org.wso2.carbon.appfactory.jenkins.build;
 
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
@@ -116,15 +116,15 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
         parameters.put(JenkinsCIConstants.APPLICATION_EXTENSION, applicationType);
         parameters.put(JenkinsCIConstants.REPOSITORY_FROM, repoFrom);
 
-        this.connector.createJob(getJobName(applicationId, version,userName, repoFrom), parameters, tenantDomain);
+        this.connector.createJob(getJobName(applicationId, version, userName), parameters, tenantDomain);
 
     }
 
     /**
      * {@inheritDoc}
      */
-    public void deleteJob(String applicationId, String version, String tenantDomain) throws AppFactoryException {
-    	connector.deleteJob(getJobName(applicationId, version, ""), tenantDomain);
+    public void deleteJob(String applicationId, String version, String tenantDomain, String userName) throws AppFactoryException {
+    	connector.deleteJob(getJobName(applicationId, version, userName), tenantDomain);
     }
 
     /**
@@ -137,28 +137,24 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
     /**
      * {@inheritDoc}
      */
-    public void startBuild(String applicationId, String version, boolean doDeploy, String stageName, String tagName, String tenantDomain, String userName, String repoFrom)
-            throws AppFactoryException {
+    public void startBuild(String applicationId, String version, boolean doDeploy, String stageName, String tagName,
+                           String tenantDomain, String userName, String repoFrom) throws AppFactoryException {
         connector.startBuild(applicationId, version, doDeploy, stageName, tagName, tenantDomain, userName,repoFrom);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isJobExists(String applicationId, String version, String tenantDomain) throws AppFactoryException {
-        return connector.isJobExists(applicationId, version, tenantDomain);
+    public boolean isJobExists(String applicationId, String version, String tenantDomain, String userName) throws AppFactoryException {
+        return connector.isJobExists(applicationId, version, tenantDomain, userName);
     }
 
-  
-    public String getJobName(String applicationId, String version, String revision) {
+	/**
+	 * {@inheritDoc}
+	 */
+    public String getJobName(String applicationId, String version,String userName) {
         // Job name will be '<ApplicationId>-<version>-default'
-        return applicationId.concat("-").concat(version).concat("-").concat("default");
-    }
-    
-    
-    public String getJobName(String applicationId, String version,String userName, String repoFrom) {
-        // Job name will be '<ApplicationId>-<version>-default'
-		if(AppFactoryConstants.FORK_REPOSITORY.equals(repoFrom)){
+		if(!StringUtils.isEmpty(userName)){//This call is to get a job name of a fork repo
 			return applicationId.concat("-").concat(version).concat("-").concat("default").concat("-").concat(userName);
         }
 		return applicationId.concat("-").concat(version).concat("-").concat("default");
@@ -181,9 +177,9 @@ public class JenkinsCISystemDriver implements ContinuousIntegrationSystemDriver 
 
     public void setJobAutoBuildable(String applicationId, String version,  boolean isAutoBuild,
                                        int pollingPeriod, String tenantDomain) throws AppFactoryException {
-        String repositoryType=ProjectUtils.getRepositoryType(applicationId, tenantDomain);
-                     connector.setJobAutoBuildable(getJobName(applicationId, version, ""),
-                             repositoryType, isAutoBuild, pollingPeriod, tenantDomain);
+        String repositoryType = ProjectUtils.getRepositoryType(applicationId, tenantDomain);
+	    connector.setJobAutoBuildable(getJobName(applicationId, version, ""), repositoryType, isAutoBuild,
+	                                  pollingPeriod, tenantDomain);
     }
 
     /**

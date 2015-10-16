@@ -56,4 +56,5 @@ public interface RepositoryProvider {
      */
     public String createRepository() throws AppFactoryException;
 
+    public boolean isRepoExist() throws AppFactoryException;
 }

@@ -22,21 +22,25 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var issueCategory = request.getParameter("issueCategory");
-    
-    
+    var issueType = request.getParameter("issueType");
     var summaryOnly = getProperty(ISSUETRACKER_SUMMARY_ONLY);
-    
+
     var hiddenSummary = "hidden" ;
     var hiddenInternal = "" ;
-    
+
     if(summaryOnly==="true"){
 		hiddenSummary = "" ;
 		hiddenInternal = "hidden";
-	}else{
+	} else {
 		hiddenSummary = "hidden" ;
 		hiddenInternal = "";
 	}
-    
+
+	var issueTrackerUrl = "/issuetracker?appkey=" + applicationKey + "&issueCategory=" + issueCategory + "&appName=" + applicationName;
+	if (issueType) {
+	    issueTrackerUrl += "&issueType=" + issueType;
+	}
+
 %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <script type="text/javascript">
@@ -50,14 +54,14 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
   }
 
     var issuesSummaryJSON = {};
-    
-  
+
+
     $(document).ready(function(){
     	initializeUserActivity("issueList", '<%=applicationKey%>', '<%=applicationName%>');
         issuesSummary("<%=applicationKey%>");
         createCurrentStatus();
      });
-        
+
     function reportIssue() {
         window.open('<%=outputs.newIssueUrl%>', '_blank');
     }
@@ -192,7 +196,7 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
     <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
     <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 
-<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="/issuetracker?appkey=<%=applicationKey%>&issueCategory=<%=issueCategory%>" id="iframeId"></iframe>
+<iframe <%=hiddenInternal%> frameborder="0" scrolling="no" width="100%" height="100%" style="margin-left:0px"  src="<%=issueTrackerUrl%>" id="iframeId"></iframe>
 
 <% jagg.includeBlock("page/messages", null); %>
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.ISSUES}); %>
@@ -209,7 +213,7 @@ jagg.template("issuetracker/list", function(inputs, outputs, jagg) { %>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
 
-<% }); %>              
+<% }); %>
 
 
 

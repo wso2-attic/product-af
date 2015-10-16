@@ -20,10 +20,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
+import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.s4.integration.internal.ServiceReferenceHolder;
 import org.wso2.carbon.appfactory.s4.integration.utils.DomainMappingUtils;
@@ -51,14 +55,20 @@ public class DomainMappingListener extends ApplicationEventsHandler {
     public void onCreation(final Application application, final String userName, final String tenantDomain,
                            final boolean isUploadableAppType)
             throws AppFactoryException {
+        String runtime = ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType()).getRuntimes()[0];
 
+//        RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(runtime);
+//        if(!runtimeBean.getSubscribeOnDeployment()){
+//
+//        }
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
 
                 String defaultHostName = ServiceReferenceHolder.getInstance().getAppFactoryConfiguration().getFirstProperty(
                         "DomainName");
-                String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(application.getId(), tenantDomain,
+                String defaultUrl = DomainMappingUtils.generateDefaultProdUrl(application.getId(),
+                                                                              tenantDomain.replace(".", ""),
                                                                               defaultHostName);
                 try {
 
@@ -80,8 +90,8 @@ public class DomainMappingListener extends ApplicationEventsHandler {
                     // retying again assuming defaultProdUrl is already taken.
                     try {
                         defaultUrl = DomainMappingUtils.
-                                generateDefaultProdUrl(application.getId() + "_" + (new Random()).nextInt(1000),
-                                                       tenantDomain, defaultHostName);
+                                generateDefaultProdUrl(application.getId() + AppFactoryConstants.MINUS + (new Random()).nextInt(1000),
+                                                       tenantDomain.replace(".", ""), defaultHostName);
                         setDefaultProdUrl(application.getId(), defaultUrl, isUploadableAppType);
                         log.info("Successfully added default production url:" + defaultUrl + " for application " +
                                  application.getId() + " for tenant:" + tenantDomain);

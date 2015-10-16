@@ -22,6 +22,9 @@ jagg.module("user", {
 	login:function () {
 		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").login.apply(this, arguments);
 	},
+	getCookieForCloudMgtBySAMLToken:function () {
+		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").getCookieForCloudMgtBySAMLToken.apply(this, arguments);
+	},
 	logout:function () {
 		return jagg.require(jagg.getModulesDir() + "user/get/list.jag").logout.apply(this, arguments);
 	},

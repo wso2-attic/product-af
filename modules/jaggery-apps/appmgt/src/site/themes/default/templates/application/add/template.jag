@@ -24,13 +24,13 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     var webContext = getProperty(WEB_CONTEXT_ROOT);
     var helpTips = outputs.helpTips;
     var uploadableAppExts = outputs.uploadableAppExts;
-    var mod = jagg.module("manager");
+    var type = request.getParameter("type");
     var uploadableApplicationMaxSize=outputs.uploadableApplicationMaxSize;
-    var type = outputs.type;
-    var appTypeDisplayName = outputs.appTypeDisplayName;
-    var appType = outputs.appType;
-    var apptypeIconImageClass = outputs.apptypeIconImageClass;
-
+    var appTypeBean = outputs.appTypeBean;
+    var appType = appTypeBean.getApplicationTypeName();
+    var appTypeDisplayName = appTypeBean.getDisplayName();
+    var appTypeIconImageClass = appTypeBean.getIconImageClass();
+    var appTypeIconColorClass = appTypeBean.getIconColorClass();
 
     var buttonCreateUpload = "Create";
     if( type == "existing"){
@@ -42,8 +42,6 @@ jagg.template("application/add", function (inputs, outputs, jagg) { %>
     <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>">
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
     <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/jquery.noty.packaged.min.js'))%>"></script>
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/noty-2.3.5/themes/noty.theme.wso2.js'))%>"></script>
 
 
     <script type="text/javascript">
@@ -86,7 +84,7 @@ function getFileUploadErrorMsg(){
 // Return whether the app icon is validated or not
 function validateAppIcon(value) {
     var file = $("#appIcon");
-    if (file.val() != "" && (ie == undefined || ie > 9) ) {
+    if ($("#icon").val() && file.val() != "" && (ie == undefined || ie > 9) ) {
         return validateIconImage(file.val(), file[0].files[0].size);
     } else {
         return true;
@@ -244,9 +242,9 @@ function getAppKeyErrorMessage(){
      var appNameLength = ($("#applicationName").val()).length;
      var isNameValid = validateApplicationNameForQuotes();
      if (appNameLength == 0) {
-         appNameErrorMsg = "Invalid Application Name - Create a Name which is not empty";
+         appNameErrorMsg = "Application Name cannot be empty";
          isNameValid = false;
-     } else if (appNameLength > 200) {
+     } else if (appNameLength > 150) {
          appNameErrorMsg = "Invalid Application Name - Too Lengthy";
          isNameValid = false;
      }
@@ -291,25 +289,6 @@ function showTopErrorMessage(msg) {
          });
 }
 
-/**
-* Used to show success messages at the top
-*/
-function showTopSuccessMsg(msg) {
-    noty({
-             theme: 'wso2',
-             layout: 'top',
-             type: 'success',
-             timeout: '3500',
-             text: msg,
-             animation: {
-                 open: {height: 'toggle'}, // jQuery animate function property object
-                 close: {height: 'toggle'}, // jQuery animate function property object
-                 easing: 'swing', // easing
-                 speed: 500 // opening & closing animation speed
-             }
-         });
-}
-
  /**
  * **************************************************************************
  * Start of JQuery file upload callback functions
@@ -334,6 +313,7 @@ function fileUploadSend(e, data) {
         $('#progress').hide();
         return false;
     }
+    $("#progressDiv").text("");
 }
 
 function fileUploadChange(e, data){
@@ -377,6 +357,7 @@ function fileUploadProcessAlways(e, data){
 function fileUploadDone(e, data){
     if(data.result.isSuccessful){
         fileUploadSuccess = true;
+        $("#progressDiv").text("Applicatoin uploded successfully.");
         // Here we set uploadedApplicationKey value to current applicationKey value to identify whether the app key
         // has changed, when user clicks the create application button
         $("#uploadedApplicationKey").val($("#applicationKey").val());
@@ -393,10 +374,8 @@ function fileUploadFail(e, data){
     $('#progress').hide();
     fileUploadSuccess = false;
     var appKey = $('#applicationKey').val().trim();
-    if (data.files.length ) {
-        fileUploadErrorMsg = "Please upload non empty file";
-    } else if(!appKey.length || appKey == "null"){
-        fileUploadErrorMsg= "Invalid application name";
+    if(!appKey.length || appKey == "null"){
+        fileUploadErrorMsg= "Please add an application name";
     }else {
         fileUploadErrorMsg = "Error occurred while validating the application";
     }
@@ -425,8 +404,9 @@ function showLoader(show){
 
  $(document).ready(function($) {
 
+$('#applicationName').focus();
+
     $('#progress').hide();
-    showLoader(false);
      $("#appIcon").change(function() {
          $("#icon").val($("#appIcon").val());
 
@@ -467,9 +447,9 @@ function showLoader(show){
     * For more info refer to http://jqueryvalidation.org/documentation/
     */
 
-    $.validator.addMethod("validateDuplicateApplicationName", 
+    $.validator.addMethod("validateDuplicateApplicationName",
             validateDuplicateApplicationName, getAppNameErrorMessage);
-    $.validator.addMethod("validateApplicationName", 
+    $.validator.addMethod("validateApplicationName",
             validateApplicationName, getAppNameErrorMessage);
     $.validator.addMethod("validateDuplicateApplicationKey",
             validateDuplicateApplicationKey, getAppKeyErrorMessage);
@@ -487,15 +467,15 @@ function showLoader(show){
     var creationFormValidationOpts = {
         rules: {                                        // validation rules
             applicationName: {                          // applicationName filed
-                required: true,
-                validateDuplicateApplicationName: true,
+                required: false,
                 validateApplicationName: true,
-                validateDuplicateApplicationKey: true
             },
             icon: {                                     // app icon field
                 validateAppIcon: true
             }
         },
+        onsubmit: false,    // Since we are handling on submit validation on click event of the "Create" button,
+                            // here we disabled the form validation on submit
         highlight: function (element, errorClass, validClass) { // this is triggered when the "element" is invalid
             $(element).addClass(errorClass).removeClass(validClass);
             $(element.form).find("div[for=" + element.id + "]").addClass(errorFormGroupClasses)
@@ -562,7 +542,7 @@ function showLoader(show){
          complete: function(result,status) { // on complete
              if(status.toLowerCase() != 'success') {
                 showTopErrorMessage("Error occurred while creating the application");
-                showLoader(false);
+                $('#add-application').loadingButton('hide');
                 return false;
              }
              var resp = result.responseText;
@@ -579,7 +559,7 @@ function showLoader(show){
                    isUploadable = true;
                 }
                  var redirectionPageParams = "application.jag?applicationName=" + appName + "&applicationKey=" +
-                    appKey + "&isUploadableAppType=" + isUploadable;
+                    appKey + "&isUploadableAppType=" + isUploadable + "&userAction=created";
                      window.location.replace(redirectionPageParams);
                  } else if (response.result == 0.0) {
                      //$("#appcreation").attr('disabled', false);
@@ -622,21 +602,11 @@ function showLoader(show){
              $('#appHome').text(url);
              $('#applicationKey').val(msg);
          }
-         var isNameValid = validateApplicationName();
-         if(isNameValid){
-            if (appCreationType == "existing") {
-                $("#fileupload").prop("disabled", false);
-                if(!fileUploadSuccess){
-                    $("#add-application").prop("disabled", true);
-                } else {
-                     $("#add-application").prop("disabled", false);
-                }
-            } else {
-                $("#add-application").prop("disabled", false);
-            }
-         } else {
-            $("#add-application").prop("disabled", true);
-         }
+         validateControls();
+     });
+
+     $('#applicationDescription').keyup(function(event) {
+        validateControls();
      });
 
      // Validate Icon
@@ -647,6 +617,24 @@ function showLoader(show){
 
  });
 
+function validateControls(){
+    var validator = $( "#createAppForm" ).validate();
+    var isNameValid = validator.element( "#applicationName" );
+    if(isNameValid){
+        if (appCreationType == "existing") {
+            $("#fileupload").prop("disabled", false);
+            if(!fileUploadSuccess){
+                $("#add-application").prop("disabled", true);
+            } else {
+                $("#add-application").prop("disabled", false);
+            }
+        } else {
+            $("#add-application").prop("disabled", false);
+        }
+    } else {
+        $("#add-application").prop("disabled", true);
+    }
+}
 
 
  function format(type) {
@@ -659,9 +647,20 @@ function showLoader(show){
 
  //New Function to submit upload apps and create new apps
  function submitAppForm(type) {
-    showLoader(true);
+
+    var addApplicationBtn = $('#add-application');
+    addApplicationBtn.loadingButton('show');
+
+    var applicationNameElem =  $( "#applicationName" );
+    // Since validateDuplicateApplicationName and validateDuplicateApplicationKey are involved with rest calls, we
+    // add those validations to the "applicationName" at the form submission. Otherwise it will introduce delay in UI
+    applicationNameElem.rules( "add", {
+        validateDuplicateApplicationName: true,
+        validateDuplicateApplicationKey: true
+    });
     var validator = $( "#createAppForm" ).validate();
     var formValidated = validator.form();
+    addApplicationBtn.loadingButton('show');
     if(formValidated) {
          if (type == "new") {
              $("#action").val("createNewApplication");
@@ -669,9 +668,11 @@ function showLoader(show){
              $("#action").val("uploadExistingApplication");
          }
          $("#createAppForm").submit();
-         showTopSuccessMsg("Application creation started!.");
     } else {
-        showLoader(false);
+        addApplicationBtn.loadingButton('hide');
+        // remove validation methods, which involve rest calls
+        applicationNameElem.rules( "remove", "validateDuplicateApplicationName");
+        applicationNameElem.rules( "remove", "validateDuplicateApplicationKey");
     }
  }
 
@@ -687,6 +688,10 @@ function showLoader(show){
 
  function clearUploadIconField() {
      document.getElementById("icon").value = "";
+     document.getElementById("appIcon").value = "";
+     var validator = $( "#createAppForm" ).validate();
+     validator.element( "#icon" );
+     validator.element( "#applicationName" );
 }
 
     </script>
@@ -694,13 +699,13 @@ function showLoader(show){
 
     <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=<%=type%>" class="btn-action" title="Back to app type selection">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
                 </span> Back to app type selection
         </a>
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>" class="btn-action" title="Cancel">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fa fa-mail-reply-all fa-stack-1x"></i>
@@ -712,14 +717,14 @@ function showLoader(show){
 
     <div class="container-fluid cloud-container">
         <div class="row">
-            <div class="col-md-1">
-                <div class="cloud-selected-app-type <%=request.getParameter("apptypeIconColor")%>">
-                    <i class="fw <%=request.getParameter("apptypeIconImageClass")%> fw-5x"></i>
+            <div class="col-fixed-left col-fixed-1x">
+                <div class="cloud-selected-app-type  <%=appTypeIconColorClass%>">
+                    <i class="fw <%=appTypeIconImageClass%> fw-4x"></i>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="cloud-selected-app-type-name">
-                    <h1><%=request.getParameter("appTypeDisplayName")%></h1>
+                    <h1><%=appTypeDisplayName%></h1>
                 </div>
             </div>
         </div>
@@ -727,11 +732,8 @@ function showLoader(show){
             <form enctype="multipart/form-data" method='post' action='<%=jagg.getAbsoluteUrl("/site/blocks/application/add/ajax/add.jag")%>'  name="createAppForm" id="createAppForm">
                 <input type="hidden" name="action" id="action" value="createNewApplication" />
                 <div class="col-md-5 forms">
-                    <div class="loading-cover loading-overlay">
-                      <div class="loader"></div>
-                    </div>
                     <div class="form-group" for="applicationName">
-                        <label for="application-name">Application Name: </label>
+                        <label for="application-name">Application Name: <span class="required"> *</span></label>
                         <input type="appname" class="form-control" name="applicationName" id="applicationName" placeholder="Enter Application name">
                         <span class="glyphicon glyphicon-remove form-control-feedback" for="applicationName" style="display: none;"></span>
                     </div>
@@ -742,7 +744,7 @@ function showLoader(show){
                     <input  type='hidden' maxlength="19" id='repoAccessibility' name="repoAccessibility" value="perDevRepo"/>
                     <div class="form-group">
                         <label for="application-description">Description: </label>
-                        <textarea class="form-control" name='applicationDescription' id='applicationDescription' rows="3"></textarea>
+                        <textarea class="form-control" name='applicationDescription' id='applicationDescription' placeholder="Enter Application Description" rows="3"></textarea>
                     </div>
 
                     <!-- If uploadable application -->
@@ -754,9 +756,7 @@ function showLoader(show){
                             <input type="text" id="fileUploadDisplay" name="fileUploadDisplay" class="form-control" readonly>
                         <span class="input-group-btn">
                             <!-- The file input field used as target for the file upload widget -->
-                            <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input id="fileupload" type="file" name="fileupload" multiple
-                                    disabled>
+                            <span class="btn btn-primary btn-file">Browse <input id="fileupload" type="file" name="fileupload" multiple disabled>
                             </span>
                         </span>
                         <!-- Progress bar-->
@@ -769,12 +769,15 @@ function showLoader(show){
                     <% } %>
 
                     <div class="form-group">
-                        <label for="application-icon">Icon: </label>
+                        <label for="application-icon">Icon:
+                            <i class="fa fa-question-circle help-tips" data-toggle="tooltip" data-placement="left"
+                        title="Recommended image size : 300 x 300 pixels, file size 70 k (maximum)"></i>
+                        </label>
                         <div class="input-group">
                             <input type="text" id="icon" name="icon" class="form-control" readonly>
                             <span class="input-group-btn">
                                 <span class="btn btn-primary btn-file">
-                                    Upload&hellip; <input type="file" id="appIcon" name="appIcon"/>
+                                    Browse <input type="file" id="appIcon" name="appIcon"/>
                                 </span>
                                 <span class="btn btn-primary btn-file" onclick="clearUploadIconField()" id="clear">
                                     Clear
@@ -787,8 +790,8 @@ function showLoader(show){
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="cu-btn cu-btn-sm cu-btn-blue" id="add-application"
-                            onclick="submitAppForm('<%=type%>')" disabled>
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue cu-btn-position" id="add-application"
+                            onclick="submitAppForm('<%=type%>'); return false;" disabled>
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-add fw-stack-1x"></i>
@@ -802,9 +805,5 @@ function showLoader(show){
         </div>
     </div><!-- /.container -->
 
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
-<!-- include custom js functions -->
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
 <!--####################################################################### end-->
 <% }); %>

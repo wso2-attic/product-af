@@ -29,9 +29,19 @@ jagg.block("resources/database/add", {
         }
     },
     getOutputs: function (inputs) {
-           var hasAccessForAllstages=jagg.module("permission").hasPermissionForAllStages(inputs.applicationKey);
-           return {
-           	   "hasAccessForAllstages":hasAccessForAllstages
+        var permissionModule = jagg.module("permission");
+        var allStages = getProperties(DEPLOYMENT_STAGES);   
+        var dbCreationAllowedStages = [];
+        for (var i in allStages) {
+            if(permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + allStages[i])) {
+                dbCreationAllowedStages.push(allStages[i]);
+            }
+        }
+        var resourceModule = jagg.module("resources");
+        var dbUsers = resourceModule.getDatabaseUsers(applicationKey);
+        return {
+            "dbCreationAllowedStages": dbCreationAllowedStages,
+            "dbUsers": dbUsers
            };
         }
   });

@@ -1,7 +1,8 @@
 <Runtime>
     <Runtime>esb</Runtime>
     <PAASArtifactStorageURLPattern>{@stage}/esb</PAASArtifactStorageURLPattern>
-    <AliasPrefix><%= @appserver_cartridge_alias_prefix %></AliasPrefix>
+    <StratosAppIdPrefix><%= @app_id_prefix %></StratosAppIdPrefix>
+    <CartridgeAliasPrefix><%= @appserver_cartridge_alias_prefix %></CartridgeAliasPrefix>
     <CartridgeTypePrefix><%= @appserver_cartridge_type_prefix %></CartridgeTypePrefix>
     <DeploymentPolicy>af-deployment</DeploymentPolicy>
     <AutoscalePolicy>economy</AutoscalePolicy>

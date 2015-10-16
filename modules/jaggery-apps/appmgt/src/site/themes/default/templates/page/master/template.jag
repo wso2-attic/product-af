@@ -23,6 +23,12 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+
     <head>
         <%
         jagg.includeBlock("header", {});
@@ -52,7 +58,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 
               function (result) {
                    if(result == 101){
-                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+                        $("#icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dark-app-iconx256.jpg'))%>');
                    }else{
              <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
                var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey="+applicationKey;
@@ -66,7 +72,6 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 
             }
             $(document).ready(function () {
-        	  loadBaseAppIcon('<%=applicationKey%>');
         	    $('.cloud-menu-popover').popover({
                     html : true,
                     title: function() {
@@ -86,8 +91,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
         <meta name="viewport" content="width=device-width">
 
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/bootstrap-3.2.0/bootstrap.min.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2.css'))%>">
-        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.0/css/fontwso2-extend.css'))%>">
+        <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/fontwso2-1.2/css/font-wso2.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/font-awesome-4.2.0/font-awesome.min.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/web-fonts/Roboto.css'))%>">
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/nanoscroller-0.8.7/nanoscroller.css'))%>">
@@ -96,7 +100,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
         <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/styles.css'))%>">
 		<link rel="icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
         <link rel="shortcut icon" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/favicon.png'))%>" type="image/x-icon"/>
-        
+
     </head>
     <body <% if(applicationKey == null){ %>id="home"<% } %>>
         <!--[if lt IE 7]>
@@ -116,16 +120,18 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                class="hidden-md hidden-sm hidden-lg cloud-menu-popover">
                 <i class="fw fw-tiles"></i>
             </a>
-            <a class="navbar-brand" href="#"><img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/logo.png"))%>" alt="wso2-logo" > Cloud</a>
+            <a class="navbar-brand" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/index.jag")%>">
+            <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/logo.png"))%>" alt="wso2-logo" > Cloud</a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav menu-right">
                 <li><a href="https://docs.wso2.org/display/AF210/WSO2+App+Factory+Documentation" target=_blank><i class="fa fa-book"></i> Documentation</a></li>
                 <li><a href="http://wso2.com/support/" target=_blank><i class="fa fa-envelope"></i> Support</a></li>
                 <li class="dropdown user-name">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=jagg.getUser()%>
+                    <a id="username-btn" href="#" class="dropdown-toggle" data-toggle="dropdown"><%=jagg.getUser()%>
                         <i class="fa fa-chevron-circle-down"></i>
-                        <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/user.png"))%>" alt="user" class="user-image"></a>
+                        <img src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("images/user.png"))%>" alt="user" class="user-image">
+                    </a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="/your_profile">Profile</a></li>
                         <li><a href="#" onclick="window.location.href='logout.jag'">Logout</a></li>
@@ -134,7 +140,7 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                 <li class="cloud-menu hidden-xs">
                     <a href="#" id="cloud-menu-popover" data-toggle="popover" data-placement="bottom"
                             class="cloud-menu-popover">
-                        <i class="fw fw-tiles"></i>
+                        <i class="fw fw-tiles" title="Cloud Menu"></i>
                     </a>
                 </li>
             </ul>
@@ -145,30 +151,22 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
                 </div>
                 <div id="popover-content" class="hide">
                    <div class="cloud-apps">
-                       <a class="cloud-block">
+                       <a class="cloud-block" href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">
                            <i class="fa fa-3x fa-cubes"></i>
                            <div class="cloud-name">Application Cloud</div>
-                       </a>
-                       <a class="cloud-block">
-                           <i class="fw fw-api fa-3x"></i>
-                           <div class="cloud-name">API Cloud</div>
                        </a>
                        <div class="clearfix"></div> <!-- to make seperate -->
                    </div>
                    <div class="cloud-actions">
-                       <h3>Manage your cloud</h3>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-institution"></i>
-                           <div class="cloud-name">Organizations</div>
-                       </a>
-                       <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
+                        <h3>Manage your cloud</h3>
+                        <a class="cloud-block-invert" href="<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>">
                            <i class="fa fa-3x  fa-users"></i>
                            <div class="cloud-name">Members</div>
-                       </a>
-                       <a class="cloud-block-invert">
-                           <i class="fa fa-3x  fa-envelope"></i>
-                           <div class="cloud-name">Support</div>
-                       </a>
+                        </a>
+                        <a class="cloud-block-invert" href="<%=jagg.getDashboardAbsoluteUrl()%>">
+                           <i class="fa fa-3x  fa-dashboard"></i>
+                           <div class="cloud-name">Dashboard</div>
+                        </a>
                    </div>
                 </div>
             </div>
@@ -193,12 +191,11 @@ jagg.template("page/master", function(inputs, outputs, jagg) {%>
 		<!-- jquery.cookie.js should be removed or updated with the main.js-->
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/vendor/jquery.cookie.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('old_file/assets/js/main.js'))%>"></script>
-		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/codeSnippetGenerator.js'))%>"></script>
 		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-observe-1.00/jquery-observe.js'))%>"></script>
         <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/nanoscroller-0.8.7/jquery.nanoscroller.min.js'))%>"></script>
+        <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/custom.js'))%>"></script>
     </body>
 </html>
 <% }); %>

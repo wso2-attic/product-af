@@ -101,7 +101,12 @@ public static final String REMOTE_HOST_SUPER_USER_PASSWORD="RemoteHostSuperUserP
         return false;
     }
 
-    @Override
+	@Override public boolean deleteForkedRepositoriesForApplication(String applicationKey, String tenantDomain)
+			throws RepositoryMgtException {
+		return false;
+	}
+
+	@Override
     public boolean repoExists(String applicationKey, String tenantDomain) throws RepositoryMgtException {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -140,6 +145,11 @@ public static final String REMOTE_HOST_SUPER_USER_PASSWORD="RemoteHostSuperUserP
 		  // TODO Implement repo deletion for tenant here
 		return false;
 	}
+
+    @Override
+    public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException {
+
+    }
 
     @Override
     public String createForkRepo(String applicationKey, String userName) throws RepositoryMgtException {

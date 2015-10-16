@@ -1108,6 +1108,9 @@ div.af_container  .data-table tr.colored td{
 #propertySection .list_col_content{
    padding-top: 5px;
 }
+#dbSection .list_col_content{
+   padding-top: 5px;
+}
 #externalapi .list_col_content{
    padding-top: 5px;
     padding-bottom: 5px;
@@ -1222,4 +1225,3 @@ div.af_container  .data-table tr.colored td{
     font-style: italic;
     color: #00bb00;
 }
-

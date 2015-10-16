@@ -20,7 +20,6 @@ package org.wso2.appfactory.integration.test.utils.rest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.httpclient.HttpStatus;
 import org.json.JSONObject;
@@ -28,7 +27,6 @@ import org.wso2.appfactory.integration.test.utils.AFIntegrationTestException;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,13 +58,15 @@ public class ApplicationClient extends BaseClient {
 	 * @return HTTP response
 	 * @throws Exception
 	 */
-	public HttpResponse getAppInfo(String applicationKey) throws Exception {
+	public HttpResponse getAppInfo(String applicationKey, boolean checkErrors) throws Exception {
 		HttpResponse response = HttpRequestUtil
 			.doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX + APPMGT_APPLICATION_GET),
 					"action=getAppInfo&applicationKey=" + applicationKey, getRequestHeaders());
 
 		if (response.getResponseCode() == HttpStatus.SC_OK) {
-			checkErrors(response);
+			if(checkErrors) {
+				checkErrors(response);
+			}
 			return response;
 		} else {
 			throw new AFIntegrationTestException("GetAppInfo failed " + response.getData());
@@ -171,15 +171,11 @@ public class ApplicationClient extends BaseClient {
      * @param applicationKey application key
      * @throws Exception
      */
-    public JsonObject deleteApplication(String userName, String applicationKey) throws Exception {
+    public void deleteApplication(String userName, String applicationKey) throws Exception {
         HttpResponse response = HttpRequestUtil
                 .doPost(new URL(getBackEndUrl() + APPMGT_URL_SURFIX +APPMGT_APPLICATION_DELETE),
                         "userName="+userName+"&appKey="+applicationKey, getRequestHeaders());
-        if (response.getResponseCode() == HttpStatus.SC_OK) {
-            JsonParser jsonParser = new JsonParser();
-            JsonElement jsonElement = jsonParser.parse(response.getData());
-            return jsonElement.getAsJsonObject();
-        } else {
+	    if (response.getResponseCode() != HttpStatus.SC_OK) {
             throw new AFIntegrationTestException("Delete application failed " +response.getResponseCode()+" "
                     + response.getData());
         }

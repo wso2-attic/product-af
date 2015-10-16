@@ -18,19 +18,39 @@
  */
 
 include("/jagg/constants.jag");
- jagg.template("tablinks", function (inputs, outputs, jagg) { %>
+jagg.template("tablinks", function (inputs, outputs, jagg) { %>
 <%
     var applicationKey = inputs.applicationKey;
     var applicationName = inputs.applicationName;
     var pageName = inputs.pageName;
-    %>
+    var userName = jagg.getUser();
+
+    var applicationInfo = outputs.applicationInfo;
+
+    var isForked = false;
+    if (applicationInfo && applicationInfo.length > 0) {
+        isForked = true;
+    }
+%>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        var scrollHeight = $('.notification-pane').height() - 150;
+        $('.left-pane').css('max-height', $('.notification-pane').height());
+        $('.left-pane').css('min-height', $('.notification-pane').height());
+        $('.notifications').css('height', scrollHeight);
+        $(".nano").nanoScroller();
+    });
+</script>
+
+
     <!-- left pane wrapper -->
     <div class="left-pane">
-
+<!-- Below HTML content is duplicated in site/themes/default/js/custom/tablinks.js page too because we need to redraw the tablinks using ajax in some cases.-->
         <ul>
             <% if (outputs.isOverviewAllowed) { %>
             <li class="<% if (pageName == "AppHome") { %>selected<%}%>">
-                <a id="menu_appHome" href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Overview">
+                <a id="menu_appHome" href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fa fa-laptop"></i> Overview
                 </a>
             </li>
@@ -38,28 +58,48 @@ include("/jagg/constants.jag");
 
             <% if (outputs.isTeamAllowed) { %>
             <li class="<% if (pageName == "User Administration") { %>selected<%}%>">
-                <a id="menu_userAdmin"  href="<%=jagg.getAbsoluteUrl("/site/pages/application-user.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Team">
+                <a id="menu_userAdmin"  href="<%=jagg.getAbsoluteUrl("/site/pages/application-team.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fa fa-users"></i> Team
                 </a>
             </li>
             <% } %>
+
             <% if (outputs.isReposAndBuildsAllowed) { %>
-            <li class="<% if (pageName == "reposBuilds") { %>selected<%}%>">
-                 <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType == true)){ %>
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Deployed Versions">
-                        <i class="fa fa-cogs"></i> Deployed Versions
+            <li class="<% if (pageName == "repository") { %>selected<%}%>">
+                 <% if(!outputs.isUploadableAppType || (outputs.isUploadableAppType === false)){ %>
+                    <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/repository.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                        <i class="fa fa-cogs"></i> Repository
+                    </a>
+                <% } %>
+            </li>
+            <% } %>
+
+            <% if (outputs.isReposAndBuildsAllowed) { %>
+            <li class="<% if (pageName == "buildDeploy") { %>selected<%}%>">
+                <% if(outputs.isUploadableAppType && (outputs.isUploadableAppType === true)) { %>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/uploadedVersions.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                        <i class="fw fw-deploy"></i> Deployments
                     </a>
                 <% } else { %>
-                    <a id="menu_buildRepo" href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"  title="Repos & Builds">
-                        <i class="fa fa-cogs"></i> Repos & Builds
+                    <a id="menu_buildDeploy" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                        <i class="fw fw-deploy"></i> Build & Deploy
                     </a>
+                    <% if(isForked) { %>
+                        <ul>
+                             <li>
+                                <a id="menu_buildDeploy_fork" href="<%=jagg.getAbsoluteUrl("/site/pages/buildDeploy.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>&isForkInfo=true">
+                                     <i class="fa fa-code-fork"></i> My Fork
+                                </a>
+                             </li>
+                        </ul>
+                    <% } %>
                 <% } %>
             </li>
             <% } %>
 
             <% if ((outputs.isResourcesAllowed) ) { %>
             <li class="<% if (pageName == "Configure Databases") { %>selected<%}%>">
-                <a id="menu_db" href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Databases">
+                <a id="menu_db" href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fa fa-database"></i> Databases
                 </a>
             </li>
@@ -67,7 +107,7 @@ include("/jagg/constants.jag");
 
             <% if ((outputs.isResourcesAllowed) ) { %>
             <li class="<% if (pageName == "Configure Resources") { %>selected<%}%>">
-                <a id="menu_dbAdmin" href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Runtime Configs">
+                <a id="menu_dbAdmin" href="<%=jagg.getAbsoluteUrl("/site/pages/configureenvironment.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fa fa-wrench"></i> Runtime Configs
                 </a>
             </li>
@@ -75,33 +115,43 @@ include("/jagg/constants.jag");
 
             <% if (outputs.isIssuesAllowed) { %>
             <li class="<% if (pageName == "Track Issues") { %>selected<%}%>">
-                <a id="menu_trackIssues" href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Issues">
+                <a id="menu_trackIssues" href="<%=jagg.getAbsoluteUrl("/site/pages/issuetracker.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fa fa-tags"></i> Issues
                 </a>
             </li>
             <% } %>
 
-            <% if (outputs.isLifecylceAllowed) { %>
+            <% if (outputs.isLifecylceAllowed && outputs.isUploadableAppType === false) { %>
             <li class="<% if (pageName == "Governance") { %>selected<%}%>">
-                <a id="menu_governance" href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Lifecycle Management">
+                <a id="menu_governance" href="<%=jagg.getAbsoluteUrl("/site/pages/governance.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
                     <i class="fw fw-lifecycle"></i> Lifecycle Management
                 </a>
             </li>
             <% } %>
-            
+
             <% if (outputs.isLogsAllowed) { %>
             <li class="<% if (pageName == "logs") { %>selected<%}%>">
-                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/server.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Logs">
-                    <i class="fa fa-hdd-o"></i> Logs
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/server.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                    <i class="fa fa-hdd-o"></i> Runtime Logs
                 </a>
             </li>
             <% } %>
 
-            <li class="<% if (pageName == "logs") { %>selected<%}%>">
-                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/customurl.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" title="Custom URL">
-                    <i class="fa fa-hdd-o"></i> Custom URL
+            <% if (outputs.isAllowDomainMapping) { %>
+            <li class="<% if (pageName == "CustomURL") { %>selected<%}%>">
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/customurl.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                    <i class="fa fa-link"></i> Custom URL
                 </a>
             </li>
+            <% } %>
+
+            <% if (outputs.isSettingsAllowed) { %>
+            <li class="<% if (pageName == "Settings") { %>selected<%}%>">
+                <a id="menu_server" href="<%=jagg.getAbsoluteUrl("/site/pages/settings.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">
+                    <i class="fw fw-settings"></i> Settings
+                </a>
+            </li>
+            <% } %>
         </ul>
     </div>
 

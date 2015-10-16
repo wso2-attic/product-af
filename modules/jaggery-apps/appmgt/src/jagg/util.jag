@@ -21,6 +21,7 @@ include("/jagg/jagg.jag");
 var log = new Log("jagg/util.jag");
 var permissionModule = jagg.module("permission");
 var lifeCycleModule = jagg.module("lifecycle");
+var applicationMod = jagg.module("application");
 
 var getAllowedStages= function getAllowedStages(allStages,permissionPrefix,applicationKey){
 	var stages=[];
@@ -39,7 +40,7 @@ var getAllowedStages= function getAllowedStages(allStages,permissionPrefix,appli
 
 
 var hasUILevelResourceCreationPermission = function hasUILevelResourceCreationPermission(applicationKey){
-	
+
 	//This always returns one stage
     var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
 	return permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + initialStage);
@@ -57,6 +58,46 @@ var hasUILevelResourceDeletePermission = function hasUILevelResourceDeletePermis
     }
     else {
         return false;
+    }
+};
+
+var getSelectedVersionFromSession = function(applicationKey) {
+    var result = null;
+    if (applicationKey) {
+        var selectedVersions = session.get("SELECTED_VERSIONS");
+        if(selectedVersions) {
+            for(var key in selectedVersions) {
+                var versionData = selectedVersions[key];
+                if(versionData && (versionData.applicationKey == applicationKey) && versionData.version) {
+                    result = versionData.version;
+                    break;
+                }
+            }
+        }
+    }
+
+    // get default version
+    if(!result) {
+        var applicationInfo = applicationMod.getAppInfo(applicationKey);
+        if(applicationInfo && applicationInfo.isUploadable === true) {
+            result = "1.0.0";
+        } else {
+            result = "trunk";
+        }
+    }
+    return result;
+};
+
+/**
+ * Check whether the {@code obj} is empty object({}) or not
+ * @param obj
+ * @returns {boolean}
+ */
+var isEmpty = function(obj){
+    if(!obj){       // if object is null
+        return true;
+    } else {
+        return (Object.getOwnPropertyNames(obj).length === 0);
     }
 };
 

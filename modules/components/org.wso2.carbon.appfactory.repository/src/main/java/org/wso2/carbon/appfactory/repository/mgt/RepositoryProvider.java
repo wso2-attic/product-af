@@ -55,6 +55,16 @@ public interface RepositoryProvider {
      */
     public boolean deleteForkedRepository(String applicationKey, String userName, String tenantDomain) throws RepositoryMgtException;
 
+	/**
+	 * Delete all forked repositories for a particular application
+	 *
+	 * @param applicationKey for the deleting app
+	 * @param tenantDomain of the forked repo owner
+	 * @return delete fork repository result
+	 * @throws RepositoryMgtException when forked repository deletion fails
+	 */
+	public boolean deleteForkedRepositoriesForApplication(String applicationKey, String tenantDomain) throws RepositoryMgtException;
+
     /**
      * Check whether a repository exists for application of the tenant
      * @param applicationKey    
@@ -120,6 +130,14 @@ public interface RepositoryProvider {
     void provisionUser(String applicationKey, String username) throws RepositoryMgtException;
     public boolean createTenantRepo(String tenantId) throws RepositoryMgtException;
     public boolean deleteTenantRepo(String tenantId) throws RepositoryMgtException;
+
+    /**
+     * Delete the given repository from stratos artifact repo
+     * @param repoName
+     * @return
+     * @throws RepositoryMgtException
+     */
+    public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException;
 
     /**
      *

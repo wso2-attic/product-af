@@ -22,7 +22,8 @@ jagg.template("resources/database/add", function (inputs, outputs, jagg) { %>
 var applicationName = request.getParameter("applicationName");
 var applicationKey = request.getParameter("applicationKey");
 var isDefaultMode = request.getParameter("isDefaultMode");
-AllowedAllStages=outputs.hasAccessForAllstages;
+var dbCreationAllowedStages = outputs.dbCreationAllowedStages;
+var dbUsers = outputs.dbUsers;
 isEdit = request.getParameter("isEdit");
 appInfo=session.get("APP_INFO");
 language=appInfo.language;
@@ -31,7 +32,7 @@ language=appInfo.language;
 
  <!-- BOF App factory menu actionbar -->
     <div class="action-bar">
-        <a href="#" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/databases.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action"  title="Back to Databases">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-left-arrow fw-stack-1x"></i>
@@ -40,54 +41,69 @@ language=appInfo.language;
     </div><!-- EOF App factory menu actionbar-->
 <div class="container-fluid cloud-container">
         <div class="row">
+<form name="addDatabaseForm" id="addDatabaseForm" enctype="multipart/form-data" method='post' action='#'>
             <div class="col-md-5 col-lg-5 forms">
                     <div class="form-group col-md-12 ">
                         <label for="database-name">Database Name: </label>
-                        <input type="text" class="form-control" id="database-name" placeholder="Enter database name">
+                        <input type="text" class="form-control" id="database-name"  name="database-name"  placeholder="Enter the database name">
                     </div>
                     <div class="form-group col-md-12">
                         <label for="description">Description: </label>
-                        <textarea class="form-control" rows="3" id="description" placeholder="Write a small description"></textarea>
+                        <textarea class="form-control" rows="3" id="description" name="description" placeholder="Write a small description"></textarea>
                     </div>
 
                     <div class="form-group col-md-6">
                         <label for="stage">Stage: </label>
-                        <!--input type="text" class="form-control" id="user-name" placeholder="Enter user name"-->
-                        <select id="stage" class="form-control select2">
-                            <option value="Development">Development</option>
-                            <option value="Testing">Testing</option>
-                            <option value="Production">Production</option>
+                        <!--this should be changed to get stages dynamically-->
+                        <select id="stage" name="stage" class="form-control select2">
+                            <% for(var i in dbCreationAllowedStages) { %>
+                                  <option value="<%=dbCreationAllowedStages[i]%>"><%=dbCreationAllowedStages[i]%></option>
+                            <% } %>
                         </select>
                     </div>
 
                     <div class="clearfix"></div>
                     
                     <div class="form-group col-md-6">
-                        <label for="user-name">Default User Name: </label>
-                        <input type="text" class="form-control" id="user-name" placeholder="Enter user name">
+                        <label for="user-name-select">Default User Name: </label>
+                        <select id="user-name-select" name="user-name-select" class="form-control select2">
+                        </select>
                     </div>
 
                     <div class="clearfix"></div>
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-6 password_strength_meter">
                             <label for="password">Default Password: </label>
-                            <input type="password" class="form-control" id="password" placeholder="add your password"
-                                   data-schemaformat="password" >
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Add your password" data-schemaformat="password" >
+                            <div id="password_strength_wrap">
+                            <div class="pwd_str">
+                                <div id="passwordDescription">Password not entered</div>
+                                <div id="passwordStrength" class="strength0"></div>
+                            </div>
+                            <div id="pswd_info">
+                                <i>Make your password strong by having :</i>
+                                <ul>
+                                    <li class="invalid" id="length"><span class="status_icon"></span>At least 6 characters</li>
+                                    <li class="invalid" id="pnum"><span class="status_icon"></span>At least one number</li>
+                                    <li class="invalid" id="capital"><span class="status_icon"></span>At least one lowercase &amp; one uppercase letter</li>
+                                    <li class="invalid" id="spchar"><span class="status_icon"></span>At least one special character</li>
+                                </ul>
+                            </div><!-- END pswd_info -->
+                        </div><!-- END pwd_strength_wrap -->
                     </div>
                     <div class="col-md-6">
-                        <button type="button" class="btn btn-default password-generator">Generate Password</button>
+                       <button type="button" class="btn btn-default password-generator">Generate Password</button>
                     </div>
 
                     <div class="clearfix"></div>
                     <div class="form-group col-md-6">
                             <label for="password-confirm">Confirm Password: </label>
-                            <input type="password" class="form-control" id="password-confirm"
-                                   placeholder="confirm your password" data-schemaformat="password">
+                            <input type="password" class="form-control" id="password-confirm" name="password-confirm" placeholder="Confirm your password" data-schemaformat="password">
                     </div>
 
                     <div class="clearfix"></div>
                     <div class="form-group">
-                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-application" onclick="addNewDatabase()" >
+                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="add-database" name="add-database" onclick="addNewDatabase()" disabled>
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-add fw-stack-1x"></i>
@@ -96,35 +112,18 @@ language=appInfo.language;
                         </button>
                     </div>
 
-
+</form>
         </div>
     </div><!-- /.container -->
 
-<!-- Modal -->
-    <div class="modal fade" id="password-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
-         >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Password Generator</h4>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Use this Password</button>
-                </div>
-            </div>
-        </div>
-    </div>
 <!-- start of setting global javascript variable values from jaggery side -->
 <script type="text/javascript" charset="utf-8">
     var appName = "<%=applicationName%>";
     var appKey = "<%=applicationKey%>";
+    var dbUsers = '<%=dbUsers%>';
 </script>
 <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/resources/database/add/js/add.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/pgenerator-1.0.0/pGenerator.jquery.js'))%>"></script>
 <% jagg.includeBlock("page/messages", null); %>
 <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
 <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"New Database"}); %>

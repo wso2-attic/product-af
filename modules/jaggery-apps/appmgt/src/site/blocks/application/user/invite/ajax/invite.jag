@@ -1,0 +1,182 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log = new Log();
+var modApplication = jagg.module("application");
+var permissionModule = jagg.module("permission");
+var manager = jagg.module("manager");
+var modTenant = jagg.module("tenant");
+(function () {
+    var action = request.getParameter("action"),
+        site = require("/site/conf/site.json");
+    var tenantDomain = manager.getTenantDomain();
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+    if (action == "inviteUsers") {
+        var applicationKey = request.getParameter("applicationKey");
+        var users = parse(request.getParameter("users"));
+        var welcomeMsg = request.getParameter("welcomeMsg");
+        log.info(users);
+        if (permissionModule.isUserAccessGranted(applicationKey,PERMISSION_USER_INVITE)){
+            if (log.isDebugEnabled()) {
+                log.debug("Users to be invited: "+stringify(users)
+                          +". applicationKey:"+applicationKey+ " ,tenantDomain:"+tenantDomain);
+            }
+            var usersToBeInvited = getUsersToBeInvited(users);
+
+            // Inviting existing tenant users to application
+            try {
+                inviteExistingTenantUsersToApplication(applicationKey, usersToBeInvited.existing, welcomeMsg);
+            } catch(e) {
+                log.error(e);
+                response.status = 400;
+                response.content = e;
+            }
+
+            if (usersToBeInvited.newUsers.length) {
+                // Inviting users to tenant/organization
+                if(permissionModule.hasTenantLevelUserMgtPermission()){
+                    try {
+                        inviteNewUsersToTenant(applicationKey, usersToBeInvited.newUsers, welcomeMsg);
+                    } catch(e) {
+                        log.error(e);
+                        response.status = 400;
+                        response.content = e;
+                    }
+                } else {
+                    log.warn("User: "+jagg.getUser()+" doesn't has permission to invite users to tenant."
+                             +". applicationKey:"+applicationKey+ " ,tenantDomain:"+tenantDomain);
+                    response.status = 401;
+                    response.content = "You don't have permission to invite users to organization";
+                }
+            }
+        } else {
+            response.status = 401;
+            response.content = "You don't have permission to invite users to application";
+        }
+    } else if(action=="resendInvitation"){
+        var applicationKey=request.getParameter("applicationKey");
+        var email=request.getParameter("email");
+        if(permissionModule.hasTenantLevelUserMgtPermission()){
+            try {
+                modTenant.resendInvitation(applicationKey,email);
+                print(true);
+            } catch(e) {
+                log.error(e);
+                response.status = 400;
+                response.content =  "Error while resending invitation for user "+email;
+            }
+        } else {
+            log.warn("User: "+jagg.getUser()+" doesn't has permission to invite users to tenant."
+                     +". applicationKey:"+applicationKey+ " ,tenantDomain:"+tenantDomain);
+            response.status = 401;
+            response.content = "You don't have permission to invite users to organization";
+        }
+    } else {
+	    throw new Error("No action specified");
+    }
+
+}());
+
+/**
+ * Returns new users to be added to the organization under the key "newUsers" and existing ones under "newUsers"
+ *
+ * TODO: add a sample return object as a comment
+ * @returns {{existing: Array, newUsers: Array}}
+ */
+function getUsersToBeInvited(users){
+    var usersToBeInvited = {
+        "existing" : [],
+        "newUsers" : []
+    };
+    for (var i = 0 , usersLen = users.length; i < usersLen; i++) {
+        var user = users[i];
+        if( user.hasOwnProperty("isNew") && user["isNew"]){ // user is a new user
+            usersToBeInvited.newUsers.push(user);
+        } else {                                            // already existing user
+            usersToBeInvited.existing.push(user);
+        }
+    }
+    return usersToBeInvited;
+}
+
+function inviteExistingTenantUsersToApplication(applicationKey, existingUsers, welcomeMsg){
+    var tenantDomain = manager.getTenantDomain();
+    var invitationArray = {
+        "userNames" : [],
+        "displayNames" : [],    // use to show error messages
+        "emails":[]             // use to send emails
+    };
+
+    for (var i = 0, usersLen = existingUsers.length; i < usersLen; i++) {
+        var user = existingUsers[i];
+        invitationArray.userNames.push(user.userName);
+        invitationArray.displayNames.push(user.displayName);
+        invitationArray.emails.push(user.email);
+    }
+
+    if(invitationArray.userNames.length){
+
+        // Inviting users to aplication
+        try {
+            modApplication.addUserToApplicationWS(applicationKey,invitationArray.userNames.toString());
+            if (log.isDebugEnabled()) {
+                log.debug("Successfully invited: "+invitationArray.userNames.join(", ")
+                          +". applicationKey:"+applicationKey+ " ,tenantDomain:"+tenantDomain);
+            }
+        } catch (e){
+            var errMsg = 'Error occurred while adding users '+invitationArray.displayNames.join(", ")+' to application';
+            log.error(e);
+            log.error(errMsg+": "+ applicationKey+ " ,tenantDomain:"+tenantDomain);
+            throw errMsg;
+        }
+
+        // Sending emails
+        try {
+            modApplication.sendApplicationInvitationEmail(applicationKey, invitationArray.emails, welcomeMsg);
+        } catch (e){
+            var errMsg = 'Error occurred while sending application invite emails to users '
+                         +invitationArray.displayNames.join(", ") + ', to application';
+            log.error(e);
+            log.error(errMsg+": "+ applicationKey+ " ,tenantDomain:"+tenantDomain);
+            throw errMsg;
+        }
+    }
+}
+
+
+function inviteNewUsersToTenant(applicationKey, users, welcomeText){
+    var tenantDomain = manager.getTenantDomain();
+    try {
+        modTenant.addUsersToTenant(applicationKey, users, welcomeText);
+    } catch(e) {
+        var errMsg = "Error occurred while inviting new users to tenant";
+        log.error(errMsg+": "+ applicationKey+ " ,tenantDomain:"+tenantDomain);
+        log.error(e);
+        throw errMsg;
+    }
+}
+
+
+
+%>

@@ -17,20 +17,25 @@
 
 #!/bin/bash
 
+now=$(date)
+echo "==========================================================================================================================================="
+echo "Today is: $now"
+
 #Checking the latest available App Factory Build URL
-MACHINE_IP=192.168.19.241
+MACHINE_IP=192.168.18.2
 AF_VERSION=2.2.0-SNAPSHOT
 SETUP_PATH=/mnt/$MACHINE_IP/appfactory/wso2appfactory-$AF_VERSION
-n=1
-while read line;           
-do           
-    echo $line 
-	n=$line         
-done <buildNo.txt
+CURRENT_PATH=/home/afpuppet/nightlyBuild
+cd $CURRENT_PATH
 
+# Getting the last build id
+n=$(curl https://wso2.org/jenkins/job/product-af/lastBuild/buildNumber)
+
+echo "Last build Id : $n"
+
+# checking whether the pack is available
 httpResponse=$(curl -I  https://wso2.org/jenkins/job/product-af/$n/org.wso2.appfactory\$wso2appfactory/artifact/org.wso2.appfactory/wso2appfactory/$AF_VERSION/wso2appfactory-$AF_VERSION.zip -s -f  | grep "HTTP/1.1")
-echo "$httpResponse"
-
+echo "Http response : $httpResponse"
 
 delim1="1.1 "
 delim2=" "
@@ -39,61 +44,53 @@ var1=${httpResponse#*${delim1}}
 httpStatusCode=${var1%${delim2}*}
 
 #Received HTTP Status code from the above REST call
-echo "${httpStatusCode}"
+echo "Http response code :${httpStatusCode}"
 
+#expectedStatusCode=200
 
-expectedStatusCode=200
-
-# WGET the pack from the latest build
-if [ $httpStatusCode == $expectedStatusCode ]
+# Checking whether the newly built pack is available
+if [ "$httpStatusCode" = 200 ]
 then
-   wget "https://wso2.org/jenkins/job/product-af/$n/org.wso2.appfactory\$wso2appfactory/artifact/org.wso2.appfactory/wso2appfactory/2.2.0-SNAPSHOT/wso2appfactory-2.2.0-SNAPSHOT.zip"
+        #Removing the old AF packs
+        rm -rfv wso2appfactory-$AF_VERSION.zip
+        echo "Removed old AF pack"
+        rm -rfv wso2appfactory-$AF_VERSION/
+        echo "Removed old AF extracted directory"
+
+        echo "Wgetting the pack from jenkins latest build...."
+        wget "https://wso2.org/jenkins/job/product-af/$n/org.wso2.appfactory\$wso2appfactory/artifact/org.wso2.appfactory/wso2appfactory/$AF_VERSION/wso2appfactory-$AF_VERSION.zip"
+
+        # Extract the pack to the location in 18.2 machine
+        unzip wso2appfactory-$AF_VERSION.zip
+
+        # Create patch9999 directory if not exists
+        cd $SETUP_PATH/repository/components/patches/
+        mkdir -p patch9999
+        # Remove the content inside patch9999
+        rm -rfv $SETUP_PATH/repository/components/patches/patch9999/*
+        cd $CURRENT_PATH
+
+        # Get the jars from the extracted pack and copy to the setup's patches directory
+        cp -v $CURRENT_PATH/wso2appfactory-$AF_VERSION/repository/components/plugins/*.appfactory.* $SETUP_PATH/repository/components/patches/patch9999
+
 else
-   echo "a is not equal to b"
+   echo "obtained httpStatusCode is not equal to expectedStatusCode"
 fi
 
-#Update the text file with the next available build number
-var=$(($n+1))
-echo "$var" > buildNo.txt
-
-
-# Extract the pack to the location in 241 machine
-rm -rf wso2appfactory-$AF_VERSION/
-echo "Removed old AF extracted directory"
-unzip wso2appfactory-$AF_VERSION.zip
-
-
-# Create a patch directory with the latest available patch number in the 241 machine
-a=1
-while read patchNumber;           
-do           
-    echo $patchNumber 
-	a=$patchNumber         
-done <patchNumber.txt
-
-cd $SETUP_PATH/repository/components/patches/
-mkdir patch$patchNumber
-
-
-# Update the text file with the next patch  number in 241 machine
-var2=$(($a+1))
-echo "$var2" > patchNumber.txt
-
-
-# Get the jars from the extracted pack and copy to the setup's patches directory
-cp *.appfactory.* $SETUP_PATH/repository/components/patches/patch$patchNumber
-
 # Get a git pull from the appmgt
-cd appmgt
-rm -rf appmgt/
-git clone https://git.cloud.wso2.com/git/wso2appfactory/appmgt
-git checkout 2.1.1
+cd $CURRENT_PATH/af_code/product-af/modules/jaggery-apps/appmgt/src
+git config credential.helper 'cache --timeout=89400'
+git pull origin master
+#git checkout master
+
+cd $CURRENT_PATH
 
 # Copy the appmgt to the setup
-cp appmgt/src/* $SETUP_PATH/repository/deployment/server/jaggeryapps/appmgt
+cp -rv $CURRENT_PATH/af_code/product-af/modules/jaggery-apps/appmgt/src/* $SETUP_PATH/repository/deployment/server/jaggeryapps/appmgt
 
 # Restart the setup
-bash /home/node1/setup-script/restart.sh
-
+echo "re-starting App Factory"
+$SETUP_PATH/bin/wso2server.sh restart
+sleep 30s
 
 # Put a new build job with mvn clean test

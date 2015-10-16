@@ -21,3 +21,35 @@
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
   background-color: #0498D5;
 }
+.select2-container .select2-selection--multiple{
+    border-radius: 0px;
+    height: 75px
+}
+.select2-container .select2-selection--multiple .select2-selection__choice{
+    background-color: #E4F3FD;
+    border: 1px solid #0498D5;
+    color: #333;
+}
+.select2-results__option[aria-selected='true']{
+    display: none;
+}
+
+/* Org invite member role selection select2 custom styling --- Start */
+/* This will hide the outer container and will only show the template content of the tag */
+.roles-container .select2-container .select2-selection--multiple .select2-selection__choice{
+    background-color: rgba(255, 255, 255, 0);
+    border: 1px solid rgba(4, 152, 213, 0);
+    color: #333;
+}
+.roles-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove{
+    margin-right: -22px;
+    z-index: 6;
+    position: relative;
+    top: 1px;
+    color: #fff;
+}
+/* Org invite member role selection select2 custom styling --- End */
+
+.select2-dropdown{
+    border-radius: 0px;
+}

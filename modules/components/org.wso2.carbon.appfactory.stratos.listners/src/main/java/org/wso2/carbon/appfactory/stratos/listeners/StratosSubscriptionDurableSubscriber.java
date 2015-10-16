@@ -38,18 +38,16 @@ import java.util.Properties;
  */
 public class StratosSubscriptionDurableSubscriber {
     private static Log log = LogFactory.getLog(StratosSubscriptionDurableSubscriber.class);
-    private String subscriptionId;
+    private String subscriptionId = "ALL_STAGES";
     private String topicName;
 
-    public StratosSubscriptionDurableSubscriber(String topicName, String subscriptionId)
+    public StratosSubscriptionDurableSubscriber(String topicName)
             throws AppFactoryException {
         this.topicName = topicName;
-        this.subscriptionId = subscriptionId;
         try {
             subscribe();
         } catch (AppFactoryEventException e) {
-            throw new AppFactoryException("Subscriber activation failed for topic" + topicName + " and subscription " +
-                                          "id :  " + subscriptionId, e);
+            throw new AppFactoryException("Subscriber activation failed for topic" + topicName, e);
         }
     }
 
@@ -85,15 +83,12 @@ public class StratosSubscriptionDurableSubscriber {
                     new StratosSubscriptionMessageListener(topicConnection, topicSession, topicSubscriber));
             topicConnection.start();
             if (log.isDebugEnabled()) {
-                log.debug("Durable Subscriber created for topic " + topicName + " with subscription id : " +
-                          subscriptionId);
+                log.debug("Durable Subscriber created for topic " + topicName);
             }
         } catch (NamingException e) {
-            throw new AppFactoryEventException("Failed to subscribe to topic : " + topicName + " with subscription id" +
-                                               " : " + subscriptionId, e);
+            throw new AppFactoryEventException("Failed to subscribe to topic : " + topicName, e);
         } catch (JMSException e) {
-            throw new AppFactoryEventException("Failed to subscribe to topic : " + topicName + " with subscription id" +
-                                               " : " + subscriptionId, e);
+            throw new AppFactoryEventException("Failed to subscribe to topic : " + topicName, e);
         }
     }
 }

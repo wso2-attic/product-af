@@ -48,7 +48,11 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 
 	private static Log log = LogFactory.getLog(UploadedApplicationTypeProcessor.class);
 
-	@Override
+    public UploadedApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
 	public void doVersion(String applicationID, String targetVersion, String currentVersion,
 	                      String workingDirectory) throws AppFactoryException {
 
@@ -117,13 +121,9 @@ public class UploadedApplicationTypeProcessor extends AbstractApplicationTypePro
 			throw new AppFactoryException(msg);
 		}
 
-		String artifactArchiver = null;
-		Object hudsonArtifactArchiver = ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType)
-		                                                      .getProperty(
-				                                                      AppFactoryConstants.HUDSON_ARTIFACT_ARCHIVER);
-		if (hudsonArtifactArchiver != null) {
-			artifactArchiver = hudsonArtifactArchiver.toString();
-		}
+		String artifactArchiver = ApplicationTypeManager.getInstance().getApplicationTypeBean(projectType)
+		                                                .getProperty(AppFactoryConstants.HUDSON_ARTIFACT_ARCHIVER);
+
 		jobConfigTemplate = configureRepositoryData(jobConfigTemplate, parameters);
 
 		// Support for post build listener residing in jenkins server

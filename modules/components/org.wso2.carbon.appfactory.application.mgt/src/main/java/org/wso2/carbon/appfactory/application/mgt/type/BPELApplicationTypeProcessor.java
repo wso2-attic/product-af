@@ -28,7 +28,11 @@ import java.util.Map;
  */
 public class BPELApplicationTypeProcessor extends AbstractApplicationTypeProcessor {
 
-	@Override
+    public BPELApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
     public void doVersion(String applicationId, String targetVersion, String currentVersion, String workingDirectory)
 			throws AppFactoryException {
         AppVersionStrategyExecutor.doVersionForBPEL(applicationId, targetVersion, new File(workingDirectory));

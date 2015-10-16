@@ -33,7 +33,6 @@ var getIssueByKey = function (issueKey) {
     result.data.issueResponse.issue.issueSeverityText = convertIssueSeverityValToText(result.data.issueResponse.issue.severity);
     result.data.issueResponse.issue.issueStatusText = convertIssueStatusValToText(result.data.issueResponse.issue.status);
     result.data.issueResponse.issue.issuePriorityText = convertIssuePriorityValToText(result.data.issueResponse.issue.priority);
-    log.info(result.data.issueResponse);
     return result.data.issueResponse;
 };
 
@@ -74,7 +73,6 @@ var editIssue = function (issueKey, jsonString){
     var proj = new Object();
     proj.issue=jsonObj;
     jsonString = stringify(proj);
-    log.info("Edit issue : " + jsonString);
     var result;
         var url = url_prefix+"/issue/"+issueKey;
         result = post(url, jsonString, {
@@ -154,7 +152,7 @@ var convertIssuePriorityValToText = function (issuePriorityVal){
 
 var convertIssueSeverityValToText = function (issueSeverityVal){
     var issueSeverityText = "";
-    if(issueSeverityVal == "NONE"){issueSeverityText = "Non Critcal";}
+    if(issueSeverityVal == "NONE"){issueSeverityText = "Non Critical";}
     else if(issueSeverityVal == "BLOCKER"){issueSeverityText = "Blocker";}
     else if(issueSeverityVal == "CRITICAL"){issueSeverityText = "Critical";}
     else if(issueSeverityVal == "TRIVIAL"){issueSeverityText = "Non Critical";}

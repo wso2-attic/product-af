@@ -24,13 +24,13 @@ var site = require("/site/conf/site.json");
     var applicationKey = request.getParameter('applicationKey');
     var applicationName = request.getParameter('applicationName');
     jagg.render({
-        "name":"page/base",
+        "name":"page/master",
         "inputs":{
             "title":"WSO2 App Factory",
             "pagePath":"/site/pages/server.jag",
             "body":[
                 {
-                    "name":"layout/base",
+                    "name":"layout/master",
                     "inputs":{
                         "title":"WSO2 App Factory",
                         "middle":[
@@ -58,7 +58,7 @@ var site = require("/site/conf/site.json");
                                         },
                                         {
                                             "basePath":"/site/pages/server.jag",
-                                            "displayName": "Logs",
+                                            "displayName": "Runtime Logs",
                                             "params": {
                                                 "applicationKey":applicationKey,
                                                 "applicationName":applicationName

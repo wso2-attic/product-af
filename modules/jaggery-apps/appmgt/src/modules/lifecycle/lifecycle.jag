@@ -862,7 +862,10 @@ in
     return lifecycleActions;
 };
 
-
+function getCheckListItemsOfAppVersion(applicationKey,version) {
+    var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
+    return getCheckItemsByPath(path);
+};
 
 
 %>

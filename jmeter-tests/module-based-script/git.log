@@ -1,3 +1,57 @@
-fatal: https://USER5ERqSAmJdeveloper%40now.com:password@apps.appfactory.private.wso2.com:8443/git/now.com/APPGMwAlready up-to-date.
-fs not found: did you run git update-server-info on the server?
-./clone_and_push.sh: line 32: cd: /home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script/now.com/49271c51-bcdb-49f4-8bf0-88ff4c9b76d5/APPGMwn2Dllwar/: No such file or directory
+Cloning into 'APP22bzO6xVwar'...
+fatal: https://USERiqpbcpl9developer%40puva1.cAlready up-to-date.
+[dockersupport-1.1 a275ceb] commit
+ 2 files changed, 15 insertions(+), 16 deletions(-)
+ create mode 100644 jmeter-tests/module-based-script/puva1.com/295186b5-6eb0-4f47-9708-f841b2ff45dd/8f6d0e1b-42ab-4171-828d-9ce5e8cfd026.java
+44-1749-4cbd-934a-da3b90c317d8.java
+99ce6fbd9b/APPu98pC0sDwar/: No such file or directory
+Warning: fetch updated the current branch head.
+Warning: fast-forwarding your working tree from
+Warning: commit 3810424fff6e4f92541bcf0b0c1e193a00995913.
+warning: push.default is unset; its implicit value is changing in
+Git 2.0 from 'matching' to 'simple'. To squelch this message
+and maintain the current behavior after the default changes, use:
+
+  git config --global push.default matching
+
+To squelch this message and adopt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+In Git 2.0, Git will default to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+opt the new behavior now, use:
+
+  git config --global push.default simple
+
+When push.default is set to 'matching', git will push local branches
+to the remote branches that already exist with the same name.
+
+In Git 2.0, Git will default to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+
+ push local branches
+to the remote branches that already exist with the same name.
+
+In Git 2.0, Git will default to the more conservative 'simple'
+behavior, which only pushes the current branch to the corresponding
+remote branch that 'git pull' uses to update the current branch.
+
+See 'git help config' and search for 'push.default' for further information.
+(the 'simple' mode was introduced in Git 1.7.11. Use the similar mode
+'current' instead of 'simple' if you sometimes use older versions of Git)
+

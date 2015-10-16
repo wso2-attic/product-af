@@ -49,7 +49,6 @@ var dropTemplate = function (applicationKey,databaseServerInstanceName,name){
 	options.useSOAP = 1.2;
 	options.action = "urn:removeDatabasePrivilegeTemplate";
 	options.mep = "in-only";
-
 	var payload ='<ser:removeDatabasePrivilegeTemplate  xmlns:ser="http://service.core.rssmanager.carbon.wso2.org">' +
 	'<ser:environmentName>' + databaseServerInstanceName + '</ser:environmentName>' +
 	'<ser:templateName>'+name+'</ser:templateName></ser:removeDatabasePrivilegeTemplate>';

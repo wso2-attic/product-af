@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
+import org.wso2.carbon.appfactory.core.BuildDriverListener;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -32,6 +32,8 @@ import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.api.UserStoreException;
+
+import java.util.Iterator;
 
 /**
  * This service class is used to receive the build status
@@ -76,7 +78,7 @@ public class BuildStatusReceiverService {
                         buildStatus.getBuildId());
             }
 
-            DefaultBuildDriverListener listener = new DefaultBuildDriverListener();
+	        Iterator<BuildDriverListener> buildDriverListeners = ServiceContainer.getBuildDriverListeners().iterator();
 
             boolean isFreestyle;
             try {
@@ -92,15 +94,19 @@ public class BuildStatusReceiverService {
                 throw new AppFactoryException(msg, e);
             }
 
-            if (buildStatus.isBuildSuccessful()) {
-                listener.onBuildSuccessful(buildStatus.getApplicationId(), buildStatus.getVersion(), null,
-                                           buildStatus.getUserName(), buildStatus.getRepoFrom(),
-                                           buildStatus.getBuildId(), tenantDomain);
-            } else {
-                listener.onBuildFailure(buildStatus.getApplicationId(), buildStatus.getVersion(), null,
-                                        buildStatus.getUserName(), buildStatus.getRepoFrom(), buildStatus.getBuildId(),
-                                        buildStatus.getLogMsg(), tenantDomain);
-            }
+	        while (buildDriverListeners.hasNext()) {
+		        BuildDriverListener listener = buildDriverListeners.next();
+		        if (buildStatus.isBuildSuccessful()) {
+			        listener.onBuildSuccessful(buildStatus.getApplicationId(), buildStatus.getVersion(), null,
+			                                   buildStatus.getUserName(), buildStatus.getRepoFrom(),
+			                                   buildStatus.getBuildId(), tenantDomain);
+		        } else {
+			        listener.onBuildFailure(buildStatus.getApplicationId(), buildStatus.getVersion(), null,
+			                                buildStatus.getUserName(), buildStatus.getRepoFrom(),
+			                                buildStatus.getBuildId(),
+			                                buildStatus.getLogMsg(), tenantDomain);
+		        }
+	        }
 
             // freestyle apps can't be built by user. So no need to send notification to the user.
             // ( they are built internally for deployment purposes )

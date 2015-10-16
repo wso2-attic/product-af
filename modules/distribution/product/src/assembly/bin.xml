@@ -476,7 +476,16 @@
                 <include>org.wso2.appfactory:appfactory-plugin:hpi</include>
             </includes>
         </dependencySet>
-        
+       
+	<!-- Adding Gitblit related plugins to Appfactory distribution -->
+        <dependencySet>
+            <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
+            <outputDirectory>wso2appfactory-${pom.version}/resources/plugins/gitblit</outputDirectory>
+            <includes>
+                <include>org.wso2.appfactory:appfactory.gitblit.plugin:jar:jar-with-dependencies</include>
+            </includes>
+        </dependencySet>
+ 
         <!-- Adding extensions to Appfactory distribution -->
         <dependencySet>
             <!--<useTransitiveFiltering>true</useTransitiveFiltering>-->
@@ -489,6 +498,7 @@
                 <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.multitenant.jenkins:jar</include>
                 <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.application.deployer.stub:jar</include>
                 <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.build.stub:jar</include>
+                <include>org.wso2.carbon.appfactory:org.wso2.carbon.appfactory.resource.mgt:jar</include>
             </includes>
         </dependencySet>
 

@@ -22,6 +22,14 @@ var site = require("/site/conf/site.json");
 
 (function () {
     var type = request.getParameter('type');
+    var apptype = request.getParameter('apptype');
+    var apptypeIconColor = request.getParameter('apptypeIconColor');
+    var apptypeIconImageClass = request.getParameter('apptypeIconImageClass');
+    var appTypeDisplayName = request.getParameter('appTypeDisplayName');
+    var displayName = "Create New App";
+    if(type == "existing"){
+       displayName = "Upload Existing App";
+    }
     jagg.render({
         "name":"page/master",
         "inputs":{
@@ -44,11 +52,14 @@ var site = require("/site/conf/site.json");
                                     "noSidePane": true,
                                     "linkParams": [
                                         {
-
-                                            "displayName": "Create new app"
+                                            "displayName": displayName,
                                             "basePath":"/site/pages/createapplication.jag",
                                             "params": {
-                                                "type":type
+                                                "type" : type,
+                                                "apptype": apptype,
+                                                "apptypeIconColor": apptypeIconColor,
+                                                "apptypeIconImageClass": apptypeIconImageClass,
+                                                "appTypeDisplayName": appTypeDisplayName
                                             }
                                         }
                                     ]

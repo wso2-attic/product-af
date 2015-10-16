@@ -1,7 +1,18 @@
 package org.wso2.appfactory.integration.test.utils;
 
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.RpcUtils;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.wso2.appfactory.integration.admin.clients.TenantManagementServiceClient;
@@ -9,24 +20,32 @@ import org.wso2.appfactory.integration.test.utils.bpel.CreateTenantBPELClient;
 import org.wso2.appfactory.integration.test.utils.rest.APIRestClient;
 import org.wso2.appfactory.integration.test.utils.rest.AppVersionClient;
 import org.wso2.appfactory.integration.test.utils.rest.ApplicationClient;
+import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
+import org.wso2.carbon.appfactory.repository.mgt.git.GitAgent;
+import org.wso2.carbon.appfactory.repository.mgt.git.GitRepositoryClient;
+import org.wso2.carbon.appfactory.repository.mgt.git.JGitAgent;
 import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
 import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
 import org.wso2.carbon.tenant.mgt.stub.TenantMgtAdminServiceExceptionException;
 import org.wso2.carbon.tenant.mgt.stub.beans.xsd.TenantInfoBean;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.xml.sax.SAXException;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.rmi.RemoteException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 /**
  * Class which does all the initial setting up by creating the default tenant, default application and
@@ -42,6 +61,16 @@ public class AFDefaultDataPopulator {
     private String tenantAwareAdminUsername;
     private String tenantAdminPassword;
     private  ApplicationClient applicationClient;
+	private static final int MAX_SUCCESS_HTTP_STATUS_CODE = 299;
+	private TenantInfoBean tenantInfoBean;
+
+	static {
+		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		});
+	}
 
     /**
      * Start test execution with super tenant login
@@ -83,7 +112,12 @@ public class AFDefaultDataPopulator {
             createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE));
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_EXTENSION),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_ARTIFACT_VERSION),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_DEFAULT_STAGE),
+                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_RUNTIME_ALIAS),
+                              String.valueOf(tenantInfoBean.getTenantId()));
             Thread.sleep(40000);
             createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
@@ -128,7 +162,7 @@ public class AFDefaultDataPopulator {
         TenantManagementServiceClient tenantManagementServiceClient =
                 new TenantManagementServiceClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                                   superTenantSession);
-        TenantInfoBean tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
+        this.tenantInfoBean = tenantManagementServiceClient.getTenant(tenantDomain);
         return tenantInfoBean.getTenantId() == 0 ? false : true;
     }
 
@@ -201,10 +235,10 @@ public class AFDefaultDataPopulator {
         CreateTenantBPELClient createTenantBPELClient =
                 new CreateTenantBPELClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_BPS),
                                            superTenantSession);
-
+		this.tenantInfoBean = tenantInfoBean;
         String result = createTenantBPELClient
                 .createTenant(context, tenantAwareAdminUsername, tenantInfoBean, tenantAdminPassword,
-                              "key", "WSO2 App Factory");
+                              "key", "WSO2 Stratos Manager");
         Assert.assertNotNull(result, "Result of createTenantBPELClient.createTenant() is null ");
         Assert.assertTrue(result.contains("true"), "Result of createTenantBPELClient.createTenant() is not true ");
 
@@ -232,6 +266,16 @@ public class AFDefaultDataPopulator {
             try {
                 login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_PROD_SC), tenantAdminUsername,
                       adminPassword, context.getInstance().getHosts().get("default"));
+
+	            login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_DEV_GREG), tenantAdminUsername,
+	                  adminPassword, context.getInstance().getHosts().get("default"));
+
+	            login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_TEST_GREG), tenantAdminUsername,
+	                  adminPassword, context.getInstance().getHosts().get("default"));
+
+	            login(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_PROD_GREG), tenantAdminUsername,
+	                  adminPassword, context.getInstance().getHosts().get("default"));
+
                 isTenantLoggedIn = true;
                 break;
             } catch (Exception e) {
@@ -259,7 +303,8 @@ public class AFDefaultDataPopulator {
      * @throws Exception
      */
     private void createApplication(String applicationName, String applicationKey, String applicationDescription,
-                                     String applicationType)
+                                     String applicationType, String extension, String artifactVersion, String startStage,
+                                     String runtimeAlias, String tenantID)
             throws Exception {
         ApplicationClient appMgtRestClient = new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(
                 AFConstants.URLS_APPFACTORY)
@@ -268,8 +313,9 @@ public class AFDefaultDataPopulator {
                                               fullyQualifiedTenantAdmin, applicationDescription);
 
         // Wait till Create Application completion
-        waitUntilApplicationCreationCompletes(5000L, 5, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
-                                              applicationName);
+        waitUntilApplicationCreationCompletes(10000L, 8, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
+                                              applicationName, extension, artifactVersion, startStage, runtimeAlias,
+                                              tenantID);
     }
 
 
@@ -302,16 +348,22 @@ public class AFDefaultDataPopulator {
      */
     public void waitUntilApplicationCreationCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
                                                          String adminPassword, String applicationKey,
-                                                         String applicationName) throws Exception {
+                                                         String applicationName, String applicationExtension,
+                                                         String artifactVersion, String stage, String runtimeAlias,
+                                                         String tenantID) throws Exception {
         ApplicationClient appMgtRestClient =
                 new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
                                           tenantAdminUsername, adminPassword);
 
         HttpResponse httpResponse = null;
+	    boolean isGitRepoCreated = false;
+	    boolean isJenkinsJobCreated = false;
+	    boolean isDeployedArtifactAvailable = false;
+
         int round = 1;
         while (round <= retryCount) {
             try {
-                httpResponse = appMgtRestClient.getAppInfo(applicationKey);
+                httpResponse = appMgtRestClient.getAppInfo(applicationKey, true);
                 break;
             } catch (Exception e) {
                 String msg = "Attempt " + round + " : Exception when trying to get app info, retry after " +
@@ -325,12 +377,384 @@ public class AFDefaultDataPopulator {
             }
         }
 
-        Assert.assertNotNull(httpResponse, "httpResponse is null");
-        JSONObject jsonObject = new JSONObject(httpResponse.getData());
-        Assert.assertEquals(applicationName, jsonObject.getString("name"),
-                            "Application Name not found");
+	    Assert.assertNotNull(httpResponse, "httpResponse is null");
+	    JSONObject jsonObject = new JSONObject(httpResponse.getData());
+	    Assert.assertEquals(applicationName, jsonObject.getString("name"),
+	                        "Application Name not found");
 
+	    round = 1;
+	    while (round <= retryCount) {
+		    try {
+			    log.info("Checking the existance of repo");
+			    isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
+			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
+			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_PASSWORD));
+			    if(!isGitRepoCreated){
+				    String msg = "Attempt " + round + " : Repo does not exists , retry after " +
+				                 waitInterval + " millis";
+				    log.info(msg);
+				    Thread.sleep(waitInterval);
+				    round++;
+				    continue;
+			    }
+			    break;
+		    } catch (Exception e){
+			    String msg = "Attempt " + round + " : Check is repo exists failed , retry after " +
+			                 waitInterval + " millis, exception is: " + e.getMessage();
+			    log.info(msg);
+			    if (log.isDebugEnabled()) {
+				    log.debug(msg, e);
+			    }
+			    Thread.sleep(waitInterval);
+			    round++;
+		    }
+	    }
+	    Assert.assertEquals(isGitRepoCreated, true, "Git repo creation failed.");
+
+	    round = 1;
+	    while (round <= retryCount) {
+		    try {
+			    log.info("Checking the existance of build job");
+			    isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
+			                                   AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
+			                                                                            AFIntegrationTestUtils
+					                                                                            .getPropertyValue(
+							                                                                            AFConstants.DEFAULT_APP_VERSION_NAME)),
+			                                   AFIntegrationTestUtils.getPropertyValue(
+					                                   AFConstants.CREDENTIAL_JENKINS_USERNAME),
+			                                   AFIntegrationTestUtils.getPropertyValue(
+					                                   AFConstants.CREDENTIAL_JENKINS_PASSWORD));
+			    if(!isJenkinsJobCreated){
+				    String msg = "Attempt " + round + " : Job does not exists , retry after " +
+				                 waitInterval + " millis";
+				    log.info(msg);
+				    Thread.sleep(waitInterval);
+				    round++;
+				    continue;
+			    }
+			    break;
+		    } catch (Exception e) {
+			    String msg = "Attempt " + round + " : Check is jenkins job exists failed, retry after " +
+			                 waitInterval + " millis, exception is: " + e.getMessage();
+			    log.info(msg);
+			    if (log.isDebugEnabled()) {
+				    log.debug(msg, e);
+			    }
+			    Thread.sleep(waitInterval);
+			    round++;
+		    }
+	    }
+	    Assert.assertEquals(isJenkinsJobCreated, true, "Jenkins job creation failed.");
+
+	    round = 1;
+	    while (round <= retryCount) {
+		    try {
+			    log.info("Checking the existance of deployed artifact");
+			    isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
+			                                                              runtimeAlias, applicationExtension, tenantID);
+			    if(!isDeployedArtifactAvailable){
+				    String msg = "Attempt " + round + " : Artifact does not exists , retry after " +
+				                 waitInterval + " millis";
+				    log.info(msg);
+				    Thread.sleep(waitInterval);
+				    round++;
+				    continue;
+			    }
+			    break;
+		    } catch (Exception e) {
+			    String msg = "Attempt " + round + " : Check is artifact exists failed, retry after " +
+			                 waitInterval + " millis, exception is: " + e.getMessage();
+			    log.info(msg);
+			    if (log.isDebugEnabled()) {
+				    log.debug(msg, e);
+			    }
+			    Thread.sleep(waitInterval);
+			    round++;
+		    }
+	    }
+	    Assert.assertEquals(isDeployedArtifactAvailable, true, "Deployment failed.");
     }
+
+	/**
+	 * Wait until application deletion completes
+	 *
+	 * @param waitInterval        wait interval
+	 * @param retryCount          retry count
+	 * @param tenantAdminUsername tenant admin username
+	 * @param adminPassword       admin password
+	 * @param applicationKey      application key
+	 * @param applicationName     application name
+	 * @throws Exception
+	 */
+	public void waitUntilApplicationDeletionCompletes(long waitInterval, int retryCount, String tenantAdminUsername,
+	                                                  String adminPassword, String applicationKey,
+	                                                  String applicationName, String applicationExtension,
+	                                                  String artifactVersion, String stage, String runtimeAlias,
+	                                                  String tenantID) throws Exception {
+		ApplicationClient appMgtRestClient =
+				new ApplicationClient(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY),
+				                      tenantAdminUsername, adminPassword);
+
+		HttpResponse httpResponse = null;
+		boolean isGitRepoCreated = false;
+		boolean isJenkinsJobCreated = false;
+		boolean isDeployedArtifactAvailable = false;
+
+		int round = 1;
+		while (round <= retryCount) {
+			try {
+				httpResponse = appMgtRestClient.getAppInfo(applicationKey, false);
+				if(httpResponse != null && httpResponse.getData().equals("null")) {
+					break;
+				}
+			} catch (Exception e) {
+				String msg = "Attempt " + round + " : Exception when trying to get app info, retry after " +
+				             waitInterval + " millis, exception is: " + e.getMessage();
+				log.info(msg);
+				if (log.isDebugEnabled()) {
+					log.debug(msg, e);
+				}
+				Thread.sleep(waitInterval);
+				round++;
+			}
+		}
+
+		Assert.assertNotNull(httpResponse, "httpResponse is null");
+		Assert.assertEquals(httpResponse.getData().equals("null"), true, "Application not deleted");
+
+		round = 1;
+		while (round <= retryCount) {
+			try {
+				log.info("Checking the existance of repo");
+				isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
+				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
+				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
+				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_PASSWORD));
+				if(isGitRepoCreated){
+					String msg = "Attempt " + round + " : Repo does exists , retry after " +
+					             waitInterval + " millis";
+					log.info(msg);
+					Thread.sleep(waitInterval);
+					round++;
+					continue;
+				}
+				break;
+			} catch (Exception e){
+				String msg = "Attempt " + round + " : Check is repo exists failed , retry after " +
+				             waitInterval + " millis, exception is: " + e.getMessage();
+				log.info(msg);
+				if (log.isDebugEnabled()) {
+					log.debug(msg, e);
+				}
+				Thread.sleep(waitInterval);
+				round++;
+			}
+		}
+		Assert.assertEquals(isGitRepoCreated, false, "Git repo deletion failed.");
+
+		round = 1;
+		while (round <= retryCount) {
+			try {
+				log.info("Checking the existance of build job");
+				isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
+				                                         AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
+				                                                                                  AFIntegrationTestUtils
+						                                                                                  .getPropertyValue(
+								                                                                                  AFConstants.DEFAULT_APP_VERSION_NAME)),
+				                                         AFIntegrationTestUtils.getPropertyValue(
+						                                         AFConstants.CREDENTIAL_JENKINS_USERNAME),
+				                                         AFIntegrationTestUtils.getPropertyValue(
+						                                         AFConstants.CREDENTIAL_JENKINS_PASSWORD));
+				if(isJenkinsJobCreated){
+					String msg = "Attempt " + round + " : Job does exists , retry after " +
+					             waitInterval + " millis";
+					log.info(msg);
+					Thread.sleep(waitInterval);
+					round++;
+					continue;
+				}
+				break;
+			} catch (Exception e) {
+				String msg = "Attempt " + round + " : Check is jenkins job exists failed, retry after " +
+				             waitInterval + " millis, exception is: " + e.getMessage();
+				log.info(msg);
+				if (log.isDebugEnabled()) {
+					log.debug(msg, e);
+				}
+				Thread.sleep(waitInterval);
+				round++;
+			}
+		}
+		Assert.assertEquals(isJenkinsJobCreated, false, "Jenkins job deletion failed.");
+
+		round = 1;
+		while (round <= retryCount) {
+			try {
+				log.info("Checking the existance of deployed artifact");
+				isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
+				                                                          runtimeAlias, applicationExtension, tenantID);
+				if(isDeployedArtifactAvailable){
+					String msg = "Attempt " + round + " : Artifact does exists , retry after " +
+					             waitInterval + " millis";
+					log.info(msg);
+					Thread.sleep(waitInterval);
+					round++;
+					continue;
+				}
+				break;
+			} catch (Exception e) {
+				String msg = "Attempt " + round + " : Check is artifact exists failed, retry after " +
+				             waitInterval + " millis, exception is: " + e.getMessage();
+				log.info(msg);
+				if (log.isDebugEnabled()) {
+					log.debug(msg, e);
+				}
+				Thread.sleep(waitInterval);
+				round++;
+			}
+		}
+		Assert.assertEquals(isDeployedArtifactAvailable, false, "Undeployment failed.");
+	}
+
+	/**
+	 * Returns whether the given git repo exists
+	 *
+	 * @param applicationName name of the application
+	 * @param baseUrl base url of git server
+	 * @param tenantDomain current tenant domain
+	 * @param username username for git server
+	 * @param password for git server
+	 * @return is git repo exists
+	 */
+	public boolean isGitRepoExist(String applicationName, String baseUrl, String tenantDomain, String username, String password)
+			throws IOException {
+		boolean repoExists = false;
+		String fullQulifiedRepoName = tenantDomain + "/" + applicationName;
+		Map<String, RepositoryModel> repoMap = RpcUtils.getRepositories(baseUrl, username, password.toCharArray());
+		for (Map.Entry<String, RepositoryModel> entry : repoMap.entrySet()) {
+			String key = entry.getKey().split("r/")[1];
+			repoExists = fullQulifiedRepoName.equals(key.split(".git")[0]);
+			if (repoExists) {
+				return repoExists;
+			}
+		}
+		return repoExists;
+	}
+
+	/**
+	 * Returns whether the jenkins job exists
+	 *
+	 * @param jenkinsUrl jenkins base url
+	 * @param jobName job name
+	 * @param username jenkins username
+	 * @param password jenkins user password
+	 * @return is jenkins job exists
+	 */
+	public boolean isJenkinsJobExists (String jenkinsUrl, String jobName, String username, String password)
+			throws Exception {
+		Map<String, String> headers = new HashMap<String, String>();
+		Header header = BasicScheme.authenticate(new UsernamePasswordCredentials(username, password), HTTP.UTF_8, false);
+		headers.put(header.getName(), header.getValue());
+		final String wrapperTag = "JobNames";
+		boolean isExists = false;
+
+		String queryParam = URLEncoder.encode("wrapper=" + wrapperTag + "&xpath="
+		                                      + String.format("/*/job/name[text()='%s']", jobName), HTTP.UTF_8);
+		URL jenkinsURL = new URL(jenkinsUrl + "/job/" + tenantDomain + "/api/xml");
+		HttpResponse jobExistResponse =  HttpRequestUtil.doPost(jenkinsURL, queryParam, headers);
+
+		if (!isSuccessfulStatusCode(jobExistResponse.getResponseCode())) {
+			final String errorMsg =
+					"Unable to check the existence of job " + jobName + ". jenkins returned, http status : " +
+					jobExistResponse.getResponseCode();
+			log.error(errorMsg);
+			throw new AFIntegrationTestException(errorMsg);
+		}
+
+		InputStream stream = new ByteArrayInputStream(jobExistResponse.getData().getBytes(HTTP.UTF_8));
+		StAXOMBuilder builder = new StAXOMBuilder(stream);
+		Iterator elementIterator = builder.getDocumentElement().getChildElements();
+		while (elementIterator.hasNext()) {
+			OMElement element = (OMElement) elementIterator.next();
+			if(element.getLocalName().equals("job")){
+				Iterator jobIterator = element.getChildElements();
+				while (jobIterator.hasNext()) {
+					OMElement jobChild = (OMElement) jobIterator.next();
+					if(jobChild.getLocalName().equals("name") && jobChild.getText().equals(jobName)) {
+						isExists = true;
+						break;
+					}
+				}
+			}
+		}
+		return isExists;
+	}
+
+	/**
+	 * Is deployed web application available in artifact repo
+	 * @param applicationKey application key
+	 * @param version application version
+	 * @param stage current stage
+	 * @param runtime name of the runtime to deploy
+	 * @param extension extension of the artifact
+	 * @param tenantID id of the tenant
+	 * @return is deployed artifact available
+	 * @throws Exception
+	 */
+	public boolean isDeployedArtifactAvailable(String applicationKey, String version, String stage,
+	                                           String runtime, String extension, String tenantID) throws Exception{
+		AppfactoryRepositoryClient client;
+		GitAgent gitAgent = new JGitAgent();
+		client = new GitRepositoryClient(gitAgent);
+		client.init(AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_S2GIT_USERNAME),
+		            AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_S2GIT_PASSWORD));
+		// working directory
+		File workDir = new File(CarbonUtils.getTmpDir() + "/" + UUID.randomUUID());
+		if(workDir.exists()){
+			FileUtils.forceDelete(workDir);
+		}
+		// construct repo url for default application
+		String repoURL = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_S2GIT) + "r/" + stage + "/"
+		                 + runtime + "/" + tenantID + ".git";
+		client.retireveMetadata(repoURL, false, workDir);
+		String artifactName = applicationKey + "-" + version;
+		if(!StringUtils.isEmpty(extension)){
+			artifactName += "." + extension;
+		}
+		File artifact = searchFile(workDir, artifactName);
+		FileUtils.forceDelete(workDir);
+		if(artifact != null) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isSuccessfulStatusCode(int httpStatusCode) {
+		return (httpStatusCode >= HttpStatus.SC_OK && httpStatusCode < MAX_SUCCESS_HTTP_STATUS_CODE);
+	}
+
+	/**
+	 * Search for the file name recursively inside a folder
+	 *
+	 * @param baseDir working directory
+	 * @param fileName name of the file to search
+	 */
+	private File searchFile(File baseDir, String fileName){
+		File resultFile = null;
+		for (File file : baseDir.listFiles()) {
+			if (file.isDirectory()) {
+				resultFile = searchFile(file, fileName);
+			}
+			if (fileName.equals(file.getName())) {
+				resultFile = file;
+			}
+			if (resultFile != null){
+				return file;
+			}
+		}
+		return null;
+	}
 
     /**
      * Login as super tenant

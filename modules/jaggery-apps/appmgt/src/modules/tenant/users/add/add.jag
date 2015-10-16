@@ -28,6 +28,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var appfactory = require('appFactory');
 var multitenancy = carbon.multitenancy;
+var modUser = jagg.module("user");
 
 //var appfactory = require('appFactory');
 //var multitenancy = carbon.multitenancy;
@@ -44,22 +45,38 @@ var addRolestoUserinTenantDomain = function addUserToTenantDomain(requestersUser
 
 };
 
-var updateUserRoles = function updateUserRoles(userName,addRoles,removeRols) {
-//    jagg.module("permission").checkUserActionPermission(applicationKey,PERMISSION_USER_INVITE);
-    var paraAddRoles,paraRemoveRoles;
-    paraAddRoles=addRoles.split(",");
-    paraRemoveRoles=removeRols.split(",");
-    if((paraAddRoles.length==0)||(paraAddRoles[0].length==0)){
-        paraAddRoles=null;
+var updateUserRoles = function updateUserRoles(userName,newRoles,removeRoles) {
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    if (log.isDebugEnabled()) {
+        log.debug("Updating user roles of user: " + userName
+                  +". New user roles:"+newRoles.join(", ")
+                  +" .Removed Roles: "+removeRoles.join(", "));
     }
-    if((paraRemoveRoles.length==0)||(paraRemoveRoles[0].length==0)){
-        paraRemoveRoles=null;
+
+    var updateUserRoleUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_UPDATE_USER_ROLES_AJAX_PATH;
+    var data = {
+        action: "updateUserRoles",
+        rolesToAdd: newRoles.toString(),
+        rolesToDelete : removeRoles.toString(),
+        userName: userName
+    };
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(updateUserRoleUrl, data, headers, type);
+    if (result.xhr.status == "200") {
+        log.info("Successfully updated the user roles of user:"+userName);
+    } else {
+        log.error("Error occurred while updating roles of user:"+userName
+                  +". New user roles:"+newRoles.join(", ")
+                  +" .Removed Roles: "+removeRoles.join(", ")
+                  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+        throw "Error occurred while updating roles of user:"+userName;
     }
-    var result;
-    result = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
-                                    .updateUserRoles(userName,paraAddRoles,paraRemoveRoles);
-    return result;
 };
+
 var deleteUserFromTenant = function deleteUserFromTenant(userName){
     var isSuccess = "false";
     isSuccess = server.osgiService('org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService')
@@ -93,7 +110,69 @@ var changePassword=function(oldPassword,newPassword){
         log.error(e);
         throw e;
     }
-}
+};
+
+var addUsersToTenant = function (applicationKey, usersList, welcomeText) {
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if (log.isDebugEnabled()) {
+        log.debug("Adding  users to tenant: " + tenantDomain);
+        log.debug("Users list: " + stringify(usersList));
+    }
+    var AppFactoryUtil = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+    var defaultAppRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
+    var addTenantUsersUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH;
+    var defaultRoleObject = [{"id":defaultAppRole}];
+    var data = {
+        action: "inviteUsers",
+        defaultRoles: stringify(defaultRoleObject),
+        userRoleList: stringify(usersList),
+        message: welcomeText
+    };
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(addTenantUsersUrl, data, headers, type);
+    if (result.xhr.status == "200") {
+        log.info("Successfully added users to tenant: " + tenantDomain + ", for application: " + applicationKey);
+    } else {
+        log.error("Error occurred when adding users to tenant:" + tenantDomain + ", for application: " + applicationKey
+                  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+        throw "Error occurred when adding users of tenant";
+    }
+};
+
+var resendInvitation = function (applicationKey, email) {
+    var cookieString = modUser.getCookieForCloudMgtBySAMLToken();
+    var tenantDomain = modManager.getTenantDomain();
+    if (log.isDebugEnabled()) {
+        log.debug("Resending invitation to user: " + email+" for tenant: "+tenantDomain);
+    }
+
+    // TODO: update CLOUDMGT_ADD_TENANT_USERS_AJAX_PATH
+    var resendInvitationUrl = getProperty(CLOUDMGT_SERVER_URL) + "/" + CLOUDMGT_RESEND_INVITATION_AJAX_PATH;
+    var data = {
+        action: "resendInvite",
+        email: email
+    };
+    var headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieString
+    };
+    var type = "json";
+    var result = post(resendInvitationUrl, data, headers, type);
+    if (result.xhr.status == "200") {
+        log.info("Successfully resent user invitation to user:"+email
+                 +", tenant: " + tenantDomain + ", for application: "+ applicationKey);
+    } else {
+        log.error("Error occurred when resending invitation to user:"+email
+                  +" tenant:" + tenantDomain + ", for application: " + applicationKey
+                  +". Server response status:" + result.xhr.status + ". responseText" + result.xhr.responseText);
+        throw "Error occurred when resending invitation";
+    }
+};
 
 
 %>

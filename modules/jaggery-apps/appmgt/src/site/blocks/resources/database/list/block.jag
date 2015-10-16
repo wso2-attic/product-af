@@ -32,17 +32,27 @@ jagg.block("resources/database/list", {
     },
 
  getOutputs:function (inputs) {
-       var log = new Log();
-       var applicationKey = request.getParameter("applicationKey");
-       var applicationName = request.getParameter("applicationName");
-       var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
-       var helpTips = jagg.module("help").getHelpTips("resources-databases");
-       var dbInfoForDataTable = jagg.module("resources").generateDatabaseInfoForDataTable(applicationKey,applicationName);
-       return {
+        var log = new Log();
+        var applicationKey = request.getParameter("applicationKey");
+        var applicationName = request.getParameter("applicationName");
+        var hasCreateResourcePermissions= hasUILevelResourceCreationPermission(applicationKey);
+        var helpTips = jagg.module("help").getHelpTips("resources-databases");
+        var hasDBs = false;
+        var isSSRunning = true;
+        try {
+            var databases = jagg.module("resources").getDatabases(applicationKey); // a permission check happens inside this method
+            if (databases.length > 0) {
+                hasDBs= true;
+            }  
+        } catch (e) {
+            isSSRunning = false;
+        }
+        return {
             "hasCreateResourcePermissions": hasCreateResourcePermissions,
-            "dbInfoForDataTable" : dbInfoForDataTable,
-	        "helpTips":helpTips
-       };
+	        "hasDBs":hasDBs,
+            "isSSRunning":isSSRunning,
+            "helpTips":helpTips
+        };
    }
 
 

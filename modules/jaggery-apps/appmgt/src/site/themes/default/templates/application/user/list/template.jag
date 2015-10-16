@@ -16,647 +16,137 @@
  *   specific language governing permissions and limitations
  *   under the License.
  */
-
-jagg.template("application/user/list", function(inputs, outputs, jagg) { %>
-
+include("/jagg/constants.jag");
+jagg.template("application/user/list", function (inputs, outputs, jagg) { %>
 <%
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
     var hasInviteUserPermission = outputs.hasInviteUserPermission;
-    var helpTips = outputs.helpTips;
-    %>
+    var hasTenantLevelUserMgtPermission = outputs.hasTenantLevelUserMgtPermission;
+    var pendingUsers = outputs.pendingUsers;
+%>
 
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 
-    <script type="text/javascript">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.min.css'))%>">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/dataTables.responsive.css'))%>">
+<link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/datatables-1.10.7/jquery.dataTables.override.css'))%>">
 
-    var usersWithRoles = [];
-    var selectedCount=0;
-    var appOWner='';
-    var selectedUsers = [];
-    var permittedToInvite = <%=hasInviteUserPermission%>;
+<!-- start of setting global javascript variable values from jaggery side -->
+<script type="text/javascript" charset="utf-8">
+    var applicationName = "<%=applicationName%>";
+    var applicationKey = "<%=applicationKey%>";
+    var hasInviteUserPermission =   JSON.parse('<%=stringify(hasInviteUserPermission)%>');
+    var hasTenantLevelUserMgtPermission = JSON.parse('<%=stringify(hasTenantLevelUserMgtPermission)%>');
+    var loggedInUser = '<%=jagg.getUser()%>';
+    var appOwnerRole = '<%=ROLE_APP_OWNER%>';
+    var pendingUsers = JSON.parse('<%=stringify(pendingUsers)%>');
+    var editRolesUrl =
+        '<%=jagg.getAbsoluteUrl("/site/pages/user-update.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>'
+
+    // TODO remove usage of this variable after edit user page is done
+    var editUserRoleLink = "<%=jagg.getCloudMgtAbsoluteUrl("/site/pages/user.jag")%>";
+
+    // TODO: Following part is extracted from the previous implementation and need to improve
     var appInfo= <%=session.get("APP_INFO")%>;
-    var appOWner=appInfo.owner.split('@')[0];
-/*this method fill up the table that depicts the roles and the relevant users */
-    function disable(btnId){
-        var classes=$('#'+btnId).attr('class');
-        if(classes){
-            if(classes.indexOf('disable')===-1){
-                $('#'+btnId).addClass("disable");
-            }
-        }
-    }
-    function enable(btnId){
-        var classes=$('#'+btnId).attr('class');
-        if(classes.indexOf('disable')!==-1){
-            $('#'+btnId).removeClass("disable");
-        }
-    }
-    function enableDisableEditDeleteButtons(enablePara){
-        if(enablePara){
-            //enable delete and edit
-            enable('removeUsers');
-
-        }else{
-            //disable edit and delete buttons
-            disable('removeUsers');
-
-        }
-
-    }
-function selectCheckBox(id){
-	var isChecked = $('#ck_'+id).is(':checked');
-	if(isChecked){
-		$('#ck_'+id).removeAttr('checked');
-	} else {
-		 
-		$("#ck_"+id).attr('checked',true);
-	}
-	enableButton($('#ck_'+id).is(':checked'));
-}
-
-function enableButton(ischecked){
-	if(ischecked){
-	    selectedCount++;
-	    enableDisableEditDeleteButtons(true);
-	}else{
-	    selectedCount--;
-	    if(selectedCount===0){
-		enableDisableEditDeleteButtons(false);
-	    }
-	}
-}
- 
-    function updateTable() {
-        $('.cleanable').remove();
-        var $userListContainer = $('#userDetailsSection');
-
-        jagg.post("../blocks/application/user/get/ajax/list.jag", {
-            action: "getUsersOfApplication",
-            applicationKey:$("#applicationKey").attr('value')
-    }, function (result) {
-
-
-        var recordCount = 0;
-        if (result !== undefined) {
-            usersWithRoles = jQuery.parseJSON(result);
-            recordCount = usersWithRoles.length;
-
-        }
-
-
-        if (recordCount > 0) {
-            var countString='';
-            if(recordCount===1){
-
-                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">1 Member in <%= applicationName%></h2>');
-            } else{
-                $('#membersCount').replaceWith('<h2 id="membersCount" class="big push_bottom_40">'+recordCount+' Members in <%= applicationName%></h2>');
-
-            }
-            
-            var chkDisableStr = "";
-            if(!permittedToInvite){
-            	chkDisableStr = "style = 'display:none'";
-            }
-            $userListContainer.html();
-            for (var i in usersWithRoles) {
-
-                var userRoles = usersWithRoles[i];
-                var $userListContainerRow = $('<li class="list_row_item cleanable" data-email="'+userRoles.userName+'" data-name="'+userRoles.userDisplayName+'">'+
-                            '<ul class="list_row" id="'+userRoles.userName+'">'+
-                                '<li class="list_col first_list_col item_select">'+
-                                    '<div class="list_col_content">'+
-                                        '<input id="ck_'+i+'" type="checkbox" name="action_check" class="action_check" data-roles="'+userRoles.roles+'" data-user="'+userRoles.userName+'"' + chkDisableStr + ' />'+
-                                    '</div>'+
-                                '</li>'+
-                                '<li onclick="selectCheckBox('+i+')" class="list_col team_member">'+
-                                    '<div class="list_col_content">'+
-                                        '<div class="image_list">'+
-                                            '<dl>'+
-                                                '<dt>'+userRoles.displayName+'</dt>'+
-                                                '<dd class="img"><span class="icon-user"></span></dd>'+
-                                                '<dd>'+userRoles.userName+'</dd>'+
-                                           '</dl>'+
-                                        '</div>'+
-                                   '</div>'+
-                                '</li>'+
-                                '<li onclick="selectCheckBox('+i+')" class="list_col  team_role">'+
-                                    '<div class="list_col_content">'+userRoles.displayRoles.toString()+'</div>'+
-                               '</li>'+
-                                '<li onclick="selectCheckBox('+i+')" class="list_col team_last_login">'+
-                                    '<div class="list_col_content">'+
-                                        // Todo - post 1.0 '2013.05.24 6:19 p.m.'+
-                                    '</div>'+
-                                '</li>'+
-                                '<li onclick="selectCheckBox('+i+')" class="list_col team_controller">'+
-                                 //   '<div class="list_col_heading">&nbsp;</div>'+
-                                 //    '<div class="list_col_content">&nbsp;</div>'+
-                                '</li>'+
-                            '</ul>'+
-                       '</li>');
-                 $userListContainer.append($userListContainerRow);
-              //   enableDisableEditDeleteButtons(false);
-                 selectedCount=0;
-            }
-            $('#userListContainer .action_check').click(function(){
-                    manageUserList();
-                }
-            );
-            $('.action_check').click(function(){
-		        enableButton(this.checked);
-            });
-        } else {
-               $('#userListContainer').html('<li class="noData-message">no data</li>');
-            //messageElement.html("No users/roles found!").fadeIn();
-
-        }
-
-    }, function (jqXHR, textStatus, errorThrown) {
-
-        //messageElement.html("Error occured while loading User/Roles information!").fadeIn();
-
-    });
-}
-
-var getRoleByName = function(roleName){
-    var roleObj;
-
-    for(var i=0;i < allRoles.length;i++){
-        if(allRoles[i].role_name == roleName){
-            roleObj = allRoles[i];
-        }
-    }
-    return roleObj;
-
-};
-var manageUserList = function(){
-    selectedUsers = [];
-    //Push users to specific roles
-    var numberOfUsersChecked = 0;
-    $('#userListContainer .action_check').each(function(){
-        if($(this).is(':checked')){
-            numberOfUsersChecked++;
-            var userName = $(this).attr('data-user').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-            selectedUsers.push(userName);
-
-        }
-
-    });
-    //Now use the allRows array to show the role checkboxes..
-
-};
-
-    var  finalUsers=[];//globally declared
-$(document).ready(function(){
-
-	initializeUserActivity("appUserList", '<%=applicationKey%>', '<%=applicationName%>');
-
+    var appCreator=appInfo.owner.split('@')[0];
     
-    setHelpTips(<%= helpTips %>);
-    updateTable();
-    $('#jsroleAssignPopup').each(function() {
-	$(this).qtip({
-		content: {
-			text: $(this).next()
-		},
-		style: {
-				classes: 'popover_box short_box',
-				widget: false,
-				def: false,
-				tip: false
-			},
-		hide: {
-			fixed: true,
-			event: null,
-			effect: function(offset) {
-				$(this).slideUp(200);
-			}
-		},
-		show:
-		{
-			event: 'click',
-			effect: function(offset) {
-                if(selectedCount!==0){
+</script><!-- end of setting global javascript variable -->
 
-				$(this).slideDown(200);
-                }
-			}
-		},
-		events: {
-					show: function(event, api) {
-						 api.elements.target.addClass('active');
-                        var $el = $(api.elements.target[0]);
-                        $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                        $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
+<!-- BOF App factory menu actionbar -->
+<div class="action-bar">
+    <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" title="Cancel">
+        <span class="fw-stack fw-lg btn-action-ico">
+            <i class="fw fw-ring fw-stack-2x"></i>
+            <i class="fw fw-left-arrow fw-stack-1x"></i>
+        </span> Cancel
+    </a>
+    <% if (hasInviteUserPermission) { %>
+	<a href="<%=jagg.getAbsoluteUrl("/site/pages/application-team-invite.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" data-toggle="tooltip" data-placement="top" title="Invite Members">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-add fw-stack-1x"></i>
+                </span> <span class="hidden-xs">Invite Members</span>
+    </a>
+    <% } %>
+</div><!-- EOF App factory menu actionbar-->
 
-                        manageUserList();
-
-
-					},
-					hide: function(event, api) {
-						 api.elements.target.removeClass('active');
-					}
-				}
-	});
-}).bind('click', function(event){ event.preventDefault(); return false; });
-
-$('.text-box-overrider').click(function(){
-    var $span = $('span',this);
-    var role = $(this).attr('data-role');
-
-    var checkedUsers = [];
-    if(allRoles.length > 0 ){
-        $('#userListContainer .action_check').each(function(){
-                if($(this).is(':checked')){
-                    checkedUsers.push($(this).attr('data-user'));
-                }
-            }
-        );
-        if($span.hasClass('checkbox-checked')){
-            $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
-            getRoleByName(role).users = [];
-        }else if($span.hasClass('checkbox-unchecked')  ){
-            if(getRoleByName(role).halfUsers != null && getRoleByName(role).halfUsers != undefined){
-                $('span',this).replaceWith('<span class="checkbox-half"></span>');
-                getRoleByName(role).users = getRoleByName(role).halfUsers;
-            }else{
-                $('span',this).replaceWith('<span class="checkbox-checked"></span>');
-                getRoleByName(role).users = checkedUsers;
-            }
-        }else if($span.hasClass('checkbox-half')){
-            $('span',this).replaceWith('<span class="checkbox-checked"></span>');
-            getRoleByName(role).halfUsers = getRoleByName(role).users;
-        }
-
-    } else{
-        if($span.hasClass('checkbox-checked')){
-            $('span',this).replaceWith('<span class="checkbox-unchecked"></span>');
-        }else if($span.hasClass('checkbox-unchecked')){
-            $('span',this).replaceWith('<span class="checkbox-half"></span>');
-        }else if($span.hasClass('checkbox-half')){
-            $('span',this).replaceWith('<span class="checkbox-checked"></span>');
-        }
-    }
-});
-
-$('#select_all_check').click(function(){
-
-    $('#userListContainer .action_check').each(function(){
-            if($('#select_all_check').is(':checked')){
-                $(this).attr('checked','checked');
-
-                selectedCount++;
-                enableDisableEditDeleteButtons(true);
-            }else{
-                $(this).removeAttr('checked');
-                selectedCount=0;
-                enableDisableEditDeleteButtons(false);
-            }
-        }
-    );
-
-    manageUserList();
-}).removeAttr('checked');
-enableDisableEditDeleteButtons(false);//disabling edit and delete button on load
-
-$('#saveUserRoles').click(function(){
-    // iterate through allRoles and save the users with there roles
-    finalUsers=[];
-    covertAllRoles();
-    detectAllUserRoleChanges();
-    updateUsers();
-    $(this).parents('.qtip').qtip("hide");
-});
-
-$('#removeUsers').click(function(){
-    var checkedUsers = [] ;
-	jagg.removeMessage('teampageId');
-    $('#userListContainer .action_check').each(function(){
-                if($(this).is(':checked')){
-                    checkedUsers.push($(this).attr('data-user'));
-
-                }
-            }
-    );
-    var result=validateUsersTobeDelete();
-    if(result<0){
-        if(selectedCount!==0){
-            jagg.popMessage({type:'confirm',title:'Delete Users',content:'Are you sure you want to delete users?',okCallback:function(){ deleteUsers();},cancelCallback:function(){}});
-            updateTable();
-        }
-    } else{
-        if(result==1){//error code when appcreator included inthe to delete list
-            jagg.message({
-                content: "Application Creator cannot be deleted - Remove the "+appOWner+" from the list.",
-                type: 'warning', id:'teampageId'
-            });
-        }else{//logged in user includes in the to delete list
-            jagg.message({
-                content: "User cannot delete him self from the application",
-                type: 'warning', id:'teampageId'
-            });
-        }
-
-    }
-
-
-
-
-});
-
-    function covertAllRoles(){
-        //convert all roles array in to processable array in update user method
-        for (var index in allRoles){
-
-            var tempRole=allRoles[index];
-            var tmpRoleName=tempRole.role_name;
-            var tmpUsers=tempRole.users; //array
-            for(var userIndex in tmpUsers){
-                var userFromFinalUsers=getUserfromFinalUsers(tmpUsers[userIndex]);
-                if(userFromFinalUsers===null){
-                    var user={};
-                    var roles=[];
-                    user.name=tmpUsers[userIndex];
-                    roles.push(tmpRoleName);
-                    user.roles=roles;
-                    finalUsers.push(user);
-                }else{
-                    userFromFinalUsers.roles.push(tmpRoleName);
-                }
-            }
-        }
-
-    }
-    function detectAllUserRoleChanges(){
-        for(u in finalUsers){
-            doDetectChangesNew(finalUsers[u].name);
-        }
-    }
-    function getUserfromFinalUsers(name){
-        for(var index in finalUsers){
-            if(finalUsers[index].name===name){
-                return finalUsers[index];
-                break;
-            }
-        }
-        return null;
-    }
-    function getUserFromUsersWithRoles(name){
-        for(var index in usersWithRoles){
-            if(usersWithRoles[index].userName===name){
-                return usersWithRoles[index];
-                break;
-            }
-        }
-        return null;
-
-    }
-
-    function doDetectChangesNew(userName){
-        var tmpUser= getUserfromFinalUsers(userName);
-        var endingRoles =tmpUser.roles;
-        var t=getUserFromUsersWithRoles(userName);
-        var startingRoles=t.roles.split('\n');
-        var trolesToAdd=[];
-        var trolesToDelete=[];
-
-        for(var i in startingRoles){
-            if(endingRoles.indexOf(startingRoles[i])===-1){
-                //add to roles to delete
-                trolesToDelete.push(startingRoles[i]);
-
-            }
-        }
-        for(var j in endingRoles){
-            if(startingRoles.indexOf(endingRoles[j])===-1){
-                //ad to rolestoadd
-                trolesToAdd.push(endingRoles[j]);
-            }
-        }
-        tmpUser.rolesToDelete=trolesToDelete;
-        tmpUser.rolesToAdd=trolesToAdd;
-
-    }
-    function updateUsers(){
-
-        for(var u in finalUsers){
-            var user=finalUsers[u];
-            doupdateUser(user.name,user.rolesToDelete,user.rolesToAdd,u);
-        }
-
-    }
-
-
-
-    function doupdateUser(username,rolesToDel,rolestoAd,count){
-        jagg.post("../blocks/tenant/users/add/ajax/add.jag", {
-                    action:"updateUserRoles",
-                    userName:username,
-                    rolesToDelete:rolesToDel.toString(),
-                    rolesToAdd:rolestoAd.toString()
-                },
-
-                function (result) {
-
-                    if(result != undefined || result==true){
-
-                        // TODO implement addApplicationToApp(applicationKey,
-                        // applicationName, applicationDescription);
-                        var x= (finalUsers.length-1)
-                        if(count==x){
-                            window.setTimeout(function () {
-                                updateTable();
-
-                            }, 300);
-
-                        }
-                        enableDisableEditDeleteButtons(false);
-
-                        return result;
-                    }else if(result==false){
-
-                        return result;
-                    }
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    // showNotification('notifier','message','Your invitation has not been sent to '+newUserNames,'error');
-                    updateTable();
-                });
-
-    }
-
-    $('#search_members').keyup(function(event){
-        doSearch($(this).val());
-    });
-    function doSearch(searchtext){
-
-        $(".cleanable").each(function(){
-
-            var dv=$(this).attr("data-email");
-            var ds=$(this).attr("data-name");
-            //if(searchtext.indexOf("*")!=-1){
-                var pattern=new RegExp(searchtext);
-                if((pattern.test(dv))||(pattern.test(ds))){
-                    $(this).show();
-
-                }else{
-                    $(this).hide();
-                }
-
-
-//            }else{
-//                if((dv.indexOf(searchtext)==0)||(ds.indexOf(searchtext)==0)){
-//                    $(this).show();
-//
-//                }else{
-//                    $(this).hide();
-//                }
-//            }
-
-        });
-    }
-
-    /*delete a given user*/
-    function deleteUsers(){
-
-        jagg.post("../blocks/application/user/update/ajax/update.jag", {
-                    action:"removeUserFromApplication",
-                    applicationKey:$("#applicationKey").attr('value'),
-                    users:selectedUsers.toString()
-
-                },
-
-                function (result) {
-                        window.setTimeout(function () {
-                            updateTable();
-
-                        }, 300);
-                },
-                function (jqXHR, textStatus, errorThrown) {
-                    updateTable();
-                    //jagg.message({content:'Error Occured during the removal process of '+userToDelete:'error' });
-                });
-
-
-    }
-    function validateUsersTobeDelete(){
-        var i=selectedUsers.indexOf(appOWner);
-        var loggedInUser=$('#userName').attr('value').split('@')[0];
-        var j=selectedUsers.indexOf(loggedInUser);
-        if(i>=0){
-            //appcreator in the list to be deleted
-            return 1;
-        }if(j>=0){
-            //logged in user in the list to be deleted
-            return 2;
-        }else{
-            //validation pass
-            return -1;
-        }
-    }
-
-});
-
-    function setHelpTips(helpTips){
-	$("#listMemberHelp").html(helpTips.listMemberHelp);	
-    }
-
-</script>
-
-<div><!-- BOF middle containner -->
-    <article class="main">
-        <% jagg.includeBlock("page/messages", null); %>
-        <% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.TEAM}); %>
-        <% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
-        
-        <!-- following div can be removed after new ux-->
-        <div style="height: 80px; "></div>
-        <!-- -->
-        <header class="separator">
-            <div class="content">
-                <div class="left">
-                    <h1 class="inline_box">Application Team</h1>
-
-                </div>
-
-             </div>
-        </header>
-<% jagg.includeBlock("page/help", {"section": "team"}); %>
-            <div class="content">
-                <div class="af_container">
-                    <div class="af_row">
-                        <div class="col-10">
-                            <form class="left fw_250 form-container search_form" onSubmit="return false;">
-                            <div class="input_row">
-                                <label for="search_members" class="hide" >Search Members</label>
-                                <input id="search_members" type="text" class="fw_250" placeholder="Search Members" name="search_members" value=""  /><span class="icon-search"></span>
-                            </div>
-                            </form>
-                        </div>
-                        <div class="col-2">
-                            <% if (hasInviteUserPermission) { %>
-                                <a id="btnAddMembers" href="<%=jagg.getAbsoluteUrl("/site/pages/application-user-invite.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn main head button-fixed-width-150">Add Members</a>
-                            <% }else{ %>
-                                <span class="button-fixed-width-150"></span>
-                            <% } %>
-                        </div>
-                    </div>
-            </div>
-            </div>
-            <div class="content">
-                <!--<h2 id="membersCount" class="big push_bottom_40"> Members in Team</h2>-->
-		<div class="help-block push_bottom_10"><span class="help-icon">?</span> <span id="listMemberHelp"></span></div>
-                <ul class="list_table highlight" id="userListContainer">
-                    <li class="list_row_item row_section">
-                            <ul class="list_row first_list_row ">
-                                <li class="list_col first_list_col item_select cursover_remover">
-
-                                    <h2 class="list_col_heading list-col-min">
-                                        <% if (hasInviteUserPermission) { %>
-                                        <input type="checkbox" name="select_all" id="select_all_check" /></h2>
-                                        <%}%>
-                                </li>
-                                <li class="list_col team_member cursover_remover">
-                                    <h2 class="list_col_heading list-col-min" style="padding-left:20px;">Team Member</h2>
-                                </li>
-                                <li class="list_col  team_role cursover_remover">
-                                    <h2 class="list_col_heading list-col-min">Roles</h2>
-                                </li>
-                                <li class="list_col team_last_login cursover_remover">
-                                    <h2 class="list_col_heading list-col-min">
-                                        &nbsp;
-                                    <!-- Todo - post 1.0 -->
-                                    <!--Last Login-->
-                                    </h2>
-                                </li>
-                                <li class="list_col team_controller cursover_remover">
-                                    <h2 class="list_col_heading list-col-min" >
-                                        <% if (hasInviteUserPermission) { %>
-                                            <a id="removeUsers" href="#" class="icon_link" title="Remove User"><span class="icon-remove" title="Remove User"></span></a>
-                                        <% } %>
-                                    </h2>
-
-                                </li>
-                            </ul>
-                       </li>
-                       <div id="userDetailsSection"></div>
+<div class="container-fluid app-content-section">
+    <div class="row">
+        <div class="col-md-12 msg-issues">
+          The team members participating in the current application are listed here.
+        </div>
+    </div>
+    <% if (pendingUsers && pendingUsers.length > 0) { %>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="push"></div>
+            <div class="alert alert-info alert-pending" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <span class="alert-content">
+                        <i class="fa fa-check-circle-o"></i> <strong> <span><%=pendingUsers.length%></span> invitations are pending...</strong> <a class="click_to_expand" href="#">Click here to view</a>
+                </span>
+                <ul class="invitaiton_list" style="display:none;">
+                <%  for(var i = 0, len = pendingUsers.length; i < len; i++){  %>
+                    <li><span><%=pendingUsers[i]%></span>
+                        <a href="#" onclick="resendInvitation('<%=pendingUsers[i]%>'); return false;">Resend Invitation</a>
+                    </li>
+                    <!--<li><span>amila@wso2.com</span> <a href="#">Resend Invitation</a></li>-->
+                <% } %>
                 </ul>
             </div>
+        </div>
+    </div>
 
-    <div class="clearfix"></div>
-    </article>
-    </div><!-- /container -->
+     <% } %>
+    <!--<div class="row">-->
+        <!--<div class="alert alert-info" role="alert">-->
+            <!--<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>-->
+            <!--<i class="fa fa-check-circle-o"></i> <strong> <span>2</span> invitations are pending...</strong> <a class="click_to_expand" href="#">Click here to view</a>-->
+            <!--<ul class="invitaiton_list" style="display:none;">-->
+                <!--<li><span>dimuthu@wso2.com</span> <a href="#">Resend Invitation</a></li>-->
+                <!--<li><span>amila@wso2.com</span> <a href="#">Resend Invitation</a></li>-->
+            <!--</ul>-->
+        <!--</div>-->
+    <!--</div>-->
+    <div class="row">
+        <div class="col-md-12">
+            <div id="push"></div>
+            <div class="datatable">
+                <table id="teamlist" class="display" cellspacing="0" width="100%">
+                    <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Roles</th>
+                        <th class="hidden-username">Username</th>   <!-- Hidden Coulmun for eas of usage in js-->
+                        <th class="hidden-roles">Roles</th>         <!-- Hidden Coulmun for eas of usage in js-->
+                        <% if (hasTenantLevelUserMgtPermission) { %>
+                            <th class="af-edit-roles">Edit Roles</th>
+                        <% } %>
+                        <% if (hasInviteUserPermission) { %>
+                            <th class="af-delete-users">Delete</th>
+                        <% } %>
+                    </tr>
+                    </thead>
+                </table>
 
-<input type="hidden" id="userName" value='<%= jagg.getUser() %>' />
-<input type="hidden" id="applicationKey" value='<%= applicationKey %>' />
+            </div>
+            <div class="clearfix"></div>
+            <div id="push"></div>
+            <div id="push"></div>
+        </div>
+    </div>
+</div><!-- /.container -->
+<div class="clearfix"></div>
+<div id="push"></div>
+<% jagg.includeBlock("page/notification-wall", {"wall_name" : applicationKey + " - App Wall","applicationKey" : applicationKey, "pageName":"App Home"});%>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/bootstrap-3.2.0/bootstrap.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/dataTables.responsive.min.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/datatables-1.10.7/jquery.dataTables.columnFilter.js'))%>"></script>
+<!-- include custom js functions -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/application/user/list/js/userlist.js'))%>"></script>
 
-<script>
-    $(document).ready(function(){
-    });
-</script>
-<!-- -->
-
-
-
-        <% }); %>
+   <%
+}); %>

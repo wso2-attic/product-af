@@ -144,7 +144,12 @@ public class GithubRepositoryProvider extends AbstractRepositoryProvider {
         return false;
     }
 
-    @Override
+	@Override public boolean deleteForkedRepositoriesForApplication(String applicationKey, String tenantDomain)
+			throws RepositoryMgtException {
+		return false;
+	}
+
+	@Override
     public boolean repoExists(String applicationKey, String tenantDomain) throws RepositoryMgtException {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -369,6 +374,11 @@ public class GithubRepositoryProvider extends AbstractRepositoryProvider {
 	    // TODO Implement repo deletion for tenant here
 		return false;
 	}
+
+    @Override
+    public void deleteStratosArtifactRepository(String repoName) throws RepositoryMgtException {
+
+    }
 
     @Override
     public String createForkRepo(String applicationKey, String userName) throws RepositoryMgtException {

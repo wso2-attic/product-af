@@ -19,6 +19,7 @@
 
 include('/jagg/constants.jag');
 include('/jagg/config_reader.jag');
+include('/jagg/jagg.jag');
 jagg.block("server/list", {
     initialize: function (data) {
 
@@ -30,40 +31,24 @@ jagg.block("server/list", {
     },
 
     getOutputs: function (inputs) {
-        var log = new Log();
+        var userName = jagg.getUser();
         var permissionModule = jagg.module("permission");
         var lifecycleModule = jagg.module("lifecycle");
         var logModule = jagg.module("logdownload");
         var applicationKey = request.getParameter("applicationKey");
-
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        var hasPromotePermissions = {};
-        var hasDemotePermissions = {};
-        var hasVisibilityPermissions = {};
-
-        for (var i = 0; i < deploymentStages.length; i++) {
-            var next = lifecycleModule.getNextLifeCycleStage(deploymentStages[i]);
-            var prev = lifecycleModule.getPreviousLifeCycleStage(deploymentStages[i]);
-
-            hasPromotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_PROMOTE_TO + next);
-
-            hasDemotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + prev);
-
-            hasVisibilityPermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_VISIBILITY_STAGE + deploymentStages[i]);
-
+        var deploymentStages = null;
+        var helpTips = null;
+        var appVersionsInStages = null;
+        var appVersions = null;
+        if(userName){
+            deploymentStages = getProperties(DEPLOYMENT_STAGES);
+            helpTips = jagg.module("help").getHelpTips("server");
+            appVersionsInStages = logModule.getVersionsOfApplicationInStages(jagg.getUser(), applicationKey);
+            appVersions = appVersionsInStages.allAppVersions;
         }
-
-        var hasRetirePermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_RETIRE);
-        var helpTips = jagg.module("help").getHelpTips("server");
-        var appVersionsInStages = logModule.getVersionsOfApplicationInStages(jagg.getUser(), applicationKey);
-
         return {
-            "hasPromotePermissions": hasPromotePermissions,
-            "hasDemotePermissions": hasDemotePermissions,
-            "hasRetirePermission": hasRetirePermission,
-            "hasVisibilityPermissions": hasVisibilityPermissions,
             "appVersionsInStages": appVersionsInStages,
-	    "helpTips":helpTips
+	        "helpTips":helpTips
 
         };
     }

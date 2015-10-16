@@ -87,7 +87,7 @@ if [ ! -d /etc/facter/facts.d/ ]; then
    mkdir -p /etc/facter/facts.d/
 fi
 
-echo "{\"appfac_ip\" : \"$MACHINE_IP\", \"dev_id\":\"$FILTERED_DEV_ID\",\"puppet_un\":\"$PUPPET_UN\",\"encrtpted_pw\":\"$PUPPET_PW_SHA\" }" > /etc/facter/facts.d/appfactory-facts.json
+echo "{\"kubernetes_host\" : \"$KUBERNETES_HOST\",\"kubernetes_port\" : \"$KUBERNETES_PORT\",\"appfac_ip\" : \"$MACHINE_IP\", \"dev_id\":\"$FILTERED_DEV_ID\",\"puppet_un\":\"$PUPPET_UN\",\"encrtpted_pw\":\"$PUPPET_PW_SHA\" }" > /etc/facter/facts.d/appfactory-facts.json
 
 # generating a unique name for this node
 NODE_UNIQUE_ID=$(cat /dev/urandom | tr -dc $pattern | fold -w 6 | head -n 1 | tr '[:upper:]' '[:lower:]' )

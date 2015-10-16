@@ -1,3 +1,16 @@
+WSO2 App Factory
+===============
+
+---
+
+| Branch | Build Status |
+| :------------ |:-------------
+| master | [![Build Status](https://wso2.org/jenkins/job/product-af/badge/icon)](https://wso2.org/jenkins/job/product-af) |
+
+
+---
+
+
 Welcome to WSO2 App Factory
 ===========================
 

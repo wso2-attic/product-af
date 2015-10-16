@@ -39,8 +39,7 @@ class appfactory (
                     "conf/appfactory/endpoints/EventNotificationService.epr", 
                     "conf/appfactory/endpoints/RepoManagementService.epr", 
                     "conf/appfactory/endpoints/TenantMgtService.epr", 
-                    "conf/appfactory/endpoints/UserRegistrationService.epr", 
-                    "conf/appfactory/endpoints/ContinousIntegrationService.epr", 
+                    "conf/appfactory/endpoints/UserRegistrationService.epr",
                     "conf/appfactory/endpoints/AppFactoryTenantMgtAdminService.epr", 
                     "conf/appfactory/endpoints/AppFactoryTenantInfraStructureInitializerService.epr", 
                     "conf/axis2/axis2.xml",
@@ -62,6 +61,7 @@ class appfactory (
                     "deployment/server/runtimes/iis-1.0.0.xml",
                     "deployment/server/runtimes/php-1.0.0.xml",
                     "deployment/server/runtimes/appserver-1.0.0.xml",
+                    "deployment/server/runtimes/tomcat-1.0.0.xml",
                     "conf/datasources/appfactory-datasources.xml",
                     "conf/etc/cassandra.yaml",
           ]

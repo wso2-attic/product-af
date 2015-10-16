@@ -9,12 +9,12 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="working_dir" elementType="Argument">
             <stringProp name="Argument.name">working_dir</stringProp>
-            <stringProp name="Argument.value">/home/manjula/source/wso2/git/product-af/jmeter-tests/module-based-script</stringProp>
+            <stringProp name="Argument.value">/home/punnadi/wso2/git_code_base/git/fork_af/product-af/jmeter-tests/module-based-script</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="organization" elementType="Argument">
             <stringProp name="Argument.name">organization</stringProp>
-            <stringProp name="Argument.value">tom.com</stringProp>
+            <stringProp name="Argument.value">puva12.com</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="git_host_name" elementType="Argument">
@@ -34,12 +34,12 @@
           </elementProp>
           <elementProp name="username" elementType="Argument">
             <stringProp name="Argument.name">username</stringProp>
-            <stringProp name="Argument.value">tom</stringProp>
+            <stringProp name="Argument.value">admin</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="password" elementType="Argument">
             <stringProp name="Argument.name">password</stringProp>
-            <stringProp name="Argument.value">manjula</stringProp>
+            <stringProp name="Argument.value">admin</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="waiting_time" elementType="Argument">
@@ -59,17 +59,17 @@
           </elementProp>
           <elementProp name="tenant_domain" elementType="Argument">
             <stringProp name="Argument.name">tenant_domain</stringProp>
-            <stringProp name="Argument.value">tom.com</stringProp>
+            <stringProp name="Argument.value">puva12.com</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="tenant_admin" elementType="Argument">
             <stringProp name="Argument.name">tenant_admin</stringProp>
-            <stringProp name="Argument.value">tom</stringProp>
+            <stringProp name="Argument.value">admin</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="tenant_admin_password" elementType="Argument">
             <stringProp name="Argument.name">tenant_admin_password</stringProp>
-            <stringProp name="Argument.value">manjula</stringProp>
+            <stringProp name="Argument.value">admin</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="developer_count" elementType="Argument">
@@ -148,7 +148,7 @@
         <stringProp name="shareMode">shareMode.all</stringProp>
       </CSVDataSet>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Populate Users" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Add members to Organization" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -156,8 +156,8 @@
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">${developer_count}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${global_ramp_up_time}</stringProp>
-        <longProp name="ThreadGroup.start_time">1388980923000</longProp>
-        <longProp name="ThreadGroup.end_time">1388980923000</longProp>
+        <longProp name="ThreadGroup.start_time">1443771779000</longProp>
+        <longProp name="ThreadGroup.end_time">1443771779000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
@@ -184,7 +184,7 @@
             <collectionProp name="ModuleController.node_path">
               <stringProp name="-1227702913">WorkBench</stringProp>
               <stringProp name="-1227702913">WorkBench</stringProp>
-              <stringProp name="-27544823">basic auth login module</stringProp>
+              <stringProp name="-1757686448">basic auth login module appmgt</stringProp>
             </collectionProp>
           </ModuleController>
           <hashTree/>
@@ -202,12 +202,12 @@
               <boolProp name="quotedData">false</boolProp>
               <boolProp name="recycle">false</boolProp>
               <boolProp name="stopThread">false</boolProp>
-              <stringProp name="shareMode">shareMode.group</stringProp>
+              <stringProp name="shareMode">shareMode.thread</stringProp>
             </CSVDataSet>
             <hashTree/>
             <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Developer list not completed" enabled="true">
               <stringProp name="IfController.condition">${__javaScript(&quot;${af_developer}&quot; != &quot;&lt;EOF&gt;&quot;)}</stringProp>
-              <boolProp name="IfController.evaluateAll">false</boolProp>
+              <boolProp name="IfController.evaluateAll">true</boolProp>
             </IfController>
             <hashTree>
               <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="set username and password" enabled="true">
@@ -232,65 +232,40 @@
                 </collectionProp>
               </ModuleController>
               <hashTree/>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-            </hashTree>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="appOwners" enabled="true"/>
-          <hashTree>
-            <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="AF appOwner users set" enabled="true">
-              <stringProp name="TestPlan.comments">AF users set</stringProp>
-              <stringProp name="filename">${working_dir}/sample_data/users/af_appowner_users.csv</stringProp>
-              <stringProp name="fileEncoding"></stringProp>
-              <stringProp name="variableNames">af_appOwner,af_appOwner_password,af_user_role</stringProp>
-              <stringProp name="delimiter">,</stringProp>
-              <boolProp name="quotedData">false</boolProp>
-              <boolProp name="recycle">false</boolProp>
-              <boolProp name="stopThread">false</boolProp>
-              <stringProp name="shareMode">shareMode.group</stringProp>
-            </CSVDataSet>
-            <hashTree/>
-            <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If AppOwner list not completed" enabled="true">
-              <stringProp name="IfController.condition">${__javaScript(&quot;${af_appOwner}&quot; != &quot;&lt;EOF&gt;&quot;)}</stringProp>
-              <boolProp name="IfController.evaluateAll">false</boolProp>
-            </IfController>
-            <hashTree>
-              <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="set username and password" enabled="true">
-                <collectionProp name="UserParameters.names">
-                  <stringProp name="-1094948955">af_user</stringProp>
-                  <stringProp name="1653362165">af_user_password</stringProp>
-                </collectionProp>
-                <collectionProp name="UserParameters.thread_values">
-                  <collectionProp name="1086708292">
-                    <stringProp name="-1819327384">${af_appOwner}</stringProp>
-                    <stringProp name="-448427976">${af_appOwner_password}</stringProp>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="login tenant admin" enabled="true"/>
+              <hashTree>
+                <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="set tenant admin,password" enabled="true">
+                  <collectionProp name="Arguments.arguments">
+                    <elementProp name="username" elementType="Argument">
+                      <stringProp name="Argument.name">username</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                    <elementProp name="password" elementType="Argument">
+                      <stringProp name="Argument.name">password</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin_password}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
                   </collectionProp>
-                </collectionProp>
-                <boolProp name="UserParameters.per_iteration">false</boolProp>
-              </UserParameters>
-              <hashTree/>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="register appOwners" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="365421678">register users into organization module</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
+                </Arguments>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="basic auth login" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1300257028">basic auth login module cloudmgt</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+              </hashTree>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="qa" enabled="true"/>
@@ -334,30 +309,44 @@
                 </collectionProp>
               </ModuleController>
               <hashTree/>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="login tenant admin" enabled="true"/>
+              <hashTree>
+                <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="set tenant admin,password" enabled="true">
+                  <collectionProp name="Arguments.arguments">
+                    <elementProp name="username" elementType="Argument">
+                      <stringProp name="Argument.name">username</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                    <elementProp name="password" elementType="Argument">
+                      <stringProp name="Argument.name">password</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin_password}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                  </collectionProp>
+                </Arguments>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="basic auth login" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1300257028">basic auth login module cloudmgt</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+              </hashTree>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="devOps" enabled="true"/>
           <hashTree>
-            <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="AF devOps users set" enabled="true">
-              <stringProp name="TestPlan.comments">AF users set</stringProp>
-              <stringProp name="filename">${working_dir}/sample_data/users/af_devops_users.csv</stringProp>
-              <stringProp name="fileEncoding"></stringProp>
-              <stringProp name="variableNames">af_devOps,af_devOps_password,af_user_role</stringProp>
-              <stringProp name="delimiter">,</stringProp>
-              <boolProp name="quotedData">false</boolProp>
-              <boolProp name="recycle">false</boolProp>
-              <boolProp name="stopThread">false</boolProp>
-              <stringProp name="shareMode">shareMode.group</stringProp>
-            </CSVDataSet>
-            <hashTree/>
             <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If DevOps list not completed" enabled="true">
               <stringProp name="IfController.condition">${__javaScript(&quot;${af_devOps}&quot; != &quot;&lt;EOF&gt;&quot;)}</stringProp>
               <boolProp name="IfController.evaluateAll">false</boolProp>
@@ -385,14 +374,129 @@
                 </collectionProp>
               </ModuleController>
               <hashTree/>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="login tenant admin" enabled="true"/>
+              <hashTree>
+                <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="set tenant admin,password" enabled="true">
+                  <collectionProp name="Arguments.arguments">
+                    <elementProp name="username" elementType="Argument">
+                      <stringProp name="Argument.name">username</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                    <elementProp name="password" elementType="Argument">
+                      <stringProp name="Argument.name">password</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin_password}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                  </collectionProp>
+                </Arguments>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="basic auth login" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1300257028">basic auth login module cloudmgt</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+              </hashTree>
+            </hashTree>
+            <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="AF devOps users set" enabled="true">
+              <stringProp name="TestPlan.comments">AF users set</stringProp>
+              <stringProp name="filename">${working_dir}/sample_data/users/af_devops_users.csv</stringProp>
+              <stringProp name="fileEncoding"></stringProp>
+              <stringProp name="variableNames">af_devOps,af_devOps_password,af_user_role</stringProp>
+              <stringProp name="delimiter">,</stringProp>
+              <boolProp name="quotedData">false</boolProp>
+              <boolProp name="recycle">false</boolProp>
+              <boolProp name="stopThread">false</boolProp>
+              <stringProp name="shareMode">shareMode.group</stringProp>
+            </CSVDataSet>
+            <hashTree/>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="appOwners" enabled="true"/>
+          <hashTree>
+            <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="AF appOwner users set" enabled="true">
+              <stringProp name="TestPlan.comments">AF users set</stringProp>
+              <stringProp name="filename">${working_dir}/sample_data/users/af_appowner_users.csv</stringProp>
+              <stringProp name="fileEncoding"></stringProp>
+              <stringProp name="variableNames">af_appOwner,af_appOwner_password,af_user_role</stringProp>
+              <stringProp name="delimiter">,</stringProp>
+              <boolProp name="quotedData">false</boolProp>
+              <boolProp name="recycle">false</boolProp>
+              <boolProp name="stopThread">false</boolProp>
+              <stringProp name="shareMode">shareMode.group</stringProp>
+            </CSVDataSet>
+            <hashTree/>
+            <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If AppOwner list not completed" enabled="true">
+              <stringProp name="IfController.condition">${__javaScript(&quot;${af_appOwner}&quot; != &quot;&lt;EOF&gt;&quot;)}</stringProp>
+              <boolProp name="IfController.evaluateAll">false</boolProp>
+            </IfController>
+            <hashTree>
+              <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="set username and password" enabled="true">
+                <collectionProp name="UserParameters.names">
+                  <stringProp name="-1094948955">af_user</stringProp>
+                  <stringProp name="1653362165">af_user_password</stringProp>
+                </collectionProp>
+                <collectionProp name="UserParameters.thread_values">
+                  <collectionProp name="1086708292">
+                    <stringProp name="-1819327384">${af_appOwner}</stringProp>
+                    <stringProp name="-448427976">${af_appOwner_password}</stringProp>
+                  </collectionProp>
+                </collectionProp>
+                <boolProp name="UserParameters.per_iteration">false</boolProp>
+              </UserParameters>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="register appOwners" enabled="true">
                 <collectionProp name="ModuleController.node_path">
                   <stringProp name="-1227702913">WorkBench</stringProp>
                   <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
+                  <stringProp name="365421678">register users into organization module</stringProp>
                 </collectionProp>
               </ModuleController>
               <hashTree/>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="login tenant admin" enabled="true"/>
+              <hashTree>
+                <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="set tenant admin,password" enabled="true">
+                  <collectionProp name="Arguments.arguments">
+                    <elementProp name="username" elementType="Argument">
+                      <stringProp name="Argument.name">username</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                    <elementProp name="password" elementType="Argument">
+                      <stringProp name="Argument.name">password</stringProp>
+                      <stringProp name="Argument.value">${tenant_admin_password}</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                    </elementProp>
+                  </collectionProp>
+                </Arguments>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="basic auth login" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1300257028">basic auth login module cloudmgt</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+                <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="update user roles" enabled="true">
+                  <collectionProp name="ModuleController.node_path">
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-1227702913">WorkBench</stringProp>
+                    <stringProp name="-2089580731">assign a tenant level role to a user module</stringProp>
+                  </collectionProp>
+                </ModuleController>
+                <hashTree/>
+              </hashTree>
             </hashTree>
           </hashTree>
         </hashTree>
@@ -461,7 +565,7 @@
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Populate Apps" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Populate Apps" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -521,7 +625,7 @@
           <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="AF apps set" enabled="true">
             <stringProp name="filename">${working_dir}/sample_data/apps/af_apps.csv</stringProp>
             <stringProp name="fileEncoding"></stringProp>
-            <stringProp name="variableNames">app_name,app_key,app_desc,app_ext,app_type</stringProp>
+            <stringProp name="variableNames">app_name,app_key,app_desc,app_ext,app_type,app_type_display_name</stringProp>
             <stringProp name="delimiter">,</stringProp>
             <boolProp name="quotedData">false</boolProp>
             <boolProp name="recycle">false</boolProp>
@@ -604,7 +708,7 @@
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Invite to Apps - Dev" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Invite to Apps - Dev" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -651,7 +755,7 @@
             <collectionProp name="ModuleController.node_path">
               <stringProp name="-1227702913">WorkBench</stringProp>
               <stringProp name="-1227702913">WorkBench</stringProp>
-              <stringProp name="-27544823">basic auth login module</stringProp>
+              <stringProp name="-1757686448">basic auth login module appmgt</stringProp>
             </collectionProp>
           </ModuleController>
           <hashTree/>
@@ -726,40 +830,8 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Invite to Apps - QA" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Invite to Apps - QA" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -917,7 +989,7 @@
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Invite to Apps - DevOps" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Invite to Apps - DevOps" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -1227,8 +1299,40 @@
           <stringProp name="filename"></stringProp>
         </ResultCollector>
         <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>false</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="build and deploy" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="build and deploy" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>

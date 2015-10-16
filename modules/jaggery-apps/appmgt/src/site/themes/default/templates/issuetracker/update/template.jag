@@ -32,6 +32,7 @@ jagg.template("issuetracker/update", function(inputs, outputs, jagg) { %>
     }
 
 	function updateIssue() {
+	$('#btn-update').loadingButton('show');
 	var issue={};
 	issue.key=$("#key").attr('value');
 	issue.type=$('#issueType').children("option:selected").text();
@@ -56,8 +57,10 @@ jagg.template("issuetracker/update", function(inputs, outputs, jagg) { %>
 	      function (jqXHR, textStatus, errorThrown) {
               jagg.message({content:'Error occurred while updating issue',type:'error' });
 	    });
+	    $('#btn-update').loadingButton('hide');
      }
      function createIssue() {
+        $('#btn-create').loadingButton('show');
      	var issue={};
      	//issue.key=$("#key").attr('value');
      	issue.type=$('#issueType').children("option:selected").text();
@@ -84,6 +87,7 @@ jagg.template("issuetracker/update", function(inputs, outputs, jagg) { %>
                      jagg.message({content:'Error occurred while creating issue',type:'error' });
      	         }
      	    });
+     	    $('#btn-create').loadingButton('hide');
           }
 </script>
 
@@ -186,11 +190,11 @@ jagg.template("issuetracker/update", function(inputs, outputs, jagg) { %>
                            <%
                            if(action=='create'){
                            %>
-                             <input class="btn" type="button" value="Create" onclick="createIssue()">
+                             <input class="btn" type="button" value="Create" id="btn-create" onclick="createIssue()">
                             <%
                            }else{
                            %>
-                           <input class="btn" type="button" value="Update" onclick="updateIssue()">
+                           <input class="btn" type="button" value="Update" id="btn-update" onclick="updateIssue()">
                            <%
                            }
                            %>

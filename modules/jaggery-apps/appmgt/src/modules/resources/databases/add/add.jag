@@ -876,27 +876,42 @@ var getAllDatabasesInfo = function (applicationKey, stage) {
  * Generate json object array to insert to the datatable in databases page
 */
 var generateDatabaseInfoForDataTable = function (applicationKey, applicationName) {
+    var permissionModule = jagg.module("permission");
     var allStages = getProperties(DEPLOYMENT_STAGES);
     var allDBInfo = [];
-    for (var i = 0; i < allStages.length; i++) {
-        var allDatabasesPerStage = rssFilter.getAllDatabasesInfo(applicationKey, allStages[i]);
-        for(var j in allDatabasesPerStage) { 
-            var singleDatabaseInfo = allDatabasesPerStage[j];
-            var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
-            singleDatabaseInfo.database_url = dbUrl;
-            //singleDatabaseInfo.userpriviledges = "<a href='#'><i class='fa fa-edit'></i></a>";
-			singleDatabaseInfo.userpriviledges = "<a href='editdatabase.jag?applicationName="
-												 + applicationName + "&applicationKey=" + applicationKey + "&dbName="
-												 + singleDatabaseInfo.name + "&environment=" + singleDatabaseInfo.stage
-												 + "'><i class='fa fa-edit'></i></a>";
-			singleDatabaseInfo.trash = "<a href=''><i class='fa  fa-trash'></i></a>";
-			// currently we dont record database type, support only MySQL.change this when multiple types are allowed
-			singleDatabaseInfo.type = "MySQL";
-
-            allDBInfo.push(singleDatabaseInfo);
-        } 
+    for (var i in allStages) {
+        var hasResourceReadPermissionToStage = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + allStages[i]);
+        var hasResourceUpdatePermissionToStage = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + allStages[i]);
+        var notActive = "";
+        if(!hasResourceUpdatePermissionToStage) {
+            notActive = "not-active";
+        }
+        // Getting all the databases in stages in which user has read permission
+        if(hasResourceReadPermissionToStage) {
+            var allDatabasesPerStage = rssFilter.getAllDatabasesInfo(applicationKey, allStages[i]);
+            for(var j in allDatabasesPerStage) {
+                var singleDatabaseInfo = allDatabasesPerStage[j];
+                var dbUrl = getDatabaseUrl(applicationKey, allStages[i],singleDatabaseInfo.name);
+                singleDatabaseInfo.database_url = dbUrl;
+                singleDatabaseInfo.notActive = notActive;
+			    // currently we dont record database type, support only MySQL.change this when multiple types are allowed
+			    singleDatabaseInfo.type = "MySQL";
+                var attachedUsersArray = getAttachedUsers(applicationKey,singleDatabaseInfo.name,allStages[i]); 
+                var attachedUsersString= "";
+                for(var k in attachedUsersArray) {
+                    if (k>0) {
+                        attachedUsersString = ", " + attachedUsersString;
+                    }
+                    attachedUsersString = attachedUsersArray[k] + attachedUsersString ;
+                }
+                singleDatabaseInfo.attachedUsers = attachedUsersString;
+                allDBInfo.push(singleDatabaseInfo);
+            }
+        }
     }
-    return stringify(allDBInfo);
+    var jsonWithDataAttribute = {};
+    jsonWithDataAttribute.data = allDBInfo;
+    return stringify(jsonWithDataAttribute);
 };
 
 /**

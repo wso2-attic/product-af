@@ -17,12 +17,6 @@
 package org.wso2.carbon.appfactory.application.mgt.util;
 
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,13 +25,14 @@ import org.wso2.carbon.appfactory.application.mgt.service.UserInfoBean;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
-import org.wso2.carbon.appfactory.jenkins.build.service.TenantContinousIntegrationSystemDriverService;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
+
+import java.util.*;
 
 /**
  *
@@ -48,7 +43,6 @@ public class Util {
     private static RealmService realmService;
     private static AppFactoryConfiguration configuration;
     private static ContinuousIntegrationSystemDriver continuousIntegrationSystemDriver;
-	private static TenantContinousIntegrationSystemDriverService tenantContinousIntegrationSystemDriverService;
     private static TenantManagementService tenantManagementService;
     public static String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
     public static String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
@@ -190,23 +184,12 @@ public class Util {
     }
     
     public static void setTenantManagementService(TenantManagementService tenantManagementService){
-    	Util.tenantManagementService=tenantManagementService;
+    	Util.tenantManagementService = tenantManagementService;
     }
     
     public static TenantManagementService getTenantManagementService(){
-    	return Util.tenantManagementService=tenantManagementService;
+    	return Util.tenantManagementService;
     }
-    
-    public static void setTenantContinousIntegrationSystemDriverService(TenantContinousIntegrationSystemDriverService tenantContinousIntegrationSystemDriverService) {
-		Util.tenantContinousIntegrationSystemDriverService =
-		                                                     tenantContinousIntegrationSystemDriverService;
-
-	}
-
-	public static TenantContinousIntegrationSystemDriverService getTenantContinousIntegrationSystemDriverService() {
-		return Util.tenantContinousIntegrationSystemDriverService;
-
-	}
 	
 	private static boolean isHandlerPriorityAlreadyAvailable(ApplicationEventsHandler hanlderToBeRegistered) {
 

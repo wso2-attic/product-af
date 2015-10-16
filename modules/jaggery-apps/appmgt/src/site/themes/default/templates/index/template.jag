@@ -27,8 +27,6 @@ jagg.template("index", function(inputs, outputs, jagg) {
 %>
 
 
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
-
 <script type="text/javascript" xmlns="http://www.w3.org/1999/html" charset="utf-8">
 var parsedAppArray = [];
 var filterArray = [];
@@ -66,8 +64,8 @@ function createTable() {
 
 function addTableColumnHeaders() {
     $("#item_list").html("");
-	var columnHeaderLi = '<li class="item item_header">' +
-    '</li>';
+	var columnHeaderLi = '<div class="item item_header">' +
+    '</div>';
 	$("#item_list").append(columnHeaderLi);
 }
 
@@ -107,28 +105,33 @@ function addTableRow(application) {
         displayName = displayName.replace("^", "<b style=\"background-color:yellow;\">").replace("~", "</b>");
         application.highlightedName = "";
     }
-    var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key + "&isUploadableAppType=" + application.isUploadable;
-    if(application.isUploadable == true || application.isUploadable == "true"){
-        url += "&isUploadableAppType=" + application.isUploadable;
-    }
-    var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
-    var iconClass = " <i class="+ icon + "><\/i>"
 
-    var theLi = '<div class="col-md-3 col-lg-2 col-sm-6"><div class="cloud-app-listing app-color-one">' +
-                        iconClass+
-                        '<div class="app-icon"><a href="' + url +  '">' +
-                         '<img src="/appmgt/site/themes/default/assets/img/appico.png"></a></div>' +
-                         '<div class="app-name" >' + application.name+ '</div>';
+    if (application.applicationCreationStatus != APPLICATION_CREATION_STATUS.FAULTY) {
 
-    // If any of the branches are in production add the green icon
-    if (application.inProduction == true) {
-        theLi += '<img alt="Green tag" class="green_tag" src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile("assets/img/green_tag.png"))%>">';
+        var url = "<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=" + application.name + "&applicationKey=" + application.key + "&isUploadableAppType=" + application.isUploadable;
+        if(application.isUploadable == true || application.isUploadable == "true"){
+            url += "&isUploadableAppType=" + application.isUploadable;
+        }
+        var icon = "\"fw " + application.appTypeIcon + " fw-2x\"";
+        var iconClass = " <i class="+ icon + "data-toggle='tooltip' data-placement='right' title='" + application.typeDisplayName + "'><\/i>"
+        var spinIcon = application.applicationCreationStatus == APPLICATION_CREATION_STATUS.PENDING ? "<i class=\"fa fa-spinner fa-pulse fa-spin\"></i>" : "";
+
+        var theLi = '<div class="col-xs-6 col-sm-4 col-md-3 col-lg-2" id="'+application.key+'"><div class="cloud-app-listing app-color-one">' +'<a href="' + url +  '">'+
+                            iconClass+
+                            '<div class="app-icon">' +
+                             '<img id="' + application.key + '_icon"  ' +
+                              'src="/appmgt/site/themes/default/images/dark-app-iconx256.jpg"' +
+                               ' class="square-element"></div>' +
+                             '<div class="app-name tmp-anchor-fix" >' + spinIcon + application.name+ '</div>';
+        theLi += '</a></div></div>';
+        theLi += '</li>';
     }
-    theLi += '</div></div>';
-    if(application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING){
+
+    if (application.applicationCreationStatus === APPLICATION_CREATION_STATUS.PENDING) {
+        isAllAppCreated = false;
         handlePendingApps(application.key);
     }
-    theLi += '</li>';
+
     $("#item_list").append(theLi);
 }
 
@@ -199,7 +202,7 @@ function loadAppIcon(appKey) {
 
         function (result) {
          if(result == 101){
-        	 $("#"+appKey+"_icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('assets/img/app_icon.png'))%>');
+        	 $("#"+appKey+"_icon").attr('src','<%=jagg.getAbsoluteUrl(jagg.getThemeFile('images/dark-app-iconx256.jpg'))%>');
          }else{
              <%var appFacURL = getProperty(APPFACTORY_SERVER_URL).split("services")[0];
                var iconUrl = appFacURL + getProperty(WEB_CONTEXT_ROOT) + "/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=";
@@ -231,6 +234,7 @@ function repopulatePendingApps() {
             for (var i = 0; i < completedAppArray.length; i++) {
             	var application = completedAppArray[i];
             	removeFromProgressList(application.key);
+            	removeTableRow(application.key);
             	addTableRow(application);
             	loadAppIcon(application.key);
             }
@@ -263,8 +267,10 @@ function repopulatePendingApps() {
 /**
 * initialize the user home page
 */
-function init(){
+function init() {
+    $("#item_list").empty(); //clearing the item list before re-rendering
 	createTable();
+	hideLoading();
 }
 
 /**
@@ -273,37 +279,29 @@ function init(){
 function populateAppOverview() {
     $('#item_list').parent().append($('<span class="icon-spinner icon-spin icon-large spin-large" id="main-spinner"></span>'));
     jagg.post("../blocks/application/get/ajax/list.jag", {
-            action: "getAllApps",
-            userName: '<%=userName%>'
-        },
+        action: "getAllApps",
+        userName: '<%=userName%>'
+    },
 
-        function (result) {
-            parsedAppArray = jQuery.parseJSON(result);
-            parsedAppArray.sort(NameComparator);
-            appCount = parsedAppArray.length;
-            if(appCount > 0) {
-                document.getElementById("userHomeWithApps").style.display = 'block';
-            } else {
-                 document.getElementById("userHomeEmpty").style.display = 'block';
-            }
+    function (result) {
+        parsedAppArray = jQuery.parseJSON(result);
+        parsedAppArray.sort(NameComparator);
+        appCount = parsedAppArray.length;
+        init();
+        $('#main-spinner').remove();
+    },
 
-            init();
-            $('#main-spinner').remove();
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-            $('#main-spinner').remove();
-
-            if (jqXHR.status != 0){
-                jagg.message({
-                    content: 'Error occurred while loading user application list',
-                    type: 'error',
-                    id:'uniqueId1'
-                });
-            }
-
-
-        });
+    function (jqXHR, textStatus, errorThrown) {
+        $('#main-spinner').remove();
+        hideLoading();
+        if (jqXHR.status != 0) {
+            jagg.message({
+                content: 'Error occurred while loading user application list',
+                type: 'error',
+                id:'uniqueId1'
+            });
+        }
+    });
 }
 
 
@@ -316,10 +314,12 @@ function checkFirstLogin() {
                 action: "isFirstLogin"
             },
             function (result) {
-                var isFirstLogin = jQuery.parseJSON(result);
-                if(isFirstLogin==true){
-                    window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/password-change.jag")%>");
-                }
+                if(result && result.trim().length>1){
+                    var isFirstLogin = jQuery.parseJSON(result);
+                    if(isFirstLogin==true){
+                        window.location.replace("<%=jagg.getAbsoluteUrl("/site/pages/password-change.jag")%>");
+                    }
+                }   
             },
 
             function (jqXHR, textStatus, errorThrown) {
@@ -330,6 +330,7 @@ function checkFirstLogin() {
 
 
 $(document).ready(function () {
+        showLoading();
 
          //init user activity monitor
         initializeUserActivity("userHome", null, null);
@@ -359,8 +360,6 @@ $(document).ready(function () {
                             var rest = element.name.substr(element.name.indexOf(matcher) + (finder.length), element.name.length);
 
                             element.highlightedName = pre + "^" + highlight + "~" + rest;
-
-
                         }
                         addTableRow(element);
                         loadAppIcon(element.key);
@@ -368,9 +367,9 @@ $(document).ready(function () {
                 });
                 // enf of "jQuery.grep.."
 
-                if ($("#item_list").children().length == 0) {
-                    $("#item_list").append($('<div>"No matches found!"</div>'));
-                }
+                if ($("#item_list").children().length <= 1) {
+	                $("#item_list").append($('<div class="col-centered col-md-4 "><div class="cloud-new-content"> <h3>Your search "'+finder+'" did not match any applications.</h3></div></div>')); 
+		}
 
 
         }
@@ -378,7 +377,6 @@ $(document).ready(function () {
         setApplicationListView('box_items');
         $.cookie('selectedStage', null);
         $.cookie('selectedVersion', null);
-
 
 });
 
@@ -420,36 +418,52 @@ function hideNotification() {
     setTimeout(function () {jagg.removeMessage('inProgress')}, 5000);
 }
 
+function showLoading() {
+    // show loading image
+    $('.loader').loading('show');
+    $('.app-listing-loader').show();
+    $('.loading-bg').hide();
+}
+
+function hideLoading() {
+    // hide loading image after loading all the version specific data
+    $('.loader').loading('hide');
+    $('.app-listing-loader').hide();
+    $('.loading-bg').hide();
+}
+
 </script>
+
  <input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
 
 <!--##################################################-->
- <div class="inner-wrapper" id="userHomeEmpty" style="display:none">
+<% if(outputs.applicationCount == 0){ %>
+ <div class="inner-wrapper" id="userHomeEmpty" >
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
             <div class="row">
                 <div class="col-md-3 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><i class="fa fa-cubes visible-xs visible-lg"></i></a>
+                    <span class="hidden-xs"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a></span>
                 </div>
             </div>
         </div>
     </div><!-- EOF App factory menu -->
 
-%>
 <!-- BOF App factory menu actionbar -->
    <% if (outputs.hasAppCreationPermission) { %>
    <div class="action-bar">
 
 
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New Application">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
                 </span> <span class="hidden-xs">Add New Application</span>
         </a>
 
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action" title="Upload Existing">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
@@ -468,14 +482,17 @@ function hideNotification() {
         <div class="row row-centered">
             <div class="col-centered col-md-4 ">
                 <div class="cloud-new-content">
-                    <h1>New to our Application Cloud ?</h1>
-
-                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new"
-                     class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
-                    <div class="help">
-                        <i class="fa fa-2x fa-book"></i> Need help ? Read App creation guide first..
+                    <h1>New to the Application Cloud?</h1>
+                    <%
+                        if (outputs.hasAppCreationPermission) { %>
+                            <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="cu-btn cu-btn-md cu-btn-blue">Create your first application</a>
+                            <div class="help">
+                            <i class="fa fa-2x fa-book"></i> Need help ? Read App creation <a href="https://docs.wso2.com/display/AF210/Create+an+Application+from+Scratch" target="_blank">guide</a>.
+                    <%  } else { %>
+                           <h4>You have not yet been invited to any application, please contact your administrator</h4>
+                    <%  } %>
                     </div>
-                </div>index.jag
+                </div>
 
             </div>
 
@@ -483,14 +500,17 @@ function hideNotification() {
     </div><!-- /.container -->
     <div id="push"></div>
 </div>
+ <% }%>
 
-<div class="inner-wrapper" id="userHomeWithApps" style="display:none">
+<% if(outputs.applicationCount > 0){%>
+<div class="inner-wrapper" id="userHomeWithApps" style="display:block">
     <!-- BOF App factory menu -->
     <div class="navbar navbar-secondary">
         <div class="container-fliud">
             <div class="row">
                 <div class="col-md-3 breadcrumb-secondary">
-                    <i class="fa fa-cubes visible-xs visible-lg"></i> <span class="hidden-xs">Application Cloud</span>
+                    <a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>"><i class="fa fa-cubes visible-xs visible-lg"></i></a>
+                    <span class="hidden-xs"><a href="<%=jagg.getAbsoluteUrl("/site/pages/index.jag")%>">Application Cloud</a></span>
                 </div>
             </div>
         </div>
@@ -500,13 +520,13 @@ function hideNotification() {
         <% if (outputs.hasAppCreationPermission) { %>
     <div class="action-bar">
 
-        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Tooltip on top">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=new" class="btn-action" data-toggle="tooltip" data-placement="top" title="Add New Application">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-add fw-stack-1x"></i>
                 </span> <span class="hidden-xs">Add New Application</span>
         </a>
-         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action">
+         <a href="<%=jagg.getAbsoluteUrl("/site/pages/apptypeselection.jag")%>?type=existing" class="btn-action" title="Upload Existing">
                 <span class="fw-stack fw-lg btn-action-ico">
                     <i class="fw fw-ring fw-stack-2x"></i>
                     <i class="fw fw-up-arrow fw-stack-1x"></i>
@@ -534,14 +554,19 @@ function hideNotification() {
                 <i class="fa fa-2x fa-th"></i>
             </div>-->
         </div>
-
-<div class="row row-centered app-listing">
+        <div class="row row-centered app-listing">
+            <!-- loading image -->
+            <div class="app-listing-loader loading-overlay">
+                <div class="loader"></div>
+            </div>
             <!-- BOF listing block -->
-                <ul class="" id="item_list"></ul>
+            <div class="" id="item_list"></div>
         </div>
     </div><!-- /.container -->
 </div>
+<% } %>
 
-<!--#################################################-->
+<!-- loading javascript files to the page after page is rendering -->
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
 <% }); %>
-

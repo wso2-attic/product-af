@@ -40,7 +40,11 @@ public class ESBApplicationTypeProcessor extends MavenMultiModuleApplicationType
 
 	private static final Log log = LogFactory.getLog(ESBApplicationTypeProcessor.class);
 
-	@Override
+    public ESBApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
 	public void doVersion(final String applicationId, String targetVersion, String currentVersion,
 	                                String workingDirectory) throws AppFactoryException {
 

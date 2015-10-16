@@ -10,7 +10,6 @@
 	xmlns:xsd1="http://service.notification.events.appfactory.carbon.wso2.org/xsd" xmlns:ns4="http://service.build.jenkins.appfactory.carbon.wso2.org">
 
 	<!-- Import the client WSDL -->
-    <bpel:import namespace="http://service.build.jenkins.appfactory.carbon.wso2.org" location="TenantContinousIntegrationSystemDriverService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
     <bpel:import namespace="http://service.mgt.repository.appfactory.carbon.wso2.org" location="TenantRepositoryCreationService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
 	<bpel:import namespace="http://service.mgt.repository.appfactory.carbon.wso2.org"
 		location="RepositoryManagementService.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"></bpel:import>
@@ -35,7 +34,6 @@
 			partnerLinkType="tns:RepositoryMgtPLType" partnerRole="RepositoryMgt"></bpel:partnerLink>
 		
         <bpel:partnerLink name="RepoMgtPL" partnerLinkType="tns:RepoMgtPLType" partnerRole="RepoMgt"></bpel:partnerLink>
-        <bpel:partnerLink name="ContinousIntegrationPL" partnerLinkType="tns:ContinousIntegrationPLType" partnerRole="ContinousIntegration"></bpel:partnerLink>
     </bpel:partnerLinks>
 
 	<!-- ================================================================= -->
@@ -59,7 +57,7 @@
 
         <bpel:variable name="RepoMgtPLResponse" messageType="ns2:createRepositoryResponse"></bpel:variable>
         <bpel:variable name="RepoMgtPLRequest" messageType="ns2:createRepositoryRequest"></bpel:variable>
-        <bpel:variable name="ContinousIntegrationPLRequest" messageType="ns4:createJobRequest"></bpel:variable>
+        
 
         <bpel:variable name="ApplicationMgtPLResponse" messageType="ns1:deleteApplicationResponse"></bpel:variable>
         <bpel:variable name="ApplicationMgtPLRequest" messageType="ns1:deleteApplicationRequest"></bpel:variable>

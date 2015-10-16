@@ -21,6 +21,8 @@ include("/jagg/jagg.jag");
 var site = require("/site/conf/site.json");
 var applicationKey = request.getParameter('applicationKey');
 var applicationName = request.getParameter('applicationName');
+var dbName = request.getParameter('dbName');
+var environment = request.getParameter('environment');
 (function () {
 
     jagg.render({
@@ -67,10 +69,12 @@ var applicationName = request.getParameter('applicationName');
                                         },
                                         {
                                             "basePath":"/site/pages/editdatabase.jag",
-                                            "displayName": "Edit DB",
+                                            "displayName": dbName,
                                             "params": {
                                                 "applicationKey":applicationKey,
-                                                "applicationName":applicationName
+                                                "applicationName":applicationName,
+                                                "dbName":dbName,
+                                                "environment":environment
                                             }
                                         }
                                     ]

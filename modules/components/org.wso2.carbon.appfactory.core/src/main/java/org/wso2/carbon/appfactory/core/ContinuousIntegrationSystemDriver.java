@@ -37,32 +37,28 @@ public interface ContinuousIntegrationSystemDriver {
     /**
      * Setup CI job for given application and versions
      * 
-     * @param applicationId
-     *            Id of the application
-     * @param version
-     *            version id
-     * @param revision
-     *            revision (This parameters is deprecated and need to be removed
-     *            in future)
-     * @param tenantDomain
-     *            Tenant domain of application
+     * @param applicationId Id of the application
+     * @param version version id
+     * @param revision revision (This parameters is deprecated and need to be removed in future)
+     * @param tenantDomain Tenant domain of application
      * @param userName TODO
      * @param repoURL TODO
-     * @throws AppFactoryException
-     *             if a error occurs
+     * @throws AppFactoryException if a error occurs
      */
-    public void createJob(String applicationId, String version, String revision, String tenantDomain, String userName, String repoURL, String repoFrom)
-                                                                                throws AppFactoryException;
+    public void createJob(String applicationId, String version, String revision, String tenantDomain, String userName,
+                          String repoURL, String repoFrom) throws AppFactoryException;
 
-    /**
-     * Removes a specified job from CI System.
-     * 
-     * @param jobName
-     *            Name of the job
-     * @throws AppFactoryException
-     *             If a error occurs
-     */
-    public void deleteJob(String applicationId, String version, String tenantDomain) throws AppFactoryException;
+	/**
+	 * Removes a specified job from CI System.
+	 *
+	 * @param applicationId Application ID
+	 * @param version Version
+	 * @param tenantDomain Tenant Domain
+	 * @param userName username is given if this is for delete a fork repo build job other wise null or empty
+	 * @throws AppFactoryException
+	 */
+    public void deleteJob(String applicationId, String version, String tenantDomain,
+                          String userName) throws AppFactoryException;
 
     /**
      * Returns jobs available in CI System.
@@ -83,38 +79,31 @@ public interface ContinuousIntegrationSystemDriver {
      * @throws AppFactoryException
      *             if an error occurs
      */
-    public void startBuild(String applicationId, String version, boolean doDeploy, String stageName, String tagName, String tenantDomain, String userName, String repoFrom) throws AppFactoryException;
+    public void startBuild(String applicationId, String version, boolean doDeploy, String stageName, String tagName,
+                           String tenantDomain, String userName, String repoFrom) throws AppFactoryException;
 
     /**
      * Checks weather a specified job is available on CI system.
      * 
-     * @param applicationId
-     *            Application Key
-     * @param version
-     *            Version
+     * @param applicationId Application Key
+     * @param version Version
+     * @param userName username is given if this is for delete a fork repo build job other wise null or empty
      * @return true if job is available, false otherwise
      * @throws AppFactoryException
      *             if error occurs
      */
-    public boolean isJobExists(String applicationId, String version, String tenantDomain) throws AppFactoryException;
+    public boolean isJobExists(String applicationId, String version, String tenantDomain, String userName) throws AppFactoryException;
 
-    /**
-     * Constructs a job name based on supplied parameter. Rational of this
-     * method is to enable CI driver to have control over the job naming scheme.
-     * 
-     * @param applicationId
-     *            application Id
-     * @param version
-     *            version Id
-     * @param revision
-     *            revision id - this parameter is deprecated and will be removed
-     *            in future
-     * @return name of the job
-     */
-    public String getJobName(String applicationId, String version, String revision);
-    
-    
-    public String getJobName(String applicationId, String version, String userName, String repoFrom);
+	/**
+	 * Constructs a job name based on supplied parameter. Rational of this
+	 * method is to enable CI driver to have control over the job naming scheme.
+	 *
+	 * @param applicationId application ID
+	 * @param version version of the application
+	 * @param userName tenant aware username used for a fork. If this is not for a for value will be null or empty
+	 * @return
+	 */
+    public String getJobName(String applicationId, String version, String userName);
 
     /**
      * Change the Auto Deployment configurations of the given job

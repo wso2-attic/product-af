@@ -23,7 +23,7 @@ var site = require("/site/conf/site.json");
 (function () {
    var applicationKey = request.getParameter('applicationKey');
    var applicationName = request.getParameter('applicationName');
-   var vesionPage = 'uploadedAppVersions/list';	
+   var vesionPage = 'uploadedAppVersions/list';
     jagg.render({
         "name":"page/base",
         "inputs":{
@@ -74,7 +74,7 @@ var site = require("/site/conf/site.json");
                                 "inputs":{
                                      "applicationKey":applicationKey,
                                     "applicationName":applicationName,
-                                    "pageName":"reposBuilds"
+                                    "pageName":"buildDeploy"
                                 }
                             }
                         ]

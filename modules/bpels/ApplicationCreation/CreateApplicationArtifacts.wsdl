@@ -20,14 +20,10 @@
     <plnk:partnerLinkType name="RepoMgtPLType">
     <plnk:role name="RepoMgt" portType="wsdl3:TenantRepositoryCreationServicePortType"/>
   </plnk:partnerLinkType>
-    <plnk:partnerLinkType name="ContinousIntegrationPLType">
-    <plnk:role name="ContinousIntegration" portType="wsdl5:TenantContinousIntegrationSystemDriverServicePortType"/>
-  </plnk:partnerLinkType>
     <import location="TenantMgtAdminService.wsdl" namespace="http://services.mgt.tenant.carbon.wso2.org"/>
     <import location="ApplicationManagementService.wsdl" namespace="http://service.mgt.application.appfactory.carbon.wso2.org"/>
     <import location="RepositoryManagementService.wsdl" namespace="http://service.mgt.repository.appfactory.carbon.wso2.org"/>
     <import location="TenantRepositoryCreationService.wsdl" namespace="http://service.mgt.repository.appfactory.carbon.wso2.org"/>
-    <import location="TenantContinousIntegrationSystemDriverService.wsdl" namespace="http://service.build.jenkins.appfactory.carbon.wso2.org"/>
     <types>
         <schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://wso2.org">
 

@@ -31,24 +31,16 @@ jagg.block("tablinks", {
 	    var cloudMgtUrl = "";
     	var dashboardPath = "";
     	var serverUrl = getProperty(DASHBOARD_SERVER_URL);
-    	var mod = jagg.module("manager");
-    	var result = false;
     	var carbon = require('carbon');
     	var server = carbon.server;
     	var realmService = server.osgiService('org.wso2.carbon.user.core.service.RealmService');
     	var tenantDomain = null;
 
         //Tablink permissions
-        var isOverviewAllowed = true;
-        var isTeamAllowed = true;
-        var isReposAndBuildsAllowed = false;
-        var isResourcesAllowed = false;
-        var isIssuesAllowed = true;
-        var isLifecylceAllowed = false;
-        var isLogsAllowed = false;
-
     	var permissionModule = jagg.module("permission");
+        var applicationMod = jagg.module("application");
         var manager = jagg.module("manager");
+        var tablinksModule = jagg.module("tablinks");
     	var tenantID = null;
     	var hasTenantLevelUserMgtPermission = null;
     	var isOTtenant = false;
@@ -61,11 +53,13 @@ jagg.block("tablinks", {
     	var isOtherServicesTabAvailable = getProperty(SHOW_OTHER_SERVICES_TAB);
 
     	var log = new Log();
+    	var applicationInfo;
+        var allowedTablinks = {};
 
     	if(userName){
 
     		if(!inputs.applicationKey){
-    			tenantDomain = mod.getTenantDomain();
+    			tenantDomain = manager.getTenantDomain();
     			tenantID = realmService.getTenantManager().getTenantId(tenantDomain);
     			hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
     			if(session.get(TENANT_INFO)){
@@ -79,26 +73,13 @@ jagg.block("tablinks", {
     		}else{
 
     			var applicationKey = inputs.applicationKey;
-    			var applicationName = inputs.applicationName;
+                allowedTablinks = tablinksModule.getAllowedTabLinks(applicationKey, userName);
 
                 hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();
-
-                // Set tablinks
-                isOverviewAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_OVERVIEW) || hasTenantLevelUserMgtPermission);
-                isTeamAllowed  = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_TEAM) || hasTenantLevelUserMgtPermission);
-                isReposAndBuildsAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_REPOS_AND_BUILDS) || hasTenantLevelUserMgtPermission);
-                isResourcesAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_RESOURCES) || hasTenantLevelUserMgtPermission);
-                isIssuesAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_ISSUES) || hasTenantLevelUserMgtPermission);
-
-                var isLifecylceAllowedDemoteTo = jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_DEMOTE_TO);
-                var isLifecylceAllowedPromoteTo = jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LIFECYCLE_MANAGEMENT_PROMOTE_TO);
-                isLifecylceAllowed = (isLifecylceAllowedDemoteTo || isLifecylceAllowedPromoteTo || hasTenantLevelUserMgtPermission);
-
-                isLogsAllowed = (jagg.module("permission").isUserAccessGrantedForTablink(applicationKey , PERMISSION_TABLINK_LOGS) || hasTenantLevelUserMgtPermission);
-
                 applicationType = manager.getApplicationType(applicationKey);
     			isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
 
+                applicationInfo = applicationMod.getAppVersionsOfUser(applicationKey, userName, false, true, false);
     		}
     	}
         return {
@@ -112,13 +93,16 @@ jagg.block("tablinks", {
             "applicationType":applicationType,
             "isUploadableAppType":isUploadableAppType,
             "isOtherServicesTabAvailable":isOtherServicesTabAvailable,
-            "isOverviewAllowed":isOverviewAllowed,
-            "isTeamAllowed":isTeamAllowed,
-            "isReposAndBuildsAllowed":isReposAndBuildsAllowed,
-            "isResourcesAllowed":isResourcesAllowed,
-            "isIssuesAllowed":isIssuesAllowed,
-            "isLifecylceAllowed":isLifecylceAllowed,
-            "isLogsAllowed":isLogsAllowed
+            "isOverviewAllowed":allowedTablinks.isOverviewAllowed,
+            "isTeamAllowed":allowedTablinks.isTeamAllowed,
+            "isReposAndBuildsAllowed":allowedTablinks.isReposAndBuildsAllowed,
+            "isResourcesAllowed":allowedTablinks.isResourcesAllowed,
+            "isIssuesAllowed":allowedTablinks.isIssuesAllowed,
+            "isLifecylceAllowed":allowedTablinks.isLifecylceAllowed,
+            "isLogsAllowed":allowedTablinks.isLogsAllowed,
+            "isAllowDomainMapping":allowedTablinks.isAllowDomainMapping,
+            "isSettingsAllowed":allowedTablinks.isSettingsAllowed,
+            "applicationInfo":applicationInfo
         };
     }
 });

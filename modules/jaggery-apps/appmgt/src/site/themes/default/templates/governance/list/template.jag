@@ -18,1633 +18,376 @@
  */
 
 jagg.template("governance/list", function(inputs, outputs, jagg){%>
-<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery.datepick.css'))%>" rel="stylesheet" type="text/css">
-<link href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/old_css/jquery-ui.css'))%>" rel="stylesheet" type="text/css">
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery.datepick.js'))%>"></script>
-<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/jquery-ui-1.10.4.js'))%>"></script>
+<% include("/jagg/util.jag"); %>
 <%
-    var log = new Log();
+    var userName = jagg.getUser();
     var hasPromotePermissions = outputs.hasPromotePermissions;
     var hasDemotePermissions = outputs.hasDemotePermissions;
+    var hasVisibilityPermissions = outputs.hasVisibilityPermissions;
+    var hasRetirePermission = outputs.hasRetirePermission;
     var nextStage = outputs.nextStage;
     var previousStage = outputs.previousStage;
-    var fineGrainedDomainMappingAllowedStage = outputs.fineGrainedDomainMappingAllowedStage;
-    var tenantDomain = outputs.tenantDomain;
     var applicationName = request.getParameter("applicationName");
     var applicationKey = request.getParameter("applicationKey");
-    var hasDomainMappingPermission = outputs.hasDomainMappingPermission;
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
-    var isAllowDomainMapping = outputs.isAllowDomainMapping;
-    var isUploadableAppType = outputs.isUploadableAppType;
-    print('<div id="hiddenstages">');
-    for (var i = 0; i < stages.length; i++) {
-        var stage = stages[i];
-        print('<input type="hidden" value="' + stage + '">');
-    }
-    print('</div>');
-
-    print('<div id="hiddenstagespriority">');
-    for (var i = 0; i < stages.length; i++) {
-        var stage = stages[i];
-        var priority = getProperty('ApplicationDeployment.DeploymentStage.'+stage+'.DisplayPriority');
-        if(priority){
-            print('<input type="hidden" value="' + stage + '">');
-        }
-    }
-    print('</div>');
-    %>
-    
-    <script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
- 
-    <script type="text/javascript">
-    var processIndicatorHTML = '<span class="icon-spinner icon-spin icon-large spin-large"></span>';
-    var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
-    var fgdmAllowedStage  = JSON.parse('<%=stringify(fineGrainedDomainMappingAllowedStage)%>') ;
-	var appType;
-	var defaultSubDomain;
-	var previousDomainMappedVersion;
-	var hasPromotePermissions = JSON.parse('<%=stringify(hasPromotePermissions)%>') ;
-	var nextStage = JSON.parse('<%=stringify(nextStage)%>') ;
-	var previousStage = JSON.parse('<%=stringify(previousStage)%>') ;
-	var hasDomainMappingPermission = '<%=hasDomainMappingPermission%>';
-	var prodVersionCount = 0;
-
-	$(document).ready(function() {
-		initializeUserActivity("lifecycle", '<%=applicationKey%>', '<%=applicationName%>');
-	});
-
-function doDemoteActionAjax(stage, version, tagName) {
-    var checkItems = [];
-    var applicationName = "<%=applicationName%>";
-
-    var comment = "<![CDATA[<span>";
-    var noOfBugsSelected = $('input:checkbox[id^="' + ISSUE_CHECK_BOX_ID_PREFIX + '"]:checked').length;
-    var userComment = $(".comment_area").val();
-    if (noOfBugsSelected != 0) {
-        comment += " <a onclick='"
-                + "$(this).next().toggle();"
-                + "'>More</a>.<div style='display:none;'><ul>";
-        $('input:checkbox[id^="' + ISSUE_CHECK_BOX_ID_PREFIX + '"]:checked').each(function () {
-            var title = $(this).attr("title");
-            var url = $(this).attr("url");
-            comment += "<li> <a href='" + url + "' target='_blank'>" + title + "</a> </li>";
-        });
-        comment += "</ul></div> ";
-    }
-    if (userComment === '' && noOfBugsSelected === 0) {
-        jagg.message({
-            content: "Cannot demote an application without comments - Add related issue/s and/or reason/s for demotion as comments",
-            type: 'error'
-        });
-        return;
-    } else {
-        comment = userComment + comment + "</span>]]>";
-    }
-
-    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: 'Demote',
-        applicationKey: $("#applicationKey").attr('value'),
-        stageName: stage,
-        version: version,
-        checkItems: JSON.stringify(checkItems),
-        tagName: tagName,
-        userName: $("#userName").attr('value'),
-        comment: comment
-    }, function (result) {
-        jagg.message({
-            id: 'noification',
-            content: "Successfully submitted request for the governance operation - Demote",
-            type: 'success'
-        });
-        var newStage = previousStage[stage];
-        updateSessionInfo(newStage);
-        waitAndRedrawVersionList(newStage);
-        hideNotification();
-    }, function (jqXHR, textStatus, errorThrown) {
-
-        if (jqXHR.status != 0){
-            jagg.message({
-                content: "Error occurred while performing the governance operation",
-                type: 'error'
-            });
-        }
-
-    });
-}
-function doGovernanceActionAjax(actionName, stage, version, tagName, checkItems, comment) {
-    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: actionName,
-        applicationKey: $("#applicationKey").attr('value'),
-        stageName: stage,
-        version: version,
-        checkItems: JSON.stringify(checkItems),
-        tagName: tagName,
-        comment: comment,
-        userName: $("#userName").attr('value')
-    }, function (result) {
-        var parsedResult = JSON.parse(result);
-        if (parsedResult !=null && parsedResult != undefined && parsedResult.error == true) {
-        	jagg.message({
-                content: parsedResult.message,
-                type: 'error'
-            });
-        } else {
-            jagg.message({
-                id: 'noification',
-                content: "Successfully submitted request for the governance operation - " + actionName,
-                type: 'success'
-            });
-            var newStage = nextStage[stage];
-            if( actionName == 'Retire') {
-                newStage = stage;
-            }
-            updateSessionInfo(newStage);
-            waitAndRedrawVersionList(newStage);
-            hideNotification();
-            deployPromotedAppToNextStage(actionName, stage, version);
-        }
-    }, function (jqXHR, textStatus, errorThrown) {
-
-        if ( jqXHR.status != 0){
-            jagg.message({
-                content: "Error occurred while performing the governance operation",
-                type: 'error'
-            });
-        }
-
-    });
-}
-
-function deployPromotedAppToNextStage(actionName, stage, version){
-    var nextStageName = nextStage[stage];
-	if(actionName == 'Promote' && hasPromotePermissions[nextStageName]){
-		deployAndUpdatePromoteStatus(version,nextStageName);
-	}
-}
-
-function deployAndUpdatePromoteStatus(version, nextStage){
-    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-            action: "deployAndUpdatePromoteStatus",
-            applicationKey: $("#applicationKey").attr('value'),
-            deployAction:"",
-            stage:nextStage,
-            tagName:"",
-            version:version
-        }, function (result) {
-            jagg.message({
-                content: "Deployment has been submitted successfully for the next stage "+ nextStage,
-                type: 'success',
-                id:'message_id_success'
-            });
-            updateDomainMappingOnPromoteToProduction(nextStage, version);
-            hideNotification();
-        },
-
-        function (jqXHR, textStatus, errorThrown) {
-
-            if (  jqXHR.status != 0){
-                jagg.message({
-                    content: "Error occurred while deploying the artifact in next stage "+ nextStage,
-                    type: 'error',
-                    id:'message_id'
-                });
-            }
-
-        });
-};
-
-/**
- * Update the domain mapping when promoting to the production when there are no other versions in production.
- * @param newStage new stage that promoted to
- * @param version   promoted version
- * TODO: Support for other apptypes
- */
-function  updateDomainMappingOnPromoteToProduction(newStage, version){
-    if(newStage == fgdmAllowedStage  && hasPromotePermissions[newStage] && hasDomainMappingPermission === 'true' &&    // has permissions
-            defaultSubDomain  && ('<%=isAllowDomainMapping%>' === 'true') &&              // sub domain is specified and ap type is supported
-            previousDomainMappedVersion == null && prodVersionCount == 0){                                  // only one version in fgdmAllowedStage
-        remapDomainToVersion(version);
-    }
-}
-
-
-function updateAppVersionPromoteStatus(promoteStatus, version, nextStage){
-    jagg.post("../blocks/application/update/ajax/update.jag", {
-            action: "updatePromoteStatus",
-            applicationKey: '<%=applicationKey%>',
-            nextStage:nextStage,
-            version:version,
-            state:promoteStatus
-        }, function (result) {},
-        function (jqXHR, textStatus, errorThrown) {});
-};
-
-
-function doGovernanceAction(uiElement, actionName, stage, version, tagName) {
-    if (tagName == null) {
-        tagName = "";
-    }
-    var checkItems = new Array();
-    var allChecked = true;
-    var itemNotChecked = new Array();
-    $('input[type="checkbox"]', $(uiElement).parent().parent()).each(function (index, element) {
-        checkItems[index] = $(this).is(':checked');
-        if (!($(this).is(':checked'))) {
-            allChecked = false;
-            itemNotChecked.push($(this).attr('value'));
-        }
-
-    });
-
-    if (!allChecked && (actionName == 'Promote' || actionName == 'Retire')) {
-        var fields = "";
-        for (var x=0;x<itemNotChecked.length;x++) {
-            fields += itemNotChecked[x];
-            if(itemNotChecked.length-1 != x){
-                fields += " , ";
-            }
-        }
-
-        if(fields != ""){
-            jagg.message({
-                content: "Checklist item: <strong> " + fields + " </strong> not fulfilled - Mandatory fulfillment required",
-                type: 'error'
-            });
-        }
-        return;
-    }
-
-    if (actionName == 'Demote') {
-        $('input.actionName', $(uiElement).next()).val(actionName);
-        $('input.stage', $(uiElement).next()).val(stage);
-        $('input.version', $(uiElement).next()).val(version);
-        $('input.tagName', $(uiElement).next()).val(tagName);
-        $('input.checkItems', $(uiElement).next()).val(checkItems);
-        $(uiElement).next().submit();
-    } else {
-        doGovernanceActionAjax(actionName, stage, version, tagName, checkItems, "");
-    }
-
-}
-//This function call when we click on the check list item.
-function lifeCycleCheckListItemEventHandler(uiElement, stageName, version, itemId, itemName) {
-    var checkItems = new Array();
-
-    $('input[type="checkbox"]', $(uiElement).parent().parent().parent()).each(function (index, element) {
-        var checked = $(this).is(':checked');
-        checkItems[index] = checked;
-        if(checked && (parseInt(itemId) === index)){
-           jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-                action: "itemChecked",
-                applicationKey: $("#applicationKey").attr('value'),
-                stageName: stageName,
-                version: version,
-                itemName:itemName,
-                checked:checked
-
-            }, function (result) {
-                if (result != undefined) {
-
-                    //We are going to change the text strikethrough here.
-                    $(uiElement).parent().toggleClass("check-box-line-through");
-
-                }
-            }, function (jqXHR, textStatus, errorThrown) {
-                jagg.message({
-                    content: "Error occurred while performing the governance operation",
-                    type: 'info'
-                });
-            });
-        }
-
-    });
-
-    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: "invokeUpdateLifeCycleCheckList",
-        applicationKey: $("#applicationKey").attr('value'),
-        stageName: stageName,
-        version: version,
-        checkItems: JSON.stringify(checkItems)
-
-    }, function (result) {
-        if (result != undefined) {
-            //jagg.message({content:"Successfully completed the operation",type:'info' });
-            //window.location.reload(false);
-
-            //We are going to change the text strikethrough here.
-            $(uiElement).parent().toggleClass("check-box-line-through");
-
-        }
-    }, function (jqXHR, textStatus, errorThrown) {
-        jagg.message({
-            content: "Error occurred while performing the governance operation",
-            type: 'info'
-        });
-    });
-}
-;
-
-function createLifeCycleItemCheckbox(hasPromotePermission, hasDemotePermission, stage, version, item) {
-    //  var uiElement = '<label class="checkbox"> <input type="checkbox"' + ' order="' + item.order + '"';
-    var uiElement = '<div class="input_row"><label';
-
-    if (item.value == 'true') {
-        uiElement = uiElement + ' class="check-box-line-through"';
-    }
-
-    uiElement+='><input type="checkbox"' + ' order="' + item.order + '"';
-
-    if (item.value == 'true') {
-        uiElement = uiElement + ' checked="checked"';
-    }
-
-    if (!hasPromotePermission && !hasDemotePermission) {
-        uiElement = uiElement + ' disabled="disabled"';
-    }
-
-    uiElement = uiElement + ' id="' + item.key + '" onclick="lifeCycleCheckListItemEventHandler(this,\'' + stage + '\',\'' + version + '\',\'' + item.order + '\' ,\'' + item.name + '\');" value="' + item.name + '"/> ' + getFormattedLifeCycleItem(item.name) + '</label></div>';
-    return uiElement;
-}
-
-function getFormattedLifeCycleItem(item) {
-    if (item.indexOf("*") > -1) {
-        return item.replace("*", '<font color="red">*</font>');
-    }
-    return item;
-}
-
-function VersionComparator(a, b) {
-    return b.version.localeCompare(a.version);
-}
-function waitAndRedrawVersionList(newStage) {
-    $("#loader_id").show();
-    setTimeout(function () {
-    $('#whereItAllGoes').empty();
-        drawVersionsList(newStage);
-    }, 5000);
-
-}
-
-
-function drawVersionsList(newStage) {
-    var stages = $("#hiddenstages").children();
-     $("#loader_id").show();
-
-    $('#whereItAllGoes').empty();
-
-    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: "getAppVersionsInStagesWithLifeCycleInfo",
-        userName: $("#userName").attr('value'),
-        applicationKey: $("#applicationKey").attr('value'),
-        isRoleBasedPermissionAllowed: true
-    }, function (result) {
-
-        var trunkHTML = "";
-        var branchesHTML = "";
-
-        $("#loader_id").hide();
-
-        var parsedArray = jQuery.parseJSON(result);
-
-        var applicationsCount = parsedArray.length;
-        var isTrunkOnly = true;
-        var m = 0;
-
-        var tabHeader = '' ; //This is to hold all the tab headers
-        var tableElement = ''; // This is to hold the table content
-
-        for (var i in parsedArray) {
-
-            var stage = parsedArray[i].stage;
-
-            var stagesPriority = $("#hiddenstagespriority").children();
-
-            var appKey = parsedArray[i].appKey;
-            var versions = parsedArray[i].versions;
-            versions.sort(VersionComparator);
-
-            showDefaultProductionVersion(stage, versions);
-
-            var hasPromotePermission = ($("#hasPromotePermissionTo" + stage).val() === 'true');
-            var hasDemotePermission = ($("#hasDemotePermissionTo" + stage).val() === 'true');
-            var hasRetirePermission = ($("#hasRetirePermission").val() === 'true');
-            var stageHeading = '';
-            var highlightClass = '';
-            var allRows = '';
-            var versionsCount = versions.length;
-
-            var versionCountForTabs = versions.length;
-            //We keep a separate variable so that if the trunk is included in the results, we can eliminate that.
-
-            //This is to highlight the pre-configured stages
-            for (var k = 0; k < stagesPriority.length; k++) {
-            	if(stage===stagesPriority[k].value){
-            		//DisplayPriority highest stage
-            		if (versionsCount > 0) {
-
-		                highlightClass = 'special-row';
-		            }
-            	}else{
-            		if (versionsCount > 0) {
-		                highlightClass = '';
-		            }
-            	}
-
-            }
-
-            var domContent = '';
-            var tableHeaders = '';
-
-            for (var j = 0; j < versionsCount; j++) {
-                var versionInfo = versions[j];
-                if (versionInfo.version === 'trunk') {
-                    versionCountForTabs--;
-                    continue;
-                } else {
-                    var elementPosition = -1;
-                    var stagesCount = stages.length;
-                    var hasRetireOperation = false;
-                    var hasPromoteOperation = true;
-
-                    //This is to find out the stage order. We follow the order defined in
-                    for (var k = 0; k < stagesCount; k++) {
-                        if (stages[k].value === stage) {
-                            elementPosition = k;
-                            break;
-                        }
-                    }
-                    if (elementPosition == stages.length - 1) {
-                        hasRetireOperation = true;
-                        hasPromoteOperation = false;
-                    }
-                    isTrunkOnly = false;
-                    var promoteText, demoteText, retireText, domeETAText, lifeCycleContent;
-                    lifeCycleContent = getLifeCycleContents(hasPromotePermission, hasDemotePermission, versionInfo, stage);
-                    promoteText = getPromoteText(hasPromotePermission,hasPromoteOperation, versionInfo, stage, lifeCycleContent);
-                    demoteText = getDemoteText(hasDemotePermission, versionInfo, stage);
-                    domeETAText = getETAText(hasPromotePermission, versionInfo, stage);
-                    retireText = getRetireText(hasRetirePermission, hasRetireOperation, versionInfo, stage, lifeCycleContent);
-
-                    domContent = getVersionRowContents(versionInfo, stage, promoteText, domeETAText, demoteText, retireText,lifeCycleContent,hasPromoteOperation,highlightClass);
-                }
-                var row = $(domContent);
-                allRows += domContent;
-            }
-            if(stage == fgdmAllowedStage) {
-                prodVersionCount = versionCountForTabs;
-            }
-            // we are going to create a table for each stage
-            // Each table will go on a different tab
-            // we have a tabbed layout pre-defined and we are going to add the tabs(based on the number of stages
-            //   and the tab content of each tab from this code.
-            if(versionCountForTabs > 0){
-                tableHeaders = getTableHeaders(stage);
-            }
-            tabHeader =  tabHeader + constructTabHeader(stage, versionCountForTabs);
-            tableElement = tableElement + getTableSection(stage,tableHeaders, allRows);
-            m++;
-        }
-        if (isTrunkOnly) {
-
-	 $("#whereItAllGoes").empty();
-            var trnkOnlyText = '';
-
-           <%
-           var repositoryOperationsAllowed = outputs.repositoryOperationsAllowed;
-
-           if(repositoryOperationsAllowed){
-           %>
-                trnkOnlyText = '<tr><td><div class="noData-message">Governance operations do not apply to the Trunk but to versioned branches only. To create branches, go to the <a href="<%=jagg.getAbsoluteUrl("/site/pages/reposBuilds.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>">Repositories & Builds</a> page</div></td></tr>';
-          <%
-           }else{ %>
-                trnkOnlyText = '<tr><td><div class="noData-message">Governance operations do not apply to the Trunk but to versioned branches only.</div></td></tr>';
-         <%  }  %>
-
-            $("#whereItAllGoes").append(getTableSectionWithMessage(trnkOnlyText));
-
-        }else{
-            $("#whereItAllGoes").empty().append(getTabHeaders(tabHeader)).append(tableElement);
-            registerTabElementEvents();
-        }
-        initPops();
-        $('#stage_selector').select2({minimumResultsForSearch: -1});
-
-        //update tabs with the given stage
-        var stage = '<%=session.get('stage')%>';
-        if(newStage){
-            stage = newStage;
-        }
-        if(stage != 'null'){
-            $('.content-tabs').hide();
-            $('#stage_selector').val(stage);
-            $('#stage_selector').select2('val',stage);
-            $('#content-tab-'+stage).show();
-        }else{
-            updateTabs();
-        }
-
-        //$("#governance_list_container").removeClass("hide").addClass("separator");
-    }, function (jqXHR, textStatus, errorThrown) {
-        $("#loader").html("");
-    });
-}
-
-/**
- *  Register events and styles for elements in tabs
- */
-function registerTabElementEvents(){
-    // We are registering all the events here.
-    $(".ui-widget-content").each(function(){
-    //removing the border from here and not modifying the original CSS
-        $(this).css("border","0px");
-    });
-    $(".ui-widget-header").each(function(){
-    //removing the border from here and not modifying the original CSS
-        $(this).css("background","#FFFFFF");
-        $(this).css("border","0px");
-        $(this).removeClass("ui-corner-all");
-        $(this).css("border-bottom","1px solid #AAAAAA");
-    });
-    $(".ui-widget").each(function(){
-    //removing the border from here and not modifying the original CSS
-        $(this).removeClass("ui-corner-all");
-    });
-
-    $(".domain-url-map").each(function(){
-        $(this).unbind("click");
-        $(this).click(function(){
-            var selectedVersion = $(this).attr("data-version");
-            updateDomainMappingOnVersionChange(selectedVersion, this);
-        });
-    });
-
-    $(".domain-mapped-demote").each(function(){
-        $(this).unbind("click");
-        $(this).click(function(){
-            jagg.message({
-                content: 'This version is mapped to the production URL.',
-                type: 'warning'
-            });
-        });
-    });
-
-    $(".domain-mapped-retire").each(function(){
-        $(this).unbind("click");
-        $(this).click(function(){
-            jagg.message({
-                content: 'This version is mapped to the production URL.',
-                type: 'warning'
-            });
-        });
-    });
-}
-
-//Domain Mapping
-//TODO: need to embed this in the lifecycle table
-function showDefaultProductionVersion(stage,versions){
-
-	if(hasDomainMappingPermission === 'true' && '<%=isAllowDomainMapping%>' === 'true'){
-		var versionsCount = versions.length;
-
-	    if(stage == fgdmAllowedStage && versionsCount > 0){
-		   for (var j = 0; j < versionsCount; j++) {
-	           var version = versions[j].version;
-	           var previousDomain = versions[j].productionMappedDomain;
-	           if(previousDomain != null && previousDomain.trim().length ){
-	        	   previousDomainMappedVersion = version;
-	           }
-		   }
-		   if(previousDomainMappedVersion != null){
-			  //TODO set the previously selected version to dropdown
-		   }
-	    }
-	}
-}
-
-/**
-*  Update domain mapping when changing mapped domain
-*  TODO: Support for other app types
-*/
-function updateDomainMappingOnVersionChange(version, uiElement) {
-    if( (previousDomainMappedVersion == null || previousDomainMappedVersion != version ) &&
-            defaultSubDomain && '<%=isAllowDomainMapping%>' === 'true'){
-        remapDomainToVersion(version);
-    }
-}
-
-/**
- * Remap sub domain to new version
- *
- */
-function remapDomainToVersion(version){
-     $("#loader_id").show();
-     jagg.post("../blocks/urlmapper/update/ajax/update.jag", {
-	            action:"remapDomainToVersion",
-	            oldVersion: (previousDomainMappedVersion) ? previousDomainMappedVersion : "",
-	            newVersion:version,
-			    applicationKey:'<%=applicationKey%>'
-	       },function (result) {
-	            updateTabElementsOnDomainMappingUpdate(version,previousDomainMappedVersion);
-                registerTabElementEvents();
-                initPops();
-	            jagg.removeMessage();
-                jagg.message({
-                    content: "Production url is mapped to version - " + version,
-                    type: 'success'
-                });
-	            $("#loader_id").hide();
-	       },function (jqXHR, textStatus, errorThrown) {
-	           jagg.message({content:jqXHR.responseText,type:'error',id:'myuniqeid' });
-	           $("#loader_id").hide();
-	       });
-}
-
-function getTabHeaders(allTabLabels){
-    var tabDiv = '<div class="af_container" style="margin-left:-15px">'+
-                        '<div class="af_row">'+
-                            '<div class="col-1">'+
-                                     '<h2 class="topic_heading">Stage</h2>'+
-                                '</div>'+
-                                '<div class="col-3">'+
-                                     '<select class="select_list half big" id="stage_selector" onchange="updateTabs()">' + allTabLabels + '</select>'+
-                                '</div>'+
-                            '</div>'+
-                        '</div>'+
-                    '</div>';
-    //var tabDiv = '<h2 class="topic_heading" style="display: inline-block">Stage</h2> ';
-    return tabDiv;
-}
-
-function constructTabHeader(stage,versionCountForTabs){
-    var content = '<option value="'+stage+'">' + stage + ' (' + versionCountForTabs + ')' +'</option>';
-    return content;
-}
-function getTableSection(stage,tableHeaders, allRows){
-
-    var innerContent = '';
-    if(tableHeaders == '' && allRows == ''){
-        innerContent = '<div class="noData-message" style="margin-top:10px;">There are no versions in this stage</div>';
-    }else{
-        innerContent = tableHeaders + allRows;
-    }
-    var table = '<div id="content-tab-'+ stage +'" class="content-tabs">' +
-               // '<div class="af_row push_top_15">' +
-               //     '<div class="col-12">' +
-               //         '<h3> ' + stage +' </h3>' +
-               //     '</div>' +
-               //  '</div>' +
-                 '<div class="af_row">' +
-                    '<div class="col-13">' +
-                        '<table class="data-table data-table-top" id="whereItAllGoes' + stage +'">' +
-                        innerContent +
-                       '</table>' +
-                    '</div>' +
-                '</div>' +
-                '</div>';
-    return table;
-}
-
-function getTableSectionWithMessage(message){
-
-    var table = '<div class="af_row push_top_15">' +
-                 '<div class="af_row">' +
-                    '<div class="col-13">' +
-                        '<table class="data-table data-table-top">' +
-                        message +
-                       '</table>' +
-                    '</div>' +
-                '</div>';
-    return table;
-}
-
-function getTableHeaders(stage) {
-    var trunkContent =  '<tr>'+
-                            '<th class="td-1" style="padding-left:0">Version</th>'+
-                            '<th class="td-3">Estimated Completion Date</th>'+
-                            '<th class="td-3">To Do</th>'+
-                            '<th class="td-3">Actions</th>'+
-                            '<th class="td-1">History</th>';
-    if(hasDomainMappingPermission === 'true' && fgdmAllowedStage == stage && defaultSubDomain != null  && (defaultSubDomain.trim().length > 0)){
-        trunkContent += '<th class="td-2">Mapped</th>';
-    }
-    trunkContent +='</tr>';
-    return trunkContent;
-}
-function getVersionRowContents(versionInfo, stage, promoteText, domeETAText, demoteText, retireText,lifeCycleContent,hasRetireOperation,highlightClass) {
-   var domContent =   '<tr class="'+highlightClass+'">'+
-                        '<td>' + versionInfo.version + '</td>'+
-                        '<td>'+domeETAText+'</td>'+
-                        '<td>';
-   if(hasRetireOperation){
-         domContent+=  lifeCycleContent;
-   }
-
-   domContent+= '</td>'+
-                    '<td>';
-
-                    if(promoteText != ''){
-                        domContent+= promoteText ;
-                    }
-                    if(demoteText != ''){
-                        domContent+=demoteText;
-                    }
-                    if(retireText != ''){
-                        domContent+=retireText;
-                    }
-
-                    domContent += '</td> ';
-
-
-                    domContent+= '<td>' +
-                        '<a href="#" class="icon_link js_governance_history" demote-app-stage="' + stage + '" demote-app-version="' + versionInfo.version + '" demote-app-tagName="">' +
-                        '<span class="icon-file-alt" />' +
-                        '</a>';
-
-
-                    if(hasDomainMappingPermission === 'true' && fgdmAllowedStage == stage && defaultSubDomain != null  && (defaultSubDomain.trim().length > 0)){
-                        domContent += '</td> ';
-                        domContent+= '<td>';
-                        var tmpIdVersion =  versionInfo.version.replace(/\./g,'_');
-                        domContent+= '<div style="float:right" id="'+tmpIdVersion+'" data-version="' + versionInfo.version + '"';
-                        if(versionInfo.version == previousDomainMappedVersion){
-                            domContent+=' class="domain-url-map-selected">';
-                        }else{
-                            domContent+=' class="domain-url-map">';
-                        }
-
-                        domContent+='<i class="icon-link"></i></div>';
-                    }
-
-                domContent+='</td></tr>';
-
-    return domContent;
-}
-function getDemoteText(hasDemotePermission, versionInfo, stage) {
-    var demoteText = '';
-    if (hasDemotePermission && !versionInfo.isInitialStage && ('<%=isUploadableAppType%>' === 'false') ) {
-        var  demoteBtnClass = "js_demote_popover";
-        var demoteBtnId =  "demote_btn_"+versionInfo.version.replace(/\./g,'_');
-
-        //if this version is mapped to the production url, by adding this class,
-        // there will be a warning message when try to demote this version
-        if(previousDomainMappedVersion == versionInfo.version){
-            demoteBtnClass = "domain-mapped-demote";
-        }
-        demoteText =
-                '<button class="btn main small '+demoteBtnClass+' governance-button" data-popover-my-position="top right" ' + 
-                'name="'+demoteBtnId+'" '+
-                'id="'+demoteBtnId+'" '+
-                'popover-target-position="bottom right" demote-app-stage="' + stage + '" demote-app-version="' + versionInfo.version + '" demote-app-tagName="">Demote</button>';
-    }
-    return demoteText;
-}
-function getPromoteText(hasPromotePermission,hasPromoteOperation, versionInfo, stage, lifeCycleContent) {
-    var promoteText = '';
-    if (hasPromotePermission & hasPromoteOperation) {
-        promoteText =
-                '<button id="promote_action" name="promote_action" class="btn main small hide_button governance-button" onClick="doGovernanceAction(this, \'Promote\',\'' +
-                stage + '\'' + ', \'' + versionInfo.version + '\')" >Promote</button>';
-    }
-    return promoteText;
-}
-function getRetireText(hasRetirePermission, hasRetireOperation, versionInfo, stage, lifeCycleContent) {
-    var retireText = '';
-    if (hasRetirePermission & hasRetireOperation) {
-        var  retireBtnClass = "js_promote_popover";
-        var retireBtnId =  "retire_btn_"+versionInfo.version.replace(/\./g,'_');
-
-        //if this version is mapped to the production url, by adding this class,
-        // there will be a warning message when try to demote this version
-        if(previousDomainMappedVersion == versionInfo.version){
-            retireBtnClass = "domain-mapped-retire";
-        }
-        retireText = '<button class="btn main small '+retireBtnClass+' governance-button" '+
-                'id="'+retireBtnId+'" '+'>Retire</button>' +
-                '<div class="popover_content hide" style="width:400px;">' +
-                '<form class="form-container" onSubmit="return false;">' +
-                lifeCycleContent +
-                '<div class="btn_row">' +
-                '<button class="btn main small hide_button" onClick="doGovernanceAction(this, \'Retire\',\'' +
-                stage + '\'' + ', \'' + versionInfo.version + '\')" >Retire</button>' +
-                '<a href="#" class="popover_close small" >Close</a>' +
-                '</div> ' +
-                '   </form>' +
-                '</div> ';
-    }
-    return retireText;
-}
-function getLifeCycleContents(hasPromotePermission, hasDemotePermission, versionInfo, stage) {
-    var lifeCycleContent = '';
-    for (counter = 0; counter < versionInfo.lifeCycleCheckListItems.length; counter++) {
-        var lifeCycleItem = versionInfo.lifeCycleCheckListItems[counter];
-        lifeCycleContent = lifeCycleContent + createLifeCycleItemCheckbox(hasPromotePermission, hasDemotePermission, stage, versionInfo.version, lifeCycleItem);
-    }
-    return lifeCycleContent;
-}
-function getETAText(hasPromotePermission, versionInfo, stage) {
-    var domeETAText = '';
-    if (hasPromotePermission) {
-        var modifiedVersionId = versionInfo.version.replace(/\./g, "_");
-        domeETAText = '<div id="eta_display_' + modifiedVersionId + '" class="list_col_content"  ></div>' +
-                '<div id="eta_edit_' + modifiedVersionId + '" class="list_col_content" style="display:none" ></div>';
-        getETA(domeETAText, stage, versionInfo.version);
-
-    } else {
-        domeETAText = '<div class="list_col_content">' +
-                '<form class="form-container">' +
-                '<div><input type="text" class="v-small-text-box small push_right_10"  disabled="true" placeholder="Date" /><button type="submit" disabled="true" class="btn main small">Save</button></div>' +
-                '</form>' +
-                '</div>';
-    }
-    return  domeETAText;
-}
-function generateLifecycleHistoryTable(dataJSON) {
-    var itemJSON = JSON.parse(dataJSON);
-
-    //var tableHeader = "<div class='etaDisplay'>Life Cycle History :</div><table class='table table-striped'>";
-    var tableHeader = '<div class="popover_content"><table class="small_table">';
-    tableHeader += '<tr><th>User</th><th>Action</th><th>From</th><th>To</th><th>Timestamp</th></tr>';
-    var tableBody = "";
-    for (var item in itemJSON) {
-
-        var attributes = itemJSON[item]['item'];
-        if (attributes && attributes['targetState']) {
-
-            var row = '<tr>'
-            row += '<td><strong>' + attributes['user'] + '</strong></td>';
-            row += '<td><strong>' + attributes['action'] + '</strong></td>';
-            row += '<td>' + attributes['state'] + '</td>';
-            row += '<td>' + attributes['targetState'] + '</td>';
-            row += '<td style="color:#636771">' + attributes['timestamp'] + '</td>';
-            row += '<tr>';
-            row += '<tr><td colspan="5" class="comment">' + $('<div/>').html(attributes['comment']).text() + ' </td></tr>';
-            tableBody += row;
-        }
-
-    }
-    if (tableBody.length == 0) {
-        return '<span class="noData-message">This version has not gone through lifecycle yet</span><a href="#" class="popover_close small right" >Cancel</a></div>';
-    }
-
-    return tableHeader + tableBody + '</table><a href="#" class="popover_close small right" >Close</a></div>';
-}
-
-function getLifeCycleHistoryForApplication(api, key, version, stage) {
-    var historyContent;
-    jagg.post("../blocks/lifecycle/get/ajax/get.jag", {
-        action: "getLifeCycleHistoryForApplication",
-        userName: $("#userName").attr('value'),
-        applicationKey: key,
-        version: version,
-        stageName: stage
-    }, function (result) {
-
-        historyContent = generateLifecycleHistoryTable(result);
-        api.set('content.text', historyContent);
-    }, function (jqXHR, textStatus, errorThrown) {
-
-        historyContent = '<span>Error while retriving the lifecycle history</span><a href="#" class="popover_close small right" >Close</a></div>';
-        api.set('content.text', historyContent);
-    });
-    return  historyContent;
-}
-
-function addETA(uiElement, version, stage) {
-    jagg.removeMessage();
-    var user = $("#userName").attr('value');
-    var applicationKey = $("#applicationKey").attr('value');
-    var etaFrom, etaTo;
-    //$('label.error', $(uiElement).parent()).hide();
-    var dateValid = true;
-    var modifiedVersion = version.replace(/\./g, "_");
-    $('input[type="text"], input[type="hidden"]', $(uiElement).parent().parent()).each(function (index, element) {
-        if ($(this).attr('id') == "etaFrom_" + modifiedVersion) {
-            etaFrom = $(this).val();
-        }
-        if ($(this).attr('id') == "etaTo_" + modifiedVersion) {
-
-            etaTo = $(this).val();
-
-            //Adding date validation
-            var currentDate = new Date();
-            var selectedDate = new Date();
-
-            var etaStr = etaTo.split('-');
-            var year = etaStr[0];
-            var month = etaStr[1];
-            var date = etaStr[2];
-
-            selectedDate.setFullYear(year, month - 1, date);
-            var formatVaild = isDate(etaTo);
-            var b = selectedDate >= currentDate;
-            dateValid = formatVaild && b;
-
-            if (!b) {
-                $('label.error', $(uiElement).parent().parent()).show().html('Invalid Estimated End Date - Should not be lesser than the current date');
-                jagg.message({
-                    content: "Invalid Estimated End Date - Should not be lesser than the current date",
-                    type: 'error',
-                    id: 'govPage'
-                });
-            }
-            if ((!formatVaild)) {
-
-                $('label.error', $(uiElement).parent().parent()).show().html('Invalid Format of Estimated End Date - Enter a valid date with format yyyy-mm-dd');
-                jagg.message({
-                    content: "Invalid Format of Estimated End Date - Enter a valid date with format yyyy-mm-dd",
-                    type: 'error',
-                    id: 'govPage'});
-
-            }
-        }
-    });
-
-    if (!dateValid) {
-        return;
-    }
-    if (etaFrom.length == 0 || etaTo.length == 0 || version.length == 0 || stage.length == 0) {
-        jagg.message({
-            content: "Invalid Estimated End Date - Should not be empty",
-            type: 'error'
-        });
-        return;
-    } else {
-        var etaFromDate = new Date(etaFrom);
-        var etaToDate = new Date(etaTo);
-        if (etaFromDate.getTime() > etaToDate.getTime()) {
-            jagg.message({
-                content: "Estimated From cannot be larger than Estimated To in version " + version,
-                type: 'error'
-            });
-            return;
-        }
-    }
-
-    $(uiElement).val("Saving");
-    $(uiElement).attr("disabled", "disabled");
-    jagg.post("../blocks/eta/set/ajax/set.jag", {
-        action: "set",
-        applicationKey: $("#applicationKey").attr('value'),
-        stage: stage,
-        version: version,
-        user: user,
-        etaFrom: etaFrom,
-        etaTo: etaTo
-    }, function (result) {
-        if (!result.error) {
-            makeETAUneditable(modifiedVersion);
-            $('span:first', "#eta_display_" + modifiedVersion).html(etaTo);
-
-        } else {
-
-            jagg.message({
-                content: "Error occurred while adding the Estimated End Date information - Check Estimated End Date ",
-                type: 'error'
-            });
-        }
-        $(uiElement).val("Save");
-        $(uiElement).removeAttr("disabled");
-    }, function (jqXHR, textStatus, errorThrown) {
-        $(uiElement).val("Save");
-        $(uiElement).removeAttr("disabled");
-        jagg.message({
-            content: "Error occurred while performing the governance operation",
-            type: 'info'
-        });
-    });
-
-}
-
-function getETA(uiElement, stage, version) {
-    var user = $("#userName").attr('value');
-    var applicationKey = $("#applicationKey").val();
-
-    jagg.post("../blocks/eta/get/ajax/get.jag", {
-        action: "get",
-        applicationKey: applicationKey,
-        stage: stage,
-        version: version,
-        user: user
-    }, function (result) {
-        var modifiedVersion = version.replace(/\./g, "_");
-        var resultJson = jQuery.parseJSON(result);
-        if (result != undefined && !resultJson.error) {
-            if (resultJson.eta.etaFrom.length != 0 && resultJson.eta.etaTo.length != 0) {
-
-                var etaEdit = $('<form class="form-container" onsubmit="return false;">' +
-                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="v-small-text-box small push_right_10 datepicker" placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="' + resultJson.eta.etaFrom + '" type="hidden"/><input id="editeta_action" name="editeta_action" type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
-                        '</form>');
-
-                $("#eta_edit_" + modifiedVersion).append(etaEdit);
-
-                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a name="editeta_ico" id="editeta_ico" href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
-                $("#eta_display_" + modifiedVersion).append(suggestedETAstr);
-                makeETAUneditable(modifiedVersion);
-
-            } else {
-                var etaEdit = $('<form class="form-container" onsubmit="return false;">' +
-                        '<div><input id="etaTo_' + modifiedVersion + '" type="text" class="v-small-text-box small push_right_10 datepicker"  placeholder="Date" /><input id="etaFrom_' + modifiedVersion + '" name="etaFrom" value="0000-00-00" type="hidden"/><input id="addeta_action" name="addeta_action" type="button" value="Save" onclick="addETA(this, ' + '\'' + version + '\'' + ',\'' + stage + '\'' + ');" class="btn main small" /><a href="#" class="popover_close small" onclick="makeETAUneditable(\'' + modifiedVersion + '\');">Cancel</a></div>' +
-                        '</form>');
-                $("#eta_edit_" + modifiedVersion).append(etaEdit);
-
-                var suggestedETAstr = $('<span class="push_right_10">' + resultJson.eta.etaTo + '</span><a name="editeta_ico" id="editeta_ico" href="#" class="icon_link" onclick="showETAEditable(\'' + modifiedVersion + '\',\'' + resultJson.eta.etaTo + '\')"><span class="icon-pencil" ></span></a>');///"Date of delivery of your tasks for this life cycle environment:&nbsp;&nbsp; <span>" + resultJson.eta.etaTo + "</span>";
-                $("#eta_display_" + modifiedVersion).append(suggestedETAstr);
-                showETAEditable(modifiedVersion);
-
-            }
-
-            // var modifiedVersion = version.replace(/\./g, "_");
-            //var etaEdit='<div id="eta_edit_' + modifiedVersion + '" class="etaDisplay" style="display:none" >';
-
-            initDatePicker();
-        }
-    }, function (jqXHR, textStatus, errorThrown) {
-
-        if ( jqXHR.status != 0){
-            jagg.message({
-                content: "Error occurred while performing the governance operation",
-                type: 'info'
-            });
-        }
-
-    });
-}
-
-function showETAEditable(version) {
-
-    $("#eta_display_" + version).hide();
-    var value = $('span:first', "#eta_display_" + version).text();
-    if (value.length > 0) {
-        $('a:first', "#eta_edit_" + version).show();
-    } else {
-        $('a:first', "#eta_edit_" + version).hide();
-    }
-
-    $("#etaTo_" + version).val(value);
-    $("#eta_edit_" + version).show();
-
-}
-
-function makeETAUneditable(version) {
-    $("#eta_edit_" + version).hide();
-    $("#eta_display_" + version).show();
-}
-function initDatePicker() {
-    $('.datepicker').each(function () {
-       $(this).datepick({dateFormat: 'yyyy-mm-dd'});
-    });
-}
-
-function initPops() {
-
-    $('.hide_button').on('click', function () {
-        $(this).parents('.qtip').qtip("hide");
-    });
-    $('.js_demote_popover').each(function () {
-        $(this).qtip({
-            content: {
-                text: processIndicatorHTML
-            },
-            style: {
-                classes: 'popover_box pop_over_fixed_width issue_down',
-                widget: false,
-                def: false,
-                tip: false
-            },
-            hide: {
-                fixed: true,
-                event: null,
-                effect: function (offset) {
-                    $(this).slideUp(200);
-                }
-            },
-            show: {
-                event: 'click',
-                effect: function (offset) {
-                    $(this).slideDown(200);
-                }
-            },
-            events: {
-                show: function (event, api) {
-                    api.elements.target.addClass('active');
-                    var $el = $(api.elements.target[0]);
-                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
-
-
-                },
-                hide: function (event, api) {
-                    api.elements.target.removeClass('active');
-                },
-                render: function (event, api) {
-                    var $el = $(api.elements.target[0]);
-
-                    $('.popover_box').each(function () {
-                          if ($(this).is(':visible')) {
-                              $(this).hide();
-                              $(this).prev().toggleClass("active");
-                              $('html').unbind('click');
-                          }
-                      });
-
-                      $('html').click(function (event) {
-                      	  var popover_box = $(event.target).closest('.popover_box');
-                      	  if(popover_box.length == 0){
-	                          $('.js_demote_popover').removeClass("active");
-	                          $('.popover_box').hide().removeClass("highlight");
-	                          //$('html').unbind('click');
-	                      }
-                      });
-
-                    var stage = $el.attr('demote-app-stage');
-                    var version = $el.attr('demote-app-version');
-                    var tagName = $el.attr('demote-app-tagName');
-
-                    var issueArray;
-                    var ISSUE_CHECK_BOX_ID_PREFIX = "selectissueondemote";
-
-                    jagg.post("../blocks/issuetracker/list/ajax/list.jag", {
-                                action: "getOpenIssues",
-                                applicationKey: $("#applicationKey").attr('value'),
-                                applicationVersion: version
-                            },
-                            function (result) {
-                                if (result) {
-                                    issueArray = jQuery.parseJSON(result);
-                                    var issuesection = '<form class="form-container" onsubmit="return false">' +
-                                            '<div class="input_row">';
-                                    if (issueArray.length > 0) {
-                                        issuesection = issuesection + '<label>Related Issue</label>' +
-                                                '<div style="margin-left:140px;overflow-y:scroll;height:120px">';
-
-                                        for (var i = 0; i < issueArray.length; i++) {
-                                            var issue = issueArray[i];
-                                            issuesection += "<p> <input id='" + ISSUE_CHECK_BOX_ID_PREFIX + issue.id
-                                                    + "' type='checkbox'  order='0' " + "title='" + issue.title + "' issuetype='" + issue.type + "' issueid='" + issue.id + "' url='" + issue.url
-                                                    + "'> [" + issue.type + "] " + issue.title + "</input> <a href=" + issue.url
-                                                    + " target='_blank' ><i class='icon-share-alt'></i></a></p>";
-                                        }
-                                    }
-                                    issuesection = issuesection +
-                                            '</div>' +
-                                            '</div>' +
-                                            '<div class="input_row">' +
-                                            '<label>Add Comment<font color="red">*</font></label>' +
-                                            '<textarea cols="5" rows="3" id="demote_comment" name="demote_comment" class="comment_area"></textarea>' +
-                                            '<div class="btn_row">' +
-                                            '<button name="demote_action" id="demote_action" class="btn main small hide_button" onclick="doDemoteActionAjax(\'' + stage + '\'' + ', \'' + version + '\'' + ',\'' + tagName + '\'' + ' )">Demote</button><a href="#" class="popover_close small" >Cancel</a>' +
-                                            '</div>' +
-                                            '</div>' +
-                                            '</form>' +
-                                            '</div>';
-                                    api.set('content.text', issuesection)
-
-                                }
-                            },
-                            function (jqXHR, textStatus, errorThrown) {
-
-                                if ( jqXHR.status != 0){
-                                    jagg.message({content: "Error occurred while retrieving issues", type: 'info' });
-                                }
-
-                            });
-
-
-                }
-            }
-        });
-    }).bind('click', function (event) {
-                event.preventDefault();
-                return false;
-            });
-    $('.js_promote_popover').each(function () {
-        $(this).qtip({
-            content: {
-                text: $(this).next()
-            },
-            style: {
-                classes: 'popover_box issue_up',
-                widget: false,
-                def: false,
-                tip: false
-            },
-            hide: {
-                fixed: true,
-                event: null,
-                effect: function (offset) {
-                    $(this).slideUp(200);
-                }
-            },
-            show: {
-                event: 'click',
-                effect: function (offset) {
-                    $(this).slideDown(200);
-                }
-            },
-            events: {
-                show: function (event, api) {
-                    api.elements.target.addClass('active');
-
-                    var $el = $(api.elements.target[0]);
-                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
-
-                },
-                hide: function (event, api) {
-                    api.elements.target.removeClass('active');
-                },
-                render: function (event, api) {
-                    var $el = $(api.elements.target[0]);
-
-                    $('.popover_box').each(function () {
-                        if ($(this).is(':visible')) {
-                            $(this).hide();
-                            $(this).prev().toggleClass("active");
-                            $('html').unbind('click');
-                        }
-                    });
-
-                    $('html').click(function () {
-                		  var popover_box = $(event.target).closest('.popover_box');
-						  if(popover_box.length == 0){
-						    $('.js_promote_popover').removeClass("active");
-						    $('.popover_box').hide().removeClass("highlight");
-						    //$('html').unbind('click');
-						  }
-                    });
-                }
-
-            }
-        });
-    }).bind('click', function (event) {
-                event.preventDefault();
-                return false;
-            });
-    $('.js_governance_history').each(function () {
-        $(this).qtip({
-            content: {
-                text: processIndicatorHTML// The text to use whilst the AJAX request is loading
-
-
-            },
-            style: {
-                classes: 'popover_box issue_down',
-                widget: false,
-                def: false,
-                tip: false
-            },
-            hide: {
-                fixed: true,
-                event: null,
-                effect: function (offset) {
-                    $(this).slideUp(200);
-                }
-            },
-            show: {
-                event: 'click',
-                effect: function (offset) {
-                    $(this).slideDown(200);
-                }
-            },
-            events: {
-                show: function (event, api) {
-                    api.elements.target.addClass('active');
-                    var $el = $(api.elements.target[0]);
-                    $el.qtip('option', 'position.my', ($el.data('popover-my-position') == undefined) ? 'top right' : $el.data('popover-my-position'));
-                    $el.qtip('option', 'position.at', ($el.data('popover-target-position') == undefined) ? 'bottom right' : $el.data('popover-target-position'));
-
-                },
-                hide: function (event, api) {
-                    api.elements.target.removeClass('active');
-                },
-                render: function (event, api) {
-                    var $el = $(api.elements.target[0]);
-
-
-                    $('.popover_box').each(function () {
-
-                        if ($(this).is(':visible')) {
-                            $(this).hide();
-                            $(this).prev().toggleClass("active");
-                            $('html').unbind('click');
-                        }
-                    });
-
-                    $('html').click(function () {
-                        $('.js_governance_history').removeClass("active");
-                        $('.popover_box').hide().removeClass("highlight");
-                        $('html').unbind('click');
-                    });
-
-                    var stage = $el.attr('demote-app-stage');
-                    var version = $el.attr('demote-app-version');
-                    var tagName = $el.attr('demote-app-tagName');
-                    var key = $("#applicationKey").attr('value');
-                    getLifeCycleHistoryForApplication(api, key, version, stage);
-                    //api.set('content.text',content);
-
-
-                }
-            }
-        });
-    }).bind('click', function (event) {
-                event.preventDefault();
-                return false;
-            });
-
-    //Create the tool tip for ETA Header
-    $('.js_deta_tooltip').each(function () {
-        $(this).qtip(
-                {
-                    content: {
-                        attr: 'data-tooltip'
-                    },
-                    show: {
-                        when: 'click',
-                        solo: true // Only show one tooltip at a time
-                    },
-                    hide: 'unfocus',
-                    style: {
-                        classes: 'popup_status_box tooltip',
-                        widget: false,
-                        def: false
-                    }
-                });
-    });
-
-}
-$(function () {
-	getAppInfo();
-    drawVersionsList();
-
-});
-
-function updateTabs(){
-    $('.content-tabs').hide();
-    var selected = $('#stage_selector').select2('data').id;
-    $('#content-tab-'+selected).show();
-    updateSessionInfo(selected);
-}
-
-function updateSessionInfo(stageName){
-    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: "updateSessionInfo",
-        stageName: stageName
-    },function (result) {
-        //We ignore the result here
-	}, function (jqXHR, textStatus, errorThrown) {
-        //We ignore the errors here
-	});
-}
-
-/**
-*  Update the tab elements when domain mapping is removed
-*  @param removedVersion
-*/
-function updateTabElementsOnDomainMappingRemove(removedVersion){
-    var tmpIdVersion =  removedVersion.replace(/\./g,'_');
-    $('#'+tmpIdVersion).unbind( "click" );
-    $('#'+tmpIdVersion).removeClass('domain-url-map-selected').addClass('domain-url-map');
-    $('#demote_btn_'+tmpIdVersion).unbind( "click" );
-    $('#demote_btn_'+tmpIdVersion).addClass('js_demote_popover').removeClass('domain-mapped-demote');
-    $('#retire_btn_'+tmpIdVersion).unbind( "click" );
-    $('#retire_btn_'+tmpIdVersion).addClass('js_promote_popover').removeClass('domain-mapped-retire');
-}
-
-/**
- * Update the tab elements when domain mapping changes
- * @param mappedVersion
- */
-function updateTabElementsOnDomainMappingUpdate(mappedVersion ,removedVersion){
-    previousDomainMappedVersion = mappedVersion;
-    if(removedVersion){
-        updateTabElementsOnDomainMappingRemove(removedVersion);
-    }
-    var tmpIdVersion =  mappedVersion.replace(/\./g,'_');
-    $('#'+tmpIdVersion).removeClass('domain-url-map').addClass('domain-url-map-selected');
-
-    // Disable demote/retire for current mapped version
-    $('#demote_btn_'+tmpIdVersion).removeClass('js_demote_popover').addClass('domain-mapped-demote');
-    $( '#demote_btn_'+tmpIdVersion).unbind( "click" );
-    $('#retire_btn_'+tmpIdVersion).removeClass('js_promote_popover').addClass('domain-mapped-retire');
-    $( '#retire_btn_'+tmpIdVersion).unbind( "click" );
-}
-
-function getAppInfo(){
-	 jagg.post("../blocks/application/get/ajax/list.jag", {
-		    action:"getAppInfo",
-		    applicationKey:'<%=applicationKey%>'
-	   },function (result) {
-	    var parsedArray = jQuery.parseJSON(result);
-	    appType = parsedArray.type;
-	    defaultSubDomain = parsedArray.mappedSubDomain;
-	   }, function (jqXHR, textStatus, errorThrown) {
-
-	       if (jqXHR.status != 0){
-	            jagg.message({
-	                content: "Error occurred while retriving application information",
-	                type: 'info'
-	            });
-	       }
-
-	   });
-}
-
-//]]
-
-// Declaring valid date character, minimum year and maximum year
-var dtCh = "-";
-var minYear = 1900;
-var maxYear = 2100;
-
-function isInteger(s) {
-    var i;
-    for (i = 0; i < s.length; i++) {
-        // Check that current character is number.
-        var c = s.charAt(i);
-        if (((c < "0") || (c > "9"))) return false;
-    }
-    // All characters are numbers.
-    return true;
-}
-
-function stripCharsInBag(s, bag) {
-    var i;
-    var returnString = "";
-    // Search through string's characters one by one.
-    // If character is not in bag, append to returnString.
-    for (i = 0; i < s.length; i++) {
-        var c = s.charAt(i);
-        if (bag.indexOf(c) == -1) returnString += c;
-    }
-    return returnString;
-}
-
-function daysInFebruary(year) {
-    // February has 29 days in any year evenly divisible by four,
-    // EXCEPT for centurial years which are not also divisible by 400.
-    return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
-}
-function DaysArray(n) {
-    for (var i = 1; i <= n; i++) {
-        this[i] = 31
-        if (i == 4 || i == 6 || i == 9 || i == 11) {
-            this[i] = 30
-        }
-        if (i == 2) {
-            this[i] = 29
-        }
-    }
-    return this
-}
-
-function isDate(dtStr) {
-    var daysInMonth = DaysArray(12)
-    var pos1 = dtStr.indexOf(dtCh)
-    var pos2 = dtStr.indexOf(dtCh, pos1 + 1)
-    var strYear = dtStr.substring(0, pos1)
-    var strMonth = dtStr.substring(pos1 + 1, pos2)
-    var strDay = dtStr.substring(pos2 + 1)
-    strYr = strYear
-    if (strDay.charAt(0) == "0" && strDay.length > 1) strDay = strDay.substring(1)
-    if (strMonth.charAt(0) == "0" && strMonth.length > 1) strMonth = strMonth.substring(1)
-    for (var i = 1; i <= 3; i++) {
-        if (strYr.charAt(0) == "0" && strYr.length > 1) strYr = strYr.substring(1)
-    }
-    month = parseInt(strMonth)
-    day = parseInt(strDay)
-    year = parseInt(strYr)
-    if (pos1 == -1 || pos2 == -1) {
-        //  alert("The date format should be : mm/dd/yyyy")
-        return false
-    }
-    if (strMonth.length < 1 || month < 1 || month > 12) {
-        // alert("Please enter a valid month")
-        return false
-    }
-    if (strDay.length < 1 || day < 1 || day > 31 || (month == 2 && day > daysInFebruary(year)) || day > daysInMonth[month]) {
-        // alert("Please enter a valid day")
-        return false
-    }
-    if (strYear.length != 4 || year == 0 || year < minYear || year > maxYear) {
-        //  alert("Please enter a valid 4 digit year between "+minYear+" and "+maxYear)
-        return false
-    }
-    if (dtStr.indexOf(dtCh, pos2 + 1) != -1 || isInteger(stripCharsInBag(dtStr, dtCh)) == false) {
-        //  alert("Please enter a valid date")
-        return false
-    }
-    return true
-}
-
-function ValidateForm() {
-    var dt = document.frmSample.txtDate
-    if (isDate(dt.value) == false) {
-        dt.focus()
-        return false
-    }
-    return true
-}
-
-function hideNotification() {
-    // create new timer with given time interval
-    setTimeout(function () {
-        jagg.removeMessage('noification')
-    }, 5000);
-}
-
-</script>
-<%
-    //} else { // show message below
-    //    %>
-
-<%
-    // }
-    //  %>
-
-<%
-
-    var stages = getProperties('ApplicationDeployment.DeploymentStage');
-    for (var i = 0; i < stages.length; i++) {
-        var stage = stages[i];
-        var promoteDepPolicy = getProperty('ApplicationDeployment.DeploymentStage.' + stage + '.Promote.DeploymentPolicy');
-
-        if (promoteDepPolicy != null) {
-            print('<input type="hidden" name="' + stage + '" id="' + stage + '" value="' +
-                    promoteDepPolicy + '">');
-        } else {
-            print('<input type="hidden" name="' + stage + '" id="' + stage + '" value="">');
-        }
-    }
-    %>
-
-    <!--START content section-->
-
-    <input type="hidden" name="applicationKey" id="applicationKey" value="<%=applicationKey%>"/>
-<input type="hidden" name="userName" id="userName" value="<%=userName%>"/>
-<%
-
-    for (var promoteStage in hasPromotePermissions){
-        var promoteParameterName = 'hasPromotePermissionTo' + promoteStage;
-        var promoteParameterValue = hasPromotePermissions[promoteStage];
-        %>
-        <input type="hidden" name="<%=promoteParameterName%>" id="<%=promoteParameterName%>" value="<%=promoteParameterValue
-        %>"/>
-<%
-    }
-    %>
-    <%
-    for (var demoteStage in hasDemotePermissions){
-        var demoteParameterName = 'hasDemotePermissionTo' + demoteStage;
-        var demoteParameterValue = hasDemotePermissions[demoteStage];
-        %>
-        <input type="hidden" name="<%=demoteParameterName%>" id="<%=demoteParameterName%>" value="<%=demoteParameterValue
-        %>"/>
-<%
-    }
-    %>
-    <input type="hidden" name="hasRetirePermission" id="hasRetirePermission" value="<%=outputs.hasRetirePermission%>"/>
-    <article class="main">
-        <%
-    jagg.includeBlock("page/messages", null);
-    jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.LIFE_CYCLE_MGT});
-    jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"});
-
-    %>
-        <!-- following div can be removed after new ux-->
-        <div style="height: 80px; "></div>
-        <!-- -->
-    <header class="separator">
-        <div class="content">
-            <h1>Lifecycle Management</h1>
+    var selectedVersion = getSelectedVersionFromSession(applicationKey);
+    var versions =outputs.versions;
+%>
+    <link rel="stylesheet" href="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('css/daterangepicker/daterangepicker.css'))%>">
+
+    <!-- BOF App factory menu actionbar -->
+    <div class="action-bar">
+        <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>" class="btn-action" data-toggle="tooltip" data-placement="top"
+           title="Back to Overview">
+                <span class="fw-stack fw-lg btn-action-ico">
+                    <i class="fw fw-ring fw-stack-2x"></i>
+                    <i class="fw fw-left-arrow fw-stack-1x"></i>
+                </span> Back to Overview
+        </a>
+    </div><!-- EOF App factory menu actionbar-->
+
+    <div class="container-fluid app-content-section">
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 msg-issues">
+Using this page, you can manage the lifecycles of all versions of your application. Versions that are not built and deployed are not displayed here.
+You can also set the estimated date of completion for each stage. The mean of the dates set by the team would be displayed in the application overview page.
+          </div>
         </div>
-    </header>
-            <% jagg.includeBlock("page/help", {"section": "lifecycle"}); %>
-
-        <div class="page-content-area push_top_20">
-           <div class="af_container" id="whereItAllGoes">
-                <!-- this is there the tab content goes -->
-           </div>
-        </div>
-
-        <section id="governance_list_container" class="">
-            <div class="loader" id="loader_id" style="padding-left:40px;padding-top:40px;">
-                <span class="icon-spinner icon-spin icon-large spin-large"></span>
+        <div class="row padding-bottom-xlg">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 forms">
+                <div id="push"></div>
+                <h4>Current Version: <span><%=selectedVersion%></span></h4>
+                <div id="push"></div>
+<%if(selectedVersion=="trunk") {%>
+ <div class="form-group">
+                    <div class="alert alert-warning alert-no-margin" role="alert">
+                            <span class="alert-content">
+                               <%if(versions && versions.length > 1) {%>
+                                To promote application to the next stage of lifecycle, you need to select a version other than trunk.
+                               <%} else {%>
+                                To promote application to the next stage of lifecycle, you need to first create a version of it . <a href="<%=jagg.getAbsoluteUrl("/site/pages/application.jag")%>?applicationName=<%=applicationName%>&applicationKey=<%=applicationKey%>"> Click here </a> to create version
+                               <%}%>
+                            </span>
+                    </div>
+                </div>
             </div>
-        </section>
 
-        <div class="clearfix"></div>
-    </article>
+        </div>
+    </div><!-- /.container -->
+<%} else {%>
+                <div class="margin-bottom-md">
+                    <!-- BOF add loading overlay -->
+                    <div class="loading-cover">
+                        <div class="loader"></div>
+                    </div>
+                    <!-- EOF add loading overlay -->
 
+                    <div id="app-retired-text" style="display : none;" class="alert alert-warning alert-no-margin" role="alert">
+                        <span class="alert-content">This app is retired.</span>
+                    </div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs nav-tabs-wizard" role="tablist" style="display : none;">
+                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-left" disabled-tab>
+                            <a href="#development" aria-controls="home" role="tab" data-toggle="tab">
+                                <div class="step-number">
+                                    <span>01</span>
+                                </div>
+                                <div class="step-desc">
+                                    <h2>Development</h2>
+                                    <p>Application is in initial stage</p>
+                                </div>
+                                <div class="clearfix"></div>
+                            </a>
+                        </li>
+                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-both" disabled-tab>
+                            <a href="#testing" aria-controls="profile" role="tab" data-toggle="tab">
+                                <div class="step-number">
+                                    <span>02</span>
+                                </div>
+                                <div class="step-desc">
+                                    <h2>Testing</h2>
+                                    <p>Application is under testing</p>
+                                </div>
+                                <div class="clearfix"></div>
+                            </a>
+                        </li>
+                        <li role="presentation" class="col-md-4 col-lg-4 no-pad-right" disabled-tab>
+                            <a href="#production" aria-controls="messages" role="tab" data-toggle="tab">
+                                <div class="step-number">
+                                    <span>03</span>
+                                </div>
+                                <div class="step-desc">
+                                    <h2>Production</h2>
+                                    <p>Application is production ready</p>
+                                </div>
+                                <div class="clearfix"></div>
+                            </a>
+                        </li>
+                    </ul>
 
-<style>
-    li.governance_option {
-        width: 340px;
-    }
-    .qtip{
-        max-width: none;
-    }
-</style>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <!-- development tab pane -->
+                        <div role="tabpanel" class="tab-pane " id="development">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="ecdate" class="col-sm-6 control-label"> Estimated completion date: </label>
+                                        <div class="col-sm-6">
+                                            <div class='datepicker-container'>
+                                                <input type="text"  name="daterange" class="form-control ecdate"/>
+                                                <i class="fw fw-calendar fw-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <div class="form-group stage-progress-container">
+                                        <label for="progress" class="col-sm-3 control-label progress-bar-label">Stage Progress : </label>
+                                        <div class="col-sm-6">
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                                    <span class="sr-only">Complete</span>
+                                                </div>
+                                            </div>
 
+                                        </div>
+                                        <label class="col-sm-2 control-label progress-bar-label progress-bar-indicator">0/3</label>
+                                        </div>
+                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group ">
+                                    <div class="col-md-5 checkboxes"><!-- checkboxes-->
+                                        <div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="1"><span>Code Completed</span></label></div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox"  class="strikethrough custom-checkbox" value="1"><span>Design Review Done</span></label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox"  class="strikethrough custom-checkbox" value="1"><span>Code Review Done</span></label>
+                                        </div>
+                                    </div> <!-- /.checkboxes -->
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="push"></div>
+                                    <div class="form-group">
+                                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue promote-button" id="promote-to-testing-btn" >
+                                            <span class="fw-stack fw-lg btn-action-ico">
+                                                <i class="fw fw-ring fw-stack-2x"></i>
+                                                <i class="fw fw-up-arrow fw-stack-1x"></i>
+                                            </span>
+                                            Promote to testing
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- /. development tab pane -->
+
+                        <!-- testing tab pane -->
+                        <div role="tabpanel" class="tab-pane" id="testing">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="ecdate" class="col-sm-6 control-label"> Estimated completion date: </label>
+                                        <div class="col-sm-6">
+                                            <div class='datepicker-container'>
+                                                <input type="text"  name="daterange" class="form-control ecdate"/>
+                                                <i class="fw fw-calendar fw-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <div class="form-group stage-progress-container">
+                                        <label for="progress" class="col-sm-3 control-label progress-bar-label">Stage Progress : </label>
+                                        <div class="col-sm-6">
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                                    <span class="sr-only">Complete</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <label class="col-sm-2 control-label progress-bar-label progress-bar-indicator"></label>
+                                    </div>
+                                </div>
+                            </div> <!-- /. row -->
+
+                            <div class="row">
+                                <div class="form-group ">
+                                    <div class="col-md-5 checkboxes"><!-- checkboxes-->
+                                    <!--    <div class="checkbox">
+                                            <label><input type="checkbox" class="strikethrough custom-checkbox"
+                                                          value="1"><span>Smoke Tests Passed</span></label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input type="checkbox"  class="strikethrough custom-checkbox"
+                                                          value="1"><span>Test Cases Passed</span></label>
+                                        </div>
+                                    -->
+                                    </div><!-- /.checkboxes -->
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="push"></div>
+                                    <div class="form-group">
+                                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue demote-button" id="demote-to-development-btn">
+                                            <span class="fw-stack fw-lg btn-action-ico">
+                                                <i class="fw fw-ring fw-stack-2x"></i>
+                                                <i class="fw fw-down-arrow fw-stack-1x"></i>
+                                            </span>
+                                            Demote to development
+                                        </button>
+                                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue promote-button" id="promote-to-production-btn" >
+                                            <span class="fw-stack fw-lg btn-action-ico">
+                                                <i class="fw fw-ring fw-stack-2x"></i>
+                                                <i class="fw fw-up-arrow fw-stack-1x"></i>
+                                            </span>
+                                            Promote to production
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /. testing tab pane -->
+
+                        <!-- production tab pane -->
+                        <div role="tabpanel" class="tab-pane" id="production">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="ecdate" class="col-sm-6 control-label"> Estimated completion date: </label>
+                                        <div class="col-sm-6">
+                                            <div class='datepicker-container'>
+                                                <input type="text"  name="daterange" class="form-control ecdate"/>
+                                                <i class="fw fw-calendar fw-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <div class="form-group stage-progress-container">
+                                        <label for="progress" class="col-sm-3 control-label progress-bar-label">Stage Progress : </label>
+                                        <div class="col-sm-6">
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                                    <span class="sr-only">Complete</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <label class="col-sm-2 control-label progress-bar-label progress-bar-indicator">0/2</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group ">
+                                    <div class="col-md-5 checkboxes"><!-- checkboxes-->
+                                       <!--  <div class="checkbox"><label><input type="checkbox" class="strikethrough custom-checkbox" value="1"><span>Smoke Tests Passed</span></label></div> -->
+                                    </div><!-- /.checkboxes -->
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="push"></div>
+                                    <div class="form-group">
+                                        <button type="button" class="cu-btn cu-btn-sm cu-btn-blue demote-button" id="demote-to-testing-btn">
+                                            <span class="fw-stack fw-lg btn-action-ico">
+                                                <i class="fw fw-ring fw-stack-2x"></i>
+                                                <i class="fw fw-down-arrow fw-stack-1x"></i>
+                                            </span>
+                                            Demote to testing
+                                        </button>
+                                         <button type="button" class="cu-btn cu-btn-sm cu-btn-blue promote-button" id="retire-btn" >
+                                            <span class="fw-stack fw-lg btn-action-ico">
+                                                <i class="fw fw-ring fw-stack-2x"></i>
+                                                <i class="fw fw-up-arrow fw-stack-1x"></i>
+                                            </span>
+                                            Retire
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- /. production tab pane -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-10 col-lg-6 lifecycle-event-history" style="display:none">
+                <h4>Lifecycle event history</h4>
+                <table class="table table-condensed table-borderless table-buildlogs" id="history-events-table">
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><!-- /.container -->
+<%}%>
+
+    </div>
+    <div class="clearfix"></div>
+    <div id="push"></div>
+    <!-- Model for demote confirmation -->
+    <div id="demote-confirm-modal" class="modal fade">
+        <div class="modal-dialog modal-dialog-margin-top-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Demoting Application</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form">
+                                <div class="form-group">
+                                    <label for="demote-reason-text" class="control-label">Please state a reason for this action:</label>
+                                    <textarea class="form-control" id="demote-reason-text"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="demote-confirm" type="button" class="btn btn-primary">Confirm</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+<% jagg.includeBlock("page/messages", null); %>
+<% jagg.includeBlock("page/eventing", {"applicationKey":null,"pageName":PAGES.RESOURCES}); %>
+<% jagg.includeBlock("page/notification-wall", {"wall_name":applicationKey+" - App Wall","applicationKey":applicationKey,"pageName":"App Home"}); %>
+<script>
+    // Defining global javascript variables
+    var applicationName = '<%=applicationName%>';
+    var applicationKey = '<%=applicationKey%>';
+    var userName = '<%=userName%>';
+    var selectedVersion = '<%=selectedVersion%>';
+    var currentStage;
+    var nextStage = '<%=nextStage%>';
+    nextStage = JSON.parse(nextStage);
+    var previousStage = '<%=previousStage%>';
+    previousStage = JSON.parse(previousStage);
+    var hasPromotePermissions = '<%=hasPromotePermissions%>';
+    hasPromotePermissions = JSON.parse(hasPromotePermissions);
+    var hasDemotePermissions = '<%=hasDemotePermissions%>';
+    hasDemotePermissions = JSON.parse(hasDemotePermissions);
+    var hasRetirePermission = '<%=hasRetirePermission%>';
+    hasRetirePermission = JSON.parse(hasRetirePermission);
+    var hasVisibilityPermissions = '<%=hasVisibilityPermissions%>';
+    hasVisibilityPermissions = JSON.parse(hasVisibilityPermissions);
+    var isSelectedDateValid;
+    var retryCount = 0;
+</script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/loader.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/custom/tablinks.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/userActivity.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/moment.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('js/daterangepicker/daterangepicker.js'))%>"></script>
+<script src="<%=jagg.getAbsoluteUrl(jagg.getThemeFile('templates/governance/list/js/list.js'))%>"></script>
 <% }); %>
 

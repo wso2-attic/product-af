@@ -17,12 +17,16 @@
 package org.wso2.carbon.appfactory.jenkins.build.internal;
 
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
+import org.wso2.carbon.appfactory.core.BuildDriverListener;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsCISystemDriver;
 import org.wso2.carbon.appfactory.jenkins.build.strategy.BucketSelectingStrategy;
 import org.wso2.carbon.appfactory.jenkins.build.strategy.ClusterSelectingStrategy;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryManager;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ServiceContainer {
 
@@ -36,6 +40,7 @@ public class ServiceContainer {
 
     private static ClusterSelectingStrategy clusterSelectingStrategy;
     private static BucketSelectingStrategy bucketSelectingStrategy;
+	private static Set<BuildDriverListener> buildDriverListeners = new TreeSet<BuildDriverListener>();
 
     public static ClusterSelectingStrategy getClusterSelectingStrategy() {
         return clusterSelectingStrategy;
@@ -93,4 +98,16 @@ public class ServiceContainer {
     public static void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
         ServiceContainer.tenantRegistryLoader = tenantRegistryLoader;
     }
+
+	public static Set<BuildDriverListener> getBuildDriverListeners() {
+		return ServiceContainer.buildDriverListeners;
+	}
+
+	public static void addBuildDriverListeners(BuildDriverListener buildDriverListener) {
+		ServiceContainer.buildDriverListeners.add(buildDriverListener);
+	}
+
+	public static void removeBuildDriverListeners(BuildDriverListener buildDriverListener) {
+		ServiceContainer.buildDriverListeners.remove(buildDriverListener);
+	}
 }

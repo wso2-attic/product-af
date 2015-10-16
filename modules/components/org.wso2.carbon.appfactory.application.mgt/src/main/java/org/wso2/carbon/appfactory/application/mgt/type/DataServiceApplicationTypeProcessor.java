@@ -23,6 +23,7 @@ import org.apache.maven.model.Model;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.util.CommonUtil;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
 
 import java.io.File;
@@ -35,7 +36,11 @@ public class DataServiceApplicationTypeProcessor extends AbstractFreeStyleApplic
 
 	private static final Log log = LogFactory.getLog(DataServiceApplicationTypeProcessor.class);
 
-	@Override
+    public DataServiceApplicationTypeProcessor(String type) {
+        super(type);
+    }
+
+    @Override
     public void doVersion(String applicationId, String targetVersion, String currentVersion, String workingDirectory)
 			throws AppFactoryException {
         AppVersionStrategyExecutor.doVersionForDBS(targetVersion, new File(workingDirectory));
@@ -76,14 +81,9 @@ public class DataServiceApplicationTypeProcessor extends AbstractFreeStyleApplic
 			applicationVersion = artifactTrunkVersionName;
 		}
 
-		String urlStageValue = (String) this.properties.get(stage + PARAM_APP_STAGE_NAME_SUFFIX);
-
-		if(urlStageValue == null){
-			urlStageValue = "";
-		}
-
-		url = url.replace(PARAM_TENANT_DOMAIN, tenantDomain).replace(PARAM_APP_ID, applicationId)
-		         .replace(PARAM_APP_VERSION, applicationVersion).replace(PARAM_APP_STAGE, urlStageValue);
+        String stratosAppId = CommonUtil.getStratosApplicationId(applicationId, applicationVersion, stage, appType);
+  		url = url.replace(PARAM_TENANT_DOMAIN, tenantDomain).replace(PARAM_APP_ID, applicationId)
+		         .replace(PARAM_APP_VERSION, applicationVersion).replace(PARAM_STRATOS_APP_ID, stratosAppId);
 		return url;
 	}
 
