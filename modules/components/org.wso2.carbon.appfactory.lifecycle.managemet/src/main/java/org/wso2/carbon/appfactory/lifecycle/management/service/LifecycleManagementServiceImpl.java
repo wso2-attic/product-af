@@ -417,7 +417,6 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         }
         return displayname;
     }
-
 }
 
 

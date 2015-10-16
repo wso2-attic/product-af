@@ -10,10 +10,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.lifecycle.management</artifactId>
+    <artifactId>org.wso2.carbon.appfactory.lifecycle.management</artifactId>
     <version>2.2.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 AppFactory - Lifecycle management org.wso2.carbon.appfactory.lifecycle.management.service</name>
+    <name>WSO2 AppFactory - Lifecycle management org.wso2.carbon.appfactory.lifecycle.management</name>
     <description>Lifecycle management component for WSO2 AppFactory</description>
     <url>http://www.wso2.com</url>
 
@@ -71,7 +71,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.appfactory.lifecycle.management.*
+                            org.wso2.carbon.appfactory.lifecycle.management,
                         </Export-Package>
                         <Import-Package>
                             org.wso2.carbon.appfactory.lifecycle.management.service.*,

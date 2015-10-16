@@ -25,12 +25,13 @@ import java.util.List;
 /**
  * Details about life cycles in lifecycle configuration
  */
-public class LifecycleBean {
+public class LifecycleBean{
     private String lifecycleName;
     //List of Stage objects from Stage class
     private List<StageBean> stages;
-    //store which stage the development happens
+    //store which stage the development happens(stored in appfactory.xml)
     private String devStageName;
+    //store which displaying name of the lifecycle(stored in appfactory.xml)
     private String displayName;
 
     public String getDisplayName() {

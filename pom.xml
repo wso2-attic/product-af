@@ -1050,6 +1050,11 @@
 		   <artifactId>org.wso2.carbon.appfactory.userstore</artifactId>
                   <version>${appfac.version}</version>
         </dependency>
+          <dependency>
+              <groupId>org.wso2.carbon.appfactory</groupId>
+              <artifactId>org.wso2.carbon.appfactory.lifecycle.management</artifactId>
+              <version>${appfac.version}</version>
+          </dependency>
         <dependency>
             <groupId>org.wso2.cloud.mgt</groupId>
             <artifactId>cloudmgt</artifactId>
