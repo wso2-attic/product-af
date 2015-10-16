@@ -24,12 +24,8 @@ else
         exit 1
 fi
 
-#AF_SETUP_PATCHES=af_setup_patches-${NEW_VERSION}
-#AF_ARTIFACTS=af_artifacts
 AF_ARTIFACTS_HOME=${PACKS_DIR}/af_artifacts
 PATCHES_HOME=${AF_ARTIFACTS_HOME}/patches
-#LIB_HOME=${AF_ARTIFACTS_HOME}/lib
-#DROPINS_HOME=${AF_ARTIFACTS_HOME}/dropins
 ERROR_OCCURED=false
 
 #### Changes beyond this point, do ONLY if you know what you are doing ####
@@ -114,16 +110,6 @@ function _update_libs() {
         done
 }
 
-#if [ -f  ${PACKS_DIR}/${AF_SETUP_PATCHES}.zip ]; then
-#        cd ${PACKS_DIR}
-#        _echo_green "Extracting ${AF_SETUP_PATCHES}.zip at `pwd`"
-#        unzip -q ${AF_SETUP_PATCHES}.zip
-#else
-#        ERROR_OCCURED=true
-#        _echo_red "\nCouldn't find the source for patch migration :  ${AF_SETUP_PATCHES}.zip"
-#        exit 1
-#fi
-
 _update_patches AF_PATCHES[@] appfactory appfactory/files/patches/repository/components/patches
 _update_patches AM_PATCHES[@] apimanager apimanager/files/patches/repository/components/patches
 _update_patches AS_PATCHES[@] as as/files/patches/repository/components/patches
@@ -132,7 +118,6 @@ _update_patches ELB_PATCHES[@] elb elb/files/patches/repository/components/patch
 _update_patches IS_PATCHES[@] identity identity/files/patches/repository/components/patches
 _update_patches SS_PATCHES[@] storage storage/files/patches/repository/components/patches
 _update_patches STRATOS_INSTALLER_PATCHES[@] stratos-installer privatepaas/files/appfactory_deployment/repository/components/patches
-#_update_patches STRATOS_INSTALLER_CONFIG_PATCHES[@] stratos-installer-config privatepaas/files/stratos/stratos-installer/config/all/repository/components/patches
 _update_patches TASK_SERVER[@] taskserver taskserver/files/patches/repository/components/patches
 _update_patches BAM_PATCHES[@] bam bam/files/patches/repository/components/patches
 
@@ -140,14 +125,10 @@ _update_dropins AF_DROPINS[@] dropins appfactory/files/configs/repository/compon
 _update_dropins BAM_DROPINS[@] dropins bam/files/configs/repository/components/dropins
 _update_dropins GREG_DROPINS[@] dropins greg/files/configs/repository/components/dropins
 _update_dropins MB_DROPINS[@] dropins messagebroker/files/configs/repository/components/dropins
-_update_dropins AS_DROPINS[@] dropins paaspuppet/files/puppet/modules/appserver/files/configs/repository/components/dropins
 _update_dropins SM_DROPINS[@] dropins privatepaas/files/appfactory_deployment/repository/components/dropins
 
 _update_libs AF_LIBS[@] lib appfactory/files/configs/repository/components/lib
 _update_libs GREG_LIBS[@] lib greg/files/configs/repository/components/lib
-
-#cleaning the extracted patches folder
-#rm -rf ${PATCHES_HOME}
 
 if [ ${ERROR_OCCURED} = true ]; then
     _echo_red "\nError occurred while copying some patches. Please check the logs!"
