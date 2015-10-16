@@ -87,13 +87,13 @@ public class ArtifactCreator extends AbstractAdmin {
                 if (!deployStage.equals(lifecycle.getBuildStageName())) {
                     //to build an artifact the deploy stage should be equal to build stage of the relevant lifecycle
                     performBuild = false;
+                }
                     if (log.isDebugEnabled()) {
                         log.debug("Triggered by manual build " + performBuild + ", performDeploy : " + performDeploy
                                 + ", application id : " + applicationId + ", version : " + version
                                 + ", tenant domain : " + tenantDomain + ", repoFrom " + repoFrom
                                 + " triggered by user: " + tenantUserName);
                     }
-                }
             }
 
             if (appIsBuilServerRequired && performBuild) {
