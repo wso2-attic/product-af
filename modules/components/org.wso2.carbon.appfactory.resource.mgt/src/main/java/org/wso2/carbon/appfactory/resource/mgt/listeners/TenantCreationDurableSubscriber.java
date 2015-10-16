@@ -48,7 +48,7 @@ public class TenantCreationDurableSubscriber {
         try {
             subscribe();
         } catch (AppFactoryEventException e) {
-	        throw new AppFactoryException("Subscriber activation failed for topic" + topicName + " and subscription " +
+	        throw new AppFactoryException("Subscriber activation failed for topic : " + topicName + " and subscription " +
 	                                      "id :  " + subscriptionId, e);
         }
     }
