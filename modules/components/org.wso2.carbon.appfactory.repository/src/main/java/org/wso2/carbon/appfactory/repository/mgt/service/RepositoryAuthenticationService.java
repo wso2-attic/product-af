@@ -23,6 +23,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementService;
 import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementServiceImpl;
+import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
@@ -75,15 +76,12 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
 					getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".CanCommit"))){
 				return true;
 			}*/
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-            String tenatDomain = carbonContext.getTenantDomain();
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             LifecycleManagementService lifecycleManagementService = new LifecycleManagementServiceImpl();
-            org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleBean lifecycle =
-                    lifecycleManagementService.getCurrentAppVersionLifeCycle(applicationId, version, tenatDomain);
-            if (stage != null && (stage.equals(lifecycle.getDevStageName()) ||
-                    Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
-                            getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".CanCommit")))) {
+            LifecycleInfoBean lifecycle =
+                    lifecycleManagementService.getCurrentAppVersionLifeCycle(applicationId, version, tenantDomain);
+            if (stage != null && stage.equals(lifecycle.getBuildStageName())) {
+                //if the stage equals to build stage relevant to lifecycle
                 return true;
             }
             return false;

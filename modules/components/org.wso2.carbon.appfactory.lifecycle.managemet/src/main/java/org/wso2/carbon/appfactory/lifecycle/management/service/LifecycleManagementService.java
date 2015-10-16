@@ -19,7 +19,7 @@
 package org.wso2.carbon.appfactory.lifecycle.management.service;
 
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleBean;
+import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
 
 /**
  * Contains operations related to lifecycle management of applications
@@ -34,7 +34,7 @@ public interface LifecycleManagementService {
      * @param tenantDomain tenant domain
      * @return life cycle object with stages and checklist items
      */
-    public LifecycleBean getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain)
+    public LifecycleInfoBean getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain)
             throws AppFactoryException;
 
     /**
@@ -60,7 +60,7 @@ public interface LifecycleManagementService {
      *
      * @return collection of lifecycle objects
      */
-    public LifecycleBean[] getAllLifeCycles();
+    public LifecycleInfoBean[] getAllLifeCycles();
 
     /**
      * Method to set lifecycle name of an appInfo artifact of a given application

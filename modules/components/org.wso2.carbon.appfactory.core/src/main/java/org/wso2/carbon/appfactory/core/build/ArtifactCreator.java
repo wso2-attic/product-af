@@ -23,6 +23,9 @@ import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
+import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
+import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementService;
+import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementServiceImpl;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -61,7 +64,6 @@ public class ArtifactCreator extends AbstractAdmin {
             //doDeploy - indicates that it is an commit or not
             log.info("Artifact Create Service triggered....");
 
-
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, tenantDomain);
             boolean appIsBuilServerRequired = AppFactoryCoreUtil.isBuildServerRequiredProject(applicationType);
 
@@ -79,12 +81,18 @@ public class ArtifactCreator extends AbstractAdmin {
                 }
             } else {
                 //triggered by manual build
-                if (log.isDebugEnabled()) {
-                    log.debug("Triggered by manual build " + performBuild
-                              + ", performDeploy : " + performDeploy
-                              + ", application id : " + applicationId +", version : " + version
-                              + ", tenant domain : " +tenantDomain+ ", repoFrom " + repoFrom
-                              + " triggered by user: "+tenantUserName);
+                LifecycleManagementService lifecycleManagementService = new LifecycleManagementServiceImpl();
+                LifecycleInfoBean lifecycle = lifecycleManagementService
+                        .getCurrentAppVersionLifeCycle(applicationId, version, tenantDomain);
+                if (!deployStage.equals(lifecycle.getBuildStageName())) {
+                    //to build an artifact the deploy stage should be equal to build stage of the relevant lifecycle
+                    performBuild = false;
+                    if (log.isDebugEnabled()) {
+                        log.debug("Triggered by manual build " + performBuild + ", performDeploy : " + performDeploy
+                                + ", application id : " + applicationId + ", version : " + version
+                                + ", tenant domain : " + tenantDomain + ", repoFrom " + repoFrom
+                                + " triggered by user: " + tenantUserName);
+                    }
                 }
             }
 

@@ -26,7 +26,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.lifecycle.management.bean.CheckListItemBean;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleBean;
+import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
 import org.wso2.carbon.appfactory.lifecycle.management.bean.StageBean;
 import org.wso2.carbon.appfactory.lifecycle.management.dao.LifecycleDAO;
 import org.wso2.carbon.governance.api.exception.GovernanceException;
@@ -49,7 +49,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     private static final String LC_ITEM_ELEMENT = "item";
     private static final String LC_ATTRIBUTE_NAME = "name";
     private static final String LC_SCXML_ELEMENT = "scxml";
-    private static Map<String, LifecycleBean> lifecycleMap;
+    private static Map<String, LifecycleInfoBean> lifecycleMap;
     private static AppFactoryConfiguration appFactoryConfig = null;
     Log log = LogFactory.getLog(LifecycleManagementServiceImpl.class);
 
@@ -62,8 +62,8 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      *
      * @return collection of lifecycle objects
      */
-    public LifecycleBean[] getAllLifeCycles() {
-        return lifecycleMap.values().toArray(new LifecycleBean[lifecycleMap.size()]);
+    public LifecycleInfoBean[] getAllLifeCycles() {
+        return lifecycleMap.values().toArray(new LifecycleInfoBean[lifecycleMap.size()]);
     }
 
     /**
@@ -71,7 +71,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      */
     private void init() throws AppFactoryException {
         if (lifecycleMap == null) {
-            lifecycleMap = new HashMap<String, LifecycleBean>();
+            lifecycleMap = new HashMap<String, LifecycleInfoBean>();
             LifeCycleManagementService lifeCycleManagementService = new LifeCycleManagementService();
             String[] lifecycleNameList;
             try {
@@ -82,7 +82,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                 throw new AppFactoryException(errorMsg);
             }
             for (String LifecycleName : lifecycleNameList) {
-                LifecycleBean lifecycle = new LifecycleBean();
+                LifecycleInfoBean lifecycle = new LifecycleInfoBean();
                 lifecycle.setLifecycleName(LifecycleName);
                 lifecycle.setStages(getAllStages(LifecycleName));
                 lifecycle.setDevStageName(getDevelopingStage(LifecycleName));
@@ -109,7 +109,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      */
     public String getNextStage(String lifecycleName, String currentStage) throws AppFactoryException {
         String nextStage = null;
-        LifecycleBean lifecycle = lifecycleMap.get(lifecycleName);
+        LifecycleInfoBean lifecycle = lifecycleMap.get(lifecycleName);
         if (lifecycle == null) {
             String msg = "Unable to load lifecycle details of life cycle :" + lifecycleName;
             log.error(msg);
@@ -149,7 +149,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      */
     public String getPreviousStage(String lifecycleName, String currentStage) throws AppFactoryException {
         String previousStage = null;
-        LifecycleBean lifecycle = lifecycleMap.get(lifecycleName);
+        LifecycleInfoBean lifecycle = lifecycleMap.get(lifecycleName);
         if (lifecycle == null) {
             String msg = "Unable to load lifecycle details of life cycle :" + lifecycleName;
             log.error(msg);
@@ -261,7 +261,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param lifecycleName the name of lifecycle, that should be associated with the application
      * @return life cycle
      */
-    private LifecycleBean getLifeCycleByName(String lifecycleName) {
+    private LifecycleInfoBean getLifeCycleByName(String lifecycleName) {
         return lifecycleMap.get(lifecycleName);
     }
 
@@ -271,9 +271,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey application key
      * @return lifecycle object
      */
-    public LifecycleBean getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain)
+    public LifecycleInfoBean getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain)
             throws AppFactoryException {
-        LifecycleBean lifecycle;
+        LifecycleInfoBean lifecycle;
         LifecycleDAO dao = new LifecycleDAO();
         String lifecycleName = dao.getLifeCycleName(appKey, appVersion, tenantDomain);
         if (lifecycleName == null) {

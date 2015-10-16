@@ -25,12 +25,21 @@ import java.util.List;
 /**
  * Details about life cycles in lifecycle configuration
  */
-public class LifecycleBean{
+public class LifecycleInfoBean {
     private String lifecycleName;
     //List of Stage objects from Stage class
     private List<StageBean> stages;
-    //store which stage the development happens(stored in appfactory.xml)
-    private String devStageName;
+
+    public String getBuildStageName() {
+        return buildStageName;
+    }
+
+    public void setBuildStageName(String buildStageName) {
+        this.buildStageName = buildStageName;
+    }
+
+    //store which stage the build happens(stored in appfactory.xml)
+    private String buildStageName;
     //store which displaying name of the lifecycle(stored in appfactory.xml)
     private String displayName;
 
@@ -62,13 +71,5 @@ public class LifecycleBean{
             this.stages = new ArrayList<StageBean>();
         }
         this.stages.addAll(stages);
-    }
-
-    public String getDevStageName() {
-        return devStageName;
-    }
-
-    public void setDevStageName(String devStageName) {
-        this.devStageName = devStageName;
     }
 }
