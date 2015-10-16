@@ -1059,20 +1059,6 @@ node /bam/ inherits confignode {
   }
 }
 
-node /paaspuppet/ inherits confignode {
-
-  class { "paaspuppet":
-    maintenance_mode   => true,
-    owner              => root,
-    group              => root,
-    target             => "/etc/puppet",
-    ppaas_mb_ip        => "puppet",
-    ppaas_cep_ip       => "puppet",
-    ppaas_mysql_host   => "puppet"
-  }
-}
-
-
 node /ppaas/ inherits confignode {
   $server_ip = $ipaddress
 
