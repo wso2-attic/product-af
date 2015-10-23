@@ -18,27 +18,123 @@
  * /
  */
 
-$( document ).ready(function() {
+$(document).ready(function () {
 //select 2
-$('select').select2();
-
-//compare password and confirm password
-    $("#password-confirm").focusout(function(){
-        if($('#password').val().trim()!= $('#password-confirm').val().trim()) {
-            jagg.message({content:'Password and confirm password fields does not match' , type:'error'});
+    $('select').select2(); //select2 init for stages dropdown
+    var $select = $('#user-name-select.select2')
+            .select2({
+                         placeholder: "Enter username or select existing",
+                         multiple: true,
+                         maximumInputLength: 5,
+                         tags: true,
+                         selectOnBlur: true,
+                         createSearchChoice: function (term, data) {
+                             if ($(data).filter(function () {
+                                         return this.text.localeCompare(term) === 0;
+                                     }).length === 0) {
+                                 return {
+                                     id: term,
+                                     text: term
+                                 };
+                             }
+                         },
+                         createTag: function (tag) {
+                             return {
+                                 id: tag.term,
+                                 text: tag.term,
+                                 isNew: true
+                             };
+                         }
+                     });
+    $select.on("select2:select", function (e) {
+        var l = $select.select2('data');
+        if (e.params.data.isNew != undefined && e.params.data.isNew) {
+            if (l.length > 1) {
+                $("#user-name-select.select2 [value='" + e.params.data.id + "']").remove();
+                $('#user-name-select.select2').trigger('change');
+            }
+        } else {
+            if (l.length > 1) {
+                $('#user-name-select.select2 option[value="' + e.params.data.id + '"]:selected').removeAttr('selected');
+                $select.trigger('change');
+            }
         }
     });
+    $select.on("select2:close", function (e) {
+        var values = $select.select2('data');
+    });
 
+    getExistingUsersForSelectedStage();
+
+    $('#stage').on("select2:select", function (e) {
+        getExistingUsersForSelectedStage();
+    });
+
+    /**
+     * According to the selected stage, users available will be set and listed in users dropdown
+     */
+    function getExistingUsersForSelectedStage() {
+        var dbUsersJsonArray = JSON.parse(dbUsers);
+        var dbUsersInStage = [];
+        for (var i in dbUsersJsonArray) {
+            var user = dbUsersJsonArray[i];
+            var id = 0;
+            if (user.rssInstanceName == $('#stage').val()) {
+                var exUser = {};
+                exUser.text = user.name;
+                exUser.existing = true;
+                exUser.id = id;
+                id++;
+                dbUsersInStage.push(exUser);
+            }
+        }
+        setExistingUsers(dbUsersInStage);
+    }
+
+    /**
+     * Filling data to user-name-select dropdown
+     * @param data = [{id:0, text: "Admin"}, {id:1, text: "Root"}, {id:2, text: "User"}];
+     */
+    function setExistingUsers(data) {
+        $select.empty();
+        $select.trigger('change');
+        $select = $('#user-name-select.select2')
+                .select2({
+                             placeholder: "Enter username or select existing",
+                             data: data,
+                             multiple: true,
+                             maximumInputLength: 5,
+                             tags: true,
+                             selectOnBlur: true,
+                             createSearchChoice: function (term, data) {
+                                 if ($(data).filter(function () {
+                                             return this.text.localeCompare(term) === 0;
+                                         }).length === 0) {
+                                     return {
+                                         id: term,
+                                         text: term
+                                     };
+                                 }
+                             },
+                             createTag: function (tag) {
+                                 return {
+                                     id: tag.term,
+                                     text: tag.term,
+                                     isNew: true
+                                 };
+                             }
+                         });
+    }
 
 //add show /hide option on user passsword field
     $('input[type=password]').after('<span class="hide-pass" title="Show/Hide Password"><i class="fa fa-eye"></i> </span>');
     var highPass = $('.hide-pass');
-    $('.hide-pass').click(function(){
-        if($(this).find('i').hasClass("fa-eye-slash")){
+    $('.hide-pass').click(function () {
+        if ($(this).find('i').hasClass("fa-eye-slash")) {
             $(this).parent().find('input[data-schemaformat=password]').attr('type', 'password');
-            $(this).find('i').removeClass( "fa-eye-slash" );
-        }else{
-            $(this).find('i').addClass( "fa-eye-slash" );
+            $(this).find('i').removeClass("fa-eye-slash");
+        } else {
+            $(this).find('i').addClass("fa-eye-slash");
             $(this).parent().find('input[data-schemaformat=password]').attr('type', 'text');
         }
     });
@@ -84,94 +180,152 @@ $('select').select2();
             $("#capital .status_icon").html(invalid);
         }
         // at least 1 special character in password {
-        if ( a.match(/.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/) ) {
-                $("#spchar").removeClass("invalid").addClass("valid");
-                $("#spchar .status_icon").html(valid);
-                score++;
+        if (a.match(/.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/)) {
+            $("#spchar").removeClass("invalid").addClass("valid");
+            $("#spchar .status_icon").html(valid);
+            score++;
         } else {
-                $("#spchar").removeClass("valid").addClass("invalid");
-                $("#spchar .status_icon").html(invalid);
+            $("#spchar").removeClass("valid").addClass("invalid");
+            $("#spchar .status_icon").html(invalid);
         }
-        if(a.length > 0) {
-                //show strength text
-                $("#passwordDescription").text(desc[score]);
-                // show indicator
-                $("#passwordStrength").removeClass().addClass("strength"+score);
+        if (a.length > 0) {
+            //show strength text
+            $("#passwordDescription").text(desc[score]);
+            // show indicator
+            $("#passwordStrength").removeClass().addClass("strength" + score);
         } else {
-                $("#passwordDescription").text("Password not entered");
-                $("#passwordStrength").removeClass().addClass("strength"+score);
+            $("#passwordDescription").text("Password not entered");
+            $("#passwordStrength").removeClass().addClass("strength" + score);
         }
     });
-    $("#password").popover({ title: 'Password strength meter', html:true, content: $("#password_strength_wrap").html(), placement: 'top', trigger:'focus keypress' });
+    $("#password").popover({
+                               title: 'Password strength meter',
+                               html: true,
+                               content: $("#password_strength_wrap").html(),
+                               placement: 'top',
+                               trigger: 'focus keypress'
+                           });
     $("#password").blur(function () {
         $(".password_strength_meter .popover").popover("hide");
     });
     //password generator
-    $('.password-generator').pGenerator({
-        'bind': 'click',
-        'passwordElement': '#password',
-        'displayElement': '#password-confirm',
-        'passwordLength': 10,
-        'uppercase': true,
-        'lowercase': true,
-        'numbers':   true,
-        'specialChars': true,
-        'onPasswordGenerated': function(generatedPassword) {
-            generatedPassword = 'Your password has been generated : ' +generatedPassword;
-            $(".password-generator").attr('data-original-title', generatedPassword)
-              .tooltip('show',{ placement: 'right'});
-            $( "#password" ).trigger('focus');
-            if(!$(highPass).find('i').hasClass("fa-eye-slash")){
-                $(highPass).click();
-            }
-        }
-    });
+    $('.password-generator')
+            .pGenerator({
+                            'bind': 'click',
+                            'passwordElement': '#password',
+                            'displayElement': '#password-confirm',
+                            'passwordLength': 10,
+                            'uppercase': true,
+                            'lowercase': true,
+                            'numbers': true,
+                            'specialChars': true,
+                            'onPasswordGenerated': function (generatedPassword) {
+                                generatedPassword = 'Your password has been generated : ' + generatedPassword;
+                                $(".password-generator").attr('data-original-title', generatedPassword)
+                                        .tooltip('show', {placement: 'right'});
+                                $("#password").trigger('focus');
+                                if (!$(highPass).find('i').hasClass("fa-eye-slash")) {
+                                    $(highPass).click();
+                                }
+                            }
+                        });
 
+// binding jquery validation to the form
+var addDatabaseForm = $("#addDatabaseForm");
+addDatabaseForm.validate(getValidationOptions());     // adding form validation options
+addDatabaseForm.on('focusout keyup blur', function () { // fires on every keyup & blur
+    if ($('#database-name').val() && $('#user-name-select').val() && $('#password').val() && $('#password-confirm').val()) {
+        $("#add-database").prop("disabled", false);
+    } else {
+        $("#add-database").prop("disabled", true);
+    }
+    
+    
 });
 
-// add new database
-function addNewDatabase(){
-    if(validateFileds()) {
+/**
+*Defining validation options
+*/
+function getValidationOptions(){
+    return {
+        rules: {
+            "database-name": {
+                required: true,
+                maxlength: 5
+            },
+            "user-name-select": {
+                required: true
+            },
+            "password": {
+                required: true
+            },
+            "password-confirm": {equalTo: '#password'}
+        },
+        messages: {
+            "password-confirm": {
+                equalTo: "The password and confirm password does not match"
+            }
+        },
+        onsubmit: false,    // Since we are handling on submit validation on click event of the "Create" button,
+                            // here we disabled the form validation on submit
+        onkeyup: function (event, validator) {
+            return false;
+        },
+        showErrors: function (event, validator) {
+            // Disable add user button if the form is not valid
+            if (this.numberOfInvalids() > 0) {
+                $("#add-database").prop("disabled", true);
+            }
+            this.defaultShowErrors();
+        },
+        errorPlacement: function (error, element) {
+            if ($(element).hasClass("eye-icon")) {
+                error.insertAfter($(element).parent().find('span.hide-pass'));
+            } else {
+                error.insertAfter(element);
+            }
+        }    
+    };
+}
+
+
+}); // end of document.ready
+
+/**
+ *  Adding new database
+ */
+function addNewDatabase() {
+    var validator = $("#addDatabaseForm").validate();
+    var formValidated = validator.form();
+    if (formValidated) {  
+        $("#add-database").loadingButton('show');
+        var isBasic = false; // isBasic variable defines whether the attaching an existing user or a new user.
+        if ($('#user-name-select').select2('data')[0].isNew) {
+            isBasic = true; // attaching a new user
+        }
         jagg.post("../blocks/resources/database/add/ajax/add.jag", {
             action: "createDatabaseAndAttachUser",
             applicationKey: appKey,
-            databaseName:$("#database-name").val().trim(),
-            databaseServerInstanceName:$("#stage option:selected").val(),
-            isBasic:true,
-            customPassword:$('#password').val().trim(),
-            userName:$("#user-name").val().trim(),
-            templateName:null,
-            copyToAll:false,
+            databaseName: $("#database-name").val().trim(),
+            databaseServerInstanceName: $("#stage option:selected").val(),
+            isBasic: isBasic,
+            customPassword: $('#password').val().trim(),
+            userName: $('#user-name-select').select2('data')[0].text,
+            templateName: null,
+            copyToAll: false,
             createDatasource: false,
-            databaseDescription:$("#description").val().trim()
+            databaseDescription: $("#description").val().trim()
         }, function (result) {
             result = $.trim(result);
-            if(result=='success'){
-                window.location.href="databases.jag?applicationName="+ appName +"&applicationKey=" + appKey;
+            if (result == 'success') {
+                window.location.href = "databases.jag?applicationName=" + appName + "&applicationKey=" + appKey;
             } else {
-                jagg.message({content:'Error occured while creating database!' , type:'error', id:'databasecreation'});
+                jagg.message({content: 'Error occured while creating database!', type: 'error', id: 'databasecreation'});
             }
-        },function (jqXHR, textStatus, errorThrown) {
-            jagg.message({content:'Error occured while creating database!' , type:'error', id:'databasecreation'});
+        }, function (jqXHR, textStatus, errorThrown) {
+            jagg.message({content: 'Error occured while creating database!', type: 'error', id: 'databasecreation'});
         });
+        $("#add-database").loadingButton('hide');
     }
 }
 
-// validate user inputs in add new database fields
-function validateFileds() {
-    if(!$("#database-name").val().trim()) {
-        jagg.message({content:'Database name field cannot be empty',type:'error'});
-        return false;
-    } else if(!$("#user-name").val().trim()) {
-        jagg.message({content:'Default user name field cannot be empty',type:'error'});
-        return false;
-    } else if(!$('#password').val().trim()) {
-        jagg.message({content:'Password field cannot be empty' , type:'error'});
-        return false;
-    } else if($('#password').val().trim()!= $('#password-confirm').val().trim()) {
-            jagg.message({content:'Password and confirm password fields does not match' , type:'error'});
-            return false;
-    } else {
-        return true;
-    }
-}

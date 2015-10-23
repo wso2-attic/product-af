@@ -286,7 +286,7 @@ var checkAuthorizationForUser =function (userName , permission) {
         try{
             return checkUserTablinkPermission(applicationKey,permission);
         }catch (errorMessage){
-            log.debug(errorMessage);
+            log.error(errorMessage);
             return false;
         }
         return false;
