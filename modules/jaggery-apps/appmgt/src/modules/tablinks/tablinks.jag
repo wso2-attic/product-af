@@ -38,7 +38,6 @@ var getAllowedTabLinks = function (applicationKey, userName) {
         isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(applicationMod.getStage(applicationKey, currentVersion));
     } catch(e) {
         log.warn("Error while getting stage of application :  " + applicationKey + " with version : " + currentVersion+".Version creation is not completed yet" );
-        log.warn(e);
     }
 
     var hasTenantLevelUserMgtPermission = permissionModule.hasTenantLevelUserMgtPermission();

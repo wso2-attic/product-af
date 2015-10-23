@@ -58,7 +58,8 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
 
 	@Override
 	public void onTenantCreate(TenantInfoBean tenInfoBean) throws StratosException {
-		log.info("*********adding permissions******") ;
+		log.info("Calling CloudEnvironmentPermissionListener.onTenantCreate()...");
+
 		int tenantId = tenInfoBean.getTenantId();
 		PrivilegedCarbonContext.startTenantFlow();
 		PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
@@ -69,6 +70,10 @@ public class CloudEnvironmentPermissionListener implements TenantMgtListener {
 			throw new StratosException(AppFactoryConstants.CLOUD_STAGE + " system variable is not set. No permissions related to cloud environments are added.");
 		}
 		try {
+			if (log.isDebugEnabled()) {
+				log.debug("CloudEnvironmentPermissionListener.onTenantCreate() tenant id : " + tenantId + ", stage : " +
+				          currentCloudStage);
+			}
 			addCloudRolePermissions(tenInfoBean, currentCloudStage);
 
 		} catch (UserStoreException e) {

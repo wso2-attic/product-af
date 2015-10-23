@@ -63,7 +63,7 @@ public class TenantCreationMessageListener implements MessageListener {
 		MapMessage mapMessage;
 		if (message instanceof MapMessage) {
 			mapMessage = (MapMessage) message;
-			String tenantInfoJson = null;
+			String tenantInfoJson;
 			try {
 				tenantInfoJson = mapMessage.getString(AppFactoryConstants.TENANT_INFO);
 				ObjectMapper mapper = new ObjectMapper();
@@ -90,7 +90,7 @@ public class TenantCreationMessageListener implements MessageListener {
 
 		try {
 			int tenantId = ServiceHolder.getRealmService().getTenantManager().getTenantId(tenantInfoBean.getTenantDomain());
-			if (tenantId == -1) {
+			if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
 				addTenant(tenantInfoBean);
 			} else {
 				if (log.isDebugEnabled()) {
@@ -130,9 +130,17 @@ public class TenantCreationMessageListener implements MessageListener {
 			Tenant tenant = TenantMgtUtil.initializeTenant(tenantInfoBean);
 			tenant.setId(tenantInfoBean.getTenantId());
 			TenantPersistor persistor = new TenantPersistor();
+			int tenantId;
 			// not validating the domain ownership, since created by super tenant
-			int tenantId = persistor.persistTenant(tenant, false, tenantInfoBean.getSuccessKey(),
-			                                       tenantInfoBean.getOriginatedService(), false);
+			try {
+				tenantId = persistor.persistTenant(tenant, false, tenantInfoBean.getSuccessKey(),
+				                                   tenantInfoBean.getOriginatedService(), false);
+			} catch (Exception e) {
+				String msg = "Error in persisting tenant ";
+				log.error(msg, e);
+				throw new AppFactoryException(msg, e);
+			}
+
 			tenantInfoBean.setTenantId(tenantId);
 			TenantMgtUtil.addClaimsToUserStoreManager(tenant);
 			//Notify tenant addition
@@ -141,7 +149,7 @@ public class TenantCreationMessageListener implements MessageListener {
 			} catch (StratosException e) {
 				String msg = "Error in notifying tenant addition.";
 				log.error(msg, e);
-				throw new Exception(msg, e);
+				throw new AppFactoryException(msg, e);
 			}
 
 			TenantMgtUtil.activateTenantInitially(tenantInfoBean, tenantId);

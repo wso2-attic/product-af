@@ -49,14 +49,23 @@ var getUsersofTenant = function getUsersofTenant() {
             tmpUser.firstName=tmpfirstName;
             tmpUser.lastName=tmplastName;
             var allRoles="";
+            var roleTypes = [];
             for(var j=0;j<tmproles.length;j++) {
+               var displayName= getProperty("TenantRoles.Role." + tmproles[j] + ".DisplayName");
+               if(displayName) {
+                   var roleObj = {};
+                   roleObj.role = tmproles[j];
+                   roleObj.displayName = displayName;
+                   roleTypes.push(roleObj);
+               }
+
                if(allRoles != ""){
-                 allRoles= tmproles[j]+"\n"+allRoles;
+                    allRoles= tmproles[j]+"\n"+allRoles;
                } else {
-                 allRoles= tmproles[j];
+                    allRoles= tmproles[j];
                }
             }
-            
+            tmpUser.roleTypes=roleTypes;
             tmpUser.roles=allRoles;
             var troles=tmproles;
             tmpUser.displayRoles=[];
