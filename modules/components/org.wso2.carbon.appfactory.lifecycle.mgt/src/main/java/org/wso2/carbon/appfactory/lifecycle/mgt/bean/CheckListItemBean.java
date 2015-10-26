@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.carbon.appfactory.lifecycle.management.bean;
+package org.wso2.carbon.appfactory.lifecycle.mgt.bean;
 
 /**
  * Details about checklist items in lifecycle configuration

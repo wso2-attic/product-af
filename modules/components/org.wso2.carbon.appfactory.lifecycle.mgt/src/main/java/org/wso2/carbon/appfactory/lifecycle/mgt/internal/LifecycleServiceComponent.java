@@ -1,12 +1,12 @@
-package org.wso2.carbon.appfactory.lifecycle.management.internal;
+package org.wso2.carbon.appfactory.lifecycle.mgt.internal;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementService;
-import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementServiceImpl;
+import org.wso2.carbon.appfactory.lifecycle.mgt.service.LifecycleManagementService;
+import org.wso2.carbon.appfactory.lifecycle.mgt.service.LifecycleManagementServiceImpl;
 import org.wso2.carbon.governance.lcm.services.LifeCycleManagementService;
 import org.wso2.carbon.governance.lcm.util.CommonUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -60,7 +60,7 @@ public class LifecycleServiceComponent {
 
     protected void setRegistryService(RegistryService registryService) {
         if (registryService != null && log.isDebugEnabled()) {
-            log.debug("Registry org.wso2.carbon.appfactory.lifecycle.management.service initialized");
+            log.debug("Registry org.wso2.carbon.appfactory.lifecycle.mgt.service initialized");
         }
         this.registryService = registryService;
     }

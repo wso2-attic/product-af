@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.carbon.appfactory.lifecycle.management.service;
+package org.wso2.carbon.appfactory.lifecycle.mgt.service;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.AXIOMUtil;
@@ -25,10 +25,10 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.CheckListItemBean;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.StageBean;
-import org.wso2.carbon.appfactory.lifecycle.management.dao.LifecycleDAO;
+import org.wso2.carbon.appfactory.lifecycle.mgt.bean.CheckListItemBean;
+import org.wso2.carbon.appfactory.lifecycle.mgt.bean.LifecycleInfoBean;
+import org.wso2.carbon.appfactory.lifecycle.mgt.bean.StageBean;
+import org.wso2.carbon.appfactory.lifecycle.mgt.dao.LifecycleDAO;
 import org.wso2.carbon.governance.api.exception.GovernanceException;
 import org.wso2.carbon.governance.api.generic.dataobjects.GenericArtifact;
 import org.wso2.carbon.governance.lcm.services.LifeCycleManagementService;
@@ -85,12 +85,12 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                 LifecycleInfoBean lifecycle = new LifecycleInfoBean();
                 lifecycle.setLifecycleName(LifecycleName);
                 lifecycle.setStages(getAllStages(LifecycleName));
-                lifecycle.setBuildStageName(getDevelopingStage(LifecycleName));
+                lifecycle.setBuildStageName(AppFactoryUtil.getBuildingStage(LifecycleName));
                 if (log.isDebugEnabled()) {
                     log.debug(
                             "Setting building stage:" + lifecycle.getBuildStageName() + " of the lifecycle:" + LifecycleName);
                 }
-                lifecycle.setDisplayName(getLifecycleDisplayName(LifecycleName));
+                lifecycle.setDisplayName(AppFactoryUtil.getLifecycleDisplayName(LifecycleName));
                 if (log.isDebugEnabled()) {
                     log.debug(
                             "Setting display name:" + lifecycle.getDisplayName() + " of the lifecycle:" + LifecycleName);
@@ -188,7 +188,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appVersion   application version
      * @param tenantDomain tenant domain
      */
-    public void updateAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
+/*    public void updateAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
             throws AppFactoryException {
         LifecycleDAO dao = new LifecycleDAO();
         if (dao.isAppLifecycleChanged(appKey, tenantDomain)) {
@@ -198,7 +198,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                         + " of the tenant :" + tenantDomain + "is successfully updated.");
             }
         }
-    }
+    }*/
 
     /**
      * Method to get stages (with checklist items)of a lifecycle
@@ -271,15 +271,14 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param appKey application key
      * @return lifecycle object
      */
-    public LifecycleInfoBean getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain)
+    public LifecycleInfoBean getCurrentAppVersionLifeCycle(String appKey,String tenantDomain)
             throws AppFactoryException {
         LifecycleInfoBean lifecycle;
         LifecycleDAO dao = new LifecycleDAO();
-        String lifecycleName = dao.getLifeCycleName(appKey, appVersion, tenantDomain);
+        String lifecycleName = dao.getLifeCycleName(appKey, tenantDomain);
         if (lifecycleName == null) {
             String errorMsg =
-                    "Unable to load the lifecycle of the application :" + appKey + " with application version :"
-                            + appVersion + "of the tenant :" + tenantDomain;
+                    "Unable to load the lifecycle of the application :" + appKey +" of the tenant :" + tenantDomain;
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
         } else {
@@ -304,7 +303,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         LifecycleDAO dao = new LifecycleDAO();
         try {
             GenericArtifact appInfoArtifact = dao
-                    .getAppArtifact(appKey, AppFactoryConstants.APPLICATION_ARTIFACT_NAME, tenantDomain);
+                    .getAppInfoArtifact(appKey, tenantDomain);
 
             if (appInfoArtifact != null && dao.isAppLifecycleChangeValid(appKey, lifecycleName, tenantDomain)) {
                 if (appInfoArtifact.getLifecycleName() != null && appInfoArtifact.getLifecycleName()
@@ -315,7 +314,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     throw new AppFactoryException(msg);
                 } else {
                     dao.setAppInfoLifecycleName(appKey, lifecycleName, tenantDomain);
-                    dao.updateAppVersionList(appKey, tenantDomain);
+                   // dao.updateAppVersionList(appKey, tenantDomain);
                     if (log.isDebugEnabled()) {
                         log.debug("Lifecycle :" + lifecycleName + " for the application :" + appKey + " of the tenant :"
                                 + tenantDomain + " is successfully added.");
@@ -374,49 +373,6 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
         return checkListItems;
     }
 
-    /**
-     * Method to get the developing stage relevant to a given lifecycle by reading appfactory.xml
-     *
-     * @param lifecycleName lifecycle name
-     * @return return developing stage
-     */
-    private String getDevelopingStage(String lifecycleName) throws AppFactoryException {
-        String devSatge = null;
-        try {
-            appFactoryConfig = AppFactoryUtil.getAppfactoryConfiguration();
-            if (appFactoryConfig != null) {
-                devSatge = appFactoryConfig
-                        .getFirstProperty("Lifecycles.Lifecycle." + lifecycleName + ".Property.buildStage");
-            }
-        } catch (AppFactoryException e) {
-            String errorMsg = "Unable to set the building stages for lifecycle:" + lifecycleName;
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-        return devSatge;
-    }
-
-    /**
-     * Method to get the display name relevant to a given lifecycle by reading appfactory.xml
-     *
-     * @param lifecycleName lifecycle name
-     * @return return developing stage
-     */
-    private String getLifecycleDisplayName(String lifecycleName) throws AppFactoryException {
-        String displayname = null;
-        try {
-            appFactoryConfig = AppFactoryUtil.getAppfactoryConfiguration();
-            if (appFactoryConfig != null) {
-                displayname = appFactoryConfig
-                        .getFirstProperty("Lifecycles.Lifecycle." + lifecycleName + ".Property.displayname");
-            }
-        } catch (AppFactoryException e) {
-            String errorMsg = "Unable to set the building stages for lifecycle:" + lifecycleName;
-            log.error(errorMsg);
-            throw new AppFactoryException(errorMsg);
-        }
-        return displayname;
-    }
 }
 
 

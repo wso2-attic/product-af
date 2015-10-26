@@ -16,13 +16,13 @@
  *  under the License.
  */
 
-package org.wso2.carbon.appfactory.lifecycle.management.service;
+package org.wso2.carbon.appfactory.lifecycle.mgt.service;
 
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
+import org.wso2.carbon.appfactory.lifecycle.mgt.bean.LifecycleInfoBean;
 
 /**
- * Contains operations related to lifecycle management of applications
+ * Contains operations related to lifecycle mgt of applications
  */
 public interface LifecycleManagementService {
 
