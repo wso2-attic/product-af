@@ -51,7 +51,7 @@
 
     <mount path="/_system/governance" overwrite="true">
         <instanceId>governanceRegistryInstance</instanceId>
-        <targetPath>/_system/governance</targetPath>
+        <targetPath>/_system/{{CONFIG_PARAM_REGISTRY_DB_STAGE}}/governance</targetPath>
     </mount>
     {% endif -%}
 
