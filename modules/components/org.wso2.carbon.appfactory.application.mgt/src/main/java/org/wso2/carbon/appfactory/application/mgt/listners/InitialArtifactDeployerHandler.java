@@ -58,10 +58,11 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
 	@Override
 	public void onCreation(Application application, String userName, String tenantDomain,
 	                                 boolean isUploadableAppType) throws AppFactoryException {
+		String firstStage = Util.getLifecycleManagementService().getFirstStageByApplication(application.getName(),tenantDomain);
         String version = isUploadableAppType ? "1.0.0" : "trunk";
         String stage = isUploadableAppType ?
                        WordUtils.capitalize(AppFactoryConstants.ApplicationStage.PRODUCTION.getStageStrValue()) :
-                       WordUtils.capitalize(AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue());
+                       WordUtils.capitalize(firstStage);
         List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getId(),
                                                                               application.getType(),
                                                                               stage,

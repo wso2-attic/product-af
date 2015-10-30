@@ -32,6 +32,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.ContinuousIntegrationSystemDriver;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.nonbuild.NonBuildableApplicationEventListner;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -76,6 +77,9 @@ import java.util.Hashtable;
  * cardinality="0..1" policy="dynamic"
  * bind="setTenantManagementService"
  * unbind="unsetTenantManagementService"
+ * interface="org.wso2.carbon.appfactory.core.services.LifecycleManagementService"
+ * cardinality="1..1" policy="dynamic" bind="setRegistryService"
+ * unbind="unsetRegistryService"
  */
 public class ApplicationManagementServiceComponent {
     private static Log log = LogFactory.getLog(ApplicationManagementServiceComponent.class);
@@ -237,5 +241,12 @@ public class ApplicationManagementServiceComponent {
 
     public static void unsetTenantManagementService(TenantManagementService tenantManagementService) {
         Util.setTenantManagementService(null);
+    }
+    public static void setLifecycleManagementService(LifecycleManagementService lifecycleManagementService) {
+        Util.setLifecycleManagementService(lifecycleManagementService);
+    }
+
+    public static void unsetLifecycleManagementService(LifecycleManagementService lifecycleManagementService) {
+        Util.setLifecycleManagementService(null);
     }
 }
