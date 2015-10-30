@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.core.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.bean.CheckListItemBean;
 import org.wso2.carbon.appfactory.core.bean.LifecycleInfoBean;
 import org.wso2.carbon.appfactory.core.bean.StageBean;
@@ -41,7 +40,7 @@ import java.util.*;
  * Contains the implementation of the LifecycleManagementService
  */
 
-public class LifecycleManagementServiceImpl implements LifecycleManagementService {
+public class LifecycleManagementServiceImpl{
     public static final String LC_STATE_ELEMENT = "state";
     public static final String LC_DATA_MODEL_ELEMENT = "datamodel";
     public static final String LC_ATTRIBUTE_ID = "id";
@@ -205,11 +204,9 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      */
     private List<StageBean> getAllStages(String lifecycleName) throws AppFactoryException {
         List<StageBean> stages = new ArrayList<StageBean>();
-
-        LifecycleDAO lifecycleDAO = new LifecycleDAO();
         //The lifecycle configuration file is retrieved from the registry. Therefore there's no need to
         // validate it again.
-        String lifecycleXml = lifecycleDAO.getLifeCycleConfiguration(lifecycleName);
+        String lifecycleXml = LifecycleDAO.getInstance().getLifeCycleConfiguration(lifecycleName);
         OMElement configurationElement;
         try {
             configurationElement = AXIOMUtil.stringToOM(lifecycleXml);
@@ -271,8 +268,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
     public LifecycleInfoBean getCurrentLifecycle(String appKey, String tenantDomain)
             throws AppFactoryException {
         LifecycleInfoBean lifecycle;
-        LifecycleDAO dao = new LifecycleDAO();
-        String lifecycleName = dao.getArtifactLifecycleName(appKey, tenantDomain);
+        String lifecycleName = LifecycleDAO.getInstance().getArtifactLifecycleName(appKey, tenantDomain);
         if (lifecycleName == null) {
             String errorMsg =
                     "Unable to load the lifecycle of the application :" + appKey + " of the tenant :" + tenantDomain;
@@ -297,11 +293,11 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
      * @param tenantDomain  tenant domain
      */
     public void setAppLifecycle(String appKey, String lifecycleName, String tenantDomain) throws AppFactoryException {
-        LifecycleDAO dao = new LifecycleDAO();
         try {
-            GenericArtifact appInfoArtifact = dao.getAppInfoArtifact(appKey, tenantDomain);
+            GenericArtifact appInfoArtifact = LifecycleDAO.getInstance().getAppInfoArtifact(appKey, tenantDomain);
 
-            if (appInfoArtifact != null && dao.isAppLifecycleChangeValid(appKey, lifecycleName, tenantDomain)) {
+            if (appInfoArtifact != null && LifecycleDAO.getInstance().isAppLifecycleChangeValid(appKey, lifecycleName,
+                    tenantDomain)) {
                 if (appInfoArtifact.getLifecycleName() != null && appInfoArtifact.getLifecycleName()
                         .equals(lifecycleName)) {
                     String msg = "Unable to update the lifecycle of the application :" + appKey + " of the tenant :"
@@ -309,7 +305,7 @@ public class LifecycleManagementServiceImpl implements LifecycleManagementServic
                     log.error(msg);
                     throw new AppFactoryException(msg);
                 } else {
-                    dao.setAppInfoLifecycleName(appKey, lifecycleName, tenantDomain);
+                    LifecycleDAO.getInstance().setAppInfoLifecycleName(appKey, lifecycleName, tenantDomain);
                     // dao.updateAppVersionList(appKey, tenantDomain);
                     if (log.isDebugEnabled()) {
                         log.debug("Lifecycle :" + lifecycleName + " for the application :" + appKey + " of the tenant :"
