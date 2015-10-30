@@ -26,6 +26,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.TenantRepositoryManagerInitializer;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.repository.mgt.*;
 import org.wso2.carbon.appfactory.repository.mgt.client.AppfactoryRepositoryClient;
 import org.wso2.carbon.appfactory.repository.mgt.client.DefaultAgent;
@@ -60,6 +61,10 @@ import java.lang.reflect.Constructor;
  *                cardinality="0..1" policy="dynamic"
  *                bind="setTenantManagementService"
  *                unbind="unsetTenantManagementService"
+ * @scr.reference name="appfactory.lifecycle.mgt.service"
+ *                interface="org.wso2.carbon.appfactory.core.services.LifecycleManagementService"
+ *                cardinality="1..1" policy="dynamic" bind="setLifecycleManagementService"
+ *                unbind="unsetLifecycleManagementService"
  */
 public class RepositoryMgtServiceComponent {
 	Log log = LogFactory.getLog(RepositoryMgtServiceComponent.class);
@@ -178,5 +183,12 @@ public class RepositoryMgtServiceComponent {
 		}
 	}
 
+	public static void setLifecycleManagementService(LifecycleManagementService lifecycleManagementService) {
+		Util.setLifecycleManagementService(lifecycleManagementService);
+	}
+
+	public static void unsetLifecycleManagementService(LifecycleManagementService lifecycleManagementService) {
+		Util.setLifecycleManagementService(null);
+	}
 }
 
