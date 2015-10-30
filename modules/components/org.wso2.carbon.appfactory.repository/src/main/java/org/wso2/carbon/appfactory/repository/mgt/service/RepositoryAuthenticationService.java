@@ -21,14 +21,10 @@ import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
-import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementService;
-import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementServiceImpl;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryMgtException;
 import org.wso2.carbon.appfactory.repository.mgt.internal.Util;
 import org.wso2.carbon.appfactory.utilities.project.ProjectUtils;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.governance.custom.lifecycles.checklist.beans.LifecycleBean;
@@ -57,6 +53,7 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
                 .getRegistry(RegistryType.USER_GOVERNANCE);
         Registry configRegistry = (Registry) CarbonContext.getThreadLocalCarbonContext()
                 .getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             LifecycleBean lifecycleBean = LifecycleBeanPopulator.getLifecycleBean(path, usrRegistry, configRegistry);
             if (lifecycleBean == null) {
@@ -72,15 +69,13 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
                     break;
                 }
             }
-            /*if(stage != null && Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
+           /*if(stage != null && Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
 					getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".CanCommit"))){
 				return true;
 			}*/
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            LifecycleManagementService lifecycleManagementService = new LifecycleManagementServiceImpl();
-            LifecycleInfoBean lifecycle =
-                    lifecycleManagementService.getCurrentAppVersionLifeCycle(applicationId, version, tenantDomain);
-            if (stage != null && stage.equals(lifecycle.getBuildStageName())) {
+
+            if (stage != null &&
+                    stage.equals(Util.getLifecycleManagementService().getBuildStageName(applicationId, tenantDomain))) {
                 //if the stage equals to build stage relevant to lifecycle
                 return true;
             }
