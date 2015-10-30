@@ -28,7 +28,7 @@ import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
-import org.wso2.carbon.appfactory.core.services.LifecycleManagementServiceImpl;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -106,7 +106,7 @@ public class JDBCApplicationDAO {
             preparedStatement.execute();
             int updatedRowCount = preparedStatement.getUpdateCount();
             if (updatedRowCount > 0) {
-                String firstStage = LifecycleManagementServiceImpl.getInstance().getFirstStageByApplication(application.getId(),tenantDomain);
+                String firstStage = LifecycleManagementService.getInstance().getFirstStageByApplication(application.getId(),tenantDomain);
                 //debug log
                 handleDebugLog((new StringBuilder()).append("successfully added application.Updated ").append
                         (updatedRowCount).append(" rows").toString());

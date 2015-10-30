@@ -81,7 +81,7 @@
             </transports>
 
             <parameter name="ServiceClass" locked="false">
-                org.wso2.carbon.appfactory.core.services.LifecycleManagementServiceImpl
+                org.wso2.carbon.appfactory.core.services.LifecycleManagementService
             </parameter>
             <parameter name="hiddenService" locked="true">true</parameter>
             <parameter name="adminService" locked="true">true</parameter>

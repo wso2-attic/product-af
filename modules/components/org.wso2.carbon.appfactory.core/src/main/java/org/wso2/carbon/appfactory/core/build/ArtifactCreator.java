@@ -22,7 +22,7 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
-import org.wso2.carbon.appfactory.core.services.LifecycleManagementServiceImpl;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
@@ -80,7 +80,7 @@ public class ArtifactCreator extends AbstractAdmin {
                 }
             } else {
                 //triggered by manual build
-                String buildStage = LifecycleManagementServiceImpl.getInstance().getBuildStageName(applicationId, tenantDomain);
+                String buildStage = LifecycleManagementService.getInstance().getBuildStageName(applicationId, tenantDomain);
                 log.info("-------------build stage------------------"+buildStage);
                 if (!deployStage.equals(buildStage)) {
                     //to build an artifact the deploy stage should be equal to build stage of the relevant lifecycle
