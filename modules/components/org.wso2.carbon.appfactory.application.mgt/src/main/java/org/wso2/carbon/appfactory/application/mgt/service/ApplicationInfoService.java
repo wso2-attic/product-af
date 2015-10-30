@@ -699,7 +699,7 @@ public class ApplicationInfoService {
 
             Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
                     new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION.getCapitalizedString()) :
-                    new Version(targetVersion, firstStage.toUpperCase()));
+                    new Version(targetVersion, firstStage.toUpperCase());
             JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
 
             // find the versions.
