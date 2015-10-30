@@ -37,10 +37,10 @@ import javax.xml.stream.XMLStreamException;
 import java.util.*;
 
 /**
- * Contains the implementation of the LifecycleManagementService
+ * Contains the implementation of the Lifecycle Management Service
  */
 
-public class LifecycleManagementServiceImpl{
+public class LifecycleManagementService {
     public static final String LC_STATE_ELEMENT = "state";
     public static final String LC_DATA_MODEL_ELEMENT = "datamodel";
     public static final String LC_ATTRIBUTE_ID = "id";
@@ -49,16 +49,16 @@ public class LifecycleManagementServiceImpl{
     private static final String LC_ATTRIBUTE_NAME = "name";
     private static final String LC_SCXML_ELEMENT = "scxml";
     private static Map<String, LifecycleInfoBean> lifecycleMap;
-    Log log = LogFactory.getLog(LifecycleManagementServiceImpl.class);
-    private static LifecycleManagementServiceImpl lifecycleManagementService;
+    Log log = LogFactory.getLog(LifecycleManagementService.class);
+    private static LifecycleManagementService lifecycleManagementService;
 
-    private LifecycleManagementServiceImpl() throws AppFactoryException {
+    private LifecycleManagementService() throws AppFactoryException {
         init();
     }
 
-    public static LifecycleManagementServiceImpl getInstance() throws AppFactoryException {
+    public static LifecycleManagementService getInstance() throws AppFactoryException {
             if (lifecycleManagementService == null) {
-                lifecycleManagementService = new LifecycleManagementServiceImpl();
+                lifecycleManagementService = new LifecycleManagementService();
             }
         return lifecycleManagementService;
     }
