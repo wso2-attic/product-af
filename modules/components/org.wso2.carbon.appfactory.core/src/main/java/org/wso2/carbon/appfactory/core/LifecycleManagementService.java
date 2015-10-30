@@ -16,10 +16,10 @@
  *  under the License.
  */
 
-package org.wso2.carbon.appfactory.lifecycle.mgt.service;
+package org.wso2.carbon.appfactory.core;
 
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.lifecycle.mgt.bean.LifecycleInfoBean;
+import org.wso2.carbon.appfactory.core.bean.LifecycleInfoBean;
 
 /**
  * Contains operations related to lifecycle mgt of applications
@@ -27,14 +27,13 @@ import org.wso2.carbon.appfactory.lifecycle.mgt.bean.LifecycleInfoBean;
 public interface LifecycleManagementService {
 
     /**
-     * Method to retrieve get lifecycle with details for a given app version of an application
+     * Method to retrieve get lifecycle with details of an application
      *
      * @param appKey       application key
-     * @param appVersion   application version
      * @param tenantDomain tenant domain
      * @return life cycle object with stages and checklist items
      */
-    public LifecycleInfoBean getCurrentAppVersionLifeCycle(String appKey, String appVersion, String tenantDomain)
+    public LifecycleInfoBean getCurrentLifecycle(String appKey, String tenantDomain)
             throws AppFactoryException;
 
     /**
@@ -72,14 +71,19 @@ public interface LifecycleManagementService {
     public void setAppLifecycle(String appKey, String lifecycleName, String tenantDomain) throws AppFactoryException;
 
     /**
-     * Method to attach lifecycle to an application of a given app version
-     * (This is used to set the lifecycle name of a branch if the user has changed the lifecycle before)
+     *
      *
      * @param appKey       application key
-     * @param appVersion   application version
      * @param tenantDomain tenant domain
      */
-    public void updateAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
-            throws AppFactoryException;
+    public String getBuildStageName(String appKey, String tenantDomain) throws AppFactoryException;
+
+    /**
+     *
+     *
+     * @param appKey       application key
+     * @param tenantDomain tenant domain
+     */
+    public String getFirstStageByApplication(String appKey, String tenantDomain) throws AppFactoryException;
 
 }

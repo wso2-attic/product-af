@@ -812,5 +812,24 @@
     	<RetryCount>7</RetryCount>
     	<RetryDelay>5</RetryDelay>
     </AbstractSingleTenantApplicationTypeProcessor>
+        <Lifecycles>
+            <Lifecycle name="ApplicationLifecycle">
+                <Property name="buildStage">Development</Property>
+                <Property name="displayname">Default Lifecycle</Property>
+            </Lifecycle>
+            <Lifecycle name="DevProdLifecycle">
+                <Property name="buildStage">Development</Property>
+                <Property name="displayname">Dev and Prod Lifecycle</Property>
+            </Lifecycle>
+            <Lifecycle name="ProductionBuildableLifecycle">
+                <Property name="buildStage">Production</Property>
+                <Property name="displayname">Production Lifecycle</Property>
+            </Lifecycle>
+            <Lifecycle name="UploadableApplicationLifeCycle">
+                <Property name="buildStage"></Property>
+                <Property name="displayname">Uploadable Application LifeCycle</Property>
+            </Lifecycle>
+        </Lifecycles>
+
 </AppFactory>
 

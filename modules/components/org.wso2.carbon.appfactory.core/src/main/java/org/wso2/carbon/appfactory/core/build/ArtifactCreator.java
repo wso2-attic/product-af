@@ -19,15 +19,16 @@ package org.wso2.carbon.appfactory.core.build;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementServiceImpl;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
-import org.wso2.carbon.appfactory.lifecycle.management.bean.LifecycleInfoBean;
-import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementService;
-import org.wso2.carbon.appfactory.lifecycle.management.service.LifecycleManagementServiceImpl;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.governance.lcm.services.LifeCycleManagementService;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -72,6 +73,7 @@ public class ArtifactCreator extends AbstractAdmin {
             if (doDeploy) {
                 //triggered by auto commit
                 performBuild = JDBCAppVersionDAO.getInstance().getAutoBuildStatusOfVersion(applicationId, version);
+                log.info("-------------perform build :------------------"+performBuild);
                 if (log.isDebugEnabled()) {
                     log.debug("Triggered by auto commit performBuild: " + performBuild
                               + ", performDeploy : " + performDeploy
@@ -81,12 +83,13 @@ public class ArtifactCreator extends AbstractAdmin {
                 }
             } else {
                 //triggered by manual build
-                LifecycleManagementService lifecycleManagementService = new LifecycleManagementServiceImpl();
-                LifecycleInfoBean lifecycle = lifecycleManagementService
-                        .getCurrentAppVersionLifeCycle(applicationId, version, tenantDomain);
-                if (!deployStage.equals(lifecycle.getBuildStageName())) {
+                String buildStage = LifecycleManagementServiceImpl.getInstance().getBuildStageName(applicationId, tenantDomain);
+                log.info("-------------build stage------------------"+buildStage);
+                if (!deployStage.equals(buildStage)) {
                     //to build an artifact the deploy stage should be equal to build stage of the relevant lifecycle
                     performBuild = false;
+                    log.info("-------------current stage is------------------"+deployStage);
+                    log.info("-------------perform build is------------------"+performBuild);
                 }
                     if (log.isDebugEnabled()) {
                         log.debug("Triggered by manual build " + performBuild + ", performDeploy : " + performDeploy
@@ -98,14 +101,15 @@ public class ArtifactCreator extends AbstractAdmin {
 
             if (appIsBuilServerRequired && performBuild) {
                 if (ServiceHolder.getContinuousIntegrationSystemDriver() == null) {
-                    throw new AppFactoryException("There is no any ContinuousIntegrationSystem register to build" +
-                                                  " artifacts");
+                    log.info("-------------perform build is true------------------");
+                    throw new AppFactoryException(
+                            "There is no any ContinuousIntegrationSystem register to build" + " artifacts");
                 }
                 ServiceHolder.getContinuousIntegrationSystemDriver().startBuild(applicationId, version, performDeploy,
                               deployStage, tagName, tenantDomain,tenantUserName, repoFrom);
                 log.info("Start a build job [Buildable Artifact] in CI to application id : " + applicationId +
-                         ", version : " + version + ", tenant domain : " + tenantDomain +", repoFrom : " + repoFrom
-                         +" triggered by user: "+tenantUserName);
+                        ", version : " + version + ", tenant domain : " + tenantDomain + ", repoFrom : " + repoFrom
+                        + " triggered by user: " + tenantUserName);
 
             }
             if (!appIsBuilServerRequired && performDeploy) {
@@ -124,4 +128,5 @@ public class ArtifactCreator extends AbstractAdmin {
             throw new AppFactoryException(errMsg, e);
         }
     }
+
 }

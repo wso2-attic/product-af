@@ -15,15 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.carbon.appfactory.lifecycle.mgt.dao;
+package org.wso2.carbon.appfactory.core.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.dto.Version;
+import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.GovernanceUtil;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.governance.api.exception.GovernanceException;
 import org.wso2.carbon.governance.api.generic.GenericArtifactManager;
@@ -33,7 +36,9 @@ import org.wso2.carbon.governance.lcm.services.LifeCycleManagementService;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.ArrayList;
 
@@ -49,12 +54,11 @@ public class LifecycleDAO {
     /**
      * Method to retrieve the appinfo artifact  from registry
      *
-     * @param appKey       id of the application
+     * @param appKey id of the application
      * @return Generic artifact object of the given application id
      * @throws AppFactoryException
      */
-    public GenericArtifact getAppInfoArtifact(String appKey,String tenantDomain)
-            throws AppFactoryException {
+    public GenericArtifact getAppInfoArtifact(String appKey, String tenantDomain) throws AppFactoryException {
         PrivilegedCarbonContext carbonContext;
         GenericArtifact artifact = null;
         try {
@@ -76,8 +80,7 @@ public class LifecycleDAO {
             GovernanceUtils.loadGovernanceArtifacts(userRegistry);
             GenericArtifactManager artifactManager;
 
-                artifactManager = new GenericArtifactManager(userRegistry,
-                        AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
+            artifactManager = new GenericArtifactManager(userRegistry, AppFactoryConstants.RXT_KEY_APPINFO_APPLICATION);
             artifact = artifactManager.getGenericArtifact(resource.getUUID());
 
         } catch (RegistryException e) {
@@ -126,11 +129,11 @@ public class LifecycleDAO {
     /**
      * Method to retrieve life cycle name of a given application
      *
-     * @param appKey     name of application key
+     * @param appKey name of application key
      * @return life cycle name for the application
      * @throws AppFactoryException
      */
-    public String getLifeCycleName(String appKey,String tenantDomain) throws AppFactoryException {
+/*    public String getLifeCycleName(String appKey, String tenantDomain) throws AppFactoryException {
         PrivilegedCarbonContext carbonContext;
         String lifecycleName = null;
         try {
@@ -138,7 +141,7 @@ public class LifecycleDAO {
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
 
-            GenericArtifact artifact = getAppInfoArtifact(appKey,tenantDomain);
+            GenericArtifact artifact = getAppInfoArtifact(appKey, tenantDomain);
             if (artifact != null) {
                 lifecycleName = artifact.getAttribute(RXT_APPINFO_LIFECYCLE_NAME);
             } else {
@@ -148,14 +151,15 @@ public class LifecycleDAO {
                 throw new AppFactoryException(errorMsg);
             }
         } catch (GovernanceException e) {
-            String errorMsg = "Error while loading life cycle name of the application " + appKey + "of the tenant :" + tenantDomain;
+            String errorMsg = "Error while loading life cycle name of the application " + appKey + "of the tenant :"
+                    + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return lifecycleName;
-    }
+    }*/
 
     /**
      * Method to change life cycle name of a given version of an application
@@ -217,7 +221,7 @@ public class LifecycleDAO {
      * @return life cycle name
      * @throws AppFactoryException
      */
-    private String getArtifactLifecycleName(String appKey, String tenantDomain) throws AppFactoryException {
+    public String getArtifactLifecycleName(String appKey, String tenantDomain) throws AppFactoryException {
         String lifecycleName = null;
         PrivilegedCarbonContext carbonContext;
         try {
@@ -316,7 +320,7 @@ public class LifecycleDAO {
             //Get the appInfo artifact and attach lifecycle name
             GenericArtifact appInfoArtifact = getAppInfoArtifact(appKey, tenantDomain);
             appInfoArtifact.attachLifecycle(lifecycleName);
-            //----------------------------------------------------------------------
+
             appInfoArtifact.setAttribute(RXT_APPINFO_LIFECYCLE_NAME, lifecycleName);
 
             UserRegistry userRegistry = GovernanceUtil.getUserRegistry();
@@ -343,7 +347,7 @@ public class LifecycleDAO {
      * @return true/false
      * @throws AppFactoryException
      */
-    public boolean isAppLifecycleChanged(String appKey, String tenantDomain) throws AppFactoryException {
+/*    public boolean isAppLifecycleChanged(String appKey, String tenantDomain) throws AppFactoryException {
         boolean status = false;
         LifecycleDAO dao = new LifecycleDAO();
         PrivilegedCarbonContext carbonContext;
@@ -352,8 +356,7 @@ public class LifecycleDAO {
             carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(tenantDomain, true);
 
-            if (dao.getAppInfoArtifact(appKey, tenantDomain)
-                    .getLifecycleName() != null) {
+            if (dao.getAppInfoArtifact(appKey, tenantDomain).getLifecycleName() != null) {
                 status = true;
             }
 
@@ -366,7 +369,7 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return status;
-    }
+    }*/
 
     /**
      * Update each version of the application with the lifecycle name in appInfo artifact
@@ -398,5 +401,6 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.endTenantFlow();
         }
     }*/
+
 
 }

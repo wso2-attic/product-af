@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
@@ -28,6 +29,7 @@ import org.wso2.carbon.appfactory.core.dto.BuildStatus;
 import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
 import org.wso2.carbon.appfactory.core.dto.DeployStatus;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementServiceImpl;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -95,6 +97,7 @@ public class JDBCApplicationDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_APPLICATION_SQL);
@@ -104,14 +107,13 @@ public class JDBCApplicationDAO {
             preparedStatement.execute();
             int updatedRowCount = preparedStatement.getUpdateCount();
             if (updatedRowCount > 0) {
-
+                String firstStage = LifecycleManagementServiceImpl.getInstance().getFirstStageByApplication(application.getId(),tenantDomain);
                 //debug log
                 handleDebugLog((new StringBuilder()).append("successfully added application.Updated ").append
                         (updatedRowCount).append(" rows").toString());
                 Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ? new Version(
                         SQLParameterConstants.VERSION_1_0_0, AppFactoryConstants.ApplicationStage.PRODUCTION.
-                        getCapitalizedString()) : new Version(SQLParameterConstants.VERSION_TRUNK, AppFactoryConstants.
-                        ApplicationStage.DEVELOPMENT.getCapitalizedString());
+                        getCapitalizedString()) : new Version(SQLParameterConstants.VERSION_TRUNK, firstStage.toUpperCase());
                 addVersion(version, databaseConnection, application.getId());
                 databaseConnection.commit();
                 return true;
