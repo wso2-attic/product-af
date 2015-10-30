@@ -111,6 +111,7 @@ public class StratosSubscriptionMessageListener implements MessageListener {
             }
         }
 
+	    //Notify tenant addition
 	    try {
 		    PrivilegedCarbonContext.startTenantFlow();
 		    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
@@ -121,23 +122,13 @@ public class StratosSubscriptionMessageListener implements MessageListener {
 	    } catch (StratosException e) {
 		    String msg = "Error in notifying tenant addition.";
 		    log.error(msg, e);
-//		    throw new Exception(msg, e);
+		    throw new RuntimeException(e);
 
 	    } finally {
 		    PrivilegedCarbonContext.endTenantFlow();
 	    }
 
         try {
-
-	        //Notify tenant addition
-//	        try {
-//		        TenantMgtUtil.triggerAddTenant(tenantInfoBean);
-//	        } catch (StratosException e) {
-//		        String msg = "Error in notifying tenant addition.";
-//		        log.error(msg, e);
-//		        throw new Exception(msg, e);
-//	        }
-
 	        TenantUserRoleManager tenantUserRoleManager = new TenantUserRoleManager();
 	        tenantUserRoleManager.onTenantCreate(tenantInfoBean);
 
@@ -157,7 +148,6 @@ public class StratosSubscriptionMessageListener implements MessageListener {
                         PrivilegedCarbonContext.endTenantFlow();
                     }
                 }
-                //TODO remove this logsendPostRequest
                 log.info("subscription done in environment : " + stage
                          + "of tenant :" + tenantInfoBean.getTenantDomain());
             }

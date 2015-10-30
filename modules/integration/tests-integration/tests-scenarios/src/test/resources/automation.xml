@@ -312,10 +312,10 @@
             <firstName>firstName</firstName>
             <lastName>lastName</lastName>
             <email>firstName@example.com</email>
-            <admin>admin</admin>
-            <adminPassword>admin123</adminPassword>
-            <tenantDomain>rama.com</tenantDomain>
-            <tenantID>2</tenantID>
+            <admin>kasun</admin>
+            <adminPassword>kasun</adminPassword>
+            <tenantDomain>bbb.com</tenantDomain>
+            <tenantID>3</tenantID>
             <usagePlan>Demo</usagePlan>
         </defaultTenant>
 

@@ -194,6 +194,11 @@ _copy_files BASE_IMAGE[@] docker base-image/packages
 _copy_files WSO2AS_IMAGE[@] docker wso2as-5.2.1/packages
 
 
+cd ${PACK_HOME}
+if [ -d ${PACKS_DIR} ]; then
+    rm -rf ${PACKS_DIR}
+fi
+
 _echo_green "DONE"
 
 
