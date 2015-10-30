@@ -420,4 +420,24 @@ public class AppFactoryUtil {
         }
         return environmentDetails;
     }
+
+    /**
+     * Method to get the build stage relevant to a given lifecycle by reading appfactory.xml
+     *
+     * @param lifecycleName lifecycle name
+     * @return return developing stage
+     */
+    public static String getBuildingStage(String lifecycleName) throws AppFactoryException {
+        return getAppfactoryConfiguration().getFirstProperty("Lifecycles.Lifecycle." + lifecycleName + ".Property.buildStage");
+    }
+
+    /**
+     * Method to get the display name relevant to a given lifecycle by reading appfactory.xml
+     *
+     * @param lifecycleName lifecycle name
+     * @return return developing stage
+     */
+    public static String getLifecycleDisplayName(String lifecycleName) throws AppFactoryException {
+        return getAppfactoryConfiguration().getFirstProperty("Lifecycles.Lifecycle." + lifecycleName + ".Property.displayname");
+    }
 }
