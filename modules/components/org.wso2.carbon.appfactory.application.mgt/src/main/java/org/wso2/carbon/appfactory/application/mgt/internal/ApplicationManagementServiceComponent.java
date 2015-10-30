@@ -77,9 +77,10 @@ import java.util.Hashtable;
  * cardinality="0..1" policy="dynamic"
  * bind="setTenantManagementService"
  * unbind="unsetTenantManagementService"
+ * @scr.reference name="appfactory.lifecycle.mgt.service"
  * interface="org.wso2.carbon.appfactory.core.services.LifecycleManagementService"
- * cardinality="1..1" policy="dynamic" bind="setRegistryService"
- * unbind="unsetRegistryService"
+ * cardinality="1..1" policy="dynamic" bind="setLifecycleManagementService"
+ * unbind="unsetLifecycleManagementService"
  */
 public class ApplicationManagementServiceComponent {
     private static Log log = LogFactory.getLog(ApplicationManagementServiceComponent.class);
