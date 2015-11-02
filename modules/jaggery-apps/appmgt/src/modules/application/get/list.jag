@@ -1283,4 +1283,107 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
        }
        return isApplicationsOfUserChanged;
     }
-%>
+    
+    var getEsbArtifacts = function(applicationKey, version) {
+        var log = new Log();
+        var applicationInfo = modApplication.getAppInfo(applicationKey);
+    
+        // get the list of artifacts deployed on the esb
+        var ws = require('ws');
+        var getCarApps = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.1;
+        options.action = "urn:getSynapseAppData";
+        modManager.setAuthHeaders(options);
+        var depoyedCarName = applicationKey + "_" + version;
+        var payload = '<syn:getSynapseAppData xmlns:syn="http://synapse.mgt.application.carbon.wso2.org"> <syn:appName xmlns:syn="http://synapse.mgt.application.carbon.wso2.org">' + depoyedCarName + '</syn:appName> </syn:getSynapseAppData>';
+        var result;
+        var carApp;
+        var carAppName = [];
+        var proxyServices = [];
+        var sequences = [];
+        try {
+            getCarApps.open(options, "https://192.168.19.51:30013/services/SynapseApplicationAdmin", false);
+            getCarApps.send(payload);
+            result = getCarApps.responseE4X;
+            carApp = result.*::["return"];
+
+           for(var i=0;i<carApp.length();i++){
+                carAppName.push(carApp[i].*::appName);
+                proxyServices.push(carApp[i].*::proxyServices);
+                sequences.push(carApp[i].*::sequences);
+           }
+
+        } catch (e) {
+            log.error(e.toString());
+        }
+
+        // generate the out put
+        var result = [];
+        for(var key in proxyServices) {
+            var proxy = proxyServices[key];
+            if (proxy) {
+                var artifact = {};
+                artifact.name = proxy;
+                artifact.url = getProxyUrl(proxy, applicationKey, version);
+                result.push(artifact);  
+            }
+        }
+        return result;
+    }
+
+    var getProxyUrl = function(proxy, applicationKey, version) {
+        var url = "";
+        var log = new Log();
+        var ws = require('ws');
+        var serviceMetaDataRequest = new ws.WSRequest();
+        var options = new Array();
+        options.useSOAP = 1.1;
+        modManager.setAuthHeaders(options);
+        var payload = '<xsd:getServiceData xmlns:xsd="http://org.apache.axis2/xsd"><xsd:serviceName>'+proxy+'</xsd:serviceName></xsd:getServiceData>';
+        var serviceMetaData; 
+        var wsdlURLs = [];       
+
+        try {
+            serviceMetaDataRequest.open(options, "https://192.168.19.51:30013/services/ServiceAdmin", false);
+            serviceMetaDataRequest.send(payload);
+            result = serviceMetaDataRequest.responseE4X;
+            serviceMetaData = result.*::["return"]; 
+
+            var urls = serviceMetaData.*::wsdlURLs.text();
+            var serviceUrls = urls.toString().split("wsdl");
+            
+            if(serviceUrls.length > 0) {
+                url = serviceUrls[0];
+            }         
+            url += "wsdl";
+            log.info("sdfsfdsfdf" + url);
+            // construct the correct url
+            var urlTail = url.slice(url.lastIndexOf("services"));log.info("urltil        " + urlTail);
+            url = getESBBaseUrl(applicationKey, version) + "/" + urlTail;
+              
+        } catch (e) {
+            log.error(e.toString());
+        }
+        return url;
+    }
+
+   var getESBBaseUrl = function(applicationKey, version) {
+        var applicationInfo = modApplication.getAppInfo(applicationKey);
+        if(version == 'default-SNAPSHOT'){
+            version = 'trunk';
+        }
+    
+        log.info("##################### version : " + version);
+        var stage = getStage(applicationKey, version);
+        log.info("##################### stage : " + stage);
+        var url = "https://esbdevelopment.appfactory.private.wso2.com";
+        if("Production" == stage) {
+            url = "https://esbproduction.appfactory.private.wso2.com";
+        } else if ("Testing" == stage) {
+            url = "https://esbtesting.appfactory.private.wso2.com";
+        }
+        return url;
+   }
+
+%>  

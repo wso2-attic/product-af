@@ -133,11 +133,20 @@
                   <ul id="appVersionList" class="dropdown-menu"></ul>
                 </div>
 
-                <div id="version-url-link" class="version-url url-loading"><span></span></div>
+                
+                <%if("esb-car" != applicationInfo.type){%>
+                    <div id="version-url-link" class="version-url url-loading"><span></span></div>
+                <%} else {%>
+                    <div id="version-url-link" class="version-url"><span></span></div>
+                <%}%>
+
 
                 <div class="sec">
-                    <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">Launch App</button>
-
+                    <%if("esb-car" == applicationInfo.type){%>
+                        <button id="btn-esb-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">View ESB Services</button>
+                    <%} else {%>
+                        <button id="btn-launchApp" class="cu-btn cu-btn-md cu-btn-gr-dark btn-launch-app">Launch App</button>
+                    <%}%>
                     <!-- edit code button -->
                     <div class="btn-group ctrl-edit-button btn-edit-code">
                       <a id="btnEditCode" type="button" class="btn cu-btn cu-btn-md cu-btn-blue" href="#">Edit Code</a>
