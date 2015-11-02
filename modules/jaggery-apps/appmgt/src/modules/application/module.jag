@@ -225,6 +225,9 @@ jagg.module("application", {
     },
     getAppVersionAllInfoByVersion:function () {
             return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getAppVersionAllInfoByVersion.apply(this, arguments);
+    },
+    getEsbArtifacts:function () {
+        return jagg.require(jagg.getModulesDir() + "application/get/list.jag").getEsbArtifacts.apply(this, arguments);
     }
 });
 %>

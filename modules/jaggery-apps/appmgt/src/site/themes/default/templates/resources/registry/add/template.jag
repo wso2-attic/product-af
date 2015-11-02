@@ -201,7 +201,7 @@ function validateMandatoryInputs(){
 		errorMsg += 'Invalid property name - Enter a property name which is not empty';
 	}
 
-    var usernamePattern = /^[a-zA-Z0-9_]{1,100}$/;
+    var usernamePattern = /^[a-zA-Z0-9_.]{1,100}$/;
     if (propName.length > 0 && !usernamePattern.test(propName)) {
         validate = false;
         errorMsg += 'Invalid property name - Use maximum 100 characters. <br/> &nbsp;&nbsp;&nbsp;&nbsp;Use both letters and numbers, special characters (such as _).';
