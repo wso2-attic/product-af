@@ -85,6 +85,7 @@ node basenode {
 
 #Stratos configs
   $app_id_prefix      = "as"
+  $esb_app_id_prefix  = "esb"
 
 #Dev
   $dev_app_id               = "${app_id_prefix}development"
@@ -94,6 +95,15 @@ node basenode {
 
 #Prod
   $prod_app_id              = "${app_id_prefix}production"
+
+#ESBDev
+  $dev_app_id               = "${esb_app_id_prefix}development"
+
+#ESBTest
+  $test_app_id              = "${esb_app_id_prefix}testing"
+
+#ESBProd
+  $prod_app_id              = "${esb_app_id_prefix}production"
 
 #AF stratos cartridge information
   $deployment_policy    = "af-deployment"
@@ -113,18 +123,24 @@ node basenode {
   $dev_cartridge_type       = "${dev_id}asdevelopment"
   $php_dev_cartridge_alias  = "{@appName}"
   $php_dev_cartridge_type  = "php"
+  $esb_dev_cartridge_alias      = "esbdevelopment"
+  $esb_dev_cartridge_type       = "${dev_id}esbdevelopment"
 
 #Test
   $test_cartridge_alias     = "astesting"
   $test_cartridge_type      = "${dev_id}astesting"
   $php_test_cartridge_alias  = "{@appName}"
   $php_test_cartridge_type  = "php"
+  $esb_test_cartridge_alias     = "esbtesting"
+  $esb_test_cartridge_type      = "${dev_id}esbtesting"
 
 #Prod
   $prod_cartridge_alias     = "asproduction"
   $prod_cartridge_type      = "${dev_id}asproduction"
   $php_prod_cartridge_alias  = "{@appName}"
   $php_prod_cartridge_type  = "php"
+  $esb_prod_cartridge_alias     = "esbproduction"
+  $esb_prod_cartridge_type      = "${dev_id}esbproduction"
 
 
 ############## Stratos DBS for Dev Setup #########################
