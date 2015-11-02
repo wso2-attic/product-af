@@ -1315,7 +1315,8 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
            }
 
         } catch (e) {
-            log.error(e.toString());
+            log.error(e);
+            throw e;
         }
 
         // generate the out put
@@ -1357,13 +1358,13 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
                 url = serviceUrls[0];
             }         
             url += "wsdl";
-            log.info("sdfsfdsfdf" + url);
             // construct the correct url
             var urlTail = url.slice(url.lastIndexOf("services"));log.info("urltil        " + urlTail);
             url = getESBBaseUrl(applicationKey, version) + "/" + urlTail;
               
         } catch (e) {
-            log.error(e.toString());
+            log.error(e);
+            throw e;
         }
         return url;
     }
@@ -1373,10 +1374,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
         if(version == 'default-SNAPSHOT'){
             version = 'trunk';
         }
-    
-        log.info("##################### version : " + version);
         var stage = getStage(applicationKey, version);
-        log.info("##################### stage : " + stage);
         var url = "https://esbdevelopment.appfactory.private.wso2.com";
         if("Production" == stage) {
             url = "https://esbproduction.appfactory.private.wso2.com";
