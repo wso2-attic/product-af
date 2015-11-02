@@ -311,12 +311,12 @@ public class AppVersionStrategyExecutor {
 	 */
 	public static void doVersionCarArtifacts(String targetVersion, File workDir) throws AppFactoryException{
 		List<File> artifactList = new ArrayList<File>();
-		List<String> synapseArtifacts = new ArrayList<String>();
+		List<String> synapseArtifacts;
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_CONFIGURATION, artifactList);
 		List<File> pomFileList = new ArrayList<File>();
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.DEFAULT_POM_FILE, pomFileList);
 
-		artifactList = getAllSynapseArtifactsAndVersionAllArtifacts(targetVersion, synapseArtifacts);
+		synapseArtifacts = getAllSynapseArtifactsAndVersionAllArtifacts(targetVersion, artifactList);
 
 		List<File> synapseConfigs = new ArrayList<File>();
 		FileUtilities.searchFiles(workDir, AppFactoryConstants.CAR_ARTIFACT_SYNAPSE_CONFIG_STORE_LOCATION,
@@ -335,14 +335,14 @@ public class AppVersionStrategyExecutor {
 	 * synapseArtifacts
 	 *
 	 * @param targetVersion name of the version we are going to create
-	 * @param synapseArtifacts List of names of synapse artifacts
+	 * @param artifactList List of names of synapse artifacts
 	 * @return  CAR artifact definition file list
 	 * @throws AppFactoryException
 	 */
-	private static List<File> getAllSynapseArtifactsAndVersionAllArtifacts(String targetVersion,
-	                                                                 List<String> synapseArtifacts)
+	private static List<String> getAllSynapseArtifactsAndVersionAllArtifacts(String targetVersion,
+	                                                                 List<File> artifactList)
 			throws AppFactoryException {
-		List<File> artifactList = new ArrayList<File>();
+		List<String> synapseArtifacts = new ArrayList<String>();
 		for (File artifactConfiguration : artifactList) {
 			OMElement artifacts = FileUtilities.loadXML(artifactConfiguration);
 			Iterator artifactIterator =
@@ -370,7 +370,7 @@ public class AppVersionStrategyExecutor {
 			}
 			FileUtilities.writeXMLToFile(artifacts, artifactConfiguration.getAbsolutePath());
 		}
-		return artifactList;
+		return synapseArtifacts;
 	}
 
 	/**
