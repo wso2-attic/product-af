@@ -1,0 +1,425 @@
+<%
+/*
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+include("/jagg/jagg.jag");
+include("/jagg/constants.jag");
+include("/jagg/config_reader.jag");
+var log=new Log();
+
+(function () {
+    var mod, obj, result,
+        action = request.getParameter("action"),
+        site = require("/site/conf/site.json");
+    var modPermission = jagg.module("permission");
+    if (!jagg.getUser()) {
+        print(UNAUTHORIZED_ERROR_RESPONSE);
+        return;
+    }
+    if (action === "getAppOwner"){
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        if(jagg.module("permission").isUserAccessGrantedForPlatform(PERMISSION_APPLICATION_MEMBER)){
+            try {
+                var application =  mod.getAppInfo(applicationKey);
+                if(application != null){
+                    print(application.owner);
+                }else {
+                    var msg = "Error while getting AppInfo for app key "+ applicationKey;
+                    log.error( msg + e.message);
+                    throw msg;
+                }
+            } catch (e) {
+                var msg = "Error while retriving App Owner for app key "+ applicationKey +"\n";
+                log.error( msg + e.message);
+                throw msg;
+            }
+        } else {
+            response.result = 0;
+            response.message = "You don't have permission to check the app owner";
+            print(response);
+        }
+	}else if (action === "getUpdatedPendingApps") {
+        mod = jagg.module("application");
+        var pendingAppKeys = parse(request.getParameter("pendingAppKeys"));
+
+        var result = {};
+        result[APPLICATION_CREATION_STATUS.COMPLETED] = [];
+        result[APPLICATION_CREATION_STATUS.FAULTY] = [];
+
+        if(pendingAppKeys && pendingAppKeys.length > 0){
+            var userHomeApps = mod.getUpdatedUserHomeData();  // get user home info
+
+            for(var index in pendingAppKeys) {
+                var appKey = pendingAppKeys[index];
+                var app = userHomeApps[APPLICATION_CREATION_STATUS.COMPLETED][appKey];
+                if(app) {       // if app is in COMPLETED status add to completed array
+                    result[APPLICATION_CREATION_STATUS.COMPLETED].push(app);
+                } else {
+                    app = userHomeApps[APPLICATION_CREATION_STATUS.FAULTY][appKey];
+                    if(app) {   // if app is in FAULTY status add to faulty array
+                        result[APPLICATION_CREATION_STATUS.FAULTY].push(app);
+                    }
+                }
+            }
+        }
+        print(result);
+    }
+    else if (action === "getAllApps") {
+        mod = jagg.module("application");
+
+        var loadedApplications = [];
+        var response = {};
+        var userHomeApps = mod.getUpdatedUserHomeData();
+        var diretoryCreated =  mod.isDirectoryAvailableInGIT();
+        log.info("Directory created===============>>>>>>>"+diretoryCreated);
+    if(diretoryCreated){
+            for(var status in userHomeApps) {
+                var appsInStatus = userHomeApps[status];
+                for (var appKey in appsInStatus) {
+                    loadedApplications.push(appsInStatus[appKey]);
+                }
+            }
+        log.info("directory created!!!!!========>>>>");
+            print(loadedApplications);
+        }else{
+        log.info("Directory not created===========>>>>");
+            response.result = 0;
+            response.message = "GitRepoNotCreated";
+            print(response);
+        }
+    }else if (action === "checkSystemStatus") {
+    	mod = jagg.module("application");
+        var applicationSystemId = request.getParameter("applicationSystemId");
+
+        try {
+            var res = mod.checkSystemStatus(applicationSystemId);
+            print(res);
+        } catch (e) {
+            log.error("Error while checking the "+ applicationSystemId +" system status \n"  + e.message);
+            throw "Error while checking the "+ applicationSystemId +" system status ";
+        }
+    }else if (action === "newKey") {
+        var applicationKey = request.getParameter("newKey");
+
+        var path = APPLICATIONS + newKey;
+        try {
+            return resourceExists(path);
+        } catch (e) {
+            log.error("Error while accessing registry resource \n" + e.message);
+            throw "Error while accessing registry resource";
+        }
+    } else if (action === "getUniqueAppVersions") {
+        var applicationKey = request.getParameter("applicationKey");
+
+        var appInfos = new Array();
+        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+        for (var i = 0; i < stages.length; i++) {
+            var stage = stages[i];
+            var appVersions = getAppVersionsInStage(stage, applicationKey);
+            if (appVersions != null) {
+                appInfos = appInfos.concat(appVersions);
+            }
+        }
+
+        var uniqueVersions = new Array();
+        for (var i = 0; i < appInfos.length; i++) {
+            var versions = appInfos[i].versions;
+            for (var j = 0; j < versions.length; j++) {
+                var version = versions[j];
+                if (uniqueVersions.indexOf(version) === -1) {
+                    uniqueVersions.push(version);
+                }
+            }
+        }
+        return uniqueVersions;
+    } else if (action === "initAppVersion") {
+        var applicationKey = request.getParameter("applicationKey");
+
+        var versionNo = 0;
+
+        var stages = getProperties('ApplicationDeployment.DeploymentStage');
+        for (var i = 0; i < stages.length; i++) {
+            var stage = stages[i];
+            for (var j = 0; j < 3; j++) {
+                try {
+                    var resource = createResource();
+                } catch (e) {
+                    log.error("Error while creating registry resource \n" + e.message);
+                    throw new Error("Error while creating registry resource");
+                }
+                var version = 'Version ' + versionNo;
+                var path = APPLICATIONS + APPLICATION_STAGES + stage + '/' + applicationKey + '/' + version;
+                try {
+
+                    if (resourceExists(path) != 'true') {
+                        putResource(path, resource);
+                        versionNo = versionNo + 1;
+                    }
+                } catch (e) {
+                    log.error("Error while storing resource \n" + e.message);
+                    throw new Error("Error while storing registry resource");
+                }
+            }
+        }
+    } else if (action === "containsApplication") {
+        var existingApplications = request.getParameter("existingApplications");
+        var newApplication = request.getParameter("newApplication");
+
+        var applicationAlreadyExist = false;
+        var applicationArray = existingApplications.split(",");
+        for (var i = 0; i <= applicationArray.length - 1; ++i) {
+            log.debug("existing application : new application " + applicationArray[i] + " " + newApplication)
+            if (applicationArray[i] === newApplication) {
+                applicationAlreadyExist = true;
+                log.debug("new application already exist in existing application list");
+                break;
+            }
+        }
+        return applicationAlreadyExist;
+    } else if (action === "getAppCountInStage") {
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        return mod.getAppCountInStage(applicationKey, userName);
+    } else if (action === "getApplicationsOfUser") {
+
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+
+        var loadedApplications = [];
+        var pendingApplications = [];
+
+        //loads all the applications of the user: from database.
+        var loadedApplications = session.get(APPLICATION_LIST_CACHE);
+        if(loadedApplications == null) {
+            loadedApplications = mod.getAllAppsOfUser(userName);
+            session.put(APPLICATION_LIST_CACHE, loadedApplications);
+        }
+        loadedApplications = parse(loadedApplications);
+
+        if (session.get("pendingApplications") !== null) {
+            //loads all the applications which are at pending stage: within the session
+            pendingApplications = session.get("pendingApplications");
+
+            for (var exAppIndex in loadedApplications) {
+                var exApp = loadedApplications[exAppIndex];
+
+                for (var appIndex in pendingApplications) {
+                    var appContainer = pendingApplications[appIndex];
+                    if (appContainer.userName === userName) {
+                        if (exApp.key === appContainer.app.key) {
+                            pendingApplications.splice(appContainer, 1);
+                        }
+                    }
+                }
+
+            }
+
+            for (var pendingAppIndex in pendingApplications) {
+                loadedApplications.push(pendingApplications[pendingAppIndex].app);
+            }
+            session.put("pendingApplications", pendingApplications);
+        }
+        print(loadedApplications);
+    } else if (action === "getAllAppVersionsInStage") {
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+        var stageName = request.getParameter("stageName");
+
+        print(mod.getAllAppVersionsInStage(stageName, userName));
+    } else if (action === "getAppVersionsInStage") {
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+        var stageName = request.getParameter("stageName");
+        var applicationKey = request.getParameter("applicationKey");
+
+        print(mod.getAppVersionsInStage(stageName, applicationKey, userName));
+    } else if (action === "getAllAppVersionsInStages") {
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+
+        print(mod.getAllAppVersionsInStages(userName));
+    } else if (action === "getAppVersionsInStages") {
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+        var applicationKey = request.getParameter("applicationKey");
+        var isRoleBasedPermissionAllowed = request.getParameter("isRoleBasedPermissionAllowed");
+        var metaDataNeed = request.getParameter("metaDataNeed");
+        var buildable = request.getParameter("buildable");
+        print(mod.getAppVersionsInStages(applicationKey, userName, metaDataNeed, buildable, isRoleBasedPermissionAllowed));
+    } else if (action === "getAppVersionsByStage") {
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = request.getParameter("stage");
+        print(mod.getAppVersionsByStage(applicationKey,stage));
+    } else if (action === "getAppVersionsInStagesWithMetaData") {
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+        var applicationKey = request.getParameter("applicationKey");
+        var metaDataNeed = request.getParameter("metaDataNeed");
+        var buildable = request.getParameter("buildable");
+        print(mod.getAppVersionsInStages(applicationKey, userName, metaDataNeed, buildable));
+    } else if (action === "getMetaDataForAppVersion") {
+        mod = jagg.module("application");
+        var version = request.getParameter("version");
+        var applicationKey = request.getParameter("applicationKey");
+        var stage = request.getParameter("stage");
+        var state = request.getParameter("state");
+        var type = request.getParameter("type");
+        print(mod.getMetaDataForApplicationState(applicationKey, version, stage, state, type));
+    } else if (action === "getAppInfo") {
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+
+        print(mod.getAppInfo(applicationKey));
+    } else if (action === "getRetiredVersions") {
+        mod = jagg.module("application");
+        var userName = request.getParameter("userName");
+        var applicationKey = request.getParameter("applicationKey");
+        print(mod.getRetiredVersions(applicationKey, userName));
+    } else if (action === "getLatestBuildSuccessInfo") {
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var version = request.getParameter("version");
+        var stage = request.getParameter("stage");
+        print(mod.getLatestBuildSuccessInfo(applicationKey, version, stage));
+    }else if (action === "getBuildableStages") {
+        mod = jagg.module("application");
+        print(mod.getBuildableStages());
+    } else if (action === "getSubscriptions") {
+       var domainName = request.getParameter("domainName");
+        try {
+           //Lets move this to module level.
+
+           var db = new Database("cloud_mgt");
+           var aPaaS = db.query("SELECT app_cloud FROM SUBSCRIPTIONS WHERE tenantDomain ='"+domainName+"'")[0].app_cloud;
+           var iPaaS = db.query("SELECT integration_cloud FROM SUBSCRIPTIONS WHERE tenantDomain ='"+domainName+"'")[0].integration_cloud;
+           var subscriptionInfo = {};
+           subscriptionInfo.aPaaS = aPaaS;
+           subscriptionInfo.iPaaS = iPaaS;
+           db.close();
+           print(subscriptionInfo);
+        }  catch (e) {
+               log.warn("cannot access the cloud-mgt database" + e.message);
+        }
+    }else if(action == "getAppIcon") {
+    	mod = jagg.module("registry");
+        var applicationKey = request.getParameter("applicationKey");
+        try {
+        	var regPath = "/_system/governance/repository/applications/"+applicationKey +"/icon";
+            var resp = mod.getResourceFromTenantSpace(regPath);
+        	response.contentType = 'image/jpg';
+            print(resp.content);
+
+        } catch (e) {
+            var errMsg = "Error  while loading the icon for "+ applicationKey +" application  \n" ;
+            log.debug(errMsg);
+        }
+
+    }else if(action == "isAppIconAvailable") {
+    	var readFromReg = false;
+        var applicationKey = request.getParameter("applicationKey");
+        mod = jagg.module("registry");
+        var iconList= {};
+
+        if (session.get("iconsNotAvailableApps") != null) {
+        	iconList = session.get("iconsNotAvailableApps");
+        	if(iconList[applicationKey] != null){
+        		print("101"); //Image URL is incorrect
+            	return;
+        	}else{
+        		readFromReg = true;
+        	}
+        }else{
+        	readFromReg = true;
+        }
+         if(readFromReg){
+	        try {
+	        	var regPath = "/_system/governance/repository/applications/"+applicationKey +"/icon";
+	            var resp = mod.resourceExistsInTenantSpace(regPath);
+	            if (resp == false){
+	            	iconList[applicationKey]="true";
+	            	session.put("iconsNotAvailableApps", iconList);
+		        	var errMsg = "App icon is not available for "+ applicationKey +" application  \n" ;
+		            log.debug(errMsg);
+	            	print("101"); //Image URL is incorrect
+	            }
+	        } catch (e) {
+	        	var errMsg = "Error while checking App icon availability for "+ applicationKey +" application  \n" ;
+	            log.error(errMsg);
+	        }
+         }
+
+    }else if(action == "getUserHomeAppInfo") {
+         mod = jagg.module("application");
+         var loadedApplications = mod.getUserHomeInfo();
+         print(loadedApplications);
+    } else if (action === "getAppVersionAllInfoByVersion") {
+        mod = jagg.module("application");
+        userName = jagg.getUser();
+        var applicationKey = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        var version=request.getParameter("version");
+        var result = mod.getAppVersionAllInfoByVersion(applicationKey, version, userName);
+        print(result);
+    } else if (action == "listCarFile"){
+        mod = jagg.module("application");
+        var applicationKey = request.getParameter("applicationKey");
+        var version=request.getParameter("version");
+        var carApp = mod.listCarFile(applicationKey, version);
+        print(carApp);
+    } else {
+        throw new Error("No action specified");
+    }
+
+}());
+
+function generateCustomUrlResponse(allResults, stage){
+    var simplifiedAppInfo = {};
+    if(allResults.length > 0){
+        var appinfo = allResults[0];
+        simplifiedAppInfo["key"] = appinfo.key;
+        simplifiedAppInfo["type"] = appinfo.type;
+        simplifiedAppInfo["mappedSubDomain"] = appinfo.mappedSubDomain;
+        simplifiedAppInfo["customUrl"] = appinfo.customUrl;
+        simplifiedAppInfo["customUrlVerificationCode"] = appinfo.customUrlVerificationCode;
+        simplifiedAppInfo["isUploadable"] = appinfo.isUploadable;
+        simplifiedAppInfo["name"] = appinfo.name;
+        simplifiedAppInfo["versions"] = getSimplifiedVersionArray(appinfo.versions, stage);
+    }
+    return simplifiedAppInfo;
+}
+
+function getSimplifiedVersionArray(versionsArray, stage){
+    var simplifiedVersionArray = [];
+    log.info(versionsArray);
+    for (var i = 0; i < versionsArray.length; i++) {
+        var version = versionsArray[i];
+        if (0 == version.stage.localeCompare(stage)) {
+            simplifiedVersionArray.push(
+                    {
+                        "version": version.version,
+                        "productionMappedDomain": version.productionMappedDomain
+                    });
+        }
+    }
+    return simplifiedVersionArray;
+}
+
+%>
