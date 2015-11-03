@@ -93,8 +93,8 @@ public class JDBCApplicationDAO {
             preparedStatement.execute();
             int updatedRowCount = preparedStatement.getUpdateCount();
             if (updatedRowCount > 0) {
-                String firstStage = LifecycleManagementService.getInstance()
-                        .getFirstStageByApplication(application.getId(), tenantDomain);
+                LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+                String firstStage = lifecycleManagementService.getFirstStageByApplication(application.getId(), tenantDomain);
                 //debug log
                 handleDebugLog((new StringBuilder()).append("successfully added application.Updated ").append
                         (updatedRowCount).append(" rows").toString());

@@ -80,7 +80,8 @@ public class ArtifactCreator extends AbstractAdmin {
                 }
             } else {
                 //triggered by manual build
-                String buildStage = LifecycleManagementService.getInstance().getBuildStageName(applicationId, tenantDomain);
+                LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+                String buildStage = lifecycleManagementService.getBuildStageName(applicationId, tenantDomain);
                 log.info("-------------build stage------------------"+buildStage);
                 if (!deployStage.equals(buildStage)) {
                     //to build an artifact the deploy stage should be equal to build stage of the relevant lifecycle
