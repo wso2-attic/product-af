@@ -16,6 +16,11 @@
     curl -X POST -H "Content-Type: application/json" -d @"wso2as_test.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
     curl -X POST -H "Content-Type: application/json" -d @"wso2as_prod.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
 
+    echo "Adding wso2esb cartridge..."
+    curl -X POST -H "Content-Type: application/json" -d @"wso2esb_dev.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
+    curl -X POST -H "Content-Type: application/json" -d @"wso2esb_test.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
+    curl -X POST -H "Content-Type: application/json" -d @"wso2esb_prod.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
+
     echo "Adding tomcat cartridge..."
     curl -X POST -H "Content-Type: application/json" -d @"tomcat-cartridge.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/cartridges
 
@@ -31,6 +36,13 @@
     curl -X POST -H "Content-Type: application/json" -d @"application_dev.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications
     curl -X POST -H "Content-Type: application/json" -d @"application_test.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications
     curl -X POST -H "Content-Type: application/json" -d @"application_prod.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications
+
+
+     sleep 1
+     echo "Adding application..."
+     curl -X POST -H "Content-Type: application/json" -d @"application_esb_dev.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications
+     curl -X POST -H "Content-Type: application/json" -d @"application_esb_test.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications
+     curl -X POST -H "Content-Type: application/json" -d @"application_esb_prod.json" -k -v -u <%=@usrmgt_username %>:<%=@usrmgt_password %> https://localhost:<%= 9443 + Integer(@offset) %>/api/applications
 
     sleep 1
     echo "Deploying application..."

@@ -77,7 +77,7 @@ var log = new Log();
                 var tmpStage=dependencies[stage];
                 for(var regEntry in tmpStage){
                     var tmpRegEntry=tmpStage[regEntry];
-                    if(tmpRegEntry.mediaType!="External API" && tmpRegEntry.mediaType=="Registry"){
+                    if(tmpRegEntry.mediaType!="External API" && tmpRegEntry.mediaType=="Registry" || tmpRegEntry.mediaType=="application/vnd.wso2.esb.endpoint" ){
                         var resultEntry=result[tmpRegEntry.name];
                         if(resultEntry==null){
                             resultEntry=result[tmpRegEntry.name]={

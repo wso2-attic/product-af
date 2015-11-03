@@ -196,6 +196,10 @@ function loadLaunchInfo(appInfo, currentAppInfo) {
             newWindow.location = appUrl;
         });
 
+        $('#btn-esb-launchApp').click(function() {
+            var carfileContent =  listCarFile();
+        });
+
         // add listener for cloud envy
         $('#createCodeEnvyUrl').click(function() {
             if(!isCodeEditorSupported) {
@@ -739,6 +743,16 @@ function loadAppInfo(version) {
             jagg.message({content:'Could not load Application information', type:'error', id:'notification' });
         }
     });
+}
+
+function listCarFile() {
+    var applicationKey = applicationInfo.key;
+    var applicationName = applicationInfo.name;
+    var version = $('#selected-version').html();
+    if(version == 'trunk'){
+    version = 'default-SNAPSHOT';
+    }
+    var newWindow = window.open('../pages/esbLaunch.jag?applicationKey=' + applicationKey + '&version=' + version + '&applicationName=' + applicationName,'_self');
 }
 
 

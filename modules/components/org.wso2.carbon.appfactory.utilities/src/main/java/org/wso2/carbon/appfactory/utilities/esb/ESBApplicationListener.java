@@ -15,23 +15,22 @@ package org.wso2.carbon.appfactory.utilities.esb;
  * limitations under the License.
  */
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
-import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.dao.JDBCResourceDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.runtime.RuntimeManager;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class ESBApplicationListener extends ApplicationEventsHandler {
 
@@ -43,21 +42,18 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 	private static final String ECHO_ENDPOINT_RESOURCE_NAME = "EchoServiceEP.xml";
 	private static final String ECHO_ENDPOINT_RESOURCE_DESCRIPTION = "ESB default echo service endpoint";
 	private static final String ECHO_WSDL_RESOURCE_DESCRIPTION = "Echo wsdl to publish";
-	private static final String PARAM_APP_STAGE = "{stage}";
-	private static final String PARAM_APP_STAGE_NAME_SUFFIX = "StageParam";
+	private static final String ENDPOINT_RESOURCE_TYPE = "Registry";
 	private static final String AF_START_STAGE = "StartStage";
 
 	private RemoteRegistryService appfactoryRemoteRegistryService = null;
-	private File echoEndpointFile = null;
-	private File echoWsdlFile = null;
+	private InputStream endpointInputStream = null;
+	private InputStream wsdlInputStream = null;
+	private JDBCResourceDAO resourceDAO = null;
 
     public ESBApplicationListener(String identifier, int priority) {
         super(identifier, priority);
 	    appfactoryRemoteRegistryService = ServiceReferenceHolder.getInstance().getAppfactoryRemoteRegistryService();
-	    // Read files from resources of the component
-	    ClassLoader classLoader = getClass().getClassLoader();
-	    echoEndpointFile = new File(classLoader.getResource(ECHO_ENDPOINT_RESOURCE_NAME).getFile());
-	    echoWsdlFile = new File(classLoader.getResource(ECHO_WSDL_RESOURCE_NAME).getFile());
+	    resourceDAO = JDBCResourceDAO.getInstance();
     }
 
     @Override
@@ -65,29 +61,28 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 		    throws AppFactoryException {
         if (APPLICATION_TYPE_ESB.equalsIgnoreCase(application.getType())) {
 
+	        // Read files from resources of the component
+	        ClassLoader classLoader = getClass().getClassLoader();
+	        endpointInputStream = classLoader.getResourceAsStream(ECHO_ENDPOINT_RESOURCE_NAME);
+	        wsdlInputStream = classLoader.getResourceAsStream(ECHO_WSDL_RESOURCE_NAME);
+
 	        String serverURL = constructServerURL(application);
 
-	        //Create resources
-	        try {
 		        appfactoryRemoteRegistryService.putRegistryProperty(serverURL, userName, application.getId(),
 		                                                            ECHO_ENDPOINT_RESOURCE_NAME,
-		                                                            FileUtils.readFileToString(echoEndpointFile),
+		                                                            getStringFromInputStream(endpointInputStream),
 		                                                            ECHO_ENDPOINT_RESOURCE_DESCRIPTION,
 		                                                            ENDPOINT_MEDIA_TYPE, false);
-	        } catch (IOException e) {
-		        log.error("Reading endpoint file failed", e);
-		        //Not throwing exceptions since this will only fail launching the sample application
-	        }
-	        try {
+
+	            resourceDAO.addResource(application.getId(), ECHO_ENDPOINT_RESOURCE_NAME, ENDPOINT_RESOURCE_TYPE,
+	                                    AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(AF_START_STAGE),
+	                                    ECHO_ENDPOINT_RESOURCE_DESCRIPTION);
+
 		        appfactoryRemoteRegistryService.putRegistryProperty(serverURL, userName, application.getId(),
 		                                                            ECHO_WSDL_RESOURCE_NAME,
-		                                                            FileUtils.readFileToString(echoWsdlFile),
+		                                                            getStringFromInputStream(wsdlInputStream),
 		                                                            ECHO_WSDL_RESOURCE_DESCRIPTION,
 		                                                            WSDL_MEDIA_TYPE, false);
-	        } catch (IOException e) {
-		        log.error("Reading wsdl file failed", e);
-		        //Not throwing exceptions since this will only fail launching the sample application
-	        }
         }
     }
 
@@ -109,25 +104,42 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
     }
 
 	private String constructServerURL(Application application) throws AppFactoryException {
-		RuntimeBean runtimeBean = RuntimeManager.getInstance().getRuntimeBean(
-				ApplicationTypeManager.getInstance().getApplicationTypeBean(application.getType()).getRuntimes()[0]);
-		String serverURL = runtimeBean.getServerURL();
-		String urlStageValue = "";
 
-		try {
-			urlStageValue = runtimeBean.getProperty(AppFactoryUtil.getAppfactoryConfiguration().
-					getFirstProperty(AF_START_STAGE) + PARAM_APP_STAGE_NAME_SUFFIX);
-		} catch (Exception e){
-			// no need to throw just log and continue
-			log.warn("Error while getting the url stage value fo application:" + application.getId(), e);
-		}
+		String startStage = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(AF_START_STAGE);
+		String serverURL =
+				AppFactoryUtil.getAppfactoryConfiguration().
+						getFirstProperty("ApplicationDeployment.DeploymentStage." + startStage + ".GregServerURL");
 
-		if(urlStageValue == null){
-			urlStageValue = "";
-		}
-
-		serverURL = serverURL.replace(PARAM_APP_STAGE, urlStageValue);
 		return serverURL;
+	}
+
+	private static String getStringFromInputStream(InputStream is) {
+
+		BufferedReader br = null;
+		StringBuilder sb = new StringBuilder();
+
+		String line;
+		try {
+
+			br = new BufferedReader(new InputStreamReader(is));
+			while ((line = br.readLine()) != null) {
+				sb.append(line);
+			}
+
+		} catch (IOException e) {
+			log.error("Error occured while reading the esb apptype resources", e);
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					log.error("Error occured while closing the buffered reader for esb apptype resources", e);
+				}
+			}
+		}
+
+		return sb.toString();
+
 	}
 
     @Override
