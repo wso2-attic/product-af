@@ -1100,8 +1100,8 @@ function getPreviousStage(lifecycleName,currentStage){
             .getPreviousStage(lifecycleName, currentStage);
 };
 
-function changeAppVersionLifecycle(applicationKey,appVersion,tenantDomain){
-    /*var ws = require('ws');
+/*function changeAppVersionLifecycle(applicationKey,appVersion,tenantDomain){
+    var ws = require('ws');
     var request = new ws.WSRequest();
     var options = new Array();
     options.useSOAP = 1.1;
@@ -1128,10 +1128,10 @@ function changeAppVersionLifecycle(applicationKey,appVersion,tenantDomain){
     }
     result=request.responseE4X;
 
-    return result;*/
+    return result;
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .updateAppVersionLifecycle(applicationKey, appVersion,tenantDomain);
-}
+}*/
 
 
 function getFirstStage(lifecycleName){
