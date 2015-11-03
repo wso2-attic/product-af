@@ -31,6 +31,7 @@ import org.wso2.carbon.appfactory.core.build.ContinuousIntegrationStatisticsServ
 import org.wso2.carbon.appfactory.core.build.DefaultBuildDriverListener;
 import org.wso2.carbon.appfactory.core.registry.AppFacRegistryResourceService;
 import org.wso2.carbon.appfactory.core.registry.AppFacRemoteRegistryAccessService;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.util.AppFactoryDBUtil;
 import org.wso2.carbon.appfactory.core.util.DependencyUtil;
 import org.wso2.carbon.ntask.core.service.TaskService;
@@ -141,7 +142,9 @@ public class AppFactoryCoreServiceComponent {
 			                              new AppFacRegistryResourceService(), null);
 			bundleContext.registerService(BuildDriverListener.class.getName(),
 			                                           new DefaultBuildDriverListener(), null);
-            AppFactoryDBUtil.initializeDatasource();
+			bundleContext.registerService(LifecycleManagementService.class.getName(), new LifecycleManagementService(),
+					null);
+			AppFactoryDBUtil.initializeDatasource();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
