@@ -256,3 +256,91 @@ function preparePreview(){
         $inputImage.parent().remove();
     }
 }
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * retrieve lifecycle names and their display names and display them
+ */
+function getAllLifecycles() {
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: "getAllLifecycles"
+    }, function (result) {
+        var lifecycleNames = JSON.parse(result);
+        var lifecycleList = $('#lifecycle-name');
+        var currentLifecycle = (document.getElementById('lifecycle-display-name').innerHTML) + '';
+        if(lifecycleNames != null) {
+            for (var i in lifecycleNames) {
+                if (((lifecycleNames[i].displayName) + '' != currentLifecycle) && (lifecycleNames[i].devStageName + '' != '')) {
+                    lifecycleList.append($('<option></option>').val(lifecycleNames[i].lifecycleName).html(lifecycleNames[i].displayName))
+                }
+            }
+        }else{
+            $('#lifecycle-name').append($('<option></option>').val('').html('No Lifecycles Available'))
+        }
+    }, function (jqXHR, textStatus, errorThrown) {
+        $('#lifecycle-name').append($('<option></option>').val('').html('No Lifecycles Available'))
+    });
+}
+
+/**
+ * change lifecycle of the application
+ */
+function LifecycleChangeConfirmation() {
+    if(isDeleteAllowed){
+        //$("#changeLifecycle").prop("disabled", true);
+        jagg.popMessage({
+                modalStatus: true,
+                content:'Are you sure you want to change the lifecycle?',
+                okCallback:changeLifecycle,
+                cancelCallback:function(){
+                    //$("#changeLifecycle").prop("disabled", false);
+                }}
+        );
+    } else {
+        jagg.message({
+            content:"You don't have permissions to change the lifecycle",
+            type:'error'
+        });
+    }
+}
+
+/**
+ * change lifecycle of the application
+ */
+function changeLifecycle() {
+    var lifecycleName = $('#lifecycle-name').val();
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: "changeLifecycle",
+        lifecycleName: lifecycleName,
+        applicationKey: applicationKey
+
+    }, function (result) {
+        jagg.message({
+            content:'Successfully changed the lifecycle.',
+            type:'success'
+        });
+        document.getElementById('lifecycle-display-name').innerHTML = lifecycleName;
+        window.location.reload(true);
+    }, function (jqXHR, textStatus, errorThrown) {
+        jagg.message({
+            content: "Error occurred while changing lifecycle of the application.",
+            type: 'error',
+            id:'current_lifecycle'
+        });
+    });
+}
+
+/**
+ * retrieve the lifecycle of the application
+ */
+function getCurrentLifecycle() {
+    jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+        action: "getCurrentLifecycle",
+        applicationKey: applicationKey
+    }, function (result) {
+        var lifecycleName = JSON.parse(result);
+        document.getElementById('lifecycle-display-name').innerHTML = lifecycleName.displayName;
+
+    }, function (jqXHR, textStatus, errorThrown) {
+        document.getElementById('lifecycle-display-name').innerHTML = '';
+    });
+}

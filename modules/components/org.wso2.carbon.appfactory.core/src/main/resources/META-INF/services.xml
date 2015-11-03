@@ -110,7 +110,20 @@
             <operation name="getFirstStageByApplication">
                 <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
             </operation>
+
             <operation name="getBuildStageName">
+                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            </operation>
+
+            <operation name="getLifecycleStages">
+                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            </operation>
+
+            <operation name="getFirstStageByLifecycle">
+                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            </operation>
+
+            <operation name="getCheckListItemsByStage">
                 <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
             </operation>
 

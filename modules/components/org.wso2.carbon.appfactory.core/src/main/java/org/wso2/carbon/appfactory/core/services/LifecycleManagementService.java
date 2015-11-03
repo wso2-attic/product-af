@@ -50,18 +50,11 @@ public class LifecycleManagementService {
     private static final String LC_SCXML_ELEMENT = "scxml";
     private static Map<String, LifecycleInfoBean> lifecycleMap;
     Log log = LogFactory.getLog(LifecycleManagementService.class);
-    private static LifecycleManagementService lifecycleManagementService;
 
-    private LifecycleManagementService() throws AppFactoryException {
+    public LifecycleManagementService() throws AppFactoryException {
         init();
     }
 
-    public static LifecycleManagementService getInstance() throws AppFactoryException {
-            if (lifecycleManagementService == null) {
-                lifecycleManagementService = new LifecycleManagementService();
-            }
-        return lifecycleManagementService;
-    }
     /**
      * Method to retrieve life cycles and their details from the registry
      *
@@ -194,6 +187,15 @@ public class LifecycleManagementService {
      */
     public String getFirstStageByApplication(String appKey,String tenantDomain) throws AppFactoryException{
         return getCurrentLifecycle(appKey,tenantDomain).getStages().get(0).getStageName();
+    }
+
+    /**
+     * Method to attach lifecycle to an application
+     *
+     * @param lifecycleName       lifecycle name
+     */
+    public String getFirstStageByLifecycle(String lifecycleName) throws AppFactoryException{
+        return lifecycleMap.get(lifecycleName).getStages().get(0).getStageName();
     }
 
     /**
@@ -368,7 +370,54 @@ public class LifecycleManagementService {
     public String getBuildStageName(String appKey, String tenantDomain) throws AppFactoryException {
         return getCurrentLifecycle(appKey,tenantDomain).getBuildStageName();
     }
+
+    public String[] getLifecycleStages(String lifecycleName) throws AppFactoryException {
+        LifecycleInfoBean lifecycleInfoBean = lifecycleMap.get(lifecycleName);
+        List<StageBean> stages = lifecycleInfoBean.getStages();
+        String[] stageNames = new String[0];
+        int count = 0;
+
+        if (stages != null) {
+            for (StageBean stage : stages) {
+                stageNames[count] = stage.getStageName();
+                count++;
+            }
+
+            return stageNames;
+
+        } else {
+            String errorMsg = "Unable to load the stages of the lifecycle :" + lifecycleName;
+            log.error(errorMsg);
+            throw new AppFactoryException(errorMsg);
+        }
+
+    }
+
+    public String[] getCheckListItemsByStage(String lifecycleName, String stage) throws AppFactoryException {
+        LifecycleInfoBean lifecycleInfoBean = lifecycleMap.get(lifecycleName);
+        List<StageBean> stages = lifecycleInfoBean.getStages();
+        String[] checkListItems = new String[0];
+        int count = 0;
+
+        if (stages != null) {
+            for (StageBean stageBean : stages) {
+                if (stageBean.getStageName().equals(stage)) {
+                    for (CheckListItemBean checkListItemBean : stageBean.getCheckListItems()) {
+                        checkListItems[count] = checkListItemBean.getCheckItemName();
+                        count++;
+                    }
+                }
+            }
+
+            return checkListItems;
+
+        } else {
+            String errorMsg =
+                    "Unable to load the check list items in the stage:" + stage + "of the lifecycle :" + lifecycleName;
+            log.error(errorMsg);
+            throw new AppFactoryException(errorMsg);
+        }
+
+    }
+
 }
-
-
-

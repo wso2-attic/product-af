@@ -1312,8 +1312,7 @@ $.cookie('selectedStage', selectedStage);
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
-                        targetVersion:targetVersion,
-                        lifecycleName:'<%=LIFE_CYCLE_NAME%>'
+                        targetVersion:targetVersion
                     }, function (result) {
 			addToStageVersionMapping(selectedStage,targetVersion);
 			loadStagesList(selectedStage);

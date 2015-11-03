@@ -677,8 +677,7 @@ function createVersion(srcVersion, targetVersion) {
             action: "invokeDoVersion",
             applicationKey: applicationInfo.key,
             srcVersion:srcVersion,
-            targetVersion:targetVersion,
-            lifecycleName:lifeCycleName
+            targetVersion:targetVersion
         }, function (result) {
             result = JSON.parse(result);
             if(result === true) {

@@ -119,7 +119,7 @@ var log = new Log();
             var revision = '0';
             var build = 'true';
             var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
-            var aspect = LIFE_CYCLE_NAME;
+            //var aspect = LIFE_CYCLE_NAME;
             var promoteDepPolicy = getProperty('ApplicationDeployment.DeploymentStage.'+stageName+'.Promote.DeploymentPolicy');
             var deployAction;
             if(TAGGED == promoteDepPolicy || LATEST == promoteDepPolicy) {
@@ -128,13 +128,14 @@ var log = new Log();
                 deployAction = "rePromote";
             }
 
-			var isUploadableAppType = applicationTypeBean.isUploadableAppType();
-			var aspect;
-			if(isUploadableAppType){
+			// var isUploadableAppType = applicationTypeBean.isUploadableAppType();
+            var tenantDomain = modManager.getTenantDomain();
+			var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain);
+			/*if(isUploadableAppType){
 				aspect = UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME;
 			} else {
 				aspect = LIFE_CYCLE_NAME;
-			}
+			}*/
 
             permissionMod = jagg.module("permission");
             var user = permissionMod.checkUserAuthenticated();
@@ -222,16 +223,12 @@ var log = new Log();
         var stageName = request.getParameter("stageName");
         var version = request.getParameter("version");
         var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
+        var tenantDomain = modManager.getTenantDomain();
 
 		var manager = jagg.module("manager");
 		var applicationType = manager.getApplicationType(applicationKey);
-		var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
-		var aspect;
-		if(isUploadableAppType){
-			aspect = UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME;
-		} else {
-			aspect = LIFE_CYCLE_NAME;
-		}
+		// var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+		var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain);
 
 		var nextStageName = mod.getNextLifeCycleStage(stageName);
         var permissionStageToPromote = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStageName;
@@ -247,7 +244,48 @@ var log = new Log();
             } catch (e) {
                 throw new Error(e.message);
             }
-        } else{
+        }
+        //------------------------------------------------------------------------------------------------------------------
+        else if(action == "getAllLifecycles"){
+            var lifecycleMod = jagg.module("lifecycle");
+
+            try {
+                var lifecycleList = lifecycleMod.getAllLifecycles();
+                print(lifecycleList);
+            } catch (e) {
+                log.error(e.message);
+                throw e.message;
+            }
+        }else if(action == "changeLifecycle"){
+            var lifecycleMod = jagg.module("lifecycle");
+            try {
+                var applicationKey = request.getParameter("applicationKey");
+                var lifecycleName = request.getParameter("lifecycleName");
+                var tenantDomain = modManager.getTenantDomain();
+                var response = lifecycleMod.changeLifecycle(applicationKey,lifecycleName,tenantDomain);
+                print(response);
+            } catch (e) {
+                log.error(e.message);
+                throw e.message;
+            }
+        }else if(action == "getCurrentLifecycle"){
+            var lifecycleMod = jagg.module("lifecycle");
+            var manager = jagg.module("manager");
+            try {
+                var applicationKey = request.getParameter("applicationKey");
+                var applicationType = manager.getApplicationType(applicationKey);
+                var applicationTypeBean = manager.getApplicationTypeBean(applicationType);
+                var isUploadableAppType = applicationTypeBean.isUploadableAppType();
+                var tenantDomain = modManager.getTenantDomain();
+                var response = lifecycleMod.getCurrentLifecycle(applicationKey,tenantDomain);
+                print(response);
+            } catch (e) {
+                log.error(e.message);
+                throw e.message;
+            }
+        }
+        //------------------------------------------------------------------------------------------------------------------
+        else{
             response.error = true;
             response.message = "You don't have permission to update lifecycle checklist";
             print(response);
@@ -307,7 +345,6 @@ var log = new Log();
     	var major=Number(existingVersion.split(".")[0]);
     	var newMajor=++major;
 	    var newVersion=newMajor+".0.0";
-        var lifecycleName = request.getParameter("lifecycleName");
 
 	    applicationKey = request.getParameter("applicationKey");
     	var userName = request.getParameter("userName");
@@ -321,7 +358,7 @@ var log = new Log();
             var applicationType = mod.getApplicationType(applicationKey);
 
     		applicationMod.stroreUploadedApplication(applicationKey , targetVersion , file, applicationType);
-			lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
+			lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion);
 
 	    } catch (e) {
 	    	log.error(e.message);
