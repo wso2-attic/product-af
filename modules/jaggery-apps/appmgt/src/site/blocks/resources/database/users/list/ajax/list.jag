@@ -24,6 +24,7 @@ include("/jagg/config_reader.jag");
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 var loggedInUser = jagg.getUser();
+var modLifecycle = jagg.module("lifecycle");
 
 var log= new Log();
 var result = {};
@@ -42,7 +43,8 @@ var result = {};
 		var applicationKey = request.getParameter("applicationKey");
 
         result = {};
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         for(var i=0;i<deploymentStages.length;i++){
             //if user has access to stage
             var hasPermission = modPermission.isUserAccessGranted(applicationKey,
@@ -67,7 +69,8 @@ var result = {};
 		var rssInstance = request.getParameter("rssInstance");
 
         result = {};
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + rssInstance);
         
@@ -93,7 +96,8 @@ var result = {};
 		var databaseServerInstanceName = request.getParameter("dbServerInstanceName");
 
         result = {};
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + databaseServerInstanceName);
         
@@ -118,7 +122,8 @@ var result = {};
 		var rssInstanceName = request.getParameter("rssInstanceName");
 
         result = {};
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_CREATE_FOR_STAGE + rssInstanceName);
         if( !hasPermission ){

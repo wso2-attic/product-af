@@ -26,7 +26,8 @@ var log=new Log();
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     var applicationKey = request.getParameter("applicationKey");
-    var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+    var deploymentStages = jagg.module("lifecycle").getStages();
+            //getProperties(DEPLOYMENT_STAGES);
     var response = {};
     if (!jagg.getUser()) {
         print(UNAUTHORIZED_ERROR_RESPONSE);

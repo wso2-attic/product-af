@@ -37,7 +37,8 @@ jagg.block("governance/list", {
         var lifecycleModule = jagg.module("lifecycle");
         var mod = jagg.module("manager");
         var applicationMod = jagg.module("application");
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = lifecycleModule.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         var hasPromotePermissions = {};
         var nextStage = {};
         var previousStage = {};

@@ -39,6 +39,7 @@ var loggedInUser = jagg.getUser();
         return;
     }
     var modPermission = jagg.module("permission");
+    var modLifecycle = jagg.module("lifecycle");
 
     if (action == "createExternalApi") {
         var applicationKey = request.getParameter("applicationKey");
@@ -49,7 +50,8 @@ var loggedInUser = jagg.getUser();
         var copyToAll=request.getParameter("copyToAll");
         var propname = "";
         var propcontent = "";
-        var targetStages = getProperties(DEPLOYMENT_STAGES);
+        var targetStages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         var stageArray = givenValues.split("::stage:");
 
         var response = {}; 
@@ -131,7 +133,8 @@ var loggedInUser = jagg.getUser();
          var givenValues = request.getParameter("givenValues");
          var propname = "";
          var propcontent = "";
-         var targetStages = getProperties(DEPLOYMENT_STAGES);
+         var targetStages = modLifecycle.getStages();
+                 //getProperties(DEPLOYMENT_STAGES);
          var stageArray = givenValues.split("::stage:");
 
          var response = {}; 

@@ -35,7 +35,8 @@ jagg.block("governance/demote", {
         var lifecycleModule = jagg.module("lifecycle");
         var modApplication = jagg.module("application");
 
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = lifecycleModule.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         var hasDemotePermissions = {};
         
         for (var i = 0; i < deploymentStages.length; i++) {

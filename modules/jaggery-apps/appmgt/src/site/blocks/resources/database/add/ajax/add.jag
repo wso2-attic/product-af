@@ -25,7 +25,9 @@ include("/jagg/correlationKeys.jag");
 
 var log= new Log();
 var response = {};
-var allStages = getProperties(DEPLOYMENT_STAGES);
+var modLifecycle = jagg.module("lifecycle");
+var allStages = modLifecycle.getStages();
+		//getProperties(DEPLOYMENT_STAGES);
 
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
@@ -348,7 +350,8 @@ var loggedInUser = jagg.getUser();
 		// this method provides only the database information such as name,url,environment.
 		var applicationKey = request.getParameter("applicationKey");
 
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages();
+				//getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
 		var response = {};
 		for(var i=0;i<deploymentStages.length;i++){
@@ -374,7 +377,8 @@ var loggedInUser = jagg.getUser();
 	}else if(action == "getDatabasesInfoForStages"){
 		var infoArray=[];
 		var applicationKey = request.getParameter("applicationKey");
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages();
+				//getProperties(DEPLOYMENT_STAGES);
 		//var stage = request.getParameter("stage");
 		for(var i=0;i<deploymentStages.length;i++){
 			//if user has access to stage
@@ -481,7 +485,8 @@ var loggedInUser = jagg.getUser();
 		}
 	} else if(action == "getDbUserTemplateInfoForStages"){
 		var applicationKey = request.getParameter("applicationKey");
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages();
+				//getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
 		for(var i=0;i<deploymentStages.length;i++){
 			//if user has access to stage
@@ -503,7 +508,8 @@ var loggedInUser = jagg.getUser();
 		}else if(action == "getCreatableRSSinstances"){
 			var applicationKey = request.getParameter("applicationKey");
 	
-			var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+			var deploymentStages = modLifecycle.getStages();
+					//getProperties(DEPLOYMENT_STAGES);
 			var instances=[];
 			for(var i=0;i<deploymentStages.length;i++){
 				//if user has access to stage
@@ -527,7 +533,8 @@ var loggedInUser = jagg.getUser();
 		}else if(action == "getRSSinstances"){
 		var applicationKey = request.getParameter("applicationKey");
 
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages();
+				//getProperties(DEPLOYMENT_STAGES);
 		var instances=[];
 		for(var i=0;i<deploymentStages.length;i++){
 			//if user has access to stage

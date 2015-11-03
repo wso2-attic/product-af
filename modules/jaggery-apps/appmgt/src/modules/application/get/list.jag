@@ -829,7 +829,8 @@
     var getAllStages = function()
     {
         jagg.module("permission").checkUserAuthenticated();
-        var stages = getProperties(DEPLOYMENT_STAGES);
+        var stages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         if (stages == null) {
             return null;
         }
@@ -850,7 +851,8 @@
     var getBuildableStages = function()
     {
         jagg.module("permission").checkUserAuthenticated();
-        var stages = getProperties(DEPLOYMENT_STAGES);
+        var stages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         if (stages == null) {
             return null;
         }

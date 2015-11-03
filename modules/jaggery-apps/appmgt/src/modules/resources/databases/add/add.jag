@@ -29,6 +29,7 @@ var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.Re
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 
 var modManager = jagg.module("manager");
+var modLifecycle = jagg.module("lifecycle");
 var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
 var loggedInUser = jagg.getUser();
@@ -246,7 +247,8 @@ var createDbWithUserAndTemplate = function (applicationKey,databaseName,userName
 var getRSSinstances = function (applicationKey){
 	var result;
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){
 		//if user has access to stage
@@ -270,7 +272,8 @@ var getRSSinstanceInStage = function (applicationKey,deploymentStage){
 };
 
 var getStageFromRssInstanceName=function(rssInstanceName){
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	for(var i=0;i<deploymentStages.length;i++){
 		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);
 		if(rssInstanceName==rssName){
@@ -594,7 +597,8 @@ var getDatabases = function (applicationKey){
 	var result;
 	var databasesObjectArray=[];
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){
 		//if user has access to stage
@@ -637,7 +641,8 @@ var getDatabasesForStage = function (applicationKey, stage){
 	var result;
 	var databasesObjectArray=[];
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	//if user has access to stage
 		var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
@@ -877,7 +882,8 @@ var getAllDatabasesInfo = function (applicationKey, stage) {
 */
 var generateDatabaseInfoForDataTable = function (applicationKey, applicationName) {
     var permissionModule = jagg.module("permission");
-    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var allStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
     var allDBInfo = [];
     for (var i in allStages) {
         var hasResourceReadPermissionToStage = permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + allStages[i]);

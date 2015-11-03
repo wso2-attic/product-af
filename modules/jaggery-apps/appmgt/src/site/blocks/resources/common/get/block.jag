@@ -25,7 +25,8 @@ jagg.block("resources/common/get", {
     },
     getOutputs:function (inputs) {
            var log = new Log();
-           var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+           var deploymentStages = jagg.module("lifecycle").getStages();
+                   //getProperties(DEPLOYMENT_STAGES);
            return {
                "stages": deploymentStages
            };

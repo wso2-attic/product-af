@@ -36,9 +36,11 @@ var log = new Log();
         var isSync = request.getParameter("isSync");
         var userName = request.getParameter("userName");
         var response = {};
+        var modLifecycle = jagg.module("lifecycle");
                
         var stagesWithPermission = [];
-        var stages = getProperties(DEPLOYMENT_STAGES);
+        var stages = modLifecycle.getStages();
+                //getProperties(DEPLOYMENT_STAGES);
         for (var i = 0; i < stages.length; i++) {
         	var stage = stages[i];
         	if(isSync == "true"){
@@ -81,7 +83,8 @@ var log = new Log();
         if (modPermission.hasAppOwnerSpecialPermission(applicationId, userName)){
         	
         	var envKeyConstants = {};
-        	var stages = getProperties(DEPLOYMENT_STAGES);
+        	var stages = modLifecycle.getStages();
+                    //getProperties(DEPLOYMENT_STAGES);
         	for (var i = 0; i < stages.length; i++) {
         		var stage = stages[i]; 
         		var keyConstants = (getProperties(APIM_KEY_CONSTANTS + stage)[0]).split(":");

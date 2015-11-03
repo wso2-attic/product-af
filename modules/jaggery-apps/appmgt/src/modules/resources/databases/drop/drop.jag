@@ -26,6 +26,7 @@ var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.Re
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 var loggedInUser = jagg.getUser();
 var modManager = jagg.module("manager");
+var modLifecycle = jagg.module("lifecycle");
 var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
 
@@ -82,7 +83,8 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 
 };
 var getStageFromRssInstanceName=function(rssInstanceName){
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	for(var i=0;i<deploymentStages.length;i++){
 		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);
 		if(rssInstanceName==rssName){

@@ -27,11 +27,13 @@ var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.Re
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 var loggedInUser = jagg.getUser();
 var modManager = jagg.module("manager");
+var modLifecycle = jagg.module("lifecycle");
 var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
 
 var getStageFromRssInstanceName=function(rssInstanceName){
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	for(var i=0;i<deploymentStages.length;i++){
 		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);
 		if(rssInstanceName==rssName){
@@ -137,7 +139,8 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 	var tenantId="-1234";
 	options.robust = true;
 	var result={};
-	var allStages=getProperties(DEPLOYMENT_STAGES);
+	var allStages= modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 
 	var paylod_permissions= '<xsd:privileges xsi:type="xsd:MySQLPrivilegeSetInfo">'+
 							'<xsd:alterPriv>'+alterPriv+'</xsd:alterPriv>'+
@@ -296,7 +299,8 @@ var getTemplates = function (applicationKey){
 	var getDatabaseTemplate = new ws.WSRequest();
 	var result;
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+	var deploymentStages = modLifecycle.getStages();
+			//getProperties(DEPLOYMENT_STAGES);
 	var templatesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){
 		//if user has access to stage
