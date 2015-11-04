@@ -245,6 +245,10 @@ var modManager = jagg.module("manager");
             } catch (e) {
                 throw new Error(e.message);
             }
+        } else{
+            response.error = true;
+            response.message = "You don't have permission to update lifecycle checklist";
+            print(response);
         }
     }else if ( action == "itemChecked"){
         print("true");
