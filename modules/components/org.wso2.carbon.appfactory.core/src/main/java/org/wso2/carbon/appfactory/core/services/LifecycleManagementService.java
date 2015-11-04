@@ -417,7 +417,7 @@ public class LifecycleManagementService {
                     }
                     return checkListItems;
                 }
-                return null;
+
             }
         } else {
             String errorMsg =
@@ -425,7 +425,7 @@ public class LifecycleManagementService {
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
         }
-
+        return null;
     }
 
 }
