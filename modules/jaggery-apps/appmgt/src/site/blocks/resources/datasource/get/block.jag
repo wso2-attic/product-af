@@ -29,7 +29,7 @@ jagg.block("resources/datasource/get", {
        var log = new Log();
        var applicationKey = request.getParameter("applicationKey");
        var permissionModule = jagg.module("permission");
-       var deploymentStages = jagg.module("lifecycle").getStages();
+       var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
                //getProperties(DEPLOYMENT_STAGES);
        var hasResourceCreatePermissionInAnyEnvironment = hasUILevelResourceCreationPermission(applicationKey);
 

@@ -31,7 +31,7 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
     var applicationKey = request.getParameter("applicationKey");
     var applicationName = request.getParameter("applicationName");
     var tenantDomain = outputs.tenantDomain;
-    var allStages = jagg.module("lifecycle").getStages();
+    var allStages = jagg.module("lifecycle").getStages(applicationKey);
             //getProperties(DEPLOYMENT_STAGES);
     var appDetails = outputs.appDetails;
     var buildableStages = outputs.buildableStages;

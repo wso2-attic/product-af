@@ -34,7 +34,7 @@ jagg.block("resources/list", {
     	var log = new Log();
     	var permissionModule = jagg.module("permission");
     	var datasourceModule = jagg.module("resources");
-    	var deploymentStages = jagg.module("lifecycle").getStages();
+    	var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
     	var hasConfigureDbAdministrationPermissions = {};
     	var hasConfigureResourcePermissions = {};

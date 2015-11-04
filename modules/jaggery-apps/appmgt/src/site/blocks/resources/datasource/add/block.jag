@@ -32,7 +32,7 @@ jagg.block("resources/datasource/add", {
     getOutputs:function (inputs) {
         var applicationKey = request.getParameter("applicationKey");
         var permissionModule = jagg.module("permission");
-        var deploymentStages = jagg.module("lifecycle").getStages();
+        var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var allowedStages = [];
         var hasAccessForAllstages=jagg.module("permission").hasPermissionForAllStages(inputs.applicationKey);

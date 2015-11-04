@@ -58,7 +58,7 @@ var loggedInUser = jagg.getUser();
             print(response);
             return;
         }
-        var allStages=jagg.module("lifecycle").getStages();
+        var allStages=jagg.module("lifecycle").getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var copyAll = request.getParameter("copyAll");
         if(!copyAll || copyAll == "false"){

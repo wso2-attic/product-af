@@ -38,7 +38,7 @@ include("/jagg/config_reader.jag");
     	var applicationKey = request.getParameter("applicationKey");
         var response = {};
         var externalAPIs = {};
-        var stages = modLifecycle.getStages();
+        var stages = modLifecycle.getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
         for (var i = 0; i < stages.length; i++) {
         	var stage = stages[i];
@@ -74,7 +74,7 @@ include("/jagg/config_reader.jag");
     } else if (action == "getCreatePermittedEnvironments") {
     	var applicationKey = request.getParameter("applicationKey");
     	var permittedStages = [];
-        var stages = modLifecycle.getStages();
+        var stages = modLifecycle.getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
         log.debug(stages);
         for (var i = 0; i < stages.length; i++) {

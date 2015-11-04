@@ -50,7 +50,7 @@ var loggedInUser = jagg.getUser();
         var copyToAll=request.getParameter("copyToAll");
         var propname = "";
         var propcontent = "";
-        var targetStages = modLifecycle.getStages();
+        var targetStages = modLifecycle.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var stageArray = givenValues.split("::stage:");
 
@@ -133,7 +133,7 @@ var loggedInUser = jagg.getUser();
          var givenValues = request.getParameter("givenValues");
          var propname = "";
          var propcontent = "";
-         var targetStages = modLifecycle.getStages();
+         var targetStages = modLifecycle.getStages(applicationKey);
                  //getProperties(DEPLOYMENT_STAGES);
          var stageArray = givenValues.split("::stage:");
 
