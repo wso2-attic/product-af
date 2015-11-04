@@ -20,6 +20,7 @@
 // page initialization
 $(document).ready(function () {
     var generalForm = $("#generalForm");
+    getCurrentLifecycle();
     if(isUpdateInfoAllowed && generalForm){
         $("#updateGeneralInfo").prop("disabled", true);
         $.validator.addMethod("validateInputForAlphanumericAndSpaces", validateInputForAlphanumericAndSpaces);
@@ -47,6 +48,7 @@ $(document).ready(function () {
         });
     }
     preparePreview();
+    getAllLifecycles();
 });
 
 /**
@@ -269,7 +271,7 @@ function getAllLifecycles() {
         var currentLifecycle = (document.getElementById('lifecycle-display-name').innerHTML) + '';
         if(lifecycleNames != null) {
             for (var i in lifecycleNames) {
-                if (((lifecycleNames[i].displayName) + '' != currentLifecycle) && (lifecycleNames[i].devStageName + '' != '')) {
+                if (((lifecycleNames[i].displayName) + '' != currentLifecycle) && (lifecycleNames[i].buildStageName + '' != '')) {
                     lifecycleList.append($('<option></option>').val(lifecycleNames[i].lifecycleName).html(lifecycleNames[i].displayName))
                 }
             }
