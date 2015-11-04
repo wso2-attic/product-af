@@ -192,6 +192,20 @@ public class LifecycleManagementService {
     /**
      * Method to attach lifecycle to an application
      *
+     * @param appKey       application key
+     * @param tenantDomain tenant domain
+     */
+/*    String lastStage = null;
+     public String getLastStageByApplication(String appKey,String tenantDomain) throws AppFactoryException{
+      List<StageBean> stages = getCurrentLifecycle(appKey, tenantDomain).getStages();
+
+
+                .get(0).getStageName();
+    }*/
+
+    /**
+     * Method to attach lifecycle to an application
+     *
      * @param lifecycleName       lifecycle name
      */
     public String getFirstStageByLifecycle(String lifecycleName) throws AppFactoryException{
@@ -374,21 +388,17 @@ public class LifecycleManagementService {
     public String[] getLifecycleStages(String lifecycleName) throws AppFactoryException {
         LifecycleInfoBean lifecycleInfoBean = lifecycleMap.get(lifecycleName);
         List<StageBean> stages = lifecycleInfoBean.getStages();
-        String[] stageNames = new String[stages.size()];
-        int count = 0;
+        List<String> stageNames = new ArrayList<String>();
         if (!stages.isEmpty()) {
             for (StageBean stage : stages) {
-                stageNames[count] = stage.getStageName();
-                count++;
+                stageNames.add(stage.getStageName());
             }
-            return stageNames;
-        }
-         else {
+        } else {
             String errorMsg = "Unable to load the stages of the lifecycle :" + lifecycleName;
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
         }
-
+        return stageNames.toArray(new String[stageNames.size()]);
     }
 
     public String[] getCheckListItemsByStage(String lifecycleName, String stage) throws AppFactoryException {

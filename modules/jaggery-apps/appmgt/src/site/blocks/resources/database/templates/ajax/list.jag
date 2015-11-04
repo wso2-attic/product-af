@@ -69,7 +69,7 @@ var loggedInUser = jagg.getUser();
     	var applicationKey = request.getParameter("applicationKey");
     	var rssInstance = request.getParameter("rssInstance");
         var response = {};
-        var stage = mod.getStageFromRssInstanceName(rssInstance);
+        var stage = mod.getStageFromRssInstanceName(rssInstance, applicationKey);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_READ_FOR_STAGE +
                 stage);
         

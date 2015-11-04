@@ -249,7 +249,7 @@ public class ApplicationInfoService {
                 version.setLastBuildStatus(
                         "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
                 deployStatus = applicationDAO
-                        .getDeployStatus(applicationId, version.getVersion(), firstStage.toUpperCase(), true,
+                        .getDeployStatus(applicationId, version.getVersion(), firstStage.toLowerCase(), true,
                                 userName.split("@")[0]);
                 version.setLastDeployedId(deployStatus.getLastDeployedId());
             }
@@ -283,7 +283,7 @@ public class ApplicationInfoService {
                 version.setLastBuildStatus("build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
 
                 DeployStatus deployStatus = applicationDAO
-                        .getDeployStatus(applicationId, version.getVersion(), firstStage.toUpperCase(), false, null);
+                        .getDeployStatus(applicationId, version.getVersion(), firstStage.toLowerCase(), false, null);
                 version.setLastDeployedId(deployStatus.getLastDeployedId());
             }
 
@@ -699,7 +699,7 @@ public class ApplicationInfoService {
 
             Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
                     new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION.getCapitalizedString()) :
-                    new Version(targetVersion, firstStage.toUpperCase());
+                    new Version(targetVersion, firstStage);
             JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
 
             // find the versions.

@@ -31,7 +31,7 @@ var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
 
 var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceName){
-	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
 	var ws = require('ws');
 
 	var dropDatabaseService = new ws.WSRequest();
@@ -82,8 +82,8 @@ var dropDatabase = function (applicationKey,databaseName,databaseServerInstanceN
 	}
 
 };
-var getStageFromRssInstanceName=function(rssInstanceName){
-	var deploymentStages = modLifecycle.getStages();
+var getStageFromRssInstanceName=function(rssInstanceName, applicationKey){
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	for(var i=0;i<deploymentStages.length;i++){
 		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);

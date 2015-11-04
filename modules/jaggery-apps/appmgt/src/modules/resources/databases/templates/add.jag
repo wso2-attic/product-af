@@ -31,8 +31,8 @@ var modLifecycle = jagg.module("lifecycle");
 var wso2_rss_instanceName = 'SYSTEM';
 var rssFilter=jagg.module("rss-filter");
 
-var getStageFromRssInstanceName=function(rssInstanceName){
-	var deploymentStages = modLifecycle.getStages();
+var getStageFromRssInstanceName=function(rssInstanceName, applicationKey){
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	for(var i=0;i<deploymentStages.length;i++){
 		var rssName= getProperty(DEPLOYMENT_STAGES+'.'+deploymentStages[i]+'.'+RSS_NAME);
@@ -43,7 +43,7 @@ var getStageFromRssInstanceName=function(rssInstanceName){
 
 };
 var dropTemplate = function (applicationKey,databaseServerInstanceName,name){
-	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
 	var ws = require('ws');
 
 	var dropDatabaseTemplate = new ws.WSRequest();
@@ -96,7 +96,7 @@ var dropTemplate = function (applicationKey,databaseServerInstanceName,name){
 
 //this could be a redundant method and its not doing what method name implies.
 var editTemplate = function (applicationKey, name,databaseServerInstanceName){
-	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
 	var ws = require('ws');
 
 	var editDatabaseTemplate = new ws.WSRequest();
@@ -129,7 +129,7 @@ var editTemplate = function (applicationKey, name,databaseServerInstanceName){
 
 
 var createTemplate = function (applicationKey,databaseServerInstanceName,name,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv,autoCreation,copyToAll){
-	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
 	var ws = require('ws');
 	var createTemplateService = new ws.WSRequest();
 	var options = new Array();
@@ -166,7 +166,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 							'</ser:template></ser:addDatabasePrivilegeTemplate>';
 	if(autoCreation || !copyToAll ){
 				allStages=[];
-				allStages.push(getStageFromRssInstanceName(databaseServerInstanceName));
+				allStages.push(getStageFromRssInstanceName(databaseServerInstanceName, applicationKey));
 			}
 	var EnvUnawareName=rssFilter.getEnvironmentAwareTemplateName(name);
 	for(var tempStage in allStages){
@@ -219,7 +219,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 };
 
 var editDbTemplate = function (applicationKey,databaseServerInstanceName,name,alterPriv,alterRoutinePriv, createPriv,createRoutinePriv, createTmpTablePriv, createViewPriv,deletePriv,dropPriv,eventPriv,executePriv,grantPriv,indexPriv,insertPriv,lockTablesPriv,referencesPriv,selectPriv,showViewPriv,triggerPriv,updatePriv){
-	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
 	var ws = require('ws');
 
 	var editTemplateService = new ws.WSRequest();
@@ -331,7 +331,7 @@ var getTemplates = function (applicationKey){
 };
 
 var getAvailableTemplatesToAttachToDatabase = function (applicationKey, rssInstance){
-	var stage = getStageFromRssInstanceName(rssInstance);
+	var stage = getStageFromRssInstanceName(rssInstance, applicationKey);
 	var storageServerURL = getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
 	var ws = require('ws');
 	var getDatabaseTemplate = new ws.WSRequest();

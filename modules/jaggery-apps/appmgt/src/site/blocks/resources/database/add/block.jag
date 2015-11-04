@@ -30,6 +30,7 @@ jagg.block("resources/database/add", {
     },
     getOutputs: function (inputs) {
         var permissionModule = jagg.module("permission");
+        var applicationKey = request.getParameter("applicationKey");
         var allStages = jagg.module("lifecycle").getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var dbCreationAllowedStages = [];

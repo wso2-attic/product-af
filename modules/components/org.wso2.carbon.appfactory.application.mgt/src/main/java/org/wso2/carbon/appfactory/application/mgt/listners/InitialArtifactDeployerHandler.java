@@ -62,7 +62,7 @@ public class InitialArtifactDeployerHandler extends ApplicationEventsHandler {
         String version = isUploadableAppType ? "1.0.0" : "trunk";
         String stage = isUploadableAppType ?
                        WordUtils.capitalize(AppFactoryConstants.ApplicationStage.PRODUCTION.getStageStrValue()) :
-                       WordUtils.capitalize(firstStage);
+                       WordUtils.capitalize(firstStage.toLowerCase());
         List<NameValuePair> params = AppFactoryCoreUtil.getDeployParameterMap(application.getId(),
                                                                               application.getType(),
                                                                               stage,
