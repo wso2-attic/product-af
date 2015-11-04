@@ -39,7 +39,7 @@ var log = new Log();
         var modLifecycle = jagg.module("lifecycle");
                
         var stagesWithPermission = [];
-        var stages = modLifecycle.getStages();
+        var stages = modLifecycle.getStages(applicationId);
                 //getProperties(DEPLOYMENT_STAGES);
         for (var i = 0; i < stages.length; i++) {
         	var stage = stages[i];
@@ -83,7 +83,7 @@ var log = new Log();
         if (modPermission.hasAppOwnerSpecialPermission(applicationId, userName)){
         	
         	var envKeyConstants = {};
-        	var stages = modLifecycle.getStages();
+        	var stages = modLifecycle.getStages(applicationId);
                     //getProperties(DEPLOYMENT_STAGES);
         	for (var i = 0; i < stages.length; i++) {
         		var stage = stages[i]; 

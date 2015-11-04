@@ -139,7 +139,7 @@ var createTemplate = function (applicationKey,databaseServerInstanceName,name,al
 	var tenantId="-1234";
 	options.robust = true;
 	var result={};
-	var allStages= modLifecycle.getStages();
+	var allStages= modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 
 	var paylod_permissions= '<xsd:privileges xsi:type="xsd:MySQLPrivilegeSetInfo">'+
@@ -299,7 +299,7 @@ var getTemplates = function (applicationKey){
 	var getDatabaseTemplate = new ws.WSRequest();
 	var result;
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = modLifecycle.getStages();
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	var templatesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){

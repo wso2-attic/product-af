@@ -116,7 +116,7 @@ var addPropertyCollectionToStages = function (path, description, mediatype, appI
  * @param appId Id of the application
  */
 var addPropertyToInitialStages = function (propname, propcontent, description, proptype, appId) {
-	var stages = lifeCycleModule.getInitialLifeCycleStages();
+	var stages = lifeCycleModule.getInitialLifeCycleStages(appId);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
         var serverUrl = getProperty(DEPLOYMENT_STAGES + "." + stage + GREG_URL);
@@ -233,7 +233,7 @@ var propertyExistsInStages = function (propname, appId, stages) {
  */
 var propertyExistsInAllStages = function (propname, appId) {
     var existsInAllSatges = false;
-    var stages = lifeCycleModule.getStages();
+    var stages = lifeCycleModule.getStages(appId);
             //getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
@@ -264,7 +264,7 @@ var propertyExistsInAllStages = function (propname, appId) {
  */
 var getPropertyValueInAllStages = function (propname, appId) {
     var valueByStage = {};
-    var stages = lifeCycleModule.getStages();
+    var stages = lifeCycleModule.getStages(appId);
             //getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
@@ -466,7 +466,7 @@ var updatePropertyInStages = function (propname, propcontent, description, propt
  * @param appId Id of the application
  */
 var deletePropertyFromAllStages = function (propname, appId) {
-    var stages = lifeCycleModule.getStages();
+    var stages = lifeCycleModule.getStages(appId);
             //getProperties(DEPLOYMENT_STAGES);
     for (var i = 0; i < stages.length; i++) {
         var stage = stages[i];
@@ -515,7 +515,7 @@ var deletePropertyFromStages = function (propname, resourceMediaType, contentVal
  * @param appId application id
  */
 var deleteAllRegistryResourcesFromAllStages = function (appId) {
-    var stages = lifeCycleModule.getStages();
+    var stages = lifeCycleModule.getStages(appId);
             //getProperties(DEPLOYMENT_STAGES);
     var tenantDomain=modManager.getTenantDomain();
     var errorOccurred = false;

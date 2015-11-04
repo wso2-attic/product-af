@@ -350,7 +350,7 @@ var loggedInUser = jagg.getUser();
 		// this method provides only the database information such as name,url,environment.
 		var applicationKey = request.getParameter("applicationKey");
 
-		var deploymentStages = modLifecycle.getStages();
+		var deploymentStages = modLifecycle.getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
 		var response = {};
@@ -377,7 +377,7 @@ var loggedInUser = jagg.getUser();
 	}else if(action == "getDatabasesInfoForStages"){
 		var infoArray=[];
 		var applicationKey = request.getParameter("applicationKey");
-		var deploymentStages = modLifecycle.getStages();
+		var deploymentStages = modLifecycle.getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
 		//var stage = request.getParameter("stage");
 		for(var i=0;i<deploymentStages.length;i++){
@@ -485,7 +485,7 @@ var loggedInUser = jagg.getUser();
 		}
 	} else if(action == "getDbUserTemplateInfoForStages"){
 		var applicationKey = request.getParameter("applicationKey");
-		var deploymentStages = modLifecycle.getStages();
+		var deploymentStages = modLifecycle.getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
 		for(var i=0;i<deploymentStages.length;i++){
@@ -508,7 +508,7 @@ var loggedInUser = jagg.getUser();
 		}else if(action == "getCreatableRSSinstances"){
 			var applicationKey = request.getParameter("applicationKey");
 	
-			var deploymentStages = modLifecycle.getStages();
+			var deploymentStages = modLifecycle.getStages(applicationKey);
 					//getProperties(DEPLOYMENT_STAGES);
 			var instances=[];
 			for(var i=0;i<deploymentStages.length;i++){
@@ -533,7 +533,7 @@ var loggedInUser = jagg.getUser();
 		}else if(action == "getRSSinstances"){
 		var applicationKey = request.getParameter("applicationKey");
 
-		var deploymentStages = modLifecycle.getStages();
+		var deploymentStages = modLifecycle.getStages(applicationKey);
 				//getProperties(DEPLOYMENT_STAGES);
 		var instances=[];
 		for(var i=0;i<deploymentStages.length;i++){

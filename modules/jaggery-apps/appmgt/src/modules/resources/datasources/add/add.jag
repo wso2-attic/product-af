@@ -248,7 +248,7 @@ var createDataSource = function (stage,applicationId, name, url, driverClass, us
                   '</p:addDataSource>';
     
     // AF will create data sources only in a initial stage.
-    var deploymentStages = lifeCycleModule.getInitialLifeCycleStages();
+    var deploymentStages = lifeCycleModule.getInitialLifeCycleStages(applicationId);
     
     var result;
     var datasources = [];

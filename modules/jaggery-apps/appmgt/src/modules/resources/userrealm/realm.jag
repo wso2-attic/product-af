@@ -30,7 +30,7 @@ var setUserRealmSupport = function (appId, isSet) {
     var uniqueAppRoleName = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil.getRoleNameForApplication(appId);
     var resource = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.INVOKE_PERMISSION;
     var action = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.CONSUME;
-    var stages = modLifecycle.getStages();
+    var stages = modLifecycle.getStages(appId);
             //getProperties(DEPLOYMENT_STAGES);
     try {
         for (var i = 0; i < stages.length; i++) {
@@ -55,7 +55,7 @@ var isUserRealmSupported = function (appId) {
     var uniqueAppRoleName = Packages.org.wso2.carbon.appfactory.common.util.AppFactoryUtil.getRoleNameForApplication(appId);
     var resource = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.INVOKE_PERMISSION;
     var action = Packages.org.wso2.carbon.appfactory.common.AppFactoryConstants.CONSUME;
-    var stages = modLifecycle.getStages();
+    var stages = modLifecycle.getStages(appId);
             //getProperties(DEPLOYMENT_STAGES);
     var result = {};
     result.error = 'false';

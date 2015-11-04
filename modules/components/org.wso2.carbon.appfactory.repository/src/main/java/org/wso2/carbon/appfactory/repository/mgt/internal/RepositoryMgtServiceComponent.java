@@ -63,7 +63,7 @@ import java.lang.reflect.Constructor;
  *                unbind="unsetTenantManagementService"
  * @scr.reference name="appfactory.lifecycle.mgt.service"
  *                interface="org.wso2.carbon.appfactory.core.services.LifecycleManagementService"
- *                cardinality="1..1" policy="dynamic" bind="setLifecycleManagementService"
+ *                cardinality="0..1" policy="dynamic" bind="setLifecycleManagementService"
  *                unbind="unsetLifecycleManagementService"
  */
 public class RepositoryMgtServiceComponent {

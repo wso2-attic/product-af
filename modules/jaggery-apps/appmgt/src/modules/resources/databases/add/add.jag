@@ -247,7 +247,7 @@ var createDbWithUserAndTemplate = function (applicationKey,databaseName,userName
 var getRSSinstances = function (applicationKey){
 	var result;
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = modLifecycle.getStages();
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){
@@ -597,7 +597,7 @@ var getDatabases = function (applicationKey){
 	var result;
 	var databasesObjectArray=[];
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = modLifecycle.getStages();
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){
@@ -641,7 +641,7 @@ var getDatabasesForStage = function (applicationKey, stage){
 	var result;
 	var databasesObjectArray=[];
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = modLifecycle.getStages();
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	//if user has access to stage
@@ -882,7 +882,7 @@ var getAllDatabasesInfo = function (applicationKey, stage) {
 */
 var generateDatabaseInfoForDataTable = function (applicationKey, applicationName) {
     var permissionModule = jagg.module("permission");
-    var allStages = modLifecycle.getStages();
+    var allStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
     var allDBInfo = [];
     for (var i in allStages) {

@@ -43,7 +43,7 @@ var result = {};
 		var applicationKey = request.getParameter("applicationKey");
 
         result = {};
-        var deploymentStages = modLifecycle.getStages();
+        var deploymentStages = modLifecycle.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         for(var i=0;i<deploymentStages.length;i++){
             //if user has access to stage
@@ -69,7 +69,7 @@ var result = {};
 		var rssInstance = request.getParameter("rssInstance");
 
         result = {};
-        var deploymentStages = modLifecycle.getStages();
+        var deploymentStages = modLifecycle.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + rssInstance);
@@ -96,7 +96,7 @@ var result = {};
 		var databaseServerInstanceName = request.getParameter("dbServerInstanceName");
 
         result = {};
-        var deploymentStages = modLifecycle.getStages();
+        var deploymentStages = modLifecycle.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_READ_FOR_STAGE + databaseServerInstanceName);
@@ -122,7 +122,7 @@ var result = {};
 		var rssInstanceName = request.getParameter("rssInstanceName");
 
         result = {};
-        var deploymentStages = modLifecycle.getStages();
+        var deploymentStages = modLifecycle.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_CREATE_FOR_STAGE + rssInstanceName);

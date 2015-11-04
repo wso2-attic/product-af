@@ -44,7 +44,7 @@ var loggedInUser = jagg.getUser();
     	var applicationKey = request.getParameter("applicationKey");
 
         var response = {};
-        var deploymentStages = jagg.module("lifecycle").getStages();
+        var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         for(var i=0;i<deploymentStages.length;i++){
             //if user has access to stage

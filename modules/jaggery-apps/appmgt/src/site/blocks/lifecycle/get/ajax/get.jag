@@ -42,8 +42,8 @@ include("/jagg/config_reader.jag");
     	var userName = request.getParameter("userName");
 
         var response = {};
-        var nextStage = mod.getNextLifeCycleStage(stageName);
-        var previousStage = mod.getPreviousLifeCycleStage(stageName);
+        var nextStage = mod.getNextLifeCycleStage(stageName,applicationKey);
+        var previousStage = mod.getPreviousLifeCycleStage(stageName,applicationKey);
         var permissionPromoteToNextStage,permissionDemoteToNextStage;
         var isAuthorizeToPromote = false;
         var isAuthorizeToDemote = false;

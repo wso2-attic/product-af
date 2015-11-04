@@ -42,14 +42,14 @@ var getAllowedStages= function getAllowedStages(allStages,permissionPrefix,appli
 var hasUILevelResourceCreationPermission = function hasUILevelResourceCreationPermission(applicationKey){
 
 	//This always returns one stage
-    var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
+    var initialStage = lifeCycleModule.getInitialLifeCycleStages(applicationKey)[0];
 	return permissionModule.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_CREATE_FOR_STAGE + initialStage);
 };
 
 var hasUILevelResourceDeletePermission = function hasUILevelResourceDeletePermission(applicationKey, stageOfResource){
 
         //This always returns one stage
-    var initialStage = lifeCycleModule.getInitialLifeCycleStages()[0];
+    var initialStage = lifeCycleModule.getInitialLifeCycleStages(applicationKey)[0];
     if(stageOfResource) {
         return (stageOfResource == initialStage) && permissionModule.isUserAccessGranted(applicationKey,
                                                     PERMISSION_RESOURCES_CREATE_FOR_STAGE + initialStage) &&

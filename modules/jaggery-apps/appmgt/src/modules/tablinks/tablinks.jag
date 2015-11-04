@@ -35,7 +35,7 @@ var getAllowedTabLinks = function (applicationKey, userName) {
 
     try {
         // TODO: this is a temporary fix for https://wso2.org/jira/browse/APPFAC-3445
-        isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(applicationMod.getStage(applicationKey, currentVersion));
+        isApplicationCurrentVersionInInitialStage = lifeCycleMod.isInitialLifeCycleStage(applicationMod.getStage(applicationKey, currentVersion),applicationKey);
     } catch(e) {
         log.warn("Error while getting stage of application :  " + applicationKey + " with version : " + currentVersion+".Version creation is not completed yet" );
     }

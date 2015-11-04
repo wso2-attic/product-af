@@ -35,12 +35,12 @@ jagg.block("governance/demote", {
         var lifecycleModule = jagg.module("lifecycle");
         var modApplication = jagg.module("application");
 
-        var deploymentStages = lifecycleModule.getStages();
+        var deploymentStages = lifecycleModule.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         var hasDemotePermissions = {};
         
         for (var i = 0; i < deploymentStages.length; i++) {
-            var prev = lifecycleModule.getPreviousLifeCycleStage(deploymentStages[i]);
+            var prev = lifecycleModule.getPreviousLifeCycleStage(deploymentStages[i],applicationKey);
 
             hasDemotePermissions[deploymentStages[i]] = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_GOVERNANCE_DEMOTE_TO + prev);
             

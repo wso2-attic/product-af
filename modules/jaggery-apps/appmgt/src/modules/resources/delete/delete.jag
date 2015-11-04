@@ -127,7 +127,7 @@ var deleteAllDataSources = function(applicationKey) {
  * @param applicationKey application key
  */
 var deleteAllDbData = function(applicationKey) {
-    var deploymentStages = jagg.module("lifecycle").getStages();
+    var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
             //getProperties(DEPLOYMENT_STAGES);
     var tenantDomain=modManager.getTenantDomain() ;
     var errOuccered = false;

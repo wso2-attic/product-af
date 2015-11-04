@@ -374,18 +374,16 @@ public class LifecycleManagementService {
     public String[] getLifecycleStages(String lifecycleName) throws AppFactoryException {
         LifecycleInfoBean lifecycleInfoBean = lifecycleMap.get(lifecycleName);
         List<StageBean> stages = lifecycleInfoBean.getStages();
-        String[] stageNames = new String[0];
+        String[] stageNames = new String[stages.size()];
         int count = 0;
-
-        if (stages != null) {
+        if (!stages.isEmpty()) {
             for (StageBean stage : stages) {
                 stageNames[count] = stage.getStageName();
                 count++;
             }
-
             return stageNames;
-
-        } else {
+        }
+         else {
             String errorMsg = "Unable to load the stages of the lifecycle :" + lifecycleName;
             log.error(errorMsg);
             throw new AppFactoryException(errorMsg);
@@ -396,21 +394,21 @@ public class LifecycleManagementService {
     public String[] getCheckListItemsByStage(String lifecycleName, String stage) throws AppFactoryException {
         LifecycleInfoBean lifecycleInfoBean = lifecycleMap.get(lifecycleName);
         List<StageBean> stages = lifecycleInfoBean.getStages();
-        String[] checkListItems = new String[0];
         int count = 0;
 
-        if (stages != null) {
+        if (!stages.isEmpty()) {
             for (StageBean stageBean : stages) {
                 if (stageBean.getStageName().equals(stage)) {
-                    for (CheckListItemBean checkListItemBean : stageBean.getCheckListItems()) {
+                    List<CheckListItemBean> checkListItemBeans = stageBean.getCheckListItems();
+                    String[] checkListItems = new String[checkListItemBeans.size()];
+                    for (CheckListItemBean checkListItemBean : checkListItemBeans) {
                         checkListItems[count] = checkListItemBean.getCheckItemName();
                         count++;
                     }
+                    return checkListItems;
                 }
+                return null;
             }
-
-            return checkListItems;
-
         } else {
             String errorMsg =
                     "Unable to load the check list items in the stage:" + stage + "of the lifecycle :" + lifecycleName;

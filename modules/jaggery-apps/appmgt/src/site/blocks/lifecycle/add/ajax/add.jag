@@ -57,8 +57,8 @@ var log = new Log();
 		var currentStage = applicationModule.getStage(applicationKey,version);
 
         var result = {};
-        var nextStage = mod.getNextLifeCycleStage(stageName);
-        var previousStage = mod.getPreviousLifeCycleStage(stageName);
+        var nextStage = mod.getNextLifeCycleStage(stageName,applicationKey);
+        var previousStage = mod.getPreviousLifeCycleStage(stageName,applicationKey);
         var permissionPromoteToNextStage,permissionDemoteToNextStage;
         var isAuthorizeToPromote = false;
         var isAuthorizeToDemote = false;
@@ -230,7 +230,7 @@ var log = new Log();
 		// var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
 		var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain);
 
-		var nextStageName = mod.getNextLifeCycleStage(stageName);
+		var nextStageName = mod.getNextLifeCycleStage(stageName,applicationKey);
         var permissionStageToPromote = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStageName;
         var response = {};
         if (modPermission.isUserAccessGranted(applicationKey, permissionStageToPromote)){
@@ -238,7 +238,7 @@ var log = new Log();
                 var checkListItemsValues = parse(request.getParameter("checkItems"));
                 var parameters = new Array();
                 var deployedArtifact = mod.invokeAspectWithParameter(path, aspect, "itemClick", checkListItemsValues,
-                        parameters,stageName);
+                        parameters,stageName,applicationKey);
                 response.error = false;
                 print(response);
             } catch (e) {
@@ -389,8 +389,8 @@ function copyNewDependenciesAndDeployArtifact(applicationId, stage, version, tag
     var resourcesModule = jagg.module("resources");
     var lifeCycleModule = jagg.module("lifecycle");
     try{
-        if (! lifeCycleModule.isInitialLifeCycleStage(stage)){
-            var sourceStage = lifeCycleModule.getPreviousLifeCycleStage(stage);
+        if (! lifeCycleModule.isInitialLifeCycleStage(stage,applicationId)){
+            var sourceStage = lifeCycleModule.getPreviousLifeCycleStage(stage,applicationId);
             resourcesModule.copyNewProperties(applicationId, sourceStage, stage);
             resourcesModule.copyNewDataSources(applicationId, sourceStage, stage);
         }

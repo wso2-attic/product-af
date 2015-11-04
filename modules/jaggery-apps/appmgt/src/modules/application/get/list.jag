@@ -826,10 +826,10 @@
     ;
 
 //chekced
-    var getAllStages = function()
+    var getAllStages = function(applicationKey)
     {
         jagg.module("permission").checkUserAuthenticated();
-        var stages = modLifecycle.getStages();
+        var stages = modLifecycle.getStages(applicationKey);
                 //getProperties(DEPLOYMENT_STAGES);
         if (stages == null) {
             return null;
@@ -887,13 +887,13 @@
             applicationList = mod.getAllAppsOfUser(userName);
             session.put(APPLICATION_LIST_CACHE, applicationList);
         }
-        var allStages = getAllStages();
-        var parsedStages = parse(allStages);
+
         var parsedArray = parse(applicationList);
 
         for (var i = 0; i < parsedArray.length; i++) {
             var application = parsedArray[i];
-
+            var allStages = getAllStages(application.key);
+            var parsedStages = parse(allStages);
             for (var j = 0; j < parsedStages.length; j++) {
                 var stage = parsedStages[j];
                 var hasPermissiontToStage = jagg.module("permission").hasPermissionToStage(application.key, stage);
@@ -1127,7 +1127,7 @@ var generateAppVersion = function(applicationKey, data) {
         versionInfo.promoteStatus = data['promoteStatus'];
         versionInfo.deployedBuildId = data['lastDeployedId'];
         versionInfo.productionMappedDomain = data['productionMappedDomain'];
-        versionInfo.isInitialStage = modLifecycle.isInitialLifeCycleStage(versionInfo.stage);
+        versionInfo.isInitialStage = modLifecycle.isInitialLifeCycleStage(versionInfo.stage,applicationKey);
     }
     return versionInfo;
 }
@@ -1174,7 +1174,7 @@ var getRepoUserInfo = function(applicationKey, artifacts) {
     {
         // no need to secure as internal call is secured.
         var versionArray = new Array();
-        var allStages = getAllStages();
+        var allStages = getAllStages(applicationKey);
 
         for (var i = 0; i < allStages.length; i++) {
             var stageName = allStages[i];

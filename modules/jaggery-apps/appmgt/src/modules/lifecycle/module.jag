@@ -102,6 +102,9 @@ jagg.module("lifecycle", {
     },
     getCurrentLifecycle:function () {
         return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getCurrentLifecycle.apply(this, arguments);
+    },
+    getStages:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getStages.apply(this, arguments);
     }
 });
 %>

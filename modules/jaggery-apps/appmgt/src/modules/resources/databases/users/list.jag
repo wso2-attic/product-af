@@ -53,7 +53,7 @@ var getDatabaseUsersForRssInstance = function(applicationKey, rssInstanceName) {
 	var result;
 	var databasesUsersArray=[];
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = modLifecycle.getStages();
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	var hasDBConfigurePermissionToStage = permissionModule.isUserAccessGranted(applicationKey,PERMISSION_RESOURCES_READ_FOR_STAGE +stage);
@@ -334,7 +334,7 @@ var getDatabaseUsers = function (applicationKey){
 	var result;
 	var databasesUsersArray=[];
 	var permissionModule = jagg.module("permission");
-	var deploymentStages = modLifecycle.getStages();
+	var deploymentStages = modLifecycle.getStages(applicationKey);
 			//getProperties(DEPLOYMENT_STAGES);
 	var rssInstancesArray=[];
 	for(var i=0;i<deploymentStages.length;i++){

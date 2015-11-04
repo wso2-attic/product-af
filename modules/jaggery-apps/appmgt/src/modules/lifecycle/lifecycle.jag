@@ -88,12 +88,12 @@ var addGenericArtifact = function addGenericArtifact(key, content, lifecycleAttr
     }
 };
 
-function invokeAspectWithParameter(path, aspect, action, items, parameters, currentStage) {
+function invokeAspectWithParameter(path, aspect, action, items, parameters, currentStage,applicationKey) {
     if (action == "Promote") {
-        var nextStage = getNextLifeCycleStage(currentStage);
+        var nextStage = getNextLifeCycleStage(currentStage,applicationKey);
         jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage);
     } else if (action == "Demote") {
-        var previousStage = getPreviousLifeCycleStage(currentStage);
+        var previousStage = getPreviousLifeCycleStage(currentStage,applicationKey);
         jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_DEMOTE_TO + previousStage);
     } else if (action == "Retire") {
         jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_RETIRE);
@@ -314,7 +314,7 @@ function getCheckItemsByPathWithSleep(path) {
 function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
     // no need to secure, internal calls are already secured.
     var appVersions = parse(modApplication.getAppVersionsInStages(applicationKey, userName, false, false, "true"));
-    var stages = parse(modApplication.getAllStages());
+    var stages = parse(modApplication.getAllStages(applicationKey));
     var stageVersions = new Object();
     for (var i = 0; i < stages.length; i++) {
         var versionArry = new Array();
@@ -459,9 +459,9 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
 
     var stageName = currentStage;
     if (action == "Promote") {
-        stageName = getNextLifeCycleStage(currentStage);
+        stageName = getNextLifeCycleStage(currentStage,applicationID);
     }else if (action == "Demote") {
-        stageName = getPreviousLifeCycleStage(currentStage);
+        stageName = getPreviousLifeCycleStage(currentStage,applicationID);
     }
     updateStage(applicationID, stageName, version);
 
@@ -558,10 +558,10 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
     var notificationAction = "promoting";
     if (action == "Promote") {
         notificationAction = "promoting";
-        toStageString = " to " + getNextLifeCycleStage(currentStage);
+        toStageString = " to " + getNextLifeCycleStage(currentStage,applicationID);
     } else if (action == "Demote") {
         notificationAction = "demoting";
-        toStageString = " to " + getPreviousLifeCycleStage(currentStage);
+        toStageString = " to " + getPreviousLifeCycleStage(currentStage,applicationID);
     } else if (action == "Retire") {
         notificationAction = "retiring";
     }
@@ -727,46 +727,43 @@ var editGenericArtifact = function editGenericArtifact(key, content, lifecycleAt
         throw e;
     }
 };
-var getNextLifeCycleStage = function getNextLifeCycleStage(currentLifeCycleStage) {
-    var application = session.get("APP_INFO");
+var getNextLifeCycleStage = function getNextLifeCycleStage(currentLifeCycleStage,applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
 
-    var lifecycle = getCurrentLifecycle(application.key, tenantDomain);
+    var lifecycle = getCurrentLifecycle(applicationKey, tenantDomain);
     return getNextStage(lifecycle, currentLifeCycleStage);
     //return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Promote.TargetStage');
 
 };
-var getPreviousLifeCycleStage = function getPreviousLifeCycleStage(currentLifeCycleStage) {
-    var application = session.get("APP_INFO");
+var getPreviousLifeCycleStage = function getPreviousLifeCycleStage(currentLifeCycleStage,applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
 
-    var lifecycle = getCurrentLifecycle(application.key, tenantDomain);
+    var lifecycle = getCurrentLifecycle(applicationKey, tenantDomain);
     return getPreviousStage(lifecycle, currentLifeCycleStage);
     //return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Demote.TargetStage');
 };
 
 
-var getInitialLifeCycleStages = function getInitialLifeCycleStages() {
-    var stages = getStages();
+var getInitialLifeCycleStages = function getInitialLifeCycleStages(applicationKey) {
+    var stages = getStages(applicationKey);
     var initialStages = [];
 
     for (var i = 0; i < stages.length; i++) {
-        if (isInitialLifeCycleStage(stages[i])) {
+        if (isInitialLifeCycleStage(stages[i],applicationKey)) {
             initialStages.push(stages[i]);
         }
     }
     return initialStages;
 };
 
-var getAllLifeCycleStages = function getAllLifeCycleStages() {
-    return  getStages();
+var getAllLifeCycleStages = function getAllLifeCycleStages(applicationKey) {
+    return getStages(applicationKey);
 };
 
 
-var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage) {
-    var application = session.get("APP_INFO");
+var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage,applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
-    var lifecycleName = getCurrentLifecycle(application,tenantDomain);
+    var lifecycleName = getCurrentLifecycle(applicationKey,tenantDomain);
     return getFirstStage(lifecycleName)===lifeCycleStage;
     //return getPreviousLifeCycleStage(lifeCycleStage) === null;
 };
@@ -1023,10 +1020,8 @@ function getCurrentLifecycle(applicationKey,tenantDomain){
     };
 
     return lifecycle;*/
-    var currentLifecycle = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
-            .getCurrentAppVersionLifeCycle(applicationKey,tenantDomain);
-
-        var lifecycle = currentLifecycle[key];
+    var lifecycle = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+            .getCurrentLifecycle(applicationKey,tenantDomain);
         var object = {};
         object.lifecycleName = lifecycle.lifecycleName;
         object.displayName = lifecycle.displayName;
@@ -1217,9 +1212,9 @@ in
 
 };
 
-function getStages(){
+function getStages(applicationId){
     var tenantDomain = modManager.getTenantDomain();
-    var lifecycleName = getCurrentLifecycle(applicationKey,tenantDomain);
+    var lifecycleName = getCurrentLifecycle(applicationId,tenantDomain);
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getLifecycleStages(lifecycleName);
 }
