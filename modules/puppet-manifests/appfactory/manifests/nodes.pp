@@ -118,6 +118,9 @@ node basenode {
   $appserver_cartridge_alias_prefix      = "as"
   $appserver_cartridge_type_prefix       = "${dev_id}as"
 
+  $esb_cartridge_alias_prefix      = "esb"
+  $esb_cartridge_type_prefix       = "${dev_id}esb"
+
 #Dev
   $dev_cartridge_alias      = "asdevelopment"
   $dev_cartridge_type       = "${dev_id}asdevelopment"
