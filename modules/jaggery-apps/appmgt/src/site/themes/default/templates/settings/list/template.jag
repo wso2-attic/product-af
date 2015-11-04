@@ -28,11 +28,11 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
     var isBuildInfoAllowed = false; //(hasAppCreationPermission && memberOfApplication);
     var isDeleteAllowed = (hasAppCreationPermission && memberOfApplication);
     var iconUrl = jagg.getAbsoluteUrl("/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey);
-%>
+    %>
 
-<!-- start of setting global javascript variable values from jaggery side -->
-<script type="text/javascript" charset="utf-8">
-    var applicationName = "<%=applicationName%>";
+    <!-- start of setting global javascript variable values from jaggery side -->
+    <script type="text/javascript" charset="utf-8">
+        var applicationName = "<%=applicationName%>";
     var applicationKey = "<%=applicationKey%>";
     var hasAppCreationPermission = "<%=hasAppCreationPermission%>";
     var memberOfApplication = "<%=memberOfApplication%>";
@@ -79,7 +79,6 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         <a href="#deleteapp" aria-controls="deleteapp" role="tab" data-toggle="tab">Delete Application</a>
                     </li>
                 <% }%>
-
                  <!------------------------------------------------------------------------------------------------------------------------>
                     <li role="presentation" class="">
                         <a href="#changelifecycle" aria-controls="changelifecycle" role="tab" data-toggle="tab">Change Lifecycle</a>
@@ -161,8 +160,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         </div>
                     </div><!-- END OF deleteapp Tab pane -->
                 <% }%>
-            </div>
-            <!--------------------------------------------------------------------------------------------------------->
+                            <!--------------------------------------------------------------------------------------------------------->
             <div role="tabpanel" class="tab-pane" id="changelifecycle">
                         <div id="push"></div>
                         <div class="msg-issues">
@@ -193,6 +191,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         </div>
                     </div><!-- END OF changelifecycle Tab pane -->
             <!--------------------------------------------------------------------------------------------------------->
+            </div>
         </div><!-- END OF cloud-tab -->
     </div><!-- END OF row -->
 </div><!-- /.container -->

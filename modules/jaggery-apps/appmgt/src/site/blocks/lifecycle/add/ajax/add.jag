@@ -26,6 +26,7 @@ var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
 var stratosRestClient = Packages.org.wso2.carbon.appfactory.s4.integration.StratosRestClient;
 var commonUtil = Packages.org.wso2.carbon.appfactory.core.util.CommonUtil;
 var log = new Log();
+var modManager = jagg.module("manager");
 (function () {
     var mod, obj, result,
             action = request.getParameter("action"),
@@ -80,7 +81,7 @@ var log = new Log();
                 print(result);
                 return;
             }
-        	
+
             if ( currentStage != stageName){
                 // check whether current stage and the stage user saw is the same.
                 throw new Error("Unable to complete the governance operation. Application stage is already changed to : " +
@@ -183,7 +184,7 @@ var log = new Log();
             result.message = "You don't have permission to perform the life cycle operation";
             print(result);
         }
-	    
+
 
 	} else if ( action == "deployAndUpdatePromoteStatus"){
         var applicationId = request.getParameter("applicationKey");
@@ -217,7 +218,7 @@ var log = new Log();
             response.message = "You don't have permission to deploy an artifact";
             print(response);
         }
-    }  else if ( action == "invokeUpdateLifeCycleCheckList"){
+    }  else if ( action == "invokeUpdateLifeCycleCheckList") {
         mod = jagg.module("lifecycle");
         var applicationKey = request.getParameter("applicationKey");
         var stageName = request.getParameter("stageName");
@@ -225,72 +226,26 @@ var log = new Log();
         var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
         var tenantDomain = modManager.getTenantDomain();
 
-		var manager = jagg.module("manager");
-		var applicationType = manager.getApplicationType(applicationKey);
-		// var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
-		var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain);
+        var manager = jagg.module("manager");
+        var applicationType = manager.getApplicationType(applicationKey);
+        // var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+        var aspect = mod.getCurrentLifecycle(applicationKey, tenantDomain);
 
-		var nextStageName = mod.getNextLifeCycleStage(stageName,applicationKey);
+        var nextStageName = mod.getNextLifeCycleStage(stageName, applicationKey);
         var permissionStageToPromote = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStageName;
         var response = {};
-        if (modPermission.isUserAccessGranted(applicationKey, permissionStageToPromote)){
+        if (modPermission.isUserAccessGranted(applicationKey, permissionStageToPromote)) {
             try {
                 var checkListItemsValues = parse(request.getParameter("checkItems"));
                 var parameters = new Array();
                 var deployedArtifact = mod.invokeAspectWithParameter(path, aspect, "itemClick", checkListItemsValues,
-                        parameters,stageName,applicationKey);
+                        parameters, stageName, applicationKey);
                 response.error = false;
                 print(response);
             } catch (e) {
                 throw new Error(e.message);
             }
         }
-        //------------------------------------------------------------------------------------------------------------------
-        else if(action == "getAllLifecycles"){
-            var lifecycleMod = jagg.module("lifecycle");
-
-            try {
-                var lifecycleList = lifecycleMod.getAllLifecycles();
-                print(lifecycleList);
-            } catch (e) {
-                log.error(e.message);
-                throw e.message;
-            }
-        }else if(action == "changeLifecycle"){
-            var lifecycleMod = jagg.module("lifecycle");
-            try {
-                var applicationKey = request.getParameter("applicationKey");
-                var lifecycleName = request.getParameter("lifecycleName");
-                var tenantDomain = modManager.getTenantDomain();
-                var response = lifecycleMod.changeLifecycle(applicationKey,lifecycleName,tenantDomain);
-                print(response);
-            } catch (e) {
-                log.error(e.message);
-                throw e.message;
-            }
-        }else if(action == "getCurrentLifecycle"){
-            var lifecycleMod = jagg.module("lifecycle");
-            var manager = jagg.module("manager");
-            try {
-                var applicationKey = request.getParameter("applicationKey");
-                var applicationType = manager.getApplicationType(applicationKey);
-                var applicationTypeBean = manager.getApplicationTypeBean(applicationType);
-                var isUploadableAppType = applicationTypeBean.isUploadableAppType();
-                var tenantDomain = modManager.getTenantDomain();
-                var response = lifecycleMod.getCurrentLifecycle(applicationKey,tenantDomain);
-                print(response);
-            } catch (e) {
-                log.error(e.message);
-                throw e.message;
-            }
-        }
-        //------------------------------------------------------------------------------------------------------------------
-        else{
-            response.error = true;
-            response.message = "You don't have permission to update lifecycle checklist";
-            print(response);
-        }
-
     }else if ( action == "itemChecked"){
         print("true");
         var appKey = request.getParameter("applicationKey");
@@ -340,7 +295,7 @@ var log = new Log();
     } else if(action == "uploadNewVersionOfExistingApp"){
     	var applicationMod = jagg.module("application");
     	var lifecycleMod = jagg.module("lifecycle");
-    	
+
     	var existingVersion = request.getParameter("latestVersion");//existing latest version
     	var major=Number(existingVersion.split(".")[0]);
     	var newMajor=++major;
@@ -350,8 +305,8 @@ var log = new Log();
     	var userName = request.getParameter("userName");
     	var srcVersion = "trunk";
         var targetVersion = newVersion;
-       
-    	var file = request.getFile("uploaded_application");    	 
+
+    	var file = request.getFile("uploaded_application");
 
     	try {
 			var mod = jagg.module("manager");
@@ -364,9 +319,46 @@ var log = new Log();
 	    	log.error(e.message);
 		    throw e.message;
 	    }
-    	
-    	
-    }else {
+
+
+    } //------------------------------------------------------------------------------------------------------------------
+    else if(action == "getAllLifecycles"){
+        var lifecycleMod = jagg.module("lifecycle");
+
+        try {
+            var lifecycleList = lifecycleMod.getAllLifecycles();
+            print(lifecycleList);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }else if(action == "changeLifecycle"){
+        var lifecycleMod = jagg.module("lifecycle");
+        try {
+            var applicationKey = request.getParameter("applicationKey");
+            var lifecycleName = request.getParameter("lifecycleName");
+            var tenantDomain = modManager.getTenantDomain();
+            var response = lifecycleMod.changeLifecycle(applicationKey,lifecycleName,tenantDomain);
+            print(response);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }else if(action == "getCurrentLifecycle") {
+        var lifecycleMod = jagg.module("lifecycle");
+        var manager = jagg.module("manager");
+        try {
+            var applicationKey = request.getParameter("applicationKey");
+            var tenantDomain = modManager.getTenantDomain();
+            var response = lifecycleMod.getCurrentLifecycle(applicationKey, tenantDomain).lifecycleName;
+            print(response);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }
+//--------------------------------------------------------------
+    else {
 		log.error("No action specified");
 	}
 }());
