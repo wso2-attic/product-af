@@ -246,20 +246,20 @@ public class LifecycleManagementService {
 
                 OMElement nextStage = (OMElement) stateElements.next();
                 String stageName = nextStage.getAttributeValue(new QName(LC_ATTRIBUTE_ID));
+                if (!stageName.equals("Retired")) {
+                    StageBean stage = new StageBean();
+                    stage.setStageName(stageName);
+                    stages.add(stage);
 
-                StageBean stage = new StageBean();
-                stage.setStageName(stageName);
-                stages.add(stage);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Stage :" + stageName + " is successfully added to stage list of lifecycle :" + lifecycleName);
+                    }
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Stage :" + stageName + " is successfully added to stage list of lifecycle :"
-                            + lifecycleName);
+                    Iterator dataModelElement = nextStage.getChildrenWithName(new QName(LC_DATA_MODEL_ELEMENT));
+
+                    List<CheckListItemBean> checkListItems = getCheckListItems(dataModelElement, stageName);
+                    stage.setCheckListItems(checkListItems);
                 }
-
-                Iterator dataModelElement = nextStage.getChildrenWithName(new QName(LC_DATA_MODEL_ELEMENT));
-
-                List<CheckListItemBean> checkListItems = getCheckListItems(dataModelElement, stageName);
-                stage.setCheckListItems(checkListItems);
             }
         }
         return stages;
