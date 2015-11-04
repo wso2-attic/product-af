@@ -30,8 +30,8 @@ var rssFilter=jagg.module("rss-filter");
 var modManager = jagg.module("manager");
 var modLifecycle = jagg.module("lifecycle");
 
-var getStorageServerUrl= function(databaseServerInstanceName){
-	var stage = getStageFromRssInstanceName(databaseServerInstanceName);
+var getStorageServerUrl= function(databaseServerInstanceName, applicationKey){
+	var stage = getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
 	return getProperty(DEPLOYMENT_STAGES+'.'+stage+'.'+STORAGE_SERVER_URL);
 };
 var getRssInstanceName = function(databaseServerInstanceName){
@@ -40,7 +40,7 @@ var getRssInstanceName = function(databaseServerInstanceName){
 
 var getDatabaseUsersForRssInstance = function(applicationKey, rssInstanceName) {
 	var ws = require('ws');
-	var stage = getStageFromRssInstanceName(rssInstanceName);
+	var stage = getStageFromRssInstanceName(rssInstanceName, applicationKey);
 	var getDatabaseUsersService = new ws.WSRequest();
 	var options = new Array();
 	options.useSOAP = 1.2;
@@ -135,7 +135,7 @@ var createDatabaseUser = function (applicationKey, password, rssInstance, userna
 
 	var result="";
 	try {
-		var storageUrl = getStorageServerUrl(rssInstance);
+		var storageUrl = getStorageServerUrl(rssInstance, applicationKey);
 		modManager.setAuthHeaders(options);
 		createDatabaseUsersService.open(options, storageUrl+'RSSAdmin', false);
 		createDatabaseUsersService.send(payload);
@@ -261,7 +261,7 @@ var getAvailableUsersToAttachToDatabase = function (applicationKey, dbname, rssI
 	var result;
 	var users;
 	try {
-		getAvailableUsersToAttachToDatabaseService.open(options, getStorageServerUrl(rssInstance)+'RSSAdmin', false);
+		getAvailableUsersToAttachToDatabaseService.open(options, getStorageServerUrl(rssInstance, applicationKey)+'RSSAdmin', false);
 		getAvailableUsersToAttachToDatabaseService.send(payload);
 		result = getAvailableUsersToAttachToDatabaseService.responseE4X;
         users=rssFilter.getAllDatabaseUsers(applicationKey,stage,buildResponse(result,stage));
@@ -292,7 +292,7 @@ var deleteUser = function (applicationKey, name, rssInstanceName){
 
 	var result;
 	try {
-		deleteDatabaseUsersService.open(options, getStorageServerUrl(rssInstanceName)+'RSSAdmin', false);
+		deleteDatabaseUsersService.open(options, getStorageServerUrl(rssInstanceName, applicationKey)+'RSSAdmin', false);
 		deleteDatabaseUsersService.send(payload);
 		rssFilter.deleteDatabaseUser(name, applicationKey, stage);
 
