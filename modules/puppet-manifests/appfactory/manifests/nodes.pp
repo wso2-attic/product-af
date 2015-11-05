@@ -97,13 +97,13 @@ node basenode {
   $prod_app_id              = "${app_id_prefix}production"
 
 #ESBDev
-  $dev_app_id               = "${esb_app_id_prefix}development"
+  $esb_dev_app_id               = "${esb_app_id_prefix}development"
 
 #ESBTest
-  $test_app_id              = "${esb_app_id_prefix}testing"
+  $esb_test_app_id              = "${esb_app_id_prefix}testing"
 
 #ESBProd
-  $prod_app_id              = "${esb_app_id_prefix}production"
+  $esb_prod_app_id              = "${esb_app_id_prefix}production"
 
 #AF stratos cartridge information
   $deployment_policy    = "af-deployment"
