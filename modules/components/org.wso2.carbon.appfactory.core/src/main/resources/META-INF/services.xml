@@ -127,5 +127,13 @@
                 <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
             </operation>
 
+            <operation name="getLastStageByApplication">
+                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            </operation>
+
+            <operation name="updateAppVersionLifecycle">
+                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            </operation>
+
         </service>
 </serviceGroup>

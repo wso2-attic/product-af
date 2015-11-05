@@ -66,12 +66,8 @@ var log = new Log();
         var permissionModule = jagg.module("permission");
         var dependencies = {};
         var response = {};
-        var deploymentStages = modLifecycle.getStages();
-                //getProperties(DEPLOYMENT_STAGES);
         var applicationKey = request.getParameter("applicationKey");
-
         var allStages = modLifecycle.getStages(applicationKey);
-                //getProperties(DEPLOYMENT_STAGES);
         var allowedStages=getAllowedStages(allStages,PERMISSION_RESOURCES_READ_FOR_STAGE,applicationKey);
 
         var result={};

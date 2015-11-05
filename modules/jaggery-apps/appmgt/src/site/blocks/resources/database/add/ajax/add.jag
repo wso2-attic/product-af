@@ -120,7 +120,7 @@ var loggedInUser = jagg.getUser();
 		var dbResult = "";
 
 		var response = {};
-		var allStages = modLifecycle.getStages(applicationKey);
+		// var allStages = modLifecycle.getStages(applicationKey);
 		if((createInAll=="true") && jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
 			targetStage = allStages;
 		}

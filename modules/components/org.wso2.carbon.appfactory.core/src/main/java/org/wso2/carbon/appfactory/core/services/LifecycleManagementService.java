@@ -192,21 +192,17 @@ public class LifecycleManagementService {
     /**
      * Method to attach lifecycle to an application
      *
-     * @param appKey       application key
-     * @param tenantDomain tenant domain
+     * @param lifecycleName lifecycle name
      */
-/*    String lastStage = null;
-     public String getLastStageByApplication(String appKey,String tenantDomain) throws AppFactoryException{
-      List<StageBean> stages = getCurrentLifecycle(appKey, tenantDomain).getStages();
-
-
-                .get(0).getStageName();
-    }*/
+     public String getLastStageByApplication(String lifecycleName) throws AppFactoryException{
+       List<StageBean> stageBeans = lifecycleMap.get(lifecycleName).getStages();
+       return stageBeans.get(stageBeans.size() - 1).getStageName();
+    }
 
     /**
      * Method to attach lifecycle to an application
      *
-     * @param lifecycleName       lifecycle name
+     * @param lifecycleName lifecycle name
      */
     public String getFirstStageByLifecycle(String lifecycleName) throws AppFactoryException{
         return lifecycleMap.get(lifecycleName).getStages().get(0).getStageName();
@@ -427,5 +423,21 @@ public class LifecycleManagementService {
         }
         return null;
     }
+
+    /**
+     * Method to attach lifecycle to an application
+     *
+     * @param appKey       application key
+     * @param appVersion   application version
+     * @param tenantDomain tenant domain
+     */
+   /* public void updateAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
+            throws AppFactoryException {
+        LifecycleDAO.getInstance().updateAppVersionLifeCycle(appKey, tenantDomain, appVersion);
+        if (log.isDebugEnabled()) {
+            log.debug("Life cycle name of application :" + appKey + " with the app version" + appVersion
+                    + " of the tenant :" + tenantDomain + "is successfully updated.");
+        }
+    }*/
 
 }

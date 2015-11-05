@@ -68,7 +68,9 @@ public class LifecycleDAO {
             carbonContext.setTenantDomain(tenantDomain, true);
 
             UserRegistry userRegistry = GovernanceUtil.getUserRegistry();
-            String resourcePath = getAppRegistryPath(appKey);
+            String resourcePath =
+                    AppFactoryConstants.REGISTRY_APPLICATION_PATH + RegistryConstants.PATH_SEPARATOR + appKey
+                            + RegistryConstants.PATH_SEPARATOR + AppFactoryConstants.RXT_KEY_APPINFO;
 
             if (!userRegistry.resourceExists(resourcePath)) {
                 String errorMsg =
@@ -94,16 +96,6 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return artifact;
-    }
-
-    /**
-     * Method to construct the app info/app version registry path for a given application
-     *
-     * @param applicationId id of the application
-     */
-    private String getAppRegistryPath(String applicationId) {
-        return AppFactoryConstants.REGISTRY_APPLICATION_PATH + RegistryConstants.PATH_SEPARATOR + applicationId
-                + RegistryConstants.PATH_SEPARATOR + AppFactoryConstants.RXT_KEY_APPINFO;
     }
 
     /**
@@ -251,5 +243,106 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
+
+    /**
+     * Method to change life cycle name of a given version of an application
+     *
+     * @param appKey       name of application key
+     * @param appVersion   version of the application
+     * @param tenantDomain tenant domain
+     * @throws AppFactoryException
+     */
+    /*public void updateAppVersionLifeCycle(String appKey, String tenantDomain, String appVersion)
+            throws AppFactoryException {
+
+        PrivilegedCarbonContext.startTenantFlow();
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        carbonContext.setTenantDomain(tenantDomain, true);
+
+        GenericArtifact artifact = getAppVersionArtifact(appKey, appVersion, tenantDomain);
+        if (artifact == null) {
+            String errorMsg =
+                    "Unable to load application details of application :" + appKey + " with the application version"
+                            + appVersion + " of the tenant :" + tenantDomain;
+            log.error(errorMsg);
+            throw new AppFactoryException(errorMsg);
+        } else {
+            try {
+                String appInfoLifeCycleName = getArtifactLifecycleName(appKey, tenantDomain);
+                if (appInfoLifeCycleName == null || artifact.getLifecycleName().equals(appInfoLifeCycleName)) {
+                    String errorMsg = "Error while updating the artifact :" + appKey + " with the application version :"
+                            + appVersion + " of the tenant :" + tenantDomain;
+                    log.error(errorMsg);
+                    throw new AppFactoryException(errorMsg);
+                }
+
+                artifact.attachLifecycle(appInfoLifeCycleName);
+                artifact.setAttribute(RXT_APPINFO_LIFECYCLE_NAME, appInfoLifeCycleName);
+
+                UserRegistry userRegistry = GovernanceUtil.getUserRegistry();
+                GovernanceUtils.loadGovernanceArtifacts(userRegistry);
+                GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
+                        AppFactoryConstants.RXT_KEY_APPVERSION);
+                artifactManager.updateGenericArtifact(artifact);
+
+            } catch (RegistryException e) {
+                String errorMsg =
+                        "Error while updating the artifact :" + appKey + " with the application version :" + appVersion
+                                + " of the tenant :" + tenantDomain;
+                log.error(errorMsg, e);
+                throw new AppFactoryException(errorMsg);
+            } finally {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
+        }
+    }*/
+
+    /**
+     * Method to retrieve the application appVersion artifact  from registry
+     *
+     * @param appKey     id of the application
+     * @param appversion version artifact name of the application
+     * @return Generic artifact object of the given application id
+     * @throws AppFactoryException
+     */
+    /*public GenericArtifact getAppVersionArtifact(String appKey, String appversion, String tenantDomain)
+            throws AppFactoryException {
+        PrivilegedCarbonContext carbonContext;
+        GenericArtifact artifact = null;
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain, true);
+
+            UserRegistry userRegistry = GovernanceUtil.getUserRegistry();
+            String resourcePath =
+                    AppFactoryConstants.REGISTRY_APPLICATION_PATH + RegistryConstants.PATH_SEPARATOR + appKey
+                            + RegistryConstants.PATH_SEPARATOR + appversion;
+
+            if (!userRegistry.resourceExists(resourcePath)) {
+                String errorMsg =
+                        "Unable to load resources of application :" + appKey + " of the tenant :" + tenantDomain;
+                log.error(errorMsg);
+                throw new AppFactoryException(errorMsg);
+            }
+
+            Resource resource = userRegistry.get(resourcePath);
+            GovernanceUtils.loadGovernanceArtifacts(userRegistry);
+            GenericArtifactManager artifactManager;
+
+            artifactManager = new GenericArtifactManager(userRegistry, AppFactoryConstants.RXT_KEY_APPVERSION);
+            artifact = artifactManager.getGenericArtifact(resource.getUUID());
+
+        } catch (RegistryException e) {
+            String errorMsg =
+                    "Unable to load application information of the application :" + appKey + " of the tenant :"
+                            + tenantDomain;
+            log.error(errorMsg, e);
+            throw new AppFactoryException(errorMsg);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+        return artifact;
+    }*/
 
 }
