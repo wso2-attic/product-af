@@ -876,7 +876,9 @@ in
 };*/
 
 function getCheckListItemsOfAppVersion(applicationKey,version) {
-    return getCheckListItems(applicationKey,version);
+    var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
+    return getCheckItemsByPath(path);
+    //return getCheckListItems(applicationKey,version);
 };
 
 function getAllLifecycles(){
@@ -978,6 +980,11 @@ function getBuildableStage(applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
     var stage = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getBuildStageName(applicationKey,tenantDomain);
     return stage;
+};
+function isLifecycleChangeValid(applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+    var status = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').isLifecycleChangeValid(applicationKey,tenantDomain);
+    return status;
 };
 
 %>

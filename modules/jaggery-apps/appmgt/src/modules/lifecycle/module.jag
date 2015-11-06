@@ -104,6 +104,9 @@ jagg.module("lifecycle", {
     },
     getStages:function () {
         return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getStages.apply(this, arguments);
+    },
+    isLifecycleChangeValid:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").isLifecycleChangeValid.apply(this, arguments);
     }
 });
 %>

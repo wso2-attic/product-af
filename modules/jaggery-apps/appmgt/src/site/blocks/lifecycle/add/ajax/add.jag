@@ -363,6 +363,17 @@ var log = new Log();
             log.error(e.message);
             throw e.message;
         }
+    }else if(action == "showLifecycleChangeTab") {
+        var lifecycleMod = jagg.module("lifecycle");
+        var manager = jagg.module("manager");
+        try {
+            var applicationKey = request.getParameter("applicationKey");
+            var response = lifecycleMod.isLifecycleChangeValid(applicationKey);
+            print(response);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
     }
     else {
         log.error("No action specified");

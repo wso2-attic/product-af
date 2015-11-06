@@ -345,3 +345,20 @@ function getCurrentLifecycleDsiplayName() {
         document.getElementById('lifecycle-display-name').innerHTML = '';
     });
 }
+function showLifecycleChangeTab() {
+        jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
+            action: "showLifecycleChangeTab",
+            applicationKey: applicationKey
+        }, function (result) {
+            if(result = true){
+                $('#changelifecycle').show();
+            }esle
+            {
+                $('#changelifecycle').hide();
+            }
+
+        }, function (jqXHR, textStatus, errorThrown) {
+            
+        });
+
+}
