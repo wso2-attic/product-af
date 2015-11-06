@@ -127,8 +127,9 @@ var log = new Log();
                 deployAction = "rePromote";
             }
 
+            var tenantDomain = modManager.getTenantDomain();
             var isUploadableAppType = applicationTypeBean.isUploadableAppType();
-            var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain);
+            var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
 
             permissionMod = jagg.module("permission");
             var user = permissionMod.checkUserAuthenticated();
@@ -220,7 +221,8 @@ var log = new Log();
         var manager = jagg.module("manager");
         var applicationType = manager.getApplicationType(applicationKey);
         var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
-        var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain);
+        var tenantDomain = modManager.getTenantDomain();
+        var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
 
         var nextStageName = mod.getNextLifeCycleStage(stageName,applicationKey);
         var permissionStageToPromote = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStageName;
