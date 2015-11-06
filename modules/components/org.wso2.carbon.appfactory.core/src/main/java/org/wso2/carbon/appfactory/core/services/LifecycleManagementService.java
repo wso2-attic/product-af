@@ -440,4 +440,17 @@ public class LifecycleManagementService {
         }
     }*/
 
+    /**
+     * Method to check whether changing life cycle name for an application is valid or not
+     * (Lifecycle name can be changed only if no version is created by the user)
+     *
+     * @param appKey name of application key
+     * @return true/false
+     * @throws AppFactoryException
+     */
+    public boolean isLifecycleChangeValid(String appKey, String lifecycleName, String tenantDomain)
+            throws AppFactoryException {
+        return LifecycleDAO.getInstance().isAppLifecycleChangeValid(appKey,lifecycleName,tenantDomain);
+    }
+
 }

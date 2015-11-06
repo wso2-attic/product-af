@@ -131,7 +131,7 @@
                 <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
             </operation>
 
-            <operation name="updateAppVersionLifecycle">
+            <operation name="isLifecycleChangeValid">
                 <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
             </operation>
 
