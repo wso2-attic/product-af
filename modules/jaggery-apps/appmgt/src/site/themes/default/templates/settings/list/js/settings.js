@@ -358,7 +358,7 @@ function showLifecycleChangeTab() {
             }
 
         }, function (jqXHR, textStatus, errorThrown) {
-            
+
         });
 
 }
