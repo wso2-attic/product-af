@@ -79,11 +79,9 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         <a href="#deleteapp" aria-controls="deleteapp" role="tab" data-toggle="tab">Delete Application</a>
                     </li>
                 <% }%>
-                 <!------------------------------------------------------------------------------------------------------------------------>
                     <li role="presentation" class="">
                         <a href="#changelifecycle" aria-controls="changelifecycle" role="tab" data-toggle="tab">Change Lifecycle</a>
                     </li>
-                 <!------------------------------------------------------------------------------------------------------------------------>
             </ul>
 
             <!-- Tab panes -->
@@ -160,7 +158,6 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         </div>
                     </div><!-- END OF deleteapp Tab pane -->
                 <% }%>
-                            <!--------------------------------------------------------------------------------------------------------->
             <div role="tabpanel" class="tab-pane" id="changelifecycle">
                         <div id="push"></div>
                         <div class="msg-issues">
@@ -181,7 +178,7 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                             <div id="push"></div>
                         <div class="form-group">
                             <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="changeLifecycle"
-                            onclick="changeLifecycle();">
+                            onclick="LifecycleChangeConfirmation();">
                             <span class="fw-stack fw-lg btn-action-ico">
                                 <i class="fw fw-ring fw-stack-2x"></i>
                                 <i class="fw fw-delete fw-stack-1x"></i>
@@ -190,7 +187,6 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                             </button>
                         </div>
                     </div><!-- END OF changelifecycle Tab pane -->
-            <!--------------------------------------------------------------------------------------------------------->
             </div>
         </div><!-- END OF cloud-tab -->
     </div><!-- END OF row -->

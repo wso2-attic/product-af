@@ -20,7 +20,7 @@
 // page initialization
 $(document).ready(function () {
     var generalForm = $("#generalForm");
-    getCurrentLifecycle();
+    getCurrentLifecycleDsiplayName();
     if(isUpdateInfoAllowed && generalForm){
         $("#updateGeneralInfo").prop("disabled", true);
         $.validator.addMethod("validateInputForAlphanumericAndSpaces", validateInputForAlphanumericAndSpaces);
@@ -258,25 +258,26 @@ function preparePreview(){
         $inputImage.parent().remove();
     }
 }
-//----------------------------------------------------------------------------------------------------------------------
 /**
  * retrieve lifecycle names and their display names and display them
  */
 function getAllLifecycles() {
     jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: "getAllLifecycles"
+        action: "getRemainingLifecycles",
+        applicationKey:applicationKey
     }, function (result) {
-        var lifecycleNames = JSON.parse(result);
+        var lifecycleNames = result;
         var lifecycleList = $('#lifecycle-name');
-        var currentLifecycle = (document.getElementById('lifecycle-display-name').innerHTML) + '';
-        if(lifecycleNames != null) {
-            for (var i in lifecycleNames) {
-                if (((lifecycleNames[i].displayName) + '' != currentLifecycle) && (lifecycleNames[i].buildStageName + '' != '')) {
-                    lifecycleList.append($('<option></option>').val(lifecycleNames[i].lifecycleName).html(lifecycleNames[i].displayName))
-                }
+        var resultJson = JSON.parse(result);
+        //lifecycleList.cleanData();
+        var count =0 ;
+        if(resultJson != null) {
+            for (var i in resultJson) {
+                    lifecycleList.append($('<option></option>').val(resultJson[count].lifecycleName).html(resultJson[count].displayName))
+                    count++
             }
         }else{
-            $('#lifecycle-name').append($('<option></option>').val('').html('No Lifecycles Available'))
+            lifecycleList.append($('<option></option>').val('').html('No Lifecycles Available'))
         }
     }, function (jqXHR, textStatus, errorThrown) {
         $('#lifecycle-name').append($('<option></option>').val('').html('No Lifecycles Available'))
@@ -294,7 +295,6 @@ function LifecycleChangeConfirmation() {
                 content:'Are you sure you want to change the lifecycle?',
                 okCallback:changeLifecycle,
                 cancelCallback:function(){
-                    //$("#changeLifecycle").prop("disabled", false);
                 }}
         );
     } else {
@@ -334,13 +334,12 @@ function changeLifecycle() {
 /**
  * retrieve the lifecycle of the application
  */
-function getCurrentLifecycle() {
+function getCurrentLifecycleDsiplayName() {
     jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: "getCurrentLifecycle",
+        action: "getCurrentLifecycleDsiplayName",
         applicationKey: applicationKey
     }, function (result) {
-        var lifecycleName = JSON.parse(result);
-        document.getElementById('lifecycle-display-name').innerHTML = lifecycleName.displayName;
+        document.getElementById('lifecycle-display-name').innerHTML = result;
 
     }, function (jqXHR, textStatus, errorThrown) {
         document.getElementById('lifecycle-display-name').innerHTML = '';

@@ -333,10 +333,13 @@ function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
 
         for (var i = 0; i < appVersions[appVersionCounter].versions.length; i++) {
 
-            var path = '/_system/governance' + '/repository/applications/' + applicationKey +
-                    '/' + appVersions[appVersionCounter].versions[i].version;
-
-            var lifeCycleCheckListItems = getCheckItemsByPath(path);
+            //var path = '/_system/governance' + '/repository/applications/' + applicationKey +
+                   // '/' + appVersions[appVersionCounter].versions[i].version;
+            var tenantDomain = modManager.getTenantDomain();
+            var stage =  server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getStage(applicationKey,version);
+            var lifecycle = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
+            var lifeCycleCheckListItems = getCheckListItems(lifecycle,stage);
+                    //getCheckItemsByPath(path);
             appVersions[appVersionCounter].versions[i].lifeCycleCheckListItems = lifeCycleCheckListItems;
             //skip the retired versions
             if (stageVersions[appVersions[appVersionCounter].versions[i].stage]) {
@@ -739,7 +742,7 @@ var getNextLifeCycleStage = function getNextLifeCycleStage(currentLifeCycleStage
 var getPreviousLifeCycleStage = function getPreviousLifeCycleStage(currentLifeCycleStage,applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
 
-    var lifecycle = getCurrentLifecycle(applicationKey, tenantDomain).getPreviousStage;
+    var lifecycle = getCurrentLifecycle(applicationKey, tenantDomain).lifecycleName;
     return getPreviousStage(lifecycle, currentLifeCycleStage);
     //return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Demote.TargetStage');
 };
@@ -754,7 +757,7 @@ var getInitialLifeCycleStages = function getInitialLifeCycleStages(applicationKe
             initialStages.push(stages[i]);
         }
     }
-    return initialStages;
+    return initialStages; // returns string array with one element
 };
 
 var getAllLifeCycleStages = function getAllLifeCycleStages(applicationKey) {
@@ -765,7 +768,7 @@ var getAllLifeCycleStages = function getAllLifeCycleStages(applicationKey) {
 var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage,applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
     var lifecycleName = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
-    return getFirstStage(lifecycleName)===lifeCycleStage;
+    return getFirstStage(lifecycleName) == lifeCycleStage;
     //return getPreviousLifeCycleStage(lifeCycleStage) === null;
 };
 
@@ -884,60 +887,7 @@ function getCheckListItemsOfAppVersion(applicationKey,version) {
     return getCheckListItems(lifecycle,stage);
 };
 
-//----------------------------------------------------------------------------------------------------------------------
 function getAllLifecycles(){
-    /*var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getAllLifeCycles";
-    modManager.setAuthHeaders(options);
-    var payload = '<getAllLifeCycles  xmlns="http://services.core.appfactory.carbon.wso2.org"></getAllLifeCycles>';
-    var displayName;
-    var lifecycleName;
-    var devStageName;
-    var result;
-    var lifecycles = new Array();
-    try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint + ");
-        }
-    } catch (e) {
-        log.error("Error while loadng lifecycles from the registry");
-        log.error(e);
-        throw e;
-    }
-    result=request.responseE4X;
-
-    var ns = new Namespace("http://services.core.appfactory.carbon.wso2.org");
-    var response=result.ns::["return"];
-    var count = 0;
-    for each(var element
-in
-    response
-)
-    {
-        var entry = response[count];
-        var ax = new Namespace("http://bean.management.lifecycle.appfactory.carbon.wso2.org/xsd");
-        displayName=entry.ax::["displayName"].text();
-        lifecycleName=entry.ax::["lifecycleName"].text();
-        devStageName=entry.ax::["devStageName"].text();
-
-        lifecycles[count] = {
-            lifecycleName : lifecycleName,
-            displayName : displayName,
-            devStageName : devStageName
-        };
-        count++;
-
-    }
-
-    return lifecycles;*/
-
     var lifecycles = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getAllLifeCycles();
     var lifecycleNames = [];
     for (var key in lifecycles) {
@@ -952,222 +902,48 @@ in
 };
 
 function changeLifecycle(applicationKey,lifecycleName,tenantDomain){
-   /* var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:setAppLifecycle";
-    modManager.setAuthHeaders(options);
-    var payload = '<setAppLifecycle xmlns="http://services.core.appfactory.carbon.wso2.org">'
-            +'<appKey>'+applicationKey+'</appKey>'
-            +'<lifecycleName>'+lifecycleName+'</lifecycleName>'
-            +'<tenantDomain>'+tenantDomain+'</tenantDomain>'
-            +'</setAppLifecycle>';
-    var result;
-    try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint);
-        }
-    } catch (e) {
-        log.error("Error while attaching lifecycle to the application");
-        log.error(e);
-        throw e;
-    }*/
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .setAppLifecycle(applicationKey, lifecycleName, tenantDomain);
 
 };
 
 function getCurrentLifecycle(applicationKey,tenantDomain){
-    /*var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getCurrentAppVersionLifeCycle";
-    modManager.setAuthHeaders(options);
-    var payload = '<getCurrentAppVersionLifeCycle xmlns="http://services.core.appfactory.carbon.wso2.org">'
-            +'<appKey>'+applicationKey+'</appKey>'
-            + '<tenantDomain>'+tenantDomain+'</tenantDomain>'
-            +'</getCurrentAppVersionLifeCycle>';
-    var result;
-    try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint);
-        }
-    } catch (e) {
-        log.error("Error while attaching lifecycle to the application");
-        log.error(e);
-        throw e;
-    }
-    result=request.responseE4X;
-    var ns = new Namespace("http://services.core.appfactory.carbon.wso2.org");
-    var response=result.ns::["return"];
-    var entry = response[0];
-    var ax = new Namespace("http://bean.management.lifecycle.appfactory.carbon.wso2.org/xsd");
-    displayName=entry.ax::["displayName"].text();
-    lifecycleName=entry.ax::["lifecycleName"].text();
-
-    var lifecycle = {
-        lifecycleName : lifecycleName,
-        displayName : displayName
-    };
-
-    return lifecycle;*/
     var lifecycle = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getCurrentLifecycle(applicationKey,tenantDomain);
         var object = {};
         object.lifecycleName = lifecycle.lifecycleName;
         object.displayName = lifecycle.displayName;
-
+        object.buildStageName = lifecycle.buildStageName;
     return object;
 };
 
 function getNextStage(lifecycleName,currentStage){
-   /* var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getNextStage";
-    modManager.setAuthHeaders(options);
-    var payload = '<getNextStage xmlns="http://services.core.appfactory.carbon.wso2.org">'
-            +'<lifecycleName>'+lifecycleName+'</lifecycleName>';
-    + '<currentStage>' + currentStage + '</currentStage>';
-    +'</getNextStage>';
-    var result;
     try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint);
-        }
+        return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+                .getNextStage(lifecycleName, currentStage).stageName;
     } catch (e) {
-        log.error("Error while retrieving next stage of the lifecycle");
-        log.error(e);
-        throw e;
+        log.info("There is no before stage");
     }
-    result=request.responseE4X;
-    var ns = new Namespace("http://services.core.appfactory.carbon.wso2.org");
-    var response=result.ns::["return"];*/
-try {
-    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
-            .getNextStage(lifecycleName, currentStage).stageName;
-}catch(e){
-    log.info("There is no before stage");
-}
     return "";
 };
 
 function getPreviousStage(lifecycleName,currentStage){
-    /*var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getPreviousStage";
-    modManager.setAuthHeaders(options);
-    var payload = '<getPreviousStage xmlns="http://services.core.appfactory.carbon.wso2.org">'
-            +'<lifecycleName>'+lifecycleName+'</lifecycleName>';
-    + '<currentStage>' + currentStage + '</currentStage>';
-    +'</getPreviousStage>';
-    var result;
     try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint);
-        }
+        return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+                .getPreviousStage(lifecycleName, currentStage).stageName;
     } catch (e) {
-        log.error("Error while retrieving previous stage of the lifecycle");
-        log.error(e);
-        throw e;
+        log.info("There is no previous stage");
     }
-    result=request.responseE4X;
-    var ns = new Namespace("http://services.core.appfactory.carbon.wso2.org");
-    var response=result.ns::["return"];*/
-try{
-    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
-            .getPreviousStage(lifecycleName, currentStage).stageName;
-}catch(e){
-    log.info("There is no previous stage");
-}
     return "";
 };
 
 /*function changeAppVersionLifecycle(applicationKey,appVersion,tenantDomain){
-    var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:updateAppVersionLifecycle";
-    modManager.setAuthHeaders(options);
-    var payload = '<updateAppVersionLifecycle xmlns="http://services.core.appfactory.carbon.wso2.org">'
-            +'<appKey>'+applicationKey+'</appKey>'
-            +'<appVersion>'+appVersion+'</appVersion>'
-            +'<tenantDomain>'+tenantDomain+'</tenantDomain>'
-            +'</updateAppVersionLifecycle>';
-    var result;
-    try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint);
-        }
-    } catch (e) {
-        log.error("Error while changing lifecycle to the application version");
-        log.error(e);
-        throw e;
-    }
-    result=request.responseE4X;
-
-    return result;
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .updateAppVersionLifecycle(applicationKey, appVersion,tenantDomain);
 }*/
 
 
 function getFirstStage(lifecycleName){
-    /*var ws = require('ws');
-    var request = new ws.WSRequest();
-    var options = new Array();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getFirstStageByApplication";
-    modManager.setAuthHeaders(options);
-    var payload = '<getFirstStageByLifecycle xmlns="http://services.core.appfactory.carbon.wso2.org">'
-            +'<lifecycleName>'+lifecycleName+'</lifecycleName>'
-            +'</getFirstStageByLifecycle>';
-    var result;
-    try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint);
-        }
-    } catch (e) {
-        log.error("Error while attaching lifecycle to the application");
-        log.error(e);
-        throw e;
-    }
-    result=request.responseE4X;
-    var ns = new Namespace("http://services.core.appfactory.carbon.wso2.org");
-    var response=result.ns::["return"];
-    var entry = response[0];
-    var ax = new Namespace("http://bean.management.lifecycle.appfactory.carbon.wso2.org/xsd");
-   return entry.ax::["stageName"].text();*/
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getFirstStageByLifecycle(lifecycleName);
 };
@@ -1175,47 +951,6 @@ function getFirstStage(lifecycleName){
 
 
 function getCheckListItems(lifecycleName,currentStage){
-    /*var ws = require('ws');
-    var request = new ws.WSRequest();
-    options.useSOAP = 1.1;
-    options.timeout = 1000000;
-    options.action = "urn:getStageCheckListItems";
-    modManager.setAuthHeaders(options);
-    var payload = '<getStageCheckListItems  xmlns="http://services.core.appfactory.carbon.wso2.org">' +
-                 +'<lifecycleName>'+lifecycleName+'</lifecycleName>'
-                 +'<stage>'+currentStage+'</stage>'
-                 +'</getStageCheckListItems>';
-    try {
-        var endPoint = getProperty(APPFACTORY_SERVER_URL) + "LifecycleManagementService";
-        request.open(options,endPoint, false);
-        request.send(payload);
-        if (log.isDebugEnabled()) {
-            log.debug("Invoking service endpoint:" + endPoint + ");
-        }
-    } catch (e) {
-        log.error("Error while loading checklist items of the lifecycle");
-        log.error(e);
-        throw e;
-    }
-    var result=request.responseE4X;
-
-    var ns = new Namespace("http://services.core.appfactory.carbon.wso2.org");
-    var response=result.ns::["return"];
-    var count = 0;
-    var checklistItems = new Array();
-    for each(var element
-in
-    response
-)
-    {
-        var entry = response[count];
-        var ax = new Namespace("http://bean.management.lifecycle.appfactory.carbon.wso2.org/xsd");
-        checklistItems[count]=entry.ax::["checkItemName"].text();
-        count++;
-
-    }
-
-    return checklistItems;*/
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getCheckListItemsByStage(lifecycleName,currentStage);
 
@@ -1226,6 +961,23 @@ function getStages(applicationId){
     var lifecycle = getCurrentLifecycle(applicationId,tenantDomain);
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getLifecycleStages(lifecycle.lifecycleName);
+}
+
+function getRemainingLifecycles(applicationKey){
+    var lifecycles = getAllLifecycles();
+    var lifecycleArr = [];
+    var tenantDomain = modManager.getTenantDomain();
+    for (var key in lifecycles) {
+        var lifecycle = lifecycles[key];
+        var object = {};
+        object.lifecycleName = lifecycle.lifecycleName;
+        object.displayName = lifecycle.displayName;
+        object.buildStageName = lifecycle.buildStageName;
+        if (lifecycle.buildStageName != null && lifecycle.lifecycleName != getCurrentLifecycle(applicationKey, tenantDomain).lifecycleName) {
+            lifecycleArr.push(object);
+        }
+    }
+    return lifecycleArr;
 }
 %>
 

@@ -93,9 +93,8 @@ jagg.module("lifecycle", {
     getCheckListItemsOfAppVersion:function () {
         return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getCheckListItemsOfAppVersion.apply(this, arguments);
     },
-    //-----------------------------------------------------------------------------------------------------------------------------
-    getAllLifecycles:function () {
-        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getAllLifecycles.apply(this, arguments);
+    getRemainingLifecycles:function () {
+        return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").getRemainingLifecycles.apply(this, arguments);
     },
     changeLifecycle:function () {
         return jagg.require(jagg.getModulesDir() + "lifecycle/lifecycle.jag").changeLifecycle.apply(this, arguments);
