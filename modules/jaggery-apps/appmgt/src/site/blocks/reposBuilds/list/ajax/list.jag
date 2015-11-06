@@ -247,7 +247,7 @@ var log=new Log("blocks/reposBuilds/list/ajax/list.jag");
             if(x!=null){
                 var appInfo=parse(x);
             }
-            var buildableStages=parse(modApp.getBuildableStages());
+            var buildableStages=parse(modApp.getBuildableStages(applicationKey));
             var appDetails={};
             for(var appIndex in appInfo ){
                 var elementAppInfo=appInfo[appIndex];

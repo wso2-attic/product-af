@@ -961,7 +961,7 @@ function getStages(applicationId){
     var lifecycle = getCurrentLifecycle(applicationId,tenantDomain);
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getLifecycleStages(lifecycle.lifecycleName);
-}
+};
 
 function getRemainingLifecycles(applicationKey){
     var lifecycles = getAllLifecycles();
@@ -978,7 +978,13 @@ function getRemainingLifecycles(applicationKey){
         }
     }
     return lifecycleArr;
-}
+};
+function getBuildableStage(applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+    var stage = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getBuildStageName(applicationKey,tenantDomain);
+    return stage;
+};
+
 %>
 
 

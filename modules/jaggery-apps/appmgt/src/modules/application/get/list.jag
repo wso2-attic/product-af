@@ -848,31 +848,10 @@
     ;
 
 //chekced
-    var getBuildableStages = function()
+    var getBuildableStages = function(applicationKey)
     {
-        jagg.module("permission").checkUserAuthenticated();
-        var stages = modLifecycle.getStages();
-                //getProperties(DEPLOYMENT_STAGES);
-        if (stages == null) {
-            return null;
-        }
-
         var stageArray = new Array();
-
-        var counter = 0;
-        try {
-            while (stages[counter] != null) {
-                if (getProperty('ApplicationDeployment.DeploymentStage.' + stages[counter] + '.Buildable') == "true") {
-                    stageArray[stageArray.length] = stages[counter];
-                }
-                counter++;
-            }
-        } catch (e) {
-            log.error("Error while getting Buildable stages from appfactory.xml");
-            log.error(e);
-            throw e;
-        }
-
+        stageArray[0] = modLifecycle.getBuildableStage(applicationKey);
         return stringify(stageArray);
     }
     ;

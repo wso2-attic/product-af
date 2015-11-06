@@ -61,7 +61,7 @@ jagg.block("reposBuilds/list", {
                 if (x != null) {
                     var appInfo = parse(x);
                 }
-                buildableStages = parse(modApp.getBuildableStages());
+                buildableStages = parse(modApp.getBuildableStages(applicationKey));
                 for (var appIndex in appInfo) {
                     var elementAppInfo = appInfo[appIndex];
 
