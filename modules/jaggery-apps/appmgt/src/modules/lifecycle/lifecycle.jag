@@ -335,10 +335,7 @@ function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
 
             //var path = '/_system/governance' + '/repository/applications/' + applicationKey +
                    // '/' + appVersions[appVersionCounter].versions[i].version;
-            var tenantDomain = modManager.getTenantDomain();
-            var stage =  server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getStage(applicationKey,version);
-            var lifecycle = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
-            var lifeCycleCheckListItems = getCheckListItems(lifecycle,stage);
+            var lifeCycleCheckListItems = getCheckListItems(applicationKey,appVersions[appVersionCounter].versions[i].version);
                     //getCheckItemsByPath(path);
             appVersions[appVersionCounter].versions[i].lifeCycleCheckListItems = lifeCycleCheckListItems;
             //skip the retired versions
@@ -879,12 +876,7 @@ in
 };*/
 
 function getCheckListItemsOfAppVersion(applicationKey,version) {
-    /*var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
-    return getCheckItemsByPath(path);*/
-    var tenantDomain = modManager.getTenantDomain();
-    var stage =  server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getStage(applicationKey,version);
-    var lifecycle = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
-    return getCheckListItems(lifecycle,stage);
+    return getCheckListItems(applicationKey,version);
 };
 
 function getAllLifecycles(){
@@ -950,9 +942,12 @@ function getFirstStage(lifecycleName){
 
 
 
-function getCheckListItems(lifecycleName,currentStage){
+function getCheckListItems(applicationKey,version){
+    var tenantDomain = modManager.getTenantDomain();
+    var stage =  server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getStage(applicationKey,version);
+    var lifecycle = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
-            .getCheckListItemsByStage(lifecycleName,currentStage);
+            .getCheckListItemsByStage(lifecycle,stage);
 
 };
 
