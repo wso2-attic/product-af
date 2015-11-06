@@ -160,10 +160,11 @@ public class LifecycleDAO {
      * (Lifecycle name can be changed only if no version is created by the user)
      *
      * @param appKey name of application key
+     * @param tenantDomain tenant domain
      * @return true/false
      * @throws AppFactoryException
      */
-    public boolean isAppLifecycleChangeValid(String appKey, String lifecycleName, String tenantDomain)
+    public boolean isAppLifecycleChangeValid(String appKey, String tenantDomain)
             throws AppFactoryException {
         boolean status = false;
         ArrayList<Version> versionNames;
@@ -179,23 +180,12 @@ public class LifecycleDAO {
             if (versionNames.size() == 1) {
                 if (AppFactoryConstants.TRUNK.equals(versionNames.get(0).getVersion())
                         || AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION.equals(versionNames.get(0).getVersion())) {
-                    //Check whether the default application lifecycle name and the
-                    // new lifecycle selected by the user are same
-                    GenericArtifact artifact = getAppInfoArtifact(appKey, tenantDomain);
-                    if (!artifact.getLifecycleName().equals(lifecycleName)) {
                         status = true;
-                    }
                 }
             }
         } catch (AppFactoryException e) {
             String errorMsg =
                     "Error while loading application versions of the application :" + appKey + " of the tenant :"
-                            + tenantDomain;
-            log.error(errorMsg, e);
-            throw new AppFactoryException(errorMsg);
-        } catch (GovernanceException e) {
-            String errorMsg =
-                    "Error while loading application version details of the application :" + appKey + " of the tenant :"
                             + tenantDomain;
             log.error(errorMsg, e);
             throw new AppFactoryException(errorMsg);

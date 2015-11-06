@@ -308,8 +308,7 @@ public class LifecycleManagementService {
         try {
             GenericArtifact appInfoArtifact = LifecycleDAO.getInstance().getAppInfoArtifact(appKey, tenantDomain);
 
-            if (appInfoArtifact != null && LifecycleDAO.getInstance().isAppLifecycleChangeValid(appKey, lifecycleName,
-                    tenantDomain)) {
+            if (appInfoArtifact != null && LifecycleDAO.getInstance().isAppLifecycleChangeValid(appKey, tenantDomain)) {
                 if (appInfoArtifact.getLifecycleName() != null && appInfoArtifact.getLifecycleName()
                         .equals(lifecycleName)) {
                     String msg = "Unable to update the lifecycle of the application :" + appKey + " of the tenant :"
@@ -445,12 +444,13 @@ public class LifecycleManagementService {
      * (Lifecycle name can be changed only if no version is created by the user)
      *
      * @param appKey name of application key
+     * @param tenantDomain tenant domain
      * @return true/false
      * @throws AppFactoryException
      */
-    public boolean isLifecycleChangeValid(String appKey, String lifecycleName, String tenantDomain)
+    public boolean isLifecycleChangeValid(String appKey, String tenantDomain)
             throws AppFactoryException {
-        return LifecycleDAO.getInstance().isAppLifecycleChangeValid(appKey,lifecycleName,tenantDomain);
+        return LifecycleDAO.getInstance().isAppLifecycleChangeValid(appKey,tenantDomain);
     }
 
 }
