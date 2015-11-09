@@ -135,5 +135,9 @@
                 <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
             </operation>
 
+            <operation name="getLastStageByLifecycle">
+                <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+            </operation>
+            
         </service>
 </serviceGroup>

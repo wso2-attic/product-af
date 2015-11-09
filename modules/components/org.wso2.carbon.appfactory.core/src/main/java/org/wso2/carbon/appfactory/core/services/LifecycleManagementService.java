@@ -194,9 +194,20 @@ public class LifecycleManagementService {
      *
      * @param lifecycleName lifecycle name
      */
-     public String getLastStageByApplication(String lifecycleName) throws AppFactoryException{
+     public String getLastStageByLifecycle(String lifecycleName) throws AppFactoryException{
        List<StageBean> stageBeans = lifecycleMap.get(lifecycleName).getStages();
        return stageBeans.get(stageBeans.size() - 1).getStageName();
+    }
+
+    /**
+     * Method to attach lifecycle to an application
+     *
+     * @param appKey       application key
+     * @param tenantDomain tenant domain
+     */
+    public String getLastStageByApplication(String appKey,String tenantDomain) throws AppFactoryException{
+        List<StageBean> stageBeans = getCurrentLifecycle(appKey, tenantDomain).getStages();
+        return stageBeans.get(stageBeans.size() - 1).getStageName();
     }
 
     /**
