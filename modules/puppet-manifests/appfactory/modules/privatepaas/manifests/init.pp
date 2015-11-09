@@ -72,7 +72,13 @@ class privatepaas (
                   "repository/conf/kubernetes/application_test.json",
                   "repository/conf/kubernetes/application_prod.json",
                   "repository/conf/kubernetes/executor.sh",
-                  "repository/conf/kubernetes/deployment.log"
+                  "repository/conf/kubernetes/deployment.log",
+                  "repository/conf/kubernetes/wso2esb_dev.json.erb",
+                  "repository/conf/kubernetes/wso2esb_test.json.erb",
+                  "repository/conf/kubernetes/wso2esb_prod.json.erb",
+                  "repository/conf/kubernetes/application_esb_dev.json.erb",
+                  "repository/conf/kubernetes/application_esb_test.json.erb",
+                  "repository/conf/kubernetes/application_esb_prod.json.erb"
   ]
 
 
