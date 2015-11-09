@@ -317,7 +317,7 @@ public class LifecycleManagementService {
                     throw new AppFactoryException(msg);
                 } else {
                     LifecycleDAO.getInstance().setAppInfoLifecycleName(appKey, lifecycleName, tenantDomain);
-                    // dao.updateAppVersionList(appKey, tenantDomain);
+                    LifecycleDAO.getInstance().updateAppVersionList(appKey, tenantDomain);
                     if (log.isDebugEnabled()) {
                         log.debug("Lifecycle :" + lifecycleName + " for the application :" + appKey + " of the tenant :"
                                 + tenantDomain + " is successfully added.");

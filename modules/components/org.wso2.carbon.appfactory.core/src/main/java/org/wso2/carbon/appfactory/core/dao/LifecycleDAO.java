@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.util.GovernanceUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -42,13 +43,13 @@ import java.util.ArrayList;
 public class LifecycleDAO {
 
     private static final String RXT_APPINFO_LIFECYCLE_NAME = "serviceLifecycle_lifecycleName";
-
-    Log log = LogFactory.getLog(LifecycleDAO.class);
     private static LifecycleDAO lifecycleDAO = new LifecycleDAO();
+    Log log = LogFactory.getLog(LifecycleDAO.class);
 
-    private LifecycleDAO(){}
+    private LifecycleDAO() {
+    }
 
-    public static LifecycleDAO getInstance(){
+    public static LifecycleDAO getInstance() {
         return lifecycleDAO;
     }
 
@@ -159,13 +160,12 @@ public class LifecycleDAO {
      * Method to check whether changing life cycle name for an application is valid or not
      * (Lifecycle name can be changed only if no version is created by the user)
      *
-     * @param appKey name of application key
+     * @param appKey       name of application key
      * @param tenantDomain tenant domain
      * @return true/false
      * @throws AppFactoryException
      */
-    public boolean isAppLifecycleChangeValid(String appKey, String tenantDomain)
-            throws AppFactoryException {
+    public boolean isAppLifecycleChangeValid(String appKey, String tenantDomain) throws AppFactoryException {
         boolean status = false;
         ArrayList<Version> versionNames;
         PrivilegedCarbonContext carbonContext;
@@ -180,7 +180,7 @@ public class LifecycleDAO {
             if (versionNames.size() == 1) {
                 if (AppFactoryConstants.TRUNK.equals(versionNames.get(0).getVersion())
                         || AppFactoryConstants.INITIAL_UPLOADED_APP_VERSION.equals(versionNames.get(0).getVersion())) {
-                        status = true;
+                    status = true;
                 }
             }
         } catch (AppFactoryException e) {
@@ -235,21 +235,45 @@ public class LifecycleDAO {
     }
 
     /**
+     * Update each version of the application with the lifecycle name in appInfo artifact
+     *
+     * @param appKey       name of application key
+     * @param tenantDomain tenant domain
+     * @throws
+     */
+    public void updateAppVersionList(String appKey, String tenantDomain) throws AppFactoryException {
+        PrivilegedCarbonContext carbonContext;
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain, true);
+
+            ArrayList<Version> versionNames = JDBCAppVersionDAO.getInstance().getAllVersionsOfApplication(appKey);
+            if (versionNames != null) {
+                for (Version versionName : versionNames) {
+                    updateAppVersionLifeCycle(appKey, tenantDomain, versionName.getVersion());
+                }
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    /**
      * Method to change life cycle name of a given version of an application
      *
      * @param appKey       name of application key
      * @param appVersion   version of the application
      * @param tenantDomain tenant domain
-     * @throws AppFactoryException
+     * @throws
      */
-    /*public void updateAppVersionLifeCycle(String appKey, String tenantDomain, String appVersion)
+    public void updateAppVersionLifeCycle(String appKey, String tenantDomain, String appVersion)
             throws AppFactoryException {
-
         PrivilegedCarbonContext.startTenantFlow();
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         carbonContext.setTenantDomain(tenantDomain, true);
 
-        GenericArtifact artifact = getAppVersionArtifact(appKey, appVersion, tenantDomain);
+        GenericArtifact artifact = getAppVersionArtifact(appKey, tenantDomain, appVersion);
         if (artifact == null) {
             String errorMsg =
                     "Unable to load application details of application :" + appKey + " with the application version"
@@ -274,6 +298,7 @@ public class LifecycleDAO {
                 GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry,
                         AppFactoryConstants.RXT_KEY_APPVERSION);
                 artifactManager.updateGenericArtifact(artifact);
+                JDBCApplicationCacheManager.getApplicationArtifactCache().remove(appKey);
 
             } catch (RegistryException e) {
                 String errorMsg =
@@ -285,17 +310,16 @@ public class LifecycleDAO {
                 PrivilegedCarbonContext.endTenantFlow();
             }
         }
-    }*/
+    }
 
     /**
-     * Method to retrieve the application appVersion artifact  from registry
+     * Method to retrieve the appinfo artifact  from registry
      *
-     * @param appKey     id of the application
-     * @param appversion version artifact name of the application
+     * @param appKey id of the application
      * @return Generic artifact object of the given application id
      * @throws AppFactoryException
      */
-    /*public GenericArtifact getAppVersionArtifact(String appKey, String appversion, String tenantDomain)
+    public GenericArtifact getAppVersionArtifact(String appKey, String tenantDomain, String version)
             throws AppFactoryException {
         PrivilegedCarbonContext carbonContext;
         GenericArtifact artifact = null;
@@ -307,7 +331,7 @@ public class LifecycleDAO {
             UserRegistry userRegistry = GovernanceUtil.getUserRegistry();
             String resourcePath =
                     AppFactoryConstants.REGISTRY_APPLICATION_PATH + RegistryConstants.PATH_SEPARATOR + appKey
-                            + RegistryConstants.PATH_SEPARATOR + appversion;
+                            + RegistryConstants.PATH_SEPARATOR + version;
 
             if (!userRegistry.resourceExists(resourcePath)) {
                 String errorMsg =
@@ -333,6 +357,6 @@ public class LifecycleDAO {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return artifact;
-    }*/
+    }
 
 }
