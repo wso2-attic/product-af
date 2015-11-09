@@ -78,7 +78,7 @@ class privatepaas (
                   "repository/conf/kubernetes/wso2esb_prod.json.erb",
                   "repository/conf/kubernetes/application_esb_dev.json.erb",
                   "repository/conf/kubernetes/application_esb_test.json.erb",
-                  "repository/conf/kubernetes/application_esb_prod.json.erb",
+                  "repository/conf/kubernetes/application_esb_prod.json.erb"
   ]
 
 
