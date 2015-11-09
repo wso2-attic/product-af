@@ -424,14 +424,4 @@ $(document).ready(function () {
             jagg.message({content: 'Could not retrieve lifecycle history.', type: 'error', id: 'history'});
         });
     }
-
-    function loadStageTabs(){
-        jagg.post("../blocks/lifecycle/get/ajax/get.jag", {
-            action: "getLifeCycleHistoryForApplication",
-            applicationKey: applicationKey,
-        }, function (result) {
-
-        }, function (jqXHR, textStatus, errorThrown) {
-        });
-    }
 });

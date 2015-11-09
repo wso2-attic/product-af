@@ -422,7 +422,6 @@
           -->
 
         <DeploymentStage name="Development">
-            <CanCommit>true</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -512,7 +511,6 @@
             <RssName>Development</RssName>
         </DeploymentStage>
         <DeploymentStage name="Testing">
-            <CanCommit>false</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -606,7 +604,6 @@
             <RssName>Testing</RssName>
         </DeploymentStage>
         <DeploymentStage name="Production">
-            <CanCommit>false</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
