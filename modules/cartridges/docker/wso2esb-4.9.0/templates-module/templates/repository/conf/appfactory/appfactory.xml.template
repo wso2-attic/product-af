@@ -496,7 +496,6 @@
             </DeploymentArtifact>
             <Promote>
                 <DeploymentPolicy>Latest</DeploymentPolicy>
-                <TargetStage>Testing</TargetStage>
                 <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
             </Promote>
             <CreateArtifact>Always</CreateArtifact>
@@ -587,10 +586,8 @@
             <Promote>
                 <DeploymentPolicy>Promoted</DeploymentPolicy>
                 <!-- Latest/Tagged artifact will be deployed to the promoted stage-->
-                <TargetStage>Production</TargetStage>
             </Promote>
             <Demote>
-                <TargetStage>Development</TargetStage>
             </Demote>
             <CreateArtifact>UserInput</CreateArtifact>
             <DeploymentServerURL>https://appserver.test.appfactory.private.wso2.com:9443/services/</DeploymentServerURL>
@@ -657,7 +654,6 @@
                 <PersistedArtifacts>Tagged</PersistedArtifacts>
             </DeploymentArtifact>
             <Demote>
-                <TargetStage>Testing</TargetStage>
             </Demote>
             <CreateArtifact>Never</CreateArtifact>
             <DeploymentServerURL>https://appserver.appfactory.private.wso2.com:9443/services/</DeploymentServerURL>
