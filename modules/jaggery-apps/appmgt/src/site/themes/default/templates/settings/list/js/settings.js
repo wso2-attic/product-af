@@ -20,6 +20,7 @@
 // page initialization
 $(document).ready(function () {
     var generalForm = $("#generalForm");
+    showLifecycleChangeTab();
     getCurrentLifecycleDsiplayName();
     if(isUpdateInfoAllowed && generalForm){
         $("#updateGeneralInfo").prop("disabled", true);
@@ -350,15 +351,16 @@ function showLifecycleChangeTab() {
             action: "showLifecycleChangeTab",
             applicationKey: applicationKey
         }, function (result) {
-            if(result = true){
-                $('#changelifecycle').show();
-            }esle
+            if(result == true){
+                document.getElementById('changelifecycle').show();
+            }else
             {
-                $('#changelifecycle').hide();
+                //$('#changelifecycle').hide();
+                document.getElementById('changelifecycle').hide();
             }
 
         }, function (jqXHR, textStatus, errorThrown) {
-
+            //$('#changelifecycle').hide();
         });
 
 }

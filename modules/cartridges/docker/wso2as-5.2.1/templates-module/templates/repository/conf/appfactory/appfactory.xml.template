@@ -506,7 +506,6 @@
             <TenantMgtUrl>https://sc.dev.appfactory.private.wso2.com:9463</TenantMgtUrl>
             <PAASServicesURL>https://sc.dev.appfactory.private.wso2.com:9463/services/</PAASServicesURL>
             <GregServerURL>https://gregserver.dev.appfactory.private.wso2.com:9473/services/</GregServerURL>
-            <Buildable>true</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Development</RssName>
         </DeploymentStage>
@@ -598,7 +597,6 @@
             <TenantMgtUrl>https://sc.test.appfactory.private.wso2.com:9464</TenantMgtUrl>
             <PAASServicesURL>https://sc.test.appfactory.private.wso2.com:9464/services/</PAASServicesURL>
             <GregServerURL>https://gregserver.test.appfactory.private.wso2.com:9474/services/</GregServerURL>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Testing</RssName>
         </DeploymentStage>
@@ -666,7 +664,6 @@
             <PAASServicesURL>https://sc.prod.appfactory.private.wso2.com:9465/services/</PAASServicesURL>
             <GregServerURL>https://gregserver.prod.appfactory.private.wso2.com:9475/services/</GregServerURL>
             <Semantic>Production</Semantic>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Production</RssName>
         </DeploymentStage>

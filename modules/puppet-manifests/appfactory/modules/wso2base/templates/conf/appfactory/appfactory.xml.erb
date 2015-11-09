@@ -510,7 +510,6 @@
             <MountPoint>dev</MountPoint>
             <BaseAccessUrl>https://<%= dev_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= @dev_greg_port %>/services/</GregServerURL>
-            <Buildable>true</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Development</RssName>
         </DeploymentStage>
@@ -600,7 +599,6 @@
             <MountPoint>test</MountPoint>
             <BaseAccessUrl>https://<%= test_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= @test_greg_port %>/services/</GregServerURL>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Testing</RssName>
         </DeploymentStage>
@@ -667,7 +665,6 @@
             <BaseAccessUrl>https://<%= prod_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_prod_subdomain %>.<%= @wso2_env_domain %>:<%= @prod_greg_port %>/services/</GregServerURL>
             <Semantic>Production</Semantic>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Production</RssName>
         </DeploymentStage>
