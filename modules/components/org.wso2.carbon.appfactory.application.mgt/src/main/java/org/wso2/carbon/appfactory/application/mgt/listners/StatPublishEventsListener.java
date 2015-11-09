@@ -73,7 +73,8 @@ public class StatPublishEventsListener extends ApplicationEventsHandler {
                     .getFirstStageByApplication(application.getName(), tenantDomain);
             if(isUploadableAppType){
 				defaultVersion = "1.0.0";
-				defaultStage = Util.getConfiguration().getFirstProperty("EndStage");
+				defaultStage = Util.getLifecycleManagementService()
+						.getLastStageByApplication(application.getName(), tenantDomain);
 			}
 			
 			publisher.PublishAppVersionEvent(applicationName, applicationId,

@@ -43,9 +43,7 @@ public abstract class Storage {
                                String stage, String tenantDomain, String userName, String deployAction, String repoFrom)
 		    throws AppFactoryException {
 	    LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
-	    String lifecycleName = lifecycleManagementService.getCurrentLifecycle(applicationId, tenantDomain)
-			    .getLifecycleName();
-	    String firstStage = lifecycleManagementService.getFirstStageByLifecycle(lifecycleName);
+	    String firstStage = lifecycleManagementService.getFirstStageByApplication(applicationId, tenantDomain);
 	 
 		if (firstStage.equals(stage) || AppFactoryCoreUtil.isUplodableAppType(artifactType)){
 			

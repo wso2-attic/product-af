@@ -63,7 +63,7 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 		String defaultStage = lifecycleManagementService.getFirstStageByApplication(application.getId(), tenantDomain);
 		if(isUploadableAppType){
 			defaultVersion = "1.0.0";
-			defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("EndStage");
+			defaultStage = lifecycleManagementService.getLastStageByApplication(application.getId(), tenantDomain);
 		}
 
 		applicationDeployer.deployArtifact(application.getId(), defaultStage, defaultVersion, "", "deploy","");
