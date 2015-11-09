@@ -17,7 +17,7 @@
 package org.wso2.carbon.appfactory.core;
 
 import org.wso2.carbon.appfactory.common.AppFactoryException;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 
 /**
@@ -42,9 +42,12 @@ public abstract class Storage {
     public void deployArtifact(String applicationId, String version, String revision, String artifactType,
                                String stage, String tenantDomain, String userName, String deployAction, String repoFrom)
 		    throws AppFactoryException {
-		
+	    LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+	    String lifecycleName = lifecycleManagementService.getCurrentLifecycle(applicationId, tenantDomain)
+			    .getLifecycleName();
+	    String firstStage = lifecycleManagementService.getFirstStageByLifecycle(lifecycleName);
 	 
-		if (AppFactoryUtil.isInitialLifeCycleStage(stage) || AppFactoryCoreUtil.isUplodableAppType(artifactType)){
+		if (firstStage.equals(stage) || AppFactoryCoreUtil.isUplodableAppType(artifactType)){
 			
 			deployLatestSuccessArtifact(applicationId, version, revision, artifactType, stage, tenantDomain, userName,
 			                            deployAction, repoFrom);
