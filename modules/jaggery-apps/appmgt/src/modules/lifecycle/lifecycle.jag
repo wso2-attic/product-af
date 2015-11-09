@@ -978,13 +978,11 @@ function getRemainingLifecycles(applicationKey){
 };
 function getBuildableStage(applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
-    var stage = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getBuildStageName(applicationKey,tenantDomain);
-    return stage;
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getBuildStageName(applicationKey,tenantDomain);
 };
 function isLifecycleChangeValid(applicationKey) {
     var tenantDomain = modManager.getTenantDomain();
-    var status = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').isLifecycleChangeValid(applicationKey,tenantDomain);
-    return status;
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').isLifecycleChangeValid(applicationKey,tenantDomain);
 };
 
 %>
