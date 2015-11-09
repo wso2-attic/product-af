@@ -1,5 +1,5 @@
 {
-    "type": "<%=@dev_cartridge_type %>",
+    "type": "<%=@esb_dev_cartridge_type %>",
     "provider": "wso2",
     "category": "framework",
     "host": "<%= @domain %>",
@@ -22,6 +22,20 @@
             "protocol": "https",
             "port": "9443",
             "proxyPort": "443",
+            "kubernetesPortType": "NodePort"
+        },
+        {
+            "name": "pt-http",
+            "protocol": "http",
+            "port": 8280,
+            "proxyPort": 81,
+            "kubernetesPortType": "NodePort"
+        },
+        {
+            "name": "pt-https",
+            "protocol": "https",
+            "port": 8243,
+            "proxyPort": 444,
             "kubernetesPortType": "NodePort"
         }
 
