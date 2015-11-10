@@ -87,9 +87,11 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 	        appMgtRestClient.isApplicationKeyAvailable(appName)) {
 		    appMgtRestClient.createNewApplication(appName, appName, this.apptype,
 		                                          defaultAdmin, appName);
+            long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+            int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
 		    // Wait till Create Application completion
 		    AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-		    populator.waitUntilApplicationCreationCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
+		    populator.waitUntilApplicationCreationCompletes(timeOutPeriod, retryCount, defaultAdmin, defaultAdminPassword,
 		                                                    appName, appName, this.extension,
 		                                                    this.defaultArtifactVersion, this.initialStage,
 		                                                    this.runtimeAlias,
@@ -105,7 +107,9 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		appMgtRestClient.deleteApplication(defaultAdmin, appName);
 		// Wait till Create Application completion
 		AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-		populator.waitUntilApplicationDeletionCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
+        long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+        int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
+		populator.waitUntilApplicationDeletionCompletes(timeOutPeriod, retryCount, defaultAdmin, defaultAdminPassword,
 		                                                appName, appName, this.extension,
 		                                                this.defaultArtifactVersion, this.initialStage,
 		                                                this.runtimeAlias,

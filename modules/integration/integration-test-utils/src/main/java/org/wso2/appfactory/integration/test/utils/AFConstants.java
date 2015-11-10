@@ -112,6 +112,8 @@ public class AFConstants {
 	public static final String CREDENTIAL_JENKINS_PASSWORD = "//appFactoryProperties/credentials/jenkinsuserpass";
 	public static final String CREDENTIAL_S2GIT_USERNAME = "//appFactoryProperties/credentials/s2gituser";
 	public static final String CREDENTIAL_S2GIT_PASSWORD = "//appFactoryProperties/credentials/s2gituserpass";
+	public static final String TIMEOUT_PERIOD = "//appFactoryProperties/timeOutSetting/period";
+	public static final String TIMEOUT_RETRY_COUNT = "//appFactoryProperties/timeOutSetting/retryCount";
 
     public static final String TRUE = "true";
     public static final String FALSE= "false";

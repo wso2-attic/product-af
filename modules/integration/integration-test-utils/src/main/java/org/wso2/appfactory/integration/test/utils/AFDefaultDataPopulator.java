@@ -241,9 +241,10 @@ public class AFDefaultDataPopulator {
                               "key", "WSO2 Stratos Manager");
         Assert.assertNotNull(result, "Result of createTenantBPELClient.createTenant() is null ");
         Assert.assertTrue(result.contains("true"), "Result of createTenantBPELClient.createTenant() is not true ");
-
+        long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+        int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
         // Wait until tenant creation completes
-        Assert.assertTrue(waitUntilTenantCreationCompletes(10000L, 10, fullyQualifiedTenantAdmin, tenantAdminPassword),
+        Assert.assertTrue(waitUntilTenantCreationCompletes(timeOutPeriod, retryCount, fullyQualifiedTenantAdmin, tenantAdminPassword),
                 "Tenant creation unsuccessful");
         log.info("Tenant domain " + tenantDomain + " completed successfully");
     }
@@ -311,9 +312,10 @@ public class AFDefaultDataPopulator {
                 , fullyQualifiedTenantAdmin, tenantAdminPassword);
         appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
                                               fullyQualifiedTenantAdmin, applicationDescription);
-
+        long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+        int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
         // Wait till Create Application completion
-        waitUntilApplicationCreationCompletes(10000L, 8, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
+        waitUntilApplicationCreationCompletes(timeOutPeriod, retryCount, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
                                               applicationName, extension, artifactVersion, startStage, runtimeAlias,
                                               tenantID);
     }
