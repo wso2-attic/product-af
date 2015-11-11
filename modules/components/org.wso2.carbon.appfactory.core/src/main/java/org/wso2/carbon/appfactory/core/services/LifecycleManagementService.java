@@ -435,22 +435,6 @@ public class LifecycleManagementService {
     }
 
     /**
-     * Method to attach lifecycle to an application
-     *
-     * @param appKey       application key
-     * @param appVersion   application version
-     * @param tenantDomain tenant domain
-     */
-   /* public void updateAppVersionLifecycle(String appKey, String appVersion, String tenantDomain)
-            throws AppFactoryException {
-        LifecycleDAO.getInstance().updateAppVersionLifeCycle(appKey, tenantDomain, appVersion);
-        if (log.isDebugEnabled()) {
-            log.debug("Life cycle name of application :" + appKey + " with the app version" + appVersion
-                    + " of the tenant :" + tenantDomain + "is successfully updated.");
-        }
-    }*/
-
-    /**
      * Method to check whether changing life cycle name for an application is valid or not
      * (Lifecycle name can be changed only if no version is created by the user)
      *
