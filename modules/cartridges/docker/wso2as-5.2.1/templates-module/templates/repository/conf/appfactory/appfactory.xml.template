@@ -669,11 +669,6 @@
         </DeploymentStage>
     </ApplicationDeployment>
 
-    <!--Initial Deployment Stage-->
-    <StartStage>Development</StartStage>
-    <!--End Deployment Stage-->
-    <EndStage>Production</EndStage>
-
     <JNDI>
         <DomainMapping>
             <FactoryInitial>com.sun.jndi.dns.DnsContextFactory</FactoryInitial>
