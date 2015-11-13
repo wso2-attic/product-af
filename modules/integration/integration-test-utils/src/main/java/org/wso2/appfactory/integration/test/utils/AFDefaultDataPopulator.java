@@ -110,15 +110,16 @@ public class AFDefaultDataPopulator {
             log.info("Default application doesn't exist, Creating "
                      + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME));
             createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_EXTENSION),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_ARTIFACT_VERSION),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_DEFAULT_STAGE),
-                              AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_RUNTIME_ALIAS),
-                              String.valueOf(tenantInfoBean.getTenantId()));
-            Thread.sleep(40000);
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_EXTENSION),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_ARTIFACT_VERSION),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_DEFAULT_STAGE),
+                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_RUNTIME_ALIAS),
+                    String.valueOf(tenantInfoBean.getTenantId()));
+            Thread.sleep(60000);
+            /*
             createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
                                      AFIntegrationTestUtils.getPropertyValue(
@@ -130,7 +131,7 @@ public class AFDefaultDataPopulator {
             createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
                                      AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_SRC),
                                      AFIntegrationTestUtils.getPropertyValue(
-                                             AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));
+                                             AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));*/
         } else {
             log.info("Default application  exists.");
         }
@@ -313,7 +314,7 @@ public class AFDefaultDataPopulator {
                                               fullyQualifiedTenantAdmin, applicationDescription);
 
         // Wait till Create Application completion
-        waitUntilApplicationCreationCompletes(10000L, 8, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
+        waitUntilApplicationCreationCompletes(30000L, 8, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
                                               applicationName, extension, artifactVersion, startStage, runtimeAlias,
                                               tenantID);
     }
@@ -385,7 +386,7 @@ public class AFDefaultDataPopulator {
 	    round = 1;
 	    while (round <= retryCount) {
 		    try {
-			    log.info("Checking the existance of repo");
+			    log.info("Checking the existence of repo");
 			    isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
 			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
 			                               AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
@@ -415,7 +416,7 @@ public class AFDefaultDataPopulator {
 	    round = 1;
 	    while (round <= retryCount) {
 		    try {
-			    log.info("Checking the existance of build job");
+			    log.info("Checking the existence of build job");
 			    isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
 			                                   AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
 			                                                                            AFIntegrationTestUtils
@@ -450,7 +451,7 @@ public class AFDefaultDataPopulator {
 	    round = 1;
 	    while (round <= retryCount) {
 		    try {
-			    log.info("Checking the existance of deployed artifact");
+			    log.info("Checking the existence of deployed artifact");
 			    isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
 			                                                              runtimeAlias, applicationExtension, tenantID);
 			    if(!isDeployedArtifactAvailable){
@@ -526,7 +527,7 @@ public class AFDefaultDataPopulator {
 		round = 1;
 		while (round <= retryCount) {
 			try {
-				log.info("Checking the existance of repo");
+				log.info("Checking the existence of repo");
 				isGitRepoCreated = isGitRepoExist(applicationKey, AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_GIT),
 				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_DOMAIN),
 				                                  AFIntegrationTestUtils.getPropertyValue(AFConstants.CREDENTIAL_GIT_USERNAME),
@@ -556,7 +557,7 @@ public class AFDefaultDataPopulator {
 		round = 1;
 		while (round <= retryCount) {
 			try {
-				log.info("Checking the existance of build job");
+				log.info("Checking the existence of build job");
 				isJenkinsJobCreated = isJenkinsJobExists(AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_JENKINS),
 				                                         AFIntegrationTestUtils.getJenkinsJobName(applicationKey,
 				                                                                                  AFIntegrationTestUtils
@@ -591,7 +592,7 @@ public class AFDefaultDataPopulator {
 		round = 1;
 		while (round <= retryCount) {
 			try {
-				log.info("Checking the existance of deployed artifact");
+				log.info("Checking the existence of deployed artifact");
 				isDeployedArtifactAvailable = isDeployedArtifactAvailable(applicationKey, artifactVersion, stage,
 				                                                          runtimeAlias, applicationExtension, tenantID);
 				if(isDeployedArtifactAvailable){

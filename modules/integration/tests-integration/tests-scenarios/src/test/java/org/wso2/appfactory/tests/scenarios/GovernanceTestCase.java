@@ -45,8 +45,8 @@ public class GovernanceTestCase extends AFIntegrationTest {
     private static final String ITEM_CHECKED = "true";
     private static final String NEW_VERSION = "2.3.4";
     private static final String LIFECYCLE_NAME = "ApplicationLifecycle";
-    private static String sourceVersion = null;
-    private static String targeVersion = null;
+    private static String sourceVersion = "trunk";
+    private static String targeVersion = "2.3.4";
 
     private static final Log log = LogFactory.getLog(GovernanceTestCase.class);
 

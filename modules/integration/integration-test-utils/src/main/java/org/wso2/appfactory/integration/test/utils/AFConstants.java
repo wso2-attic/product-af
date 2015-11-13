@@ -73,13 +73,13 @@ public class AFConstants {
     public static final String DEFAULT_APP_VERSION_TWO_SRC = "//appFactoryProperties/defaultApplication/versions/" +
                                                                 "version[@key='v2']/sourceVersion";
 
-    public static final String DEFAULT_APP_VERSION_TWO_TARGET = "appFactoryProperties/defaultApplication/versions/" +
+    public static final String DEFAULT_APP_VERSION_TWO_TARGET = "//appFactoryProperties/defaultApplication/versions/" +
                                                                 "version[@key='v2']/targetVersion";
 
     public static final String DEFAULT_APP_VERSION_THREE_SRC = "//appFactoryProperties/defaultApplication/versions/" +
                                                                "version[@key='v3']/sourceVersion";
 
-    public static final String DEFAULT_APP_VERSION_THREE_TARGET = "appFactoryProperties/defaultApplication/versions/" +
+    public static final String DEFAULT_APP_VERSION_THREE_TARGET = "//appFactoryProperties/defaultApplication/versions/" +
                                                                   "version[@key='v3']/targetVersion";
 
 	// Security policy files in resources/security folder
