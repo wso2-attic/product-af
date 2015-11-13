@@ -1,9 +1,13 @@
 <Runtime>
     <Runtime>esb</Runtime>
     <PAASArtifactStorageURLPattern>{@stage}/esb</PAASArtifactStorageURLPattern>
-    <AliasPrefix>esb</AliasPrefix>
-    <CartridgeTypePrefix>esb</CartridgeTypePrefix>
+    <StratosAppIdPrefix><%= @esb_cartridge_alias_prefix %></StratosAppIdPrefix>
+    <CartridgeAliasPrefix><%= @esb_cartridge_alias_prefix %></CartridgeAliasPrefix>
+    <CartridgeTypePrefix><%= @esb_cartridge_type_prefix %></CartridgeTypePrefix>
     <DeploymentPolicy>af-deployment</DeploymentPolicy>
     <AutoscalePolicy>economy</AutoscalePolicy>
     <SubscribeOnDeployment>false</SubscribeOnDeployment>
+    <ServerURL>https://esb{stage}.appfactory.private.wso2.com:9443</ServerURL>
+    <DevelopmentStageParam>.dev</DevelopmentStageParam>
+    <TestingStageParam>.test</TestingStageParam>
 </Runtime>

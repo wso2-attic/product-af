@@ -1,15 +1,15 @@
 {
-    "applicationId": "<%=@dev_app_id %>",
-    "alias": "<%=@dev_cartridge_alias %>",
+    "applicationId": "<%=@esb_dev_app_id %>",
+    "alias": "<%=@esb_dev_cartridge_alias %>",
     "multiTenant": true,
     "components": {
         "cartridges": [
             {
-            "type": "<%=@dev_cartridge_type %>",
+            "type": "<%=@esb_dev_cartridge_type %>",
             "cartridgeMin": 1,
             "cartridgeMax": 1,
                 "subscribableInfo": {
-                "alias": "<%=@dev_cartridge_alias %>",
+                "alias": "<%=@esb_dev_cartridge_alias %>",
                 "autoscalingPolicy": "autoscaling-policy",
                 "deploymentPolicy": "deployment-policy"
                 }

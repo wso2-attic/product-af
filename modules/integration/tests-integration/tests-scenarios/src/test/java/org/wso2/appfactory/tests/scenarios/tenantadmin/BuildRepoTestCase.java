@@ -53,7 +53,7 @@ public class BuildRepoTestCase extends AFIntegrationTest {
         tenantAdmin = AFIntegrationTestUtils.getAdminUsername();
         applicationKey = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY);
         initialVersion = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC);
-        firstVersion = "2.0.0";
+        firstVersion = "1.0.1";
         String tenantAdminPassword = AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD);
         String afUrl = AFIntegrationTestUtils.getPropertyValue(AFConstants.URLS_APPFACTORY);
         GovernanceClient governanceClient = new GovernanceClient(afUrl,tenantAdmin,tenantAdminPassword);
