@@ -264,7 +264,7 @@ function preparePreview(){
  */
 function getAllLifecycles() {
     jagg.post("../blocks/lifecycle/add/ajax/add.jag", {
-        action: "getRemainingLifecycles",
+        action: "getDisplayLifecycles",
         applicationKey:applicationKey
     }, function (result) {
         var lifecycleNames = result;

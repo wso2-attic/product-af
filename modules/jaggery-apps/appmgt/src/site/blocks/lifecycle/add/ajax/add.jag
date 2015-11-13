@@ -320,11 +320,11 @@ var log = new Log();
 
 
     }
-    else if(action == "getRemainingLifecycles"){
+    else if(action == "getDisplayLifecycles"){
         var lifecycleMod = jagg.module("lifecycle");
         var applicationKey = request.getParameter("applicationKey");
         try {
-            var lifecycleList = lifecycleMod.getRemainingLifecycles(applicationKey);
+            var lifecycleList = lifecycleMod.getDisplayLifecycles(applicationKey);
             print(lifecycleList);
         } catch (e) {
             log.error(e.message);

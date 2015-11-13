@@ -931,12 +931,6 @@ function getPreviousStage(lifecycleName,currentStage){
     return "";
 };
 
-/*function changeAppVersionLifecycle(applicationKey,appVersion,tenantDomain){
-    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
-            .updateAppVersionLifecycle(applicationKey, appVersion,tenantDomain);
-}*/
-
-
 function getFirstStage(lifecycleName){
     return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
             .getFirstStageByLifecycle(lifecycleName);
@@ -960,7 +954,7 @@ function getStages(applicationId){
             .getLifecycleStages(lifecycle.lifecycleName);
 };
 
-function getRemainingLifecycles(applicationKey){
+function getDisplayLifecycles(applicationKey){
     var lifecycles = getAllLifecycles();
     var lifecycleArr = [];
     var tenantDomain = modManager.getTenantDomain();
