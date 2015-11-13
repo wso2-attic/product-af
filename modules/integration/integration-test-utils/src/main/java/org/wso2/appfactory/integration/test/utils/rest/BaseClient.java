@@ -47,10 +47,10 @@ public class BaseClient {
     protected static final String APPMGT_APPLICATION_ADD = "application/add/ajax/add.jag";
     protected static final String APPMGT_APPLICATION_DELETE= "application/delete/ajax/delete.jag";
     protected static final String EVENTS_PUBLISHING = "events/publish/ajax/publish.jag";
-    protected static final String APPMGT_LIFECYCLE_ADD= "lifecycle/add/ajax/add.jag";
-    protected static final String APPMGT_REPOSBUILDS_ADD= "reposBuilds/add/ajax/add.jag";
-    protected static final String APPMGT_DATASOURCE_ADD= "resources/datasource/add/ajax/add.jag";
-    protected static final String APPMGT_DATASOURCE_GET= "resources/datasource/get/ajax/list.jag";
+    protected static final String APPMGT_LIFECYCLE_ADD = "lifecycle/add/ajax/add.jag";
+    protected static final String APPMGT_REPOSBUILDS_ADD = "reposBuilds/add/ajax/add.jag";
+    protected static final String APPMGT_DATASOURCE_ADD = "resources/datasource/add/ajax/add.jag";
+    protected static final String APPMGT_DATASOURCE_GET = "resources/datasource/get/ajax/list.jag";
     protected static final String APPMGT_LIFECYCLE_GET = "lifecycle/get/ajax/get.jag";
     protected static final String APPMGT_DATABASE_ADD = "resources/database/add/ajax/add.jag";
     protected static final String APPMGT_DATABASE_DROP = "resources/database/drop/ajax/drop.jag";

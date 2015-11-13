@@ -13,7 +13,7 @@ public class AppVersionClient extends BaseClient {
     public static final String TARGET_VERSION = "targetVersion";
     public static final String LIFECYCLE_NAME = "lifecycleName";
     public static final String LIFECYCLE = "ApplicationLifecycle";
-    private static final String REQUEST_KEY_ACTION ="Action" ;
+    private static final String REQUEST_KEY_ACTION = "action" ;
     public static final String INVOKE_DO_VERSION = "invokeDoVersion";
 
     /**
@@ -41,6 +41,6 @@ public class AppVersionClient extends BaseClient {
         msgBody.put(TARGET_VERSION, targetVersion);
         msgBody.put(LIFECYCLE_NAME, LIFECYCLE);
         msgBody.put(REQUEST_KEY_ACTION, INVOKE_DO_VERSION);
-        doPostRequest(APPMGT_LIFECYCLE_ADD, msgBody);
+        doPostRequest(APPMGT_REPOSBUILDS_ADD, msgBody);
     }
 }

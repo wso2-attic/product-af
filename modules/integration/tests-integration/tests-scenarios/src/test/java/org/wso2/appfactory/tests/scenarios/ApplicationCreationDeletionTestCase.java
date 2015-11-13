@@ -89,13 +89,12 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		                                          defaultAdmin, appName);
 		    // Wait till Create Application completion
 		    AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-		    populator.waitUntilApplicationCreationCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
-		                                                    appName, appName, this.extension,
-		                                                    this.defaultArtifactVersion, this.initialStage,
-		                                                    this.runtimeAlias,
-		                                                    AFIntegrationTestUtils.getPropertyValue(
-				                                                    AFConstants.DEFAULT_TENANT_TENANT_ID));
-	    }
+			populator.waitUntilApplicationCreationCompletes(30000L, 8, defaultAdmin, defaultAdminPassword,
+					appName, appName, this.extension,
+					this.defaultArtifactVersion, this.initialStage,
+					this.runtimeAlias,
+					AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_ID));
+		}
         log.info("Application creation is completed.");
     }
 
@@ -105,14 +104,12 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		appMgtRestClient.deleteApplication(defaultAdmin, appName);
 		// Wait till Create Application completion
 		AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-		populator.waitUntilApplicationDeletionCompletes(10000L, 8, defaultAdmin, defaultAdminPassword,
-		                                                appName, appName, this.extension,
-		                                                this.defaultArtifactVersion, this.initialStage,
-		                                                this.runtimeAlias,
-		                                                AFIntegrationTestUtils.getPropertyValue(
-				                                                AFConstants.DEFAULT_TENANT_TENANT_ID));
+		populator.waitUntilApplicationDeletionCompletes(50000L, 8, defaultAdmin, defaultAdminPassword,
+					appName, appName, this.extension,
+					this.defaultArtifactVersion, this.initialStage,
+					this.runtimeAlias,
+					AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_ID));
 	}
-
 
     @AfterClass(alwaysRun = true)
     public void destroy() throws Exception {
