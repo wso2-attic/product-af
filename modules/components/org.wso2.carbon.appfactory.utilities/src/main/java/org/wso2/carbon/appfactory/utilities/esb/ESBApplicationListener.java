@@ -25,7 +25,6 @@ import org.wso2.carbon.appfactory.core.dao.JDBCResourceDAO;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
 import org.wso2.carbon.context.CarbonContext;
 
@@ -76,8 +75,7 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 		                                                            ECHO_ENDPOINT_RESOURCE_DESCRIPTION,
 		                                                            ENDPOINT_MEDIA_TYPE, false);
 
-	        LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
-	        String lifecycleName = lifecycleManagementService
+	        String lifecycleName = ServiceReferenceHolder.getInstance().getLifecycleManagementService()
 			        .getFirstStageByApplication(application.getId(), tenantDomain);
 
 	        resourceDAO.addResource(application.getId(), ECHO_ENDPOINT_RESOURCE_NAME, ENDPOINT_RESOURCE_TYPE,
@@ -110,10 +108,10 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 
 	private String constructServerURL(Application application) throws AppFactoryException {
 
-		LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
 		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
-		String startStage = lifecycleManagementService.getFirstStageByApplication(application.getId(), tenantDomain);
+		String startStage = ServiceReferenceHolder.getInstance().getLifecycleManagementService()
+				.getFirstStageByApplication(application.getId(), tenantDomain);
 		String serverURL =
 				AppFactoryUtil.getAppfactoryConfiguration().
 						getFirstProperty("ApplicationDeployment.DeploymentStage." + startStage + ".GregServerURL");

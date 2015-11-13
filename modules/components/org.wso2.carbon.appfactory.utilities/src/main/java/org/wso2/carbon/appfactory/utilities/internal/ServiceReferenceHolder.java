@@ -18,6 +18,7 @@ package org.wso2.carbon.appfactory.utilities.internal;
 
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -31,6 +32,7 @@ public class ServiceReferenceHolder {
     private RealmService realmService;
     private ConfigurationContextService configContextService;
 	private RemoteRegistryService appfactoryRemoteRegistryService;
+    private LifecycleManagementService lifecycleManagementService;
 
     private ServiceReferenceHolder() {
 
@@ -79,4 +81,11 @@ public class ServiceReferenceHolder {
 	public void setAppfactoryRemoteRegistryService(RemoteRegistryService appfactoryRemoteRegistryService) {
 		this.appfactoryRemoteRegistryService = appfactoryRemoteRegistryService;
 	}
+    public void setLifecycleManagementService(LifecycleManagementService lifecycleManagementService){
+        this.lifecycleManagementService = lifecycleManagementService;
+    }
+
+    public LifecycleManagementService getLifecycleManagementService(){
+        return lifecycleManagementService;
+    }
 }
