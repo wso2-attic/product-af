@@ -50,6 +50,8 @@ public class DomainMappingTestCase extends AFIntegrationTest {
 
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
+        // remove custom url if exists
+        removeCustomUrl();
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -101,12 +103,16 @@ public class DomainMappingTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Remove customUrl from application test")
     public void removeCustomUrlTest() throws Exception {
+        int responseCode = removeCustomUrl();
+        Assert.assertEquals(responseCode, HttpStatus.SC_OK, "Removing custom url is not success.");
+    }
+
+    private int removeCustomUrl() throws Exception {
         Map<String, String> msgBodyMap = new HashMap<String, String>();
         msgBodyMap.put(REQUEST_KEY_ACTION, ACTION_REMOVE_CUSTOM_URL);
         msgBodyMap.put(REQUEST_KEY_APPKEY, AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
         HttpResponse httpResponse = getHttpResponse(msgBodyMap, EP_UPDATE_CUSTOM_URL);
-        Assert.assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_OK,
-                            "Removing custom url is not success.");
+        return httpResponse.getResponseCode();
     }
 
     /**
