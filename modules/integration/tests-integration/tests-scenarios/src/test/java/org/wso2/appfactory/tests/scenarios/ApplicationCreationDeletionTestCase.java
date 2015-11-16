@@ -76,6 +76,9 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
     public void setEnvironment() throws Exception {
         appMgtRestClient = new ApplicationClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
 	    appName = "foo_" + this.apptype + "_bar";
+
+        // delete default data
+        deleteApplication();
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -89,27 +92,36 @@ public class ApplicationCreationDeletionTestCase extends AFIntegrationTest {
 		                                          defaultAdmin, appName);
 		    // Wait till Create Application completion
 		    AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-			populator.waitUntilApplicationCreationCompletes(30000L, 8, defaultAdmin, defaultAdminPassword,
+            long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+            int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
+			populator.waitUntilApplicationCreationCompletes(timeOutPeriod, retryCount, defaultAdmin, defaultAdminPassword,
 					appName, appName, this.extension,
 					this.defaultArtifactVersion, this.initialStage,
 					this.runtimeAlias,
 					AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_ID));
 		}
+
         log.info("Application creation is completed.");
     }
 
 	@SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
 	@Test(description = "Delete the created application", dependsOnMethods = {"testCreateApplication"})
 	public void testDeleteApplication() throws Exception {
-		appMgtRestClient.deleteApplication(defaultAdmin, appName);
+        deleteApplication();
 		// Wait till Create Application completion
 		AFDefaultDataPopulator populator = new AFDefaultDataPopulator();
-		populator.waitUntilApplicationDeletionCompletes(50000L, 8, defaultAdmin, defaultAdminPassword,
-					appName, appName, this.extension,
-					this.defaultArtifactVersion, this.initialStage,
-					this.runtimeAlias,
-					AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_ID));
+        long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+        int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
+		populator.waitUntilApplicationDeletionCompletes(timeOutPeriod, retryCount, defaultAdmin, defaultAdminPassword,
+                appName, appName, this.extension,
+                this.defaultArtifactVersion, this.initialStage,
+                this.runtimeAlias,
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_TENANT_ID));
 	}
+
+    private void deleteApplication() throws Exception {
+        appMgtRestClient.deleteApplication(defaultAdmin, appName);
+    }
 
     @AfterClass(alwaysRun = true)
     public void destroy() throws Exception {

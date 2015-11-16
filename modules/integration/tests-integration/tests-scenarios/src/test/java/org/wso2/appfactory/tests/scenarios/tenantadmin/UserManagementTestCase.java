@@ -45,6 +45,12 @@ public class UserManagementTestCase extends AFIntegrationTest {
         cloudMgtClient = new CloudUserMgtClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
         userRoleMap.put(USER_DEVELOPER, "developer");
         userRoleMap.put(USER_ALL_ROLES, "developer,devops,qa,appowner,cxo");
+
+        // remote users from default application if exists
+        removeUsers();
+
+        // delete users if exists
+        deleteUsers();
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -94,23 +100,30 @@ public class UserManagementTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Remove users from application ", dependsOnMethods = {"testInviteUsersToApplication"})
     public void testRemoveUsersFromApplication() throws Exception {
-        boolean success = userMgtClient.removeUsersFromApplication(defaultAppKey,
-                                                                   USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES);
+        boolean success = removeUsers();
         assertTrue(success, "Removing users: " + USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES +
                             " from application: " + defaultAppKey +
                             " in tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
 
     }
 
+    private boolean removeUsers() throws Exception {
+        return userMgtClient.removeUsersFromApplication(defaultAppKey, USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES);
+    }
+
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Remove users from the tenant ", dependsOnMethods = {"testRemoveUsersFromApplication"})
     public void testDeleteUsersFromTenant() throws Exception {
-        boolean success = cloudMgtClient.deleteUserFromTenant(USER_DEVELOPER);
+        boolean success = deleteUsers();
         assertTrue(success, "Removing user: " + USER_DEVELOPER +
-                            " from tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
+                " from tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
         success = cloudMgtClient.deleteUserFromTenant(USER_ALL_ROLES);
         assertTrue(success, "Removing user: " + USER_ALL_ROLES +
                             " from tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
+    }
+
+    private boolean deleteUsers() throws Exception {
+        return cloudMgtClient.deleteUserFromTenant(USER_DEVELOPER);
     }
 
     private ArrayList<String> getUsersOfLoggedInTenant() throws Exception {

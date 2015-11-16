@@ -126,4 +126,26 @@ public class AFIntegrationTestUtils {
 				concat(version).concat(JENKINS_JOB_NAME_SEPERATOR).concat(JENKINS_JOB_NAME_POSTFIX);
 	}
 
+    public static long getTimeOutPeriod() {
+        String timeOutPeriod = getPropertyValue(AFConstants.TIMEOUT_PERIOD);
+        long result = 10000L;
+        try {
+            result = Long.parseLong(timeOutPeriod);
+        } catch (NumberFormatException e) {
+            // NOP
+        }
+        return result;
+    }
+
+    public static int getTimeOutRetryCount() {
+        String retryCount = getPropertyValue(AFConstants.TIMEOUT_RETRY_COUNT);
+        int result = 8;
+        try {
+            result = Integer.parseInt(retryCount);
+        } catch (NumberFormatException e) {
+            // NOP
+        }
+        return result;
+    }
+
 }

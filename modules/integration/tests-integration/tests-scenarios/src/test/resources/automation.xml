@@ -344,6 +344,7 @@
                 </version>
             </versions>
         </defaultApplication>
+
         <defaultAPI>
             <useNAme>admin</useNAme>
             <password>admin</password>
@@ -363,12 +364,16 @@
                 action=addAPISubscription&amp;name=PhoneVerification&amp;version=1.0.0&amp;provider=admin&amp;tier=Gold&amp;
                 applicationName=DefaultApplication
             </subscribePayload>
-
         </defaultAPI>
 
         <domainMapping>
             <domainName>example.com</domainName>
         </domainMapping>
+
+        <timeOutSetting>
+              <period>10000L</period>
+              <retryCount>8</retryCount>
+        </timeOutSetting>
 
     </appFactoryProperties>
 </automation>
