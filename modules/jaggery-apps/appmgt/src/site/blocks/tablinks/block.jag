@@ -45,7 +45,6 @@ jagg.block("tablinks", {
     	var hasTenantLevelUserMgtPermission = null;
     	var isOTtenant = false;
     	var hasCXOPermission = null;
-    	var deploymentStages = getProperties(DEPLOYMENT_STAGES);
 
     	var applicationType = false;
     	var isUploadableAppType = false;
@@ -89,7 +88,6 @@ jagg.block("tablinks", {
             "hasTenantLevelUserMgtPermission":hasTenantLevelUserMgtPermission,
             "dashboardUrl":dashboardUrl,
             "dashboardPath":dashboardPath,
-            "deploymentStages":deploymentStages,
             "applicationType":applicationType,
             "isUploadableAppType":isUploadableAppType,
             "isOtherServicesTabAvailable":isOtherServicesTabAvailable,

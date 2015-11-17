@@ -26,6 +26,7 @@ import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.utilities.internal.ServiceReferenceHolder;
+import org.wso2.carbon.context.CarbonContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -74,9 +75,11 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 		                                                            ECHO_ENDPOINT_RESOURCE_DESCRIPTION,
 		                                                            ENDPOINT_MEDIA_TYPE, false);
 
-	            resourceDAO.addResource(application.getId(), ECHO_ENDPOINT_RESOURCE_NAME, ENDPOINT_RESOURCE_TYPE,
-	                                    AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(AF_START_STAGE),
-	                                    ECHO_ENDPOINT_RESOURCE_DESCRIPTION);
+	        String lifecycleName = ServiceReferenceHolder.getInstance().getLifecycleManagementService()
+			        .getFirstStageByApplication(application.getId(), tenantDomain);
+
+	        resourceDAO.addResource(application.getId(), ECHO_ENDPOINT_RESOURCE_NAME, ENDPOINT_RESOURCE_TYPE,
+			        lifecycleName, ECHO_ENDPOINT_RESOURCE_DESCRIPTION);
 
 		        appfactoryRemoteRegistryService.putRegistryProperty(serverURL, userName, application.getId(),
 		                                                            ECHO_WSDL_RESOURCE_NAME,
@@ -105,7 +108,10 @@ public class ESBApplicationListener extends ApplicationEventsHandler {
 
 	private String constructServerURL(Application application) throws AppFactoryException {
 
-		String startStage = AppFactoryUtil.getAppfactoryConfiguration().getFirstProperty(AF_START_STAGE);
+		String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
+		String startStage = ServiceReferenceHolder.getInstance().getLifecycleManagementService()
+				.getFirstStageByApplication(application.getId(), tenantDomain);
 		String serverURL =
 				AppFactoryUtil.getAppfactoryConfiguration().
 						getFirstProperty("ApplicationDeployment.DeploymentStage." + startStage + ".GregServerURL");

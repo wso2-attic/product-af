@@ -101,7 +101,6 @@ var editAppVersionInfo = function (applicationKey, version, subdomain, currentSt
 				         '<lastdeployedid>'+deployId+'</lastdeployedid>'+
 				         '<LastBuildStatus>'+lastStatus+'</LastBuildStatus>'+
 			         '</appversion>'+
-			     	'<serviceLifecycle><lifecycleName>'+LIFE_CYCLE_NAME+'</lifecycleName></serviceLifecycle>'+
 			     '</metadata>]]>';
 
 	

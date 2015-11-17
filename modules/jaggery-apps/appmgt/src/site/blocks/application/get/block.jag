@@ -44,7 +44,7 @@ jagg.block("application/get", {
         if(userName) {
 
             // create stages map
-            var stages = lifeCycleModule.getAllLifeCycleStages();
+            var stages = lifeCycleModule.getAllLifeCycleStages(applicationKey);
             for (var index in stages) {
                 var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey, PERMISSION_DEPLOY_TO + stages[index]);
                 stagesMap[stages[index]] = isAllowed;

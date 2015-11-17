@@ -44,27 +44,27 @@ var log = new Log();
         //And it will update the session with the correct info.
         //Therefore don't remove this method
     }  else if(action == "Promote" || action == "Demote" || action == "Retire") {
-		mod = jagg.module("lifecycle");
-		var manager = jagg.module("manager");
-		var applicationKey = request.getParameter("applicationKey");
-    	var stageName = request.getParameter("stageName");
-    	var version = request.getParameter("version");
-		var tagName = request.getParameter("tagName");
-		var comment = request.getParameter("comment");
-		var userName = request.getParameter("userName");
+        mod = jagg.module("lifecycle");
+        var manager = jagg.module("manager");
+        var applicationKey = request.getParameter("applicationKey");
+        var stageName = request.getParameter("stageName");
+        var version = request.getParameter("version");
+        var tagName = request.getParameter("tagName");
+        var comment = request.getParameter("comment");
+        var userName = request.getParameter("userName");
 
-	    var applicationModule = jagg.module("application");
-		var currentStage = applicationModule.getStage(applicationKey,version);
+        var applicationModule = jagg.module("application");
+        var currentStage = applicationModule.getStage(applicationKey,version);
 
         var result = {};
-        var nextStage = mod.getNextLifeCycleStage(stageName);
-        var previousStage = mod.getPreviousLifeCycleStage(stageName);
+        var nextStage = mod.getNextLifeCycleStage(stageName,applicationKey);
+        var previousStage = mod.getPreviousLifeCycleStage(stageName,applicationKey);
         var permissionPromoteToNextStage,permissionDemoteToNextStage;
         var isAuthorizeToPromote = false;
         var isAuthorizeToDemote = false;
 
         if(nextStage != null && nextStage != undefined) {
-           permissionPromoteToNextStage = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage;
+            permissionPromoteToNextStage = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage;
             isAuthorizeToPromote = modPermission.isUserAccessGrantedForPlatform(permissionPromoteToNextStage);
         }
         if(previousStage != null || previousStage != undefined){
@@ -80,7 +80,7 @@ var log = new Log();
                 print(result);
                 return;
             }
-        	
+
             if ( currentStage != stageName){
                 // check whether current stage and the stage user saw is the same.
                 throw new Error("Unable to complete the governance operation. Application stage is already changed to : " +
@@ -119,7 +119,6 @@ var log = new Log();
             var revision = '0';
             var build = 'true';
             var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
-            var aspect = LIFE_CYCLE_NAME;
             var promoteDepPolicy = getProperty('ApplicationDeployment.DeploymentStage.'+stageName+'.Promote.DeploymentPolicy');
             var deployAction;
             if(TAGGED == promoteDepPolicy || LATEST == promoteDepPolicy) {
@@ -128,13 +127,9 @@ var log = new Log();
                 deployAction = "rePromote";
             }
 
-			var isUploadableAppType = applicationTypeBean.isUploadableAppType();
-			var aspect;
-			if(isUploadableAppType){
-				aspect = UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME;
-			} else {
-				aspect = LIFE_CYCLE_NAME;
-			}
+            var tenantDomain = modManager.getTenantDomain();
+            var isUploadableAppType = applicationTypeBean.isUploadableAppType();
+            var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
 
             permissionMod = jagg.module("permission");
             var user = permissionMod.checkUserAuthenticated();
@@ -169,7 +164,7 @@ var log = new Log();
                 log.debug(applicationKey + " was successfully invoked " + action + " action");
                 result.error = false;
                 result.message = action + " action was successful.";
-        		print(result);
+                print(result);
             } catch (e) {
                 var errorMsg = "Failed to complete "+action +" action.";
                 log.error(errorMsg);
@@ -182,9 +177,9 @@ var log = new Log();
             result.message = "You don't have permission to perform the life cycle operation";
             print(result);
         }
-	    
 
-	} else if ( action == "deployAndUpdatePromoteStatus"){
+
+    } else if ( action == "deployAndUpdatePromoteStatus"){
         var applicationId = request.getParameter("applicationKey");
         var stage = request.getParameter("stage");
         var version = request.getParameter("version");
@@ -223,17 +218,13 @@ var log = new Log();
         var version = request.getParameter("version");
         var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
 
-		var manager = jagg.module("manager");
-		var applicationType = manager.getApplicationType(applicationKey);
-		var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
-		var aspect;
-		if(isUploadableAppType){
-			aspect = UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME;
-		} else {
-			aspect = LIFE_CYCLE_NAME;
-		}
+        var manager = jagg.module("manager");
+        var applicationType = manager.getApplicationType(applicationKey);
+        var isUploadableAppType = manager.getApplicationTypeBean(applicationType).isUploadableAppType();
+        var tenantDomain = modManager.getTenantDomain();
+        var aspect = mod.getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
 
-		var nextStageName = mod.getNextLifeCycleStage(stageName);
+        var nextStageName = mod.getNextLifeCycleStage(stageName,applicationKey);
         var permissionStageToPromote = PERMISSION_GOVERNANCE_PROMOTE_TO + nextStageName;
         var response = {};
         if (modPermission.isUserAccessGranted(applicationKey, permissionStageToPromote)){
@@ -271,11 +262,11 @@ var log = new Log();
         }
 
     } else if (action == "getAppVersionsInStagesWithLifeCycleInfo"){
-       mod = jagg.module("lifecycle");
-       var applicationKey = request.getParameter("applicationKey");
-       var userName = request.getParameter("userName");
-       var response = {};
-       if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURE_GOVERNANCE)){
+        mod = jagg.module("lifecycle");
+        var applicationKey = request.getParameter("applicationKey");
+        var userName = request.getParameter("userName");
+        var response = {};
+        if (modPermission.isUserAccessGranted(applicationKey, PERMISSION_CONFIGURE_GOVERNANCE)){
             try{
                 print(mod.getAppVersionsInStagesWithLifeCycleInfo(applicationKey,userName));
             }catch(e){
@@ -302,36 +293,82 @@ var log = new Log();
     } else if(action == "uploadNewVersionOfExistingApp"){
     	var applicationMod = jagg.module("application");
     	var lifecycleMod = jagg.module("lifecycle");
-    	
+
     	var existingVersion = request.getParameter("latestVersion");//existing latest version
     	var major=Number(existingVersion.split(".")[0]);
     	var newMajor=++major;
 	    var newVersion=newMajor+".0.0";
-        var lifecycleName = request.getParameter("lifecycleName");
 
 	    applicationKey = request.getParameter("applicationKey");
     	var userName = request.getParameter("userName");
     	var srcVersion = "trunk";
         var targetVersion = newVersion;
-       
-    	var file = request.getFile("uploaded_application");    	 
+
+    	var file = request.getFile("uploaded_application");
 
     	try {
 			var mod = jagg.module("manager");
             var applicationType = mod.getApplicationType(applicationKey);
 
     		applicationMod.stroreUploadedApplication(applicationKey , targetVersion , file, applicationType);
-			lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName);
+			lifecycleMod.invokeDoVersion(applicationKey, srcVersion, targetVersion);
 
 	    } catch (e) {
 	    	log.error(e.message);
 		    throw e.message;
 	    }
-    	
-    	
-    }else {
-		log.error("No action specified");
-	}
+
+
+    }
+    else if(action == "getDisplayLifecycles"){
+        var lifecycleMod = jagg.module("lifecycle");
+        var applicationKey = request.getParameter("applicationKey");
+        try {
+            var lifecycleList = lifecycleMod.getDisplayLifecycles(applicationKey);
+            print(lifecycleList);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }else if(action == "changeLifecycle"){
+        var lifecycleMod = jagg.module("lifecycle");
+        try {
+            var applicationKey = request.getParameter("applicationKey");
+            var lifecycleName = request.getParameter("lifecycleName");
+            var tenantDomain = modManager.getTenantDomain();
+            var response = lifecycleMod.changeLifecycle(applicationKey,lifecycleName,tenantDomain);
+            print(response);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }else if(action == "getCurrentLifecycleDsiplayName") {
+        var lifecycleMod = jagg.module("lifecycle");
+        var manager = jagg.module("manager");
+        try {
+            var applicationKey = request.getParameter("applicationKey");
+            var tenantDomain = modManager.getTenantDomain();
+            var response = lifecycleMod.getCurrentLifecycle(applicationKey, tenantDomain).displayName;
+            print(response);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }else if(action == "showLifecycleChangeTab") {
+        var lifecycleMod = jagg.module("lifecycle");
+        var manager = jagg.module("manager");
+        try {
+            var applicationKey = request.getParameter("applicationKey");
+            var response = lifecycleMod.isLifecycleChangeValid(applicationKey);
+            print(response);
+        } catch (e) {
+            log.error(e.message);
+            throw e.message;
+        }
+    }
+    else {
+        log.error("No action specified");
+    }
 }());
 
 function updatePromoteStatus(applicationKey, version, nextStage, state){
@@ -352,8 +389,8 @@ function copyNewDependenciesAndDeployArtifact(applicationId, stage, version, tag
     var resourcesModule = jagg.module("resources");
     var lifeCycleModule = jagg.module("lifecycle");
     try{
-        if (! lifeCycleModule.isInitialLifeCycleStage(stage)){
-            var sourceStage = lifeCycleModule.getPreviousLifeCycleStage(stage);
+        if (! lifeCycleModule.isInitialLifeCycleStage(stage,applicationId)){
+            var sourceStage = lifeCycleModule.getPreviousLifeCycleStage(stage,applicationId);
             resourcesModule.copyNewProperties(applicationId, sourceStage, stage);
             resourcesModule.copyNewDataSources(applicationId, sourceStage, stage);
         }

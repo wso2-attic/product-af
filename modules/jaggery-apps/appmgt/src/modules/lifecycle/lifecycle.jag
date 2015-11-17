@@ -35,6 +35,7 @@ var carbon = require('carbon');
 var server = carbon.server;
 var appfactory = require('appFactory');
 var multitenancy = carbon.multitenancy;
+var log = new Log();
 
 var invokeCreateArtifact = function invokeCreateArtifact(applicationKey, version, revision, stage, doDeploy, tagName, repofrom) {
 
@@ -88,12 +89,12 @@ var addGenericArtifact = function addGenericArtifact(key, content, lifecycleAttr
     }
 };
 
-function invokeAspectWithParameter(path, aspect, action, items, parameters, currentStage) {
+function invokeAspectWithParameter(path, aspect, action, items, parameters, currentStage,applicationKey) {
     if (action == "Promote") {
-        var nextStage = getNextLifeCycleStage(currentStage);
+        var nextStage = getNextLifeCycleStage(currentStage,applicationKey);
         jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_PROMOTE_TO + nextStage);
     } else if (action == "Demote") {
-        var previousStage = getPreviousLifeCycleStage(currentStage);
+        var previousStage = getPreviousLifeCycleStage(currentStage,applicationKey);
         jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_DEMOTE_TO + previousStage);
     } else if (action == "Retire") {
         jagg.module("permission").checkUserActionPermission(parameters[3], PERMISSION_GOVERNANCE_RETIRE);
@@ -148,7 +149,7 @@ function invokeAspectWithParameter(path, aspect, action, items, parameters, curr
     }
 };
 
-function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleName) {
+function invokeDoVersion(applicationKey, srcVersion, targetVersion) {
     jagg.module("permission").checkUserActionPermission(applicationKey, PERMISSION_REPOSITORY_BRANCH);
 
 
@@ -156,7 +157,7 @@ function invokeDoVersion(applicationKey, srcVersion, targetVersion, lifecycleNam
     var tenantDomain = modManager.getTenantDomain();
     var context = multitenancy.getPrivilegedCarbonContext();
     var tenantManager = multitenancy.getTenantManager();
-
+    var lifecycleName = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
     try {
         var key = 'appversion';
         var content ='<metadata xmlns="http://www.wso2.org/governance/metadata">' +
@@ -314,7 +315,7 @@ function getCheckItemsByPathWithSleep(path) {
 function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
     // no need to secure, internal calls are already secured.
     var appVersions = parse(modApplication.getAppVersionsInStages(applicationKey, userName, false, false, "true"));
-    var stages = parse(modApplication.getAllStages());
+    var stages = parse(modApplication.getAllStages(applicationKey));
     var stageVersions = new Object();
     for (var i = 0; i < stages.length; i++) {
         var versionArry = new Array();
@@ -332,10 +333,10 @@ function getAppVersionsInStagesWithLifeCycleInfo(applicationKey, userName) {
 
         for (var i = 0; i < appVersions[appVersionCounter].versions.length; i++) {
 
-            var path = '/_system/governance' + '/repository/applications/' + applicationKey +
-                    '/' + appVersions[appVersionCounter].versions[i].version;
-
-            var lifeCycleCheckListItems = getCheckItemsByPath(path);
+            //var path = '/_system/governance' + '/repository/applications/' + applicationKey +
+                   // '/' + appVersions[appVersionCounter].versions[i].version;
+            var lifeCycleCheckListItems = getCheckListItems(applicationKey,appVersions[appVersionCounter].versions[i].version);
+                    //getCheckItemsByPath(path);
             appVersions[appVersionCounter].versions[i].lifeCycleCheckListItems = lifeCycleCheckListItems;
             //skip the retired versions
             if (stageVersions[appVersions[appVersionCounter].versions[i].stage]) {
@@ -459,9 +460,9 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
 
     var stageName = currentStage;
     if (action == "Promote") {
-        stageName = getNextLifeCycleStage(currentStage);
+        stageName = getNextLifeCycleStage(currentStage,applicationID);
     }else if (action == "Demote") {
-        stageName = getPreviousLifeCycleStage(currentStage);
+        stageName = getPreviousLifeCycleStage(currentStage,applicationID);
     }
     updateStage(applicationID, stageName, version);
 
@@ -558,10 +559,10 @@ var invokeGovernanceProcess = function invokeGovernanceProcess(action, currentSt
     var notificationAction = "promoting";
     if (action == "Promote") {
         notificationAction = "promoting";
-        toStageString = " to " + getNextLifeCycleStage(currentStage);
+        toStageString = " to " + getNextLifeCycleStage(currentStage,applicationID);
     } else if (action == "Demote") {
         notificationAction = "demoting";
-        toStageString = " to " + getPreviousLifeCycleStage(currentStage);
+        toStageString = " to " + getPreviousLifeCycleStage(currentStage,applicationID);
     } else if (action == "Retire") {
         notificationAction = "retiring";
     }
@@ -624,7 +625,8 @@ var setAutoDeployment = function setAutoDeployment(applicationKey, stageName, pr
 
 
     var key = 'appversion';
-
+    var tenantDomain = modManager.getTenantDomain();
+    var lifecycleName = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
 
     var preVersionContent = '<![CDATA[<metadata xmlns="http://www.wso2.org/governance/metadata">' +
             '<appversion>' +
@@ -632,7 +634,7 @@ var setAutoDeployment = function setAutoDeployment(applicationKey, stageName, pr
             '<version>' + previousVersion + '</version>' +
             '<autodeployment>false</autodeployment>' +
             '</appversion>' +
-            '<serviceLifecycle><lifecycleName>' + LIFE_CYCLE_NAME + '</lifecycleName></serviceLifecycle>' +
+            '<serviceLifecycle><lifecycleName>' + lifecycleName + '</lifecycleName></serviceLifecycle>' +
             '</metadata>]]>';
 
 
@@ -642,7 +644,7 @@ var setAutoDeployment = function setAutoDeployment(applicationKey, stageName, pr
             '<version>' + nextVersion + '</version>' +
             '<autodeployment>true</autodeployment>' +
             '</appversion>' +
-            '<serviceLifecycle><lifecycleName>' + LIFE_CYCLE_NAME + '</lifecycleName></serviceLifecycle>' +
+            '<serviceLifecycle><lifecycleName>' + lifecycleName + '</lifecycleName></serviceLifecycle>' +
             '</metadata>]]>';
 
     var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
@@ -726,34 +728,45 @@ var editGenericArtifact = function editGenericArtifact(key, content, lifecycleAt
         throw e;
     }
 };
-var getNextLifeCycleStage = function getNextLifeCycleStage(currentLifeCycleStage) {
-    return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Promote.TargetStage');
+var getNextLifeCycleStage = function getNextLifeCycleStage(currentLifeCycleStage,applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+
+    var lifecycle = getCurrentLifecycle(applicationKey, tenantDomain).lifecycleName;
+    return getNextStage(lifecycle, currentLifeCycleStage);
+    //return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Promote.TargetStage');
 
 };
-var getPreviousLifeCycleStage = function getPreviousLifeCycleStage(currentLifeCycleStage) {
-    return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Demote.TargetStage');
+var getPreviousLifeCycleStage = function getPreviousLifeCycleStage(currentLifeCycleStage,applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+
+    var lifecycle = getCurrentLifecycle(applicationKey, tenantDomain).lifecycleName;
+    return getPreviousStage(lifecycle, currentLifeCycleStage);
+    //return getProperty('ApplicationDeployment.DeploymentStage.' + currentLifeCycleStage + '.Demote.TargetStage');
 };
 
 
-var getInitialLifeCycleStages = function getInitialLifeCycleStages() {
-    var stages = getProperties(DEPLOYMENT_STAGES);
+var getInitialLifeCycleStages = function getInitialLifeCycleStages(applicationKey) {
+    var stages = getStages(applicationKey);
     var initialStages = [];
 
     for (var i = 0; i < stages.length; i++) {
-        if (isInitialLifeCycleStage(stages[i])) {
+        if (isInitialLifeCycleStage(stages[i],applicationKey)) {
             initialStages.push(stages[i]);
         }
     }
-    return initialStages;
+    return initialStages; // returns string array with one element
 };
 
-var getAllLifeCycleStages = function getAllLifeCycleStages() {
-    return  getProperties(DEPLOYMENT_STAGES);
+var getAllLifeCycleStages = function getAllLifeCycleStages(applicationKey) {
+    return getStages(applicationKey);
 };
 
 
-var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage) {
-    return getPreviousLifeCycleStage(lifeCycleStage) === null;
+var isInitialLifeCycleStage = function isInitialLifeCycleStage(lifeCycleStage,applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+    var lifecycleName = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
+    return getFirstStage(lifecycleName) == lifeCycleStage;
+    //return getPreviousLifeCycleStage(lifeCycleStage) === null;
 };
 
 var updateAutoBuild = function updateAutoBuild(applicationKey, stageName, version, isEnable) {
@@ -842,7 +855,7 @@ var updateAutoDeployment = function updateAutoDeployment(applicationKey, stageNa
     }
 };
 
-
+/*
 function getLifecycleAction(path) {
     jagg.module("permission").checkUserAuthenticated();
     var actionNamespace = new Namespace("http://util.checklist.lifecycles.custom.governance.carbon.wso2.org/xsd");
@@ -860,13 +873,111 @@ in
         lifecycleActions[k++] = value;
     }
     return lifecycleActions;
-};
+};*/
 
 function getCheckListItemsOfAppVersion(applicationKey,version) {
     var path = '/_system/governance' + '/repository/applications/' + applicationKey + '/' + version;
     return getCheckItemsByPath(path);
+    //return getCheckListItems(applicationKey,version);
 };
 
+function getAllLifecycles(){
+    var lifecycles = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getAllLifeCycles();
+    var lifecycleNames = [];
+    for (var key in lifecycles) {
+        var lifecycle = lifecycles[key];
+        var object = {};
+        object.lifecycleName = lifecycle.lifecycleName;
+        object.displayName = lifecycle.displayName;
+        object.buildStageName = lifecycle.buildStageName;
+        lifecycleNames.push(object);
+    }
+    return lifecycleNames;
+};
+
+function changeLifecycle(applicationKey,lifecycleName,tenantDomain){
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+            .setAppLifecycle(applicationKey, lifecycleName, tenantDomain);
+
+};
+
+function getCurrentLifecycle(applicationKey,tenantDomain){
+    var lifecycle = server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+            .getCurrentLifecycle(applicationKey,tenantDomain);
+        var object = {};
+        object.lifecycleName = lifecycle.lifecycleName;
+        object.displayName = lifecycle.displayName;
+        object.buildStageName = lifecycle.buildStageName;
+    return object;
+};
+
+function getNextStage(lifecycleName,currentStage){
+    try {
+        return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+                .getNextStage(lifecycleName, currentStage);
+    } catch (e) {
+        log.info("There is no before stage");
+    }
+    return "";
+};
+
+function getPreviousStage(lifecycleName,currentStage){
+    try {
+        return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+                .getPreviousStage(lifecycleName, currentStage);
+    } catch (e) {
+        log.info("There is no previous stage");
+    }
+    return "";
+};
+
+function getFirstStage(lifecycleName){
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+            .getFirstStageByLifecycle(lifecycleName);
+};
+
+
+
+function getCheckListItems(applicationKey,version){
+    var tenantDomain = modManager.getTenantDomain();
+    var stage =  server.osgiService('org.wso2.carbon.appfactory.application.mgt.service.ApplicationInfoService').getStage(applicationKey,version);
+    var lifecycle = getCurrentLifecycle(applicationKey,tenantDomain).lifecycleName;
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+            .getCheckListItemsByStage(lifecycle,stage);
+
+};
+
+function getStages(applicationId){
+    var tenantDomain = modManager.getTenantDomain();
+    var lifecycle = getCurrentLifecycle(applicationId,tenantDomain);
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService')
+            .getLifecycleStages(lifecycle.lifecycleName);
+};
+
+function getDisplayLifecycles(applicationKey){
+    var lifecycles = getAllLifecycles();
+    var lifecycleArr = [];
+    var tenantDomain = modManager.getTenantDomain();
+    for (var key in lifecycles) {
+        var lifecycle = lifecycles[key];
+        var object = {};
+        object.lifecycleName = lifecycle.lifecycleName;
+        object.displayName = lifecycle.displayName;
+        object.buildStageName = lifecycle.buildStageName;
+        if (lifecycle.buildStageName != null && lifecycle.lifecycleName != getCurrentLifecycle(applicationKey, tenantDomain).lifecycleName) {
+            lifecycleArr.push(object);
+        }
+    }
+    return lifecycleArr;
+};
+function getBuildableStage(applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').getBuildStageName(applicationKey,tenantDomain);
+};
+function isLifecycleChangeValid(applicationKey) {
+    var tenantDomain = modManager.getTenantDomain();
+    return server.osgiService('org.wso2.carbon.appfactory.core.services.LifecycleManagementService').isLifecycleChangeValid(applicationKey,tenantDomain);
+};
 
 %>
 

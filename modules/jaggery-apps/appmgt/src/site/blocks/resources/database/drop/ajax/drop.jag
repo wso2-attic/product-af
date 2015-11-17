@@ -46,7 +46,7 @@ var loggedInUser = jagg.getUser();
 
         var response = {};
         modPermission = jagg.module("permission");
-        var stage = mod.getStageFromRssInstanceName(databaseServerInstanceName);
+        var stage = mod.getStageFromRssInstanceName(databaseServerInstanceName, applicationKey);
         var hasDbConfigPermission = modPermission.isUserAccessGranted(applicationKey,
         		PERMISSION_RESOURCES_CREATE_FOR_STAGE +stage);
         

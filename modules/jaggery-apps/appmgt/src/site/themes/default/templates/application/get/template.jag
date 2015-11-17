@@ -57,7 +57,7 @@
     var hasDomainMappingPermission = "<%=outputs.hasDomainMappingPermission%>";
     var fgdmAllowedStage  = JSON.parse('<%=stringify(outputs.fineGrainedDomainMappingAllowedStage)%>');
     var previousVersion = "<%=previousVersion%>";
-    var lifeCycleName = "<%=LIFE_CYCLE_NAME%>";
+    //var lifeCycleName = "<%=LIFE_CYCLE_NAME%>";
     var appCreationStartedFlag = "<%=appCreationStartedFlag%>";
     appCreationStartedFlag = JSON.parse(appCreationStartedFlag);
 </script>

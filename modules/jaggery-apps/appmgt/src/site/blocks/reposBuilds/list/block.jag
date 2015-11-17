@@ -41,7 +41,7 @@ jagg.block("reposBuilds/list", {
     	var map = {};
         var userName = jagg.getUser();
         if(userName) {
-            var stages = lifeCycleModule.getAllLifeCycleStages();
+            var stages = lifeCycleModule.getAllLifeCycleStages(applicationKey);
 
             for (var index in stages) {
                 var isAllowed = jagg.module("permission").isUserAccessGranted(inputs.applicationKey,
@@ -61,7 +61,7 @@ jagg.block("reposBuilds/list", {
                 if (x != null) {
                     var appInfo = parse(x);
                 }
-                buildableStages = parse(modApp.getBuildableStages());
+                buildableStages = parse(modApp.getBuildableStages(applicationKey));
                 for (var appIndex in appInfo) {
                     var elementAppInfo = appInfo[appIndex];
 

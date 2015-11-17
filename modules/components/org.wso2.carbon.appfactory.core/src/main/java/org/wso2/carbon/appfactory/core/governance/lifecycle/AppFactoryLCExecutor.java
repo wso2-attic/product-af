@@ -26,8 +26,8 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
-import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.governance.registry.extensions.aspects.utils.LifecycleConstants;
@@ -149,13 +149,16 @@ public class AppFactoryLCExecutor implements Execution {
                 updateBAMStats(currentAppID, currentAppID, System.currentTimeMillis(),
                         "" + tenantId, user, version, targetState);
 
+                LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+                String lifecycleName = lifecycleManagementService.getCurrentLifecycle(currentAppID, tenantDomain)
+                        .getLifecycleName();
                 String appType = AppFactoryCoreUtil.getApplicationType(currentAppID, tenantDomain);
                 // if target lifecycle stage is production(last stage) and apptype is supporting persisting endpoint as
                 // as a HTTP service,
                 // we persist application endpoint as a HTTP service.
                 if (ApplicationTypeManager.getInstance().getApplicationTypeBean(appType).
 		                isPersistApplicationEndPointMetaData() &&
-                        AppFactoryUtil.getNextLifeCycleStage(targetState) == null) {
+                        lifecycleManagementService.getNextStage(lifecycleName,targetState) == null) {
                     persistApplicationEndpointMetaData(requestContext.getRegistry(), appVersion,
                             currentAppID, targetState, user);
                 }

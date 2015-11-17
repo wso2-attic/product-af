@@ -44,9 +44,8 @@ include("/jagg/config_reader.jag");
     	var copyToAll=request.getParameter("copyToAll");
 
         var response = {};
-        var initialStages = lifeCycleModule.getInitialLifeCycleStages();
         var stages = [stage];
-        var allStages=getProperties(DEPLOYMENT_STAGES);
+        var allStages= lifeCycleModule.getStages(applicationKey);
         if((copyToAll=="true")&&jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
         	stages=allStages;
         }

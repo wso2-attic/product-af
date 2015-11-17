@@ -33,7 +33,8 @@ jagg.block("resources/datasource/edit", {
     getOutputs:function (inputs) {
         var applicationKey = request.getParameter("applicationKey");
         var permissionModule = jagg.module("permission");
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
+                //getProperties(DEPLOYMENT_STAGES);
         var currentStage = request.getParameter("currentStage");
         var hasDeleteResourcePermissions = hasUILevelResourceDeletePermission(applicationKey, currentStage);
 

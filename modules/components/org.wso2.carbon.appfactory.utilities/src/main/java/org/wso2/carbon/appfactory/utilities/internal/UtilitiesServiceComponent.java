@@ -23,6 +23,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.RemoteRegistryService;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.utilities.dataservice.DSApplicationListener;
 import org.wso2.carbon.appfactory.utilities.esb.ESBApplicationListener;
 import org.wso2.carbon.appfactory.utilities.version.AppVersionStrategyExecutor;
@@ -58,6 +59,10 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  *              cardinality="1..1" policy="dynamic"
  *              bind="setAppfactoryRemoteRegistryService"
  *              unbind="unsetAppfactoryRemoteRegistryService"
+ * @scr.reference name="appfactory.lifecycle.mgt.service"
+ *              interface="org.wso2.carbon.appfactory.core.services.LifecycleManagementService"
+ *              cardinality="0..1" policy="dynamic" bind="setLifecycleManagementService"
+ *              unbind="unsetLifecycleManagementService"
  */
 
 public class UtilitiesServiceComponent {
@@ -157,5 +162,18 @@ public class UtilitiesServiceComponent {
 			log.debug("unset appfactory remote registry service");
 		}
 	}
+    protected  void setLifecycleManagementService(LifecycleManagementService lifecycleManagementService) {
+        ServiceReferenceHolder.getInstance().setLifecycleManagementService(lifecycleManagementService);
+        if(log.isDebugEnabled()) {
+            log.debug("set LifecycleManagementService for org.wso2.carbon.appfactoutilities.internalion");
+        }
+    }
+
+    protected void unsetLifecycleManagementService(LifecycleManagementService lifecycleManagementService) {
+        ServiceReferenceHolder.getInstance().setLifecycleManagementService(null);
+        if(log.isDebugEnabled()) {
+            log.debug("un set RealmService for org.wso2.carbon.appfactoutilities.internalion");
+        }
+    }
 
 }

@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.beans.RuntimeBean;
+import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeBean;
 import org.wso2.carbon.appfactory.core.apptype.ApplicationTypeManager;
 import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
@@ -123,13 +124,13 @@ public class AppFactoryCoreUtil {
 			ServiceHolder.getTenantRegistryLoader().loadTenantRegistry(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         	RegistryService registryService = ServiceHolder.getRegistryService();
 			UserRegistry userRegistry =
-			                            registryService.getGovernanceSystemRegistry(ServiceHolder.getRealmService()
-			                                                                                     .getTenantManager()
-			                                                                                     .getTenantId(tenantDomain));
+			                            registryService.getGovernanceSystemRegistry(
+                                                ServiceHolder.getRealmService().getTenantManager()
+                                                        .getTenantId(tenantDomain));
 			Resource resource =
 			                    userRegistry.get(AppFactoryConstants.REGISTRY_APPLICATION_PATH +
-			                                     RegistryConstants.PATH_SEPARATOR + applicationId +
-			                                     RegistryConstants.PATH_SEPARATOR + "appinfo");
+                                        RegistryConstants.PATH_SEPARATOR + applicationId +
+                                        RegistryConstants.PATH_SEPARATOR + "appinfo");
 
 			GovernanceUtils.loadGovernanceArtifacts(userRegistry);
 			GenericArtifactManager artifactManager = new GenericArtifactManager(userRegistry, "application");
@@ -364,5 +365,4 @@ public class AppFactoryCoreUtil {
 			}
 		}
 	}
-
 }

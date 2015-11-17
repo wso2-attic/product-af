@@ -45,68 +45,72 @@ import java.util.List;
  * and operations based on appFactory AA model
  */
 public class RepositoryAuthenticationService extends AbstractAdmin {
-	private static final Log log = LogFactory.getLog(RepositoryAuthenticationService.class);
+    private static final Log log = LogFactory.getLog(RepositoryAuthenticationService.class);
 
-
-	public boolean canCommit(String applicationId, String version){
-		String path = "repository/applications/" + applicationId + "/" + version;
-		UserRegistry usrRegistry = (UserRegistry) CarbonContext.getThreadLocalCarbonContext().getRegistry(
-				RegistryType.USER_GOVERNANCE);
-		Registry configRegistry =
-				(Registry) CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_CONFIGURATION);
-		try {
-			LifecycleBean lifecycleBean = LifecycleBeanPopulator.getLifecycleBean(path, usrRegistry, configRegistry);
-			if (lifecycleBean == null) {
-				log.error("Failed to get lifecycle bean for registry path : " + path + " for application: " +
-				          applicationId + " and version : " + version+". Hence user is not allowed to commit.");
-				return false;
-			}
-			Property[] lifecycleProperties = lifecycleBean.getLifecycleProperties();
-			String stage = null;
-			for (Property lifecycleProp : lifecycleProperties){
-				if(AppFactoryConstants.APPLICATION_LIFECYCLE_STATE_KEY.equals(lifecycleProp.getKey())){
-					stage = lifecycleProp.getValues()[0];
-					break;
-				}
-			}
-			if(stage != null && Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
+    public boolean canCommit(String applicationId, String version) {
+        String path = "repository/applications/" + applicationId + "/" + version;
+        UserRegistry usrRegistry = (UserRegistry) CarbonContext.getThreadLocalCarbonContext()
+                .getRegistry(RegistryType.USER_GOVERNANCE);
+        Registry configRegistry = (Registry) CarbonContext.getThreadLocalCarbonContext()
+                .getRegistry(RegistryType.SYSTEM_CONFIGURATION);
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        try {
+            LifecycleBean lifecycleBean = LifecycleBeanPopulator.getLifecycleBean(path, usrRegistry, configRegistry);
+            if (lifecycleBean == null) {
+                log.error("Failed to get lifecycle bean for registry path : " + path + " for application: " +
+                        applicationId + " and version : " + version + ". Hence user is not allowed to commit.");
+                return false;
+            }
+            Property[] lifecycleProperties = lifecycleBean.getLifecycleProperties();
+            String stage = null;
+            for (Property lifecycleProp : lifecycleProperties) {
+                if (AppFactoryConstants.APPLICATION_LIFECYCLE_STATE_KEY.equals(lifecycleProp.getKey())) {
+                    stage = lifecycleProp.getValues()[0];
+                    break;
+                }
+            }
+           /*if(stage != null && Boolean.parseBoolean(AppFactoryUtil.getAppfactoryConfiguration().
 					getFirstProperty("ApplicationDeployment.DeploymentStage." + stage + ".CanCommit"))){
 				return true;
-			}
-			return false;
-		} catch (Exception e) {
-			String msg =
-					"Error while retrieving the stage of application : " + applicationId + " and version : " + version;
-			log.error(msg, e);
-			return false;
-		}
-	}
+			}*/
 
-	/**
-	 * To authorize git action against permission code configured in appfactory
-	 * configuration
-	 * 
-	 * @param username
-	 * @param applicationId
-	 * @param repoAction
-	 * @param fullRepoName
-	 * @return
-	 */
-	public boolean hasAccess(String username, String applicationId, String repoAction,
-	                         String fullRepoName) {
-		boolean ret = false;
-		try {
-			String domainName = getTenantDomain();
-			String repoDomain = fullRepoName.split("/")[0];
+            if (stage != null &&
+                    stage.equals(Util.getLifecycleManagementService().getBuildStageName(applicationId, tenantDomain))) {
+                //if the stage equals to build stage relevant to lifecycle
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            String msg =
+                    "Error while retrieving the stage of application : " + applicationId + " and version : " + version;
+            log.error(msg, e);
+            return false;
+        }
+    }
 
-			
-			if(!repoDomain.equals(domainName) & !repoDomain.equals("~"+domainName)){
-			    return false;
-			}
+    /**
+     * To authorize git action against permission code configured in appfactory
+     * configuration
+     *
+     * @param username
+     * @param applicationId
+     * @param repoAction
+     * @param fullRepoName
+     * @return
+     */
+    public boolean hasAccess(String username, String applicationId, String repoAction, String fullRepoName) {
+        boolean ret = false;
+        try {
+            String domainName = getTenantDomain();
+            String repoDomain = fullRepoName.split("/")[0];
 
-            if(fullRepoName.contains("~")){
+            if (!repoDomain.equals(domainName) & !repoDomain.equals("~" + domainName)) {
+                return false;
+            }
+
+            if (fullRepoName.contains("~")) {
                 String repoUserName = fullRepoName.split("/")[1];
-                if(!repoUserName.equals(MultitenantUtils.getTenantAwareUsername(username))){
+                if (!repoUserName.equals(MultitenantUtils.getTenantAwareUsername(username))) {
                     return false;
                 }
             }
@@ -114,33 +118,31 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
             AppFactoryConfiguration configuration = Util.getConfiguration();
             String repositoryType = ProjectUtils.getRepositoryType(applicationId, domainName);
 
-			try {
-                if(!isAccessToApplication(username,applicationId,domainName)){
-                    return false ;
+            try {
+                if (!isAccessToApplication(username, applicationId, domainName)) {
+                    return false;
                 }
             } catch (RepositoryMgtException e) {
-                String msg =
-                        "Error while checking permission for accessing application of " +
-                                applicationId + " by " + username;
+                String msg = "Error while checking permission for accessing application of " +
+                        applicationId + " by " + username;
                 log.error(msg, e);
             }
 
-			UserRealm realm = getUserRealm();
-			String userNameDomainAware = MultitenantUtils.getTenantAwareUsername(username);
-			String[] userRoles = realm.getUserStoreManager().getRoleListOfUser(userNameDomainAware);
+            UserRealm realm = getUserRealm();
+            String userNameDomainAware = MultitenantUtils.getTenantAwareUsername(username);
+            String[] userRoles = realm.getUserStoreManager().getRoleListOfUser(userNameDomainAware);
 
-			String repoAccessability =
-			                           configuration.getFirstProperty(AppFactoryConstants.REPO_ACCESSABILITY);
+            String repoAccessability = configuration.getFirstProperty(AppFactoryConstants.REPO_ACCESSABILITY);
 
-			if (fullRepoName.indexOf("~") != -1 && repoAccessability.equals("false")) {
-				return false;
-			}
+            if (fullRepoName.indexOf("~") != -1 && repoAccessability.equals("false")) {
+                return false;
+            }
 
-			if (fullRepoName.indexOf("~") != -1) {
-				// TODO:We can check specific permission check for fork
-				// repository. Because from git side it doesn't differentiate
-				// whether it is master or fork.
-			}
+            if (fullRepoName.indexOf("~") != -1) {
+                // TODO:We can check specific permission check for fork
+                // repository. Because from git side it doesn't differentiate
+                // whether it is master or fork.
+            }
 
             for (String userRole : userRoles) {
                 ret = checkPermission(repositoryType, userRole, repoAction);
@@ -149,78 +151,77 @@ public class RepositoryAuthenticationService extends AbstractAdmin {
                 }
             }
 
-		} catch (UserStoreException e) {
-			String msg =
-			             "Error while checking permission for accessing repository of " +
-			                     applicationId + " by " + username;
-			log.error(msg, e);
-		} catch (AppFactoryException e) {
-			String msg = "Error while getting repository type of application " + applicationId;
-			log.error(msg, e);
-		}
+        } catch (UserStoreException e) {
+            String msg = "Error while checking permission for accessing repository of " +
+                    applicationId + " by " + username;
+            log.error(msg, e);
+        } catch (AppFactoryException e) {
+            String msg = "Error while getting repository type of application " + applicationId;
+            log.error(msg, e);
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	/**
-	 * 
-	 * Check permission against role.
-	 * 
-	 * @param repoType
-	 * @param userRole
-	 * @param repositoryAction
-	 * @return
-	 */
-	private boolean checkPermission(String repoType, String userRole, String repositoryAction) {
-		List<String> permissions = getRepositoryPermissionModel(repoType, userRole);
-		return permissions.contains(repositoryAction);
-	}
+    /**
+     * Check permission against role.
+     *
+     * @param repoType
+     * @param userRole
+     * @param repositoryAction
+     * @return
+     */
+    private boolean checkPermission(String repoType, String userRole, String repositoryAction) {
+        List<String> permissions = getRepositoryPermissionModel(repoType, userRole);
+        return permissions.contains(repositoryAction);
+    }
 
-	/**
-	 * Read user permissions codes per role.
-	 * 
-	 * @param repoType
-	 * @param userRole
-	 * @return
-	 */
-	private List<String> getRepositoryPermissionModel(String repoType, String userRole) {
-		AppFactoryConfiguration appFactoryConfiguration = Util.getConfiguration();
-		String key =
-		             AppFactoryConstants.REPOSITORY_PROVIDER_CONFIG + "." + repoType +
-		                     ".RepositoryUserPermission.Role." + userRole;
-		String permissions = appFactoryConfiguration.getFirstProperty(key);
-		List<String> permissionList = new ArrayList<String>();
-		if (permissions != null) {
-			String[] splitResult = permissions.trim().split(",");
-			if (splitResult.length > 0) {
-				permissionList = Arrays.asList(splitResult);
-			}
-		}
-		return permissionList;
+    /**
+     * Read user permissions codes per role.
+     *
+     * @param repoType
+     * @param userRole
+     * @return
+     */
+    private List<String> getRepositoryPermissionModel(String repoType, String userRole) {
+        AppFactoryConfiguration appFactoryConfiguration = Util.getConfiguration();
+        String key = AppFactoryConstants.REPOSITORY_PROVIDER_CONFIG + "." + repoType +
+                ".RepositoryUserPermission.Role." + userRole;
+        String permissions = appFactoryConfiguration.getFirstProperty(key);
+        List<String> permissionList = new ArrayList<String>();
+        if (permissions != null) {
+            String[] splitResult = permissions.trim().split(",");
+            if (splitResult.length > 0) {
+                permissionList = Arrays.asList(splitResult);
+            }
+        }
+        return permissionList;
 
-	}
-	
-	private boolean isAccessToApplication(String userName,String applicationKey,String tenantDomain) throws RepositoryMgtException {
-	    String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
+    }
+
+    private boolean isAccessToApplication(String userName, String applicationKey, String tenantDomain)
+            throws RepositoryMgtException {
+        String applicationRole = AppFactoryUtil.getRoleNameForApplication(applicationKey);
 
         try {
-            
-            UserRealm realm = Util.getRealmService().getTenantUserRealm(Util.getRealmService().getTenantManager().getTenantId(tenantDomain));
-            
+
+            UserRealm realm = Util.getRealmService()
+                    .getTenantUserRealm(Util.getRealmService().getTenantManager().getTenantId(tenantDomain));
+
             String[] usersOfApplication = realm.getUserStoreManager().getUserListOfRole(applicationRole);
-            userName =  MultitenantUtils.getTenantAwareUsername(userName);
+            userName = MultitenantUtils.getTenantAwareUsername(userName);
             for (String user : usersOfApplication) {
-                    if(user.equalsIgnoreCase(userName)){
-                        return true ;
-                    }
+                if (user.equalsIgnoreCase(userName)) {
+                    return true;
+                }
             }
-            return false ;
+            return false;
 
         } catch (UserStoreException e) {
             String message = "Failed to retrieve list of users for application " + applicationKey;
-            log.error(message,e);
+            log.error(message, e);
             throw new RepositoryMgtException(message, e);
-        } 
-	}
+        }
+    }
 
 }

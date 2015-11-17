@@ -37,7 +37,8 @@ jagg.block("governance/list", {
         var lifecycleModule = jagg.module("lifecycle");
         var mod = jagg.module("manager");
         var applicationMod = jagg.module("application");
-        var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+        var deploymentStages = lifecycleModule.getStages(applicationKey);
+                //getProperties(DEPLOYMENT_STAGES);
         var hasPromotePermissions = {};
         var nextStage = {};
         var previousStage = {};
@@ -48,8 +49,8 @@ jagg.block("governance/list", {
         if(userName) {
             for (var i = 0; i < deploymentStages.length; i++) {
                 var currentStage = deploymentStages[i];
-                var next = lifecycleModule.getNextLifeCycleStage(currentStage);
-                var prev = lifecycleModule.getPreviousLifeCycleStage(currentStage);
+                var next = lifecycleModule.getNextLifeCycleStage(currentStage,applicationKey);
+                var prev = lifecycleModule.getPreviousLifeCycleStage(currentStage,applicationKey);
                 nextStage[currentStage] = next;
                 //next stage null > final stage
                 if (next == null || next == undefined) {

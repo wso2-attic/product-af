@@ -290,7 +290,8 @@ var log=new Log();
         print(mod.getLatestBuildSuccessInfo(applicationKey, version, stage));
     }else if (action === "getBuildableStages") {
         mod = jagg.module("application");
-        print(mod.getBuildableStages());
+        var applicationKey = request.getParameter("applicationKey");
+        print(mod.getBuildableStages(applicationKey));
     } else if (action === "getSubscriptions") {
        var domainName = request.getParameter("domainName");
         try {

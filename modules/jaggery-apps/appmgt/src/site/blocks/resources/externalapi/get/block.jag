@@ -25,10 +25,11 @@ jagg.block("resources/externalapi/add", {
     },
     getOutputs:function (inputs) {
            var log = new Log();
-           var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-           return {
-               "stages": deploymentStages
-           };
+          // var deploymentStages = jagg.module("lifecycle").getStages();
+                   //getProperties(DEPLOYMENT_STAGES);
+          // return {
+           //    "stages": deploymentStages
+          // };
     }
 });
 %>

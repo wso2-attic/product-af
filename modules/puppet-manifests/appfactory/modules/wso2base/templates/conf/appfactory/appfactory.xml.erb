@@ -428,7 +428,6 @@
           -->
 
         <DeploymentStage name="Development">
-            <CanCommit>true</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -503,7 +502,6 @@
             </DeploymentArtifact>
             <Promote>
                 <DeploymentPolicy>Latest</DeploymentPolicy>
-                <TargetStage>Testing</TargetStage>
                 <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
             </Promote>
             <CreateArtifact>Always</CreateArtifact>
@@ -512,12 +510,10 @@
             <MountPoint>dev</MountPoint>
             <BaseAccessUrl>https://<%= dev_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_dev_subdomain %>.<%= @wso2_env_domain %>:<%= @dev_greg_port %>/services/</GregServerURL>
-            <Buildable>true</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Development</RssName>
         </DeploymentStage>
         <DeploymentStage name="Testing">
-            <CanCommit>false</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -594,10 +590,8 @@
             <Promote>
                 <DeploymentPolicy>Promoted</DeploymentPolicy>
                 <!-- Latest/Tagged artifact will be deployed to the promoted stage-->
-                <TargetStage>Production</TargetStage>
             </Promote>
             <Demote>
-                <TargetStage>Development</TargetStage>
             </Demote>
             <CreateArtifact>UserInput</CreateArtifact>
             <DeploymentServerURL>https://<%= test_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
@@ -605,12 +599,10 @@
             <MountPoint>test</MountPoint>
             <BaseAccessUrl>https://<%= test_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_test_subdomain %>.<%= @wso2_env_domain %>:<%= @test_greg_port %>/services/</GregServerURL>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Testing</RssName>
         </DeploymentStage>
         <DeploymentStage name="Production">
-            <CanCommit>false</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -665,7 +657,6 @@
                 <PersistedArtifacts>Tagged</PersistedArtifacts>
             </DeploymentArtifact>
             <Demote>
-                <TargetStage>Testing</TargetStage>
             </Demote>
             <CreateArtifact>Never</CreateArtifact>
             <DeploymentServerURL>https://<%= prod_app_id %>.<%= @wso2_env_domain %>/services/</DeploymentServerURL>
@@ -674,7 +665,6 @@
             <BaseAccessUrl>https://<%= prod_app_id %>.<%= @wso2_env_domain %></BaseAccessUrl>
             <GregServerURL>https://<%= @greg_subdomain %>.<%= as_prod_subdomain %>.<%= @wso2_env_domain %>:<%= @prod_greg_port %>/services/</GregServerURL>
             <Semantic>Production</Semantic>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://<%= @ss_host %>:<%= @ss_port %>/services/</StorageServerUrl>
             <RssName>Production</RssName>
         </DeploymentStage>
@@ -685,11 +675,6 @@
         <TenantMgtUrl>https://<%= @stratos_server %>:<%= @stratos_server_port %></TenantMgtUrl>
         <PAASServicesURL>https://<%= @stratos_server %>:<%= @stratos_server_port %>/services/</PAASServicesURL>
     </Stratos>
-
-    <!--Initial Deployment Stage-->
-    <StartStage>Development</StartStage>
-    <!--End Deployment Stage-->
-    <EndStage>Production</EndStage>
 
     <JNDI>
         <DomainMapping>
@@ -812,5 +797,24 @@
     	<RetryCount>7</RetryCount>
     	<RetryDelay>5</RetryDelay>
     </AbstractSingleTenantApplicationTypeProcessor>
+        <Lifecycles>
+            <Lifecycle name="ApplicationLifecycle">
+                <Property name="buildStage">Development</Property>
+                <Property name="displayname">Default Lifecycle</Property>
+            </Lifecycle>
+            <Lifecycle name="DevProdLifecycle">
+                <Property name="buildStage">Development</Property>
+                <Property name="displayname">Dev and Prod Lifecycle</Property>
+            </Lifecycle>
+            <Lifecycle name="ProductionBuildableLifecycle">
+                <Property name="buildStage">Production</Property>
+                <Property name="displayname">Production Lifecycle</Property>
+            </Lifecycle>
+            <Lifecycle name="UploadableApplicationLifeCycle">
+                <Property name="buildStage"></Property>
+                <Property name="displayname">Uploadable Application LifeCycle</Property>
+            </Lifecycle>
+        </Lifecycles>
+
 </AppFactory>
 

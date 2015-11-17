@@ -31,7 +31,8 @@ jagg.block("resources/database/manage", {
 	getOutputs: function (inputs) {
 		var log = new Log();
 		var permissionModule = jagg.module("permission");
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
 		var hasConfigureDbAdministrationPermissions = {};
 		for (var i = 0; i < deploymentStages.length; i++) {
 			var hasConfigureDbAdministrationPermission = permissionModule.isUserAccessGranted(inputs.applicationKey, PERMISSION_RESOURCES_UPDATE_FOR_STAGE + deploymentStages[i]);

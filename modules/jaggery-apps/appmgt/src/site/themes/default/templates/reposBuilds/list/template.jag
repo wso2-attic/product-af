@@ -31,7 +31,8 @@ jagg.template("reposBuilds/list", function (inputs, outputs, jagg) { %>
     var applicationKey = request.getParameter("applicationKey");
     var applicationName = request.getParameter("applicationName");
     var tenantDomain = outputs.tenantDomain;
-    var allStages = getProperties(DEPLOYMENT_STAGES);
+    var allStages = jagg.module("lifecycle").getStages(applicationKey);
+            //getProperties(DEPLOYMENT_STAGES);
     var appDetails = outputs.appDetails;
     var buildableStages = outputs.buildableStages;
     var devStudioLink = "http://wso2.com/more-downloads/developer-studio/";
@@ -1312,8 +1313,7 @@ $.cookie('selectedStage', selectedStage);
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
-                        targetVersion:targetVersion,
-                        lifecycleName:'<%=LIFE_CYCLE_NAME%>'
+                        targetVersion:targetVersion
                     }, function (result) {
 			addToStageVersionMapping(selectedStage,targetVersion);
 			loadStagesList(selectedStage);

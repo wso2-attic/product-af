@@ -26,16 +26,11 @@ import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.common.util.AppFactoryUtil;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
 import org.wso2.carbon.appfactory.core.cache.ApplicationsOfUserCache;
+import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCAppVersionDAO;
 import org.wso2.carbon.appfactory.core.dao.JDBCApplicationDAO;
-import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.dto.Application;
-import org.wso2.carbon.appfactory.core.dto.ApplicationSummary;
-import org.wso2.carbon.appfactory.core.dto.BuildStatus;
-import org.wso2.carbon.appfactory.core.dto.BuildandDeployStatus;
-import org.wso2.carbon.appfactory.core.dto.DeployStatus;
+import org.wso2.carbon.appfactory.core.dto.*;
 import org.wso2.carbon.appfactory.core.governance.RxtManager;
-import org.wso2.carbon.appfactory.core.dao.ApplicationDAO;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.appfactory.eventing.AppFactoryEventException;
@@ -247,13 +242,15 @@ public class ApplicationInfoService {
             DeployStatus deployStatus;
             ArrayList<Version> versionList = appVersionsDAO.getAllApplicationVersionsOfUser(applicationId,
                                                                                             userName.split("@")[0]);
+            String firstStage = Util.getLifecycleManagementService().getFirstStageByApplication(applicationId,
+                    domainName);
             for (Version version : versionList) {
                 buildStatus = applicationDAO.getBuildStatus(applicationId, version.getVersion(), true, userName.split("@")[0]);
                 version.setLastBuildStatus(
                         "build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
-                deployStatus = applicationDAO.getDeployStatus(applicationId, version.getVersion(),
-                                                              AppFactoryConstants.ApplicationStage.
-                                                                      DEVELOPMENT.getStageStrValue(), true, userName.split("@")[0]);
+                deployStatus = applicationDAO
+                        .getDeployStatus(applicationId, version.getVersion(), firstStage.toLowerCase(), true,
+                                userName.split("@")[0]);
                 version.setLastDeployedId(deployStatus.getLastDeployedId());
             }
             return versionList.toArray(new Version[versionList.size()]);
@@ -279,14 +276,14 @@ public class ApplicationInfoService {
             JDBCAppVersionDAO appVersionsDAO = JDBCAppVersionDAO.getInstance();
             JDBCApplicationDAO applicationDAO = JDBCApplicationDAO.getInstance();
             ArrayList<Version> versionList = appVersionsDAO.getAllVersionsOfApplication(applicationId);
+            String firstStage = Util.getLifecycleManagementService().getFirstStageByApplication(applicationId, domainName);
 
             for(Version version : versionList){
                 BuildStatus buildStatus = applicationDAO.getBuildStatus(applicationId, version.getVersion(), false, null);
                 version.setLastBuildStatus("build " + buildStatus.getLastBuildId() + " " + buildStatus.getLastBuildStatus());
 
-                DeployStatus deployStatus = applicationDAO.getDeployStatus(applicationId, version.getVersion(),
-                                                                           AppFactoryConstants.ApplicationStage.DEVELOPMENT.getStageStrValue(),
-                                                                           false, null);
+                DeployStatus deployStatus = applicationDAO
+                        .getDeployStatus(applicationId, version.getVersion(), firstStage.toLowerCase(), false, null);
                 version.setLastDeployedId(deployStatus.getLastDeployedId());
             }
 
@@ -697,11 +694,12 @@ public class ApplicationInfoService {
 
             Application application = ApplicationDAO.getInstance().getApplicationInfo(applicationId);
             String applicationType = AppFactoryCoreUtil.getApplicationType(applicationId, domainName);
+            String firstStage = Util.getLifecycleManagementService().getFirstStageByApplication(applicationId,
+                    domainName);
 
             Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ?
-                              new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION
-                                      .getCapitalizedString()) : new Version(targetVersion, AppFactoryConstants.
-                    ApplicationStage.DEVELOPMENT.getCapitalizedString());
+                    new Version(targetVersion, AppFactoryConstants.ApplicationStage.PRODUCTION.getCapitalizedString()) :
+                    new Version(targetVersion, firstStage);
             JDBCAppVersionDAO.getInstance().addVersion(applicationId, version);
 
             // find the versions.

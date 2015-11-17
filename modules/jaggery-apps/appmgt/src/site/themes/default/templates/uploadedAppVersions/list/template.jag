@@ -213,8 +213,7 @@ jagg.template("uploadedAppVersions/list", function (inputs, outputs, jagg) { %>
                         action: "invokeDoVersion",
                         applicationKey: applicationKey,
                         srcVersion:srcVersion,
-                        targetVersion:targetVersion,
-                        lifecycleName:'<%=UPLOADABLE_APPLICATION_LIFE_CYCLE_NAME%>'
+                        targetVersion:targetVersion
                     }, function (result) {
                         $(button).removeAttr('disabled').val('Create Branch');
                         //drawVersionsList();

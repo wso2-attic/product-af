@@ -22,12 +22,9 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.common.AppFactoryConstants;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
 import org.wso2.carbon.appfactory.core.cache.JDBCApplicationCacheManager;
-import org.wso2.carbon.appfactory.core.dto.Version;
-import org.wso2.carbon.appfactory.core.dto.Application;
-import org.wso2.carbon.appfactory.core.dto.BuildStatus;
-import org.wso2.carbon.appfactory.core.dto.CartridgeCluster;
-import org.wso2.carbon.appfactory.core.dto.DeployStatus;
+import org.wso2.carbon.appfactory.core.dto.*;
 import org.wso2.carbon.appfactory.core.internal.ServiceHolder;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.sql.SQLConstants;
 import org.wso2.carbon.appfactory.core.sql.SQLParameterConstants;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
@@ -36,17 +33,8 @@ import org.wso2.carbon.appfactory.core.util.Constants;
 import org.wso2.carbon.context.CarbonContext;
 
 import javax.cache.Cache;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 
 /**
  * DAO Class for managing app factory runtime data
@@ -95,6 +83,7 @@ public class JDBCApplicationDAO {
         Connection databaseConnection = null;
         PreparedStatement preparedStatement = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         try {
             databaseConnection = AppFactoryDBUtil.getConnection();
             preparedStatement = databaseConnection.prepareStatement(SQLConstants.ADD_APPLICATION_SQL);
@@ -104,14 +93,14 @@ public class JDBCApplicationDAO {
             preparedStatement.execute();
             int updatedRowCount = preparedStatement.getUpdateCount();
             if (updatedRowCount > 0) {
-
+                LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+                String firstStage = lifecycleManagementService.getFirstStageByApplication(application.getId(), tenantDomain);
                 //debug log
                 handleDebugLog((new StringBuilder()).append("successfully added application.Updated ").append
                         (updatedRowCount).append(" rows").toString());
                 Version version = AppFactoryCoreUtil.isUplodableAppType(application.getType()) ? new Version(
                         SQLParameterConstants.VERSION_1_0_0, AppFactoryConstants.ApplicationStage.PRODUCTION.
-                        getCapitalizedString()) : new Version(SQLParameterConstants.VERSION_TRUNK, AppFactoryConstants.
-                        ApplicationStage.DEVELOPMENT.getCapitalizedString());
+                        getCapitalizedString()) : new Version(SQLParameterConstants.VERSION_TRUNK, firstStage.toUpperCase());
                 addVersion(version, databaseConnection, application.getId());
                 databaseConnection.commit();
                 return true;

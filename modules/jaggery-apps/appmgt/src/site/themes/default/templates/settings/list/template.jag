@@ -28,11 +28,11 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
     var isBuildInfoAllowed = false; //(hasAppCreationPermission && memberOfApplication);
     var isDeleteAllowed = (hasAppCreationPermission && memberOfApplication);
     var iconUrl = jagg.getAbsoluteUrl("/site/blocks/application/get/ajax/list.jag?action=getAppIcon&applicationKey=" + applicationKey);
-%>
+    %>
 
-<!-- start of setting global javascript variable values from jaggery side -->
-<script type="text/javascript" charset="utf-8">
-    var applicationName = "<%=applicationName%>";
+    <!-- start of setting global javascript variable values from jaggery side -->
+    <script type="text/javascript" charset="utf-8">
+        var applicationName = "<%=applicationName%>";
     var applicationKey = "<%=applicationKey%>";
     var hasAppCreationPermission = "<%=hasAppCreationPermission%>";
     var memberOfApplication = "<%=memberOfApplication%>";
@@ -79,7 +79,9 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         <a href="#deleteapp" aria-controls="deleteapp" role="tab" data-toggle="tab">Delete Application</a>
                     </li>
                 <% }%>
-
+                    <li role="presentation" class="">
+                        <a href="#changelifecycle" aria-controls="changelifecycle" role="tab" data-toggle="tab">Change Lifecycle</a>
+                    </li>
             </ul>
 
             <!-- Tab panes -->
@@ -156,6 +158,35 @@ jagg.template("settings/list", function (inputs, outputs, jagg) { %>
                         </div>
                     </div><!-- END OF deleteapp Tab pane -->
                 <% }%>
+            <div role="tabpanel" class="tab-pane" id="changelifecycle">
+                        <div id="push"></div>
+                        <div class="msg-issues">
+                            Your current lifecycle name is
+                            <strong id="lifecycle-display-name"></strong>
+                            . You can change the lifecycle of this application here.
+                            <input type="hidden" id="dev-stage-name"/>
+                        </div>
+                        <div class="col-md-6">
+                              <div class="form-group">
+                                    <label for="lifecycle-name">Lifecycle Names: </label>
+                                        <select id="lifecycle-name" class="form-control select2 stage">
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="push"></div>
+                            <div id="push"></div>
+                            <div id="push"></div>
+                        <div class="form-group">
+                            <button type="button" class="cu-btn cu-btn-sm cu-btn-blue" id="changeLifecycle"
+                            onclick="LifecycleChangeConfirmation();">
+                            <span class="fw-stack fw-lg btn-action-ico">
+                                <i class="fw fw-ring fw-stack-2x"></i>
+                                <i class="fw fw-delete fw-stack-1x"></i>
+                            </span>
+                                Change lifecycle
+                            </button>
+                        </div>
+                    </div><!-- END OF changelifecycle Tab pane -->
             </div>
         </div><!-- END OF cloud-tab -->
     </div><!-- END OF row -->

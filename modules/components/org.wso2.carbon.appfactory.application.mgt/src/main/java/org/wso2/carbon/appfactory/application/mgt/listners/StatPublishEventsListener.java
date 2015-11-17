@@ -21,12 +21,12 @@ package org.wso2.carbon.appfactory.application.mgt.listners;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.application.mgt.util.Util;
-import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.common.AppFactoryException;
+import org.wso2.carbon.appfactory.common.bam.BamDataPublisher;
 import org.wso2.carbon.appfactory.core.ApplicationEventsHandler;
-import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.user.api.UserStoreException;
 
 public class StatPublishEventsListener extends ApplicationEventsHandler {
@@ -69,10 +69,12 @@ public class StatPublishEventsListener extends ApplicationEventsHandler {
 
 			// TODO: Get initial version
 			String defaultVersion = "trunk";
-			String defaultStage = Util.getConfiguration().getFirstProperty("StartStage");
-			if(isUploadableAppType){
+            String defaultStage = Util.getLifecycleManagementService()
+                    .getFirstStageByApplication(application.getName(), tenantDomain);
+            if(isUploadableAppType){
 				defaultVersion = "1.0.0";
-				defaultStage = Util.getConfiguration().getFirstProperty("EndStage");
+				defaultStage = Util.getLifecycleManagementService()
+						.getLastStageByApplication(application.getName(), tenantDomain);
 			}
 			
 			publisher.PublishAppVersionEvent(applicationName, applicationId,

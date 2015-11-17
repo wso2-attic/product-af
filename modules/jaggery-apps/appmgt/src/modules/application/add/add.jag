@@ -52,9 +52,10 @@ applicationType,repoAccessibility, repositoryType, userName , applicationURL, ve
                '<repositorytype>'+repositoryType+'</repositorytype>'+
  	           '<applicationCreationStatus>PENDING</applicationCreationStatus>'+
                '</application>'+
+               '<serviceLifecycle><lifecycleName>'+lifecycleName+'</lifecycleName></serviceLifecycle>'+
                '</metadata>';
 
-               var lifecycleAttribute = null;
+               var lifecycleAttribute = 'serviceLifecycle_lifecycleName';
             //Publishing app creation started message to wall
             var notificationTitle  = "Application " + applicationName + " creation is initiated.";
             var notificationDescription = "";

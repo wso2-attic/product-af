@@ -25,7 +25,7 @@ include("/jagg/correlationKeys.jag");
 
 var log= new Log();
 var response = {};
-var allStages = getProperties(DEPLOYMENT_STAGES);
+var modLifecycle = jagg.module("lifecycle");
 
 var EventBuilder = Packages.org.wso2.carbon.appfactory.eventing.builder.utils.ResourceRelatedEventBuilderUtil;
 var EventNotifier = Packages.org.wso2.carbon.appfactory.eventing.EventNotifier;
@@ -103,6 +103,7 @@ var loggedInUser = jagg.getUser();
 	    var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_CREATE_FOR_STAGE +databaseServerInstanceName);
         var databaseDescription = request.getParameter("databaseDescription");
+		var allStages = modLifecycle.getStages(applicationKey);
 		if( !hasPermission ){
 			response.error = true;
 			response.errorMessage = "No permission";
@@ -119,7 +120,7 @@ var loggedInUser = jagg.getUser();
 		var dbResult = "";
 
 		var response = {};
-
+		// var allStages = modLifecycle.getStages(applicationKey);
 		if((createInAll=="true") && jagg.module("manager").checkPermissionforStages(applicationKey,allStages)){
 			targetStage = allStages;
 		}
@@ -348,7 +349,8 @@ var loggedInUser = jagg.getUser();
 		// this method provides only the database information such as name,url,environment.
 		var applicationKey = request.getParameter("applicationKey");
 
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
 		var response = {};
 		for(var i=0;i<deploymentStages.length;i++){
@@ -374,7 +376,8 @@ var loggedInUser = jagg.getUser();
 	}else if(action == "getDatabasesInfoForStages"){
 		var infoArray=[];
 		var applicationKey = request.getParameter("applicationKey");
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
 		//var stage = request.getParameter("stage");
 		for(var i=0;i<deploymentStages.length;i++){
 			//if user has access to stage
@@ -481,7 +484,8 @@ var loggedInUser = jagg.getUser();
 		}
 	} else if(action == "getDbUserTemplateInfoForStages"){
 		var applicationKey = request.getParameter("applicationKey");
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
 		var infoArray=[];
 		for(var i=0;i<deploymentStages.length;i++){
 			//if user has access to stage
@@ -503,7 +507,8 @@ var loggedInUser = jagg.getUser();
 		}else if(action == "getCreatableRSSinstances"){
 			var applicationKey = request.getParameter("applicationKey");
 	
-			var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+			var deploymentStages = modLifecycle.getStages(applicationKey);
+					//getProperties(DEPLOYMENT_STAGES);
 			var instances=[];
 			for(var i=0;i<deploymentStages.length;i++){
 				//if user has access to stage
@@ -527,7 +532,8 @@ var loggedInUser = jagg.getUser();
 		}else if(action == "getRSSinstances"){
 		var applicationKey = request.getParameter("applicationKey");
 
-		var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+		var deploymentStages = modLifecycle.getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
 		var instances=[];
 		for(var i=0;i<deploymentStages.length;i++){
 			//if user has access to stage
@@ -553,7 +559,7 @@ var loggedInUser = jagg.getUser();
 		var dbname = request.getParameter("dbname");
 		var rssInstance = request.getParameter("rssInstance");
 
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
+		var stage = mod.getStageFromRssInstanceName(rssInstance,applicationKey);
 
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
@@ -581,7 +587,7 @@ var loggedInUser = jagg.getUser();
 		var users = request.getParameter("users");
 		var templateName = request.getParameter("templates");
 
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
+		var stage = mod.getStageFromRssInstanceName(rssInstance,applicationKey);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
 		if( !hasPermission ){
@@ -630,7 +636,7 @@ var loggedInUser = jagg.getUser();
         var permissions =  request.getParameter("permissions");
         var templateName = applicationKey + "_" + dbname + "_" + userName + "@" + rssInstance; 
         var permissionObj = parse(permissions);
-        var stage = mod.getStageFromRssInstanceName(rssInstance);
+        var stage = mod.getStageFromRssInstanceName(rssInstance,applicationKey);
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
                 PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
         // checking permission to add a user
@@ -662,7 +668,7 @@ var loggedInUser = jagg.getUser();
 		var rssInstance = request.getParameter("dbServerInstanceName");
 		var username = request.getParameter("username");
 
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
+		var stage = mod.getStageFromRssInstanceName(rssInstance,applicationKey);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
 		if( !hasPermission ){
@@ -691,9 +697,7 @@ var loggedInUser = jagg.getUser();
 
 
 		var response = {};
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
-
-		var stage = mod.getStageFromRssInstanceName(rssInstance);
+		var stage = mod.getStageFromRssInstanceName(rssInstance,applicationKey);
 		var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_READ_FOR_STAGE + stage);
 		if( !hasPermission ){
@@ -735,7 +739,7 @@ var loggedInUser = jagg.getUser();
         var userName = request.getParameter("userName");
         var permissions =  request.getParameter("permissions");
 	    	
-        var stage = mod.getStageFromRssInstanceName(rssInstance);
+        var stage = mod.getStageFromRssInstanceName(rssInstance,applicationKey);
 		// checking whether user is allowed  to update in given stage
         var hasPermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_UPDATE_FOR_STAGE + stage);
@@ -763,7 +767,7 @@ var loggedInUser = jagg.getUser();
 			throw "Error while reading permissions";
 		}
 
-    } else if (action == "getAllDatabasesInfo") {
+   /* } else if (action == "getAllDatabasesInfo") {
         var databasesByName = {};
         for (var i = 0; i < allStages.length; i++) {
             var hasDBConfigurePermissionToStage = modPermission.isUserAccessGranted(applicationKey,
@@ -788,7 +792,7 @@ var loggedInUser = jagg.getUser();
                 }
             }
         }
-        print(databasesByName);
+        print(databasesByName);*/
     } else if (action== "getDatabaseInfoForDataTable") {
         var applicationKey = request.getParameter("applicationKey");
         var applicationName = request.getParameter("applicationName");
@@ -859,7 +863,7 @@ var loggedInUser = jagg.getUser();
 	function createDatasource(applicationKey,datasourceName,rssInstanceName,url,datasourceDescription,driverName,dbUsername,dbPassword){
 		modPermission = jagg.module("permission");
 	        mod = jagg.module("resources");
-		var stage = mod.getStageFromRssInstanceName(rssInstanceName);
+		var stage = mod.getStageFromRssInstanceName(rssInstanceName,applicationKey);
 		//if user has access to stage
 		var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
 				PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);

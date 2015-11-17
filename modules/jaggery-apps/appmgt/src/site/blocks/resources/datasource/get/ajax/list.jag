@@ -26,7 +26,8 @@ var log=new Log();
             action = request.getParameter("action"),
             site = require("/site/conf/site.json");
     var applicationKey = request.getParameter("applicationKey");
-    var deploymentStages = getProperties(DEPLOYMENT_STAGES);
+    var deploymentStages = jagg.module("lifecycle").getStages(applicationKey);
+            //getProperties(DEPLOYMENT_STAGES);
     var response = {};
     if (!jagg.getUser()) {
         print(UNAUTHORIZED_ERROR_RESPONSE);
@@ -47,7 +48,7 @@ var log=new Log();
             }
         }
         print(dsCount);
-    }else if (action == "getDatasources") {
+    }/*else if (action == "getDatasources") {
         var stage = request.getParameter("stage");
     	var permissionModule = jagg.module("permission");
     	var datasourceModule = jagg.module("resources");
@@ -86,7 +87,7 @@ var log=new Log();
             // do nothing
         }
     	print(datasources);
-    } else if (action == "getDatasource") {
+    }*/ else if (action == "getDatasource") {
     	var permissionModule = jagg.module("permission");
     	var datasourceModule = jagg.module("resources");
     	var datasourceName = request.getParameter("datasourceName");

@@ -422,7 +422,6 @@
           -->
 
         <DeploymentStage name="Development">
-            <CanCommit>true</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -497,7 +496,6 @@
             </DeploymentArtifact>
             <Promote>
                 <DeploymentPolicy>Latest</DeploymentPolicy>
-                <TargetStage>Testing</TargetStage>
                 <!-- Tagged/Promoted artifact will be deployed to the promoted stage-->
             </Promote>
             <CreateArtifact>Always</CreateArtifact>
@@ -506,13 +504,10 @@
             <MountPoint>dev</MountPoint>
             <BaseAccessUrl>https://appserver.dev.appfactory.private.wso2.com:9443</BaseAccessUrl>
             <TenantMgtUrl>https://sc.dev.appfactory.private.wso2.com:9463</TenantMgtUrl>
-            <PAASServicesURL>https://sc.dev.appfactory.private.wso2.com:9463/services/</PAASServicesURL>
-            <Buildable>true</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Development</RssName>
         </DeploymentStage>
         <DeploymentStage name="Testing">
-            <CanCommit>false</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -589,10 +584,8 @@
             <Promote>
                 <DeploymentPolicy>Promoted</DeploymentPolicy>
                 <!-- Latest/Tagged artifact will be deployed to the promoted stage-->
-                <TargetStage>Production</TargetStage>
             </Promote>
             <Demote>
-                <TargetStage>Development</TargetStage>
             </Demote>
             <CreateArtifact>UserInput</CreateArtifact>
             <DeploymentServerURL>https://appserver.test.appfactory.private.wso2.com:9443/services/</DeploymentServerURL>
@@ -601,12 +594,10 @@
             <BaseAccessUrl>https://appserver.test.appfactory.private.wso2.com:9443</BaseAccessUrl>
             <TenantMgtUrl>https://sc.test.appfactory.private.wso2.com:9464</TenantMgtUrl>
             <PAASServicesURL>https://sc.test.appfactory.private.wso2.com:9464/services/</PAASServicesURL>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Testing</RssName>
         </DeploymentStage>
         <DeploymentStage name="Production">
-            <CanCommit>false</CanCommit>
             <TenantRoles>
                 <Role name="admin">
                     <Permission>
@@ -660,7 +651,6 @@
                 <PersistedArtifacts>Tagged</PersistedArtifacts>
             </DeploymentArtifact>
             <Demote>
-                <TargetStage>Testing</TargetStage>
             </Demote>
             <CreateArtifact>Never</CreateArtifact>
             <DeploymentServerURL>https://appserver.appfactory.private.wso2.com:9443/services/</DeploymentServerURL>
@@ -670,16 +660,10 @@
             <TenantMgtUrl>https://sc.prod.appfactory.private.wso2.com:9465</TenantMgtUrl>
             <PAASServicesURL>https://sc.prod.appfactory.private.wso2.com:9465/services/</PAASServicesURL>
             <Semantic>Production</Semantic>
-            <Buildable>false</Buildable>
             <StorageServerUrl>https://storage.appfactory.private.wso2.com:9483/services/</StorageServerUrl>
             <RssName>Production</RssName>
         </DeploymentStage>
     </ApplicationDeployment>
-
-    <!--Initial Deployment Stage-->
-    <StartStage>Development</StartStage>
-    <!--End Deployment Stage-->
-    <EndStage>Production</EndStage>
 
     <JNDI>
         <DomainMapping>

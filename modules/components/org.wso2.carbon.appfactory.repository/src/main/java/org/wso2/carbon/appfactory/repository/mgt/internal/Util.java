@@ -17,6 +17,7 @@
 package org.wso2.carbon.appfactory.repository.mgt.internal;
 
 import org.wso2.carbon.appfactory.common.AppFactoryConfiguration;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.repository.mgt.RepositoryProvider;
 import org.wso2.carbon.appfactory.tenant.mgt.service.TenantManagementService;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -32,7 +33,7 @@ public class Util {
     private static RealmService realmService;
     //this is a map to sore Repository providers against repository type(i.e svn,git)
     private static Map<String, RepositoryProvider> repositoryProviderMap = new HashMap<String, RepositoryProvider>();
-    
+    private static LifecycleManagementService lifecycleManagementService;
     private static TenantManagementService tenantManagementService;
 
     public static AppFactoryConfiguration getConfiguration() {
@@ -71,5 +72,11 @@ public class Util {
         Util.tenantManagementService = tenantManagementService;
     }
 
+    public static void setLifecycleManagementService(LifecycleManagementService lifecycleManagementService){
+        Util.lifecycleManagementService = lifecycleManagementService;
+    }
 
+    public static LifecycleManagementService getLifecycleManagementService(){
+        return Util.lifecycleManagementService;
+    }
 }

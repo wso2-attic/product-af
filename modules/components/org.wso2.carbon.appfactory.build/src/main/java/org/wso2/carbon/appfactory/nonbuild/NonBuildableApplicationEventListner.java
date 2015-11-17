@@ -26,9 +26,11 @@ import org.wso2.carbon.appfactory.core.deploy.ApplicationDeployer;
 import org.wso2.carbon.appfactory.core.dto.Version;
 import org.wso2.carbon.appfactory.core.dto.Application;
 import org.wso2.carbon.appfactory.core.dto.UserInfo;
+import org.wso2.carbon.appfactory.core.services.LifecycleManagementService;
 import org.wso2.carbon.appfactory.core.util.AppFactoryCoreUtil;
 import org.wso2.carbon.appfactory.jenkins.build.JenkinsApplicationEventsListener;
 import org.wso2.carbon.appfactory.jenkins.build.internal.ServiceContainer;
+import org.wso2.carbon.context.CarbonContext;
 
 /**
  * 
@@ -54,12 +56,14 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 		log.info("Application Creation(Non-Build) event recieved for : " + application.getId() + " " +
 				application.getName());
 		ApplicationDeployer applicationDeployer = new ApplicationDeployer();
-		
+
+		LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+
 		String defaultVersion = "trunk";
-		String defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("StartStage");
+		String defaultStage = lifecycleManagementService.getFirstStageByApplication(application.getId(), tenantDomain);
 		if(isUploadableAppType){
 			defaultVersion = "1.0.0";
-			defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("EndStage");
+			defaultStage = lifecycleManagementService.getLastStageByApplication(application.getId(), tenantDomain);
 		}
 
 		applicationDeployer.deployArtifact(application.getId(), defaultStage, defaultVersion, "", "deploy","");
@@ -107,8 +111,8 @@ public class NonBuildableApplicationEventListner extends ApplicationEventsHandle
 	if (AppFactoryCoreUtil.isBuildServerRequiredProject(application.getType())) {
 		return;
 	}
-
-        String defaultStage = ServiceContainer.getAppFactoryConfiguration().getFirstProperty("StartStage");
+		LifecycleManagementService lifecycleManagementService = new LifecycleManagementService();
+        String defaultStage = lifecycleManagementService.getFirstStageByApplication(application.getId(), tenantDomain);
         ApplicationDeployer applicationDeployer = new ApplicationDeployer();
         applicationDeployer.deployArtifact(application.getId(), defaultStage, target.getVersion(), "", "deploy","");
 

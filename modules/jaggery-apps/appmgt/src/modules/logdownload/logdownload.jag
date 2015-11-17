@@ -256,7 +256,7 @@ var getVersionsOfApplicationInStages = function (userName, applicationKey) {
     // More info @ https://wso2.org/jira/browse/APPFAC-2282
     var lifecycleMod = jagg.module("lifecycle");
     var permissionModule = jagg.module("permission");
-    var allStages = parse(modApplication.getAllStages());
+    var allStages = parse(modApplication.getAllStages(applicationKey));
     for (var stageIndex in allStages) {
         var stage = allStages[stageIndex];
         if (permissionModule.isUserAccessGranted(applicationKey, PERMISSION_VISIBILITY_STAGE + stage)) {
@@ -264,12 +264,12 @@ var getVersionsOfApplicationInStages = function (userName, applicationKey) {
             if (stages[stage]) {
                 allVersions = allVersions.concat(stages[stage]);
             }
-            var nextStage = lifecycleMod.getNextLifeCycleStage(stage);
+            var nextStage = lifecycleMod.getNextLifeCycleStage(stage,applicationKey);
             while (nextStage) {
                 if (stages[nextStage]) {
                     allVersions = allVersions.concat(stages[nextStage]);
                 }
-                nextStage = lifecycleMod.getNextLifeCycleStage(nextStage);
+                nextStage = lifecycleMod.getNextLifeCycleStage(nextStage,applicationKey);
             }
             appVersions.push({stage: stage, versions: allVersions});
         }

@@ -32,12 +32,14 @@ include("/jagg/config_reader.jag");
         return;
     }
     var modPermission = jagg.module("permission");
+	var modLifecycle = jagg.module("lifecycle");
     if (action == "getExternalAPIs") {
     	
     	var applicationKey = request.getParameter("applicationKey");
         var response = {};
         var externalAPIs = {};
-        var stages = getProperties(DEPLOYMENT_STAGES);
+        var stages = modLifecycle.getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
         for (var i = 0; i < stages.length; i++) {
         	var stage = stages[i];
     		if(modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + stage)){
@@ -72,7 +74,8 @@ include("/jagg/config_reader.jag");
     } else if (action == "getCreatePermittedEnvironments") {
     	var applicationKey = request.getParameter("applicationKey");
     	var permittedStages = [];
-        var stages = getProperties(DEPLOYMENT_STAGES);
+        var stages = modLifecycle.getStages(applicationKey);
+				//getProperties(DEPLOYMENT_STAGES);
         log.debug(stages);
         for (var i = 0; i < stages.length; i++) {
         	var stage = stages[i];

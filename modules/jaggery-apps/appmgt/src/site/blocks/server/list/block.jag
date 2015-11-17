@@ -41,7 +41,8 @@ jagg.block("server/list", {
         var appVersionsInStages = null;
         var appVersions = null;
         if(userName){
-            deploymentStages = getProperties(DEPLOYMENT_STAGES);
+            deploymentStages = lifecycleModule.getStages(applicationKey);
+                    //getProperties(DEPLOYMENT_STAGES);
             helpTips = jagg.module("help").getHelpTips("server");
             appVersionsInStages = logModule.getVersionsOfApplicationInStages(jagg.getUser(), applicationKey);
             appVersions = appVersionsInStages.allAppVersions;

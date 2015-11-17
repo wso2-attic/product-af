@@ -58,7 +58,8 @@ var loggedInUser = jagg.getUser();
             print(response);
             return;
         }
-        var allStages=getProperties(DEPLOYMENT_STAGES);
+        var allStages=jagg.module("lifecycle").getStages(applicationKey);
+                //getProperties(DEPLOYMENT_STAGES);
         var copyAll = request.getParameter("copyAll");
         if(!copyAll || copyAll == "false"){
             allStages = [rssInstanceName];
@@ -85,7 +86,7 @@ var loggedInUser = jagg.getUser();
 
         for (var tempStage in allStages){
         response={};
-            var stage = mod.getStageFromRssInstanceName(allStages[tempStage]);
+            var stage = mod.getStageFromRssInstanceName(allStages[tempStage], applicationKey);
             //if user has access to stage
             var dataSourceCreatePermission = modPermission.isUserAccessGranted(applicationKey,
                     PERMISSION_RESOURCES_CREATE_FOR_STAGE  + stage);

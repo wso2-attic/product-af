@@ -33,7 +33,8 @@ include("/jagg/config_reader.jag");
     }
 	var modPermission = jagg.module("permission");
 	if (action == "getCreatePermittedEnvironments") {
-		var initialStages = jagg.module("lifecycle").getInitialLifeCycleStages();
+		var applicationKey = request.getParameter("applicationKey");
+		var initialStages = jagg.module("lifecycle").getInitialLifeCycleStages(applicationKey);
 		print(initialStages);
 	}else {
 		throw new Error("No action specified");
