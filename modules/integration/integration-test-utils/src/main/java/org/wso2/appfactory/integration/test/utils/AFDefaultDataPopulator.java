@@ -507,7 +507,7 @@ public class AFDefaultDataPopulator {
 		while (round <= retryCount) {
 			try {
 				httpResponse = appMgtRestClient.getAppInfo(applicationKey, false);
-				if(httpResponse != null && httpResponse.getData().equals("null")) {
+				if(httpResponse != null && "null".equals(httpResponse.getData().trim())) {
 					break;
 				}
 			} catch (Exception e) {
@@ -523,7 +523,7 @@ public class AFDefaultDataPopulator {
 		}
 
 		Assert.assertNotNull(httpResponse, "httpResponse is null");
-		Assert.assertEquals(httpResponse.getData().equals("null"), true, "Application not deleted");
+		Assert.assertEquals("null".equals(httpResponse.getData().trim()), true, "Application not deleted");
 
 		round = 1;
 		while (round <= retryCount) {
