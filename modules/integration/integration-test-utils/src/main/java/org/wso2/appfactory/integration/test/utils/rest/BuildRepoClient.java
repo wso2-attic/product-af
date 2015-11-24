@@ -82,7 +82,7 @@ public class BuildRepoClient extends BaseClient {
         msgBody.put("version", version);
         HttpResponse response = doPostRequest(REPOANDBUILD_SET_ENDPOINT , msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            return Boolean.parseBoolean(response.getData());
+            return Boolean.parseBoolean(response.getData().trim());
         } else {
             throw new AFIntegrationTestException("Create fork is failed. "+response.getResponseCode()+" "
                     + response.getData());
@@ -108,7 +108,7 @@ public class BuildRepoClient extends BaseClient {
         msgBody.put("version", version);
         HttpResponse response = doPostRequest(REPOANDBUILD_SET_ENDPOINT , msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            return Boolean.parseBoolean(response.getData());
+            return Boolean.parseBoolean(response.getData().trim());
         } else {
             throw new AFIntegrationTestException("Create fork branch is failed. " +response.getResponseCode()+" "
                     + response.getData());
