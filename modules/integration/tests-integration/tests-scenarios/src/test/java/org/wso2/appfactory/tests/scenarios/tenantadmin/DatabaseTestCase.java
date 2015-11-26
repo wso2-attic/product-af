@@ -18,6 +18,7 @@
 package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -185,13 +186,33 @@ public class DatabaseTestCase extends AFIntegrationTest {
     }
 
     private void deleteDbUser() throws AFIntegrationTestException {
-        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
-        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
+        if(isDataBaseUserExist(dbUserTwoActualName)) {
+            databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
+        }
+        if(isDataBaseUserExist(dbUserOneActualName)) {
+            databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
+        }
     }
 
     private void dropDatabase() throws AFIntegrationTestException {
         databaseClient.dropDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, "false");
         databaseClient.dropDatabase(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, "false");
+    }
+
+    private boolean isDataBaseUserExist(String dbUser) throws AFIntegrationTestException {
+        JsonArray resultAray = databaseClient.getDatabaseUsers(defaultAppKey);
+        if(resultAray != null) {
+            for(Object object : resultAray) {
+                if(object instanceof JsonObject) {
+                    JsonObject data = (JsonObject)object;
+                    String name = data.get("name").getAsString();
+                    if(dbUser.equals(name)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
