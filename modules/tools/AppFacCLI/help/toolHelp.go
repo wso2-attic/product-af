@@ -18,7 +18,7 @@
 package help
 
 import (
-	"github.com/Dilhasha/AppFacCLI/cli/command"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/command"
 	tablemanagement "github.com/buger/goterm"
 	"fmt"
 )
@@ -35,6 +35,7 @@ func ToolHelp(factory command.CommandFactory){
 		metadata := command.Metadata()
 		fmt.Fprintf(commands, "%s\t%s\t%s\n", metadata.Name,metadata.ShortName,metadata.Description)
 	}
+	fmt.Fprintf(commands,"%s\t%s\t%s\n",command.SetBaseUrlCommand,command.SetBaseUrlCommand, "Sets base url for the tool" )
 	tablemanagement.Println(commands)
 	tablemanagement.Flush()
 }

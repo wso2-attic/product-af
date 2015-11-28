@@ -19,11 +19,11 @@
 package main
 
 import (
-	"github.com/Dilhasha/AppFacCLI/cli/command"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/command"
 	"github.com/codegangsta/cli"
-	"github.com/Dilhasha/AppFacCLI/cli/password"
-	"github.com/Dilhasha/AppFacCLI/cli/session"
-	"github.com/Dilhasha/AppFacCLI/cli/help"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/password"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/session"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/help"
 	"fmt"
 )
 

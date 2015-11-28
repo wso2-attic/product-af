@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"github.com/codegangsta/cli"
 	tableManagement "github.com/buger/goterm"
 )
@@ -43,7 +43,7 @@ func NewAppInfo(url string) (cmd AppInfo) {
 func (appInfo AppInfo)Metadata() CommandMetadata{
 	return CommandMetadata{
 		Name : "getAppInfo",
-		Description : "get information of an application",
+		Description : "Get information of an application",
 		ShortName : "ai",
 		Usage : "get app info",
 		Url : appInfo.Url,
@@ -66,7 +66,7 @@ func(appInfo AppInfo) Run(configs CommandConfigs)(bool,string){
 		return true, ""
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		err := json.Unmarshal([]byte(bodyString), &errorFormat)
@@ -76,7 +76,7 @@ func(appInfo AppInfo) Run(configs CommandConfigs)(bool,string){
 				return false, configs.Cookie
 			}
 		}
-		var app formats.AppFormat
+		var app formats.App
 		err = json.Unmarshal([]byte(bodyString), &app)
 		if(err == nil){
 				// Display application details in tabular format

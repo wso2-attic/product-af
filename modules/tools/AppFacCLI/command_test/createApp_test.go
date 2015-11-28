@@ -18,8 +18,8 @@
 package command_test
 
 import (
-	"github.com/Dilhasha/AppFacCLI/cli/command"
-	"github.com/Dilhasha/AppFacCLI/cli/urls"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/command"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/urls"
 	"testing"
 )
 

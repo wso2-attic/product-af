@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"github.com/codegangsta/cli"
 )
 
@@ -43,7 +43,7 @@ func NewAppDeletion(url string) (cmd AppDeletion) {
 func (appDeletion AppDeletion)Metadata() CommandMetadata{
 	return CommandMetadata{
 		Name : "deleteApplication",
-		Description : "delete an application of user",
+		Description : "Deletes an application of user",
 		ShortName : "da",
 		Usage : "delete app",
 		Url : appDeletion.Url,
@@ -71,7 +71,7 @@ func(appDeletion AppDeletion) Run(configs CommandConfigs)(bool , string){
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		err := json.Unmarshal([]byte(bodyString), &errorFormat)

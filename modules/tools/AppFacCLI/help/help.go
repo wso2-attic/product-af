@@ -18,7 +18,7 @@
 package help
 
 import (
-	"github.com/Dilhasha/AppFacCLI/cli/command"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/command"
 	"github.com/codegangsta/cli"
 	tablemanagement "github.com/buger/goterm"
 	"fmt"

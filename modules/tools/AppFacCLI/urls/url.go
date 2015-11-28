@@ -20,6 +20,9 @@
  */
 package urls
 
+
+var baseUrl string
+
 type Urls struct {
 	Login string
 	ListApps string
@@ -36,17 +39,24 @@ type Urls struct {
 //getUrls returns a Urls object with urls for each api cal.
 func GetUrls()Urls{
 	return Urls{
-		Login :"https://203.94.95.207:9443/appmgt/site/blocks/user/login/ajax/login.jag",
-		ListApps :"https://203.94.95.207:9443/appmgt/site/blocks/application/get/ajax/list.jag",
-		ListVersions : "https://203.94.95.207:9443/appmgt/site/blocks/application/get/ajax/list.jag",
-		CreateApp : "https://203.94.95.207:9443/appmgt/site/blocks/application/add/ajax/add.jag",
-		Logout :"https://203.94.95.207:9443/appmgt/site/blocks/user/logout/ajax/logout.jag",
-		GetAppInfo : "https://203.94.95.207:9443/appmgt/site/blocks/application/get/ajax/list.jag",
-		CreateArtifact :"https://203.94.95.207:9443/appmgt/site/blocks/reposBuilds/add/ajax/add.jag",
-		GetBuildSuccessInfo : "https://203.94.95.207:9443/appmgt/site/blocks/reposBuilds/list/ajax/list.jag",
-		PrintLogs : "https://203.94.95.207:9443/appmgt/site/blocks/reposBuilds/get/ajax/get.jag",
-		DeleteApp : "https://203.94.95.207:9443/appmgt/site/blocks/application/delete/ajax/delete.jag",
+		Login :baseUrl+"/appmgt/site/blocks/user/login/ajax/login.jag",
+		ListApps :baseUrl+"/appmgt/site/blocks/application/get/ajax/list.jag",
+		ListVersions : baseUrl+"/appmgt/site/blocks/application/get/ajax/list.jag",
+		CreateApp : baseUrl+"/appmgt/site/blocks/application/add/ajax/add.jag",
+		Logout :baseUrl+"/appmgt/site/blocks/user/logout/ajax/logout.jag",
+		GetAppInfo : baseUrl+"/appmgt/site/blocks/application/get/ajax/list.jag",
+		CreateArtifact :baseUrl+"/appmgt/site/blocks/reposBuilds/add/ajax/add.jag",
+		GetBuildSuccessInfo : baseUrl+"/appmgt/site/blocks/reposBuilds/list/ajax/list.jag",
+		PrintLogs : baseUrl+"/appmgt/site/blocks/reposBuilds/get/ajax/get.jag",
+		DeleteApp : baseUrl+"/appmgt/site/blocks/application/delete/ajax/delete.jag",
 	}
 }
 
+func SetBaseUrl(base string){
+	baseUrl=  base
+}
+
+func BaseUrl() string{
+	return baseUrl
+}
 

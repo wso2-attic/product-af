@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"github.com/codegangsta/cli"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"encoding/json"
 )
 
@@ -70,7 +70,7 @@ func(appCreation AppCreation) Run(configs CommandConfigs) (bool , string){
 		return true, ""
 	}
 	body, _ := ioutil.ReadAll(response.Body)
-	if (response.Status == "200 OK") {
+	if (response.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		err := json.Unmarshal([]byte(bodyString), &errorFormat)
@@ -86,7 +86,7 @@ func(appCreation AppCreation) Run(configs CommandConfigs) (bool , string){
 		if(err == nil){
 			fmt.Println(successMessage.Message)
 		}
-	}else if (response.Status == "500 Internal Server Error") {
+	}else if (response.StatusCode == http.StatusInternalServerError) {
 		fmt.Println("Application already exists. Check application name and key!")
 	}
 	return true , configs.Cookie

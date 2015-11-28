@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"github.com/codegangsta/cli"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"fmt"
 )
 
@@ -42,7 +42,7 @@ func NewBuildSuccessInfo(url string) (cmd BuildSuccessInfo) {
 func (buildSuccessInfo BuildSuccessInfo)Metadata() CommandMetadata{
 	return CommandMetadata{
 		Name : "getBuildAndDeployStatusForVersion",
-		Description : "get last build success details of a particular version of an application",
+		Description : "Get last build success details of a particular version of an application",
 		ShortName : "bs",
 		Usage :"get build success info",
 		Url : buildSuccessInfo.Url,
@@ -67,7 +67,7 @@ func(buildSuccessInfo BuildSuccessInfo) Run(configs CommandConfigs)(bool,string)
 		return true, ""
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		var buildSuccessFormat formats.BuildSuccessFormat

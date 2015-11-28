@@ -22,6 +22,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"github.com/codegangsta/cli"
+	"net/http"
 )
 
 /* Login is the implementation of the command to log into a user account in app factory */
@@ -61,7 +62,7 @@ func(login Login) Run(configs CommandConfigs)(bool , string){
 		//exit the cli
 		return true, ""
 	}
-	if(resp.Status == "200 OK"){
+	if(resp.StatusCode == http.StatusOK){
 		body, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(body)
 		if(strings.Contains(bodyString, "true")){

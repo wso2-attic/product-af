@@ -19,7 +19,7 @@
 package main
 
 import (
-	"github.com/Dilhasha/AppFacCLI/cli/session"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/session"
 	"os"
 	"io"
 	"encoding/json"
@@ -41,7 +41,7 @@ func setSessionUserName(flags []string, flagValues []string)(session.Session){
 func writeSession(sessionObject session.Session)bool{
 	var n int
 	var s []byte
-	file, err := os.Create(filename)
+	file, err := os.Create(sessionFilename)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -59,6 +59,8 @@ func writeSession(sessionObject session.Session)bool{
 	file.Close()
 	return true
 }
+
+
 
 //checkIfInSession returns whether the user already logged in and returns the cookie for session.
 func checkIfInSession(flag string,sessionObject session.Session)(bool,string){
