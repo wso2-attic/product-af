@@ -17,19 +17,19 @@ Google Summer of Code project to create a CLI tool for App Factory
 
 > appfac   ( Lists help for all the available commands )
 
-help                                  h              Shows help for appfac CLI tool
-printBuildLogs                        pl             Prints logs for a given build
-logout                                lo             Logout from a user session
-deleteApplication                     da             Deletes an application of user
-login                                 l              Login to app factory
-getApplicationsOfUser                 la             Lists applications of a user
-getAppVersionsInStage                 lv             Lists versions of an application in a stage
-getBuildAndDeployStatusForVersion     bs             Get last build success details of a particular version of an application
-triggerBuild                          tb             Triggers a build for an app, waits until its success and displays build logs
-createNewApplication                  cap            Creates a new application for user
-getAppInfo                            ai             Get information of an application
-createArtifact                        car            Creates an artifact of an application
-setBaseUrl                            setBaseUrl     Sets base url for the tool
+help                                  ,h              ,Shows help for appfac CLI tool
+printBuildLogs                        ,pl             ,Prints logs for a given build
+logout                                ,lo             ,Logout from a user session
+deleteApplication                     ,da             ,Deletes an application of user
+login                                 ,l              ,Login to app factory
+getApplicationsOfUser                 ,la             ,Lists applications of a user
+getAppVersionsInStage                 ,lv             ,Lists versions of an application in a stage
+getBuildAndDeployStatusForVersion     ,bs             ,Get last build success details of a particular version of an application
+triggerBuild                          ,tb             ,Triggers a build for an app, waits until its success and displays build logs
+createNewApplication                  ,cap            ,Creates a new application for user
+getAppInfo                            ,ai             ,Get information of an application
+createArtifact                        ,car            ,Creates an artifact of an application
+setBaseUrl                            ,setBaseUrl     ,Sets base url for the tool
 
 # Set base url
 Before you start using the tool, the base url for the tool needs to be set.
