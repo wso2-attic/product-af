@@ -1,0 +1,39 @@
+
+ # Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ 
+ #  WSO2 Inc. licenses this file to you under the Apache License,
+ #   Version 2.0 (the "License"); you may not use this file except
+ #   in compliance with the License.
+ #   You may obtain a copy of the License at
+ 
+ #      http://www.apache.org/licenses/LICENSE-2.0
+ 
+ #   Unless required by applicable law or agreed to in writing,
+ #   software distributed under the License is distributed on an
+ #   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ #   KIND, either express or implied.  See the License for the
+ #   specific language governing permissions and limitations
+ #   under the License.
+
+
+
+#!/bin/bash
+
+set -e
+echo -e "\nGenerating Binary..."
+
+#go get dependencies for external repositories
+go get github.com/codegangsta/cli
+go get github.com/buger/goterm
+
+ROOT_DIR=$(cd $(dirname $(dirname $0)) && pwd)
+CLI_GOPATH=$ROOT_DIR/tmp/cli_gopath
+rm -rf $CLI_GOPATH
+
+mkdir -p $CLI_GOPATH/src/github.com/wso2/product-af/modules/tools/AppFacCLI/
+ln -s $ROOT_DIR $CLI_GOPATH/src/github.com/wso2/product-af/modules/tools/AppFacCLI/cli
+GODEP_GOPATH=$ROOT_DIR/Godeps/_workspace
+GOPATH=$CLI_GOPATH:$GODEP_GOPATH:$GOPATH go build -o $ROOT_DIR/out/appfac ./main
+rm -rf $CLI_GOPATH
+set PATH=$ROOT_DIR/out:$PATH
+
