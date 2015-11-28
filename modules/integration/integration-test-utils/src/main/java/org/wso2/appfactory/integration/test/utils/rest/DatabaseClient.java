@@ -402,6 +402,28 @@ public class DatabaseClient extends BaseClient {
     }
 
     /**
+     * Get Databases Users
+     *
+     * @param applicationKey
+     * @return
+     * @throws Exception
+     */
+    public JsonArray getDatabaseUsers(String applicationKey) throws AFIntegrationTestException {
+        Map<String, String> msgBodyMap = new HashMap<String, String>();
+        msgBodyMap.put(REQUEST_KEY_ACTION, "getDatabaseUsers");
+        msgBodyMap.put(APP_KEY, applicationKey);
+        HttpResponse response = super.doPostRequest(BaseClient.APPMGT_DATABASE_USER, msgBodyMap);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            JsonParser jsonParser = new JsonParser();
+            JsonElement jsonElement = jsonParser.parse(response.getData());
+            return jsonElement.getAsJsonArray();
+        } else {
+            throw new AFIntegrationTestException("Error occurred while retrieving database user " +
+                    response.getResponseCode() + response.getData());
+        }
+    }
+
+    /**
      * Get available users to attach to database
      *
      * @param applicationKey

@@ -242,9 +242,10 @@ public class AFDefaultDataPopulator {
                               "key", "WSO2 Stratos Manager");
         Assert.assertNotNull(result, "Result of createTenantBPELClient.createTenant() is null ");
         Assert.assertTrue(result.contains("true"), "Result of createTenantBPELClient.createTenant() is not true ");
-
+        long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+        int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
         // Wait until tenant creation completes
-        Assert.assertTrue(waitUntilTenantCreationCompletes(10000L, 10, fullyQualifiedTenantAdmin, tenantAdminPassword),
+        Assert.assertTrue(waitUntilTenantCreationCompletes(timeOutPeriod, retryCount, fullyQualifiedTenantAdmin, tenantAdminPassword),
                 "Tenant creation unsuccessful");
         log.info("Tenant domain " + tenantDomain + " completed successfully");
     }
@@ -312,11 +313,11 @@ public class AFDefaultDataPopulator {
                 , fullyQualifiedTenantAdmin, tenantAdminPassword);
         appMgtRestClient.createNewApplication(applicationName, applicationKey, applicationType,
                                               fullyQualifiedTenantAdmin, applicationDescription);
-
+        long timeOutPeriod = AFIntegrationTestUtils.getTimeOutPeriod();
+        int retryCount = AFIntegrationTestUtils.getTimeOutRetryCount();
         // Wait till Create Application completion
-        waitUntilApplicationCreationCompletes(30000L, 8, fullyQualifiedTenantAdmin, tenantAdminPassword, applicationKey,
-                                              applicationName, extension, artifactVersion, startStage, runtimeAlias,
-                                              tenantID);
+        waitUntilApplicationCreationCompletes(timeOutPeriod, retryCount, fullyQualifiedTenantAdmin, tenantAdminPassword,
+                applicationKey, applicationName, extension, artifactVersion, startStage, runtimeAlias, tenantID);
     }
 
 
@@ -506,7 +507,7 @@ public class AFDefaultDataPopulator {
 		while (round <= retryCount) {
 			try {
 				httpResponse = appMgtRestClient.getAppInfo(applicationKey, false);
-				if(httpResponse != null && httpResponse.getData().equals("null")) {
+				if(httpResponse != null && "null".equals(httpResponse.getData().trim())) {
 					break;
 				}
 			} catch (Exception e) {
@@ -522,7 +523,7 @@ public class AFDefaultDataPopulator {
 		}
 
 		Assert.assertNotNull(httpResponse, "httpResponse is null");
-		Assert.assertEquals(httpResponse.getData().equals("null"), true, "Application not deleted");
+		Assert.assertEquals("null".equals(httpResponse.getData().trim()), true, "Application not deleted");
 
 		round = 1;
 		while (round <= retryCount) {

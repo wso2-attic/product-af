@@ -18,8 +18,10 @@
 package org.wso2.appfactory.tests.scenarios.tenantadmin;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.appfactory.integration.test.utils.AFConstants;
@@ -67,15 +69,11 @@ public class DatabaseTestCase extends AFIntegrationTest {
         customTemplateActualName = CUSTOM_TEMPLATE + "@" + STAGE_DEVELOPMENT;
 
         // Detach users if exists
-        databaseClient.detachUser(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
-        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
-        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserOneActualName);
+        detachDbUsers();
         //Delete users if exists
-//        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
-//        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
+        deleteDbUser();
         //Delete databases if exists
-        databaseClient.dropDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, "false");
-        databaseClient.dropDatabase(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, "false");
+        dropDatabase();
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -159,11 +157,9 @@ public class DatabaseTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Test creating  database and attached user", dependsOnMethods = {"testGetDbUserTemplateInfoForStages"})
     public void testDetachUserFromDatabase() throws AFIntegrationTestException {
-        databaseClient.detachUser(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
+        detachDbUsers();
         Assert.assertEquals(databaseClient.getAttachedUsers(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT).size(),
                             0, "Detach users from db2_black_com database not success.");
-        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
-        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserOneActualName);
         Assert.assertEquals(databaseClient.getAttachedUsers(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT).size(),
                             0, "Detach users from db1_black_com database not success.");
     }
@@ -171,19 +167,52 @@ public class DatabaseTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Delete user from database", dependsOnMethods = {"testDetachUserFromDatabase"})
     public void testDeleteUser() throws AFIntegrationTestException {
-        databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
-        databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
-        Assert.assertEquals(
-                databaseClient.getAvailableUsersToAttachToDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT)
-                              .size(), 0, "Delete database users not success.");
+        deleteDbUser();
+        Assert.assertEquals(databaseClient.getAvailableUsersToAttachToDatabase(
+                defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT).size(), 0, "Delete database users not success.");
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Drop databases", dependsOnMethods = {"testDeleteUser"})
     public void testDropDatabase() throws AFIntegrationTestException {
+        dropDatabase();
+        Assert.assertEquals(databaseClient.getDatabases(defaultAppKey).size(), 0, "Deleting databases not success.");
+    }
+
+    private void detachDbUsers() throws AFIntegrationTestException {
+        databaseClient.detachUser(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
+        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserTwoActualName);
+        databaseClient.detachUser(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, dbUserOneActualName);
+    }
+
+    private void deleteDbUser() throws AFIntegrationTestException {
+        if(isDataBaseUserExist(dbUserTwoActualName)) {
+            databaseClient.deleteUser(defaultAppKey, dbUserTwoActualName, STAGE_DEVELOPMENT);
+        }
+        if(isDataBaseUserExist(dbUserOneActualName)) {
+            databaseClient.deleteUser(defaultAppKey, dbUserOneActualName, STAGE_DEVELOPMENT);
+        }
+    }
+
+    private void dropDatabase() throws AFIntegrationTestException {
         databaseClient.dropDatabase(defaultAppKey, dbOneActualName, STAGE_DEVELOPMENT, "false");
         databaseClient.dropDatabase(defaultAppKey, dbTwoActualName, STAGE_DEVELOPMENT, "false");
-        Assert.assertEquals(databaseClient.getDatabases(defaultAppKey).size(), 0, "Deleting databases not success.");
+    }
+
+    private boolean isDataBaseUserExist(String dbUser) throws AFIntegrationTestException {
+        JsonArray resultAray = databaseClient.getDatabaseUsers(defaultAppKey);
+        if(resultAray != null) {
+            for(Object object : resultAray) {
+                if(object instanceof JsonObject) {
+                    JsonObject data = (JsonObject)object;
+                    String name = data.get("name").getAsString();
+                    if(dbUser.equals(name)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -226,5 +255,9 @@ public class DatabaseTestCase extends AFIntegrationTest {
         return b;
     }
 
+    @AfterClass(alwaysRun = true)
+    public void destroy() throws AFIntegrationTestException {
+        super.cleanup();
+    }
 
 }

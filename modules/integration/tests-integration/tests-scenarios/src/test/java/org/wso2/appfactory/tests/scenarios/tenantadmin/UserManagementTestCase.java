@@ -13,6 +13,7 @@ import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
@@ -45,6 +46,12 @@ public class UserManagementTestCase extends AFIntegrationTest {
         cloudMgtClient = new CloudUserMgtClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
         userRoleMap.put(USER_DEVELOPER, "developer");
         userRoleMap.put(USER_ALL_ROLES, "developer,devops,qa,appowner,cxo");
+
+        // remote users from default application if exists
+        removeUsers();
+
+        // delete users if exists
+        deleteUsers();
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -84,7 +91,7 @@ public class UserManagementTestCase extends AFIntegrationTest {
         assertTrue(success, "Inviting users: " + USER_DEVELOPER +
                             " to application: " + defaultAppKey +
                             " in tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
-        ArrayList<String> returnedUsers = getApplicationUsers(defaultAppKey);
+        List<String> returnedUsers = getApplicationUsers(defaultAppKey);
         assertTrue(returnedUsers.contains(USER_DEVELOPER), "User :" + USER_DEVELOPER + " not found in retrieved " +
                                                            "application user list");
         assertTrue(returnedUsers.contains(USER_ALL_ROLES), "User :" + USER_ALL_ROLES + " not found in retrieved " +
@@ -94,23 +101,37 @@ public class UserManagementTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Remove users from application ", dependsOnMethods = {"testInviteUsersToApplication"})
     public void testRemoveUsersFromApplication() throws Exception {
-        boolean success = userMgtClient.removeUsersFromApplication(defaultAppKey,
-                                                                   USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES);
+        boolean success = removeUsers();
         assertTrue(success, "Removing users: " + USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES +
                             " from application: " + defaultAppKey +
                             " in tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
 
     }
 
+    private boolean removeUsers() throws Exception {
+        boolean result = false;
+        List<String> userList = getApplicationUsers(defaultAppKey);
+        for(String userName : userList) {
+            if(USER_DEVELOPER.equals(userName)) {
+                result = userMgtClient.removeUsersFromApplication(defaultAppKey, USER_DEVELOPER + USERNAME_SEPARATOR + USER_ALL_ROLES);
+            }
+        }
+        return result;
+    }
+
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Remove users from the tenant ", dependsOnMethods = {"testRemoveUsersFromApplication"})
     public void testDeleteUsersFromTenant() throws Exception {
-        boolean success = cloudMgtClient.deleteUserFromTenant(USER_DEVELOPER);
+        boolean success = deleteUsers();
         assertTrue(success, "Removing user: " + USER_DEVELOPER +
-                            " from tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
+                " from tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
         success = cloudMgtClient.deleteUserFromTenant(USER_ALL_ROLES);
         assertTrue(success, "Removing user: " + USER_ALL_ROLES +
                             " from tenant: " + AFIntegrationTestUtils.getDefaultTenantDomain() + " failed");
+    }
+
+    private boolean deleteUsers() throws Exception {
+        return cloudMgtClient.deleteUserFromTenant(USER_DEVELOPER);
     }
 
     private ArrayList<String> getUsersOfLoggedInTenant() throws Exception {
@@ -122,9 +143,9 @@ public class UserManagementTestCase extends AFIntegrationTest {
         return returnedUsers;
     }
 
-    private ArrayList<String> getApplicationUsers(String defaultAppKey) throws Exception {
+    private List<String> getApplicationUsers(String defaultAppKey) throws Exception {
         JSONArray users = userMgtClient.getUsersOfApplication(defaultAppKey);
-        ArrayList<String> returnedUsers = new ArrayList<String>();
+        List<String> returnedUsers = new ArrayList<String>();
         for (int i = 0; i < users.length(); i++) {
             returnedUsers.add(users.getJSONObject(i).getString(JS_OBJECT_KEY_USER_NAME));
         }

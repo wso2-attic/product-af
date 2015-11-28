@@ -79,10 +79,10 @@ public class DatasourceClient extends BaseClient {
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_ADD, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             checkErrors(response);
-            return new JSONObject(response.getData());
+            return new JSONObject(response.getData().trim());
         } else {
             throw new AFIntegrationTestException("Error occurred while creating a new datasource :" +
-                                                 response.getResponseCode() + response.getData());
+                                                 response.getResponseCode() + response.getData().trim());
         }
     }
 
@@ -104,7 +104,7 @@ public class DatasourceClient extends BaseClient {
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_ADD, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             checkErrors(response);
-            return new JSONObject(response.getData());
+            return new JSONObject(response.getData().trim());
         } else {
             throw new AFIntegrationTestException("Error occurred while deleting a new datasource :" +
                                                  response.getResponseCode() + response.getData());
@@ -142,10 +142,10 @@ public class DatasourceClient extends BaseClient {
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_ADD, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
             checkErrors(response);
-            return new JSONObject(response.getData());
+            return new JSONObject(response.getData().trim());
         } else {
             throw new AFIntegrationTestException("Error occurred while updating existing datasource :" +
-                                                 response.getResponseCode() + response.getData());
+                                                 response.getResponseCode() + response.getData().trim());
         }
     }
 
@@ -164,7 +164,7 @@ public class DatasourceClient extends BaseClient {
             //TODO
         } else {
             throw new AFIntegrationTestException("Error occurred while retrieving existing datasource :" +
-                                                 response.getResponseCode() + response.getData());
+                                                 response.getResponseCode() + response.getData().trim());
         }
     }
 
@@ -180,10 +180,10 @@ public class DatasourceClient extends BaseClient {
         msgBody.put("stage", stage);
         HttpResponse response = doPostRequest(APPMGT_DATASOURCE_GET, msgBody);
         if (response.getResponseCode() == HttpStatus.SC_OK) {
-            return response.getData();
+            return response.getData().trim();
         } else {
             throw new AFIntegrationTestException("Error occurred while retrieving datasource info url for stage : " +
-                                                 stage + response.getResponseCode() + response.getData());
+                                                 stage + response.getResponseCode() + response.getData().trim());
         }
     }
 }

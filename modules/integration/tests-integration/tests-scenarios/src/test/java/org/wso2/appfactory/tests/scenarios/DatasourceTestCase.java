@@ -26,6 +26,9 @@ public class DatasourceTestCase extends AFIntegrationTest {
     @BeforeClass(alwaysRun = true)
     public void setEnvironment() throws Exception {
         datasourceClient = new DatasourceClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
+
+        // delete datasources if exists
+        deleteDatasource();
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -65,11 +68,20 @@ public class DatasourceTestCase extends AFIntegrationTest {
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Delete a datasource", dependsOnMethods = {"testgetDataSourceInfoUrl"})
     public void testDeleteExistingDatasource() throws Exception {
-        JSONObject responseObj = datasourceClient.deleteDatasource(TEST_DATA_SOURCE, "Development",
-                                                                   AFIntegrationTestUtils.getPropertyValue(
-                                                                           AFConstants.DEFAULT_APP_APP_KEY));
-        JSONObject results = (JSONObject) responseObj.get("Development");
+        JSONObject results = deleteDatasource();
+        Assert.assertNotNull(results);
         Assert.assertEquals(results.getBoolean("error"), false);
+    }
+
+    private JSONObject deleteDatasource() throws Exception {
+        JSONObject result = null;
+        JSONObject responseObj = datasourceClient.deleteDatasource(TEST_DATA_SOURCE, "Development",
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        Object response = responseObj.get("Development");
+        if (response instanceof  JSONObject) {
+            result = (JSONObject)response;
+        }
+        return result;
     }
 
 
