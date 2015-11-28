@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"github.com/codegangsta/cli"
 	tm "github.com/buger/goterm"
 )
@@ -68,7 +68,7 @@ func(applist AppList) Run(configs CommandConfigs)(bool , string){
 		return true, ""
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		err := json.Unmarshal([]byte(bodyString), &errorFormat)
@@ -79,7 +79,7 @@ func(applist AppList) Run(configs CommandConfigs)(bool , string){
 				return false , configs.Cookie
 			}
 		}else{
-			var apps []formats.AppFormat
+			var apps []formats.App
 			err := json.Unmarshal([]byte(bodyString), &apps)
 			if(err == nil){
 				fmt.Println("\nYou have ", len(apps)," applications. Details of applications are as follows.\n")

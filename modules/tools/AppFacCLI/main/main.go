@@ -21,19 +21,24 @@ package main
 
 import (
 	"os"
-	"github.com/Dilhasha/AppFacCLI/cli/command"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/command"
 	"github.com/codegangsta/cli"
-	"github.com/Dilhasha/AppFacCLI/cli/session"
-	"github.com/Dilhasha/AppFacCLI/cli/help"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/session"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/help"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/urls"
 	"fmt"
 	"io/ioutil"
+	"io"
 	"encoding/json"
+
 )
 
 const (
 	loginCommand = "login"
 	//<TODO> move this to cache
-	filename = "session.txt"
+	sessionFilename = "session.txt"
+	baseUrlFilename = "baseUrl.txt"
+
 )
 //main handles the flow of the CLI tool.
 func main() {
@@ -42,6 +47,12 @@ func main() {
 	app.Name = "appfac"
 	app.Usage = "CLI Tool for WSO2 Appfactory"
 
+	if len(os.Args) >1 && os.Args[1]==command.SetBaseUrlCommand{
+		setBaseUrl()
+	}
+
+	baseUrl := readBaseUrl()
+	urls.SetBaseUrl(baseUrl)
 	cmdFactory := command.NewFactory()
 	var continueFlag bool
 	var sessionObject session.Session
@@ -50,13 +61,15 @@ func main() {
 	//command `appfac` without argument or help (h) flag
 	if len(os.Args) == 1 || os.Args[1] == "help" || os.Args[1] == "h" {
 		help.ToolHelp(cmdFactory)
-	}else if command, ok := cmdFactory.CheckIfCommandExists(os.Args[1]); ok {
+	}else if _command, ok := cmdFactory.CheckIfCommandExists(os.Args[1]); ok {
 		args = os.Args[1:]
-		if(command != loginCommand) {
+		if (_command == command.SetBaseUrlCommand){
+			return
+		}else if(_command != loginCommand) {
 			//If session file exists
-			if _, err := os.Stat(filename); err == nil {
+			if _, err := os.Stat(sessionFilename); err == nil {
 				//Read session data
-				data, err := ioutil.ReadFile(filename)
+				data, err := ioutil.ReadFile(sessionFilename)
 				if err != nil {
 					panic(err)
 				}
@@ -65,7 +78,7 @@ func main() {
 				if(err != nil){
 					fmt.Println("Error occured while getting stored session.")
 				}
-				continueFlag = runCommand(command,args,sessionObject,cmdFactory)
+				continueFlag = runCommand(_command,args,sessionObject,cmdFactory)
 			}else{
 				fmt.Println("You must be logged into continue.")
 				sessionObject = session.NewSession()
@@ -73,22 +86,64 @@ func main() {
 			}
 		}else {
 			sessionObject = session.NewSession()
-			continueFlag = runCommand(command,args,sessionObject,cmdFactory)
+			continueFlag = runCommand(_command,args,sessionObject,cmdFactory)
 		}
 		for(!continueFlag){
 			continueFlag = runCommand(loginCommand,args,sessionObject,cmdFactory)
 		}
 	}else{
 		fmt.Println("'"+os.Args[1]+"' is not a valid command. See 'appfac help'")
-
 	}
 
 }
 
 
+//writeBaseUrl writes baseUrl to file.
+func writeBaseUrl(base string)bool{
+	file, err1 := os.Create(baseUrlFilename)
+	if err1 != nil {
+		fmt.Println(err1)
+		return false
+	}
+	n, err := io.WriteString(file,base)
+	if err != nil{
+		fmt.Println(n, err)
+		return false
+	}
+	file.Close()
+	return true
+}
 
+func readBaseUrl() string{
+	if _, err := os.Stat(baseUrlFilename); err == nil {
+		//Read base Url
+		data, err := ioutil.ReadFile(baseUrlFilename)
+		if err != nil {
+			panic(err)
+		}
+		return string(data)
+	}else{
+		fmt.Println("Base url value is not set. Please set it to continue.")
+		setBaseUrl()
+		data, err := ioutil.ReadFile(baseUrlFilename)
+		if err != nil {
+			panic(err)
+		}
+		return string(data)
+	}
+}
 
-
+func setBaseUrl(){
+	fmt.Print("baseURL > ")
+	var base string
+	fmt.Scanf("%s", &base)
+	success:=writeBaseUrl(base)
+	if(success){
+		fmt.Println("Base Url is set successfully.")
+	}else{
+		fmt.Println("Error occurred while setting baseUrl.")
+	}
+}
 
 
 

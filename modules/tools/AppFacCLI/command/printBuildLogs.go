@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"github.com/codegangsta/cli"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"fmt"
 )
 
@@ -41,7 +41,7 @@ func NewPrintLogs(url string) (cmd PrintLogs) {
 func (printLogs PrintLogs)Metadata() CommandMetadata{
 	return CommandMetadata{
 		Name : "printBuildLogs",
-		Description : "print logs for a given build",
+		Description : "Prints logs for a given build",
 		ShortName : "pl",
 		Usage : "print logs",
 		Url : printLogs.Url,
@@ -68,7 +68,7 @@ func(printLogs PrintLogs) Run(configs CommandConfigs)(bool,string){
 		return true, ""
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		err := json.Unmarshal([]byte(bodyString), &errorFormat)

@@ -22,7 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"github.com/codegangsta/cli"
 	tm "github.com/buger/goterm"
 )
@@ -68,7 +68,7 @@ func(versionsList VersionsList) Run(configs CommandConfigs)(bool,string){
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		err := json.Unmarshal([]byte(bodyString), &errorFormat)
@@ -78,7 +78,7 @@ func(versionsList VersionsList) Run(configs CommandConfigs)(bool,string){
 				return false , configs.Cookie
 			}
 		}else{
-			var appVersions []formats.AppVersionFormat
+			var appVersions []formats.AppVersion
 			err := json.Unmarshal([]byte(bodyString), &appVersions)
 			if(err == nil){
 				fmt.Println("\nApplication has ", len(appVersions[0].Versions)," versions. Details of versions are as follows.\n")

@@ -20,7 +20,7 @@ package command
 import (
 	"bytes"
 	"github.com/codegangsta/cli"
-	"github.com/Dilhasha/AppFacCLI/cli/urls"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/urls"
 )
 
 const (
@@ -28,6 +28,9 @@ const (
 	queryStarter = "action"
 	connector = "&"
 	equator = "="
+)
+const (
+	SetBaseUrlCommand="setBaseUrl"
 )
 
 type CommandFactory struct {
@@ -43,6 +46,9 @@ func (factory CommandFactory) CheckIfCommandExists(cmdName string) (string,bool)
 			if command.Metadata().ShortName == cmdName {
 				return command.Metadata().Name,true
 			}
+		}
+		if cmdName == SetBaseUrlCommand{
+			return cmdName, true
 		}
 		return "" , false
 	}

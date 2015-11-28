@@ -23,7 +23,7 @@ import (
 	"github.com/codegangsta/cli"
 	"net/http"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
 	"fmt"
 )
 
@@ -43,7 +43,7 @@ func NewArtifact(url string) (cmd Artifact) {
 func (artifact Artifact)Metadata() CommandMetadata{
 	return CommandMetadata{
 		Name : "createArtifact",
-		Description : "create an artifact of an application",
+		Description : "Creates an artifact of an application",
 		ShortName : "car",
 		Usage : "create artifact",
 		Url : artifact.Url,

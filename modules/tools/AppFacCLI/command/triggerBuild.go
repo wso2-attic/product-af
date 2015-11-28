@@ -22,9 +22,9 @@ import (
 	"net/http"
 	"github.com/codegangsta/cli"
 	"encoding/json"
-	"github.com/Dilhasha/AppFacCLI/cli/formats"
-	"github.com/Dilhasha/AppFacCLI/cli/session"
-	"github.com/Dilhasha/AppFacCLI/cli/urls"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/formats"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/session"
+	"github.com/wso2/product-af/modules/tools/AppFacCLI/cli/urls"
 	"fmt"
 	"strings"
 	"strconv"
@@ -46,7 +46,7 @@ func NewBuildApp(url string) (cmd BuildApp) {
 func (buildApp BuildApp)Metadata() CommandMetadata{
 	return CommandMetadata{
 		Name : "triggerBuild",
-		Description : "trigger a build for an app, wait until its success and display build logs",
+		Description : "Triggers a build for an app, waits until its success and displays build logs",
 		ShortName : "tb",
 		Usage : "triggering a build",
 		Url : buildApp.Url,
@@ -146,7 +146,7 @@ func checkBuildId(configs CommandConfigs)(bool,int64) {
 		return false, -1
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
-	if (resp.Status == "200 OK") {
+	if (resp.StatusCode == http.StatusOK) {
 		bodyString := string(body)
 		var errorFormat formats.ErrorFormat
 		var buildSuccessFormat formats.BuildSuccessFormat
