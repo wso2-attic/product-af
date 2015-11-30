@@ -289,8 +289,8 @@
             <appFactory>https://apps.appfactory.private.wso2.com:9443/</appFactory>
             <prodStratosController>https://sc.appfactory.private.wso2.com:9463/</prodStratosController>
             <devGreg>https://gregserver.dev.appfactory.private.wso2.com:9473/</devGreg>
-            <testGreg>https://gregserver.dev.appfactory.private.wso2.com:9474/</testGreg>
-            <prodGreg>https://gregserver.dev.appfactory.private.wso2.com:9475/</prodGreg>
+            <testGreg>https://gregserver.test.appfactory.private.wso2.com:9474/</testGreg>
+            <prodGreg>https://gregserver.prod.appfactory.private.wso2.com:9475/</prodGreg>
             <bps>https://process.appfactory.private.wso2.com:9543/</bps>
             <git>https://git.appfactory.private.wso2.com:8443/</git>
             <s2git>https://s2git.appfactory.private.wso2.com:8444/</s2git>

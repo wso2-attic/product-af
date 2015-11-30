@@ -541,22 +541,17 @@
                             <xs:element name="urls">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element type="xs:string" name="appFactory"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="prodStratosController"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="bps"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="git"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="s2git"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="bam"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="api"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
-                                        <xs:element type="xs:string" name="jenkins"
-                                                    maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="appFactory" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="prodStratosController" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="devGreg" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="testGreg" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="prodGreg" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="bps" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="git" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="s2git" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="bam" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="api" maxOccurs="unbounded" minOccurs="0"/>
+                                        <xs:element type="xs:string" name="jenkins" maxOccurs="unbounded" minOccurs="0"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
