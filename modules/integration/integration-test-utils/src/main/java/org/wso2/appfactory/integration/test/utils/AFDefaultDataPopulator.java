@@ -106,35 +106,23 @@ public class AFDefaultDataPopulator {
                          AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_USAGE_PLAN));
 
         }
-        if (!isDefaultApplicationExists()) {
-            log.info("Default application doesn't exist, Creating "
-                     + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME));
-            createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_EXTENSION),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_ARTIFACT_VERSION),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_DEFAULT_STAGE),
-                    AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_RUNTIME_ALIAS),
-                    String.valueOf(tenantInfoBean.getTenantId()));
-            Thread.sleep(60000);
-            /*
-            createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_ONE_SRC),
-                                     AFIntegrationTestUtils.getPropertyValue(
-                                             AFConstants.DEFAULT_APP_VERSION_ONE_TARGET));
-            createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_TWO_SRC),
-                                     AFIntegrationTestUtils.getPropertyValue(
-                                             AFConstants.DEFAULT_APP_VERSION_TWO_TARGET));
-            createApplicationVersion(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
-                                     AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_VERSION_THREE_SRC),
-                                     AFIntegrationTestUtils.getPropertyValue(
-                                             AFConstants.DEFAULT_APP_VERSION_THREE_TARGET));*/
-        } else {
-            log.info("Default application  exists.");
+
+        if(isDefaultApplicationExists()) {
+            log.info("Default application exists, deleting default application!");
+            deleteDefaultApplication();
         }
+
+        log.info("Creating default application " + AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME) + " !");
+        createApplication(AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_NAME),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_DESC),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_TYPE),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_EXTENSION),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_ARTIFACT_VERSION),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_DEFAULT_STAGE),
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_RUNTIME_ALIAS),
+                String.valueOf(tenantInfoBean.getTenantId()));
+        Thread.sleep(60000);
     }
 
     /**
@@ -150,7 +138,7 @@ public class AFDefaultDataPopulator {
                                       AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_TENANT_ADMIN_PASSWORD));
             appMgtRestClient.deleteApplication(AFIntegrationTestUtils.getAdminUsername(),
                                                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
-            Thread.sleep(20000);
+            Thread.sleep(40000);
         }
     }
 
