@@ -186,4 +186,27 @@ public class DatasourceClient extends BaseClient {
                                                  stage + response.getResponseCode() + response.getData().trim());
         }
     }
+
+    /**
+     *  Get data source
+     * @param dsName
+     * @param stage
+     * @param applicationKey
+     * @return
+     * @throws AFIntegrationTestException
+     */
+    public JSONObject getDataSource(String dsName, String stage, String applicationKey) throws AFIntegrationTestException {
+        Map<String, String> msgBody = new HashMap<String, String>();
+        msgBody.put(REQUEST_KEY_ACTION, "getDatasource");
+        msgBody.put(DATASOURCE_NAME, dsName);
+        msgBody.put(STAGE, stage);
+        msgBody.put(APP_KEY, applicationKey);
+        HttpResponse response = doPostRequest(APPMGT_DATASOURCE_GET, msgBody);
+        if (response.getResponseCode() == HttpStatus.SC_OK) {
+            return new JSONObject(response.getData().trim());
+        } else {
+            throw new AFIntegrationTestException("Error occurred while retrieving datasource for stage : " +
+                    stage + response.getResponseCode() + response.getData().trim());
+        }
+    }
 }

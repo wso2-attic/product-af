@@ -28,7 +28,9 @@ public class DatasourceTestCase extends AFIntegrationTest {
         datasourceClient = new DatasourceClient(AFserverUrl, defaultAdmin, defaultAdminPassword);
 
         // delete datasources if exists
-        deleteDatasource();
+        if(isDataSourceExists()) {
+            deleteDatasource();
+        }
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
@@ -43,19 +45,6 @@ public class DatasourceTestCase extends AFIntegrationTest {
         JSONArray results = (JSONArray) responseObj.get("Development");
         Assert.assertEquals(Boolean.parseBoolean((String) results.get(0)), true);
     }
-
-    //TODO:
-  /*  @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
-    @Test(description = "Update an existing datasource", dependsOnMethods = {"testAddNewDatasource"})
-    public void testUpdateExistingDatasource() throws AFIntegrationTestException {
-        JSONObject responseObj = datasourceClient.editDatasource(TEST_DATA_SOURCE, "Development",
-                                                                 "jdbc:mysql://localhost:3306/test12345",
-                                                                 "My edited test datasource", "mysql", "root",
-                                                                 "123123", true,
-                                                                 AFIntegrationTestUtils.getPropertyValue(
-                                                                         AFConstants.DEFAULT_APP_APP_KEY));
-    }
-*/
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.PLATFORM})
     @Test(description = "Get data source info url  <used in Dev Studio>", dependsOnMethods = {"testAddNewDatasource"})
@@ -84,9 +73,21 @@ public class DatasourceTestCase extends AFIntegrationTest {
         return result;
     }
 
+    private boolean isDataSourceExists() throws Exception {
+        JSONObject result = null;
+        JSONObject responseObj = datasourceClient.getDataSource(TEST_DATA_SOURCE, "Development",
+                AFIntegrationTestUtils.getPropertyValue(AFConstants.DEFAULT_APP_APP_KEY));
+        Object response = responseObj.get("Development");
+        if(response != null && response instanceof JsonObject) {
+            return true;
+        }
+        return false;
+    }
+
 
     @AfterClass(alwaysRun = true)
     public void destroy() throws Exception {
         super.cleanup();
     }
+
 }
