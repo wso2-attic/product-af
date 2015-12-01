@@ -37,9 +37,11 @@ var deleteApplicationFromApiM = function(appKey){
     var tenantDomain = modManager.getTenantDomain();
     try {
         var service = server.osgiService('org.wso2.carbon.appfactory.apiManager.integration.APIManagerIntegrationService') ;
-        service.removeApplication(appKey, session.get("SAML_TOKEN"));
-        log.info("Successfully deleted API Manager application: "+appKey+
+        if(session.get("SAML_TOKEN")){
+            service.removeApplication(appKey, session.get("SAML_TOKEN"));
+            log.info("Successfully deleted API Manager application: "+appKey+
                   " tenant: "+tenantDomain);
+        }
     } catch (e) {
         log.error("Error while deleting application : " + appKey + " of tenant domain : " + tenantDomain
                   + " from api manager.");
