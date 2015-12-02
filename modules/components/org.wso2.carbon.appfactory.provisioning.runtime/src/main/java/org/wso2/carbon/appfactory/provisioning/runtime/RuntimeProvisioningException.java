@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+* Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,24 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
-/**
- * AF runtime provisioning interface
- */
-public interface RuntimeProvisioningInterface {
+public class RuntimeProvisioningException extends Exception {
+
+    public RuntimeProvisioningException() {
+    }
+
+    public RuntimeProvisioningException(String s) {
+        super(s);
+    }
+
+    public RuntimeProvisioningException(String s, Throwable throwable) {
+        super(s, throwable);
+    }
+
+    public RuntimeProvisioningException(Throwable throwable) {
+        super(throwable);
+    }
+
 }
