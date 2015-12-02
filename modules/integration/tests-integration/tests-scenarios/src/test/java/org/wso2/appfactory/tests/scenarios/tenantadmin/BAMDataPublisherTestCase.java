@@ -76,7 +76,14 @@ public class BAMDataPublisherTestCase extends AFIntegrationTest {
 	}
 
 	private void verify(String itemValue) throws Exception {
-		String[] queries = getHiveQueries("UserActivityScript");
+
+		String userActivityScriptPath = AFIntegrationTestUtils.getPropertyValue(AFConstants.HIVE_USER_ACTIVITY_SCRIPT_PATH);
+		String[] queries = new String[]{};
+		if (userActivityScriptPath !=null && !userActivityScriptPath.isEmpty()) {
+			queries = getHiveQueriesFromFs(userActivityScriptPath);
+		} else {
+			queries = getHiveQueries("UserActivityScript");
+		}
 		HiveExecutionServiceStub hiveStub = getHiveExecutionStub();
 		hiveStub.executeHiveScript(null, queries[0]);
 		String sqlQuery = MessageFormat.format(queries[1], itemValue);
@@ -122,6 +129,28 @@ public class BAMDataPublisherTestCase extends AFIntegrationTest {
 			                 new BufferedReader(
 			                                    new FileReader(
 			                                                   new File(url.toURI()).getAbsolutePath()));
+			String script = "";
+			String line = null;
+			while ((line = bufferedReader.readLine()) != null) {
+				script += line;
+			}
+			queries = script.split(";");
+		} finally {
+			if (bufferedReader != null) {
+				bufferedReader.close();
+			}
+		}
+		return queries;
+	}
+
+	private String[] getHiveQueriesFromFs(String resourcePath) throws Exception {
+		String[] queries = new String[]{};
+		BufferedReader bufferedReader = null;
+		try {
+			bufferedReader =
+					new BufferedReader(
+							new FileReader(
+									new File(resourcePath)));
 			String script = "";
 			String line = null;
 			while ((line = bufferedReader.readLine()) != null) {

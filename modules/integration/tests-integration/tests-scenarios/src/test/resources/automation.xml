@@ -375,6 +375,10 @@
               <retryCount>8</retryCount>
         </timeOutSetting>
 
+        <!--bamResources>
+                <userActivityScriptPath>/tmp/UserActivityScriptP</userActivityScriptPath>
+        </bamResources-->
+
     </appFactoryProperties>
 </automation>
 

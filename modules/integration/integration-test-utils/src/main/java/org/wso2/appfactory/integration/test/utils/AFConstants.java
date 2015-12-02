@@ -117,4 +117,8 @@ public class AFConstants {
 
     public static final String TRUE = "true";
     public static final String FALSE= "false";
+
+	//Hive user activity script path
+	public static final String HIVE_USER_ACTIVITY_SCRIPT_PATH = "//appFactoryProperties/bamResources/" +
+																"userActivityScriptPath[1]/text()";
 }
