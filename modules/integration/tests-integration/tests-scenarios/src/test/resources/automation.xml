@@ -376,7 +376,7 @@
         </timeOutSetting>
 
         <!--bamResources>
-                <userActivityScriptPath>/tmp/UserActivityScriptP</userActivityScriptPath>
+                <userActivityScriptPath>/tmp/UserActivityScript</userActivityScriptPath>
         </bamResources-->
 
     </appFactoryProperties>
