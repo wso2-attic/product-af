@@ -17,7 +17,7 @@
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
 /**
- * Runtime provisioning API related logs
+ * Runtime provisioning API related exception
  */
 public class RuntimeProvisioningException extends Exception {
 

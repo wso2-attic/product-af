@@ -32,7 +32,7 @@ public interface RuntimeProvisioningService {
     public void setApplicationContext(ApplicationContext applicationContext) throws RuntimeProvisioningException;
 
     /**
-     * Create a organization for given tenant details
+     * Create an organization for given tenant details
      *
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
@@ -40,7 +40,7 @@ public interface RuntimeProvisioningService {
     public void createOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
     /**
-     * Update organization details
+     * Update an organization details
      *
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
@@ -48,7 +48,7 @@ public interface RuntimeProvisioningService {
     public void updateOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
     /**
-     * Delete a organization related details
+     * Delete an organization related details
      *
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
@@ -56,7 +56,7 @@ public interface RuntimeProvisioningService {
     public void deleteOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
     /**
-     * Archive a organization
+     * Archive an organization
      *
      * @param tenantInfo details of the tenant
      * @throws RuntimeProvisioningException
