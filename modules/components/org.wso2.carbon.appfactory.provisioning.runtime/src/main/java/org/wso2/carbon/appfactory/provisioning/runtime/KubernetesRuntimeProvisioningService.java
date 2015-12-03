@@ -16,11 +16,9 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
-
+import org.apache.commons.logging.Log;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +27,9 @@ import java.util.Set;
  * This class will implement the runtime provisioning service specific to Kubernetes
  */
 public class KubernetesRuntimeProvisioningService implements RuntimeProvisioningService{
+
+    private static final Log log = LogFactory.getLog(KubernetesRuntimeProvisioningService.class);
+    private static ApplicationContext applicationContext;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -135,21 +136,5 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public void deleteCustomDomain(String domain) throws RuntimeProvisioningException {
 
-    }
-
-    /**
-     * This method will create a common kubernetes client object with authentication to the Kubernetes master server
-     *
-     * @return Kubernetes client object
-     */
-    private KubernetesClient getKubernetesClient() {
-
-        //todo need to modify config object with master credentials properly
-        Config config = new Config();
-        config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
-        config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
-
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient(config);
-        return kubernetesClient;
     }
 }
