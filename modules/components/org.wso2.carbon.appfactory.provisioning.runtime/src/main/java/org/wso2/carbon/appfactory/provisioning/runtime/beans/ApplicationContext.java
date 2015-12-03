@@ -16,6 +16,29 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
+
+import java.util.List;
 
 public class ApplicationContext {
+
+    private List<Pod> pods;
+    private List<Service> services;
+
+    public List<Pod> getPods() {
+        return pods;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setPods(List<Pod> pods) {
+        this.pods = pods;
+    }
+
+    public void setServices(List<Service> services) {
+        this.services = services;
+    }
 }
