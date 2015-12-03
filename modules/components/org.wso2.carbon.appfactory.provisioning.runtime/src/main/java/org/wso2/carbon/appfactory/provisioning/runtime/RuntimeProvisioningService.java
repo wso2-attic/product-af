@@ -33,7 +33,7 @@ public interface RuntimeProvisioningService {
 
     public void archiveOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
-    public int createBuild(BuildConfigaration config) throws RuntimeProvisioningException;
+    public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException;
 
     public String getBuildStatus(String buildId) throws RuntimeProvisioningException;
 
