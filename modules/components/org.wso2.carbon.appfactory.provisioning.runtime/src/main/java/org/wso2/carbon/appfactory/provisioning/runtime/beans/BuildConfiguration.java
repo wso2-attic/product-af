@@ -16,5 +16,5 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-public class BuildConfigaration {
+public class BuildConfiguration {
 }
