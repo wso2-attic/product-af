@@ -54,7 +54,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public int createBuild(BuildConfigaration config) throws RuntimeProvisioningException {
+    public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException {
         return 0;
     }
 
