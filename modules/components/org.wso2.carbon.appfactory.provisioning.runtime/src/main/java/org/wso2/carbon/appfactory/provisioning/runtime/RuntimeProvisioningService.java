@@ -51,7 +51,7 @@ public interface RuntimeProvisioningService {
 
     public String getRuntimeLogs(Query query) throws RuntimeProvisioningException;
 
-    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties, String type) throws RuntimeProvisioningException;
+    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties) throws RuntimeProvisioningException;
 
     public void updateRuntimeProperties(RuntimeProperty runtimeProperty) throws RuntimeProvisioningException;
 

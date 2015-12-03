@@ -101,7 +101,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties, String type)
+    public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties)
             throws RuntimeProvisioningException {
 
     }
