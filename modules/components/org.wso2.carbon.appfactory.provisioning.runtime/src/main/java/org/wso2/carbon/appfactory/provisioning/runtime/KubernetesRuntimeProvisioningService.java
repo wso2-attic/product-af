@@ -135,7 +135,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     public void deleteCustomDomain(String domain) throws RuntimeProvisioningException {
 
     }
-    KubernetesClient getKubernetesClient(){
+
+    private KubernetesClient getKubernetesClient(){
+
         KubernetesClient kubernetesClient = new DefaultKubernetesClient();
         return  kubernetesClient;
     }
