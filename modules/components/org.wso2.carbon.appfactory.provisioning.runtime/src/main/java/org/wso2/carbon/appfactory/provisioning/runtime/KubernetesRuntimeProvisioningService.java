@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 
 import java.io.OutputStream;
@@ -132,5 +134,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     @Override
     public void deleteCustomDomain(String domain) throws RuntimeProvisioningException {
 
+    }
+    KubernetesClient getKubernetesClient(){
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
+        return  kubernetesClient;
     }
 }
