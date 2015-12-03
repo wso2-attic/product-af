@@ -23,45 +23,177 @@ import java.util.Set;
 
 public interface RuntimeProvisioningService {
 
+    /**
+     * Set application details for the context
+     *
+     * @param applicationContext application details
+     * @throws RuntimeProvisioningException
+     */
     public void setApplicationContext(ApplicationContext applicationContext) throws RuntimeProvisioningException;
 
+    /**
+     * Create an organization for given tenant details
+     *
+     * @param tenantInfo details of the tenant
+     * @throws RuntimeProvisioningException
+     */
     public void createOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
+    /**
+     * Update an organization details
+     *
+     * @param tenantInfo details of the tenant
+     * @throws RuntimeProvisioningException
+     */
     public void updateOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
+    /**
+     * Delete an organization related details
+     *
+     * @param tenantInfo details of the tenant
+     * @throws RuntimeProvisioningException
+     */
     public void deleteOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
+    /**
+     * Archive an organization
+     *
+     * @param tenantInfo details of the tenant
+     * @throws RuntimeProvisioningException
+     */
     public void archiveOrganization(TenantInfo tenantInfo) throws RuntimeProvisioningException;
 
-    public int createBuild(BuildConfiguration config) throws RuntimeProvisioningException;
+    /**
+     * Create a new build
+     *
+     * @param buildConfiguration build related details
+     * @return build id
+     * @throws RuntimeProvisioningException
+     */
+    public int createBuild(BuildConfiguration buildConfiguration) throws RuntimeProvisioningException;
 
+    /**
+     * Provide details about build status
+     *
+     * @param buildId id of the build
+     * @return Status of the build
+     * @throws RuntimeProvisioningException
+     */
     public String getBuildStatus(String buildId) throws RuntimeProvisioningException;
 
+    /**
+     * Provide build related logs
+     *
+     * @param buildId id of the build
+     * @return logs of the build process
+     * @throws RuntimeProvisioningException
+     */
     public String getBuildLog(String buildId) throws RuntimeProvisioningException;
 
+    /**
+     * Provide build related history details
+     *
+     * @return history of the build
+     * @throws RuntimeProvisioningException
+     */
     public List<String> getBuildHistory() throws RuntimeProvisioningException;
 
+    /**
+     * Cancel already triggered build
+     *
+     * @param buildId
+     * @return id of the build
+     * @throws RuntimeProvisioningException
+     */
     public boolean cancelBuild(String buildId) throws RuntimeProvisioningException;
 
-    public List<String> deployApplication(DeploymentConfig config) throws RuntimeProvisioningException;
+    /**
+     * Deploy an application
+     *
+     * @param deploymentConfig details of the deployment
+     * @return list of endpoints
+     * @throws RuntimeProvisioningException
+     */
+    public List<String> deployApplication(DeploymentConfig deploymentConfig) throws RuntimeProvisioningException;
 
+    /**
+     * Provide deployment related details
+     *
+     * @return Whether deployment fail or not
+     * @throws RuntimeProvisioningException
+     */
     public boolean getDeploymentStatus() throws RuntimeProvisioningException;
 
+    /**
+     * Provide runtime log stream
+     *
+     * @return log out put stream
+     * @throws RuntimeProvisioningException
+     */
     public OutputStream streamRuntimeLogs() throws RuntimeProvisioningException;
 
+    /**
+     * Provide snapshot logs
+     *
+     * @param query query related details
+     * @return Snapshot logs of application
+     * @throws RuntimeProvisioningException
+     */
     public String getRuntimeLogs(Query query) throws RuntimeProvisioningException;
 
+    /**
+     * Set runtime variables
+     *
+     * @param runtimeProperties runtime properties
+     * @throws RuntimeProvisioningException
+     */
     public void setRuntimeProperties(List<RuntimeProperty> runtimeProperties) throws RuntimeProvisioningException;
 
+    /**
+     * Update existing runtime properties
+     *
+     * @param runtimeProperty runtime property
+     * @throws RuntimeProvisioningException
+     */
     public void updateRuntimeProperties(RuntimeProperty runtimeProperty) throws RuntimeProvisioningException;
 
+    /**
+     * Provide application specific runtime properties
+     *
+     * @return List of runtime properties
+     * @throws RuntimeProvisioningException
+     */
     public List<RuntimeProperty> getRuntimeProperties() throws RuntimeProvisioningException;
 
+    /**
+     * Adding a custom domain mapping to a particular application
+     *
+     * @param domains set of domains
+     * @throws RuntimeProvisioningException
+     */
     public void addCustomDomain(Set<String> domains) throws RuntimeProvisioningException;
 
+    /**
+     * Update a certain custom domain mapping for a particular application version
+     *
+     * @param domain domain name
+     * @throws RuntimeProvisioningException
+     */
     public void updateCustomDomain(String domain) throws RuntimeProvisioningException;
 
+    /**
+     * Return custom domain mappings of a certain application version
+     *
+     * @return set of domains
+     * @throws RuntimeProvisioningException
+     */
     public Set<String> getCustomDomains() throws RuntimeProvisioningException;
 
-    public void deleteCustomDomain(String domain)throws RuntimeProvisioningException;
+    /**
+     * Delete a certain custom domain mapping
+     *
+     * @param domain domain name
+     * @throws RuntimeProvisioningException
+     */
+    public void deleteCustomDomain(String domain) throws RuntimeProvisioningException;
 }
