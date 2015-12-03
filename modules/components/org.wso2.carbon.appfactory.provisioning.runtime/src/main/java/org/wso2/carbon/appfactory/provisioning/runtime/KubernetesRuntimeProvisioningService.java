@@ -144,6 +144,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
      */
     private KubernetesClient getKubernetesClient() {
 
+        //todo need to modify config object with master credentials properly
         Config config = new Config();
         config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
         config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
