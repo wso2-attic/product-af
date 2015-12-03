@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
+import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
@@ -136,9 +137,19 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     }
 
-    private KubernetesClient getKubernetesClient(){
+    /**
+     * This method will create a common kubernetes client object with authentication to the Kubernetes master server
+     *
+     * @return Kubernetes client object
+     */
+    private KubernetesClient getKubernetesClient() {
 
-        KubernetesClient kubernetesClient = new DefaultKubernetesClient();
-        return  kubernetesClient;
+        //todo need to modify config object with master credentials properly
+        Config config = new Config();
+        config.setMasterUrl(KubernetesPovisioningConstants.KUB_MASTER_URL);
+        config.setApiVersion(KubernetesPovisioningConstants.KUB_API_VERSION);
+
+        KubernetesClient kubernetesClient = new DefaultKubernetesClient(config);
+        return kubernetesClient;
     }
 }
