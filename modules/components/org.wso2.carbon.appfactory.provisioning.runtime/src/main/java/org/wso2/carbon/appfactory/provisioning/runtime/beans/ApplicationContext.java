@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 
@@ -25,6 +26,11 @@ public class ApplicationContext {
 
     private List<Pod> pods;
     private List<Service> services;
+    private Namespace nameSpace;
+
+    public void setNameSpace(Namespace nameSpace) {
+        this.nameSpace = nameSpace;
+    }
 
     public List<Pod> getPods() {
         return pods;
@@ -40,5 +46,9 @@ public class ApplicationContext {
 
     public void setServices(List<Service> services) {
         this.services = services;
+    }
+
+    public Namespace getNameSpace() {
+        return nameSpace;
     }
 }

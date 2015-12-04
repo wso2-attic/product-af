@@ -21,8 +21,21 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.utils.Base64Encoder;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.wso2.carbon.appfactory.provisioning.runtime.KubernetesPovisioningConstants;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+
+import javax.net.ssl.SSLContext;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -30,12 +43,13 @@ import java.util.List;
  */
 
 public class KubernetesProvisioningUtils {
+
     /**
-     * This method will create a common kubernetes client object with authentication to the Kubernetes master server
+     * This method will create a common Kubernetes client object with authentication to the Kubernetes master server
      *
      * @return Kubernetes client object
      */
-    private KubernetesClient getKubernetesClient() {
+    public static KubernetesClient getFabric8KubernetesClient() {
 
         //todo need to modify config object with master credentials properly
         Config config = new Config();
@@ -46,15 +60,42 @@ public class KubernetesProvisioningUtils {
         return kubernetesClient;
     }
 
-    private List<Pod> getPodsFromApplicationContext(ApplicationContext applicationContext){
+    public static List<Pod> getPodsFromApplicationContext(ApplicationContext applicationContext){
 
         List <Pod> podList = applicationContext.getPods();
         return podList;
     }
 
-    private List<Service> getServicesFromPod(ApplicationContext applicationContext){
+    public static List<Service> getServicesFromPod(ApplicationContext applicationContext){
 
         List <Service> serviceList = applicationContext.getServices();
         return  serviceList;
+    }
+
+    public static HttpGet getHttpGETForKubernetes() {
+        HttpGet httpGet = new HttpGet();
+        String encoding = Base64Encoder.encode(KubernetesPovisioningConstants.MASTER_USERNAME + ":"
+                + KubernetesPovisioningConstants.MASTER_PASSWORD);
+        httpGet.setHeader(KubernetesPovisioningConstants.AUTHORIZATION_HEADER, "Basic " + encoding);
+        return  httpGet;
+    }
+
+    public static HttpClient getHttpClientForKubernetes()
+            throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+
+        //todo handle the rest api authentication compatible with the cloud deployment (current is for vagrant deployment)
+        SSLContext sslcontext = SSLContexts.custom()
+                .loadTrustMaterial(null, new TrustSelfSignedStrategy()).build();
+        // Allow TLSv1 protocol only
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                sslcontext,
+                new String[] { "TLSv1" },
+                null,
+                SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+        CloseableHttpClient httpclient = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .build();
+
+        return httpclient;
     }
 }
