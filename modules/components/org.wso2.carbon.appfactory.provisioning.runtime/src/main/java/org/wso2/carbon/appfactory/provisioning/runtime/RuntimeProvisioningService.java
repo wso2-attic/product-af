@@ -17,7 +17,7 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
 
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 
-import java.io.OutputStream;
+import java.io.BufferedReader;
 import java.util.List;
 import java.util.Set;
 
@@ -129,8 +129,9 @@ public interface RuntimeProvisioningService {
      *
      * @return log out put stream
      * @throws RuntimeProvisioningException
+     * @param ContainerName
      */
-    public OutputStream streamRuntimeLogs() throws RuntimeProvisioningException;
+    public BufferedReader streamRuntimeLogs(String ContainerName) throws RuntimeProvisioningException;
 
     /**
      * Provide snapshot logs

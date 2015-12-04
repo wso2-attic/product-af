@@ -20,7 +20,6 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
@@ -29,7 +28,6 @@ import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -108,8 +106,49 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public OutputStream streamRuntimeLogs() throws RuntimeProvisioningException {
-        return null;
+    public BufferedReader streamRuntimeLogs(String containerName) throws RuntimeProvisioningException {
+
+        Query query = new Query();
+        query.setFollowing("true");
+        URI uri = null;
+
+        HttpGet httpGet = KubernetesProvisioningUtils.getHttpGETForKubernetes();
+        try {
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/" + applicationContext
+                    .getNameSpace().getMetadata().getNamespace() + "/pods/" + containerName + "/log?follow=" + query
+                    .getFollowing() + "&previous=" + query.getPreviousRecords() + "&timestamps=" + query
+                    .getTimeStamp());
+            httpGet.setURI(uri);
+            HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+            HttpResponse response = httpclient.execute(httpGet);
+            BufferedReader logStream = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+            return logStream;
+
+        } catch (URISyntaxException e) {
+            String msg = "Error in url syntax : " + uri + " while getting logs from container : " + containerName;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Error in SSL protocol while connecting to Kubernetes api while getting logs from container : "
+                    + containerName;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
+        } catch (IOException e) {
+            String msg = "Error while reading log stram from container : " + containerName;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(msg, e);
+        } catch (KeyManagementException e) {
+            String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
+                    + containerName;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        } catch (KeyStoreException e) {
+            String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
+                    + containerName;
+            log.error(msg, e);
+            throw new RuntimeProvisioningException(e);
+        }
     }
 
     @Override
@@ -139,17 +178,27 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 logOutPut = record.toString();
 
             } catch (URISyntaxException e) {
-                log.error("Error in url syntax : " + uri, e);
-                throw new RuntimeProvisioningException("Error in url syntax : " + uri, e);
+                String msg = "Error in url syntax : " + uri + " while getting logs from container : " + containerName;
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(msg, e);
             } catch (NoSuchAlgorithmException e) {
+                String msg = "Error in SSL protocol while connecting to Kubernetes api while getting logs from container : "
+                        + containerName;
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(msg, e);
+            } catch (IOException e) {
+                String msg = "Error while reading log stram from container : " + containerName;
+                log.error(msg, e);
+                throw new RuntimeProvisioningException(msg, e);
+            } catch (KeyManagementException e) {
+                String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
+                        + containerName;
+                log.error(msg, e);
                 throw new RuntimeProvisioningException(e);
             } catch (KeyStoreException e) {
-                throw new RuntimeProvisioningException(e);
-            } catch (KeyManagementException e) {
-                throw new RuntimeProvisioningException(e);
-            } catch (ClientProtocolException e) {
-                throw new RuntimeProvisioningException(e);
-            } catch (IOException e) {
+                String msg = "Error creating SSL connection to Kubernetes api while getting logs from container : "
+                        + containerName;
+                log.error(msg, e);
                 throw new RuntimeProvisioningException(e);
             }
 
