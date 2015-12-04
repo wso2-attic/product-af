@@ -17,4 +17,32 @@
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
 public class Query {
+
+    private String following = "false";
+    private String previousRecords = "false";
+    private String timeStamp = "false";
+
+    public String getFollowing() {
+        return following;
+    }
+
+    public String getPreviousRecords() {
+        return previousRecords;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setFollowing(String following) {
+        this.following = following;
+    }
+
+    public void setPreviousRecords(String previousRecords) {
+        this.previousRecords = previousRecords;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 }

@@ -24,4 +24,7 @@ public class KubernetesPovisioningConstants {
     public static final String KUB_MASTER_URL = "";
     public static final String KUB_API_VERSION = "";
 
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static String MASTER_USERNAME;
+    public static String MASTER_PASSWORD;
 }

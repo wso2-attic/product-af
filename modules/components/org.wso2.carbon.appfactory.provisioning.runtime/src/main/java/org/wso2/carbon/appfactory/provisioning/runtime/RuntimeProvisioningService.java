@@ -139,7 +139,7 @@ public interface RuntimeProvisioningService {
      * @return Snapshot logs of application
      * @throws RuntimeProvisioningException
      */
-    public String getRuntimeLogs(Query query) throws RuntimeProvisioningException;
+    public String getRuntimeLogs(Query query, String containerName) throws RuntimeProvisioningException;
 
     /**
      * Set runtime variables

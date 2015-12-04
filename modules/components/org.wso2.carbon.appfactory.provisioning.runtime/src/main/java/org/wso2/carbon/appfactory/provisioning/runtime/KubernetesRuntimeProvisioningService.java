@@ -16,10 +16,25 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime;
 
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Set;
 
@@ -98,8 +113,54 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
     }
 
     @Override
-    public String getRuntimeLogs(Query query) throws RuntimeProvisioningException {
-        return null;
+    public String getRuntimeLogs(Query query, String containerName) throws RuntimeProvisioningException {
+
+        String logOutPut;
+        URI uri = null;
+
+        if (query != null) {
+
+            HttpGet httpGet = KubernetesProvisioningUtils.getHttpGETForKubernetes();
+            try {
+                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/" + applicationContext
+                        .getNameSpace().getMetadata().getNamespace() + "/pods/" + containerName + "/log?&previous="
+                        + query.getPreviousRecords() + "&timestamps=" + query.getTimeStamp());
+                httpGet.setURI(uri);
+                HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+                HttpResponse response = httpclient.execute(httpGet);
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                StringBuffer result = new StringBuffer();
+                String record;
+                while ((record = rd.readLine()) != null) {
+                    result.append(record);
+                }
+
+                logOutPut = record.toString();
+
+            } catch (URISyntaxException e) {
+                log.error("Error in url syntax : " + uri, e);
+                throw new RuntimeProvisioningException("Error in url syntax : " + uri, e);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeProvisioningException(e);
+            } catch (KeyStoreException e) {
+                throw new RuntimeProvisioningException(e);
+            } catch (KeyManagementException e) {
+                throw new RuntimeProvisioningException(e);
+            } catch (ClientProtocolException e) {
+                throw new RuntimeProvisioningException(e);
+            } catch (IOException e) {
+                throw new RuntimeProvisioningException(e);
+            }
+
+        } else {
+            KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
+            logOutPut = kubernetesClient.pods()
+                    .inNamespace(applicationContext.getNameSpace().getMetadata().getNamespace()).withName(containerName)
+                    .getLog(true);
+        }
+
+        return logOutPut;
     }
 
     @Override
