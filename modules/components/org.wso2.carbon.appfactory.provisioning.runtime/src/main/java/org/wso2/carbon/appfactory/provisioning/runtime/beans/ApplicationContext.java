@@ -16,39 +16,90 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
-
 import java.util.List;
 
 public class ApplicationContext {
 
-    private List<Pod> pods;
+    private List<String> containerList;
     private List<Service> services;
-    private Namespace nameSpace;
+    private int tenantId;
+    private String applicationId;
+    private String applicationName;
+    private String applicationVersion;
+    private String tenantDomain;
+    private String currentStage;
+    private String applicationType;
 
-    public void setNameSpace(Namespace nameSpace) {
-        this.nameSpace = nameSpace;
-    }
-
-    public List<Pod> getPods() {
-        return pods;
+    public List<String> getContainerList() {
+        return containerList;
     }
 
     public List<Service> getServices() {
         return services;
     }
 
-    public void setPods(List<Pod> pods) {
-        this.pods = pods;
+    public void setContainerList(List<String> containerList) {
+        this.containerList = containerList;
     }
 
     public void setServices(List<Service> services) {
         this.services = services;
     }
 
-    public Namespace getNameSpace() {
-        return nameSpace;
+    public String getApplicationType() {
+        return applicationType;
+    }
+
+    public int getTenantId() {
+        return tenantId;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public String getApplicationVersion() {
+        return applicationVersion;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public String getCurrentStage() {
+        return currentStage;
+    }
+
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public void setApplicationVersion(String applicationVersion) {
+        this.applicationVersion = applicationVersion;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
+    }
+
+    public void setCurrentStage(String currentStage) {
+        this.currentStage = currentStage;
+    }
+
+    public void setApplicationType(String applicationType) {
+        this.applicationType = applicationType;
     }
 }

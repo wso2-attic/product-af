@@ -16,7 +16,7 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.Utils;
 
-import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -60,9 +60,9 @@ public class KubernetesProvisioningUtils {
         return kubernetesClient;
     }
 
-    public static List<Pod> getPodsFromApplicationContext(ApplicationContext applicationContext){
+    public static List<String> getPodsFromApplicationContext(ApplicationContext applicationContext){
 
-        List <Pod> podList = applicationContext.getPods();
+        List<String> podList = applicationContext.getContainerList();
         return podList;
     }
 
@@ -97,5 +97,12 @@ public class KubernetesProvisioningUtils {
                 .build();
 
         return httpclient;
+    }
+
+    public static Namespace getNameSpace(ApplicationContext applicationContext) {
+        Namespace namespace = new Namespace();
+        namespace.getMetadata()
+                .setNamespace(applicationContext.getTenantDomain() + "-" + applicationContext.getCurrentStage());
+        return namespace;
     }
 }

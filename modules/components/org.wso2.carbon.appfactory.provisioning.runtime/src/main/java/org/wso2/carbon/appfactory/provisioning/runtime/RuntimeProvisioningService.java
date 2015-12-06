@@ -19,6 +19,7 @@ import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 
 import java.io.BufferedReader;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface RuntimeProvisioningService {
@@ -129,9 +130,8 @@ public interface RuntimeProvisioningService {
      *
      * @return log out put stream
      * @throws RuntimeProvisioningException
-     * @param ContainerName
      */
-    public BufferedReader streamRuntimeLogs(String ContainerName) throws RuntimeProvisioningException;
+    public Map<String,BufferedReader> streamRuntimeLogs() throws RuntimeProvisioningException;
 
     /**
      * Provide snapshot logs
@@ -140,7 +140,7 @@ public interface RuntimeProvisioningService {
      * @return Snapshot logs of application
      * @throws RuntimeProvisioningException
      */
-    public String getRuntimeLogs(Query query, String containerName) throws RuntimeProvisioningException;
+    public Map<String, String> getRuntimeLogs(Query query) throws RuntimeProvisioningException;
 
     /**
      * Set runtime variables
