@@ -39,29 +39,25 @@ var result = {};
     }
 	if (action == "getDatabaseUsers") {
 		mod = jagg.module("resources");
-		var applicationKey = request.getParameter("applicationKey");
-
+        var applicationKey = request.getParameter("applicationKey");
         result = {};
         var deploymentStages = getProperties(DEPLOYMENT_STAGES);
-        for(var i=0;i<deploymentStages.length;i++){
+        for(var i=0;i<deploymentStages.length;i++) {
             //if user has access to stage
-            var hasPermission = modPermission.isUserAccessGranted(applicationKey,
-            		PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
-            if(hasPermission){
-                try {
-                    result =  mod.getDatabaseUsers(applicationKey);
-                    print(result);
-                } catch(e) {
-                    throw "Error while reading the database users";
-                }
-            } else {
+            var hasPermission = modPermission.isUserAccessGranted(applicationKey, PERMISSION_RESOURCES_READ_FOR_STAGE + deploymentStages[i]);
+            if(!hasPermission) {
                 result.result = 0;
                 result.message = "You don't have permission to get database users";
                 print(result);
             }
         }
-
-	}else if(action == "getDatabaseUsersForRssInstance"){
+        try {
+            result =  mod.getDatabaseUsers(applicationKey);
+            print(result);
+        } catch(e) {
+            throw "Error while reading the database users";
+        }
+	} else if(action == "getDatabaseUsersForRssInstance") {
 		mod = jagg.module("resources");
 		var applicationKey = request.getParameter("applicationKey");
 		var rssInstance = request.getParameter("rssInstance");
