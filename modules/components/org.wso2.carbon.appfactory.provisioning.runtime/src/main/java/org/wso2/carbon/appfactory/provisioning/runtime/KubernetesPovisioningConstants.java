@@ -34,4 +34,7 @@ public class KubernetesPovisioningConstants {
     public static final String HTTP_DELETE = "DELETE";
 
     public static final String AUTHORIZATION_BASIC = "Basic";
+
+    public static final String NAMESPACE_KIND = "Namespace";
+    public static final String DEPLOYMENT_KIND = "Deployment";
 }

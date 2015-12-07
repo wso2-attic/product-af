@@ -27,6 +27,8 @@ public class Container {
     private String serviceUrl;
     private Map<String,String> envVariables;
     private String probe;
+    private Integer hostPort;
+    private Integer containerPort;
 
     public String getBaseImageName() {
         return baseImageName;
@@ -82,5 +84,13 @@ public class Container {
 
     public void setProbe(String probe) {
         this.probe = probe;
+    }
+
+    public Integer getHostPort() {
+        return hostPort;
+    }
+
+    public Integer getContainerPort() {
+        return containerPort;
     }
 }

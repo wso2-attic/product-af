@@ -18,9 +18,9 @@ package org.wso2.carbon.appfactory.provisioning.runtime;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.fabric8.kubernetes.api.model.IntOrString;
-import io.fabric8.kubernetes.api.model.extensions.Ingress;
-import io.fabric8.kubernetes.api.model.extensions.IngressBuilder;
+import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.extensions.*;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +34,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,10 +45,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class will implement the runtime provisioning service specific to Kubernetes
@@ -110,6 +108,52 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
     @Override
     public List<String> deployApplication(DeploymentConfig config) throws RuntimeProvisioningException {
+
+        List<Container> containers = config.getContainers();
+        ArrayList<io.fabric8.kubernetes.api.model.Container> kubContainerList = new ArrayList<>();
+
+        for(Container container : containers) {
+            io.fabric8.kubernetes.api.model.Container kubContainer = new io.fabric8.kubernetes.api.model.Container();
+            kubContainer.setName(container.getBaseImageName());
+            kubContainer.setImage(container.getBaseImageName()+":"+container.getBaseImageVersion());
+            ContainerPort kubContainerPort = new ContainerPortBuilder()
+                    .withContainerPort(container.getContainerPort())
+                    .withHostPort(container.getHostPort())
+                    .build();
+            List<ContainerPort> containerPorts = new ArrayList<>();
+            containerPorts.add(kubContainerPort);
+            kubContainer.setPorts(containerPorts);
+            kubContainerList.add(kubContainer);
+        }
+
+        PodSpec podSpec = new PodSpecBuilder()
+                .withContainers(kubContainerList)
+                .build();
+
+        PodTemplateSpec podTemplateSpec = new PodTemplateSpecBuilder()
+                .withMetadata(new ObjectMetaBuilder().withLabels(config.getLables()).build())
+                .withSpec(podSpec)
+                .build();
+
+        DeploymentSpec deploymentSpec = new DeploymentSpecBuilder()
+                .withReplicas(config.getReplicas())
+                .withTemplate(podTemplateSpec)
+                .build();
+
+        Deployment deployment = new DeploymentBuilder().withApiVersion(Deployment.ApiVersion.EXTENSIONS_V_1_BETA_1)
+                .withKind(KubernetesPovisioningConstants.DEPLOYMENT_KIND)
+                .withMetadata(new ObjectMetaBuilder().withName(config.getDeploymentName()).build())
+                .withSpec(deploymentSpec)
+                .build();
+
+        DefaultKubernetesClient kubClient = new DefaultKubernetesClient();
+        DeploymentList deploymentList = kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().list();
+
+        if(deploymentList.getItems().contains(deployment)){
+            kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().withName(config.getDeploymentName()).create(deployment);
+        } else {
+            kubClient.inNamespace(applicationContext.getTenantDomain()).extensions().deployments().create(deployment);
+        }
         return null;
     }
 
