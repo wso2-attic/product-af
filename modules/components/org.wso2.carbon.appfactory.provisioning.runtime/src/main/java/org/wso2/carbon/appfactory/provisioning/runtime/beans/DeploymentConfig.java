@@ -16,7 +16,6 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
-import io.fabric8.kubernetes.api.model.Container;
 import java.util.List;
 import java.util.Map;
 

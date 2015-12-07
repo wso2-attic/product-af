@@ -234,6 +234,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         } else {
             KubernetesClient kubernetesClient = KubernetesProvisioningUtils.getFabric8KubernetesClient();
             for (String containerName : applicationContext.getContainerList()) {
+                kubernetesClient.extensions().deployments().get().getSpec().getTemplate().getMetadata().getName();
                 String logs = kubernetesClient.pods().inNamespace(
                         KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace())
                         .withName(containerName).getLog(true);
