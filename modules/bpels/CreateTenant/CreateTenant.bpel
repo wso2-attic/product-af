@@ -221,6 +221,13 @@
                         
                         </bpel:copy>
                         <bpel:copy><bpel:from part="payload" variable="input">
+                            <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[tns:lastName]]></bpel:query>
+                            </bpel:from>
+                            <bpel:to part="parameters" variable="AppFactoryTenantInfraStructureInitializerServicePLRequestDev">
+                                <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0"><![CDATA[ns0:bean/xsd:lastname]]></bpel:query>
+                            </bpel:to>
+                        </bpel:copy>
+                        <bpel:copy><bpel:from part="payload" variable="input">
                                 <bpel:query queryLanguage="urn:oasis:names:tc:wsbpel:2.0:sublang:xpath1.0">
                                     <![CDATA[tns:tenantDomain]]>
                                 </bpel:query>
