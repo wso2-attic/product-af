@@ -16,6 +16,50 @@
 
 package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
+import io.fabric8.kubernetes.api.model.Container;
+import java.util.List;
+import java.util.Map;
 
 public class DeploymentConfig {
+
+    private String deploymentName;
+    private Integer replicas;
+    private Map<String, String> podTemplateSpecLabels;
+    private List<Container> containers;
+
+    public void setDeploymentName(String deploymentName) {
+        this.deploymentName = deploymentName;
+    }
+
+    public void setReplicas(Integer replicas) {
+        this.replicas = replicas;
+    }
+
+    public void setPodTemplateSpecLables(Map<String, String> podTemplateSpecLabels) {
+        this.podTemplateSpecLabels = podTemplateSpecLabels;
+    }
+
+    public void setContainers(Container container){
+        this.containers.add(container);
+    }
+
+    public void setContainers(List<Container> containers) {
+        this.containers = containers;
+    }
+
+    public String getDeploymentName() {
+        return deploymentName;
+    }
+
+    public Integer getReplicas() {
+        return replicas;
+    }
+
+    public Map<String, String> getPodTemplateSpecLables() {
+        return podTemplateSpecLabels;
+    }
+
+    public List<Container> getContainers() {
+        return containers;
+    }
 }
