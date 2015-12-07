@@ -44,6 +44,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -117,24 +118,26 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         return false;
     }
 
-    @Override public Map<String, BufferedReader> streamRuntimeLogs() throws RuntimeProvisioningException {
+    @Override
+    public Map<String, BufferedReader> streamRuntimeLogs() throws RuntimeProvisioningException {
 
-        Query query = new Query();
-        query.setFollowing("true");
-        Map<String, BufferedReader> logOutPut = null;
+        Query query = new Query(true,0,0);
+
+        Map<String, BufferedReader> logOutPut = new HashMap<String, BufferedReader>();
         URI uri = null;
+        HttpClient httpclient = null;
 
         for (String containerName : applicationContext.getContainerList()) {
 
             try {
                 uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
                         + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
-                        + "/pods/" + containerName + "/log?follow=" + query.getFollowing() + "&previous=" + query
-                        .getPreviousRecords() + "&timestamps=" + query.getTimeStamp());
+                        + "/pods/" + containerName + "/log?follow=" + String.valueOf(query.getIsFollowing()));
 
-                HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
+                HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
+                        .getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
                 httpGet.setURI(uri);
-                HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+                httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                 HttpResponse response = httpclient.execute(httpGet);
                 BufferedReader logStream = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
@@ -151,7 +154,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 log.error(msg, e);
                 throw new RuntimeProvisioningException(msg, e);
             } catch (IOException e) {
-                String msg = "Error while reading log stram from container : " + containerName;
+                String msg = "Error while reading log stream from container : " + containerName;
                 log.error(msg, e);
                 throw new RuntimeProvisioningException(msg, e);
             } catch (KeyManagementException e) {
@@ -164,15 +167,19 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         + containerName;
                 log.error(msg, e);
                 throw new RuntimeProvisioningException(e);
+            }finally {
+                httpclient.getConnectionManager().shutdown();
             }
         }
         return logOutPut;
     }
 
-    @Override public Map<String, String> getRuntimeLogs(Query query) throws RuntimeProvisioningException {
+    @Override
+    public Map<String, String> getRuntimeLogs(Query query) throws RuntimeProvisioningException {
 
-        Map<String, String> logOutPut = null;
+        Map<String, String> logOutPut = new HashMap<String, String>();
         URI uri = null;
+        HttpClient httpclient = null;
 
         if (query != null) {
 
@@ -180,11 +187,13 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 try {
                     uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "api/v1/namespaces/"
                             + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
-                            + "/pods/" + containerName + "/log?&previous=" + query.getPreviousRecords() + "&timestamps="
-                            + query.getTimeStamp());
-                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
+                            + "/pods/" + containerName + "/log?&previous=" + String
+                            .valueOf(query.getPreviousRecordsCount()) + "&timestamps=" + String
+                            .valueOf(query.getDurationInHours()));
+                    HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
+                            .getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
                     httpGet.setURI(uri);
-                    HttpClient httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
+                    httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                     HttpResponse response = httpclient.execute(httpGet);
                     BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
                     StringBuffer result = new StringBuffer();
@@ -218,6 +227,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             + containerName;
                     log.error(msg, e);
                     throw new RuntimeProvisioningException(e);
+                }finally {
+                    httpclient.getConnectionManager().shutdown();
                 }
             }
         } else {
@@ -256,7 +267,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         URI uri = null;
 
         ObjectMapper objectMapper = new ObjectMapper();
-        String ingJson = null;
+        String ingJson;
 
         for (String domain : domains) {
             Ingress ing = new IngressBuilder()
@@ -307,8 +318,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                     log.debug("addCustomDomain response: " + response.getEntity().getContent());
                 }
 
-                httpclient.getConnectionManager().shutdown();
-
             } catch (JsonProcessingException e) {
                 String msg = "Exception in converting the ingress object to json";
                 log.error(msg, e);
@@ -340,6 +349,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 String msg = "Connection exception while connecting to Kubernetes cluster";
                 log.error(msg, e);
                 throw new RuntimeProvisioningException(e);
+            }finally {
+                httpclient.getConnectionManager().shutdown();
             }
         }
     }
@@ -350,7 +361,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         HttpClient httpclient = null;
         URI uri = null;
         String ingressName = null;
-        String ingJson = null;
+        String ingJson;
         ObjectMapper objectMapper = new ObjectMapper();
 
         Ingress ing = new IngressBuilder()
@@ -396,8 +407,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             if (log.isDebugEnabled()) {
                 log.debug("addCustomDomain response: " + response.getEntity().getContent());
             }
-
-            httpclient.getConnectionManager().shutdown();
         } catch (JsonProcessingException e) {
             String msg = "Exception in converting the ingress object to json";
             log.error(msg, e);
@@ -429,8 +438,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             String msg = "Connection exception while connecting to Kubernetes cluster";
             log.error(msg, e);
             throw new RuntimeProvisioningException(e);
+        }finally {
+            httpclient.getConnectionManager().shutdown();
         }
-
     }
 
     @Override
@@ -455,8 +465,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 throw new RuntimeProvisioningException("Failed to get domain mappings: HTTP error code : "
                                                        + response.getStatusLine().getStatusCode());
             }
-
-            httpclient.getConnectionManager().shutdown();
         } catch (KeyStoreException e) {
             String msg = "Error in keystore while connecting to Kubernetes cluster";
             log.error(msg, e);
@@ -484,8 +492,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             String msg = "Connection exception while connecting to Kubernetes cluster";
             log.error(msg, e);
             throw new RuntimeProvisioningException(e);
+        }finally {
+            httpclient.getConnectionManager().shutdown();
         }
-
         return null;
     }
 
@@ -509,8 +518,6 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                 throw new RuntimeProvisioningException("Failed to delete domain mapping: HTTP error code : "
                                                        + response.getStatusLine().getStatusCode());
             }
-
-            httpclient.getConnectionManager().shutdown();
         } catch (KeyStoreException e) {
             String msg = "Error in keystore while connecting to Kubernetes cluster";
             log.error(msg, e);
@@ -538,6 +545,8 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
             String msg = "Connection exception while connecting to Kubernetes cluster";
             log.error(msg, e);
             throw new RuntimeProvisioningException(e);
+        }finally {
+            httpclient.getConnectionManager().shutdown();
         }
     }
 }

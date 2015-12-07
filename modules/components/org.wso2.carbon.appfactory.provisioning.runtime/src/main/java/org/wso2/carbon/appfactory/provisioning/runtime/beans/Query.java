@@ -18,31 +18,37 @@ package org.wso2.carbon.appfactory.provisioning.runtime.beans;
 
 public class Query {
 
-    private String following = "false";
-    private String previousRecords = "false";
-    private String timeStamp = "false";
+    private boolean isFollowing = false;
+    private int previousRecordsCount = -1;
+    private int durationInHours = -1;
 
-    public String getFollowing() {
-        return following;
+    public Query(boolean isFollowing, int previousRecords, int timeStamp) {
+        this.isFollowing = isFollowing;
+        this.previousRecordsCount = previousRecords;
+        this.durationInHours = timeStamp;
     }
 
-    public String getPreviousRecords() {
-        return previousRecords;
+    public boolean getIsFollowing() {
+        return isFollowing;
     }
 
-    public String getTimeStamp() {
-        return timeStamp;
+    public int getPreviousRecordsCount() {
+        return previousRecordsCount;
     }
 
-    public void setFollowing(String following) {
-        this.following = following;
+    public int getDurationInHours() {
+        return durationInHours;
     }
 
-    public void setPreviousRecords(String previousRecords) {
-        this.previousRecords = previousRecords;
+    public void setIsFollowing(boolean following) {
+        this.isFollowing = following;
     }
 
-    public void setTimeStamp(String timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setPreviousRecordsCount(int previousRecordsCount) {
+        this.previousRecordsCount = previousRecordsCount;
+    }
+
+    public void setDurationInHours(int durationInHours) {
+        this.durationInHours = durationInHours;
     }
 }
