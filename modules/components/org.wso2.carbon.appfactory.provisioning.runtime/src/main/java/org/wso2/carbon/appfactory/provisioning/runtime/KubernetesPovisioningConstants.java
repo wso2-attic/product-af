@@ -30,6 +30,8 @@ public class KubernetesPovisioningConstants {
 
     public static final String AUTHORIZATION_BASIC = "Basic";
 
+    public static final String NAMESPACE_KIND = "Namespace";
+    public static final String DEPLOYMENT_KIND = "Deployment";
     public static final String INGRESS_API_NAMESPACE_RESOURCE_PATH = "apis/extensions/v1beta1/namespaces/";
     public static final String INGRESS_API_RESOURCE_PATH_SUFFIX = "/ingresses/";
     public static final String MIME_TYPE_JSON = "application/json";

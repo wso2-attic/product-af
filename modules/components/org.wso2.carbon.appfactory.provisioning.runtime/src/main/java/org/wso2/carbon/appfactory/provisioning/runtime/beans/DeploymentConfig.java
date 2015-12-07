@@ -23,7 +23,7 @@ public class DeploymentConfig {
 
     private String deploymentName;
     private Integer replicas;
-    private Map<String, String> podTemplateSpecLabels;
+    private Map<String, String> labels;
     private List<Container> containers;
 
     public void setDeploymentName(String deploymentName) {
@@ -34,8 +34,8 @@ public class DeploymentConfig {
         this.replicas = replicas;
     }
 
-    public void setPodTemplateSpecLables(Map<String, String> podTemplateSpecLabels) {
-        this.podTemplateSpecLabels = podTemplateSpecLabels;
+    public void setLables(Map<String, String> podTemplateSpecLabels) {
+        this.labels = podTemplateSpecLabels;
     }
 
     public void setContainers(Container container){
@@ -54,8 +54,8 @@ public class DeploymentConfig {
         return replicas;
     }
 
-    public Map<String, String> getPodTemplateSpecLables() {
-        return podTemplateSpecLabels;
+    public Map<String, String> getLables() {
+        return labels;
     }
 
     public List<Container> getContainers() {
