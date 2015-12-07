@@ -22,8 +22,10 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.extensions.*;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -33,8 +35,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.wso2.carbon.appfactory.provisioning.runtime.Utils.KubernetesProvisioningUtils;
-import org.wso2.carbon.appfactory.provisioning.runtime.beans.*;
 import org.wso2.carbon.appfactory.provisioning.runtime.beans.Container;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.ApplicationContext;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.BuildConfiguration;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.DeploymentConfig;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.Query;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.RuntimeProperty;
+import org.wso2.carbon.appfactory.provisioning.runtime.beans.TenantInfo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -179,7 +186,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                         + "/pods/" + containerName + "/log?follow=" + String.valueOf(query.getIsFollowing()));
 
                 HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
-                        .getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
+                        .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
                 httpGet.setURI(uri);
                 httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                 HttpResponse response = httpclient.execute(httpGet);
@@ -235,7 +242,7 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
                             .valueOf(query.getPreviousRecordsCount()) + "&timestamps=" + String
                             .valueOf(query.getDurationInHours()));
                     HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils
-                            .getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
+                            .getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
                     httpGet.setURI(uri);
                     httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
                     HttpResponse response = httpclient.execute(httpGet);
@@ -317,9 +324,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         for (String domain : domains) {
             Ingress ing = new IngressBuilder()
                     .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
-                    .withKind("Ingress")
+                    .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNewMetadata()
-                    .withName("ingress")
+                    .withName(KubernetesPovisioningConstants.KIND_INGRESS)
                     .withNamespace("dev-tom")
                     .endMetadata()
                     .withNewSpec().addNewRule()
@@ -344,17 +351,17 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
 
                 StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+                uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                               +KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
-                              + "/ingresses/");
+                              + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
 
-                HttpPost httpPost = (HttpPost) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_POST, uri);
-                httpPost.addHeader("Content-Type", "application/json");
+                HttpPost httpPost = (HttpPost) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpPost.METHOD_NAME, uri);
+                httpPost.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
                 httpPost.setEntity(stringEntity);
 
                 HttpResponse response = httpclient.execute(httpPost);
 
-                if (response.getStatusLine().getStatusCode() != 200) {
+                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                     throw new RuntimeProvisioningException("Failed to add domain mapping Domain: " + domains + "HTTP error code : "
                                                            + response.getStatusLine().getStatusCode());
                 }
@@ -411,9 +418,9 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
         Ingress ing = new IngressBuilder()
                 .withApiVersion(Ingress.ApiVersion.EXTENSIONS_V_1_BETA_1)
-                .withKind("Ingress")
+                .withKind(KubernetesPovisioningConstants.KIND_INGRESS)
                 .withNewMetadata()
-                .withName("ingress")
+                .withName(KubernetesPovisioningConstants.KIND_INGRESS)
                 .withNamespace("dev-tom")
                 .endMetadata()
                 .withNewSpec().addNewRule()
@@ -433,18 +440,18 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
 
             ingJson = objectMapper.writeValueAsString(ing);
             StringEntity stringEntity = new StringEntity(ingJson, "UTF-8");
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                           + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
-                          + "/ingresses/" + ingressName);
+                          + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX + ingressName);
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            HttpPut httpPut = (HttpPut) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_PUT, uri);
-            httpPut.addHeader("Content-Type", "application/json");
+            HttpPut httpPut = (HttpPut) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpPut.METHOD_NAME, uri);
+            httpPut.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
             httpPut.setEntity(stringEntity);
 
             HttpResponse response = httpclient.execute(httpPut);
 
-            if (response.getStatusLine().getStatusCode() != 200) {
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new RuntimeProvisioningException("Failed to update domain mapping Domain: " + domain + "HTTP error code : "
                                                        + response.getStatusLine().getStatusCode());
             }
@@ -497,16 +504,16 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         try {
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                           + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
-                          + "/ingresses/");
+                          + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
 
-            HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_GET, uri);
-            httpGet.addHeader("Content-Type", "application/json");
+            HttpGet httpGet = (HttpGet) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpGet.METHOD_NAME, uri);
+            httpGet.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
 
             HttpResponse response = httpclient.execute(httpGet);
 
-            if (response.getStatusLine().getStatusCode() != 200) {
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new RuntimeProvisioningException("Failed to get domain mappings: HTTP error code : "
                                                        + response.getStatusLine().getStatusCode());
             }
@@ -551,15 +558,15 @@ public class KubernetesRuntimeProvisioningService implements RuntimeProvisioning
         try {
 
             httpclient = KubernetesProvisioningUtils.getHttpClientForKubernetes();
-            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + "apis/extensions/v1beta1/namespaces/"
+            uri = new URI(KubernetesPovisioningConstants.KUB_MASTER_URL + KubernetesPovisioningConstants.INGRESS_API_NAMESPACE_RESOURCE_PATH
                           + KubernetesProvisioningUtils.getNameSpace(applicationContext).getMetadata().getNamespace()
-                          + "/ingresses/");
-            HttpDelete httpDelete = (HttpDelete) KubernetesProvisioningUtils.getHttpMethodForKubernetes(KubernetesPovisioningConstants.HTTP_DELETE, uri);
-            httpDelete.addHeader("Content-Type", "application/json");
+                          + KubernetesPovisioningConstants.INGRESS_API_RESOURCE_PATH_SUFFIX);
+            HttpDelete httpDelete = (HttpDelete) KubernetesProvisioningUtils.getHttpMethodForKubernetes(HttpDelete.METHOD_NAME, uri);
+            httpDelete.addHeader(HttpHeaders.CONTENT_TYPE, KubernetesPovisioningConstants.MIME_TYPE_JSON);
 
             HttpResponse response = httpclient.execute(httpDelete);
 
-            if (response.getStatusLine().getStatusCode() != 200) {
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new RuntimeProvisioningException("Failed to delete domain mapping: HTTP error code : "
                                                        + response.getStatusLine().getStatusCode());
             }
